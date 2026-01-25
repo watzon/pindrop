@@ -26,7 +26,6 @@ final class HotkeyManagerTests: XCTestCase {
     // MARK: - Registration Tests
     
     func testRegisterHotkey() {
-        // Given: A hotkey configuration for Option+Space
         let expectation = XCTestExpectation(description: "Hotkey registered successfully")
         var callbackInvoked = false
         
@@ -34,15 +33,13 @@ final class HotkeyManagerTests: XCTestCase {
             callbackInvoked = true
         }
         
-        // When: Registering the hotkey
         let result = hotkeyManager.registerHotkey(
-            keyCode: 49, // Space key
+            keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
-            callback: callback
+            onKeyDown: callback
         )
         
-        // Then: Registration should succeed
         XCTAssertTrue(result, "Hotkey registration should succeed")
         XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should be registered")
         
@@ -51,26 +48,25 @@ final class HotkeyManagerTests: XCTestCase {
     }
     
     func testRegisterMultipleHotkeys() {
-        // Given: Two different hotkey configurations
         let callback1: () -> Void = {}
         let callback2: () -> Void = {}
         
-        // When: Registering both hotkeys
         let result1 = hotkeyManager.registerHotkey(
-            keyCode: 49, // Space
+            keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
-            callback: callback1
+            onKeyDown: callback1
         )
         
         let result2 = hotkeyManager.registerHotkey(
-            keyCode: 50, // Backtick
+            keyCode: 50,
             modifiers: [.command, .shift],
             identifier: "pushToTalk",
-            callback: callback2
+            mode: .pushToTalk,
+            onKeyDown: callback2,
+            onKeyUp: callback2
         )
         
-        // Then: Both should be registered
         XCTAssertTrue(result1, "First hotkey should register")
         XCTAssertTrue(result2, "Second hotkey should register")
         XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
@@ -78,43 +74,37 @@ final class HotkeyManagerTests: XCTestCase {
     }
     
     func testRegisterDuplicateIdentifier() {
-        // Given: A registered hotkey
         let callback: () -> Void = {}
         _ = hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
-            callback: callback
+            onKeyDown: callback
         )
         
-        // When: Attempting to register another hotkey with the same identifier
         let result = hotkeyManager.registerHotkey(
             keyCode: 50,
             modifiers: [.command],
             identifier: "toggle",
-            callback: callback
+            onKeyDown: callback
         )
         
-        // Then: Registration should fail
         XCTAssertFalse(result, "Duplicate identifier registration should fail")
     }
     
     // MARK: - Unregistration Tests
     
     func testUnregisterHotkey() {
-        // Given: A registered hotkey
         let callback: () -> Void = {}
         _ = hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
-            callback: callback
+            onKeyDown: callback
         )
         
-        // When: Unregistering the hotkey
         let result = hotkeyManager.unregisterHotkey(identifier: "toggle")
         
-        // Then: Unregistration should succeed
         XCTAssertTrue(result, "Hotkey unregistration should succeed")
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should no longer be registered")
     }
@@ -128,15 +118,12 @@ final class HotkeyManagerTests: XCTestCase {
     }
     
     func testUnregisterAll() {
-        // Given: Multiple registered hotkeys
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(keyCode: 49, modifiers: [.option], identifier: "toggle", callback: callback)
-        _ = hotkeyManager.registerHotkey(keyCode: 50, modifiers: [.command], identifier: "pushToTalk", callback: callback)
+        _ = hotkeyManager.registerHotkey(keyCode: 49, modifiers: [.option], identifier: "toggle", onKeyDown: callback)
+        _ = hotkeyManager.registerHotkey(keyCode: 50, modifiers: [.command], identifier: "pushToTalk", onKeyDown: callback)
         
-        // When: Unregistering all hotkeys
         hotkeyManager.unregisterAll()
         
-        // Then: No hotkeys should be registered
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
     }
@@ -144,19 +131,16 @@ final class HotkeyManagerTests: XCTestCase {
     // MARK: - Configuration Tests
     
     func testGetHotkeyConfiguration() {
-        // Given: A registered hotkey
         let callback: () -> Void = {}
         _ = hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
-            callback: callback
+            onKeyDown: callback
         )
         
-        // When: Getting the configuration
         let config = hotkeyManager.getHotkeyConfiguration(identifier: "toggle")
         
-        // Then: Configuration should match
         XCTAssertNotNil(config, "Configuration should exist")
         XCTAssertEqual(config?.keyCode, 49)
         XCTAssertEqual(config?.modifiers, [.option])
@@ -188,5 +172,117 @@ final class HotkeyManagerTests: XCTestCase {
             let carbonFlags = hotkeyManager.convertToCarbonModifiers(flags)
             XCTAssertEqual(carbonFlags, expected, "Modifier conversion failed for \(flags)")
         }
+    }
+    
+    // MARK: - Push-to-Talk Tests
+    
+    func testPushToTalkKeyDown() {
+        var keyDownCalled = false
+        var keyUpCalled = false
+        
+        let onKeyDown: () -> Void = {
+            keyDownCalled = true
+        }
+        
+        let onKeyUp: () -> Void = {
+            keyUpCalled = true
+        }
+        
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 50,
+            modifiers: [.command],
+            identifier: "pushToTalk",
+            mode: .pushToTalk,
+            onKeyDown: onKeyDown,
+            onKeyUp: onKeyUp
+        )
+        
+        XCTAssertTrue(result, "Push-to-talk hotkey registration should succeed")
+        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
+        
+        let config = hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
+        XCTAssertNotNil(config)
+        XCTAssertEqual(config?.mode, .pushToTalk)
+        XCTAssertNotNil(config?.onKeyDown)
+        XCTAssertNotNil(config?.onKeyUp)
+    }
+    
+    func testPushToTalkKeyUp() {
+        var keyDownCount = 0
+        var keyUpCount = 0
+        
+        let onKeyDown: () -> Void = {
+            keyDownCount += 1
+        }
+        
+        let onKeyUp: () -> Void = {
+            keyUpCount += 1
+        }
+        
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 50,
+            modifiers: [.command],
+            identifier: "pushToTalk",
+            mode: .pushToTalk,
+            onKeyDown: onKeyDown,
+            onKeyUp: onKeyUp
+        )
+        
+        XCTAssertTrue(result, "Push-to-talk hotkey registration should succeed")
+        
+        let config = hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
+        XCTAssertNotNil(config)
+        XCTAssertEqual(config?.mode, .pushToTalk)
+    }
+    
+    func testToggleModeBackwardCompatibility() {
+        var callbackInvoked = false
+        
+        let callback: () -> Void = {
+            callbackInvoked = true
+        }
+        
+        let config = HotkeyManager.HotkeyConfiguration(
+            keyCode: 49,
+            modifiers: [.option],
+            identifier: "toggle",
+            callback: callback
+        )
+        
+        XCTAssertEqual(config.mode, .toggle)
+        XCTAssertNotNil(config.onKeyDown)
+        XCTAssertNil(config.onKeyUp)
+    }
+    
+    func testPushToTalkModeConfiguration() {
+        var keyDownCalled = false
+        var keyUpCalled = false
+        
+        let onKeyDown: () -> Void = {
+            keyDownCalled = true
+        }
+        
+        let onKeyUp: () -> Void = {
+            keyUpCalled = true
+        }
+        
+        let config = HotkeyManager.HotkeyConfiguration(
+            keyCode: 50,
+            modifiers: [.command],
+            identifier: "pushToTalk",
+            mode: .pushToTalk,
+            onKeyDown: onKeyDown,
+            onKeyUp: onKeyUp
+        )
+        
+        XCTAssertEqual(config.mode, .pushToTalk)
+        XCTAssertNotNil(config.onKeyDown)
+        XCTAssertNotNil(config.onKeyUp)
+        
+        config.onKeyDown?()
+        XCTAssertTrue(keyDownCalled)
+        
+        config.onKeyUp?()
+        XCTAssertTrue(keyUpCalled)
     }
 }

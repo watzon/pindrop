@@ -352,3 +352,42 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - **Output Format**: Request only enhanced text without commentary
 - **Token Limit**: Set reasonable max_tokens (2048) for typical transcription lengths
 
+
+## Push-to-Talk Hotkey Implementation (2026-01-25)
+
+### Carbon Event Key Down/Up Detection
+- GetEventKind(event) returns event type: kEventHotKeyPressed or kEventHotKeyReleased
+- Event handler receives both press and release events when registered for both EventTypeSpecs
+- Must distinguish between key down and key up in handleHotkeyEvent using eventKind comparison
+- EventTypeSpec array includes both kEventHotKeyPressed and kEventHotKeyReleased for full lifecycle
+
+### Push-to-Talk Mode Architecture
+- Added HotkeyMode enum with .toggle and .pushToTalk cases
+- HotkeyConfiguration now has mode, onKeyDown, and onKeyUp optional closures
+- Backward compatibility maintained with convenience init for toggle mode (single callback)
+- Push-to-talk mode requires both onKeyDown and onKeyUp callbacks
+
+### Edge Case Handling for Key Events
+- Track isKeyCurrentlyPressed state per hotkey to prevent duplicate key down events
+- Ignore repeated key down events when key is already pressed (OS key repeat)
+- Update state on both key down and key up events
+- State tracking prevents callback spam during key hold
+
+### Testing Push-to-Talk Functionality
+- testPushToTalkKeyDown: Verifies registration with mode, onKeyDown, onKeyUp
+- testPushToTalkKeyUp: Validates configuration retrieval for push-to-talk mode
+- testToggleModeBackwardCompatibility: Ensures old API still works with convenience init
+- testPushToTalkModeConfiguration: Tests direct HotkeyConfiguration creation and callback invocation
+- Tests verify mode, callback presence, and proper initialization
+
+### API Design Patterns
+- Default parameters for mode (.toggle), onKeyDown (nil), onKeyUp (nil) in registerHotkey
+- Convenience initializer for toggle mode maintains backward compatibility
+- Explicit initializer for push-to-talk mode requires all parameters
+- Optional closures allow flexible callback configuration
+
+### Gotchas
+- Must update registeredHotkeys dictionary after modifying isKeyCurrentlyPressed (value type)
+- GetEventKind returns UInt32, must compare with UInt32(kEventHotKeyPressed/Released)
+- Switch statement on mode determines which callbacks to invoke
+- Thread safety maintained with DispatchQueue.main.async for all callbacks

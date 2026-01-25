@@ -11,6 +11,11 @@ import os.log
 
 final class HotkeyManager {
     
+    enum HotkeyMode {
+        case toggle
+        case pushToTalk
+    }
+    
     struct ModifierFlags: OptionSet {
         let rawValue: UInt32
         
@@ -24,13 +29,36 @@ final class HotkeyManager {
         let keyCode: UInt32
         let modifiers: ModifierFlags
         let identifier: String
-        let callback: () -> Void
+        let mode: HotkeyMode
+        let onKeyDown: (() -> Void)?
+        let onKeyUp: (() -> Void)?
+        
+        // Convenience initializer for toggle mode (backward compatibility)
+        init(keyCode: UInt32, modifiers: ModifierFlags, identifier: String, callback: @escaping () -> Void) {
+            self.keyCode = keyCode
+            self.modifiers = modifiers
+            self.identifier = identifier
+            self.mode = .toggle
+            self.onKeyDown = callback
+            self.onKeyUp = nil
+        }
+        
+        // Initializer for push-to-talk mode
+        init(keyCode: UInt32, modifiers: ModifierFlags, identifier: String, mode: HotkeyMode, onKeyDown: (() -> Void)?, onKeyUp: (() -> Void)?) {
+            self.keyCode = keyCode
+            self.modifiers = modifiers
+            self.identifier = identifier
+            self.mode = mode
+            self.onKeyDown = onKeyDown
+            self.onKeyUp = onKeyUp
+        }
     }
     
     private struct RegisteredHotkey {
         let configuration: HotkeyConfiguration
         let eventHotKeyRef: EventHotKeyRef
         let eventHotKeyID: EventHotKeyID
+        var isKeyCurrentlyPressed: Bool = false
     }
     
     private var registeredHotkeys: [String: RegisteredHotkey] = [:]
@@ -50,7 +78,9 @@ final class HotkeyManager {
         keyCode: UInt32,
         modifiers: ModifierFlags,
         identifier: String,
-        callback: @escaping () -> Void
+        mode: HotkeyMode = .toggle,
+        onKeyDown: (() -> Void)? = nil,
+        onKeyUp: (() -> Void)? = nil
     ) -> Bool {
         if registeredHotkeys[identifier] != nil {
             logger.error("Hotkey with identifier '\(identifier)' is already registered")
@@ -61,7 +91,9 @@ final class HotkeyManager {
             keyCode: keyCode,
             modifiers: modifiers,
             identifier: identifier,
-            callback: callback
+            mode: mode,
+            onKeyDown: onKeyDown,
+            onKeyUp: onKeyUp
         )
         
         var eventHotKeyID = EventHotKeyID()
@@ -181,6 +213,10 @@ final class HotkeyManager {
     private func handleHotkeyEvent(event: EventRef?) -> OSStatus {
         guard let event = event else { return OSStatus(eventNotHandledErr) }
         
+        let eventKind = GetEventKind(event)
+        let isKeyDown = (eventKind == UInt32(kEventHotKeyPressed))
+        let isKeyUp = (eventKind == UInt32(kEventHotKeyReleased))
+        
         var hotKeyID = EventHotKeyID()
         let status = GetEventParameter(
             event,
@@ -197,12 +233,37 @@ final class HotkeyManager {
             return OSStatus(eventNotHandledErr)
         }
         
-        for (_, registeredHotkey) in registeredHotkeys {
+        for (identifier, var registeredHotkey) in registeredHotkeys {
             if registeredHotkey.eventHotKeyID.signature == hotKeyID.signature &&
                registeredHotkey.eventHotKeyID.id == hotKeyID.id {
                 
+                let config = registeredHotkey.configuration
+                
+                if isKeyDown && registeredHotkey.isKeyCurrentlyPressed {
+                    return noErr
+                }
+                
+                if isKeyDown {
+                    registeredHotkey.isKeyCurrentlyPressed = true
+                    registeredHotkeys[identifier] = registeredHotkey
+                } else if isKeyUp {
+                    registeredHotkey.isKeyCurrentlyPressed = false
+                    registeredHotkeys[identifier] = registeredHotkey
+                }
+                
                 DispatchQueue.main.async {
-                    registeredHotkey.configuration.callback()
+                    switch config.mode {
+                    case .toggle:
+                        if isKeyDown {
+                            config.onKeyDown?()
+                        }
+                    case .pushToTalk:
+                        if isKeyDown {
+                            config.onKeyDown?()
+                        } else if isKeyUp {
+                            config.onKeyUp?()
+                        }
+                    }
                 }
                 
                 return noErr
