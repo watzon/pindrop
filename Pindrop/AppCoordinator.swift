@@ -158,8 +158,12 @@ final class AppCoordinator {
                     let mode: OutputMode = self.settingsStore.outputMode == "clipboard" ? .clipboard : .directInsert
                     self.outputManager.setOutputMode(mode)
                     
-                    if mode == .directInsert && !self.outputManager.checkAccessibilityPermission() {
-                        AlertManager.shared.showAccessibilityPermissionAlert()
+                    if mode == .directInsert {
+                        let hasPermission = self.outputManager.checkAccessibilityPermission()
+                        Log.app.info("Direct Insert mode selected, accessibility permission: \(hasPermission)")
+                        if !hasPermission {
+                            AlertManager.shared.showAccessibilityPermissionAlert()
+                        }
                     }
                     
                     if self.settingsStore.floatingIndicatorEnabled {

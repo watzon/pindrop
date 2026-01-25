@@ -18,16 +18,35 @@ final class AlertManager {
     func showAccessibilityPermissionAlert() {
         let alert = NSAlert()
         alert.messageText = "Accessibility Permission Required"
-        alert.informativeText = "Pindrop needs Accessibility permission to insert text at your cursor position.\n\nWithout this permission, text will only be copied to your clipboard."
+        alert.informativeText = """
+            Pindrop needs Accessibility permission to insert text at your cursor.
+            
+            To grant permission:
+            1. Click "Open System Settings" below
+            2. Click the + button
+            3. Navigate to the app shown in Finder
+            4. Restart Pindrop after granting permission
+            
+            Without this permission, text will only be copied to your clipboard.
+            """
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Show App in Finder")
         alert.addButton(withTitle: "Use Clipboard Only")
         
         let response = alert.runModal()
         
         if response == .alertFirstButtonReturn {
             openAccessibilitySettings()
+        } else if response == .alertSecondButtonReturn {
+            revealAppInFinder()
+            openAccessibilitySettings()
         }
+    }
+    
+    private func revealAppInFinder() {
+        let appURL = Bundle.main.bundleURL
+        NSWorkspace.shared.selectFile(appURL.path, inFileViewerRootedAtPath: appURL.deletingLastPathComponent().path)
     }
     
     func showMicrophonePermissionAlert() {
