@@ -12,7 +12,18 @@
 		509539AC0B5D433489196E46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 509539AB0B5D433489196E46 /* Assets.xcassets */; };
 		440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 440249056D0941BF82CA74EB /* Preview Assets.xcassets */; };
 		E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 563D563B8CE142449E7030FB /* WhisperKit */; };
+		4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1175C96AA5AE4B1691893105 /* PindropTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EA4676B79B4D48828872854F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 776C744285EF4862B4D98FA8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FD823F73DCD48B08A2EDE97;
+			remoteInfo = Pindrop;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -22,6 +33,8 @@
 		440249056D0941BF82CA74EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8B28B59A0FB34CF9A0080275 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
+		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1175C96AA5AE4B1691893105 /* PindropTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +46,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CBC1B6398AC040CF9417EDEC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -40,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				A80BF133F57547198A5A2458 /* Pindrop */,
+				AA285F0FC951498CA7AEFEDE /* PindropTests */,
 				34D7D79B92CD42AA8CBA1057 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,8 +69,17 @@
 			isa = PBXGroup;
 			children = (
 				05406A418EF343BAA525028E /* Pindrop.app */,
+				C017B84CBC554D8192D38FFA /* PindropTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		AA285F0FC951498CA7AEFEDE /* PindropTests */ = {
+			isa = PBXGroup;
+			children = (
+				1175C96AA5AE4B1691893105 /* PindropTests.swift */,
+			);
+			path = PindropTests;
 			sourceTree = "<group>";
 		};
 		A80BF133F57547198A5A2458 /* Pindrop */ = {
@@ -96,6 +126,24 @@
 			productReference = 05406A418EF343BAA525028E /* Pindrop.app */;
 			productType = "com.apple.product-type.application";
 		};
+		34DFA0DE5A5849FB8E573465 /* PindropTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 327124D8751B4EAD848A604E /* Build configuration list for PBXNativeTarget "PindropTests" */;
+			buildPhases = (
+				572D6581DD0541D98D9191B2 /* Sources */,
+				CBC1B6398AC040CF9417EDEC /* Frameworks */,
+				5B1824F22A9E4FB191605618 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F0C1B134452E48C391DD6F8B /* PBXTargetDependency */,
+			);
+			name = PindropTests;
+			productName = PindropTests;
+			productReference = C017B84CBC554D8192D38FFA /* PindropTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -108,6 +156,10 @@
 				TargetAttributes = {
 					0FD823F73DCD48B08A2EDE97 = {
 						CreatedOnToolsVersion = 15.2;
+					};
+					34DFA0DE5A5849FB8E573465 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 0FD823F73DCD48B08A2EDE97;
 					};
 				};
 			};
@@ -128,6 +180,7 @@
 			projectRoot = "";
 			targets = (
 				0FD823F73DCD48B08A2EDE97 /* Pindrop */,
+				34DFA0DE5A5849FB8E573465 /* PindropTests */,
 			);
 		};
 /* End PBXProject section */
@@ -139,6 +192,13 @@
 			files = (
 				440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */,
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B1824F22A9E4FB191605618 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,7 +214,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		572D6581DD0541D98D9191B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F0C1B134452E48C391DD6F8B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0FD823F73DCD48B08A2EDE97 /* Pindrop */;
+			targetProxy = EA4676B79B4D48828872854F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9970B5DAF7B249B88C21B810 /* Debug */ = {
@@ -329,6 +405,40 @@
 			};
 			name = Release;
 		};
+		1B6FC9C1336E468D9423A6A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pindrop.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pindrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pindrop";
+			};
+			name = Debug;
+		};
+		D454E3FD60AF4D7FBDA58E62 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pindrop.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pindrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pindrop";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -346,6 +456,15 @@
 			buildConfigurations = (
 				43E6B155CC064EB6B87599AA /* Debug */,
 				ACFBF317EB984E0B81259D41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		327124D8751B4EAD848A604E /* Build configuration list for PBXNativeTarget "PindropTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B6FC9C1336E468D9423A6A1 /* Debug */,
+				D454E3FD60AF4D7FBDA58E62 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
