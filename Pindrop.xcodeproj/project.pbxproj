@@ -13,6 +13,10 @@
 		440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 440249056D0941BF82CA74EB /* Preview Assets.xcassets */; };
 		E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 563D563B8CE142449E7030FB /* WhisperKit */; };
 		4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1175C96AA5AE4B1691893105 /* PindropTests.swift */; };
+		299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */; };
+		B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */; };
+		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
+		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +39,8 @@
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1175C96AA5AE4B1691893105 /* PindropTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropTests.swift; sourceTree = "<group>"; };
+		BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +84,8 @@
 			isa = PBXGroup;
 			children = (
 				1175C96AA5AE4B1691893105 /* PindropTests.swift */,
+				8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */,
+				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
 			);
 			path = PindropTests;
 			sourceTree = "<group>";
@@ -90,9 +98,19 @@
 				01E366552FAA4505B9775ACB /* PindropApp.swift */,
 				07816D7AAE614A1C8B3057F6 /* ContentView.swift */,
 				509539AB0B5D433489196E46 /* Assets.xcassets */,
+				81f50d309b6a44df90efbd5f /* Services */,
 				855E92B9E1094A4A99FE07FF /* Preview Content */,
+				DFC5C62F8A77416391D41E42 /* Services */,
 			);
 			path = Pindrop;
+			sourceTree = "<group>";
+		};
+		DFC5C62F8A77416391D41E42 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		855E92B9E1094A4A99FE07FF /* Preview Content */ = {
@@ -101,6 +119,14 @@
 				440249056D0941BF82CA74EB /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		81f50d309b6a44df90efbd5f /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +237,8 @@
 			files = (
 				07816D7BAE614A1C8B3057F6 /* ContentView.swift in Sources */,
 				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
+				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
+				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +247,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */,
+				044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */,
+				B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
