@@ -33,6 +33,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⌘⇧T"
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
+    @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     
     // MARK: - Keychain Properties
     
