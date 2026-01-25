@@ -23,8 +23,9 @@ final class AudioRecorder {
     private(set) var isRecording = false
     
     let audioFormat: AVAudioFormat
+    let permissionManager: PermissionManager
     
-    init() {
+    init(permissionManager: PermissionManager = PermissionManager()) {
         guard let format = AVAudioFormat(
             commonFormat: .pcmFormatInt16,
             sampleRate: 16000.0,
@@ -34,10 +35,11 @@ final class AudioRecorder {
             fatalError("Failed to create audio format")
         }
         self.audioFormat = format
+        self.permissionManager = permissionManager
     }
     
     func startRecording() async throws {
-        guard await requestMicrophonePermission() else {
+        guard await permissionManager.requestPermission() else {
             throw AudioRecorderError.permissionDenied
         }
         
@@ -85,14 +87,6 @@ final class AudioRecorder {
         audioBuffers.removeAll()
         
         return audioData
-    }
-    
-    private func requestMicrophonePermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                continuation.resume(returning: granted)
-            }
-        }
     }
     
     private func convertBuffer(
