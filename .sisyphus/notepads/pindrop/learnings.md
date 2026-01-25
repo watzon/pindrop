@@ -852,3 +852,56 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - Layer animations persist until explicitly removed or replaced
 - LSP shows false positive errors for AudioRecorder/SettingsStore (build succeeds)
 
+
+## Floating Indicator Window Implementation (2026-01-25)
+
+### NSPanel for Floating Windows
+- NSPanel is specialized NSWindow subclass for utility/accessory windows
+- Set window level to .floating for always-on-top behavior
+- collectionBehavior: [.canJoinAllSpaces, .fullSizeContentView] allows window on all desktops
+- isFloatingPanel = true enables proper floating panel behavior
+- isMovableByWindowBackground = true allows dragging from any part of window
+- titlebarAppearsTransparent + .fullSizeContentView for modern borderless look
+
+### Position Persistence with UserDefaults
+- Store NSPoint coordinates (x, y) separately in UserDefaults
+- Load saved position in init, use default if no saved position exists
+- Default position: top-right corner calculated from NSScreen.main.visibleFrame
+- Save position on NSWindow.didMoveNotification for automatic persistence
+- NotificationCenter observer with weak self prevents retain cycles
+
+### ObservableObject Pattern for Window Controllers
+- Use ObservableObject instead of @Observable for AppKit integration
+- @Published properties automatically trigger SwiftUI view updates
+- NSHostingView wraps SwiftUI view for embedding in NSPanel
+- Pass controller as @ObservedObject to SwiftUI view for reactive binding
+- Eliminates need for manual Binding creation with $ syntax
+
+### SwiftUI Waveform Visualization
+- GeometryReader provides dynamic sizing for bar layout
+- ForEach with index creates individual bars with unique heights
+- Sine wave pattern: sin(normalizedIndex * .pi * 2) creates smooth wave
+- Audio level multiplier scales wave amplitude (0.2 to 1.0 range)
+- Color gradient based on bar position creates visual interest
+- Minimal height (2pt) when not recording maintains visual presence
+
+### @MainActor Isolation with NotificationCenter
+- NotificationCenter observers run on specified queue (.main)
+- Must wrap @MainActor method calls in Task { @MainActor in } from observer
+- Prevents "synchronous nonisolated context" compiler warnings
+- Pattern: NotificationCenter observer → Task wrapper → @MainActor method
+
+### SwiftUI Preview with ObservableObject
+- Create controller instance in preview closure
+- Set published properties directly (no $ binding needed)
+- Return view with controller passed as parameter
+- Allows testing different states in preview
+
+### Gotchas
+- NSPanel requires explicit contentView assignment (not body like SwiftUI)
+- Window level .floating higher than normal windows but below .statusBar
+- Must call orderFrontRegardless() to show panel (orderFront insufficient)
+- NSHostingView retains SwiftUI view, must nil out on hide() to prevent leaks
+- @Published properties in @MainActor class require Task wrapper in non-isolated contexts
+- Preview must use explicit return when setup logic precedes view creation
+

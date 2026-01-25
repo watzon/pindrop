@@ -708,7 +708,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 18. Implement Status Bar Visual Feedback
+- [x] 18. Implement Status Bar Visual Feedback
 
   **What to do**:
   - Update StatusBarController for recording states
@@ -737,7 +737,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 19. Implement Optional Floating Indicator
+- [x] 19. Implement Optional Floating Indicator
 
   **What to do**:
   - Create `Pindrop/UI/FloatingIndicator.swift` (SwiftUI)
