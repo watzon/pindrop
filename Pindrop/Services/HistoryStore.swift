@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import AppKit
 
 @MainActor
 @Observable
@@ -17,6 +18,7 @@ final class HistoryStore {
         case fetchFailed(String)
         case deleteFailed(String)
         case searchFailed(String)
+        case exportFailed(String)
         
         var errorDescription: String? {
             switch self {
@@ -28,6 +30,8 @@ final class HistoryStore {
                 return "Failed to delete transcription: \(message)"
             case .searchFailed(let message):
                 return "Failed to search transcriptions: \(message)"
+            case .exportFailed(let message):
+                return "Failed to export transcriptions: \(message)"
             }
         }
     }
@@ -116,6 +120,157 @@ final class HistoryStore {
             return try modelContext.fetch(descriptor)
         } catch {
             throw HistoryStoreError.searchFailed(error.localizedDescription)
+        }
+    }
+    
+    // MARK: - Export Methods
+    
+    func exportToPlainText(records: [TranscriptionRecord]? = nil) throws {
+        let recordsToExport = try records ?? fetchAll()
+        
+        guard !recordsToExport.isEmpty else {
+            throw HistoryStoreError.exportFailed("No records to export")
+        }
+        
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.plainText]
+        savePanel.nameFieldStringValue = "transcription_history.txt"
+        savePanel.title = "Export Transcription History"
+        savePanel.message = "Choose a location to save the transcription history"
+        
+        let response = savePanel.runModal()
+        guard response == .OK, let url = savePanel.url else {
+            throw HistoryStoreError.exportFailed("Export cancelled")
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        
+        var content = "Transcription History Export\n"
+        content += "Generated: \(dateFormatter.string(from: Date()))\n"
+        content += "Total Records: \(recordsToExport.count)\n"
+        content += String(repeating: "=", count: 80) + "\n\n"
+        
+        for (index, record) in recordsToExport.enumerated() {
+            content += "Record \(index + 1)\n"
+            content += "Timestamp: \(dateFormatter.string(from: record.timestamp))\n"
+            content += "Duration: \(String(format: "%.2f", record.duration))s\n"
+            content += "Model: \(record.modelUsed)\n"
+            content += "Text:\n\(record.text)\n"
+            content += String(repeating: "-", count: 80) + "\n\n"
+        }
+        
+        do {
+            try content.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw HistoryStoreError.exportFailed(error.localizedDescription)
+        }
+    }
+    
+    func exportToJSON(records: [TranscriptionRecord]? = nil) throws {
+        let recordsToExport = try records ?? fetchAll()
+        
+        guard !recordsToExport.isEmpty else {
+            throw HistoryStoreError.exportFailed("No records to export")
+        }
+        
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.json]
+        savePanel.nameFieldStringValue = "transcription_history.json"
+        savePanel.title = "Export Transcription History"
+        savePanel.message = "Choose a location to save the transcription history"
+        
+        let response = savePanel.runModal()
+        guard response == .OK, let url = savePanel.url else {
+            throw HistoryStoreError.exportFailed("Export cancelled")
+        }
+        
+        struct ExportRecord: Codable {
+            let id: String
+            let text: String
+            let timestamp: String
+            let duration: TimeInterval
+            let modelUsed: String
+        }
+        
+        struct ExportData: Codable {
+            let exportDate: String
+            let totalRecords: Int
+            let records: [ExportRecord]
+        }
+        
+        let dateFormatter = ISO8601DateFormatter()
+        
+        let exportRecords = recordsToExport.map { record in
+            ExportRecord(
+                id: record.id.uuidString,
+                text: record.text,
+                timestamp: dateFormatter.string(from: record.timestamp),
+                duration: record.duration,
+                modelUsed: record.modelUsed
+            )
+        }
+        
+        let exportData = ExportData(
+            exportDate: dateFormatter.string(from: Date()),
+            totalRecords: recordsToExport.count,
+            records: exportRecords
+        )
+        
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let jsonData = try encoder.encode(exportData)
+            try jsonData.write(to: url)
+        } catch {
+            throw HistoryStoreError.exportFailed(error.localizedDescription)
+        }
+    }
+    
+    func exportToCSV(records: [TranscriptionRecord]? = nil) throws {
+        let recordsToExport = try records ?? fetchAll()
+        
+        guard !recordsToExport.isEmpty else {
+            throw HistoryStoreError.exportFailed("No records to export")
+        }
+        
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.commaSeparatedText]
+        savePanel.nameFieldStringValue = "transcription_history.csv"
+        savePanel.title = "Export Transcription History"
+        savePanel.message = "Choose a location to save the transcription history"
+        
+        let response = savePanel.runModal()
+        guard response == .OK, let url = savePanel.url else {
+            throw HistoryStoreError.exportFailed("Export cancelled")
+        }
+        
+        let dateFormatter = ISO8601DateFormatter()
+        
+        var csvContent = "ID,Timestamp,Duration,Model,Text\n"
+        
+        for record in recordsToExport {
+            let escapedText = record.text
+                .replacingOccurrences(of: "\"", with: "\"\"")
+                .replacingOccurrences(of: "\n", with: " ")
+                .replacingOccurrences(of: "\r", with: " ")
+            
+            let row = [
+                record.id.uuidString,
+                dateFormatter.string(from: record.timestamp),
+                String(format: "%.2f", record.duration),
+                record.modelUsed,
+                "\"\(escapedText)\""
+            ].joined(separator: ",")
+            
+            csvContent += row + "\n"
+        }
+        
+        do {
+            try csvContent.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw HistoryStoreError.exportFailed(error.localizedDescription)
         }
     }
 }
