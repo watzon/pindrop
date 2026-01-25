@@ -805,3 +805,50 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - **LSP Errors**: "Cannot find type" errors are false positives when project context not loaded
 - **Xcode Project**: Must add files to project.pbxproj, not just filesystem
 - **Build Success**: xcodebuild succeeds even when LSP shows errors (trust the build)
+
+## Status Bar Visual Feedback Implementation (2026-01-25)
+
+### NSStatusItem Icon State Management
+- RecordingState enum tracks three states: idle, recording, processing
+- didSet property observer automatically updates icon when state changes
+- Eliminates manual icon updates scattered throughout code
+- Single source of truth for visual state
+
+### SF Symbols State-Based Icons
+- **Idle**: mic.fill with isTemplate = true (adapts to menu bar theme)
+- **Recording**: mic.fill with isTemplate = false + contentTintColor = .systemRed
+- **Processing**: waveform symbol with template mode for theme adaptation
+- Template mode allows automatic light/dark mode adaptation
+- Non-template mode required for custom tint colors
+
+### Core Animation for Status Bar Icons
+- CABasicAnimation applied directly to button.layer
+- **Pulse animation**: opacity 1.0 → 0.3, autoreverses, infinite repeat
+- **Rotation animation**: transform.rotation 0 → 2π, infinite repeat
+- Animation keys ("pulse", "rotation") allow removal when state changes
+- Animations automatically removed when new state sets different animation
+
+### State Transition Pattern
+- Private updateStatusBarIcon() method handles all visual updates
+- Public setProcessingState() and setIdleState() for external control
+- updateMenuState() now only updates menu items, delegates icon to state system
+- Clean separation: menu state vs icon state
+
+### Accessibility Integration
+- accessibilityDescription changes per state: "Pindrop", "Recording", "Processing"
+- VoiceOver announces state changes automatically
+- Template icons work with system accessibility settings (high contrast, etc.)
+
+### Animation Performance
+- Core Animation runs on GPU, minimal CPU impact
+- Infinite animations don't block main thread
+- Small duration values (0.8s, 2.0s) provide smooth visual feedback
+- autoreverses creates natural pulse effect without manual keyframe management
+
+### Gotchas
+- Must set isTemplate = false before applying contentTintColor (red tint)
+- Template mode and custom tint colors are mutually exclusive
+- Animation keys must be unique per animation type to avoid conflicts
+- Layer animations persist until explicitly removed or replaced
+- LSP shows false positive errors for AudioRecorder/SettingsStore (build succeeds)
+
