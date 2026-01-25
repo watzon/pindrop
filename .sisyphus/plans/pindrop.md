@@ -199,7 +199,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 2. Set Up XCTest Infrastructure
+- [x] 2. Set Up XCTest Infrastructure
 
   **What to do**:
   - Create `PindropTests` test target (Xcode creates by default)
@@ -226,7 +226,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 3. Implement AudioRecorder Service
+- [x] 3. Implement AudioRecorder Service
 
   **What to do**:
   - Create `Pindrop/Services/AudioRecorder.swift`
@@ -259,7 +259,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 4. Implement Audio Permission Manager
+- [x] 4. Implement Audio Permission Manager
 
   **What to do**:
   - Create `Pindrop/Services/PermissionManager.swift`
@@ -287,7 +287,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 5. Implement TranscriptionService with WhisperKit
+- [x] 5. Implement TranscriptionService with WhisperKit
 
   **What to do**:
   - Create `Pindrop/Services/TranscriptionService.swift`
@@ -382,7 +382,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 8. Implement Global Hotkey Manager
+- [x] 8. Implement Global Hotkey Manager
 
   **What to do**:
   - Create `Pindrop/Services/HotkeyManager.swift`

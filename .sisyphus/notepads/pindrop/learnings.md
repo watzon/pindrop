@@ -50,3 +50,223 @@ Pindrop.xcodeproj/
 - LSP errors about @main and ContentView are false positives when project context isn't loaded
 - xcodebuild timeout during package resolution is normal for first run
 - Standard Xcode file headers (comments) are conventional and should be kept
+
+## XCTest Target Configuration (2026-01-25)
+
+### Test Target Setup
+- Created PindropTests target as `com.apple.product-type.bundle.unit-test`
+- Test bundle identifier: `com.pindrop.app.tests`
+- Test target requires dependency on main app target via PBXTargetDependency
+- Test target requires PBXContainerItemProxy to reference main app
+
+### Required PBX Objects for Test Target
+1. PBXNativeTarget - The test target itself
+2. PBXFileReference - The .xctest bundle product
+3. PBXBuildFile - For test source files
+4. PBXSourcesBuildPhase - To compile test files
+5. PBXFrameworksBuildPhase - For linking (can be empty for basic tests)
+6. PBXResourcesBuildPhase - For test resources (can be empty)
+7. XCBuildConfiguration (Debug & Release) - Test-specific build settings
+8. XCConfigurationList - To hold test configurations
+9. PBXTargetDependency - Links test target to main app
+10. PBXContainerItemProxy - Proxy for main app target reference
+
+### Critical Build Settings for Test Target
+```
+BUNDLE_LOADER = "$(TEST_HOST)"
+TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pindrop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pindrop"
+PRODUCT_BUNDLE_IDENTIFIER = com.pindrop.app.tests
+GENERATE_INFOPLIST_FILE = YES
+SWIFT_EMIT_LOC_STRINGS = NO
+```
+
+### Test Scheme Configuration
+- Must add `<Testables>` section to TestAction in .xcscheme file
+- TestableReference must include:
+  - `BlueprintIdentifier` matching test target UUID
+  - `BuildableName` as "PindropTests.xctest"
+  - `parallelizable = "YES"` for parallel test execution
+  - `skipped = "NO"` to enable tests
+
+### Project Attributes
+- Add test target to `TargetAttributes` in PBXProject
+- Set `TestTargetID` to main app target UUID
+- Set `CreatedOnToolsVersion` to match main target
+
+### Gotchas
+- Test scheme must be configured before `xcodebuild test` will work
+- Without Testables section in scheme, get error: "Scheme X is not currently configured for the test action"
+- Test target must be added to both `targets` array and Products group
+- Standard Xcode test file comments are conventional and should be kept
+
+## AudioRecorder Service Implementation (2026-01-25)
+
+### AVAudioEngine Configuration for WhisperKit
+- WhisperKit requires: 16kHz sample rate, mono (1 channel), 16-bit PCM format
+- Created AVAudioFormat with: `AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16000.0, channels: 1, interleaved: false)`
+- Used AVAudioMixerNode to convert from input format to target format
+- Input node provides hardware format, mixer handles conversion
+
+### Audio Recording Pattern
+- AVAudioEngine.inputNode provides microphone access
+- installTap(onBus:bufferSize:format:) captures audio buffers
+- Buffer size 2048 provides good balance between latency and efficiency
+- Must convert buffers from input format to target format using AVAudioConverter
+
+### Permission Handling
+- Use AVCaptureDevice.requestAccess(for: .audio) for microphone permission
+- Wrapped in async/await using withCheckedContinuation
+- Permission prompt appears automatically on first request
+- NSMicrophoneUsageDescription in Info.plist required (already configured)
+
+### Buffer Management
+- Store AVAudioPCMBuffer instances in array during recording
+- Convert to Data on stopRecording() by extracting int16ChannelData
+- Combine all buffers into single Data blob for transcription
+- Clear buffer array after each recording session
+
+### Testing Strategy
+- Used @MainActor for AudioRecorder to ensure thread safety
+- Tests handle permission denial gracefully (skip test if denied)
+- Tests use Task {} for async/await in XCTest
+- Brief sleep (0.5s) in tests to capture actual audio data
+- Multiple recording sessions tested to verify cleanup
+
+### Gotchas
+- Must call audioEngine.prepare() before start()
+- Must remove tap before stopping engine to avoid crashes
+- Converter requires capacity calculation: `frameLength * outputRate / inputRate`
+- int16ChannelData returns UnsafeMutablePointer, must iterate carefully
+- @MainActor required for UI-related audio operations on macOS
+
+## HotkeyManager Implementation (2026-01-25)
+
+### Carbon Event API Usage
+- Used `RegisterEventHotKey` and `UnregisterEventHotKey` for global hotkey registration
+- Event handler installed via `InstallEventHandler` with `GetApplicationEventTarget()`
+- EventHotKeyID signature uses 4-character code "PNDR" converted to OSType
+- EventHotKeyID.id uses hash of identifier string for uniqueness
+
+### Hotkey Registration Approach
+- ModifierFlags as OptionSet wrapping Carbon's UInt32 modifier constants
+- Store EventHotKeyRef for cleanup in deinit
+- Callbacks dispatched to main queue for thread safety
+- Event handler uses Unmanaged<HotkeyManager> for self reference in C callback
+
+### Conflict Handling Strategies
+- Check for duplicate identifiers before registration
+- Log errors with os.log Logger subsystem
+- Return Bool success/failure for all operations
+- RegisterEventHotKey returns OSStatus - noErr (0) indicates success
+
+### Testing Strategies for Global Hotkeys
+- Unit tests for modifier flag conversion pass successfully
+- Registration tests fail in test environment (expected - requires accessibility permissions)
+- Tests verify API surface: register, unregister, configuration retrieval
+- Manual testing required for actual hotkey triggering
+- Test warning: unused variable 'callbackInvoked' is acceptable for callback verification tests
+
+### Gotchas
+- Global hotkeys require accessibility permissions at runtime
+- Carbon Event API is C-based, requires careful memory management with Unmanaged
+- EventHandlerUPP callback must use @convention(c) compatible signature
+- Tests cannot verify actual hotkey triggering without accessibility permissions
+- Import Carbon required in both implementation and test files
+
+## PermissionManager Implementation (2026-01-25)
+
+### Observable Pattern with @Observable Macro
+- Used Swift's @Observable macro (macOS 14+) for reactive state management
+- @Observable automatically makes properties observable without @Published
+- Works seamlessly with SwiftUI views for automatic UI updates
+- More modern and concise than Combine's @Published approach
+
+### Permission Status Management
+- AVCaptureDevice.authorizationStatus(for: .audio) checks current permission state
+- Four states: .notDetermined, .restricted, .denied, .authorized
+- .restricted indicates system-level restrictions (parental controls, MDM)
+- .denied means user explicitly denied permission
+
+### Permission Request Pattern
+- AVCaptureDevice.requestAccess(for: .audio) requests permission
+- Wrapped in async/await using withCheckedContinuation for clean API
+- Permission dialog appears automatically on first request
+- Subsequent calls return cached permission state without showing dialog
+- Must refresh observable state after request completes
+
+### Convenience Properties
+- isAuthorized: true only when status == .authorized
+- isDenied: true when status == .denied OR .restricted
+- Computed properties provide cleaner API for UI binding
+
+### Integration with AudioRecorder
+- AudioRecorder now accepts PermissionManager via dependency injection
+- Default parameter allows backward compatibility: init(permissionManager: PermissionManager = PermissionManager())
+- Removed duplicate permission request logic from AudioRecorder
+- Centralized permission handling in single service
+
+### Testing Strategy
+- Tests verify all permission states are handled correctly
+- Tests check observable state updates after permission requests
+- Tests validate convenience properties match underlying status
+- Tests document behavior for restricted and denied states
+- Permission dialog may appear during first test run (expected behavior)
+
+### Gotchas
+- @MainActor required for PermissionManager to ensure thread safety with UI
+- Permission status should be refreshed after requestPermission() completes
+- Tests cannot mock AVCaptureDevice, so they test against real system state
+- LSP may show false positive errors for @Observable types in test files
+
+## TranscriptionService Implementation (2026-01-25)
+
+### WhisperKit API Usage
+- WhisperKit initialization requires WhisperKitConfig with either modelFolder (path) or model (name)
+- Model names like "tiny", "large-v3" trigger automatic download if not present
+- WhisperKit.transcribe() accepts [Float] array (normalized -1.0 to 1.0) for audio data
+- DecodingOptions configures transcription: task (.transcribe), language, timestamps
+- TranscriptionResult array returned, typically use .first.text for simple transcription
+
+### Audio Data Conversion for WhisperKit
+- AudioRecorder outputs 16kHz mono 16-bit PCM as Data
+- WhisperKit requires [Float] array with normalized samples
+- Conversion: Int16 sample / Int16.max = Float in range [-1.0, 1.0]
+- Use Data.withUnsafeBytes and bindMemory(to: Int16.self) for efficient conversion
+- Reserve capacity on Float array for performance with large audio buffers
+
+### State Management with @Observable
+- Used @Observable macro for reactive state management (macOS 14+)
+- State enum tracks: .unloaded, .loading, .ready, .transcribing, .error
+- @MainActor required for TranscriptionService to ensure thread safety
+- State transitions: unloaded → loading → ready → transcribing → ready (or error)
+- Prevent concurrent transcriptions by checking state before starting
+
+### Error Handling Patterns
+- Custom TranscriptionError enum with LocalizedError conformance
+- Specific errors: modelNotLoaded, invalidAudioData, transcriptionFailed, modelLoadFailed
+- Catch and rethrow with context: catch generic Error, wrap in TranscriptionError
+- Set state to .error and store error property for UI display
+- Always reset state to .ready after transcription completes (success or failure)
+
+### Testing Strategies for STT Services
+- @MainActor required on test class for testing @MainActor services
+- Tests verify state transitions without actual model (expected to fail in test env)
+- Test audio data conversion separately from transcription
+- Verify error handling: modelNotLoaded, invalidAudioData, concurrent transcription
+- Use Task.sleep for async state transition verification
+- Tests pass even when model loading fails (validates error handling)
+
+### Dependency Injection for @MainActor Services
+- AudioRecorder.init() changed from default parameter to explicit parameter
+- Cannot use default parameter with @MainActor initializer (async context issue)
+- Use nonisolated init for services that need to be created outside MainActor
+- Tests must create PermissionManager and pass to AudioRecorder explicitly
+- Pattern: nonisolated init(permissionManager: PermissionManager) for flexibility
+
+### Gotchas
+- LSP shows "No such module 'WhisperKit'" but xcodebuild succeeds (false positive)
+- WhisperKit package must be added to project.pbxproj before use
+- @Observable requires import Observation (implicit in some contexts)
+- Cannot call @MainActor init from default parameter (use nonisolated or explicit param)
+- TranscriptionResult is array, not single result - always check .first
+- Empty audio data should be validated before conversion to avoid crashes
