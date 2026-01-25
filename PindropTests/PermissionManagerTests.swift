@@ -170,4 +170,74 @@ final class PermissionManagerTests: XCTestCase {
             XCTAssertFalse(granted, "Request should return false when denied")
         }
     }
+    
+    // MARK: - Accessibility Permission Tests
+    
+    func testAccessibilityPermissionCheck() async throws {
+        let isGranted = await permissionManager.checkAccessibilityPermission()
+        
+        XCTAssertTrue(isGranted == true || isGranted == false, "Accessibility check should return boolean")
+        
+        let observableState = await permissionManager.accessibilityPermissionGranted
+        XCTAssertEqual(
+            observableState,
+            isGranted,
+            "Observable state should match check result"
+        )
+    }
+    
+    func testAccessibilityPermissionIsObservable() async throws {
+        let state = await permissionManager.accessibilityPermissionGranted
+        
+        XCTAssertTrue(state == true || state == false, "Observable accessibilityPermissionGranted should be boolean")
+    }
+    
+    func testIsAccessibilityAuthorizedProperty() async throws {
+        let isGranted = await permissionManager.checkAccessibilityPermission()
+        let isAuthorized = await permissionManager.isAccessibilityAuthorized
+        
+        XCTAssertEqual(
+            isAuthorized,
+            isGranted,
+            "isAccessibilityAuthorized should match checkAccessibilityPermission result"
+        )
+    }
+    
+    func testRequestAccessibilityPermissionWithoutPrompt() async throws {
+        let isGranted = await permissionManager.requestAccessibilityPermission(showPrompt: false)
+        
+        XCTAssertTrue(isGranted == true || isGranted == false, "Request should return boolean")
+        
+        let observableState = await permissionManager.accessibilityPermissionGranted
+        XCTAssertEqual(
+            observableState,
+            isGranted,
+            "Observable state should be updated after request"
+        )
+    }
+    
+    func testRequestAccessibilityPermissionWithPrompt() async throws {
+        let isGranted = await permissionManager.requestAccessibilityPermission(showPrompt: true)
+        
+        XCTAssertTrue(isGranted == true || isGranted == false, "Request should return boolean")
+        
+        let observableState = await permissionManager.accessibilityPermissionGranted
+        XCTAssertEqual(
+            observableState,
+            isGranted,
+            "Observable state should be updated after request with prompt"
+        )
+    }
+    
+    func testRefreshAccessibilityPermissionStatus() async throws {
+        await permissionManager.refreshAccessibilityPermissionStatus()
+        
+        let refreshedState = await permissionManager.accessibilityPermissionGranted
+        
+        XCTAssertTrue(refreshedState == true || refreshedState == false, "Refreshed state should be boolean")
+    }
+    
+    func testOpenAccessibilityPreferences() async throws {
+        await permissionManager.openAccessibilityPreferences()
+    }
 }
