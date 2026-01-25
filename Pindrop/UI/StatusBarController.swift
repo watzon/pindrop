@@ -1,5 +1,7 @@
 import AppKit
 import SwiftUI
+import SwiftData
+import os.log
 
 @MainActor
 final class StatusBarController {
@@ -15,13 +17,20 @@ final class StatusBarController {
     
     private let audioRecorder: AudioRecorder
     private let settingsStore: SettingsStore
+    private var modelContainer: ModelContainer?
     
     private var recordingStatusItem: NSMenuItem?
     private var toggleRecordingItem: NSMenuItem?
     
+    private var settingsWindow: NSWindow?
+    private var historyWindow: NSWindow?
+    
+    var onToggleRecording: (() async -> Void)?
+    
     private var currentState: RecordingState = .idle {
         didSet {
             updateStatusBarIcon()
+            updateMenuState()
         }
     }
     
@@ -30,6 +39,10 @@ final class StatusBarController {
         self.settingsStore = settingsStore
         setupStatusItem()
         setupMenu()
+    }
+    
+    func setModelContainer(_ container: ModelContainer) {
+        self.modelContainer = container
     }
     
     private func setupStatusItem() {
@@ -91,25 +104,51 @@ final class StatusBarController {
     
     @objc private func toggleRecording() {
         Task {
-            do {
-                if audioRecorder.isRecording {
-                    _ = try await audioRecorder.stopRecording()
-                } else {
-                    try await audioRecorder.startRecording()
-                }
-                updateMenuState()
-            } catch {
-                print("Recording error: \(error)")
-            }
+            await onToggleRecording?()
         }
     }
     
     @objc private func openSettings() {
-        print("Open Settings")
+        if settingsWindow == nil {
+            let settingsView = SettingsWindow()
+            let hostingController = NSHostingController(rootView: settingsView)
+            
+            let window = NSWindow(contentViewController: hostingController)
+            window.title = "Pindrop Settings"
+            window.styleMask = [.titled, .closable, .miniaturizable]
+            window.setContentSize(NSSize(width: 550, height: 450))
+            window.center()
+            
+            settingsWindow = window
+        }
+        
+        settingsWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     @objc private func openHistory() {
-        print("Open History")
+        guard let container = modelContainer else {
+            Log.ui.error("ModelContainer not set - cannot open History")
+            return
+        }
+        
+        if historyWindow == nil {
+            let historyView = HistoryWindow()
+                .modelContainer(container)
+            let hostingController = NSHostingController(rootView: historyView)
+            
+            let window = NSWindow(contentViewController: hostingController)
+            window.title = "Transcription History"
+            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.setContentSize(NSSize(width: 700, height: 500))
+            window.minSize = NSSize(width: 600, height: 400)
+            window.center()
+            
+            historyWindow = window
+        }
+        
+        historyWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     @objc private func quit() {
@@ -117,55 +156,64 @@ final class StatusBarController {
     }
     
     func updateMenuState() {
-        if audioRecorder.isRecording {
+        switch currentState {
+        case .recording:
             recordingStatusItem?.title = "🔴 Recording"
             toggleRecordingItem?.title = "Stop Recording"
-            currentState = .recording
-        } else {
+        case .processing:
+            recordingStatusItem?.title = "⏳ Processing"
+            toggleRecordingItem?.title = "Processing..."
+            toggleRecordingItem?.isEnabled = false
+        case .idle:
             recordingStatusItem?.title = "● Ready"
             toggleRecordingItem?.title = "Start Recording"
-            currentState = .idle
+            toggleRecordingItem?.isEnabled = true
         }
+    }
+    
+    func setRecordingState() {
+        currentState = .recording
     }
     
     private func updateStatusBarIcon() {
         guard let button = statusItem?.button else { return }
         
+        button.layer?.removeAllAnimations()
+        
         switch currentState {
         case .idle:
-            // Normal mic icon, monochrome (template)
             button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
             button.image?.isTemplate = true
             button.contentTintColor = nil
+            button.alphaValue = 1.0
             
         case .recording:
-            // Red mic icon with animation
-            button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Recording")
+            button.image = NSImage(systemSymbolName: "mic.circle.fill", accessibilityDescription: "Recording")
             button.image?.isTemplate = false
             button.contentTintColor = .systemRed
+            button.alphaValue = 1.0
             
-            // Pulse animation
             let animation = CABasicAnimation(keyPath: "opacity")
             animation.fromValue = 1.0
-            animation.toValue = 0.3
-            animation.duration = 0.8
+            animation.toValue = 0.4
+            animation.duration = 0.6
             animation.autoreverses = true
             animation.repeatCount = .infinity
             button.layer?.add(animation, forKey: "pulse")
             
         case .processing:
-            // Waveform icon with animation
-            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Processing")
-            button.image?.isTemplate = true
-            button.contentTintColor = nil
+            button.image = NSImage(systemSymbolName: "ellipsis.circle.fill", accessibilityDescription: "Processing")
+            button.image?.isTemplate = false
+            button.contentTintColor = .systemBlue
+            button.alphaValue = 1.0
             
-            // Rotation animation
-            let animation = CABasicAnimation(keyPath: "transform.rotation")
-            animation.fromValue = 0
-            animation.toValue = Double.pi * 2
-            animation.duration = 2.0
+            let animation = CABasicAnimation(keyPath: "opacity")
+            animation.fromValue = 1.0
+            animation.toValue = 0.5
+            animation.duration = 0.4
+            animation.autoreverses = true
             animation.repeatCount = .infinity
-            button.layer?.add(animation, forKey: "rotation")
+            button.layer?.add(animation, forKey: "pulse")
         }
     }
     

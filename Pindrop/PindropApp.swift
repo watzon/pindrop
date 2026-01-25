@@ -7,13 +7,25 @@
 
 import SwiftUI
 import SwiftData
+import AppKit
 
 @main
 struct PindropApp: App {
     
-    @State private var coordinator: AppCoordinator?
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-    let modelContainer: ModelContainer = {
+    var body: some Scene {
+        Settings {
+            EmptyView()
+        }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    
+    private var coordinator: AppCoordinator?
+    
+    private lazy var modelContainer: ModelContainer = {
         let schema = Schema([TranscriptionRecord.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
@@ -24,21 +36,11 @@ struct PindropApp: App {
         }
     }()
     
-    var body: some Scene {
-        MenuBarExtra {
-            EmptyView()
-                .onAppear {
-                    if coordinator == nil {
-                        let context = modelContainer.mainContext
-                        coordinator = AppCoordinator(modelContext: context)
-                        Task {
-                            await coordinator?.start()
-                        }
-                    }
-                }
-        } label: {
-            Image(systemName: "mic.fill")
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let context = modelContainer.mainContext
+        coordinator = AppCoordinator(modelContext: context, modelContainer: modelContainer)
+        Task { @MainActor in
+            await coordinator?.start()
         }
-        .menuBarExtraStyle(.window)
     }
 }

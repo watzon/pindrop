@@ -7,34 +7,48 @@
 
 import Foundation
 import AVFoundation
+import os.log
 
-enum AudioRecorderError: Error {
+enum AudioRecorderError: Error, LocalizedError {
     case permissionDenied
     case notRecording
-    case engineStartFailed
+    case engineStartFailed(String)
     case audioFormatCreationFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .permissionDenied:
+            return "Microphone permission denied"
+        case .notRecording:
+            return "Not currently recording"
+        case .engineStartFailed(let message):
+            return "Audio engine failed to start: \(message)"
+        case .audioFormatCreationFailed:
+            return "Failed to create audio format"
+        }
+    }
 }
 
 @MainActor
 final class AudioRecorder {
     
-    private let audioEngine = AVAudioEngine()
+    private var audioEngine: AVAudioEngine?
     private var audioBuffers: [AVAudioPCMBuffer] = []
     private(set) var isRecording = false
     
-    let audioFormat: AVAudioFormat
+    let targetFormat: AVAudioFormat
     let permissionManager: PermissionManager
     
     nonisolated init(permissionManager: PermissionManager) {
         guard let format = AVAudioFormat(
-            commonFormat: .pcmFormatInt16,
+            commonFormat: .pcmFormatFloat32,
             sampleRate: 16000.0,
             channels: 1,
             interleaved: false
         ) else {
             fatalError("Failed to create audio format")
         }
-        self.audioFormat = format
+        self.targetFormat = format
         self.permissionManager = permissionManager
     }
     
@@ -43,48 +57,59 @@ final class AudioRecorder {
             throw AudioRecorderError.permissionDenied
         }
         
+        if isRecording {
+            return
+        }
+        
         audioBuffers.removeAll()
         
-        let inputNode = audioEngine.inputNode
+        let engine = AVAudioEngine()
+        self.audioEngine = engine
+        
+        let inputNode = engine.inputNode
         let inputFormat = inputNode.outputFormat(forBus: 0)
         
-        let mixer = AVAudioMixerNode()
-        audioEngine.attach(mixer)
+        Log.audio.debug("Input format: \(inputFormat)")
         
-        audioEngine.connect(inputNode, to: mixer, format: inputFormat)
-        
-        mixer.installTap(onBus: 0, bufferSize: 2048, format: inputFormat) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
             guard let self = self else { return }
             
             Task { @MainActor in
-                if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: self.audioFormat) {
+                if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: self.targetFormat) {
                     self.audioBuffers.append(convertedBuffer)
                 }
             }
         }
         
-        audioEngine.prepare()
+        engine.prepare()
         
         do {
-            try audioEngine.start()
+            try engine.start()
             isRecording = true
+            Log.audio.info("Audio engine started")
         } catch {
-            mixer.removeTap(onBus: 0)
-            throw AudioRecorderError.engineStartFailed
+            inputNode.removeTap(onBus: 0)
+            self.audioEngine = nil
+            throw AudioRecorderError.engineStartFailed(error.localizedDescription)
         }
     }
     
     func stopRecording() async throws -> Data {
-        guard isRecording else {
+        guard isRecording, let engine = audioEngine else {
             throw AudioRecorderError.notRecording
         }
         
-        audioEngine.stop()
-        audioEngine.inputNode.removeTap(onBus: 0)
+        engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
         isRecording = false
+        self.audioEngine = nil
+        
+        Log.audio.debug("Stopped recording, collected \(self.audioBuffers.count) buffers")
         
         let audioData = combineBuffersToData(audioBuffers)
         audioBuffers.removeAll()
+        
+        Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
         
         return audioData
     }
@@ -95,29 +120,47 @@ final class AudioRecorder {
         to outputFormat: AVAudioFormat
     ) -> AVAudioPCMBuffer? {
         guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat) else {
+            Log.audio.error("Failed to create audio converter")
             return nil
         }
         
-        let capacity = AVAudioFrameCount(
-            Double(buffer.frameLength) * outputFormat.sampleRate / inputFormat.sampleRate
-        )
+        let ratio = outputFormat.sampleRate / inputFormat.sampleRate
+        let capacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio) + 1
         
         guard let convertedBuffer = AVAudioPCMBuffer(
             pcmFormat: outputFormat,
             frameCapacity: capacity
         ) else {
+            Log.audio.error("Failed to create output buffer")
             return nil
         }
         
         var error: NSError?
+        
+        final class InputState: @unchecked Sendable {
+            var consumed = false
+        }
+        let inputState = InputState()
+        
         let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+            if inputState.consumed {
+                outStatus.pointee = .noDataNow
+                return nil
+            }
+            inputState.consumed = true
             outStatus.pointee = .haveData
             return buffer
         }
         
-        converter.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
+        let status = converter.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
         
-        if error != nil {
+        if let error = error {
+            Log.audio.error("Conversion error: \(error)")
+            return nil
+        }
+        
+        if status == .error {
+            Log.audio.error("Conversion status error")
             return nil
         }
         
@@ -125,23 +168,17 @@ final class AudioRecorder {
     }
     
     private func combineBuffersToData(_ buffers: [AVAudioPCMBuffer]) -> Data {
-        var data = Data()
+        var allSamples: [Float] = []
         
         for buffer in buffers {
-            guard let channelData = buffer.int16ChannelData else { continue }
-            
+            guard let channelData = buffer.floatChannelData else { continue }
             let frameLength = Int(buffer.frameLength)
-            let channelCount = Int(buffer.format.channelCount)
-            
-            for frame in 0..<frameLength {
-                for channel in 0..<channelCount {
-                    let sample = channelData[channel][frame]
-                    var sampleValue = sample
-                    data.append(Data(bytes: &sampleValue, count: MemoryLayout<Int16>.size))
-                }
-            }
+            let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
+            allSamples.append(contentsOf: samples)
         }
         
-        return data
+        return allSamples.withUnsafeBufferPointer { bufferPointer in
+            Data(buffer: bufferPointer)
+        }
     }
 }

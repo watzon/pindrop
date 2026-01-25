@@ -10,7 +10,6 @@ import SwiftUI
 struct ModelsSettingsView: View {
     @ObservedObject var settings: SettingsStore
     @State private var modelManager = ModelManager()
-    @State private var downloadedModels: [ModelManager.WhisperModel] = []
     @State private var downloadingModel: String?
     @State private var errorMessage: String?
     
@@ -33,7 +32,7 @@ struct ModelsSettingsView: View {
                         if downloadingModel == model.name {
                             ProgressView(value: modelManager.downloadProgress)
                                 .frame(width: 100)
-                        } else if downloadedModels.contains(where: { $0.id == model.id }) {
+                        } else if modelManager.isModelDownloaded(model.name) {
                             Button("Delete") {
                                 deleteModel(model)
                             }
@@ -73,7 +72,7 @@ struct ModelsSettingsView: View {
         }
         .frame(width: 500, height: 400)
         .task {
-            await refreshDownloadedModels()
+            await modelManager.refreshDownloadedModels()
         }
     }
     
@@ -84,7 +83,6 @@ struct ModelsSettingsView: View {
         Task {
             do {
                 try await modelManager.downloadModel(named: model.name)
-                await refreshDownloadedModels()
                 downloadingModel = nil
             } catch {
                 errorMessage = "Failed to download \(model.displayName): \(error.localizedDescription)"
@@ -99,15 +97,10 @@ struct ModelsSettingsView: View {
         Task {
             do {
                 try await modelManager.deleteModel(named: model.name)
-                await refreshDownloadedModels()
             } catch {
                 errorMessage = "Failed to delete \(model.displayName): \(error.localizedDescription)"
             }
         }
-    }
-    
-    private func refreshDownloadedModels() async {
-        downloadedModels = await modelManager.getDownloadedModels()
     }
 }
 

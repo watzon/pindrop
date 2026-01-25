@@ -11,12 +11,9 @@ import AppKit
 
 struct HistoryWindow: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var historyStore: HistoryStore?
-    @State private var transcriptions: [TranscriptionRecord] = []
+    @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @State private var searchText = ""
-    @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var showingExportMenu = false
     
     var filteredTranscriptions: [TranscriptionRecord] {
         if searchText.isEmpty {
@@ -26,6 +23,10 @@ struct HistoryWindow: View {
                 record.text.localizedStandardContains(searchText)
             }
         }
+    }
+    
+    private var historyStore: HistoryStore {
+        HistoryStore(modelContext: modelContext)
     }
     
     var body: some View {
@@ -58,18 +59,15 @@ struct HistoryWindow: View {
             Divider()
             
             // Content
-            if isLoading {
-                ProgressView("Loading transcriptions...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = errorMessage {
+            if let errorMessage = errorMessage {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 48))
                         .foregroundStyle(.secondary)
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
-                    Button("Retry") {
-                        loadTranscriptions()
+                    Button("Dismiss") {
+                        self.errorMessage = nil
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -104,36 +102,9 @@ struct HistoryWindow: View {
         }
         .frame(minWidth: 600, minHeight: 400)
         .searchable(text: $searchText, prompt: "Search transcriptions")
-        .onAppear {
-            setupHistoryStore()
-            loadTranscriptions()
-        }
     }
     
     // MARK: - Helper Methods
-    
-    private func setupHistoryStore() {
-        if historyStore == nil {
-            historyStore = HistoryStore(modelContext: modelContext)
-        }
-    }
-    
-    private func loadTranscriptions() {
-        guard let historyStore = historyStore else { return }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        Task { @MainActor in
-            do {
-                transcriptions = try historyStore.fetchAll()
-                isLoading = false
-            } catch {
-                errorMessage = "Failed to load transcriptions: \(error.localizedDescription)"
-                isLoading = false
-            }
-        }
-    }
     
     private func copyToClipboard(_ text: String) {
         let pasteboard = NSPasteboard.general
@@ -158,8 +129,6 @@ struct HistoryWindow: View {
     }
     
     private func exportToPlainText() {
-        guard let historyStore = historyStore else { return }
-        
         Task { @MainActor in
             do {
                 try historyStore.exportToPlainText(records: filteredTranscriptions)
@@ -170,8 +139,6 @@ struct HistoryWindow: View {
     }
     
     private func exportToJSON() {
-        guard let historyStore = historyStore else { return }
-        
         Task { @MainActor in
             do {
                 try historyStore.exportToJSON(records: filteredTranscriptions)
@@ -182,7 +149,6 @@ struct HistoryWindow: View {
     }
     
     private func exportToCSV() {
-        guard let historyStore = historyStore else { return }
         
         Task { @MainActor in
             do {

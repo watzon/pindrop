@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E366552FAA4505B9775ACB /* PindropApp.swift */; };
+		LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOGGER001A2B3C4D5E6F71 /* Logger.swift */; };
+		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
 		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
 		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
@@ -83,6 +85,8 @@
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionServiceTests.swift; sourceTree = "<group>"; };
 		f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		LOGGER001A2B3C4D5E6F71 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +193,7 @@
 				DFC5C62F8A77416391D41E42 /* Services */,
 				38268D286F644C93A216D0F4 /* Models */,
 				643083A84C484508864DA167 /* UI */,
+				UTILS001A2B3C4D5E6F72 /* Utils */,
 				86FB8BA663AAD1BE56BE198A /* AppCoordinator.swift */,
 			);
 			path = Pindrop;
@@ -213,6 +218,15 @@
 				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		UTILS001A2B3C4D5E6F72 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				LOGGER001A2B3C4D5E6F71 /* Logger.swift */,
+				ALERT001A2B3C4D5E6F71 /* AlertManager.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -355,6 +369,8 @@
 				E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */,
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 				C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
+				LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
+				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

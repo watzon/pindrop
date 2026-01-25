@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import WhisperKit
+import os.log
 
 @MainActor
 @Observable
@@ -16,107 +18,97 @@ final class ModelManager {
         let name: String
         let displayName: String
         let sizeInMB: Int
-        let huggingFaceRepo: String
         
-        init(name: String, displayName: String, sizeInMB: Int, huggingFaceRepo: String = "argmaxinc/whisperkit-coreml") {
+        init(name: String, displayName: String, sizeInMB: Int) {
             self.id = name
             self.name = name
             self.displayName = displayName
             self.sizeInMB = sizeInMB
-            self.huggingFaceRepo = huggingFaceRepo
         }
     }
     
     enum ModelError: Error, LocalizedError {
         case modelNotFound(String)
         case downloadFailed(String)
-        case invalidModelPath
-        case directoryCreationFailed(String)
+        case deleteFailed(String)
         
         var errorDescription: String? {
             switch self {
             case .modelNotFound(let name):
-                return "Model '\(name)' not found in available models"
+                return "Model '\(name)' not found"
             case .downloadFailed(let message):
                 return "Download failed: \(message)"
-            case .invalidModelPath:
-                return "Invalid model path"
-            case .directoryCreationFailed(let message):
-                return "Failed to create directory: \(message)"
+            case .deleteFailed(let message):
+                return "Delete failed: \(message)"
             }
         }
     }
     
     let availableModels: [WhisperModel] = [
-        WhisperModel(name: "tiny", displayName: "Tiny", sizeInMB: 75),
-        WhisperModel(name: "tiny.en", displayName: "Tiny (English)", sizeInMB: 75),
-        WhisperModel(name: "base", displayName: "Base", sizeInMB: 145),
-        WhisperModel(name: "base.en", displayName: "Base (English)", sizeInMB: 145),
-        WhisperModel(name: "small", displayName: "Small", sizeInMB: 483),
-        WhisperModel(name: "small.en", displayName: "Small (English)", sizeInMB: 483),
-        WhisperModel(name: "medium", displayName: "Medium", sizeInMB: 1500),
-        WhisperModel(name: "medium.en", displayName: "Medium (English)", sizeInMB: 1500),
-        WhisperModel(name: "large-v3", displayName: "Large v3", sizeInMB: 3100),
-        WhisperModel(name: "turbo", displayName: "Turbo", sizeInMB: 809)
+        WhisperModel(name: "openai_whisper-tiny", displayName: "Tiny", sizeInMB: 75),
+        WhisperModel(name: "openai_whisper-tiny.en", displayName: "Tiny (English)", sizeInMB: 75),
+        WhisperModel(name: "openai_whisper-base", displayName: "Base", sizeInMB: 145),
+        WhisperModel(name: "openai_whisper-base.en", displayName: "Base (English)", sizeInMB: 145),
+        WhisperModel(name: "openai_whisper-small", displayName: "Small", sizeInMB: 483),
+        WhisperModel(name: "openai_whisper-small.en", displayName: "Small (English)", sizeInMB: 483),
+        WhisperModel(name: "openai_whisper-large-v3", displayName: "Large v3", sizeInMB: 3100),
+        WhisperModel(name: "openai_whisper-large-v3-turbo", displayName: "Large v3 Turbo", sizeInMB: 809)
     ]
     
     private(set) var downloadProgress: Double = 0.0
     private(set) var isDownloading: Bool = false
     private(set) var currentDownloadModel: String?
+    private(set) var downloadedModelNames: Set<String> = []
     
     private let fileManager = FileManager.default
     
-    var modelsDirectory: String {
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let pindropDir = appSupport.appendingPathComponent("Pindrop/Models")
-        return pindropDir.path
+    private var modelsBaseURL: URL {
+        fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("huggingface/models/argmaxinc/whisperkit-coreml")
     }
     
     init() {
-        createModelsDirectoryIfNeeded()
+        Task {
+            await refreshDownloadedModels()
+        }
     }
     
-    private func createModelsDirectoryIfNeeded() {
-        let directory = modelsDirectory
+    func refreshDownloadedModels() async {
+        var downloaded: Set<String> = []
         
-        if !fileManager.fileExists(atPath: directory) {
-            do {
-                try fileManager.createDirectory(atPath: directory, withIntermediateDirectories: true)
-            } catch {
-                print("Failed to create models directory: \(error)")
-            }
+        let basePath = modelsBaseURL.path
+        guard fileManager.fileExists(atPath: basePath) else {
+            downloadedModelNames = []
+            return
         }
+        
+        do {
+            let contents = try fileManager.contentsOfDirectory(atPath: basePath)
+            for folder in contents {
+                let folderPath = modelsBaseURL.appendingPathComponent(folder).path
+                var isDirectory: ObjCBool = false
+                if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
+                    downloaded.insert(folder)
+                }
+            }
+        } catch {
+            Log.model.error("Failed to list downloaded models: \(error)")
+        }
+        
+        downloadedModelNames = downloaded
     }
     
     func getDownloadedModels() async -> [WhisperModel] {
-        var downloaded: [WhisperModel] = []
-        for model in availableModels {
-            if await isModelDownloaded(model.name) {
-                downloaded.append(model)
-            }
-        }
-        return downloaded
+        await refreshDownloadedModels()
+        return availableModels.filter { downloadedModelNames.contains($0.name) }
     }
     
-    func isModelDownloaded(_ modelName: String) async -> Bool {
-        guard let modelPath = await getModelPath(for: modelName) else {
-            return false
-        }
-        
-        return fileManager.fileExists(atPath: modelPath)
-    }
-    
-    func getModelPath(for modelName: String) async -> String? {
-        guard availableModels.contains(where: { $0.name == modelName }) else {
-            return nil
-        }
-        
-        let modelDir = "\(modelsDirectory)/\(modelName)"
-        return modelDir
+    func isModelDownloaded(_ modelName: String) -> Bool {
+        downloadedModelNames.contains(modelName)
     }
     
     func downloadModel(named modelName: String) async throws {
-        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+        guard availableModels.contains(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
         
@@ -131,77 +123,52 @@ final class ModelManager {
         defer {
             isDownloading = false
             currentDownloadModel = nil
-            downloadProgress = 0.0
         }
         
         do {
-            let modelPath = "\(modelsDirectory)/\(modelName)"
-            
-            try fileManager.createDirectory(atPath: modelPath, withIntermediateDirectories: true)
-            
-            let huggingFaceURL = "https://huggingface.co/\(model.huggingFaceRepo)/resolve/main/\(modelName)"
-            
-            guard let url = URL(string: huggingFaceURL) else {
-                throw ModelError.invalidModelPath
-            }
-            
-            let (localURL, response) = try await URLSession.shared.download(from: url, delegate: DownloadDelegate(progressHandler: { [weak self] progress in
-                Task { @MainActor in
-                    self?.downloadProgress = progress
+            Log.model.info("Downloading model: \(modelName)")
+            _ = try await WhisperKit.download(
+                variant: modelName,
+                progressCallback: { [weak self] progress in
+                    Task { @MainActor in
+                        self?.downloadProgress = progress.fractionCompleted * 0.8
+                    }
                 }
-            }))
+            )
             
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else {
-                throw ModelError.downloadFailed("HTTP error: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
-            }
+            Log.model.info("Download complete, prewarming model...")
+            downloadProgress = 0.85
             
-            let destinationURL = URL(fileURLWithPath: modelPath)
+            let config = WhisperKitConfig(
+                model: modelName,
+                verbose: false,
+                logLevel: .error,
+                prewarm: true,
+                load: false
+            )
+            _ = try await WhisperKit(config)
             
-            if fileManager.fileExists(atPath: destinationURL.path) {
-                try fileManager.removeItem(at: destinationURL)
-            }
-            
-            try fileManager.moveItem(at: localURL, to: destinationURL)
-            
+            Log.model.info("Model prewarmed successfully")
             downloadProgress = 1.0
-            
-        } catch let error as ModelError {
-            throw error
+            await refreshDownloadedModels()
         } catch {
+            downloadProgress = 0.0
             throw ModelError.downloadFailed(error.localizedDescription)
         }
     }
     
     func deleteModel(named modelName: String) async throws {
-        guard let modelPath = await getModelPath(for: modelName) else {
-            throw ModelError.modelNotFound(modelName)
-        }
+        let modelPath = modelsBaseURL.appendingPathComponent(modelName)
         
-        guard fileManager.fileExists(atPath: modelPath) else {
+        guard fileManager.fileExists(atPath: modelPath.path) else {
             throw ModelError.modelNotFound(modelName)
         }
         
         do {
-            try fileManager.removeItem(atPath: modelPath)
+            try fileManager.removeItem(at: modelPath)
+            await refreshDownloadedModels()
         } catch {
-            throw ModelError.downloadFailed("Failed to delete model: \(error.localizedDescription)")
+            throw ModelError.deleteFailed(error.localizedDescription)
         }
-    }
-}
-
-private class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
-    let progressHandler: (Double) -> Void
-    
-    init(progressHandler: @escaping (Double) -> Void) {
-        self.progressHandler = progressHandler
-    }
-    
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        progressHandler(progress)
-    }
-    
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
     }
 }

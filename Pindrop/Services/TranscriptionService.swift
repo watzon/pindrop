@@ -7,6 +7,7 @@
 
 import Foundation
 import WhisperKit
+import os.log
 
 @MainActor
 @Observable
@@ -48,16 +49,22 @@ final class TranscriptionService {
         state = .loading
         error = nil
         
+        Log.transcription.info("Loading model: \(modelName) with prewarm enabled...")
+        
         do {
             let config = WhisperKitConfig(
                 model: modelName,
                 verbose: false,
-                logLevel: .none
+                logLevel: .error,
+                prewarm: true,
+                load: true
             )
             
             whisperKit = try await WhisperKit(config)
+            Log.transcription.info("Model loaded and prewarmed successfully")
             state = .ready
         } catch {
+            Log.transcription.error("Model load failed: \(error)")
             self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)
             state = .error
             throw self.error!
@@ -68,16 +75,22 @@ final class TranscriptionService {
         state = .loading
         error = nil
         
+        Log.transcription.info("Loading model from path: \(modelPath) with prewarm enabled...")
+        
         do {
             let config = WhisperKitConfig(
                 modelFolder: modelPath,
                 verbose: false,
-                logLevel: .none
+                logLevel: .error,
+                prewarm: true,
+                load: true
             )
             
             whisperKit = try await WhisperKit(config)
+            Log.transcription.info("Model loaded and prewarmed successfully")
             state = .ready
         } catch {
+            Log.transcription.error("Model load failed: \(error)")
             self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)
             state = .error
             throw self.error!
@@ -85,6 +98,8 @@ final class TranscriptionService {
     }
     
     func transcribe(audioData: Data) async throws -> String {
+        Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
+        
         guard whisperKit != nil else {
             throw TranscriptionError.modelNotLoaded
         }
@@ -100,7 +115,9 @@ final class TranscriptionService {
         state = .transcribing
         
         do {
-            let floatArray = convertPCMDataToFloatArray(audioData)
+            let floatArray = dataToFloatArray(audioData)
+            let duration = Double(floatArray.count) / 16000.0
+            Log.transcription.info("Transcribing \(floatArray.count) samples (\(duration, format: .fixed(precision: 2))s)")
             
             guard !floatArray.isEmpty else {
                 state = .ready
@@ -113,10 +130,14 @@ final class TranscriptionService {
                 withoutTimestamps: true
             )
             
+            let startTime = Date()
             let results = try await whisperKit!.transcribe(
                 audioArray: floatArray,
                 decodeOptions: options
             )
+            
+            let elapsed = Date().timeIntervalSince(startTime)
+            Log.transcription.info("Transcription completed in \(elapsed, format: .fixed(precision: 2))s")
             
             state = .ready
             
@@ -124,6 +145,7 @@ final class TranscriptionService {
                 throw TranscriptionError.transcriptionFailed("No transcription results returned")
             }
             
+            Log.transcription.debug("Result: '\(firstResult.text)'")
             return firstResult.text
         } catch let error as TranscriptionError {
             state = .ready
@@ -134,17 +156,14 @@ final class TranscriptionService {
         }
     }
     
-    func convertPCMDataToFloatArray(_ data: Data) -> [Float] {
-        let sampleCount = data.count / MemoryLayout<Int16>.size
-        var floatArray: [Float] = []
-        floatArray.reserveCapacity(sampleCount)
+    private func dataToFloatArray(_ data: Data) -> [Float] {
+        let floatCount = data.count / MemoryLayout<Float>.size
+        var floatArray = [Float](repeating: 0, count: floatCount)
         
-        data.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) in
-            let bufferPointer = rawBufferPointer.bindMemory(to: Int16.self)
-            
-            for sample in bufferPointer {
-                let normalizedSample = Float(sample) / Float(Int16.max)
-                floatArray.append(normalizedSample)
+        data.withUnsafeBytes { rawBuffer in
+            let floatBuffer = rawBuffer.bindMemory(to: Float.self)
+            for i in 0..<floatCount {
+                floatArray[i] = floatBuffer[i]
             }
         }
         

@@ -100,7 +100,8 @@ final class HotkeyManager {
         eventHotKeyID.signature = OSType(("PNDR" as NSString).utf8String!.withMemoryRebound(to: UInt8.self, capacity: 4) { ptr in
             return UInt32(ptr[0]) << 24 | UInt32(ptr[1]) << 16 | UInt32(ptr[2]) << 8 | UInt32(ptr[3])
         })
-        eventHotKeyID.id = UInt32(identifier.hashValue)
+        // Use truncatingIfNeeded to safely convert hash to UInt32 (handles negative values and overflow)
+        eventHotKeyID.id = UInt32(truncatingIfNeeded: identifier.hashValue)
         
         var eventHotKeyRef: EventHotKeyRef?
         let status = RegisterEventHotKey(

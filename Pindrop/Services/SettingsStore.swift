@@ -28,9 +28,13 @@ final class SettingsStore: ObservableObject {
     
     // MARK: - AppStorage Properties
     
-    @AppStorage("selectedModel") var selectedModel: String = "base"
+    @AppStorage("selectedModel") var selectedModel: String = "openai_whisper-base"
     @AppStorage("toggleHotkey") var toggleHotkey: String = "⌘⇧R"
+    @AppStorage("toggleHotkeyCode") var toggleHotkeyCode: Int = 15
+    @AppStorage("toggleHotkeyModifiers") var toggleHotkeyModifiers: Int = 0x100100
     @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⌘⇧T"
+    @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = 17
+    @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = 0x100100
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false

@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 import ApplicationServices
+import os.log
 
 enum OutputMode {
     case clipboard
@@ -54,21 +55,61 @@ final class OutputManager {
             throw OutputManagerError.emptyText
         }
         
+        Log.output.debug("Output called, mode: \(String(describing: self.outputMode)), length: \(text.count)")
+        
         switch outputMode {
         case .clipboard:
-            try copyToClipboard(text)
+            try await pasteViaClipboard(text, restoreClipboard: false)
         case .directInsert:
-            // Check accessibility permission before attempting direct insert
-            if checkAccessibilityPermission() {
-                try await insertTextDirectly(text)
-            } else {
-                // Fall back to clipboard if permission denied
-                try copyToClipboard(text)
-            }
+            try await pasteViaClipboard(text, restoreClipboard: true)
         }
     }
     
     // MARK: - Clipboard Operations
+    
+    private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
+        let pasteboard = NSPasteboard.general
+        
+        var previousContents: String? = nil
+        if restoreClipboard {
+            previousContents = pasteboard.string(forType: .string)
+        }
+        
+        pasteboard.clearContents()
+        let success = pasteboard.setString(text, forType: .string)
+        
+        guard success else {
+            Log.output.error("Failed to write to clipboard")
+            throw OutputManagerError.clipboardWriteFailed
+        }
+        
+        try await Task.sleep(nanoseconds: 100_000_000)
+        try simulatePaste()
+        
+        if restoreClipboard, let previous = previousContents {
+            try await Task.sleep(nanoseconds: 500_000_000)
+            pasteboard.clearContents()
+            pasteboard.setString(previous, forType: .string)
+        }
+    }
+    
+    private func simulatePaste() throws {
+        let vKeyCode: CGKeyCode = 0x09
+        let source = CGEventSource(stateID: .hidSystemState)
+        
+        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) else {
+            Log.output.error("Failed to create CGEvents for paste")
+            throw OutputManagerError.textInsertionFailed
+        }
+        
+        keyDown.flags = .maskCommand
+        keyUp.flags = .maskCommand
+        
+        keyDown.post(tap: .cghidEventTap)
+        usleep(50000)
+        keyUp.post(tap: .cghidEventTap)
+    }
     
     func copyToClipboard(_ text: String) throws {
         let pasteboard = NSPasteboard.general
@@ -84,13 +125,12 @@ final class OutputManager {
     // MARK: - Direct Text Insertion
     
     func checkAccessibilityPermission() -> Bool {
-        let options: [String: Any] = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: false]
-        return AXIsProcessTrustedWithOptions(options as CFDictionary)
+        return AXIsProcessTrusted()
     }
     
     func requestAccessibilityPermission() -> Bool {
-        let options: [String: Any] = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
-        return AXIsProcessTrustedWithOptions(options as CFDictionary)
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        return AXIsProcessTrustedWithOptions(options)
     }
     
     private func insertTextDirectly(_ text: String) async throws {
