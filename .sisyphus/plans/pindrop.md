@@ -768,7 +768,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 20. Wire Up App Coordinator
+- [x] 20. Wire Up App Coordinator
 
   **What to do**:
   - Create `Pindrop/App/AppCoordinator.swift`

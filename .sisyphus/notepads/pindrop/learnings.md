@@ -905,3 +905,75 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - @Published properties in @MainActor class require Task wrapper in non-isolated contexts
 - Preview must use explicit return when setup logic precedes view creation
 
+
+## AppCoordinator Implementation (2026-01-25)
+
+### Service Coordination Patterns
+- **Dependency Injection**: All services initialized in correct order in AppCoordinator init
+- **@Observable**: Used for reactive state management across the app
+- **@MainActor**: Ensures all UI-related operations run on main thread
+- **Weak References**: Used in closures to prevent retain cycles
+
+### Dependency Order
+1. PermissionManager (no dependencies)
+2. AudioRecorder (depends on PermissionManager)
+3. TranscriptionService, ModelManager, AIEnhancementService (independent)
+4. HotkeyManager, OutputManager (independent)
+5. HistoryStore (depends on ModelContext)
+6. SettingsStore (independent)
+7. UI Controllers (depend on services)
+
+### Hotkey Integration
+- **Push-to-Talk Mode**: onKeyDown starts recording, onKeyUp stops and transcribes
+- **Toggle Mode**: onKeyDown toggles recording state
+- **Key Codes**: T=17, R=15 with Command+Shift modifiers
+- **Async Handlers**: Wrapped in Task { @MainActor } for proper async execution
+
+### Recording Flow
+1. Hotkey pressed → startRecording()
+2. Update UI (StatusBar, FloatingIndicator)
+3. AudioRecorder.startRecording()
+4. Hotkey released → stopRecordingAndTranscribe()
+5. AudioRecorder.stopRecording() → audioData
+6. TranscriptionService.transcribe() → text
+7. Optional: AIEnhancementService.enhance() → enhanced text
+8. OutputManager.output() → clipboard/direct insert
+9. HistoryStore.save() → persist to SwiftData
+
+### Settings Reactivity
+- **Combine**: Used settingsStore.objectWillChange publisher
+- **Sink**: Observes changes and updates services accordingly
+- **Output Mode**: Dynamically switches between clipboard and direct insert
+- **Floating Indicator**: Shows/hides based on settings
+
+### Error Handling
+- **Try-Catch**: Used throughout async operations
+- **Error Property**: Stored on AppCoordinator for UI access
+- **Fallbacks**: AI enhancement falls back to original text on failure
+- **Print Statements**: Used for debugging (should be replaced with proper logging)
+
+### App Lifecycle
+- **ModelContainer**: Created as static property in PindropApp
+- **onAppear**: Used to initialize AppCoordinator (avoids escaping closure issues)
+- **MenuBarExtra**: Used instead of WindowGroup for menu bar app
+- **Lazy Initialization**: Coordinator created on first appear
+
+### Xcode Project Integration
+- **xcodeproj gem**: Used to programmatically add files to Xcode project
+- **File References**: Added AppCoordinator, StatusBarController, FloatingIndicator, AIEnhancementService
+- **Build Success**: Verified with xcodebuild command
+
+### Challenges Encountered
+1. **Escaping Closure**: Initial attempt to initialize coordinator in init() failed
+   - Solution: Moved to onAppear in body
+2. **LSP Errors**: LSP doesn't understand Xcode project structure
+   - Solution: Verified with actual build instead of LSP
+3. **File Organization**: Wanted App/ directory but Xcode project needed updates
+   - Solution: Kept files in main Pindrop/ directory for now
+
+### Best Practices Applied
+- Single responsibility: AppCoordinator only coordinates, doesn't implement logic
+- Dependency injection: All dependencies passed explicitly
+- Reactive programming: Settings changes propagate automatically
+- Error handling: All async operations wrapped in try-catch
+- Thread safety: @MainActor ensures UI updates on main thread
