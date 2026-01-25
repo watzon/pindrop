@@ -743,3 +743,65 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - Cannot use explicit return in #Preview body (ViewBuilder context)
 - Must remove return keyword or use closure pattern for setup
 - filteredTranscriptions computed property recalculates on every searchText change
+
+## Settings Window Implementation (2026-01-25)
+
+### @Observable vs ObservableObject with @AppStorage
+- **Conflict**: @Observable macro conflicts with @AppStorage property wrapper
+- **Error**: "property wrapper cannot be applied to a computed property"
+- **Root Cause**: @Observable generates computed properties for observation tracking, incompatible with @AppStorage
+- **Solution**: Use ObservableObject protocol with Combine instead of @Observable macro
+- **Pattern**: `final class SettingsStore: ObservableObject` with `@AppStorage` properties
+- **Views**: Use @ObservedObject (child views) or @StateObject (owner) instead of @Bindable
+
+### SwiftUI Settings Window Architecture
+- **TabView**: Native tab interface for settings categories
+- **Form + .formStyle(.grouped)**: Apple-standard settings layout
+- **Section with header**: Organized settings groups with headers
+- **Picker with .radioGroup**: Radio button style for exclusive choices
+- **SecureField**: Password-style input for API keys
+- **TextField with .disabled(true)**: Display-only fields for future features
+
+### Settings Persistence Patterns
+- **@AppStorage**: Automatic UserDefaults persistence for simple types (String, Bool, Int)
+- **Keychain**: Secure storage for sensitive data (API keys, endpoints)
+- **Cached Values**: Load Keychain values once in init(), cache in properties
+- **Reactive Updates**: @AppStorage automatically triggers view updates on change
+- **ObservableObject**: Manual objectWillChange.send() not needed with @AppStorage
+
+### Model Management UI Patterns
+- **List with Selection**: `List(selection: $settings.selectedModel)` for model picker
+- **Conditional Buttons**: Show Download/Delete based on model state
+- **Progress Indicators**: ProgressView(value:) for download progress
+- **Error Display**: Inline error messages with dismiss button
+- **Task Modifier**: `.task { await refreshDownloadedModels() }` for async initialization
+- **State Management**: @State for local UI state, @ObservedObject for shared state
+
+### Form Validation and UX
+- **Disabled States**: Disable controls when feature is off or data is invalid
+- **Visual Feedback**: Success indicators (checkmark + green text) for save operations
+- **Temporary Messages**: Use Task.sleep() to auto-dismiss success messages
+- **Error Handling**: Display errors inline, allow user to dismiss
+- **Placeholder Text**: Use .disabled(true) + placeholder for future features
+
+### Xcode Project Integration for UI Files
+- **Group Structure**: Create Settings group under UI group for organization
+- **File References**: Add PBXFileReference for each .swift file
+- **Build Files**: Add PBXBuildFile linking file reference to target
+- **Sources Phase**: Add build file UUIDs to PBXSourcesBuildPhase
+- **Group Children**: Add file references to parent PBXGroup children array
+- **Nested Groups**: Create separate group for Settings subdirectory
+
+### SwiftUI Preview Patterns
+- **#Preview Macro**: Modern preview syntax for Xcode 15+
+- **State Initialization**: Create fresh SettingsStore() for each preview
+- **Isolated Previews**: Each view preview is independent, no shared state
+- **Quick Iteration**: Previews enable rapid UI development without full app launch
+
+### Gotchas
+- **@Observable + @AppStorage**: Cannot be used together, use ObservableObject instead
+- **@Bindable**: Only works with @Observable types, use @ObservedObject for ObservableObject
+- **@StateObject**: Use in parent/owner view, @ObservedObject in child views
+- **LSP Errors**: "Cannot find type" errors are false positives when project context not loaded
+- **Xcode Project**: Must add files to project.pbxproj, not just filesystem
+- **Build Success**: xcodebuild succeeds even when LSP shows errors (trust the build)

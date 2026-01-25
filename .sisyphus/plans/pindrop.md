@@ -643,7 +643,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 16. Implement Settings Window
+- [x] 16. Implement Settings Window
 
   **What to do**:
   - Create `Pindrop/UI/SettingsWindow.swift` (SwiftUI)
@@ -675,7 +675,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 17. Implement History Window
+- [x] 17. Implement History Window
 
   **What to do**:
   - Create `Pindrop/UI/HistoryWindow.swift` (SwiftUI)
