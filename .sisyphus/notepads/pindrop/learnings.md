@@ -270,3 +270,85 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - Cannot call @MainActor init from default parameter (use nonisolated or explicit param)
 - TranscriptionResult is array, not single result - always check .first
 - Empty audio data should be validated before conversion to avoid crashes
+
+## ModelManager Implementation (2026-01-25)
+
+### WhisperKit Model Management
+- WhisperKit models hosted on HuggingFace: argmaxinc/whisperkit-coreml
+- Model sizes: tiny (75MB), base (145MB), small (483MB), medium (1500MB), large-v3 (3100MB), turbo (809MB)
+- English-only variants available for smaller models (.en suffix)
+- Models stored in ~/Library/Application Support/Pindrop/Models/
+- Each model gets its own subdirectory
+
+### URLSession Download with Progress Tracking
+- Use URLSession.shared.download(from:delegate:) for file downloads
+- Custom URLSessionDownloadDelegate to track progress
+- Progress calculated: totalBytesWritten / totalBytesExpectedToWrite
+- Delegate must be class (not struct) to conform to NSObject
+- Progress handler uses weak self and @MainActor Task to update UI state
+
+### FileManager for Application Support
+- Use FileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+- Create directory with createDirectory(atPath:withIntermediateDirectories:)
+- withIntermediateDirectories: true creates parent directories automatically
+- Check existence with fileExists(atPath:isDirectory:)
+- Delete with removeItem(atPath:)
+
+### @Observable State Management for Downloads
+- @Published properties: downloadProgress, isDownloading, currentDownloadModel
+- State updates must happen on @MainActor
+- Use defer block to reset download state on completion/error
+- Prevent concurrent downloads by checking isDownloading flag
+
+### Async Filter Pattern
+- Cannot use async closure in synchronous filter()
+- Must iterate manually with for-in loop and await
+- Pattern: var result = []; for item in items { if await check(item) { result.append(item) } }
+- Alternative: use TaskGroup for parallel async filtering
+
+### Testing Model Management
+- Tests verify model listing, path generation, directory creation
+- Tests check download progress state management
+- Tests validate error handling for nonexistent models
+- Cannot test actual downloads in unit tests (too slow, requires network)
+- Manual testing required for download functionality
+
+### Gotchas
+- LSP shows "No such module 'XCTest'" in test files (false positive, tests compile)
+- URLSessionDownloadDelegate requires NSObject inheritance
+- Progress handler must use weak self to avoid retain cycles
+- Download destination must be removed before moveItem if it exists
+- HTTP response status codes 200-299 indicate success
+
+## AI Enhancement Service Implementation (2026-01-25)
+
+### OpenAI-Compatible API Integration
+- **Request Structure**: POST to `/v1/chat/completions` with JSON body containing `model`, `messages`, `temperature`, `max_tokens`
+- **Authentication**: Bearer token in `Authorization` header
+- **Response Parsing**: Extract `choices[0].message.content` from JSON response
+- **Error Handling**: Return original text on any failure (network, HTTP error, JSON parsing)
+
+### Keychain Integration for API Keys
+- **Service Identifier**: Use bundle identifier-based service name (`com.pindrop.ai-enhancement`)
+- **Account Identifier**: Use API endpoint URL as account name for multi-endpoint support
+- **Security Framework**: Use `SecItemAdd`, `SecItemCopyMatching`, `SecItemDelete` for CRUD operations
+- **Error Handling**: Check for `errSecSuccess` and `errSecItemNotFound` status codes
+
+### Testing Strategies for External APIs
+- **Protocol Abstraction**: Create `URLSessionProtocol` to enable dependency injection
+- **Mock Session**: Implement mock that captures requests and returns controlled responses
+- **Test Coverage**: Success case, network errors, HTTP errors, JSON parsing errors, empty input
+- **Request Verification**: Validate headers, body structure, and message format in tests
+
+### Swift Service Architecture Patterns
+- **@MainActor**: Mark service as `@MainActor` for UI integration safety
+- **@Observable**: Use for SwiftUI state management integration
+- **Error Types**: Define custom error enum conforming to `LocalizedError`
+- **Fallback Strategy**: Always return original text on enhancement failure (graceful degradation)
+
+### API Enhancement Prompt Engineering
+- **System Message**: Clear instruction to improve grammar/punctuation while preserving meaning
+- **Temperature**: Use low temperature (0.3) for consistent, conservative enhancements
+- **Output Format**: Request only enhanced text without commentary
+- **Token Limit**: Set reasonable max_tokens (2048) for typical transcription lengths
+

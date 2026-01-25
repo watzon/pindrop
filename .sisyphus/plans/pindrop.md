@@ -318,7 +318,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 6. Implement Model Manager
+- [x] 6. Implement Model Manager
 
   **What to do**:
   - Create `Pindrop/Services/ModelManager.swift`
@@ -351,7 +351,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 7. Implement AI Enhancement Service (Optional Feature)
+- [x] 7. Implement AI Enhancement Service (Optional Feature)
 
   **What to do**:
   - Create `Pindrop/Services/AIEnhancementService.swift`
