@@ -391,3 +391,113 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - GetEventKind returns UInt32, must compare with UInt32(kEventHotKeyPressed/Released)
 - Switch statement on mode determines which callbacks to invoke
 - Thread safety maintained with DispatchQueue.main.async for all callbacks
+
+## OutputManager Implementation (2026-01-25)
+
+### NSPasteboard for Clipboard Operations
+- NSPasteboard.general provides access to system clipboard
+- Must call clearContents() before writing to replace previous clipboard contents
+- setString(_:forType:) writes text to clipboard, returns Bool for success/failure
+- Use .string as the pasteboard type for plain text
+- Unlike iOS UIPasteboard, macOS requires explicit clearing before writing
+
+### CGEvent for Keyboard Simulation
+- CGEvent.keyboardEventSource creates keyboard events for text insertion
+- Requires two events per character: keyDown (true) and keyUp (false)
+- Events posted via post(tap: .cgAnnotatedSessionEventTap) to system event stream
+- CGEventFlags used for modifiers: .maskShift for uppercase/special chars
+- Small delay (1ms) between characters improves reliability
+
+### Character to KeyCode Mapping
+- macOS uses hardware keycodes (CGKeyCode), not characters
+- Mapping required for each character: (keyCode: CGKeyCode, modifiers: CGEventFlags)
+- Example mappings: "a" = (0, []), "A" = (0, .maskShift), space = (49, [])
+- Lowercase letters: keycodes 0-46, uppercase adds .maskShift modifier
+- Numbers: keycodes 18-29, special chars require shift for symbols
+- Unsupported characters (emoji, unicode) return nil from mapping
+
+### Accessibility Permission for Direct Insert
+- AXIsProcessTrustedWithOptions checks if app has accessibility permission
+- kAXTrustedCheckOptionPrompt: false = silent check, true = show system prompt
+- Permission required for CGEvent posting to work across applications
+- System prompt can only appear once per app launch
+- Must guide users to System Settings > Privacy & Security > Accessibility if denied
+
+### Fallback Strategy Pattern
+- OutputMode enum: .clipboard (always safe) vs .directInsert (requires permission)
+- Check accessibility permission before attempting direct insert
+- Automatically fall back to clipboard if permission denied
+- Graceful degradation ensures functionality without blocking user
+
+### Testing Strategies for Output Services
+- @MainActor required on test class for testing @MainActor services
+- Tests verify clipboard operations by reading NSPasteboard after write
+- Tests verify fallback behavior when accessibility permission unavailable
+- Character mapping tested separately from actual keyboard simulation
+- Manual testing required for direct insert (needs accessibility permission)
+- Extension pattern used to expose private methods for unit testing
+
+### Error Handling for Output Operations
+- Custom OutputManagerError enum with LocalizedError conformance
+- Specific errors: emptyText, clipboardWriteFailed, textInsertionFailed, accessibilityPermissionDenied
+- Throw errors for invalid input (empty text) before attempting operations
+- Return Bool from clipboard operations to detect write failures
+- Fallback to clipboard on any direct insert failure
+
+### Gotchas
+- LSP shows false positive errors for XCTest imports (tests compile successfully)
+- CGEvent requires accessibility permission at runtime, not compile time
+- Character mapping incomplete - production needs full Unicode support
+- Direct insert types one character at a time (slower than paste for long text)
+- Accessibility permission prompt only shows once per app launch
+- Must add files to correct Services group in Xcode project (multiple groups exist)
+
+## Accessibility Permission Handling (2026-01-25)
+
+### AXIsProcessTrusted API Usage
+- AXIsProcessTrusted() checks if app has Accessibility permission (returns Bool)
+- AXIsProcessTrustedWithOptions() allows showing system prompt on first check
+- kAXTrustedCheckOptionPrompt key controls whether to show system dialog
+- System prompt can only appear once per app launch (subsequent calls return cached state)
+- Permission check is synchronous (no async/await needed)
+
+### Permission Request Pattern with Options
+- Create CFDictionary with kAXTrustedCheckOptionPrompt key
+- Use takeUnretainedValue() to convert CFString to Swift String for dictionary key
+- showPrompt: false = silent check, showPrompt: true = show system prompt if not granted
+- Always update observable state after checking permission
+- Return Bool directly (no need for async/await like microphone permission)
+
+### Opening System Preferences for Accessibility
+- Use URL scheme: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+- NSWorkspace.shared.open(url) opens System Settings to Accessibility pane
+- Requires AppKit framework import (NSWorkspace is part of AppKit)
+- User must manually enable app in System Settings (cannot be automated)
+
+### Observable State Management for Multiple Permissions
+- Separate observable properties for each permission type (permissionStatus, accessibilityPermissionGranted)
+- Convenience properties for UI binding (isAuthorized, isAccessibilityAuthorized)
+- Initialize all permission states in init() for immediate UI availability
+- Refresh methods update observable state for reactive UI updates
+
+### Testing Accessibility Permissions
+- Tests verify observable state updates after permission checks
+- Tests verify convenience properties match underlying state
+- Tests verify request with and without prompt parameter
+- Tests verify refresh method updates observable state
+- openAccessibilityPreferences() test just verifies method doesn't crash
+- Actual permission state depends on system configuration (tests adapt to current state)
+
+### Integration with Existing PermissionManager
+- Added MARK comments to organize microphone vs accessibility sections
+- Maintained existing @MainActor and @Observable patterns
+- Followed same naming conventions (check, request, refresh methods)
+- Kept backward compatibility with existing microphone permission API
+
+### Gotchas
+- ApplicationServices framework required for AX* functions
+- AppKit framework required for NSWorkspace
+- kAXTrustedCheckOptionPrompt is CFString, must use takeUnretainedValue()
+- System prompt only shows once per app launch (by design)
+- Permission cannot be granted programmatically (user must enable in System Settings)
+- Tests pass regardless of actual permission state (validates API surface, not system state)

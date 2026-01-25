@@ -415,7 +415,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 9. Implement Push-to-Talk Logic
+- [x] 9. Implement Push-to-Talk Logic
 
   **What to do**:
   - Extend HotkeyManager for push-to-talk behavior
@@ -443,7 +443,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 10. Implement Output Manager (Clipboard + Direct Insert)
+- [x] 10. Implement Output Manager (Clipboard + Direct Insert)
 
   **What to do**:
   - Create `Pindrop/Services/OutputManager.swift`
