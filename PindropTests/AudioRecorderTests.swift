@@ -9,13 +9,16 @@ import XCTest
 import AVFoundation
 @testable import Pindrop
 
+@MainActor
 final class AudioRecorderTests: XCTestCase {
     
     var sut: AudioRecorder!
+    var permissionManager: PermissionManager!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        sut = AudioRecorder()
+        permissionManager = PermissionManager()
+        sut = AudioRecorder(permissionManager: permissionManager)
     }
     
     override func tearDownWithError() throws {

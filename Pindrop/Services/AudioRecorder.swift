@@ -25,7 +25,7 @@ final class AudioRecorder {
     let audioFormat: AVAudioFormat
     let permissionManager: PermissionManager
     
-    init(permissionManager: PermissionManager = PermissionManager()) {
+    nonisolated init(permissionManager: PermissionManager) {
         guard let format = AVAudioFormat(
             commonFormat: .pcmFormatInt16,
             sampleRate: 16000.0,
