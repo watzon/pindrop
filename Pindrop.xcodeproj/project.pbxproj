@@ -20,6 +20,8 @@
 		5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6f62938483ec4a11ad5636be /* TranscriptionService.swift */; };
 		845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */; };
 		751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = a2189a034cf447e08e86f24b /* PermissionManager.swift */; };
+		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
+		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		6f62938483ec4a11ad5636be /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionServiceTests.swift; sourceTree = "<group>"; };
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		CB05E1BC11534652810B091F /* OutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManager.swift; sourceTree = "<group>"; };
+		8AED90D301B14DA19D138987 /* OutputManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,7 +99,8 @@
 				8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */,
 				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
-			);
+			
+				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,);
 			path = PindropTests;
 			sourceTree = "<group>";
 		};
@@ -136,7 +141,8 @@
 				f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
 				6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
 				a2189a034cf447e08e86f24b /* PermissionManager.swift */,
-			);
+			
+				CB05E1BC11534652810B091F /* OutputManager.swift */,);
 			path = Services;
 			sourceTree = "<group>";
 		};
@@ -252,7 +258,8 @@
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 				5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */,
 				751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */,
-			);
+			
+				14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		572D6581DD0541D98D9191B2 /* Sources */ = {
@@ -263,7 +270,8 @@
 				044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */,
 				B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */,
 				845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */,
-			);
+			
+				1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
