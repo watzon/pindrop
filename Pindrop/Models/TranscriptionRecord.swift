@@ -1,0 +1,33 @@
+//
+//  TranscriptionRecord.swift
+//  Pindrop
+//
+//  Created on 2026-01-25.
+//
+
+import Foundation
+import SwiftData
+
+@Model
+final class TranscriptionRecord {
+    
+    @Attribute(.unique) var id: UUID
+    var text: String
+    var timestamp: Date
+    var duration: TimeInterval
+    var modelUsed: String
+    
+    init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: Date = Date(),
+        duration: TimeInterval,
+        modelUsed: String
+    ) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+        self.duration = duration
+        self.modelUsed = modelUsed
+    }
+}
