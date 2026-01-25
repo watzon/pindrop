@@ -549,7 +549,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 13. Implement History Export
+- [x] 13. Implement History Export
 
   **What to do**:
   - Add export functionality to HistoryStore
