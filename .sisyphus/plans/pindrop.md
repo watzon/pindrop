@@ -3,10 +3,13 @@
 ## Context
 
 ### Original Request
+
 Build a native macOS menu bar dictation application that lives in the status bar, reacts to keyboard shortcuts (push-to-talk and toggle), uses open-source models (WhisperKit) locally with optional OpenAI API fallback, featuring a clean Apple-like design with Settings and History windows.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - **STT Engine**: WhisperKit (native Swift, Core ML optimized) as primary, OpenAI-compatible API as optional cloud enhancement
 - **Model Management**: All Whisper sizes available, user downloads in Settings, starts with Tiny/Turbo
 - **Keyboard Shortcuts**: Option+Space toggle (default), push-to-talk empty (user-configured)
@@ -18,13 +21,16 @@ Build a native macOS menu bar dictation application that lives in the status bar
 - **Testing**: XCTest for core logic
 
 **Research Findings**:
+
 - WhisperKit: Native Swift, Core ML optimized, 5,500+ stars, actively maintained
 - Audio: AVAudioEngine at 16kHz mono 16-bit PCM (Whisper requirement)
 - Hotkeys: Carbon Event API for global registration
 - Database: SwiftData (modern Core Data replacement for macOS 14+)
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - Direct insertion mechanism: Accessibility API with clipboard fallback
 - Permission handling: Graceful degradation with user prompts
 - Latency targets: <500ms to recording start, <2s first transcription (Tiny model)
@@ -38,9 +44,11 @@ Build a native macOS menu bar dictation application that lives in the status bar
 ## Work Objectives
 
 ### Core Objective
+
 Build a native macOS 14+ menu bar dictation app using WhisperKit for local speech-to-text with optional cloud enhancement, focusing on privacy-first design and Apple-like simplicity.
 
 ### Concrete Deliverables
+
 - `Pindrop.xcodeproj` - Xcode project with proper signing and entitlements
 - Status bar application with dropdown menu
 - Settings window (hotkeys, models, API config, output behavior)
@@ -50,6 +58,7 @@ Build a native macOS 14+ menu bar dictation app using WhisperKit for local speec
 - Optional OpenAI-compatible API enhancement
 
 ### Definition of Done
+
 - [ ] App launches and appears in menu bar
 - [ ] Option+Space toggles recording
 - [ ] Audio is captured and transcribed via WhisperKit
@@ -59,6 +68,7 @@ Build a native macOS 14+ menu bar dictation app using WhisperKit for local speec
 - [ ] App is signed and notarized (or ready for)
 
 ### Must Have
+
 - Menu bar icon with recording state indication
 - Global hotkey support (toggle recording)
 - Local WhisperKit transcription
@@ -68,6 +78,7 @@ Build a native macOS 14+ menu bar dictation app using WhisperKit for local speec
 - Permission request flows (Microphone)
 
 ### Must NOT Have (Guardrails)
+
 - No batch file transcription (live dictation only)
 - No meeting recorder features
 - No multi-language support (English only for v1)
@@ -85,14 +96,17 @@ Build a native macOS 14+ menu bar dictation app using WhisperKit for local speec
 ## Verification Strategy (MANDATORY)
 
 ### Test Decision
+
 - **Infrastructure exists**: NO (greenfield)
 - **User wants tests**: YES (XCTest)
 - **Framework**: XCTest (built-in)
 
 ### TDD Approach
+
 Each core component includes unit tests. UI components verified manually.
 
 **Testable Units**:
+
 - AudioRecorder: Mock AVAudioEngine, verify buffer handling
 - TranscriptionService: Mock WhisperKit, verify text output
 - HotkeyManager: Verify registration/unregistration
@@ -100,6 +114,7 @@ Each core component includes unit tests. UI components verified manually.
 - SettingsStore: Verify persistence
 
 **Manual Verification** (UI/Integration):
+
 - Status bar icon states
 - Settings window interactions
 - History window search/export
@@ -119,19 +134,19 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ## Parallelization
 
-| Group | Tasks | Reason |
-|-------|-------|--------|
-| A | 3, 8 | Audio capture and hotkey registration are independent |
-| B | 12, 14 | History store and Settings store are independent |
-| C | 16, 17 | Settings window and History window are independent |
+| Group | Tasks  | Reason                                                |
+| ----- | ------ | ----------------------------------------------------- |
+| A     | 3, 8   | Audio capture and hotkey registration are independent |
+| B     | 12, 14 | History store and Settings store are independent      |
+| C     | 16, 17 | Settings window and History window are independent    |
 
-| Task | Depends On | Reason |
-|------|------------|--------|
-| 5 | 3 | Transcription needs audio capture |
-| 10 | 5 | Output needs transcription |
-| 13 | 12 | History queries need store |
-| 15 | 14 | Settings UI needs store |
-| 18 | 10 | Visual feedback needs recording state |
+| Task | Depends On | Reason                                |
+| ---- | ---------- | ------------------------------------- |
+| 5    | 3          | Transcription needs audio capture     |
+| 10   | 5          | Output needs transcription            |
+| 13   | 12         | History queries need store            |
+| 15   | 14         | Settings UI needs store               |
+| 18   | 10         | Visual feedback needs recording state |
 
 ---
 
@@ -817,36 +832,37 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ## Commit Strategy
 
-| After Task | Message | Files | Verification |
-|------------|---------|-------|--------------|
-| 0 | `chore: initialize Pindrop Xcode project` | Pindrop.xcodeproj/, Pindrop/ | xcodebuild -list |
-| 1 | `chore: configure entitlements` | Pindrop.entitlements, Info.plist | codesign check |
-| 2 | `test: set up XCTest infrastructure` | PindropTests/ | xcodebuild test |
-| 3 | `feat(audio): implement AudioRecorder` | Services/AudioRecorder.swift | Unit tests |
-| 4 | `feat(permissions): implement PermissionManager` | Services/PermissionManager.swift | Unit tests |
-| 5 | `feat(stt): implement TranscriptionService` | Services/TranscriptionService.swift | Unit tests |
-| 6 | `feat(models): implement ModelManager` | Services/ModelManager.swift | Unit tests |
-| 7 | `feat(ai): implement AIEnhancementService` | Services/AIEnhancementService.swift | Unit tests |
-| 8 | `feat(hotkeys): implement HotkeyManager` | Services/HotkeyManager.swift | Unit tests |
-| 9 | `feat(hotkeys): add push-to-talk` | Services/HotkeyManager.swift | Unit tests |
-| 10 | `feat(output): implement OutputManager` | Services/OutputManager.swift | Unit tests |
-| 11 | `feat(permissions): add Accessibility` | Services/PermissionManager.swift | Unit tests |
-| 12 | `feat(history): implement HistoryStore` | Models/, Services/HistoryStore.swift | Unit tests |
-| 13 | `feat(history): add export` | Services/HistoryStore.swift | Unit tests |
-| 14 | `feat(settings): implement SettingsStore` | Services/SettingsStore.swift | Unit tests |
-| 15 | `feat(ui): implement StatusBarController` | UI/StatusBarController.swift | Manual |
-| 16 | `feat(ui): implement Settings window` | UI/SettingsWindow.swift | Manual |
-| 17 | `feat(ui): implement History window` | UI/HistoryWindow.swift | Manual |
-| 18 | `feat(ui): add visual feedback` | UI/StatusBarController.swift | Manual |
-| 19 | `feat(ui): implement floating indicator` | UI/FloatingIndicator.swift | Manual |
-| 20 | `feat(app): implement AppCoordinator` | App/AppCoordinator.swift | Integration |
-| 21 | `docs: add README and finalize` | README.md | Full flow |
+| After Task | Message                                          | Files                                | Verification     |
+| ---------- | ------------------------------------------------ | ------------------------------------ | ---------------- |
+| 0          | `chore: initialize Pindrop Xcode project`        | Pindrop.xcodeproj/, Pindrop/         | xcodebuild -list |
+| 1          | `chore: configure entitlements`                  | Pindrop.entitlements, Info.plist     | codesign check   |
+| 2          | `test: set up XCTest infrastructure`             | PindropTests/                        | xcodebuild test  |
+| 3          | `feat(audio): implement AudioRecorder`           | Services/AudioRecorder.swift         | Unit tests       |
+| 4          | `feat(permissions): implement PermissionManager` | Services/PermissionManager.swift     | Unit tests       |
+| 5          | `feat(stt): implement TranscriptionService`      | Services/TranscriptionService.swift  | Unit tests       |
+| 6          | `feat(models): implement ModelManager`           | Services/ModelManager.swift          | Unit tests       |
+| 7          | `feat(ai): implement AIEnhancementService`       | Services/AIEnhancementService.swift  | Unit tests       |
+| 8          | `feat(hotkeys): implement HotkeyManager`         | Services/HotkeyManager.swift         | Unit tests       |
+| 9          | `feat(hotkeys): add push-to-talk`                | Services/HotkeyManager.swift         | Unit tests       |
+| 10         | `feat(output): implement OutputManager`          | Services/OutputManager.swift         | Unit tests       |
+| 11         | `feat(permissions): add Accessibility`           | Services/PermissionManager.swift     | Unit tests       |
+| 12         | `feat(history): implement HistoryStore`          | Models/, Services/HistoryStore.swift | Unit tests       |
+| 13         | `feat(history): add export`                      | Services/HistoryStore.swift          | Unit tests       |
+| 14         | `feat(settings): implement SettingsStore`        | Services/SettingsStore.swift         | Unit tests       |
+| 15         | `feat(ui): implement StatusBarController`        | UI/StatusBarController.swift         | Manual           |
+| 16         | `feat(ui): implement Settings window`            | UI/SettingsWindow.swift              | Manual           |
+| 17         | `feat(ui): implement History window`             | UI/HistoryWindow.swift               | Manual           |
+| 18         | `feat(ui): add visual feedback`                  | UI/StatusBarController.swift         | Manual           |
+| 19         | `feat(ui): implement floating indicator`         | UI/FloatingIndicator.swift           | Manual           |
+| 20         | `feat(app): implement AppCoordinator`            | App/AppCoordinator.swift             | Integration      |
+| 21         | `docs: add README and finalize`                  | README.md                            | Full flow        |
 
 ---
 
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 # Build
 xcodebuild -scheme Pindrop -configuration Debug build
@@ -859,6 +875,7 @@ codesign -d --verbose=4 build/Debug/Pindrop.app
 ```
 
 ### Final Checklist
+
 - [ ] App appears in menu bar on launch
 - [ ] Option+Space toggles recording (global)
 - [ ] Audio is captured and transcribed locally

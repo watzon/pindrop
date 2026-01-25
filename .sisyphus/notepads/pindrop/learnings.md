@@ -613,3 +613,48 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - FetchDescriptor predicate errors only appear at runtime, not compile time
 - Task.sleep() in tests requires async throws function signature
 
+
+## History Export Implementation (2026-01-25)
+
+### NSSavePanel for File Export
+- NSSavePanel provides native macOS file save dialog
+- Set allowedContentTypes using UTType (.plainText, .json, .commaSeparatedText)
+- nameFieldStringValue sets default filename in dialog
+- title and message customize dialog appearance
+- runModal() returns .OK or .cancel (NSApplication.ModalResponse)
+- url property contains selected file path after successful dialog
+- Must check both response == .OK and url != nil before proceeding
+
+### Export Format Strategies
+- **Plain Text**: Human-readable format with headers, separators, formatted dates
+- **JSON**: Structured data with ISO8601 timestamps, pretty-printed with sortedKeys
+- **CSV**: Spreadsheet-compatible with proper escaping (quotes doubled, newlines removed)
+- All formats use UTF-8 encoding for universal compatibility
+
+### CSV Escaping Rules
+- Double quotes in text must be escaped as "" (two double quotes)
+- Newlines and carriage returns replaced with spaces to prevent row breaks
+- All text fields wrapped in quotes to handle commas safely
+- Format: "field with ""quotes"" and, commas" becomes valid CSV cell
+
+### JSON Export Pattern
+- Define nested Codable structs for export structure (ExportData, ExportRecord)
+- Use ISO8601DateFormatter for consistent timestamp formatting
+- JSONEncoder.outputFormatting = [.prettyPrinted, .sortedKeys] for readable output
+- Include metadata: exportDate, totalRecords for context
+
+### Testing File Export Without UI
+- Create internal helper methods that accept URL parameter (bypass NSSavePanel)
+- Use FileManager.default.temporaryDirectory for test files
+- Clean up test files in both setUp and tearDown to prevent pollution
+- Verify file existence, content structure, and proper escaping
+- Test empty records case to ensure proper error handling
+
+### Gotchas
+- NSSavePanel requires @MainActor context (UI operation)
+- Records from HistoryStore are in reverse chronological order (newest first)
+- Test assertions must account for record ordering
+- LSP shows false positive errors for TranscriptionRecord (tests compile and pass)
+- FileManager operations can throw, must wrap in do-catch
+- ISO8601DateFormatter produces consistent, parseable timestamps across platforms
+
