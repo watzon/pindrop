@@ -8,10 +8,10 @@
 import Foundation
 import SwiftUI
 import Security
+import Combine
 
 @MainActor
-@Observable
-final class SettingsStore {
+final class SettingsStore: ObservableObject {
     
     // MARK: - Errors
     

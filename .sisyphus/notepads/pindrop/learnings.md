@@ -658,3 +658,88 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - FileManager operations can throw, must wrap in do-catch
 - ISO8601DateFormatter produces consistent, parseable timestamps across platforms
 
+
+## StatusBarController Implementation (2026-01-25)
+
+### NSStatusItem Usage Patterns
+- Created status item with `NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)`
+- Set button image using SF Symbols: `NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")`
+- Used `button.image?.isTemplate = true` to allow icon to adapt to menu bar theme (light/dark mode)
+- Assigned NSMenu directly to statusItem.menu property for dropdown behavior
+
+### Menu Bar App Best Practices
+- Keep menu minimal and focused (7 items total including separators)
+- Disabled status indicator item (isEnabled = false) for non-interactive display
+- Used keyboard shortcuts for common actions (⌘R for recording, ⌘, for settings, ⌘H for history, ⌘Q for quit)
+- Grouped related items with NSMenuItem.separator() for visual organization
+- Made controller @MainActor since all AppKit UI must run on main thread
+
+### SF Symbols Integration
+- SF Symbols work seamlessly with NSImage(systemSymbolName:accessibilityDescription:)
+- Template images automatically adapt to system appearance
+- Used "mic.fill" for microphone icon (solid fill style)
+- Accessibility descriptions improve VoiceOver support
+
+### Menu Action Wiring
+- Used @objc methods as action selectors for NSMenuItem
+- Set target to self for proper action routing
+- Wrapped async operations in Task {} for AudioRecorder integration
+- Dynamic menu updates via updateMenuState() method that changes titles and icons based on recording state
+- Used emoji (🔴) for visual recording indicator in menu
+
+### Architecture Notes
+- StatusBarController depends on AudioRecorder and SettingsStore services
+- Placeholder print statements for Settings/History windows (to be implemented later)
+- Clean separation: controller handles UI, delegates recording logic to AudioRecorder
+- Public updateMenuState() method allows external state synchronization
+
+
+## HistoryWindow SwiftUI Implementation (2026-01-25)
+
+### SwiftUI List with Search
+- .searchable(text:prompt:) modifier adds native macOS search field to window
+- Search field automatically appears in toolbar area above list
+- Filtering done manually in computed property (filteredTranscriptions)
+- localizedStandardContains() provides case-insensitive search matching
+- List automatically updates when filtered array changes
+
+### SwiftUI Empty States Pattern
+- Use conditional rendering with if-else for loading, error, and empty states
+- Image(systemName:) with large font size creates visual empty state icons
+- VStack with spacing and foregroundStyle(.secondary) for muted appearance
+- Different empty states for "no data" vs "no search results"
+- frame(maxWidth:maxHeight:) centers empty state content
+
+### Context Menu on List Items
+- .contextMenu modifier adds right-click menu to list rows
+- Multiple Button actions in context menu for different operations
+- Copy to clipboard uses NSPasteboard.general pattern
+- Can provide multiple copy formats (plain text vs formatted with details)
+
+### Export Menu Pattern
+- Menu with Label creates dropdown button in toolbar
+- Multiple Button actions for different export formats
+- .disabled() modifier based on data availability (empty list)
+- Export operations delegated to HistoryStore service
+- Task { @MainActor in } wrapper for async export operations
+
+### SwiftUI Preview with SwiftData
+- @Previewable @State var for preview-only state management
+- Closure with immediate invocation () for setup logic in preview
+- ModelConfiguration(isStoredInMemoryOnly: true) for preview data
+- Insert sample records into context before returning container
+- .modelContainer() modifier passes container to view hierarchy
+
+### Environment ModelContext Pattern
+- @Environment(\.modelContext) injects SwiftData context into view
+- Create HistoryStore lazily in onAppear with injected context
+- @State private var for storing service instance
+- Allows view to work with any ModelContext (production or preview)
+
+### Gotchas
+- LSP shows "Cannot find type" errors for SwiftData models (false positives)
+- Build succeeds even when LSP shows errors (trust xcodebuild)
+- #Preview macro requires @Previewable for state variables in closure
+- Cannot use explicit return in #Preview body (ViewBuilder context)
+- Must remove return keyword or use closure pattern for setup
+- filteredTranscriptions computed property recalculates on every searchText change

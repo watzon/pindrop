@@ -607,7 +607,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 15. Implement Status Bar Controller
+- [x] 15. Implement Status Bar Controller
 
   **What to do**:
   - Create `Pindrop/UI/StatusBarController.swift`
