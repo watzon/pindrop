@@ -501,3 +501,115 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - System prompt only shows once per app launch (by design)
 - Permission cannot be granted programmatically (user must enable in System Settings)
 - Tests pass regardless of actual permission state (validates API surface, not system state)
+
+## SettingsStore Implementation (2026-01-25)
+
+### @AppStorage for Simple Settings
+- @AppStorage property wrapper provides automatic UserDefaults persistence
+- Syntax: @AppStorage("key") var property: Type = defaultValue
+- Works seamlessly with @Observable for reactive SwiftUI updates
+- Supports String, Bool, Int, Double, and other basic types
+- Settings persist automatically across app launches
+- No manual UserDefaults.standard calls needed
+
+### Keychain Integration for Sensitive Data
+- Use Security framework for API keys and endpoints
+- Service identifier pattern: bundle-based (e.g., "com.pindrop.settings")
+- Account identifier: unique per value (e.g., "api-endpoint", "api-key")
+- CRUD operations: SecItemAdd, SecItemCopyMatching, SecItemDelete
+- Always delete existing item before adding (SecItemDelete before SecItemAdd)
+- Check for errSecSuccess and errSecItemNotFound status codes
+
+### Observable Settings Pattern
+- Combine @Observable with @AppStorage for reactive settings
+- Cache Keychain values in private properties for performance
+- Update cached values after save/delete operations
+- Load Keychain values in init() for immediate availability
+- @MainActor required for UI integration safety
+
+### Settings Architecture Best Practices
+- Separate concerns: @AppStorage for preferences, Keychain for secrets
+- Provide public read-only access to Keychain values (private(set))
+- Expose save/delete methods for Keychain values
+- Initialize Keychain cache in init() to avoid repeated Keychain queries
+- Use custom error types conforming to LocalizedError
+
+### Testing Settings Persistence
+- Test @AppStorage by creating new instance and verifying values persist
+- Test Keychain by saving, creating new instance, and verifying load
+- Test Keychain updates by saving twice and verifying latest value
+- Clean up Keychain in setUp() and tearDown() to avoid test pollution
+- Test default values with fresh instance
+- Test error handling for delete operations (should not throw on missing items)
+
+### Gotchas
+- @AppStorage values persist in UserDefaults between test runs (reset in tearDown)
+- Keychain values persist system-wide (must explicitly delete in tests)
+- SecItemDelete returns errSecItemNotFound if item doesn't exist (not an error)
+- Must delete existing Keychain item before adding to avoid duplicate errors
+- @Observable requires import Observation (implicit in some contexts)
+- Cached Keychain values must be updated after save/delete operations
+
+
+## HistoryStore with SwiftData Implementation (2026-01-25)
+
+### SwiftData @Model Macro Usage
+- @Model macro automatically generates SwiftData persistence code for classes
+- @Attribute(.unique) ensures unique constraint on properties (e.g., id: UUID)
+- Model classes must be final and use var (not let) for all properties
+- Default values in init() work seamlessly with SwiftData
+- No need for @Published or manual observation - SwiftData handles it
+
+### ModelContext and ModelContainer Patterns
+- ModelContext is the primary interface for database operations (insert, delete, save, fetch)
+- ModelContainer created with Schema([ModelType.self]) defines available models
+- ModelConfiguration(isStoredInMemoryOnly: true) perfect for unit tests (no persistence)
+- ModelContext.insert() adds new records, must call save() to persist
+- ModelContext.delete() removes records, must call save() to persist
+- ModelContext.fetch(descriptor) retrieves records with sorting and filtering
+
+### FetchDescriptor for Queries
+- FetchDescriptor<T> defines how to fetch records of type T
+- sortBy parameter accepts array of SortDescriptor for ordering
+- SortDescriptor(\.property, order: .reverse) for descending order
+- fetchLimit property limits number of results returned
+- predicate parameter filters results using #Predicate macro
+
+### #Predicate Macro for Search
+- #Predicate<ModelType> { record in ... } creates type-safe predicates
+- localizedStandardContains() provides case-insensitive search
+- Predicates compile to efficient database queries (not in-memory filtering)
+- Can combine multiple conditions with && and || operators
+- Supports complex expressions with property access and comparisons
+
+### SwiftData Error Handling
+- Wrap ModelContext operations in do-catch blocks
+- save() can throw errors (disk full, constraint violations, etc.)
+- fetch() can throw errors (invalid descriptor, database corruption, etc.)
+- delete() operations can fail if record doesn't exist or is referenced
+- Custom error enums with LocalizedError provide user-friendly messages
+
+### Testing SwiftData Services
+- Use in-memory ModelContainer for fast, isolated tests
+- Create fresh ModelContext in setUp(), nil in tearDown()
+- @MainActor required on test class when testing @MainActor services
+- Tests verify CRUD operations, search, ordering, and error handling
+- async throws tests supported with async func test methods
+- Task.sleep() useful for testing timestamp ordering
+
+### Xcode Project Integration for SwiftData
+- Must add Model files to Xcode project (not just filesystem)
+- Create Models group in PBXGroup section of project.pbxproj
+- Add PBXFileReference for each model file
+- Add PBXBuildFile to link file to target
+- Add file UUID to Sources build phase
+- Python script useful for batch adding files to project
+
+### Gotchas
+- LSP shows "Cannot find 'ModelType' in scope" but xcodebuild succeeds (false positive)
+- SwiftData requires macOS 14.0+ (already set in build settings)
+- @Model classes cannot be structs (must be classes)
+- ModelContext operations must be on same actor as ModelContext creation
+- FetchDescriptor predicate errors only appear at runtime, not compile time
+- Task.sleep() in tests requires async throws function signature
+

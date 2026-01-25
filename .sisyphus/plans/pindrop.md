@@ -474,7 +474,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 11. Implement Accessibility Permission Handling
+- [x] 11. Implement Accessibility Permission Handling
 
   **What to do**:
   - Extend PermissionManager for Accessibility permission
@@ -501,7 +501,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 12. Implement History Store with SwiftData
+- [x] 12. Implement History Store with SwiftData
 
   **What to do**:
   - Create `Pindrop/Models/TranscriptionRecord.swift` (SwiftData model)
@@ -562,7 +562,7 @@ Output (10-11) → History (12-13) → Settings UI (14-16) → History UI (17)
 
 ---
 
-- [ ] 14. Implement Settings Store
+- [x] 14. Implement Settings Store
 
   **What to do**:
   - Create `Pindrop/Services/SettingsStore.swift`
