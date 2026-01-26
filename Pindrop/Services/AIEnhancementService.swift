@@ -18,6 +18,8 @@ extension URLSession: URLSessionProtocol {}
 @Observable
 final class AIEnhancementService {
     
+    static let defaultSystemPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+    
     enum EnhancementError: Error, LocalizedError {
         case invalidEndpoint
         case invalidResponse
@@ -49,7 +51,8 @@ final class AIEnhancementService {
         text: String,
         apiEndpoint: String,
         apiKey: String,
-        model: String = "gpt-4o-mini"
+        model: String = "gpt-4o-mini",
+        customPrompt: String = AIEnhancementService.defaultSystemPrompt
     ) async throws -> String {
         guard !text.isEmpty else {
             return text
@@ -70,7 +73,7 @@ final class AIEnhancementService {
                 "messages": [
                     [
                         "role": "system",
-                        "content": "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+                        "content": customPrompt
                     ],
                     [
                         "role": "user",

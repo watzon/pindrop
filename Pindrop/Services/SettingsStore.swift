@@ -38,6 +38,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("aiModel") var aiModel: String = "openai/gpt-4o-mini"
+    @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("showInDock") var showInDock: Bool = false
     

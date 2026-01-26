@@ -364,7 +364,8 @@ final class AppCoordinator {
                     text: transcribedText,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
-                    model: settingsStore.aiModel
+                    model: settingsStore.aiModel,
+                    customPrompt: settingsStore.aiEnhancementPrompt
                 )
             } catch {
                 Log.app.warning("AI enhancement failed, using original: \(error)")

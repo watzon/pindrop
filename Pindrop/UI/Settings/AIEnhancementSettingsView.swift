@@ -16,6 +16,7 @@ struct AIEnhancementSettingsView: View {
     @State private var selectedModel = "gpt-4o-mini"
     @State private var customModel = ""
     @State private var useCustomModel = false
+    @State private var enhancementPrompt = ""
     @State private var showingAPIKey = false
     @State private var showingSaveSuccess = false
     @State private var errorMessage: String?
@@ -24,6 +25,7 @@ struct AIEnhancementSettingsView: View {
         VStack(spacing: 20) {
             enableToggleCard
             providerCard
+            promptCard
         }
         .task {
             loadCredentials()
@@ -58,6 +60,45 @@ struct AIEnhancementSettingsView: View {
                 providerConfigContent
                     .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             }
+            .disabled(!settings.aiEnhancementEnabled)
+        }
+    }
+    
+    // MARK: - Prompt Card
+    
+    private var promptCard: some View {
+        SettingsCard(title: "Enhancement Prompt", icon: "text.bubble") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Custom System Prompt")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                TextEditor(text: $enhancementPrompt)
+                    .font(.body)
+                    .frame(minHeight: 100, maxHeight: 200)
+                    .padding(8)
+                    .scrollContentBackground(.hidden)
+                    .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+                
+                HStack {
+                    Button("Reset to Default") {
+                        enhancementPrompt = AIEnhancementService.defaultSystemPrompt
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    
+                    Spacer()
+                    
+                    Text("\(enhancementPrompt.count) characters")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Text("This prompt is sent to the AI model before processing your transcription. Customize how the AI should enhance your text.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             .disabled(!settings.aiEnhancementEnabled)
         }
     }
@@ -368,6 +409,8 @@ struct AIEnhancementSettingsView: View {
         if let key = settings.apiKey {
             apiKey = key
         }
+        
+        enhancementPrompt = settings.aiEnhancementPrompt
     }
     
     private func saveCredentials() {
@@ -386,6 +429,8 @@ struct AIEnhancementSettingsView: View {
             } else {
                 settings.aiModel = selectedModel
             }
+            
+            settings.aiEnhancementPrompt = enhancementPrompt
             
             showingSaveSuccess = true
             

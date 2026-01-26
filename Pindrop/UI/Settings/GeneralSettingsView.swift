@@ -36,7 +36,7 @@ struct GeneralSettingsView: View {
     private var interfaceSection: some View {
         SettingsCard(title: "Interface", icon: "macwindow") {
             VStack(spacing: 16) {
-                Toggle(isOn: $settings.showInDock) {
+                HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show in Dock")
                             .font(.body)
@@ -44,12 +44,17 @@ struct GeneralSettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.showInDock)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
-                .toggleStyle(.switch)
                 
                 Divider()
                 
-                Toggle(isOn: $settings.floatingIndicatorEnabled) {
+                HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Floating indicator")
                             .font(.body)
@@ -57,8 +62,13 @@ struct GeneralSettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.floatingIndicatorEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
-                .toggleStyle(.switch)
             }
         }
     }
