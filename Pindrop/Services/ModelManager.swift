@@ -13,17 +13,83 @@ import os.log
 @Observable
 final class ModelManager {
     
+    enum ModelProvider: String, CaseIterable {
+        case whisperKit = "WhisperKit"
+        case parakeet = "Parakeet"
+        case openAI = "OpenAI"
+        case elevenLabs = "ElevenLabs"
+        case groq = "Groq"
+        
+        var isLocal: Bool {
+            switch self {
+            case .whisperKit, .parakeet: return true
+            case .openAI, .elevenLabs, .groq: return false
+            }
+        }
+        
+        var iconName: String {
+            switch self {
+            case .whisperKit: return "waveform"
+            case .parakeet: return "bird"
+            case .openAI: return "sparkles"
+            case .elevenLabs: return "waveform.circle"
+            case .groq: return "bolt"
+            }
+        }
+    }
+    
+    enum ModelLanguage: String {
+        case english = "English-only"
+        case multilingual = "Multilingual"
+    }
+    
+    enum ModelAvailability: Equatable {
+        case available
+        case comingSoon
+        case requiresSetup
+    }
+    
     struct WhisperModel: Identifiable, Equatable {
         let id: String
         let name: String
         let displayName: String
         let sizeInMB: Int
+        let description: String
+        let speedRating: Double
+        let accuracyRating: Double
+        let language: ModelLanguage
+        let provider: ModelProvider
+        let availability: ModelAvailability
         
-        init(name: String, displayName: String, sizeInMB: Int) {
+        init(
+            name: String,
+            displayName: String,
+            sizeInMB: Int,
+            description: String = "",
+            speedRating: Double = 5.0,
+            accuracyRating: Double = 5.0,
+            language: ModelLanguage = .multilingual,
+            provider: ModelProvider = .whisperKit,
+            availability: ModelAvailability = .available
+        ) {
             self.id = name
             self.name = name
             self.displayName = displayName
             self.sizeInMB = sizeInMB
+            self.description = description
+            self.speedRating = speedRating
+            self.accuracyRating = accuracyRating
+            self.language = language
+            self.provider = provider
+            self.availability = availability
+        }
+        
+        var formattedSize: String {
+            if sizeInMB >= 1000 {
+                return String(format: "%.1f GB", Double(sizeInMB) / 1000.0)
+            } else {
+                return "\(sizeInMB) MB"
+            }
         }
     }
     
@@ -45,14 +111,138 @@ final class ModelManager {
     }
     
     let availableModels: [WhisperModel] = [
-        WhisperModel(name: "openai_whisper-tiny", displayName: "Tiny", sizeInMB: 75),
-        WhisperModel(name: "openai_whisper-tiny.en", displayName: "Tiny (English)", sizeInMB: 75),
-        WhisperModel(name: "openai_whisper-base", displayName: "Base", sizeInMB: 145),
-        WhisperModel(name: "openai_whisper-base.en", displayName: "Base (English)", sizeInMB: 145),
-        WhisperModel(name: "openai_whisper-small", displayName: "Small", sizeInMB: 483),
-        WhisperModel(name: "openai_whisper-small.en", displayName: "Small (English)", sizeInMB: 483),
-        WhisperModel(name: "openai_whisper-large-v3", displayName: "Large v3", sizeInMB: 3100),
-        WhisperModel(name: "openai_whisper-large-v3-turbo", displayName: "Large v3 Turbo", sizeInMB: 809)
+        // WhisperKit Local Models
+        WhisperModel(
+            name: "openai_whisper-tiny",
+            displayName: "Tiny",
+            sizeInMB: 75,
+            description: "Fastest model, ideal for quick dictation with acceptable accuracy",
+            speedRating: 10.0,
+            accuracyRating: 6.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-tiny.en",
+            displayName: "Tiny (English)",
+            sizeInMB: 75,
+            description: "English-optimized tiny model with slightly better accuracy",
+            speedRating: 10.0,
+            accuracyRating: 6.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-base",
+            displayName: "Base",
+            sizeInMB: 145,
+            description: "Good balance between speed and accuracy for everyday use",
+            speedRating: 9.0,
+            accuracyRating: 7.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-base.en",
+            displayName: "Base (English)",
+            sizeInMB: 145,
+            description: "English-optimized base model, recommended for most users",
+            speedRating: 9.0,
+            accuracyRating: 7.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-small",
+            displayName: "Small",
+            sizeInMB: 483,
+            description: "Higher accuracy for complex vocabulary and technical terms",
+            speedRating: 7.5,
+            accuracyRating: 8.0,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-small.en",
+            displayName: "Small (English)",
+            sizeInMB: 483,
+            description: "English-optimized with excellent accuracy for professional use",
+            speedRating: 7.5,
+            accuracyRating: 8.5,
+            language: .english
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3",
+            displayName: "Large v3",
+            sizeInMB: 3100,
+            description: "Maximum accuracy for demanding transcription tasks",
+            speedRating: 5.0,
+            accuracyRating: 9.7,
+            language: .multilingual
+        ),
+        WhisperModel(
+            name: "openai_whisper-large-v3_turbo",
+            displayName: "Large v3 Turbo",
+            sizeInMB: 809,
+            description: "Near large-model accuracy with significantly faster processing",
+            speedRating: 7.5,
+            accuracyRating: 9.5,
+            language: .multilingual
+        ),
+        
+        // Coming Soon - Parakeet Models
+        WhisperModel(
+            name: "nvidia_parakeet-tdt-0.6b",
+            displayName: "Parakeet TDT 0.6B",
+            sizeInMB: 600,
+            description: "NVIDIA's state-of-the-art speech recognition model",
+            speedRating: 8.5,
+            accuracyRating: 9.8,
+            language: .english,
+            provider: .parakeet,
+            availability: .comingSoon
+        ),
+        WhisperModel(
+            name: "nvidia_parakeet-tdt-1.1b",
+            displayName: "Parakeet TDT 1.1B",
+            sizeInMB: 1100,
+            description: "Larger Parakeet model with exceptional accuracy",
+            speedRating: 7.0,
+            accuracyRating: 9.9,
+            language: .english,
+            provider: .parakeet,
+            availability: .comingSoon
+        ),
+        
+        // Coming Soon - Cloud Providers
+        WhisperModel(
+            name: "openai_whisper-1",
+            displayName: "OpenAI Whisper API",
+            sizeInMB: 0,
+            description: "Cloud-based transcription via OpenAI's API",
+            speedRating: 9.0,
+            accuracyRating: 9.5,
+            language: .multilingual,
+            provider: .openAI,
+            availability: .comingSoon
+        ),
+        WhisperModel(
+            name: "groq_whisper-large-v3-turbo",
+            displayName: "Whisper Large v3 Turbo (Groq)",
+            sizeInMB: 0,
+            description: "Lightning-fast cloud inference powered by Groq",
+            speedRating: 10.0,
+            accuracyRating: 9.5,
+            language: .multilingual,
+            provider: .groq,
+            availability: .comingSoon
+        ),
+        WhisperModel(
+            name: "elevenlabs_scribe",
+            displayName: "ElevenLabs Scribe",
+            sizeInMB: 0,
+            description: "High-quality transcription with speaker diarization",
+            speedRating: 8.0,
+            accuracyRating: 9.3,
+            language: .multilingual,
+            provider: .elevenLabs,
+            availability: .comingSoon
+        )
     ]
     
     private(set) var downloadProgress: Double = 0.0
