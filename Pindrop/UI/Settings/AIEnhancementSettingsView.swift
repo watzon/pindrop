@@ -19,6 +19,7 @@ struct AIEnhancementSettingsView: View {
     @State private var enhancementPrompt = ""
     @State private var showingAPIKey = false
     @State private var showingSaveSuccess = false
+    @State private var showingPromptSaveSuccess = false
     @State private var errorMessage: String?
     
     var body: some View {
@@ -97,6 +98,26 @@ struct AIEnhancementSettingsView: View {
                 Text("This prompt is sent to the AI model before processing your transcription. Customize how the AI should enhance your text.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                
+                HStack {
+                    Button("Save Prompt") {
+                        savePrompt()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(enhancementPrompt.isEmpty)
+                    
+                    Spacer()
+                    
+                    if showingPromptSaveSuccess {
+                        HStack(spacing: 6) {
+                            IconView(icon: .check, size: 12)
+                                .foregroundStyle(.green)
+                            Text("Saved")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
+                    }
+                }
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             .disabled(!settings.aiEnhancementEnabled)
@@ -411,6 +432,17 @@ struct AIEnhancementSettingsView: View {
         }
         
         enhancementPrompt = settings.aiEnhancementPrompt
+    }
+    
+    private func savePrompt() {
+        settings.aiEnhancementPrompt = enhancementPrompt
+        
+        showingPromptSaveSuccess = true
+        
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            showingPromptSaveSuccess = false
+        }
     }
     
     private func saveCredentials() {

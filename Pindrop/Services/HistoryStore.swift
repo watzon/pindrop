@@ -44,13 +44,17 @@ final class HistoryStore {
     
     func save(
         text: String,
+        originalText: String? = nil,
         duration: TimeInterval,
-        modelUsed: String
+        modelUsed: String,
+        enhancedWith: String? = nil
     ) throws {
         let record = TranscriptionRecord(
             text: text,
+            originalText: originalText,
             duration: duration,
-            modelUsed: modelUsed
+            modelUsed: modelUsed,
+            enhancedWith: enhancedWith
         )
         
         modelContext.insert(record)
@@ -157,7 +161,10 @@ final class HistoryStore {
             content += "Timestamp: \(dateFormatter.string(from: record.timestamp))\n"
             content += "Duration: \(String(format: "%.2f", record.duration))s\n"
             content += "Model: \(record.modelUsed)\n"
-            content += "Text:\n\(record.text)\n"
+            if let originalText = record.originalText, originalText != record.text {
+                content += "Original:\n\(originalText)\n\n"
+            }
+            content += "Enhanced:\n\(record.text)\n"
             content += String(repeating: "-", count: 80) + "\n\n"
         }
         
@@ -189,26 +196,30 @@ final class HistoryStore {
         struct ExportRecord: Codable {
             let id: String
             let text: String
+            let originalText: String?
             let timestamp: String
             let duration: TimeInterval
             let modelUsed: String
+            let wasEnhanced: Bool
         }
-        
+
         struct ExportData: Codable {
             let exportDate: String
             let totalRecords: Int
             let records: [ExportRecord]
         }
-        
+
         let dateFormatter = ISO8601DateFormatter()
-        
+
         let exportRecords = recordsToExport.map { record in
             ExportRecord(
                 id: record.id.uuidString,
                 text: record.text,
+                originalText: record.originalText,
                 timestamp: dateFormatter.string(from: record.timestamp),
                 duration: record.duration,
-                modelUsed: record.modelUsed
+                modelUsed: record.modelUsed,
+                wasEnhanced: record.wasEnhanced
             )
         }
         
@@ -247,23 +258,30 @@ final class HistoryStore {
         }
         
         let dateFormatter = ISO8601DateFormatter()
-        
-        var csvContent = "ID,Timestamp,Duration,Model,Text\n"
-        
+
+        var csvContent = "ID,Timestamp,Duration,Model,Original Text,Enhanced Text,Was Enhanced\n"
+
         for record in recordsToExport {
+            let escapedOriginal = (record.originalText ?? "")
+                .replacingOccurrences(of: "\"", with: "\"\"")
+                .replacingOccurrences(of: "\n", with: " ")
+                .replacingOccurrences(of: "\r", with: " ")
+
             let escapedText = record.text
                 .replacingOccurrences(of: "\"", with: "\"\"")
                 .replacingOccurrences(of: "\n", with: " ")
                 .replacingOccurrences(of: "\r", with: " ")
-            
+
             let row = [
                 record.id.uuidString,
                 dateFormatter.string(from: record.timestamp),
                 String(format: "%.2f", record.duration),
                 record.modelUsed,
-                "\"\(escapedText)\""
+                "\"\(escapedOriginal)\"",
+                "\"\(escapedText)\"",
+                record.wasEnhanced ? "true" : "false"
             ].joined(separator: ",")
-            
+
             csvContent += row + "\n"
         }
         

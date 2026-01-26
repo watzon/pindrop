@@ -413,10 +413,15 @@ final class AppCoordinator {
         }
         
         var finalText = transcribedText
+        var originalText: String? = nil
+        var enhancedWithModel: String? = nil
+
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
+                originalText = transcribedText
+                Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 finalText = try await aiEnhancementService.enhance(
                     text: transcribedText,
                     apiEndpoint: apiEndpoint,
@@ -424,22 +429,35 @@ final class AppCoordinator {
                     model: settingsStore.aiModel,
                     customPrompt: settingsStore.aiEnhancementPrompt
                 )
+                enhancedWithModel = settingsStore.aiModel
+                Log.app.info("AI enhancement completed, original: \(transcribedText.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.warning("AI enhancement failed, using original: \(error)")
+                originalText = nil
+            }
+        } else {
+            if !settingsStore.aiEnhancementEnabled {
+                Log.app.debug("AI enhancement disabled, no original text to save")
+            } else if settingsStore.apiEndpoint == nil {
+                Log.app.debug("AI enhancement enabled but no API endpoint configured")
+            } else if settingsStore.apiKey == nil {
+                Log.app.debug("AI enhancement enabled but no API key configured")
             }
         }
-        
+
         do {
             try await outputManager.output(finalText)
         } catch {
             Log.app.error("Output failed: \(error)")
         }
-        
+
         do {
             try historyStore.save(
                 text: finalText,
+                originalText: originalText,
                 duration: duration,
-                modelUsed: settingsStore.selectedModel
+                modelUsed: settingsStore.selectedModel,
+                enhancedWith: enhancedWithModel
             )
             updateRecentTranscriptsMenu()
         } catch {

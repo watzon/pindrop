@@ -284,58 +284,105 @@ struct HistoryTranscriptionRow: View {
     let record: TranscriptionRecord
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     private var timeString: String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: record.timestamp)
     }
-    
+
     private var formattedDuration: String {
         String(format: "%.1fs", record.duration)
     }
-    
+
+    private var hasOriginalText: Bool {
+        record.enhancedWith != nil
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
-            // Time column
-            Text(timeString)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textTertiary)
-                .frame(width: 60, alignment: .leading)
-            
-            // Accent bar
-            Rectangle()
-                .fill(isSelected ? AppColors.accent : AppColors.border)
-                .frame(width: 3)
-                .clipShape(Capsule())
-            
-            // Content
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                Text(record.text)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .lineLimit(isSelected ? nil : 2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Metadata row (shown when selected or hovering)
-                HStack(spacing: AppTheme.Spacing.lg) {
-                    metadataItem(icon: "waveform", text: formattedDuration)
-                    metadataItem(icon: "cpu", text: record.modelUsed)
+        VStack(alignment: .leading, spacing: 0) {
+            // Main row content
+            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+                // Time column
+                Text(timeString)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(width: 60, alignment: .leading)
+
+                // Accent bar
+                Rectangle()
+                    .fill(isSelected ? AppColors.accent : AppColors.border)
+                    .frame(width: 3)
+                    .clipShape(Capsule())
+
+                // Content
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                    // Enhanced text (primary)
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                            if hasOriginalText {
+                                Text("Enhanced")
+                                    .font(AppTypography.tiny)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(AppColors.accent)
+                            }
+
+                            Text(record.text)
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.textPrimary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        CopyButton(text: record.text)
+                            .opacity(isSelected ? 1 : 0.6)
+                    }
+
+                    // Original text (shown when expanded)
+                    if isSelected, let originalText = record.originalText {
+                        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                            Divider()
+                                .padding(.vertical, AppTheme.Spacing.sm)
+
+                            HStack(alignment: .top) {
+                                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                                    Text("Original")
+                                        .font(AppTypography.tiny)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(AppColors.textSecondary)
+
+                                    Text(originalText)
+                                        .font(AppTypography.body)
+                                        .foregroundStyle(AppColors.textSecondary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+
+                                CopyButton(text: originalText)
+                            }
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    // Metadata row
+                    HStack(spacing: AppTheme.Spacing.lg) {
+                        metadataItem(icon: "waveform", text: formattedDuration)
+                        metadataItem(icon: "cpu", text: record.modelUsed)
+
+                        if let enhancedWith = record.enhancedWith {
+                            metadataItem(icon: "sparkles", text: "via \(enhancedWith)")
+                        }
+                    }
                 }
             }
-            
-            CopyButton(text: record.text)
-                .opacity(isSelected ? 1 : 0.6)
+            .padding(AppTheme.Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .fill(isSelected ? AppColors.accentBackground : AppColors.surfaceBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .strokeBorder(isSelected ? AppColors.accent.opacity(0.3) : AppColors.border, lineWidth: 0.5)
+            )
         }
-        .padding(AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                .fill(isSelected ? AppColors.accentBackground : AppColors.surfaceBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                .strokeBorder(isSelected ? AppColors.accent.opacity(0.3) : AppColors.border, lineWidth: 0.5)
-        )
         .contentShape(Rectangle())
         .onTapGesture {
             withAnimation(AppTheme.Animation.fast) {
@@ -347,11 +394,20 @@ struct HistoryTranscriptionRow: View {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(record.text, forType: .string)
             } label: {
-                Label("Copy Text", systemImage: "doc.on.doc")
+                Label("Copy Enhanced", systemImage: "doc.on.doc")
+            }
+
+            if let originalText = record.originalText {
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(originalText, forType: .string)
+                } label: {
+                    Label("Copy Original", systemImage: "doc.on.doc")
+                }
             }
         }
     }
-    
+
     private func metadataItem(icon: String, text: String) -> some View {
         HStack(spacing: AppTheme.Spacing.xxs) {
             Image(systemName: icon)
