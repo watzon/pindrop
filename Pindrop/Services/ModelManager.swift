@@ -11,7 +11,7 @@ import os.log
 
 @MainActor
 @Observable
-final class ModelManager {
+class ModelManager {
     
     enum ModelProvider: String, CaseIterable {
         case whisperKit = "WhisperKit"

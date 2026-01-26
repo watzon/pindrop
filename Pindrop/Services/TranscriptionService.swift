@@ -11,7 +11,7 @@ import os.log
 
 @MainActor
 @Observable
-final class TranscriptionService {
+class TranscriptionService {
     
     enum State: Equatable {
         case unloaded
