@@ -16,13 +16,13 @@ enum AIProvider: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    var icon: String {
+    var icon: Icon {
         switch self {
-        case .openai: return "brain.head.profile"
-        case .google: return "g.circle"
-        case .anthropic: return "a.circle"
-        case .openrouter: return "arrow.triangle.branch"
-        case .custom: return "server.rack"
+        case .openai: return .openai
+        case .google: return .google
+        case .anthropic: return .anthropic
+        case .openrouter: return .openrouter
+        case .custom: return .server
         }
     }
     
@@ -82,8 +82,7 @@ struct AIEnhancementStepView: View {
     
     private var headerSection: some View {
         VStack(spacing: 6) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 36))
+            IconView(icon: .sparkles, size: 36)
                 .foregroundStyle(Color.accentColor)
             
             Text("AI Enhancement")
@@ -111,8 +110,7 @@ struct AIEnhancementStepView: View {
             }
         } label: {
             VStack(spacing: 4) {
-                Image(systemName: provider.icon)
-                    .font(.system(size: 18))
+                IconView(icon: provider.icon, size: 18)
                 Text(provider.rawValue)
                     .font(.caption)
                     .fontWeight(.medium)
@@ -155,8 +153,7 @@ struct AIEnhancementStepView: View {
         VStack(spacing: 12) {
             Spacer()
             
-            Image(systemName: "hammer.fill")
-                .font(.system(size: 40))
+            IconView(icon: .construction, size: 40)
                 .foregroundStyle(.secondary)
             
             Text("\(selectedProvider.rawValue) Support Coming Soon")
@@ -190,7 +187,7 @@ struct AIEnhancementStepView: View {
                 Button {
                     showingAPIKey.toggle()
                 } label: {
-                    Image(systemName: showingAPIKey ? "eye.slash" : "eye")
+                    IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -231,9 +228,8 @@ struct AIEnhancementStepView: View {
     
     private func featureItem(_ text: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
+            IconView(icon: .circleCheck, size: 14)
                 .foregroundStyle(.green)
-                .font(.caption)
             Text(text)
                 .font(.caption)
                 .foregroundStyle(.secondary)

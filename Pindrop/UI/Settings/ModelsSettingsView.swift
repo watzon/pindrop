@@ -36,8 +36,14 @@ struct ModelsSettingsView: View {
                             .font(.headline)
                         
                         HStack(spacing: 12) {
-                            Label("\(currentModel.sizeInMB) MB", systemImage: "internaldrive")
-                            Label(speedLabel(for: currentModel.sizeInMB), systemImage: "bolt")
+                            HStack(spacing: 4) {
+                                IconView(icon: .hardDrive, size: 12)
+                                Text("\(currentModel.sizeInMB) MB")
+                            }
+                            HStack(spacing: 4) {
+                                IconView(icon: .zap, size: 12)
+                                Text(speedLabel(for: currentModel.sizeInMB))
+                            }
                         }
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -46,9 +52,12 @@ struct ModelsSettingsView: View {
                     Spacer()
                     
                     if modelManager.isModelDownloaded(currentModel.name) {
-                        Label("Ready", systemImage: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.green)
+                        HStack(spacing: 4) {
+                            IconView(icon: .circleCheck, size: 14)
+                            Text("Ready")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.green)
                     }
                 }
             } else {
@@ -79,7 +88,7 @@ struct ModelsSettingsView: View {
     
     private func errorBanner(message: String) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
+            IconView(icon: .warning, size: 16)
                 .foregroundStyle(.orange)
             
             Text(message)
@@ -183,9 +192,8 @@ struct ModelSettingsRow: View {
                     .frame(width: 80)
             } else if isDownloaded {
                 HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
+                    IconView(icon: .check, size: 12)
                         .foregroundStyle(.green)
-                        .font(.caption)
                     
                     Button(role: .destructive, action: onDelete) {
                         Text("Delete")
@@ -196,8 +204,11 @@ struct ModelSettingsRow: View {
                 }
             } else {
                 Button(action: onDownload) {
-                    Label("Download", systemImage: "arrow.down.circle")
-                        .font(.caption)
+                    HStack(spacing: 4) {
+                        IconView(icon: .download, size: 12)
+                        Text("Download")
+                    }
+                    .font(.caption)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)

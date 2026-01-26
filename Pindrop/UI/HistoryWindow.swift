@@ -105,8 +105,7 @@ struct HistoryWindow: View {
     
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
+            IconView(icon: .warning, size: 48)
                 .foregroundStyle(.orange)
             
             Text("Something went wrong")
@@ -128,8 +127,7 @@ struct HistoryWindow: View {
     
     private var emptyStateView: some View {
         VStack(spacing: 16) {
-            Image(systemName: searchText.isEmpty ? "mic.slash" : "magnifyingglass")
-                .font(.system(size: 48))
+            IconView(icon: searchText.isEmpty ? .micOff : .search, size: 48)
                 .foregroundStyle(.secondary)
             
             Text(searchText.isEmpty ? "No transcriptions yet" : "No results found")

@@ -79,7 +79,7 @@ struct OnboardingWindow: View {
                         if canGoBack {
                             Button(action: goBack) {
                                 HStack(spacing: 4) {
-                                    Image(systemName: "chevron.left")
+                                    IconView(icon: .chevronLeft, size: 14)
                                     Text("Back")
                                 }
                                 .font(.subheadline)

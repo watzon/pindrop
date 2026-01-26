@@ -64,12 +64,10 @@ struct ModelDownloadStepView: View {
                     Text("\(Int(modelManager.downloadProgress * 100))%")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                 } else if downloadError != nil {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 32))
+                    IconView(icon: .warning, size: 32)
                         .foregroundStyle(.orange)
                 } else {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 32))
+                    IconView(icon: .circleCheck, size: 32)
                         .foregroundStyle(.green)
                 }
             }

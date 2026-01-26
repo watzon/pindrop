@@ -101,10 +101,10 @@ enum OutputOption: String, CaseIterable, Identifiable {
         }
     }
     
-    var icon: String {
+    var icon: Icon {
         switch self {
-        case .clipboard: return "doc.on.clipboard"
-        case .directInsert: return "character.cursor.ibeam"
+        case .clipboard: return .clipboard
+        case .directInsert: return .textCursor
         }
     }
 }
@@ -129,8 +129,7 @@ struct OutputOptionRow: View {
                     }
                 }
                 
-                Image(systemName: option.icon)
-                    .font(.system(size: 16))
+                IconView(icon: option.icon, size: 16)
                     .foregroundStyle(isSelected ? Color.accentColor : .secondary)
                     .frame(width: 24)
                 

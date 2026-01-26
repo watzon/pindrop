@@ -250,8 +250,7 @@ struct WelcomePopoverView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-                Image(systemName: "hand.wave.fill")
-                    .font(.system(size: 24))
+                IconView(icon: .hand, size: 24)
                     .foregroundStyle(.yellow)
                 
                 Text("You're all set!")
@@ -263,9 +262,9 @@ struct WelcomePopoverView: View {
                 .foregroundStyle(.secondary)
             
             VStack(alignment: .leading, spacing: 6) {
-                popoverItem(icon: "record.circle", text: "Start/stop recording")
-                popoverItem(icon: "gear", text: "Open settings")
-                popoverItem(icon: "clock", text: "View transcription history")
+                popoverItem(icon: .record, text: "Start/stop recording")
+                popoverItem(icon: .settings, text: "Open settings")
+                popoverItem(icon: .clock, text: "View transcription history")
             }
             
             Divider()
@@ -288,10 +287,9 @@ struct WelcomePopoverView: View {
         .frame(width: 260)
     }
     
-    private func popoverItem(icon: String, text: String) -> some View {
+    private func popoverItem(icon: Icon, text: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 12))
+            IconView(icon: icon, size: 12)
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 16)
             

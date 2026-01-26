@@ -21,14 +21,14 @@ struct HotkeySetupStepView: View {
                     title: "Toggle Recording",
                     description: "Press once to start, again to stop",
                     hotkey: settings.toggleHotkey,
-                    icon: "record.circle"
+                    icon: .record
                 )
                 
                 hotkeyCard(
                     title: "Push-to-Talk",
                     description: "Hold to record, release to transcribe",
                     hotkey: settings.pushToTalkHotkey,
-                    icon: "hand.tap"
+                    icon: .hand
                 )
             }
             .padding(.horizontal, 40)
@@ -44,8 +44,7 @@ struct HotkeySetupStepView: View {
     
     private var headerSection: some View {
         VStack(spacing: 8) {
-            Image(systemName: "keyboard")
-                .font(.system(size: 40))
+            IconView(icon: .keyboard, size: 40)
                 .foregroundStyle(Color.accentColor)
                 .padding(.bottom, 8)
             
@@ -60,10 +59,9 @@ struct HotkeySetupStepView: View {
         .padding(.horizontal, 40)
     }
     
-    private func hotkeyCard(title: String, description: String, hotkey: String, icon: String) -> some View {
+    private func hotkeyCard(title: String, description: String, hotkey: String, icon: Icon) -> some View {
         HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
+            IconView(icon: icon, size: 24)
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 44, height: 44)
                 .glassEffect(.regular.tint(.accentColor.opacity(0.2)), in: .circle)
@@ -92,7 +90,7 @@ struct HotkeySetupStepView: View {
     
     private var infoSection: some View {
         HStack(spacing: 12) {
-            Image(systemName: "info.circle")
+            IconView(icon: .info, size: 16)
                 .foregroundStyle(.secondary)
             
             Text("You can change these anytime from the menu bar → Settings → Hotkeys")

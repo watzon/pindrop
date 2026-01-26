@@ -38,8 +38,7 @@ struct PermissionsStepView: View {
     
     private var headerSection: some View {
         VStack(spacing: 8) {
-            Image(systemName: "lock.shield")
-                .font(.system(size: 40))
+            IconView(icon: .shield, size: 40)
                 .foregroundStyle(Color.accentColor)
                 .padding(.bottom, 8)
             
@@ -56,7 +55,7 @@ struct PermissionsStepView: View {
     
     private var microphoneCard: some View {
         PermissionCard(
-            icon: "mic.fill",
+            icon: .mic,
             title: "Microphone",
             description: "Required for recording your voice",
             isGranted: microphoneGranted,
@@ -67,7 +66,7 @@ struct PermissionsStepView: View {
     
     private var accessibilityCard: some View {
         PermissionCard(
-            icon: "accessibility",
+            icon: .accessibility,
             title: "Accessibility",
             description: "Optional: Insert text directly into apps",
             isGranted: accessibilityGranted,
@@ -125,7 +124,7 @@ struct PermissionsStepView: View {
 }
 
 struct PermissionCard: View {
-    let icon: String
+    let icon: Icon
     let title: String
     let description: String
     let isGranted: Bool
@@ -134,8 +133,7 @@ struct PermissionCard: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
+            IconView(icon: icon, size: 24)
                 .foregroundStyle(isGranted ? .green : Color.accentColor)
                 .frame(width: 44, height: 44)
                 .glassEffect(.regular.tint(isGranted ? .green.opacity(0.2) : .accentColor.opacity(0.2)), in: .circle)
@@ -165,8 +163,7 @@ struct PermissionCard: View {
             Spacer()
             
             if isGranted {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 24))
+                IconView(icon: .circleCheck, size: 24)
                     .foregroundStyle(.green)
             } else {
                 Button("Grant") {

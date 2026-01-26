@@ -15,12 +15,12 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    var icon: String {
+    var icon: Icon {
         switch self {
-        case .general: return "gear"
-        case .hotkeys: return "keyboard"
-        case .models: return "cpu"
-        case .ai: return "sparkles"
+        case .general: return .settings
+        case .hotkeys: return .keyboard
+        case .models: return .cpu
+        case .ai: return .sparkles
         }
     }
 }
@@ -42,8 +42,12 @@ struct SettingsWindow: View {
     
     private var sidebar: some View {
         List(SettingsTab.allCases, selection: $selectedTab) { tab in
-            Label(tab.rawValue, systemImage: tab.icon)
-                .tag(tab)
+            Label {
+                Text(tab.rawValue)
+            } icon: {
+                IconView(icon: tab.icon, size: 16)
+            }
+            .tag(tab)
         }
         .listStyle(.sidebar)
     }

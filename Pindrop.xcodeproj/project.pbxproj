@@ -28,6 +28,7 @@
 		6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0729D0116F8418084311F4C /* HistoryStoreTests.swift */; };
 		6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */; };
 		6EA189DAD2FC954E2AA5B6B3 /* AIEnhancementStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */; };
+		70CE9E64F744FED2830FD930 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DC71BCB19DB51FA606C373 /* Icons.swift */; };
 		751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = a2189a034cf447e08e86f24b /* PermissionManager.swift */; };
 		7C9FFAAD40CEE61496E8C14C /* OnboardingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */; };
 		845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */; };
@@ -99,6 +100,7 @@
 		E0D8D78D2C8447D2B5DD712B /* HistoryWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryWindow.swift; sourceTree = "<group>"; };
 		E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/ModelDownloadStepView.swift; sourceTree = SOURCE_ROOT; };
+		F0DC71BCB19DB51FA606C373 /* Icons.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/OnboardingWindow.swift; sourceTree = SOURCE_ROOT; };
 		LOGGER001A2B3C4D5E6F71 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 			children = (
 				LOGGER001A2B3C4D5E6F71 /* Logger.swift */,
 				ALERT001A2B3C4D5E6F71 /* AlertManager.swift */,
+				F0DC71BCB19DB51FA606C373 /* Icons.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -416,6 +419,7 @@
 				6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */,
 				232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */,
 				5D84F939724532CB7B75F459 /* ReadyStepView.swift in Sources */,
+				70CE9E64F744FED2830FD930 /* Icons.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -210,7 +210,7 @@ struct HotkeyRecorderRow: View {
             
             if !hotkey.isEmpty {
                 Button(role: .destructive, action: onClear) {
-                    Image(systemName: "xmark.circle.fill")
+                    IconView(icon: .circleX, size: 16)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)

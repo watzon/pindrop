@@ -32,9 +32,9 @@ struct WelcomeStepView: View {
             .opacity(textOpacity)
             
             VStack(spacing: 12) {
-                featureRow(icon: "waveform", text: "Powered by WhisperKit")
-                featureRow(icon: "lock.shield", text: "100% local processing")
-                featureRow(icon: "keyboard", text: "Global keyboard shortcuts")
+                featureRow(icon: .waveform, text: "Powered by WhisperKit")
+                featureRow(icon: .shield, text: "100% local processing")
+                featureRow(icon: .keyboard, text: "Global keyboard shortcuts")
             }
             .opacity(textOpacity)
             .padding(.vertical, 8)
@@ -79,8 +79,7 @@ struct WelcomeStepView: View {
                 )
                 .frame(width: 100, height: 100)
             
-            Image(systemName: "waveform.circle.fill")
-                .font(.system(size: 56))
+            IconView(icon: .waveform, size: 56)
                 .foregroundStyle(.white)
         }
         .glassEffect(.regular.tint(.accentColor.opacity(0.2)))
@@ -88,10 +87,9 @@ struct WelcomeStepView: View {
         .opacity(logoOpacity)
     }
     
-    private func featureRow(icon: String, text: String) -> some View {
+    private func featureRow(icon: Icon, text: String) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
+            IconView(icon: icon, size: 16)
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 24)
             

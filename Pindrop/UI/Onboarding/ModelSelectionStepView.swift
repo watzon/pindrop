@@ -56,7 +56,7 @@ struct ModelSelectionStepView: View {
             HStack {
                 Text(modelManager.isModelDownloaded(selectedModelName) ? "Continue" : "Download & Continue")
                 if !modelManager.isModelDownloaded(selectedModelName) {
-                    Image(systemName: "arrow.down.circle")
+                    IconView(icon: .download, size: 16)
                 }
             }
             .font(.headline)
@@ -97,16 +97,24 @@ struct ModelCard: View {
                         }
                         
                         if isDownloaded {
-                            Image(systemName: "checkmark.circle.fill")
+                            IconView(icon: .circleCheck, size: 14)
                                 .foregroundStyle(.green)
-                                .font(.caption)
                         }
                     }
                     
                     HStack(spacing: 16) {
-                        Label(formatSize(model.sizeInMB), systemImage: "internaldrive")
-                        Label(speedLabel(for: model.sizeInMB), systemImage: "bolt")
-                        Label(accuracyLabel(for: model.sizeInMB), systemImage: "target")
+                        HStack(spacing: 4) {
+                            IconView(icon: .hardDrive, size: 12)
+                            Text(formatSize(model.sizeInMB))
+                        }
+                        HStack(spacing: 4) {
+                            IconView(icon: .zap, size: 12)
+                            Text(speedLabel(for: model.sizeInMB))
+                        }
+                        HStack(spacing: 4) {
+                            IconView(icon: .target, size: 12)
+                            Text(accuracyLabel(for: model.sizeInMB))
+                        }
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)

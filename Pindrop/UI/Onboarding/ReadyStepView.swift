@@ -42,7 +42,7 @@ struct ReadyStepView: View {
             Button(action: onComplete) {
                 HStack {
                     Text("Start Using Pindrop")
-                    Image(systemName: "arrow.right")
+                    IconView(icon: .arrowRight, size: 16)
                 }
                 .font(.headline)
                 .frame(maxWidth: 240)
@@ -72,8 +72,7 @@ struct ReadyStepView: View {
                 )
                 .frame(width: 100, height: 100)
             
-            Image(systemName: "checkmark")
-                .font(.system(size: 48, weight: .bold))
+            IconView(icon: .check, size: 48)
                 .foregroundStyle(.white)
         }
         .glassEffect(.regular.tint(.green.opacity(0.2)), in: .circle)
@@ -83,17 +82,17 @@ struct ReadyStepView: View {
     
     private var summarySection: some View {
         VStack(spacing: 12) {
-            summaryRow(icon: "cpu", label: "Model", value: selectedModel?.displayName ?? "Base")
-            summaryRow(icon: "keyboard", label: "Toggle", value: settings.toggleHotkey.isEmpty ? "Not set" : settings.toggleHotkey)
-            summaryRow(icon: "sparkles", label: "AI Enhancement", value: settings.aiEnhancementEnabled ? "Enabled" : "Disabled")
+            summaryRow(icon: .cpu, label: "Model", value: selectedModel?.displayName ?? "Base")
+            summaryRow(icon: .keyboard, label: "Toggle", value: settings.toggleHotkey.isEmpty ? "Not set" : settings.toggleHotkey)
+            summaryRow(icon: .sparkles, label: "AI Enhancement", value: settings.aiEnhancementEnabled ? "Enabled" : "Disabled")
         }
         .padding(20)
         .glassEffect(.regular, in: .rect(cornerRadius: 16))
     }
     
-    private func summaryRow(icon: String, label: String, value: String) -> some View {
+    private func summaryRow(icon: Icon, label: String, value: String) -> some View {
         HStack {
-            Image(systemName: icon)
+            IconView(icon: icon, size: 16)
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 24)
             

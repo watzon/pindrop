@@ -75,8 +75,7 @@ struct AIEnhancementSettingsView: View {
             }
         } label: {
             VStack(spacing: 3) {
-                Image(systemName: provider.icon)
-                    .font(.system(size: 14))
+                IconView(icon: provider.icon, size: 14)
                 Text(provider.rawValue)
                     .font(.caption2)
                     .fontWeight(.medium)
@@ -123,8 +122,7 @@ struct AIEnhancementSettingsView: View {
     
     private var comingSoonView: some View {
         VStack(spacing: 10) {
-            Image(systemName: "hammer.fill")
-                .font(.system(size: 28))
+            IconView(icon: .construction, size: 28)
                 .foregroundStyle(.secondary)
             
             Text("\(selectedProvider.rawValue) Coming Soon")
@@ -158,7 +156,7 @@ struct AIEnhancementSettingsView: View {
                 Button {
                     showingAPIKey.toggle()
                 } label: {
-                    Image(systemName: showingAPIKey ? "eye.slash" : "eye")
+                    IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -195,7 +193,7 @@ struct AIEnhancementSettingsView: View {
     
     private var successMessage: some View {
         HStack(spacing: 6) {
-            Image(systemName: "checkmark.circle.fill")
+            IconView(icon: .check, size: 14)
                 .foregroundStyle(.green)
             Text("Credentials saved successfully")
                 .font(.caption)
@@ -208,7 +206,7 @@ struct AIEnhancementSettingsView: View {
     
     private func errorMessageView(_ message: String) -> some View {
         HStack(spacing: 6) {
-            Image(systemName: "exclamationmark.triangle.fill")
+            IconView(icon: .warning, size: 14)
                 .foregroundStyle(.red)
             Text(message)
                 .font(.caption)
@@ -221,8 +219,7 @@ struct AIEnhancementSettingsView: View {
     
     private var keychainNote: some View {
         HStack(spacing: 6) {
-            Image(systemName: "lock.shield")
-                .font(.caption)
+            IconView(icon: .shield, size: 12)
                 .foregroundStyle(.secondary)
             Text("Credentials are stored securely in Keychain")
                 .font(.caption)
