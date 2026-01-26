@@ -106,3 +106,23 @@ struct ReadyStepView: View {
         }
     }
 }
+
+#if DEBUG
+struct ReadyStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        ReadyStepView(
+            settings: SettingsStore(),
+            modelManager: PreviewModelManagerReady(),
+            selectedModelName: "openai_whisper-base.en",
+            onComplete: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+
+final class PreviewModelManagerReady: ModelManager {
+    override init() {
+        // Skip async initialization to avoid launching WhisperKit in preview
+    }
+}
+#endif

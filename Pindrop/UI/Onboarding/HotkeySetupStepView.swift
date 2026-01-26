@@ -116,3 +116,16 @@ struct HotkeySetupStepView: View {
         .padding(.horizontal, 40)
     }
 }
+
+#if DEBUG
+struct HotkeySetupStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        HotkeySetupStepView(
+            settings: SettingsStore(),
+            onContinue: {},
+            onSkip: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+#endif

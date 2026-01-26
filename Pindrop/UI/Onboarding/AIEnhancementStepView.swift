@@ -103,6 +103,7 @@ struct AIEnhancementStepView: View {
                 providerTab(provider)
             }
         }
+        .frame(height: 56)
         .glassEffect(.regular, in: .rect(cornerRadius: 12))
     }
     
@@ -118,7 +119,7 @@ struct AIEnhancementStepView: View {
                     .font(.caption)
                     .fontWeight(.medium)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .contentShape(Rectangle())
             .background(
@@ -374,3 +375,16 @@ struct AIEnhancementStepView: View {
         onContinue()
     }
 }
+
+#if DEBUG
+struct AIEnhancementStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        AIEnhancementStepView(
+            settings: SettingsStore(),
+            onContinue: {},
+            onSkip: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+#endif

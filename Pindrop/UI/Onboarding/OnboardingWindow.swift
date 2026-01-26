@@ -258,3 +258,29 @@ struct OnboardingWindow: View {
         onComplete()
     }
 }
+
+#if DEBUG
+struct OnboardingWindow_Previews: PreviewProvider {
+    static var previews: some View {
+        OnboardingWindow(
+            settings: SettingsStore(),
+            modelManager: PreviewModelManagerWindow(),
+            transcriptionService: PreviewTranscriptionServiceWindow(),
+            permissionManager: PermissionManager(),
+            onComplete: {}
+        )
+    }
+}
+
+final class PreviewModelManagerWindow: ModelManager {
+    override init() {
+        // Skip async initialization to avoid launching WhisperKit in preview
+    }
+}
+
+final class PreviewTranscriptionServiceWindow: TranscriptionService {
+    override init() {
+        // Skip model loading in preview
+    }
+}
+#endif

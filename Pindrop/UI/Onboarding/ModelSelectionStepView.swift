@@ -182,3 +182,42 @@ struct ModelCard: View {
         }
     }
 }
+
+#if DEBUG
+struct ModelSelectionStepView_Previews: PreviewProvider {
+    @State private static var selectedModelName = "openai_whisper-base.en"
+    
+    static var previews: some View {
+        ModelSelectionStepView(
+            modelManager: PreviewModelManagerSelection(),
+            selectedModelName: $selectedModelName,
+            onContinue: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+
+struct ModelCard_Previews: PreviewProvider {
+    static var previews: some View {
+        ModelCard(
+            model: ModelManager.WhisperModel(
+                name: "openai_whisper-base.en",
+                displayName: "Base",
+                sizeInMB: 145
+            ),
+            isSelected: true,
+            isDownloaded: false,
+            isRecommended: true,
+            onSelect: {}
+        )
+        .padding()
+        .frame(width: 400)
+    }
+}
+
+final class PreviewModelManagerSelection: ModelManager {
+    override init() {
+        // Skip async initialization to avoid launching WhisperKit in preview
+    }
+}
+#endif

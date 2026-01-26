@@ -102,3 +102,12 @@ struct WelcomeStepView: View {
         .glassEffect(.regular, in: .capsule)
     }
 }
+
+#if DEBUG
+struct WelcomeStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        WelcomeStepView(onContinue: {})
+            .frame(width: 800, height: 600)
+    }
+}
+#endif

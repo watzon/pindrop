@@ -175,3 +175,30 @@ struct ModelDownloadStepView: View {
         }
     }
 }
+
+#if DEBUG
+struct ModelDownloadStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        ModelDownloadStepView(
+            modelManager: PreviewModelManagerDownload(),
+            transcriptionService: PreviewTranscriptionServiceDownload(),
+            modelName: "openai_whisper-base.en",
+            onComplete: {},
+            onCancel: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+
+final class PreviewModelManagerDownload: ModelManager {
+    override init() {
+        // Skip async initialization to avoid launching WhisperKit in preview
+    }
+}
+
+final class PreviewTranscriptionServiceDownload: TranscriptionService {
+    override init() {
+        // Skip model loading in preview
+    }
+}
+#endif

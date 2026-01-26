@@ -123,6 +123,44 @@ struct PermissionsStepView: View {
     }
 }
 
+#if DEBUG
+struct PermissionsStepView_Previews: PreviewProvider {
+    static var previews: some View {
+        PermissionsStepView(
+            permissionManager: PermissionManager(),
+            onContinue: {}
+        )
+        .frame(width: 800, height: 600)
+    }
+}
+
+struct PermissionCard_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            PermissionCard(
+                icon: .mic,
+                title: "Microphone",
+                description: "Required for recording",
+                isGranted: true,
+                isRequired: true,
+                action: {}
+            )
+            
+            PermissionCard(
+                icon: .accessibility,
+                title: "Accessibility",
+                description: "Optional feature",
+                isGranted: false,
+                isRequired: false,
+                action: {}
+            )
+        }
+        .padding()
+        .frame(width: 500)
+    }
+}
+#endif
+
 struct PermissionCard: View {
     let icon: Icon
     let title: String
