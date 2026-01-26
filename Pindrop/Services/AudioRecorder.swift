@@ -120,6 +120,21 @@ final class AudioRecorder {
         return audioData
     }
     
+    /// Cancels recording without returning audio data. Discards all captured audio.
+    func cancelRecording() {
+        guard isRecording, let engine = audioEngine else {
+            return
+        }
+        
+        engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
+        isRecording = false
+        self.audioEngine = nil
+        audioBuffers.removeAll()
+        
+        Log.audio.info("Recording cancelled, audio discarded")
+    }
+    
     private func convertBuffer(
         _ buffer: AVAudioPCMBuffer,
         from inputFormat: AVAudioFormat,

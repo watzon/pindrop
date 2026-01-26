@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import Combine
+import AppKit
 import os.log
 
 @MainActor
@@ -41,6 +42,12 @@ final class AppCoordinator {
     
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Escape Key Cancellation
+    
+    private var escapeMonitor: Any?
+    private var lastEscapeTime: Date?
+    private let doubleEscapeThreshold: TimeInterval = 0.4
     
     // MARK: - Initialization
     
@@ -81,6 +88,7 @@ final class AppCoordinator {
         
         setupHotkeys()
         observeSettings()
+        setupEscapeKeyMonitor()
     }
     
     // MARK: - Lifecycle
@@ -359,6 +367,68 @@ final class AppCoordinator {
             )
         } catch {
             Log.app.error("Failed to save to history: \(error)")
+        }
+    }
+    
+    // MARK: - Escape Key Cancellation
+    
+    private func setupEscapeKeyMonitor() {
+        escapeMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard event.keyCode == 53 else { return }
+            
+            Task { @MainActor in
+                self?.handleEscapeKeyPress()
+            }
+        }
+    }
+    
+    private func handleEscapeKeyPress() {
+        guard isRecording || isProcessing else { return }
+        
+        let now = Date()
+        
+        if let lastTime = lastEscapeTime,
+           now.timeIntervalSince(lastTime) <= doubleEscapeThreshold {
+            lastEscapeTime = nil
+            floatingIndicatorController.clearEscapePrimed()
+            cancelCurrentOperation()
+        } else {
+            lastEscapeTime = now
+            if settingsStore.floatingIndicatorEnabled {
+                floatingIndicatorController.showEscapePrimed()
+            }
+        }
+    }
+    
+    private func cancelCurrentOperation() {
+        guard isRecording || isProcessing else {
+            Log.app.debug("Double-escape pressed but no operation in progress")
+            return
+        }
+        
+        Log.app.info("Cancelling current operation via double-escape")
+        
+        if isRecording {
+            audioRecorder.cancelRecording()
+            isRecording = false
+        }
+        
+        isProcessing = false
+        recordingStartTime = nil
+        error = nil
+        
+        statusBarController.setIdleState()
+        statusBarController.updateMenuState()
+        
+        if settingsStore.floatingIndicatorEnabled {
+            floatingIndicatorController.finishProcessing()
+        }
+    }
+    
+    func cleanup() {
+        if let monitor = escapeMonitor {
+            NSEvent.removeMonitor(monitor)
+            escapeMonitor = nil
         }
     }
 }

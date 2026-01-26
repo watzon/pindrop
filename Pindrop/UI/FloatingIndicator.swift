@@ -101,9 +101,11 @@ final class FloatingIndicatorController: ObservableObject {
     @Published var recordingDuration: TimeInterval = 0
     @Published var audioLevel: Float = 0.0
     @Published var isProcessing: Bool = false
+    @Published var escapePrimed: Bool = false
     
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
+    private var escapePrimedResetTask: Task<Void, Never>?
     
     var onStopRecording: (() -> Void)?
     
@@ -192,6 +194,23 @@ final class FloatingIndicatorController: ObservableObject {
     func updateAudioLevel(_ level: Float) {
         let smoothed = audioLevel * 0.3 + level * 0.7
         audioLevel = min(1.0, max(0.0, smoothed))
+    }
+    
+    func showEscapePrimed() {
+        escapePrimedResetTask?.cancel()
+        escapePrimed = true
+        
+        escapePrimedResetTask = Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            if !Task.isCancelled {
+                escapePrimed = false
+            }
+        }
+    }
+    
+    func clearEscapePrimed() {
+        escapePrimedResetTask?.cancel()
+        escapePrimed = false
     }
     
     func handleStopButtonTapped() {
@@ -315,10 +334,20 @@ struct NotchIndicatorView: View {
     }
     
     private var timerDisplay: some View {
-        Text(controller.isProcessing ? "..." : formattedDuration)
-            .font(.system(size: 13, weight: .semibold, design: .monospaced))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: 6) {
+            Text(controller.isProcessing ? "..." : formattedDuration)
+                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .foregroundStyle(.white)
+            
+            if controller.escapePrimed {
+                Circle()
+                    .fill(Color.yellow)
+                    .frame(width: 6, height: 6)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .animation(.easeInOut(duration: 0.15), value: controller.escapePrimed)
     }
 }
 
