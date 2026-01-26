@@ -11,7 +11,8 @@ import SwiftData
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
-    
+    @AppStorage("hasDismissedHotkeyReminder") private var hasDismissedHotkeyReminder = false
+
     var onOpenSettings: (() -> Void)?
     
     private var totalSessions: Int {
@@ -38,8 +39,10 @@ struct DashboardView: View {
                 // Welcome header
                 welcomeHeader
                 
-                // Hotkey reminder card
-                hotkeyReminderCard
+                // Hotkey reminder card (only shown if not dismissed)
+                if !hasDismissedHotkeyReminder {
+                    hotkeyReminderCard
+                }
                 
                 // Stats grid
                 statsSection
@@ -107,20 +110,36 @@ struct DashboardView: View {
     
     private var hotkeyReminderCard: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            // Main instruction
-            HStack(spacing: AppTheme.Spacing.md) {
-                // Hotkey display
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    KeyCapView(text: "⌥")
-                    Text("+")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
-                    KeyCapView(text: "Space")
+            // Header with close button
+            HStack(alignment: .top) {
+                // Main instruction
+                HStack(spacing: AppTheme.Spacing.md) {
+                    // Hotkey display
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        KeyCapView(text: "⌥")
+                        Text("+")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.textSecondary)
+                        KeyCapView(text: "Space")
+                    }
+                    
+                    Text("to dictate and let Pindrop transcribe for you")
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.textPrimary)
                 }
                 
-                Text("to dictate and let Pindrop transcribe for you")
-                    .font(AppTypography.headline)
-                    .foregroundStyle(AppColors.textPrimary)
+                Spacer()
+                
+                // Close button
+                Button {
+                    hasDismissedHotkeyReminder = true
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(AppColors.textTertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Dismiss")
             }
             
             // Description
