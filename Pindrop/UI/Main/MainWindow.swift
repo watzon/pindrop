@@ -207,7 +207,7 @@ struct MainWindow: View {
     private var detailContent: some View {
         switch selectedNav {
         case .home:
-            DashboardView()
+            DashboardView(onOpenSettings: openSettings)
         case .history:
             HistoryView()
         case .dictionary, .notes, .transcribe:

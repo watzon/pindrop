@@ -77,7 +77,7 @@ final class AppCoordinator {
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)
         self.mainWindowController.onOpenSettings = { [weak self] in
-            self?.statusBarController.showSettings()
+            self?.statusBarController.showSettings(tab: .hotkeys)
         }
         
         self.statusBarController.onToggleRecording = { [weak self] in

@@ -51,8 +51,8 @@ final class StatusBarController {
         self.mainWindowController = controller
     }
     
-    func showSettings() {
-        openSettings()
+    func showSettings(tab: SettingsTab = .general) {
+        openSettingsWindow(tab: tab)
     }
     
     private func setupStatusItem() {
@@ -139,20 +139,27 @@ final class StatusBarController {
     }
     
     @objc private func openSettings() {
-        if settingsWindow == nil {
-            let settingsView = SettingsWindow()
-            let hostingController = NSHostingController(rootView: settingsView)
-            
-            let window = NSWindow(contentViewController: hostingController)
-            window.title = "Pindrop Settings"
-            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            window.setContentSize(NSSize(width: 750, height: 550))
-            window.minSize = NSSize(width: 650, height: 450)
-            window.center()
-            
-            settingsWindow = window
+        openSettingsWindow(tab: .general)
+    }
+    
+    private func openSettingsWindow(tab: SettingsTab) {
+        // Close existing window to recreate with new tab selection
+        if let existingWindow = settingsWindow {
+            existingWindow.close()
+            settingsWindow = nil
         }
         
+        let settingsView = SettingsWindow(initialTab: tab)
+        let hostingController = NSHostingController(rootView: settingsView)
+        
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = "Pindrop Settings"
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.setContentSize(NSSize(width: AppTheme.Window.settingsDefaultWidth, height: AppTheme.Window.settingsDefaultHeight))
+        window.minSize = NSSize(width: AppTheme.Window.settingsMinWidth, height: AppTheme.Window.settingsMinHeight)
+        window.center()
+        
+        settingsWindow = window
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }

@@ -12,6 +12,8 @@ struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     
+    var onOpenSettings: (() -> Void)?
+    
     private var totalSessions: Int {
         transcriptions.count
     }
@@ -129,7 +131,7 @@ struct DashboardView: View {
             
             // Action button
             Button {
-                // Could open settings to hotkey section
+                onOpenSettings?()
             } label: {
                 Text("Customize hotkey")
                     .font(AppTypography.subheadline)
@@ -138,6 +140,7 @@ struct DashboardView: View {
             .tint(AppColors.textPrimary)
             .controlSize(.small)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppTheme.Spacing.xl)
         .highlightedCardStyle()
     }
@@ -353,17 +356,7 @@ struct RecentTranscriptionRow: View {
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Copy button
-            Button {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(record.text, forType: .string)
-            } label: {
-                Image(systemName: "doc.on.doc")
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppColors.textTertiary)
-            }
-            .buttonStyle(.plain)
-            .help("Copy to clipboard")
+            CopyButton(text: record.text)
         }
         .padding(AppTheme.Spacing.md)
         .cardStyle()

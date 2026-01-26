@@ -27,13 +27,20 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 
 struct SettingsWindow: View {
     @StateObject private var settings = SettingsStore()
-    @State private var selectedTab: SettingsTab = .general
+    @State private var selectedTab: SettingsTab
     @State private var hoveredTab: SettingsTab? = nil
+    
+    var initialTab: SettingsTab = .general
+    
+    init(initialTab: SettingsTab = .general) {
+        self.initialTab = initialTab
+        self._selectedTab = State(initialValue: initialTab)
+    }
     
     var body: some View {
         NavigationSplitView {
             sidebarContent
-                .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 220)
+                .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 250)
         } detail: {
             detailContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
