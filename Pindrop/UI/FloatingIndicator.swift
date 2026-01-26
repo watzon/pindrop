@@ -148,24 +148,27 @@ final class FloatingIndicatorController: ObservableObject {
         panel.alphaValue = 0
         panel.orderFrontRegardless()
         
+        let localPanel = panel
+        
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.2
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            panel.animator().alphaValue = 1
+            localPanel.animator().alphaValue = 1
         }
     }
     
     func hide() {
         guard let panel = panel else { return }
+        let localPanel = panel
         
         stopDurationTimer()
         
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.15
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            panel.animator().alphaValue = 0
+            localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
-            self?.panel?.close()
+            localPanel.close()
             self?.panel = nil
             self?.hostingView = nil
         })
@@ -413,3 +416,4 @@ struct NotchWaveformView: View {
         .frame(width: 385, height: 38)
         .background(Color.gray.opacity(0.3))
 }
+

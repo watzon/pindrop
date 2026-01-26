@@ -218,8 +218,7 @@ struct HistoryView: View {
                                 HistoryTranscriptionRow(
                                     record: record,
                                     isSelected: selectedRecord?.id == record.id,
-                                    onTap: { selectedRecord = (selectedRecord?.id == record.id) ? nil : record },
-                                    onCopy: { copyToClipboard(record.text) }
+                                    onTap: { selectedRecord = (selectedRecord?.id == record.id) ? nil : record }
                                 )
                             }
                         }
@@ -247,12 +246,6 @@ struct HistoryView: View {
     }
     
     // MARK: - Actions
-    
-    private func copyToClipboard(_ text: String) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
-    }
     
     private func exportToPlainText() {
         Task { @MainActor in
@@ -291,7 +284,6 @@ struct HistoryTranscriptionRow: View {
     let record: TranscriptionRecord
     let isSelected: Bool
     let onTap: () -> Void
-    let onCopy: () -> Void
     
     private var timeString: String {
         let formatter = DateFormatter()
@@ -332,16 +324,8 @@ struct HistoryTranscriptionRow: View {
                 }
             }
             
-            // Copy button
-            Button {
-                onCopy()
-            } label: {
-                Image(systemName: "doc.on.doc")
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppColors.textTertiary)
-            }
-            .buttonStyle(.plain)
-            .opacity(isSelected ? 1 : 0.6)
+            CopyButton(text: record.text)
+                .opacity(isSelected ? 1 : 0.6)
         }
         .padding(AppTheme.Spacing.md)
         .background(
@@ -360,7 +344,8 @@ struct HistoryTranscriptionRow: View {
         }
         .contextMenu {
             Button {
-                onCopy()
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(record.text, forType: .string)
             } label: {
                 Label("Copy Text", systemImage: "doc.on.doc")
             }
