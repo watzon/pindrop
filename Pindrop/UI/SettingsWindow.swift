@@ -15,12 +15,12 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    var icon: Icon {
+    var systemIcon: String {
         switch self {
-        case .general: return .settings
-        case .hotkeys: return .keyboard
-        case .models: return .cpu
-        case .ai: return .sparkles
+        case .general: return "gear"
+        case .hotkeys: return "keyboard"
+        case .models: return "cpu"
+        case .ai: return "sparkles"
         }
     }
 }
@@ -28,28 +28,70 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 struct SettingsWindow: View {
     @StateObject private var settings = SettingsStore()
     @State private var selectedTab: SettingsTab = .general
+    @State private var hoveredTab: SettingsTab? = nil
     
     var body: some View {
         NavigationSplitView {
-            sidebar
+            sidebarContent
                 .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 220)
         } detail: {
             detailContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 700, minHeight: 500)
+        .frame(minWidth: AppTheme.Window.settingsMinWidth, minHeight: AppTheme.Window.settingsMinHeight)
+        .background(AppColors.windowBackground)
     }
     
-    private var sidebar: some View {
-        List(SettingsTab.allCases, selection: $selectedTab) { tab in
-            Label {
-                Text(tab.rawValue)
-            } icon: {
-                IconView(icon: tab.icon, size: 16)
+    private var sidebarContent: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                Text("Settings")
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.textPrimary)
             }
-            .tag(tab)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.vertical, AppTheme.Spacing.lg)
+            .padding(.top, AppTheme.Spacing.sm)
+            
+            VStack(spacing: AppTheme.Spacing.xs) {
+                ForEach(SettingsTab.allCases) { tab in
+                    settingsTabItem(tab)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            
+            Spacer()
         }
-        .listStyle(.sidebar)
+        .background(AppColors.sidebarBackground)
+    }
+    
+    private func settingsTabItem(_ tab: SettingsTab) -> some View {
+        let isSelected = selectedTab == tab
+        let isHovered = hoveredTab == tab
+        
+        return Button {
+            withAnimation(AppTheme.Animation.fast) {
+                selectedTab = tab
+            }
+        } label: {
+            HStack(spacing: AppTheme.Spacing.md) {
+                Image(systemName: tab.systemIcon)
+                    .font(.system(size: 14, weight: .medium))
+                    .frame(width: 20)
+                
+                Text(tab.rawValue)
+                    .font(AppTypography.body)
+                
+                Spacer()
+            }
+            .foregroundStyle(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
+            .sidebarItemStyle(isSelected: isSelected, isHovered: isHovered)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            hoveredTab = hovering ? tab : nil
+        }
     }
     
     @ViewBuilder
@@ -57,9 +99,9 @@ struct SettingsWindow: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 headerView(for: selectedTab)
-                    .padding(.horizontal, 32)
-                    .padding(.top, 24)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, AppTheme.Spacing.xxl)
+                    .padding(.top, AppTheme.Spacing.xxl)
+                    .padding(.bottom, AppTheme.Spacing.lg)
                 
                 Group {
                     switch selectedTab {
@@ -73,21 +115,22 @@ struct SettingsWindow: View {
                         AIEnhancementSettingsView(settings: settings)
                     }
                 }
-                .padding(.horizontal, 32)
-                .padding(.bottom, 24)
+                .padding(.horizontal, AppTheme.Spacing.xxl)
+                .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(AppColors.contentBackground)
     }
     
     private func headerView(for tab: SettingsTab) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
             Text(tab.rawValue)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .font(AppTypography.largeTitle)
+                .foregroundStyle(AppColors.textPrimary)
             
             Text(headerSubtitle(for: tab))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -102,6 +145,12 @@ struct SettingsWindow: View {
     }
 }
 
-#Preview {
+#Preview("Settings Window - Light") {
     SettingsWindow()
+        .preferredColorScheme(.light)
+}
+
+#Preview("Settings Window - Dark") {
+    SettingsWindow()
+        .preferredColorScheme(.dark)
 }

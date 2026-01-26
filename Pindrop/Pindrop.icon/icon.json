@@ -1,0 +1,50 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.07187,0.07967,0.08900,1.00000",
+      "display-p3:0.11028,0.11800,0.12715,1.00000"
+    ],
+    "orientation" : {
+      "start" : {
+        "x" : 0.5,
+        "y" : 0
+      },
+      "stop" : {
+        "x" : 0.5,
+        "y" : 0.7
+      }
+    }
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "pindrop 2.svg",
+          "name" : "pindrop 2",
+          "position" : {
+            "scale" : 0.41,
+            "translation-in-points" : [
+              0.05881772926011308,
+              -0.0004917552594179142
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

@@ -18,15 +18,16 @@ final class StatusBarController {
     private let audioRecorder: AudioRecorder
     private let settingsStore: SettingsStore
     private var modelContainer: ModelContainer?
+    private var mainWindowController: MainWindowController?
     
     private var recordingStatusItem: NSMenuItem?
     private var toggleRecordingItem: NSMenuItem?
     
     private var settingsWindow: NSWindow?
-    private var historyWindow: NSWindow?
     private var welcomePopover: NSPopover?
     
     var onToggleRecording: (() async -> Void)?
+    var onOpenMainWindow: (() -> Void)?
     
     private var currentState: RecordingState = .idle {
         didSet {
@@ -46,12 +47,40 @@ final class StatusBarController {
         self.modelContainer = container
     }
     
+    func setMainWindowController(_ controller: MainWindowController) {
+        self.mainWindowController = controller
+    }
+    
+    func showSettings() {
+        openSettings()
+    }
+    
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
-            button.image?.isTemplate = true
+            if let customIcon = NSImage(named: "PindropIcon") {
+                let targetHeight: CGFloat = 18
+                let aspectRatio: CGFloat = 1364.0 / 2000.0
+                let targetWidth = targetHeight * aspectRatio
+                
+                let resizedIcon = NSImage(size: NSSize(width: targetWidth, height: targetHeight))
+                resizedIcon.lockFocus()
+                NSGraphicsContext.current?.imageInterpolation = .high
+                customIcon.draw(
+                    in: NSRect(x: 0, y: 0, width: targetWidth, height: targetHeight),
+                    from: NSRect(origin: .zero, size: customIcon.size),
+                    operation: .copy,
+                    fraction: 1.0
+                )
+                resizedIcon.unlockFocus()
+                resizedIcon.isTemplate = true
+                
+                button.image = resizedIcon
+            } else {
+                button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
+                button.image?.isTemplate = true
+            }
         }
         
         statusItem?.menu = menu
@@ -74,6 +103,14 @@ final class StatusBarController {
         
         menu.addItem(NSMenuItem.separator())
         
+        let openWindowItem = NSMenuItem(
+            title: "Open Pindrop",
+            action: #selector(openMainWindow),
+            keyEquivalent: "o"
+        )
+        openWindowItem.target = self
+        menu.addItem(openWindowItem)
+        
         let settingsItem = NSMenuItem(
             title: "Settings...",
             action: #selector(openSettings),
@@ -81,14 +118,6 @@ final class StatusBarController {
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
-        
-        let historyItem = NSMenuItem(
-            title: "History...",
-            action: #selector(openHistory),
-            keyEquivalent: "h"
-        )
-        historyItem.target = self
-        menu.addItem(historyItem)
         
         menu.addItem(NSMenuItem.separator())
         
@@ -128,29 +157,8 @@ final class StatusBarController {
         NSApp.activate(ignoringOtherApps: true)
     }
     
-    @objc private func openHistory() {
-        guard let container = modelContainer else {
-            Log.ui.error("ModelContainer not set - cannot open History")
-            return
-        }
-        
-        if historyWindow == nil {
-            let historyView = HistoryWindow()
-                .modelContainer(container)
-            let hostingController = NSHostingController(rootView: historyView)
-            
-            let window = NSWindow(contentViewController: hostingController)
-            window.title = "Transcription History"
-            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            window.setContentSize(NSSize(width: 800, height: 600))
-            window.minSize = NSSize(width: 700, height: 500)
-            window.center()
-            
-            historyWindow = window
-        }
-        
-        historyWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+    @objc private func openMainWindow() {
+        mainWindowController?.show()
     }
     
     @objc private func quit() {

@@ -35,16 +35,31 @@ struct GeneralSettingsView: View {
     
     private var interfaceSection: some View {
         SettingsCard(title: "Interface", icon: "macwindow") {
-            Toggle(isOn: $settings.floatingIndicatorEnabled) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Floating indicator")
-                        .font(.body)
-                    Text("Shows recording status in a small overlay window")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            VStack(spacing: 16) {
+                Toggle(isOn: $settings.showInDock) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show in Dock")
+                            .font(.body)
+                        Text("Display Pindrop icon in the Dock when running")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .toggleStyle(.switch)
+                
+                Divider()
+                
+                Toggle(isOn: $settings.floatingIndicatorEnabled) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Floating indicator")
+                            .font(.body)
+                        Text("Shows recording status in a small overlay window")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .toggleStyle(.switch)
             }
-            .toggleStyle(.switch)
         }
     }
     

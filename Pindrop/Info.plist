@@ -20,6 +20,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>CFBundleIconFile</key>
+	<string>Pindrop</string>
+	<key>CFBundleIconName</key>
+	<string>Pindrop</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>

@@ -33,6 +33,8 @@ final class AppCoordinator {
     let statusBarController: StatusBarController
     let floatingIndicatorController: FloatingIndicatorController
     let onboardingController: OnboardingWindowController
+    let splashController: SplashWindowController
+    let mainWindowController: MainWindowController
     
     // MARK: - State
     
@@ -71,10 +73,18 @@ final class AppCoordinator {
         self.statusBarController.setModelContainer(modelContainer)
         self.floatingIndicatorController = FloatingIndicatorController()
         self.onboardingController = OnboardingWindowController()
+        self.splashController = SplashWindowController()
+        self.mainWindowController = MainWindowController()
+        self.mainWindowController.setModelContainer(modelContainer)
+        self.mainWindowController.onOpenSettings = { [weak self] in
+            self?.statusBarController.showSettings()
+        }
         
         self.statusBarController.onToggleRecording = { [weak self] in
             await self?.handleToggleRecording()
         }
+        
+        self.statusBarController.setMainWindowController(mainWindowController)
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
             self?.floatingIndicatorController.updateAudioLevel(level)
@@ -99,7 +109,13 @@ final class AppCoordinator {
             return
         }
         
+        splashController.show()
+        
         await startNormalOperation()
+        
+        splashController.dismiss { [weak self] in
+            self?.mainWindowController.show()
+        }
     }
     
     private func showOnboarding() {
@@ -110,8 +126,9 @@ final class AppCoordinator {
             permissionManager: permissionManager,
             onComplete: { [weak self] in
                 Task { @MainActor in
-                    self?.showWelcomePopoverAfterDelay()
                     await self?.finishPostOnboardingSetup()
+                    self?.mainWindowController.show()
+                    self?.showWelcomePopoverAfterDelay()
                 }
             }
         )

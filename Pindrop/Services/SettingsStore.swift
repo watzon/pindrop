@@ -38,6 +38,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
+    @AppStorage("showInDock") var showInDock: Bool = false
     
     // MARK: - Onboarding State
     
