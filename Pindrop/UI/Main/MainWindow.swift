@@ -244,26 +244,39 @@ struct MainWindow: View {
 
 @MainActor
 final class MainWindowController {
-    
+
     private var window: NSWindow?
     private var modelContainer: ModelContainer?
     var onOpenSettings: (() -> Void)?
-    
+
     func setModelContainer(_ container: ModelContainer) {
         self.modelContainer = container
     }
-    
+
     func show() {
+        show(navigationItem: nil)
+    }
+
+    func showHistory() {
+        show(navigationItem: .history)
+    }
+
+    private func show(navigationItem: MainNavItem?) {
         guard let container = modelContainer else {
             Log.ui.error("ModelContainer not set - cannot show MainWindow")
             return
         }
-        
+
+        var selectedNav: MainNavItem = .home
+        if let item = navigationItem {
+            selectedNav = item
+        }
+
         if window == nil {
             let mainView = MainWindow(onOpenSettings: onOpenSettings)
                 .modelContainer(container)
             let hostingController = NSHostingController(rootView: mainView)
-            
+
             let window = NSWindow(contentViewController: hostingController)
             window.title = "Pindrop"
             window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
@@ -280,10 +293,10 @@ final class MainWindowController {
             window.center()
             window.isReleasedWhenClosed = false
             window.appearance = nil
-            
+
             self.window = window
         }
-        
+
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }

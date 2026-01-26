@@ -29,12 +29,15 @@ final class SettingsStore: ObservableObject {
     // MARK: - AppStorage Properties
     
     @AppStorage("selectedModel") var selectedModel: String = "openai_whisper-base"
-    @AppStorage("toggleHotkey") var toggleHotkey: String = "⌘⇧R"
+    @AppStorage("toggleHotkey") var toggleHotkey: String = "⇧⌘R"
     @AppStorage("toggleHotkeyCode") var toggleHotkeyCode: Int = 15
     @AppStorage("toggleHotkeyModifiers") var toggleHotkeyModifiers: Int = 0x100100
-    @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⌘⇧T"
+    @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⇧⌘T"
     @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = 17
     @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = 0x100100
+    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = "⇧⌘C"
+    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = 8
+    @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = 0x100100
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("aiModel") var aiModel: String = "openai/gpt-4o-mini"
@@ -90,12 +93,15 @@ final class SettingsStore: ObservableObject {
     
     func resetAllSettings() {
         selectedModel = "openai_whisper-base"
-        toggleHotkey = "⌘⇧R"
+        toggleHotkey = "⇧⌘R"
         toggleHotkeyCode = 15
         toggleHotkeyModifiers = 0x100100
-        pushToTalkHotkey = "⌘⇧T"
+        pushToTalkHotkey = "⇧⌘T"
         pushToTalkHotkeyCode = 17
         pushToTalkHotkeyModifiers = 0x100100
+        copyLastTranscriptHotkey = "⇧⌘C"
+        copyLastTranscriptHotkeyCode = 8
+        copyLastTranscriptHotkeyModifiers = 0x100100
         outputMode = "clipboard"
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false

@@ -13,12 +13,14 @@ struct HotkeysSettingsView: View {
     @ObservedObject var settings: SettingsStore
     @State private var isRecordingToggle = false
     @State private var isRecordingPushToTalk = false
+    @State private var isRecordingCopyLastTranscript = false
     @State private var keyMonitor: Any?
     
     var body: some View {
         VStack(spacing: 20) {
             toggleHotkeyCard
             pushToTalkCard
+            copyLastTranscriptCard
         }
         .onDisappear {
             stopRecording()
@@ -66,34 +68,71 @@ struct HotkeysSettingsView: View {
             }
         }
     }
+
+    private var copyLastTranscriptCard: some View {
+        SettingsCard(title: "Copy Last Transcript", icon: "doc.on.clipboard") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Copy the most recent transcript to the clipboard")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HotkeyRecorderRow(
+                    hotkey: settings.copyLastTranscriptHotkey,
+                    isRecording: isRecordingCopyLastTranscript,
+                    onRecord: { startRecording(forCopyLastTranscript: true) },
+                    onClear: {
+                        settings.copyLastTranscriptHotkey = ""
+                        settings.copyLastTranscriptHotkeyCode = 0
+                        settings.copyLastTranscriptHotkeyModifiers = 0
+                    }
+                )
+            }
+        }
+    }
     
-    private func startRecording(forToggle: Bool) {
+    private func startRecording(forToggle: Bool = false, forCopyLastTranscript: Bool = false) {
         stopRecording()
-        
+
         if forToggle {
             isRecordingToggle = true
             isRecordingPushToTalk = false
+            isRecordingCopyLastTranscript = false
+        } else if forCopyLastTranscript {
+            isRecordingToggle = false
+            isRecordingPushToTalk = false
+            isRecordingCopyLastTranscript = true
         } else {
             isRecordingToggle = false
             isRecordingPushToTalk = true
+            isRecordingCopyLastTranscript = false
         }
-        
+
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { event in
+            // Cancel recording on Escape
+            if event.type == .keyDown && event.keyCode == 53 {
+                self.stopRecording()
+                return nil
+            }
+
             if event.type == .keyDown {
-                let hotkeyString = buildHotkeyString(from: event)
-                let carbonModifiers = carbonModifiersFrom(event.modifierFlags)
-                
+                let hotkeyString = self.buildHotkeyString(from: event)
+                let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
+
                 if forToggle {
                     settings.toggleHotkey = hotkeyString
                     settings.toggleHotkeyCode = Int(event.keyCode)
                     settings.toggleHotkeyModifiers = Int(carbonModifiers)
+                } else if forCopyLastTranscript {
+                    settings.copyLastTranscriptHotkey = hotkeyString
+                    settings.copyLastTranscriptHotkeyCode = Int(event.keyCode)
+                    settings.copyLastTranscriptHotkeyModifiers = Int(carbonModifiers)
                 } else {
                     settings.pushToTalkHotkey = hotkeyString
                     settings.pushToTalkHotkeyCode = Int(event.keyCode)
                     settings.pushToTalkHotkeyModifiers = Int(carbonModifiers)
                 }
-                
-                stopRecording()
+
+                self.stopRecording()
                 return nil
             }
             return event
@@ -116,34 +155,49 @@ struct HotkeysSettingsView: View {
         }
         isRecordingToggle = false
         isRecordingPushToTalk = false
+        isRecordingCopyLastTranscript = false
     }
     
     private func buildHotkeyString(from event: NSEvent) -> String {
         var parts: [String] = []
-        
-        let modifiers = event.modifierFlags
-        if modifiers.contains(.control) { parts.append("⌃") }
-        if modifiers.contains(.option) { parts.append("⌥") }
-        if modifiers.contains(.shift) { parts.append("⇧") }
-        if modifiers.contains(.command) { parts.append("⌘") }
-        
-        if let characters = event.charactersIgnoringModifiers?.uppercased(), !characters.isEmpty {
-            let char = characters.first!
-            if char.isLetter || char.isNumber {
-                parts.append(String(char))
+
+        // Handle left/right modifiers by keyCode
+        let keyCode = event.keyCode
+        if keyCode == 59 { parts.append("⌃L") }      // Left Control
+        else if keyCode == 62 { parts.append("⌃R") } // Right Control
+        else if keyCode == 58 { parts.append("⌥L") } // Left Option
+        else if keyCode == 61 { parts.append("⌥R") } // Right Option
+        else if keyCode == 56 { parts.append("⇧L") } // Left Shift
+        else if keyCode == 60 { parts.append("⇧R") } // Right Shift
+        else if keyCode == 55 { parts.append("⌘L") } // Left Command
+        else if keyCode == 54 { parts.append("⌘R") } // Right Command
+        else {
+            // Regular modifiers (for non-modifier keys)
+            let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            if modifiers.contains(.control) { parts.append("⌃") }
+            if modifiers.contains(.option) { parts.append("⌥") }
+            if modifiers.contains(.shift) { parts.append("⇧") }
+            if modifiers.contains(.command) { parts.append("⌘") }
+
+            // Add the key character
+            if let characters = event.charactersIgnoringModifiers?.uppercased(), !characters.isEmpty {
+                let char = characters.first!
+                if char.isLetter || char.isNumber {
+                    parts.append(String(char))
+                } else {
+                    let keyName = keyCodeToName(event.keyCode)
+                    if !keyName.isEmpty {
+                        parts.append(keyName)
+                    }
+                }
             } else {
                 let keyName = keyCodeToName(event.keyCode)
                 if !keyName.isEmpty {
                     parts.append(keyName)
                 }
             }
-        } else {
-            let keyName = keyCodeToName(event.keyCode)
-            if !keyName.isEmpty {
-                parts.append(keyName)
-            }
         }
-        
+
         return parts.joined()
     }
     
@@ -183,7 +237,7 @@ struct HotkeyRecorderRow: View {
     let isRecording: Bool
     let onRecord: () -> Void
     let onClear: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 12) {
             HStack {
@@ -200,15 +254,21 @@ struct HotkeyRecorderRow: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-            
+
             Button(action: onRecord) {
                 Text(isRecording ? "Press keys..." : "Record")
                     .frame(minWidth: 80)
             }
             .buttonStyle(.bordered)
             .tint(isRecording ? .orange : nil)
-            
-            if !hotkey.isEmpty {
+
+            if isRecording {
+                Text("Press Esc to cancel")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+
+            if !hotkey.isEmpty && !isRecording {
                 Button(role: .destructive, action: onClear) {
                     IconView(icon: .circleX, size: 16)
                 }

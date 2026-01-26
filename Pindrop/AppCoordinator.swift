@@ -79,11 +79,47 @@ final class AppCoordinator {
         self.mainWindowController.onOpenSettings = { [weak self] in
             self?.statusBarController.showSettings(tab: .hotkeys)
         }
-        
+
         self.statusBarController.onToggleRecording = { [weak self] in
             await self?.handleToggleRecording()
         }
-        
+
+        self.statusBarController.onCopyLastTranscript = { [weak self] in
+            await self?.handleCopyLastTranscript()
+        }
+
+        self.statusBarController.onExportLastTranscript = { [weak self] in
+            await self?.handleExportLastTranscript()
+        }
+
+        self.statusBarController.onClearAudioBuffer = { [weak self] in
+            await self?.handleClearAudioBuffer()
+        }
+
+        self.statusBarController.onCancelOperation = { [weak self] in
+            await self?.handleCancelOperation()
+        }
+
+        self.statusBarController.onToggleOutputMode = { [weak self] in
+            self?.handleToggleOutputMode()
+        }
+
+        self.statusBarController.onToggleAIControlled = { [weak self] in
+            self?.handleToggleAIEnhancement()
+        }
+
+        self.statusBarController.onToggleFloatingIndicator = { [weak self] in
+            self?.handleToggleFloatingIndicator()
+        }
+
+        self.statusBarController.onOpenHistory = { [weak self] in
+            self?.handleOpenHistory()
+        }
+
+        self.statusBarController.onSelectModel = { [weak self] modelName in
+            self?.handleSelectModel(modelName)
+        }
+
         self.statusBarController.setMainWindowController(mainWindowController)
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
@@ -153,11 +189,11 @@ final class AppCoordinator {
             Log.app.warning("Microphone permission denied - recording will not work")
             AlertManager.shared.showMicrophonePermissionAlert()
         }
-        
+
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
             _ = outputManager.requestAccessibilityPermission()
         }
-        
+
         do {
             let modelName = settingsStore.selectedModel
             try await transcriptionService.loadModel(modelName: modelName)
@@ -165,6 +201,9 @@ final class AppCoordinator {
             self.error = error
             Log.app.error("Failed to load transcription model: \(error)")
         }
+
+        // Load recent transcripts for the menu
+        updateRecentTranscriptsMenu()
     }
     
     // MARK: - Hotkey Setup
@@ -210,6 +249,24 @@ final class AppCoordinator {
                 onKeyDown: { [weak self] in
                     Task { @MainActor in
                         await self?.handleToggleRecording()
+                    }
+                },
+                onKeyUp: nil
+            )
+        }
+
+        if !settingsStore.copyLastTranscriptHotkey.isEmpty {
+            let keyCode = UInt32(settingsStore.copyLastTranscriptHotkeyCode)
+            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.copyLastTranscriptHotkeyModifiers))
+
+            _ = hotkeyManager.registerHotkey(
+                keyCode: keyCode,
+                modifiers: modifiers,
+                identifier: "copy-last-transcript",
+                mode: .toggle,
+                onKeyDown: { [weak self] in
+                    Task { @MainActor in
+                        await self?.handleCopyLastTranscript()
                     }
                 },
                 onKeyUp: nil
@@ -384,6 +441,7 @@ final class AppCoordinator {
                 duration: duration,
                 modelUsed: settingsStore.selectedModel
             )
+            updateRecentTranscriptsMenu()
         } catch {
             Log.app.error("Failed to save to history: \(error)")
         }
@@ -443,7 +501,142 @@ final class AppCoordinator {
             floatingIndicatorController.finishProcessing()
         }
     }
-    
+
+    // MARK: - Copy Last Transcript
+
+    private func handleCopyLastTranscript() async {
+        do {
+            let records = try historyStore.fetch(limit: 1)
+            guard let lastRecord = records.first else {
+                Log.app.warning("No transcripts to copy")
+                return
+            }
+
+            await MainActor.run {
+                let pasteboard = NSPasteboard.general
+                pasteboard.clearContents()
+                pasteboard.writeObjects([lastRecord.text as NSString])
+            }
+            Log.app.info("Copied last transcript to clipboard")
+        } catch {
+            Log.app.error("Failed to copy last transcript: \(error)")
+        }
+    }
+
+    // MARK: - Export Last Transcript
+
+    private func handleExportLastTranscript() async {
+        do {
+            let records = try historyStore.fetch(limit: 1)
+            guard let lastRecord = records.first else {
+                Log.app.warning("No transcripts to export")
+                return
+            }
+
+            await MainActor.run {
+                let savePanel = NSSavePanel()
+                savePanel.allowedContentTypes = [.plainText]
+                savePanel.nameFieldStringValue = "transcript.txt"
+                savePanel.title = "Export Transcript"
+
+                guard savePanel.runModal() == .OK, let url = savePanel.url else { return }
+
+                do {
+                    try lastRecord.text.write(to: url, atomically: true, encoding: .utf8)
+                    Log.app.info("Exported transcript to \(url.lastPathComponent)")
+                } catch {
+                    Log.app.error("Failed to export transcript: \(error)")
+                }
+            }
+        } catch {
+            Log.app.error("Failed to fetch transcript for export: \(error)")
+        }
+    }
+
+    // MARK: - Clear Audio Buffer
+
+    private func handleClearAudioBuffer() async {
+        guard isRecording else { return }
+
+        Log.app.info("Clearing audio buffer")
+        audioRecorder.cancelRecording()
+        isRecording = false
+        recordingStartTime = nil
+
+        statusBarController.setIdleState()
+
+        if settingsStore.floatingIndicatorEnabled {
+            floatingIndicatorController.stopRecording()
+        }
+    }
+
+    // MARK: - Cancel Operation
+
+    private func handleCancelOperation() async {
+        cancelCurrentOperation()
+    }
+
+    // MARK: - Toggle Output Mode
+
+    private func handleToggleOutputMode() {
+        let newMode = settingsStore.outputMode == "clipboard" ? "directInsert" : "clipboard"
+        settingsStore.outputMode = newMode
+        Log.app.info("Output mode changed to: \(newMode)")
+    }
+
+    // MARK: - Toggle AI Enhancement
+
+    private func handleToggleAIEnhancement() {
+        settingsStore.aiEnhancementEnabled.toggle()
+        let status = settingsStore.aiEnhancementEnabled ? "enabled" : "disabled"
+        Log.app.info("AI enhancement \(status)")
+    }
+
+    // MARK: - Toggle Floating Indicator
+
+    private func handleToggleFloatingIndicator() {
+        settingsStore.floatingIndicatorEnabled.toggle()
+        let status = settingsStore.floatingIndicatorEnabled ? "enabled" : "disabled"
+        Log.app.info("Floating indicator \(status)")
+    }
+
+    // MARK: - Open History
+
+    private func handleOpenHistory() {
+        mainWindowController.showHistory()
+    }
+
+    // MARK: - Select Model
+
+    private func handleSelectModel(_ modelName: String) {
+        settingsStore.selectedModel = modelName
+        Log.app.info("Model changed to: \(modelName)")
+
+        Task {
+            do {
+                try await transcriptionService.loadModel(modelName: modelName)
+            } catch {
+                Log.app.error("Failed to load model \(modelName): \(error)")
+            }
+        }
+    }
+
+    // MARK: - Update Recent Transcripts
+
+    private func updateRecentTranscriptsMenu() {
+        Task {
+            do {
+                let records = try historyStore.fetch(limit: 5)
+                let transcripts = records.map { (id: $0.id, text: $0.text, timestamp: $0.timestamp) }
+                await MainActor.run {
+                    statusBarController.updateRecentTranscripts(transcripts)
+                }
+            } catch {
+                Log.app.error("Failed to update recent transcripts: \(error)")
+            }
+        }
+    }
+
     func cleanup() {
         if let monitor = escapeMonitor {
             NSEvent.removeMonitor(monitor)

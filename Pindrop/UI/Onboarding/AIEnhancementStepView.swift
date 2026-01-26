@@ -28,10 +28,10 @@ enum AIProvider: String, CaseIterable, Identifiable {
     
     var defaultEndpoint: String {
         switch self {
-        case .openai: return "https://api.openai.com/v1"
+        case .openai: return "https://api.openai.com/v1/chat/completions"
         case .google: return "https://generativelanguage.googleapis.com/v1beta"
         case .anthropic: return "https://api.anthropic.com/v1"
-        case .openrouter: return "https://openrouter.ai/api/v1"
+        case .openrouter: return "https://openrouter.ai/api/v1/chat/completions"
         case .custom: return ""
         }
     }

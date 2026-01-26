@@ -11,7 +11,6 @@
 		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
 		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
-		07816D7BAE614A1C8B3057F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07816D7AAE614A1C8B3057F6 /* ContentView.swift */; };
 		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
@@ -72,14 +71,13 @@
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		07816D7AAE614A1C8B3057F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1175C96AA5AE4B1691893105 /* PindropTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropTests.swift; sourceTree = "<group>"; };
-		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/OnboardingWindowController.swift; sourceTree = SOURCE_ROOT; };
+		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
 		31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecord.swift; sourceTree = "<group>"; };
 		440249056D0941BF82CA74EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementSettingsView.swift; sourceTree = "<group>"; };
 		509539AB0B5D433489196E46 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/ModelSelectionStepView.swift; sourceTree = SOURCE_ROOT; };
+		562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelSelectionStepView.swift; sourceTree = "<group>"; };
 		643AABFF228E4861A399A74F /* ModelsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsSettingsView.swift; sourceTree = "<group>"; };
 		83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsView.swift; sourceTree = "<group>"; };
 		68A6BA5D6DB40F25222D224E /* StatusBarController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
@@ -90,13 +88,13 @@
 		8B28B59A0FB34CF9A0080275 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderTests.swift; sourceTree = "<group>"; };
 		96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FloatingIndicator.swift; sourceTree = "<group>"; };
-		9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/AIEnhancementStepView.swift; sourceTree = SOURCE_ROOT; };
-		A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/WelcomeStepView.swift; sourceTree = SOURCE_ROOT; };
+		9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIEnhancementStepView.swift; sourceTree = "<group>"; };
+		A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		APPICON01A2B3C4D5E6F71 /* Pindrop.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Pindrop.icon; sourceTree = "<group>"; };
 		B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
-		B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/ReadyStepView.swift; sourceTree = SOURCE_ROOT; };
-		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/HotkeySetupStepView.swift; sourceTree = SOURCE_ROOT; };
+		B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReadyStepView.swift; sourceTree = "<group>"; };
+		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
 		BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,13 +104,13 @@
 		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
 		DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeysSettingsView.swift; sourceTree = "<group>"; };
-		E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/PermissionsStepView.swift; sourceTree = SOURCE_ROOT; };
+		E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
 		E0729D0116F8418084311F4C /* HistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStoreTests.swift; sourceTree = "<group>"; };
 		E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
-		EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/ModelDownloadStepView.swift; sourceTree = SOURCE_ROOT; };
+		EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelDownloadStepView.swift; sourceTree = "<group>"; };
 		F0DC71BCB19DB51FA606C373 /* Icons.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
-		F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Pindrop/UI/Onboarding/OnboardingWindow.swift; sourceTree = SOURCE_ROOT; };
+		F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindow.swift; sourceTree = "<group>"; };
 		HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		LOGGER001A2B3C4D5E6F71 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
@@ -138,14 +136,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1E031379F7E7DA87AEC2B64C /* Components */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Components;
-			sourceTree = "<group>";
-		};
-		2AE7116BC5A64F50B5790CC7 = {
+	2AE7116BC5A64F50B5790CC7 = {
 			isa = PBXGroup;
 			children = (
 				A80BF133F57547198A5A2458 /* Pindrop */,
@@ -173,36 +164,35 @@
 		};
 		643083A84C484508864DA167 /* UI */ = {
 			isa = PBXGroup;
-			children = (
-				THEMEGROUP1A2B3C4D5E6F /* Theme */,
-				MAINGROUP1A2B3C4D5E6F7 /* Main */,
-				B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
-				A1B2C3D4E5F6789012345678 /* Settings */,
+		children = (
+			THEMEGROUP1A2B3C4D5E6F /* Theme */,
+			MAINGROUP1A2B3C4D5E6F7 /* Main */,
+			A1B2C3D4E5F6789012345678 /* Settings */,
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
 				96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
 				SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
-				AC5569DC7FCD55BB91774AB2 /* Onboarding */,
-				1E031379F7E7DA87AEC2B64C /* Components */,
-				BFA9046303E3874827C62B25 /* Components */,
+			AC5569DC7FCD55BB91774AB2 /* Onboarding */,
+			BFA9046303E3874827C62B25 /* Components */,
 			);
 			path = UI;
 			sourceTree = "<group>";
 		};
-		81f50d309b6a44df90efbd5f /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
-				6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
-				a2189a034cf447e08e86f24b /* PermissionManager.swift */,
-				CB05E1BC11534652810B091F /* OutputManager.swift */,
-				CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
-				F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
-				E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
-				D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
+	81f50d309b6a44df90efbd5f /* Services */ = {
+		isa = PBXGroup;
+		children = (
+			f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
+			6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
+			a2189a034cf447e08e86f24b /* PermissionManager.swift */,
+			CB05E1BC11534652810B091F /* OutputManager.swift */,
+			CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
+			F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
+			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
+			D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
+			BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
+		);
+		path = Services;
+		sourceTree = "<group>";
+	};
 		855E92B9E1094A4A99FE07FF /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -211,10 +201,11 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6789012345678 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
+	A1B2C3D4E5F6789012345678 /* Settings */ = {
+		isa = PBXGroup;
+		children = (
+			B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
+			8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
 				44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */,
@@ -228,14 +219,12 @@
 			children = (
 				8B28B59A0FB34CF9A0080275 /* Info.plist */,
 				BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */,
-				01E366552FAA4505B9775ACB /* PindropApp.swift */,
-				07816D7AAE614A1C8B3057F6 /* ContentView.swift */,
-				509539AB0B5D433489196E46 /* Assets.xcassets */,
+			01E366552FAA4505B9775ACB /* PindropApp.swift */,
+			509539AB0B5D433489196E46 /* Assets.xcassets */,
 				APPICON01A2B3C4D5E6F71 /* Pindrop.icon */,
-				81f50d309b6a44df90efbd5f /* Services */,
-				855E92B9E1094A4A99FE07FF /* Preview Content */,
-				DFC5C62F8A77416391D41E42 /* Services */,
-				38268D286F644C93A216D0F4 /* Models */,
+			81f50d309b6a44df90efbd5f /* Services */,
+			855E92B9E1094A4A99FE07FF /* Preview Content */,
+			38268D286F644C93A216D0F4 /* Models */,
 				643083A84C484508864DA167 /* UI */,
 				UTILS001A2B3C4D5E6F72 /* Utils */,
 				86FB8BA663AAD1BE56BE198A /* AppCoordinator.swift */,
@@ -256,41 +245,31 @@
 			path = PindropTests;
 			sourceTree = "<group>";
 		};
-		AC5569DC7FCD55BB91774AB2 /* Onboarding */ = {
-			isa = PBXGroup;
-			children = (
-				F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */,
-				1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */,
-				A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */,
-				562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */,
-				EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */,
-				9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */,
-				E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */,
-				B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */,
-				B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */,
-			);
-			name = Onboarding;
-			path = Pindrop/UI/Onboarding;
-			sourceTree = SOURCE_ROOT;
-		};
-		BFA9046303E3874827C62B25 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
-			);
-			name = Components;
-			path = Pindrop/UI/Components;
-			sourceTree = SOURCE_ROOT;
-		};
-		DFC5C62F8A77416391D41E42 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		MAINGROUP1A2B3C4D5E6F7 /* Main */ = {
+	AC5569DC7FCD55BB91774AB2 /* Onboarding */ = {
+		isa = PBXGroup;
+		children = (
+			F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */,
+			1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */,
+			A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */,
+			562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */,
+			EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */,
+			9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */,
+			E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */,
+			B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */,
+			B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */,
+		);
+		path = Onboarding;
+		sourceTree = "<group>";
+	};
+	BFA9046303E3874827C62B25 /* Components */ = {
+		isa = PBXGroup;
+		children = (
+			049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
+		);
+		path = Components;
+		sourceTree = "<group>";
+	};
+	MAINGROUP1A2B3C4D5E6F7 /* Main */ = {
 			isa = PBXGroup;
 			children = (
 				MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */,
@@ -430,9 +409,8 @@
 		};
 		6E3989E80A1A4BF5BEC7A015 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			files = (
-				07816D7BAE614A1C8B3057F6 /* ContentView.swift in Sources */,
-				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
+		files = (
+			01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 				5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */,
