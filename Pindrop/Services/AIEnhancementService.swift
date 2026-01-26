@@ -49,7 +49,7 @@ final class AIEnhancementService {
         text: String,
         apiEndpoint: String,
         apiKey: String,
-        model: String = "gpt-4"
+        model: String = "gpt-4o-mini"
     ) async throws -> String {
         guard !text.isEmpty else {
             return text

@@ -37,6 +37,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = 0x100100
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
+    @AppStorage("aiModel") var aiModel: String = "openai/gpt-4o-mini"
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("showInDock") var showInDock: Bool = false
     

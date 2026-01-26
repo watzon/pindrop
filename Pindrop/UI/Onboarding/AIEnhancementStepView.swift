@@ -48,7 +48,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
     
     var isImplemented: Bool {
         switch self {
-        case .openai, .custom: return true
+        case .openai, .openrouter, .custom: return true
         default: return false
         }
     }
@@ -62,6 +62,9 @@ struct AIEnhancementStepView: View {
     @State private var selectedProvider: AIProvider = .openai
     @State private var apiKey = ""
     @State private var customEndpoint = ""
+    @State private var selectedModel = "gpt-4o-mini"
+    @State private var customModel = ""
+    @State private var useCustomModel = false
     @State private var showingAPIKey = false
     
     var body: some View {
@@ -115,8 +118,9 @@ struct AIEnhancementStepView: View {
                     .font(.caption)
                     .fontWeight(.medium)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.vertical, 12)
+            .contentShape(Rectangle())
             .background(
                 selectedProvider == provider
                     ? Color.accentColor.opacity(0.2)
@@ -135,7 +139,12 @@ struct AIEnhancementStepView: View {
             } else {
                 apiKeyField
                 
+                if selectedProvider == .openrouter {
+                    modelPicker
+                }
+                
                 if selectedProvider == .custom {
+                    customModelField
                     customEndpointField
                 }
                 
@@ -199,14 +208,108 @@ struct AIEnhancementStepView: View {
     
     private var customEndpointField: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("API Endpoint")
-                .font(.subheadline)
-                .fontWeight(.medium)
+            HStack {
+                Text("API Endpoint")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                Spacer()
+                
+                Text("Must be OpenAI-compatible")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             
             TextField("https://your-api.com/v1", text: $customEndpoint)
                 .textFieldStyle(.plain)
                 .padding(12)
                 .glassEffect(.regular, in: .rect(cornerRadius: 8))
+        }
+    }
+    
+    private var customModelField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AI Model")
+                .font(.subheadline)
+                .fontWeight(.medium)
+            
+            TextField("e.g., gpt-4o", text: $customModel)
+                .textFieldStyle(.plain)
+                .padding(12)
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
+        }
+    }
+    
+    private var modelPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AI Model")
+                .font(.subheadline)
+                .fontWeight(.medium)
+            
+            if useCustomModel {
+                HStack(spacing: 8) {
+                    TextField("e.g., openai/gpt-4o", text: $customModel)
+                        .textFieldStyle(.plain)
+                    
+                    Button("Use Recommended") {
+                        useCustomModel = false
+                        customModel = ""
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .foregroundStyle(Color.accentColor)
+                }
+                .padding(12)
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Picker("", selection: $selectedModel) {
+                            ForEach(recommendedModels, id: \.self) { model in
+                                Text(model).tag(model)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        
+                        Spacer()
+                    }
+                    
+                    Button("Enter custom model") {
+                        useCustomModel = true
+                        customModel = selectedModel
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                .padding(12)
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
+            }
+        }
+    }
+    
+    private var recommendedModels: [String] {
+        switch selectedProvider {
+        case .openrouter:
+            return [
+                "anthropic/claude-sonnet-4.5",
+                "openai/gpt-4o-mini",
+                "google/gemini-2.5-flash",
+                "deepseek/deepseek-v3.2",
+                "anthropic/claude-haiku-4.5",
+                "openai/gpt-4o"
+            ]
+        case .custom:
+            return [
+                "gpt-4o-mini",
+                "gpt-4o",
+                "claude-sonnet-4.5",
+                "gemini-2.5-flash",
+                "deepseek-v3.2"
+            ]
+        default:
+            return []
         }
     }
     
@@ -256,6 +359,7 @@ struct AIEnhancementStepView: View {
         guard selectedProvider.isImplemented else { return false }
         if apiKey.isEmpty { return false }
         if selectedProvider == .custom && customEndpoint.isEmpty { return false }
+        if (selectedProvider == .openrouter || selectedProvider == .custom) && useCustomModel && customModel.isEmpty { return false }
         return true
     }
     
@@ -265,6 +369,7 @@ struct AIEnhancementStepView: View {
         let endpoint = selectedProvider == .custom ? customEndpoint : selectedProvider.defaultEndpoint
         try? settings.saveAPIEndpoint(endpoint)
         try? settings.saveAPIKey(apiKey)
+        settings.aiModel = useCustomModel ? customModel : selectedModel
         
         onContinue()
     }

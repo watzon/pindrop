@@ -363,7 +363,8 @@ final class AppCoordinator {
                 finalText = try await aiEnhancementService.enhance(
                     text: transcribedText,
                     apiEndpoint: apiEndpoint,
-                    apiKey: apiKey
+                    apiKey: apiKey,
+                    model: settingsStore.aiModel
                 )
             } catch {
                 Log.app.warning("AI enhancement failed, using original: \(error)")
