@@ -12,15 +12,17 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case hotkeys = "Hotkeys"
     case models = "Models"
     case ai = "AI Enhancement"
-    
+    case about = "About"
+
     var id: String { rawValue }
-    
+
     var systemIcon: String {
         switch self {
         case .general: return "gear"
         case .hotkeys: return "keyboard"
         case .models: return "cpu"
         case .ai: return "sparkles"
+        case .about: return "info.circle"
         }
     }
 }
@@ -120,6 +122,8 @@ struct SettingsWindow: View {
                         ModelsSettingsView(settings: settings)
                     case .ai:
                         AIEnhancementSettingsView(settings: settings)
+                    case .about:
+                        AboutSettingsView()
                     }
                 }
                 .padding(.horizontal, AppTheme.Spacing.xxl)
@@ -148,6 +152,7 @@ struct SettingsWindow: View {
         case .hotkeys: return "Configure keyboard shortcuts"
         case .models: return "Manage Whisper transcription models"
         case .ai: return "Configure AI-powered text enhancement"
+        case .about: return "App information and acknowledgments"
         }
     }
 }
