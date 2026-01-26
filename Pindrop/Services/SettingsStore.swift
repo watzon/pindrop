@@ -39,6 +39,11 @@ final class SettingsStore: ObservableObject {
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     
+    // MARK: - Onboarding State
+    
+    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+    @AppStorage("currentOnboardingStep") var currentOnboardingStep: Int = 0
+    
     // MARK: - Keychain Properties
     
     private let keychainService = "com.pindrop.settings"
@@ -78,6 +83,26 @@ final class SettingsStore: ObservableObject {
     func deleteAPIKey() throws {
         try deleteFromKeychain(account: apiKeyAccount)
         apiKey = nil
+    }
+    
+    func resetAllSettings() {
+        selectedModel = "openai_whisper-base"
+        toggleHotkey = "⌘⇧R"
+        toggleHotkeyCode = 15
+        toggleHotkeyModifiers = 0x100100
+        pushToTalkHotkey = "⌘⇧T"
+        pushToTalkHotkeyCode = 17
+        pushToTalkHotkeyModifiers = 0x100100
+        outputMode = "clipboard"
+        aiEnhancementEnabled = false
+        floatingIndicatorEnabled = false
+        hasCompletedOnboarding = false
+        currentOnboardingStep = 0
+        
+        try? deleteAPIEndpoint()
+        try? deleteAPIKey()
+        
+        objectWillChange.send()
     }
     
     // MARK: - Private Keychain Helpers

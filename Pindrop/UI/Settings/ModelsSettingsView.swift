@@ -14,65 +14,97 @@ struct ModelsSettingsView: View {
     @State private var errorMessage: String?
     
     var body: some View {
-        VStack(spacing: 0) {
-            List(selection: $settings.selectedModel) {
-                ForEach(modelManager.availableModels) { model in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(model.displayName)
-                                .font(.headline)
-                            
-                            Text("\(model.sizeInMB) MB")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        if downloadingModel == model.name {
-                            ProgressView(value: modelManager.downloadProgress)
-                                .frame(width: 100)
-                        } else if modelManager.isModelDownloaded(model.name) {
-                            Button("Delete") {
-                                deleteModel(model)
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                        } else {
-                            Button("Download") {
-                                downloadModel(model)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .tag(model.name)
-                }
-            }
-            .listStyle(.inset)
+        VStack(spacing: 20) {
+            currentModelCard
+            availableModelsCard
             
             if let errorMessage {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
-                    Text(errorMessage)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                    Spacer()
-                    Button("Dismiss") {
-                        self.errorMessage = nil
-                    }
-                    .buttonStyle(.borderless)
-                    .controlSize(.small)
-                }
-                .padding()
-                .background(Color.red.opacity(0.1))
+                errorBanner(message: errorMessage)
             }
         }
-        .frame(width: 500, height: 400)
         .task {
             await modelManager.refreshDownloadedModels()
+        }
+    }
+    
+    private var currentModelCard: some View {
+        SettingsCard(title: "Current Model", icon: "checkmark.circle") {
+            if let currentModel = modelManager.availableModels.first(where: { $0.name == settings.selectedModel }) {
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(currentModel.displayName)
+                            .font(.headline)
+                        
+                        HStack(spacing: 12) {
+                            Label("\(currentModel.sizeInMB) MB", systemImage: "internaldrive")
+                            Label(speedLabel(for: currentModel.sizeInMB), systemImage: "bolt")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    if modelManager.isModelDownloaded(currentModel.name) {
+                        Label("Ready", systemImage: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
+                }
+            } else {
+                Text("No model selected")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    private var availableModelsCard: some View {
+        SettingsCard(title: "Available Models", icon: "square.stack.3d.up") {
+            VStack(spacing: 12) {
+                ForEach(modelManager.availableModels) { model in
+                    ModelSettingsRow(
+                        model: model,
+                        isSelected: settings.selectedModel == model.name,
+                        isDownloaded: modelManager.isModelDownloaded(model.name),
+                        isDownloading: downloadingModel == model.name,
+                        downloadProgress: modelManager.downloadProgress,
+                        onSelect: { settings.selectedModel = model.name },
+                        onDownload: { downloadModel(model) },
+                        onDelete: { deleteModel(model) }
+                    )
+                }
+            }
+        }
+    }
+    
+    private func errorBanner(message: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+            
+            Text(message)
+                .font(.caption)
+            
+            Spacer()
+            
+            Button("Dismiss") {
+                errorMessage = nil
+            }
+            .buttonStyle(.plain)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private func speedLabel(for sizeMB: Int) -> String {
+        switch sizeMB {
+        case 0..<100: return "Very Fast"
+        case 100..<300: return "Fast"
+        case 300..<600: return "Medium"
+        case 600..<1500: return "Slower"
+        default: return "Slowest"
         }
     }
     
@@ -104,6 +136,83 @@ struct ModelsSettingsView: View {
     }
 }
 
+struct ModelSettingsRow: View {
+    let model: ModelManager.WhisperModel
+    let isSelected: Bool
+    let isDownloaded: Bool
+    let isDownloading: Bool
+    let downloadProgress: Double
+    let onSelect: () -> Void
+    let onDownload: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onSelect) {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: 2)
+                            .frame(width: 18, height: 18)
+                        
+                        if isSelected {
+                            Circle()
+                                .fill(Color.accentColor)
+                                .frame(width: 10, height: 10)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(model.displayName)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("\(model.sizeInMB) MB")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(!isDownloaded)
+            
+            Spacer()
+            
+            if isDownloading {
+                ProgressView(value: downloadProgress)
+                    .frame(width: 80)
+            } else if isDownloaded {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.caption)
+                    
+                    Button(role: .destructive, action: onDelete) {
+                        Text("Delete")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+            } else {
+                Button(action: onDownload) {
+                    Label("Download", systemImage: "arrow.down.circle")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+        )
+    }
+}
+
 #Preview {
     ModelsSettingsView(settings: SettingsStore())
+        .padding()
+        .frame(width: 500)
 }

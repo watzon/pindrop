@@ -31,6 +31,7 @@ final class AppCoordinator {
     
     let statusBarController: StatusBarController
     let floatingIndicatorController: FloatingIndicatorController
+    let onboardingController: OnboardingWindowController
     
     // MARK: - State
     
@@ -62,9 +63,20 @@ final class AppCoordinator {
         )
         self.statusBarController.setModelContainer(modelContainer)
         self.floatingIndicatorController = FloatingIndicatorController()
+        self.onboardingController = OnboardingWindowController()
         
         self.statusBarController.onToggleRecording = { [weak self] in
             await self?.handleToggleRecording()
+        }
+        
+        self.audioRecorder.onAudioLevel = { [weak self] level in
+            self?.floatingIndicatorController.updateAudioLevel(level)
+        }
+        
+        self.floatingIndicatorController.onStopRecording = { [weak self] in
+            Task { @MainActor in
+                await self?.handleToggleRecording()
+            }
         }
         
         setupHotkeys()
@@ -74,6 +86,43 @@ final class AppCoordinator {
     // MARK: - Lifecycle
     
     func start() async {
+        if !settingsStore.hasCompletedOnboarding {
+            showOnboarding()
+            return
+        }
+        
+        await startNormalOperation()
+    }
+    
+    private func showOnboarding() {
+        onboardingController.showOnboarding(
+            settings: settingsStore,
+            modelManager: modelManager,
+            transcriptionService: transcriptionService,
+            permissionManager: permissionManager,
+            onComplete: { [weak self] in
+                Task { @MainActor in
+                    self?.showWelcomePopoverAfterDelay()
+                    await self?.finishPostOnboardingSetup()
+                }
+            }
+        )
+    }
+    
+    private func showWelcomePopoverAfterDelay() {
+        Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            statusBarController.showWelcomePopover()
+        }
+    }
+    
+    private func finishPostOnboardingSetup() async {
+        if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
+            _ = outputManager.requestAccessibilityPermission()
+        }
+    }
+    
+    private func startNormalOperation() async {
         let micGranted = await permissionManager.requestPermission()
         if !micGranted {
             Log.app.warning("Microphone permission denied - recording will not work")
@@ -90,10 +139,6 @@ final class AppCoordinator {
         } catch {
             self.error = error
             Log.app.error("Failed to load transcription model: \(error)")
-        }
-        
-        if settingsStore.floatingIndicatorEnabled {
-            floatingIndicatorController.show()
         }
     }
     
@@ -166,12 +211,6 @@ final class AppCoordinator {
                         }
                     }
                     
-                    if self.settingsStore.floatingIndicatorEnabled {
-                        self.floatingIndicatorController.show()
-                    } else {
-                        self.floatingIndicatorController.hide()
-                    }
-                    
                     self.registerHotkeysFromSettings()
                 }
             }
@@ -225,7 +264,10 @@ final class AppCoordinator {
         recordingStartTime = Date()
         
         statusBarController.setRecordingState()
-        floatingIndicatorController.updateRecordingState(isRecording: true)
+        
+        if settingsStore.floatingIndicatorEnabled {
+            floatingIndicatorController.startRecording()
+        }
         
         try await audioRecorder.startRecording()
     }
@@ -240,13 +282,20 @@ final class AppCoordinator {
         isProcessing = true
         
         statusBarController.setProcessingState()
-        floatingIndicatorController.updateRecordingState(isRecording: false)
+        
+        if settingsStore.floatingIndicatorEnabled {
+            floatingIndicatorController.stopRecording()
+        }
         
         defer {
             isProcessing = false
             recordingStartTime = nil
             statusBarController.setIdleState()
             statusBarController.updateMenuState()
+            
+            if settingsStore.floatingIndicatorEnabled {
+                floatingIndicatorController.finishProcessing()
+            }
         }
         
         let audioData: Data

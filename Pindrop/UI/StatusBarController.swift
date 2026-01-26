@@ -24,6 +24,7 @@ final class StatusBarController {
     
     private var settingsWindow: NSWindow?
     private var historyWindow: NSWindow?
+    private var welcomePopover: NSPopover?
     
     var onToggleRecording: (() async -> Void)?
     
@@ -115,8 +116,9 @@ final class StatusBarController {
             
             let window = NSWindow(contentViewController: hostingController)
             window.title = "Pindrop Settings"
-            window.styleMask = [.titled, .closable, .miniaturizable]
-            window.setContentSize(NSSize(width: 550, height: 450))
+            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.setContentSize(NSSize(width: 750, height: 550))
+            window.minSize = NSSize(width: 650, height: 450)
             window.center()
             
             settingsWindow = window
@@ -140,8 +142,8 @@ final class StatusBarController {
             let window = NSWindow(contentViewController: hostingController)
             window.title = "Transcription History"
             window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            window.setContentSize(NSSize(width: 700, height: 500))
-            window.minSize = NSSize(width: 600, height: 400)
+            window.setContentSize(NSSize(width: 800, height: 600))
+            window.minSize = NSSize(width: 700, height: 500)
             window.center()
             
             historyWindow = window
@@ -223,5 +225,78 @@ final class StatusBarController {
     
     func setIdleState() {
         currentState = .idle
+    }
+    
+    func showWelcomePopover() {
+        guard let button = statusItem?.button else { return }
+        
+        if welcomePopover == nil {
+            let popover = NSPopover()
+            popover.contentViewController = NSHostingController(rootView: WelcomePopoverView {
+                self.welcomePopover?.performClose(nil)
+            })
+            popover.behavior = .transient
+            popover.animates = true
+            welcomePopover = popover
+        }
+        
+        welcomePopover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+    }
+}
+
+struct WelcomePopoverView: View {
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "hand.wave.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(.yellow)
+                
+                Text("You're all set!")
+                    .font(.headline)
+            }
+            
+            Text("Click this icon anytime to:")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                popoverItem(icon: "record.circle", text: "Start/stop recording")
+                popoverItem(icon: "gear", text: "Open settings")
+                popoverItem(icon: "clock", text: "View transcription history")
+            }
+            
+            Divider()
+            
+            HStack {
+                Text("Or just use your hotkey!")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Button("Got it") {
+                    onDismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        }
+        .padding(16)
+        .frame(width: 260)
+    }
+    
+    private func popoverItem(icon: String, text: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 16)
+            
+            Text(text)
+                .font(.subheadline)
+        }
     }
 }

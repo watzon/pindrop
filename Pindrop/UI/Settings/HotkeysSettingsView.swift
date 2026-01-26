@@ -16,79 +16,54 @@ struct HotkeysSettingsView: View {
     @State private var keyMonitor: Any?
     
     var body: some View {
-        Form {
-            Section {
-                HStack {
-                    Text("Toggle Recording:")
-                        .frame(width: 150, alignment: .trailing)
-                    
-                    Text(settings.toggleHotkey)
-                        .frame(width: 150, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.1))
-                        .cornerRadius(4)
-                    
-                    Button(isRecordingToggle ? "Press keys..." : "Record") {
-                        startRecording(forToggle: true)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    if !settings.toggleHotkey.isEmpty {
-                        Button("Clear") {
-                            settings.toggleHotkey = ""
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundStyle(.red)
-                    }
-                }
-                
-                Text("Press the button, then press your desired key combination")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                Text("Toggle Mode")
-                    .font(.headline)
-            }
-            
-            Section {
-                HStack {
-                    Text("Push-to-Talk:")
-                        .frame(width: 150, alignment: .trailing)
-                    
-                    Text(settings.pushToTalkHotkey)
-                        .frame(width: 150, alignment: .leading)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.1))
-                        .cornerRadius(4)
-                    
-                    Button(isRecordingPushToTalk ? "Press keys..." : "Record") {
-                        startRecording(forToggle: false)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    if !settings.pushToTalkHotkey.isEmpty {
-                        Button("Clear") {
-                            settings.pushToTalkHotkey = ""
-                        }
-                        .buttonStyle(.borderless)
-                        .foregroundStyle(.red)
-                    }
-                }
-                
-                Text("Hold this key to record, release to stop")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                Text("Push-to-Talk Mode")
-                    .font(.headline)
-            }
+        VStack(spacing: 20) {
+            toggleHotkeyCard
+            pushToTalkCard
         }
-        .formStyle(.grouped)
-        .frame(width: 500)
         .onDisappear {
             stopRecording()
+        }
+    }
+    
+    private var toggleHotkeyCard: some View {
+        SettingsCard(title: "Toggle Recording", icon: "record.circle") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Press once to start recording, press again to stop and transcribe")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                HotkeyRecorderRow(
+                    hotkey: settings.toggleHotkey,
+                    isRecording: isRecordingToggle,
+                    onRecord: { startRecording(forToggle: true) },
+                    onClear: {
+                        settings.toggleHotkey = ""
+                        settings.toggleHotkeyCode = 0
+                        settings.toggleHotkeyModifiers = 0
+                    }
+                )
+            }
+        }
+    }
+    
+    private var pushToTalkCard: some View {
+        SettingsCard(title: "Push-to-Talk", icon: "hand.tap") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Hold to record, release to stop and transcribe")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                HotkeyRecorderRow(
+                    hotkey: settings.pushToTalkHotkey,
+                    isRecording: isRecordingPushToTalk,
+                    onRecord: { startRecording(forToggle: false) },
+                    onClear: {
+                        settings.pushToTalkHotkey = ""
+                        settings.pushToTalkHotkeyCode = 0
+                        settings.pushToTalkHotkeyModifiers = 0
+                    }
+                )
+            }
         }
     }
     
@@ -203,6 +178,50 @@ struct HotkeysSettingsView: View {
     }
 }
 
+struct HotkeyRecorderRow: View {
+    let hotkey: String
+    let isRecording: Bool
+    let onRecord: () -> Void
+    let onClear: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            HStack {
+                if hotkey.isEmpty {
+                    Text("Not set")
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(hotkey)
+                        .font(.system(.body, design: .monospaced))
+                        .fontWeight(.medium)
+                }
+            }
+            .frame(minWidth: 120, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+            
+            Button(action: onRecord) {
+                Text(isRecording ? "Press keys..." : "Record")
+                    .frame(minWidth: 80)
+            }
+            .buttonStyle(.bordered)
+            .tint(isRecording ? .orange : nil)
+            
+            if !hotkey.isEmpty {
+                Button(role: .destructive, action: onClear) {
+                    Image(systemName: "xmark.circle.fill")
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .help("Clear hotkey")
+            }
+        }
+    }
+}
+
 #Preview {
     HotkeysSettingsView(settings: SettingsStore())
+        .padding()
+        .frame(width: 500)
 }

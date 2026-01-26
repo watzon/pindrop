@@ -39,6 +39,8 @@ final class AudioRecorder {
     let targetFormat: AVAudioFormat
     let permissionManager: PermissionManager
     
+    var onAudioLevel: ((Float) -> Void)?
+    
     nonisolated init(permissionManager: PermissionManager) {
         guard let format = AVAudioFormat(
             commonFormat: .pcmFormatFloat32,
@@ -74,7 +76,11 @@ final class AudioRecorder {
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
             guard let self = self else { return }
             
+            let level = self.calculateAudioLevel(buffer)
+            
             Task { @MainActor in
+                self.onAudioLevel?(level)
+                
                 if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: self.targetFormat) {
                     self.audioBuffers.append(convertedBuffer)
                 }
@@ -180,5 +186,22 @@ final class AudioRecorder {
         return allSamples.withUnsafeBufferPointer { bufferPointer in
             Data(buffer: bufferPointer)
         }
+    }
+    
+    nonisolated private func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData else { return 0 }
+        
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0 else { return 0 }
+        
+        var sum: Float = 0
+        for i in 0..<frameLength {
+            let sample = channelData[0][i]
+            sum += sample * sample
+        }
+        
+        let rms = sqrt(sum / Float(frameLength))
+        let normalizedLevel = min(1.0, rms * 5)
+        return normalizedLevel
     }
 }
