@@ -95,6 +95,7 @@ struct DictionarySettingsView: View {
         }
         .background(AppColors.windowBackground)
         .onAppear {
+            Log.app.info("DictionarySettingsView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
         }
@@ -494,7 +495,10 @@ struct DictionarySettingsView: View {
     // MARK: - Actions
     
     private func handleAdd() {
-        guard let store = dictionaryStore else { return }
+        guard let store = dictionaryStore else {
+            Log.app.error("DictionaryStore is nil in handleAdd")
+            return
+        }
         
         switch selectedSection {
         case .replacements:
@@ -504,15 +508,22 @@ struct DictionarySettingsView: View {
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
             
-            guard !originals.isEmpty else { return }
+            guard !originals.isEmpty else {
+                Log.app.warning("No originals provided for replacement")
+                return
+            }
+            
+            let replacementText = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+            Log.app.info("Adding replacement: \(originals) -> '\(replacementText)'")
             
             do {
                 let replacement = WordReplacement(
                     originals: originals,
-                    replacement: secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines),
+                    replacement: replacementText,
                     sortOrder: replacements.count
                 )
                 try store.add(replacement)
+                Log.app.info("Replacement added successfully")
                 
                 // Reset form
                 primaryInput = ""
@@ -521,6 +532,7 @@ struct DictionarySettingsView: View {
                 // Reload data
                 loadData()
             } catch {
+                Log.app.error("Failed to add replacement: \(error.localizedDescription)")
                 errorMessage = "Failed to add replacement: \(error.localizedDescription)"
             }
             
@@ -642,12 +654,17 @@ struct DictionarySettingsView: View {
     }
     
     private func loadData() {
-        guard let store = dictionaryStore else { return }
+        guard let store = dictionaryStore else {
+            Log.app.error("DictionaryStore is nil in loadData")
+            return
+        }
         
         do {
             replacements = try store.fetchAllReplacements()
             vocabularyWords = try store.fetchAllVocabularyWords()
+            Log.app.info("Loaded \(replacements.count) replacements and \(vocabularyWords.count) vocabulary words")
         } catch {
+            Log.app.error("Failed to load dictionary data: \(error.localizedDescription)")
             errorMessage = "Failed to load data: \(error.localizedDescription)"
         }
     }
