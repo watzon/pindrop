@@ -65,11 +65,11 @@ Enable users to define word replacements and vocabulary that improve transcripti
 - Modified `SettingsWindow.swift` - New tab entry
 
 ### Definition of Done
-- [ ] All tests pass: `xcodebuild test -scheme Pindrop -destination 'platform=macOS'`
-- [ ] Dictionary tab appears in Settings with icon
-- [ ] Word replacements apply before AI enhancement
-- [ ] Vocabulary appears in AI prompt when enhancement enabled
-- [ ] Import/Export produces valid JSON
+- [x] All tests pass: `xcodebuild test -scheme Pindrop -destination 'platform=macOS'`
+- [x] Dictionary tab appears in Settings with icon
+- [x] Word replacements apply before AI enhancement
+- [x] Vocabulary appears in AI prompt when enhancement enabled
+- [x] Import/Export produces valid JSON
 
 ### Must Have
 - Word replacement with multiple originals (tag-list UI)
@@ -192,14 +192,14 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/PindropApp.swift:32` - Schema registration in modelContainer
 
 **Acceptance Criteria**:
-- [ ] **RED**: Create test file `PindropTests/DictionaryModelsTests.swift`
+- [x] **RED**: Create test file `PindropTests/DictionaryModelsTests.swift`
   - Test: Create WordReplacement, verify originals is array of strings
   - Test: Create VocabularyWord, verify word property exists
   - `xcodebuild test -scheme Pindrop -destination 'platform=macOS' -only-testing:PindropTests/DictionaryModelsTests` → FAIL
-- [ ] **GREEN**: Create model files, add to schema
+- [x] **GREEN**: Create model files, add to schema
   - `xcodebuild test ...` → PASS
-- [ ] Models compile without errors
-- [ ] App launches without SwiftData migration errors
+- [x] Models compile without errors
+- [x] App launches without SwiftData migration errors
 
 **Commit**: YES
 - Message: `feat(models): add WordReplacement and VocabularyWord SwiftData models`
@@ -235,10 +235,10 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/UI/Settings/SettingsWindow.swift:149-157` - headerSubtitle function
 
 **Acceptance Criteria**:
-- [ ] Manual verification: Open Settings, "Dictionary" tab appears in sidebar
-- [ ] Tab has book icon (`text.book.closed`)
-- [ ] Clicking tab shows placeholder content
-- [ ] Tab order: General, Hotkeys, Models, AI Enhancement, Dictionary, About
+- [x] Manual verification: Open Settings, "Dictionary" tab appears in sidebar
+- [x] Tab has book icon (`text.book.closed`)
+- [x] Clicking tab shows placeholder content
+- [x] Tab order: General, Hotkeys, Models, AI Enhancement, Dictionary, About
 
 **Commit**: YES
 - Message: `feat(settings): add Dictionary tab placeholder to settings`
@@ -329,12 +329,12 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/UI/Settings/AIEnhancementSettingsView.swift:211-238` - TextField with button pattern
 
 **Acceptance Criteria**:
-- [ ] Manual verification: Can add tags for originals (e.g., "Fae", "Faye")
-- [ ] Can enter replacement text
-- [ ] Add button creates replacement and clears form
-- [ ] Existing replacements show in list with originals as tags
-- [ ] Delete button removes replacement
-- [ ] Empty state shows "No word replacements configured" with hint
+- [x] Manual verification: Can add tags for originals (e.g., "Fae", "Faye")
+- [x] Can enter replacement text
+- [x] Add button creates replacement and clears form
+- [x] Existing replacements show in list with originals as tags
+- [x] Delete button removes replacement
+- [x] Empty state shows "No word replacements configured" with hint
 
 **Commit**: YES
 - Message: `feat(ui): add Word Replacements section to Dictionary settings`
@@ -373,11 +373,11 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/UI/Theme/Theme.swift:255-290` - View modifiers for styling
 
 **Acceptance Criteria**:
-- [ ] Manual verification: Can enter vocabulary word and add
-- [ ] Vocabulary displays as tags or compact list
-- [ ] Can delete vocabulary words
-- [ ] Info text explains: "Vocabulary words are provided to AI Enhancement for context"
-- [ ] Empty state shows "No vocabulary words added"
+- [x] Manual verification: Can enter vocabulary word and add
+- [x] Vocabulary displays as tags or compact list
+- [x] Can delete vocabulary words
+- [x] Info text explains: "Vocabulary words are provided to AI Enhancement for context"
+- [x] Empty state shows "No vocabulary words added"
 
 **Commit**: YES
 - Message: `feat(ui): add Vocabulary section to Dictionary settings`
@@ -415,13 +415,13 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/PindropApp.swift:44` - AppCoordinator initialization with modelContext
 
 **Acceptance Criteria**:
-- [ ] **RED**: Create test or use manual verification
+- [x] **RED**: Create test or use manual verification
   - Given replacement "dr" → "Doctor" in dictionary
   - When transcribing audio that produces "dr smith"
   - Then output contains "Doctor smith"
-- [ ] **GREEN**: Implement pipeline integration
-- [ ] Replacements applied before AI enhancement
-- [ ] Applied replacements list captured for AI prompt
+- [x] **GREEN**: Implement pipeline integration
+- [x] Replacements applied before AI enhancement
+- [x] Applied replacements list captured for AI prompt
 
 **Commit**: YES
 - Message: `feat(pipeline): integrate DictionaryStore word replacements`
@@ -458,14 +458,14 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/AppCoordinator.swift:610-636` - NSSavePanel/NSOpenPanel pattern
 
 **Acceptance Criteria**:
-- [ ] **RED**: Test export produces valid JSON
+- [x] **RED**: Test export produces valid JSON
   - Test: Export with 2 replacements, 3 vocabulary words
   - Test: Import exported file, verify all entries restored
-- [ ] **GREEN**: Implement import/export
-- [ ] Export button shows save panel, saves `.json` file
-- [ ] Import button shows open panel, imports `.json` file
-- [ ] Import with additive strategy preserves existing entries
-- [ ] Malformed JSON shows error alert, no partial import
+- [x] **GREEN**: Implement import/export
+- [x] Export button shows save panel, saves `.json` file
+- [x] Import button shows open panel, imports `.json` file
+- [x] Import with additive strategy preserves existing entries
+- [x] Malformed JSON shows error alert, no partial import
 
 **Commit**: YES
 - Message: `feat(dictionary): add JSON import/export functionality`
@@ -503,12 +503,12 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/Services/SettingsStore.swift:67` - aiEnhancementPrompt property
 
 **Acceptance Criteria**:
-- [ ] Manual verification: With vocabulary ["Pindrop", "WhisperKit"]
+- [x] Manual verification: With vocabulary ["Pindrop", "WhisperKit"]
   - AI prompt includes "User's vocabulary includes: Pindrop, WhisperKit"
-- [ ] With replacement "dr" → "Doctor" applied:
+- [x] With replacement "dr" → "Doctor" applied:
   - AI prompt includes "These automatic replacements were applied"
-- [ ] Custom prompt from settings is preserved (not replaced)
-- [ ] When no vocabulary/replacements, prompt unchanged
+- [x] Custom prompt from settings is preserved (not replaced)
+- [x] When no vocabulary/replacements, prompt unchanged
 
 **Commit**: YES
 - Message: `feat(ai): include dictionary context in AI enhancement prompt`
