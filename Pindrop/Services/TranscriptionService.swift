@@ -68,13 +68,13 @@ class TranscriptionService {
             let config = WhisperKitConfig(
                 model: modelName,
                 downloadBase: downloadBaseURL,
-                verbose: true,
-                logLevel: .debug,
+                verbose: false,
+                logLevel: .error,
                 prewarm: true,
                 load: true
             )
             
-            Log.transcription.info("WhisperKitConfig created - model: \(modelName), downloadBase: \(downloadBaseURL.path), verbose: true, logLevel: .debug, prewarm: true, load: true")
+            Log.transcription.info("WhisperKitConfig created - model: \(modelName), downloadBase: \(downloadBaseURL.path), verbose: false, logLevel: .error, prewarm: true, load: true")
             
             // Race the load against a 60-second timeout
             let whisperKitResult: WhisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
@@ -119,13 +119,13 @@ class TranscriptionService {
         
         let config = WhisperKitConfig(
             modelFolder: modelPath,
-            verbose: true,
-            logLevel: .debug,
+            verbose: false,
+            logLevel: .error,
             prewarm: true,
             load: true
         )
         
-        Log.transcription.info("WhisperKitConfig created - modelFolder: \(modelPath), verbose: true, logLevel: .debug, prewarm: true, load: true")
+        Log.transcription.info("WhisperKitConfig created - modelFolder: \(modelPath), verbose: false, logLevel: .error, prewarm: true, load: true")
         
         do {
             // Race the load against a 60-second timeout

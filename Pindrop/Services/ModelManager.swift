@@ -290,7 +290,7 @@ class ModelManager {
                     downloaded.insert(folder)
                 }
             }
-            Log.model.info("Found \(downloaded.count) downloaded models: \(downloaded)")
+            Log.model.debug("Found \(downloaded.count) downloaded models: \(downloaded)")
         } catch {
             Log.model.error("Failed to list downloaded models: \(error)")
         }
@@ -305,7 +305,7 @@ class ModelManager {
     
     func isModelDownloaded(_ modelName: String) -> Bool {
         let result = downloadedModelNames.contains(modelName)
-        Log.model.info("isModelDownloaded(\(modelName)): \(result), downloadedModels: \(self.downloadedModelNames)")
+        Log.model.debug("isModelDownloaded(\(modelName)): \(result), downloadedModels: \(self.downloadedModelNames)")
         return result
     }
     
