@@ -133,6 +133,14 @@ final class DictionaryStore {
         }
     }
     
+    func saveContext() throws {
+        do {
+            try modelContext.save()
+        } catch {
+            throw DictionaryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+    
     // MARK: - Text Replacement
     
     /// Applies word replacements to the given text using word boundary matching.

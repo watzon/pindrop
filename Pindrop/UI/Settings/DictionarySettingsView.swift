@@ -8,33 +8,92 @@
 import SwiftUI
 import SwiftData
 
+enum DictionarySection: String, CaseIterable {
+    case replacements = "Word Replacements"
+    case vocabulary = "Vocabulary"
+    
+    var icon: String {
+        switch self {
+        case .replacements:
+            return "arrow.left.arrow.right"
+        case .vocabulary:
+            return "textformat"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .replacements:
+            return "Define word replacements to automatically replace specific words or phrases"
+        case .vocabulary:
+            return "Add words to help Pindrop recognize them properly"
+        }
+    }
+    
+    var addFormPlaceholder: String {
+        switch self {
+        case .replacements:
+            return "Original text (use commas for multiple)"
+        case .vocabulary:
+            return "Enter word to add"
+        }
+    }
+    
+    var addFormSecondaryPlaceholder: String {
+        switch self {
+        case .replacements:
+            return "Replacement text"
+        case .vocabulary:
+            return ""
+        }
+    }
+}
+
 struct DictionarySettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dictionaryStore: DictionaryStore?
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
     
-    // Word Replacement form state
-    @State private var originalWords: [String] = []
-    @State private var currentOriginalInput: String = ""
-    @State private var replacementText: String = ""
+    // Section selection
+    @State private var selectedSection: DictionarySection = .replacements
     
-    // Vocabulary form state
-    @State private var vocabularyInput: String = ""
+    // Add form state
+    @State private var primaryInput: String = ""
+    @State private var secondaryInput: String = ""
+    
+    // Edit state
+    @State private var editingReplacement: WordReplacement?
+    @State private var editingVocabulary: VocabularyWord?
+    @State private var editPrimaryInput: String = ""
+    @State private var editSecondaryInput: String = ""
     
     // Error state
     @State private var errorMessage: String?
     @State private var showingImportStrategyDialog = false
+    @State private var importDataCache: Data?
+    
+    // Hover state
+    @State private var hoveredRowID: UUID?
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                importExportSection
-                wordReplacementsSection
-                vocabularySection
+            VStack(spacing: AppTheme.Spacing.xl) {
+                // Section Selector Tabs
+                sectionSelector
+                
+                // Info Banner
+                infoBanner
+                
+                // Add Form
+                addFormSection
+                
+                // Content Table
+                contentTable
             }
-            .padding()
+            .padding(AppTheme.Spacing.xl)
         }
+        .background(AppColors.windowBackground)
         .onAppear {
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
@@ -61,237 +120,503 @@ struct DictionarySettingsView: View {
         }
     }
     
-    // MARK: - Import/Export Section
+    // MARK: - Section Selector
     
-    private var importExportSection: some View {
-        SettingsCard(title: "Import/Export", icon: "arrow.up.arrow.down.circle") {
-            HStack(spacing: 12) {
-                Button(action: handleExport) {
-                    Label("Export Dictionary", systemImage: "square.and.arrow.up")
+    private var sectionSelector: some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            ForEach(DictionarySection.allCases, id: \.self) { section in
+                sectionTab(section)
+            }
+        }
+    }
+    
+    private func sectionTab(_ section: DictionarySection) -> some View {
+        Button {
+            withAnimation(.spring(duration: 0.3)) {
+                selectedSection = section
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Image(systemName: section.icon)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text(section.rawValue)
+                        .font(AppTypography.subheadline)
+                        .fontWeight(.semibold)
+                    
+                    Spacer()
                 }
-                .buttonStyle(.bordered)
                 
+                Text(section.description)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+            }
+            .padding(AppTheme.Spacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                    .fill(selectedSection == section ? AppColors.accent.opacity(0.1) : AppColors.surfaceBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                    .strokeBorder(
+                        selectedSection == section ? AppColors.accent : AppColors.border,
+                        lineWidth: selectedSection == section ? 2 : 1
+                    )
+            )
+            .foregroundStyle(selectedSection == section ? AppColors.accent : AppColors.textPrimary)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    // MARK: - Info Banner
+    
+    private var infoBanner: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "info.circle.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(AppColors.accent)
+            
+            Text(selectedSection.description)
+                .font(AppTypography.bodySmall)
+                .foregroundStyle(AppColors.textSecondary)
+            
+            Spacer()
+            
+            // Import/Export buttons in banner
+            HStack(spacing: AppTheme.Spacing.xs) {
                 Button(action: handleImport) {
-                    Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.system(size: 12))
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
+                .foregroundStyle(AppColors.textSecondary)
+                .help("Import Dictionary")
+                
+                Button(action: handleExport) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(AppColors.textSecondary)
+                .help("Export Dictionary")
             }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.vertical, 8)
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                .fill(AppColors.accent.opacity(0.05))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                .strokeBorder(AppColors.accent.opacity(0.2), lineWidth: 1)
+        )
+    }
+    
+    // MARK: - Add Form Section
+    
+    private var addFormSection: some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            // Primary input
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Image(systemName: selectedSection == .replacements ? "text.quote" : "textformat")
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppColors.textTertiary)
+                
+                TextField(selectedSection.addFormPlaceholder, text: $primaryInput)
+                    .textFieldStyle(.plain)
+                    .font(AppTypography.body)
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .fill(AppColors.surfaceBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
+            
+            if selectedSection == .replacements {
+                // Arrow
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(AppColors.textSecondary)
+                
+                // Secondary input (replacement)
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Image(systemName: "text.cursor")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.textTertiary)
+                    
+                    TextField(selectedSection.addFormSecondaryPlaceholder, text: $secondaryInput)
+                        .textFieldStyle(.plain)
+                        .font(AppTypography.body)
+                }
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                        .fill(AppColors.surfaceBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                        .strokeBorder(AppColors.border, lineWidth: 1)
+                )
+            }
+            
+            // Add button
+            Button(action: handleAdd) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Add")
+                        .font(AppTypography.subheadline)
+                        .fontWeight(.semibold)
+                }
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.sm)
+            }
+            .buttonStyle(.plain)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
+                    .fill(canAdd ? AppColors.accent : AppColors.textTertiary.opacity(0.3))
+            )
+            .foregroundStyle(.white)
+            .disabled(!canAdd)
         }
     }
     
-    // MARK: - Word Replacements Section
-    
-    private var wordReplacementsSection: some View {
-        SettingsCard(title: "Word Replacements", icon: "arrow.left.arrow.right") {
-            VStack(alignment: .leading, spacing: 16) {
-                // Add new replacement form
-                VStack(alignment: .leading, spacing: 12) {
-                    // Original words input (tag-based)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Original Words")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        
-                        // Tag input field
-                        HStack(spacing: 8) {
-                            TextField("Type word and press Return", text: $currentOriginalInput)
-                                .textFieldStyle(.roundedBorder)
-                                .onSubmit {
-                                    addOriginalWord()
-                                }
-                            
-                            Button(action: addOriginalWord) {
-                                Image(systemName: "plus")
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                            .disabled(currentOriginalInput.trimmingCharacters(in: .whitespaces).isEmpty)
-                        }
-                        
-                        // Tags display
-                        if !originalWords.isEmpty {
-                            FlowLayout(spacing: 8) {
-                                ForEach(originalWords, id: \.self) { word in
-                                    OriginalWordTag(word: word) {
-                                        removeOriginalWord(word)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Replacement text input
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Replacement")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        
-                        HStack(spacing: 8) {
-                            TextField("Enter replacement text", text: $replacementText)
-                                .textFieldStyle(.roundedBorder)
-                            
-                            Button(action: addReplacement) {
-                                Text("Add")
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                            .disabled(!canAddReplacement)
-                        }
-                    }
-                }
-                
-                Divider()
-                
-                // Existing replacements list
-                if replacements.isEmpty {
-                    emptyStateView(
-                        icon: "arrow.left.arrow.right",
-                        title: "No Replacements",
-                        message: "Add word replacements to automatically correct common transcription errors."
-                    )
-                } else {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("\(replacements.count) Replacement\(replacements.count == 1 ? "" : "s")")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        
-                        VStack(spacing: 0) {
-                            ForEach(Array(replacements.enumerated()), id: \.element.id) { index, replacement in
-                                ReplacementRow(
-                                    replacement: replacement,
-                                    onDelete: { deleteReplacement(replacement) }
-                                )
-                                
-                                if index < replacements.count - 1 {
-                                    Divider()
-                                        .padding(.horizontal, 12)
-                                }
-                            }
-                        }
-                        .background(Color.secondary.opacity(0.05), in: RoundedRectangle(cornerRadius: 8))
-                    }
-                }
-            }
+    private var canAdd: Bool {
+        if selectedSection == .replacements {
+            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty &&
+                   !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+        } else {
+            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
         }
     }
     
-    // MARK: - Vocabulary Section
+    // MARK: - Content Table
     
-    private var vocabularySection: some View {
-        SettingsCard(title: "Vocabulary", icon: "textformat") {
-            VStack(alignment: .leading, spacing: 16) {
-                // Add new word form
-                HStack(spacing: 8) {
-                    TextField("Enter a word to add to vocabulary", text: $vocabularyInput)
-                        .textFieldStyle(.roundedBorder)
-                        .onSubmit {
-                            addVocabularyWord()
-                        }
-                    
-                    Button(action: addVocabularyWord) {
-                        Text("Add")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .disabled(vocabularyInput.trimmingCharacters(in: .whitespaces).isEmpty)
+    @ViewBuilder
+    private var contentTable: some View {
+        switch selectedSection {
+        case .replacements:
+            replacementsTable
+        case .vocabulary:
+            vocabularyTable
+        }
+    }
+    
+    // MARK: - Replacements Table
+    
+    private var replacementsTable: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack(spacing: AppTheme.Spacing.md) {
+                Text("Original")
+                    .font(AppTypography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(width: 20)
+                
+                Text("Replacement")
+                    .font(AppTypography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Space for actions
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Color.clear.frame(width: 28, height: 28)
+                    Color.clear.frame(width: 28, height: 28)
                 }
-                
-                Divider()
-                
-                // Existing vocabulary display
-                if vocabularyWords.isEmpty {
-                    emptyStateView(
-                        icon: "textformat",
-                        title: "No Vocabulary Words",
-                        message: "Add custom words to improve transcription accuracy for specialized terms, names, or jargon."
-                    )
-                } else {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("\(vocabularyWords.count) Word\(vocabularyWords.count == 1 ? "" : "s")")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        
-                        FlowLayout(spacing: 8) {
-                            ForEach(vocabularyWords) { word in
-                                VocabularyTag(word: word) {
-                                    deleteVocabularyWord(word)
-                                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+            .background(AppColors.surfaceBackground.opacity(0.5))
+            
+            Divider()
+                .background(AppColors.divider)
+            
+            // Rows
+            if replacements.isEmpty {
+                emptyStateView(
+                    icon: "arrow.left.arrow.right",
+                    title: "No Replacements",
+                    message: "Add word replacements to automatically correct common transcription errors."
+                )
+            } else {
+                LazyVStack(spacing: 0) {
+                    ForEach(replacements.sorted(by: { $0.sortOrder < $1.sortOrder })) { replacement in
+                        ReplacementRowNew(
+                            replacement: replacement,
+                            isEditing: editingReplacement?.id == replacement.id,
+                            editOriginals: $editPrimaryInput,
+                            editReplacement: $editSecondaryInput,
+                            onStartEdit: { startEditingReplacement(replacement) },
+                            onSaveEdit: { saveReplacementEdit(replacement) },
+                            onCancelEdit: { cancelEditingReplacement() },
+                            onDelete: { deleteReplacement(replacement) }
+                        )
+                        .background(
+                            hoveredRowID == replacement.id ? AppColors.surfaceBackground : Color.clear
+                        )
+                        .onHover { isHovered in
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                hoveredRowID = isHovered ? replacement.id : nil
                             }
+                        }
+                        
+                        if replacement.id != replacements.last?.id {
+                            Divider()
+                                .padding(.horizontal, AppTheme.Spacing.md)
+                                .background(AppColors.divider)
                         }
                     }
                 }
             }
         }
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .fill(AppColors.contentBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
+    }
+    
+    // MARK: - Vocabulary Table
+    
+    private var vocabularyTable: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack(spacing: AppTheme.Spacing.md) {
+                Text("Word")
+                    .font(AppTypography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Space for actions
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Color.clear.frame(width: 28, height: 28)
+                    Color.clear.frame(width: 28, height: 28)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+            .background(AppColors.surfaceBackground.opacity(0.5))
+            
+            Divider()
+                .background(AppColors.divider)
+            
+            // Rows
+            if vocabularyWords.isEmpty {
+                emptyStateView(
+                    icon: "textformat",
+                    title: "No Vocabulary Words",
+                    message: "Add custom words to improve transcription accuracy for specialized terms, names, or jargon."
+                )
+            } else {
+                LazyVStack(spacing: 0) {
+                    ForEach(vocabularyWords.sorted(by: { $0.word < $1.word })) { word in
+                        VocabularyRowNew(
+                            word: word,
+                            isEditing: editingVocabulary?.id == word.id,
+                            editText: $editPrimaryInput,
+                            onStartEdit: { startEditingVocabulary(word) },
+                            onSaveEdit: { saveVocabularyEdit(word) },
+                            onCancelEdit: { cancelEditingVocabulary() },
+                            onDelete: { deleteVocabularyWord(word) }
+                        )
+                        .background(
+                            hoveredRowID == word.id ? AppColors.surfaceBackground : Color.clear
+                        )
+                        .onHover { isHovered in
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                hoveredRowID = isHovered ? word.id : nil
+                            }
+                        }
+                        
+                        if word.id != vocabularyWords.last?.id {
+                            Divider()
+                                .padding(.horizontal, AppTheme.Spacing.md)
+                                .background(AppColors.divider)
+                        }
+                    }
+                }
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .fill(AppColors.contentBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
     }
     
     // MARK: - Empty State
     
     private func emptyStateView(icon: String, title: String, message: String) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 32))
-                .foregroundStyle(.secondary.opacity(0.5))
+                .foregroundStyle(AppColors.textTertiary)
             
             Text(title)
-                .font(.headline)
-                .foregroundStyle(.secondary)
+                .font(AppTypography.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(AppColors.textSecondary)
             
             Text(message)
-                .font(.caption)
-                .foregroundStyle(.secondary.opacity(0.8))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textTertiary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
-    }
-    
-    // MARK: - Computed Properties
-    
-    private var canAddReplacement: Bool {
-        !originalWords.isEmpty && !replacementText.trimmingCharacters(in: .whitespaces).isEmpty
+        .padding(.vertical, AppTheme.Spacing.xxl)
     }
     
     // MARK: - Actions
     
-    private func addOriginalWord() {
-        let trimmed = currentOriginalInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        guard !originalWords.contains(trimmed) else {
-            currentOriginalInput = ""
-            return
-        }
-        originalWords.append(trimmed)
-        currentOriginalInput = ""
-    }
-    
-    private func removeOriginalWord(_ word: String) {
-        originalWords.removeAll { $0 == word }
-    }
-    
-    private func addReplacement() {
-        guard canAddReplacement else { return }
+    private func handleAdd() {
         guard let store = dictionaryStore else { return }
         
+        switch selectedSection {
+        case .replacements:
+            // Split by commas for multiple originals
+            let originals = primaryInput
+                .split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            
+            guard !originals.isEmpty else { return }
+            
+            do {
+                let replacement = WordReplacement(
+                    originals: originals,
+                    replacement: secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines),
+                    sortOrder: replacements.count
+                )
+                try store.add(replacement)
+                
+                // Reset form
+                primaryInput = ""
+                secondaryInput = ""
+                
+                // Reload data
+                loadData()
+            } catch {
+                errorMessage = "Failed to add replacement: \(error.localizedDescription)"
+            }
+            
+        case .vocabulary:
+            let trimmed = primaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            
+            // Check for duplicates
+            guard !vocabularyWords.contains(where: { $0.word.lowercased() == trimmed.lowercased() }) else {
+                primaryInput = ""
+                return
+            }
+            
+            do {
+                let word = VocabularyWord(word: trimmed)
+                try store.add(word)
+                primaryInput = ""
+                loadData()
+            } catch {
+                errorMessage = "Failed to add word: \(error.localizedDescription)"
+            }
+        }
+    }
+    
+    private func startEditingReplacement(_ replacement: WordReplacement) {
+        editingReplacement = replacement
+        editPrimaryInput = replacement.originals.joined(separator: ", ")
+        editSecondaryInput = replacement.replacement
+    }
+    
+    private func saveReplacementEdit(_ replacement: WordReplacement) {
+        guard let store = dictionaryStore else { return }
+        
+        let newOriginals = editPrimaryInput
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        
+        guard !newOriginals.isEmpty else {
+            cancelEditingReplacement()
+            return
+        }
+        
         do {
-            let replacement = WordReplacement(
-                originals: originalWords,
-                replacement: replacementText.trimmingCharacters(in: .whitespacesAndNewlines),
-                sortOrder: replacements.count
-            )
-            try store.add(replacement)
-            
-            // Reset form
-            originalWords = []
-            replacementText = ""
-            
-            // Reload data
+            replacement.originals = newOriginals
+            replacement.replacement = editSecondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+            try store.saveContext()
+            cancelEditingReplacement()
             loadData()
         } catch {
-            errorMessage = "Failed to add replacement: \(error.localizedDescription)"
+            errorMessage = "Failed to update replacement: \(error.localizedDescription)"
         }
+    }
+    
+    private func cancelEditingReplacement() {
+        editingReplacement = nil
+        editPrimaryInput = ""
+        editSecondaryInput = ""
+    }
+    
+    private func startEditingVocabulary(_ word: VocabularyWord) {
+        editingVocabulary = word
+        editPrimaryInput = word.word
+    }
+    
+    private func saveVocabularyEdit(_ word: VocabularyWord) {
+        guard let store = dictionaryStore else { return }
+        
+        let trimmed = editPrimaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            cancelEditingVocabulary()
+            return
+        }
+        
+        let isDuplicate = vocabularyWords.contains {
+            $0.id != word.id && $0.word.lowercased() == trimmed.lowercased()
+        }
+        
+        guard !isDuplicate else {
+            cancelEditingVocabulary()
+            return
+        }
+        
+        do {
+            word.word = trimmed
+            try store.saveContext()
+            cancelEditingVocabulary()
+            loadData()
+        } catch {
+            errorMessage = "Failed to update word: \(error.localizedDescription)"
+        }
+    }
+    
+    private func cancelEditingVocabulary() {
+        editingVocabulary = nil
+        editPrimaryInput = ""
     }
     
     private func deleteReplacement(_ replacement: WordReplacement) {
@@ -302,27 +627,6 @@ struct DictionarySettingsView: View {
             loadData()
         } catch {
             errorMessage = "Failed to delete replacement: \(error.localizedDescription)"
-        }
-    }
-    
-    private func addVocabularyWord() {
-        let trimmed = vocabularyInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        guard let store = dictionaryStore else { return }
-        
-        // Check for duplicates
-        guard !vocabularyWords.contains(where: { $0.word.lowercased() == trimmed.lowercased() }) else {
-            vocabularyInput = ""
-            return
-        }
-        
-        do {
-            let word = VocabularyWord(word: trimmed)
-            try store.add(word)
-            vocabularyInput = ""
-            loadData()
-        } catch {
-            errorMessage = "Failed to add word: \(error.localizedDescription)"
         }
     }
     
@@ -389,8 +693,6 @@ struct DictionarySettingsView: View {
         }
     }
     
-    @State private var importDataCache: Data?
-    
     private func performImport(strategy: DictionaryStore.ImportStrategy) {
         guard let store = dictionaryStore, let data = importDataCache else { return }
         
@@ -403,6 +705,8 @@ struct DictionarySettingsView: View {
         }
     }
 }
+
+// MARK: - Dictionary Import Preview
 
 struct DictionaryImportPreview: Codable {
     let version: Int
@@ -419,98 +723,215 @@ struct DictionaryImportPreview: Codable {
     }
 }
 
-// MARK: - Supporting Views
+// MARK: - Replacement Row
 
-struct OriginalWordTag: View {
-    let word: String
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(word)
-                .font(.caption)
-                .fontWeight(.medium)
-            
-            Button(action: onDelete) {
-                Image(systemName: "xmark")
-                    .font(.caption2)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.accentColor.opacity(0.15), in: Capsule())
-        .foregroundStyle(.primary)
-    }
-}
-
-struct VocabularyTag: View {
-    let word: VocabularyWord
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(word.word)
-                .font(.caption)
-                .fontWeight(.medium)
-            
-            Button(action: onDelete) {
-                Image(systemName: "xmark")
-                    .font(.caption2)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.green.opacity(0.15), in: Capsule())
-        .foregroundStyle(.primary)
-    }
-}
-
-struct ReplacementRow: View {
+struct ReplacementRowNew: View {
     let replacement: WordReplacement
+    let isEditing: Bool
+    @Binding var editOriginals: String
+    @Binding var editReplacement: String
+    let onStartEdit: () -> Void
+    let onSaveEdit: () -> Void
+    let onCancelEdit: () -> Void
     let onDelete: () -> Void
     
+    @State private var isHovered = false
+    
     var body: some View {
-        HStack(spacing: 12) {
-            // Original words as tags
-            FlowLayout(spacing: 6) {
-                ForEach(replacement.originals, id: \.self) { original in
-                    Text(original)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.red.opacity(0.15), in: Capsule())
+        HStack(spacing: AppTheme.Spacing.md) {
+            if isEditing {
+                // Edit mode
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    TextField("Originals (comma-separated)", text: $editOriginals)
+                        .textFieldStyle(.roundedBorder)
+                        .font(AppTypography.bodySmall)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(width: 20)
+                
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    TextField("Replacement", text: $editReplacement)
+                        .textFieldStyle(.roundedBorder)
+                        .font(AppTypography.bodySmall)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Save/Cancel buttons
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Button(action: onSaveEdit) {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.success)
+                    .frame(width: 28, height: 28)
+                    .background(AppColors.success.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    
+                    Button(action: onCancelEdit) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(AppColors.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                }
+            } else {
+                // Display mode
+                // Original words
+                FlowLayout(spacing: 6) {
+                    ForEach(replacement.originals, id: \.self) { original in
+                        Text(original)
+                            .font(AppTypography.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(AppColors.accent.opacity(0.15))
+                            .foregroundStyle(AppColors.accent)
+                            .clipShape(Capsule())
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(width: 20)
+                
+                // Replacement text
+                Text(replacement.replacement)
+                    .font(AppTypography.bodySmall)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Action buttons (visible on hover)
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Button(action: onStartEdit) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(isHovered ? AppColors.elevatedSurface : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    .opacity(isHovered ? 1 : 0)
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.error)
+                    .frame(width: 28, height: 28)
+                    .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    .opacity(isHovered ? 1 : 0)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Arrow
-            Image(systemName: "arrow.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            // Replacement text
-            Text(replacement.replacement)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.green.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
-            
-            // Delete button
-            Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
-            .buttonStyle(.plain)
-            .padding(.leading, 8)
         }
-        .padding(12)
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
+            }
+        }
+    }
+}
+
+// MARK: - Vocabulary Row
+
+struct VocabularyRowNew: View {
+    let word: VocabularyWord
+    let isEditing: Bool
+    @Binding var editText: String
+    let onStartEdit: () -> Void
+    let onSaveEdit: () -> Void
+    let onCancelEdit: () -> Void
+    let onDelete: () -> Void
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            if isEditing {
+                // Edit mode
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    TextField("Word", text: $editText)
+                        .textFieldStyle(.roundedBorder)
+                        .font(AppTypography.bodySmall)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Save/Cancel buttons
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Button(action: onSaveEdit) {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.success)
+                    .frame(width: 28, height: 28)
+                    .background(AppColors.success.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    
+                    Button(action: onCancelEdit) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(AppColors.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                }
+            } else {
+                // Display mode
+                Text(word.word)
+                    .font(AppTypography.bodySmall)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Action buttons (visible on hover)
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Button(action: onStartEdit) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(isHovered ? AppColors.elevatedSurface : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    .opacity(isHovered ? 1 : 0)
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.error)
+                    .frame(width: 28, height: 28)
+                    .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
+                    .opacity(isHovered ? 1 : 0)
+                }
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 
@@ -566,5 +987,5 @@ struct FlowLayout: Layout {
 #Preview {
     DictionarySettingsView()
         .padding()
-        .frame(width: 600)
+        .frame(width: 700, height: 600)
 }
