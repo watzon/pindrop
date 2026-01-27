@@ -2,4 +2,6 @@
 
 ## Unresolved Blockers
 
-(Subagents will append findings here)
+_Current blockers that need attention._
+
+---

@@ -2,4 +2,6 @@
 
 ## Architectural Choices
 
-(Subagents will append findings here)
+_Key decisions made during implementation with rationale._
+
+---
