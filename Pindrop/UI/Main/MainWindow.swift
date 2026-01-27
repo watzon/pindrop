@@ -14,7 +14,6 @@ import AppKit
 enum MainNavItem: String, CaseIterable, Identifiable {
     case home = "Home"
     case history = "History"
-    case dictionary = "Dictionary"
     case notes = "Notes"
     case transcribe = "Transcribe"
     
@@ -24,7 +23,6 @@ enum MainNavItem: String, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .history: return "clock.fill"
-        case .dictionary: return "text.book.closed.fill"
         case .notes: return "note.text"
         case .transcribe: return "waveform"
         }
@@ -33,7 +31,7 @@ enum MainNavItem: String, CaseIterable, Identifiable {
     var isComingSoon: Bool {
         switch self {
         case .home, .history: return false
-        case .dictionary, .notes, .transcribe: return true
+        case .notes, .transcribe: return true
         }
     }
 }
@@ -210,7 +208,7 @@ struct MainWindow: View {
             DashboardView(onOpenSettings: openSettings)
         case .history:
             HistoryView()
-        case .dictionary, .notes, .transcribe:
+        case .notes, .transcribe:
             comingSoonView(for: selectedNav)
         }
     }
