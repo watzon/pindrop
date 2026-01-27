@@ -11,9 +11,19 @@ import SwiftData
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
-    @AppStorage("hasDismissedHotkeyReminder") private var hasDismissedHotkeyReminder = false
-
+    @State private var hasDismissedHotkeyReminder: Bool
+    
     var onOpenSettings: (() -> Void)?
+    
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    init(onOpenSettings: (() -> Void)? = nil) {
+        self.onOpenSettings = onOpenSettings
+        let stored = Self.isPreview ? false : UserDefaults.standard.bool(forKey: "hasDismissedHotkeyReminder")
+        _hasDismissedHotkeyReminder = State(initialValue: stored)
+    }
     
     private var totalSessions: Int {
         transcriptions.count
@@ -133,6 +143,9 @@ struct DashboardView: View {
                 // Close button
                 Button {
                     hasDismissedHotkeyReminder = true
+                    if !Self.isPreview {
+                        UserDefaults.standard.set(true, forKey: "hasDismissedHotkeyReminder")
+                    }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 20))
@@ -382,57 +395,23 @@ struct RecentTranscriptionRow: View {
     }
 }
 
-// MARK: - Preview
-
 #Preview("Dashboard - With Data") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    let context = container.mainContext
-    
-    // Add sample data
-    for i in 0..<10 {
-        let record = TranscriptionRecord(
-            text: "This is sample transcription number \(i + 1). It contains some text to demonstrate the dashboard.",
-            timestamp: Date().addingTimeInterval(Double(-i * 3600)),
-            duration: Double.random(in: 5...60),
-            modelUsed: "base.en"
-        )
-        context.insert(record)
-    }
-    
-    return DashboardView()
-        .modelContainer(container)
+    DashboardView()
+        .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dashboard - Empty") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    
-    return DashboardView()
-        .modelContainer(container)
+    DashboardView()
+        .modelContainer(PreviewContainer.empty)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dashboard - Dark") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    let context = container.mainContext
-    
-    for i in 0..<5 {
-        let record = TranscriptionRecord(
-            text: "Sample transcription \(i + 1)",
-            timestamp: Date().addingTimeInterval(Double(-i * 3600)),
-            duration: Double.random(in: 5...30),
-            modelUsed: "tiny.en"
-        )
-        context.insert(record)
-    }
-    
-    return DashboardView()
-        .modelContainer(container)
+    DashboardView()
+        .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.dark)
 }

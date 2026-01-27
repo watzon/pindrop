@@ -419,77 +419,23 @@ struct HistoryTranscriptionRow: View {
     }
 }
 
-// MARK: - Preview
-
 #Preview("History View - With Data") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    let context = container.mainContext
-    
-    let samples = [
-        TranscriptionRecord(
-            text: "This is a sample transcription that demonstrates how the history view looks with actual content.",
-            timestamp: Date(),
-            duration: 5.2,
-            modelUsed: "tiny.en"
-        ),
-        TranscriptionRecord(
-            text: "Another transcription from earlier today to show grouping.",
-            timestamp: Date().addingTimeInterval(-3600),
-            duration: 3.8,
-            modelUsed: "base.en"
-        ),
-        TranscriptionRecord(
-            text: "Yesterday's transcription to demonstrate date grouping functionality.",
-            timestamp: Date().addingTimeInterval(-86400),
-            duration: 8.5,
-            modelUsed: "small.en"
-        ),
-        TranscriptionRecord(
-            text: "An older transcription from a few days ago.",
-            timestamp: Date().addingTimeInterval(-259200),
-            duration: 12.1,
-            modelUsed: "base.en"
-        )
-    ]
-    
-    for sample in samples {
-        context.insert(sample)
-    }
-    
-    return HistoryView()
-        .modelContainer(container)
+    HistoryView()
+        .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 600)
         .preferredColorScheme(.light)
 }
 
 #Preview("History View - Empty") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    
-    return HistoryView()
-        .modelContainer(container)
+    HistoryView()
+        .modelContainer(PreviewContainer.empty)
         .frame(width: 800, height: 600)
         .preferredColorScheme(.light)
 }
 
 #Preview("History View - Dark") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    let context = container.mainContext
-    
-    for i in 0..<5 {
-        let record = TranscriptionRecord(
-            text: "Sample transcription \(i + 1) with some text content.",
-            timestamp: Date().addingTimeInterval(Double(-i * 7200)),
-            duration: Double.random(in: 3...15),
-            modelUsed: "tiny.en"
-        )
-        context.insert(record)
-    }
-    
-    return HistoryView()
-        .modelContainer(container)
+    HistoryView()
+        .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 600)
         .preferredColorScheme(.dark)
 }

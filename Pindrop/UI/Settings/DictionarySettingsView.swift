@@ -1004,6 +1004,7 @@ struct FlowLayout: Layout {
 
 #Preview {
     DictionarySettingsView()
+        .modelContainer(PreviewContainer.empty)
         .padding()
         .frame(width: 700, height: 600)
 }

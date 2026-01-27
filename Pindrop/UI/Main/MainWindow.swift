@@ -316,24 +316,16 @@ final class MainWindowController {
     }
 }
 
-// MARK: - Preview
-
 #Preview("Main Window - Light") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    
-    return MainWindow()
-        .modelContainer(container)
+    MainWindow()
+        .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
         .frame(width: AppTheme.Window.mainDefaultWidth, height: AppTheme.Window.mainDefaultHeight)
 }
 
 #Preview("Main Window - Dark") {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: TranscriptionRecord.self, configurations: config)
-    
-    return MainWindow()
-        .modelContainer(container)
+    MainWindow()
+        .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)
         .frame(width: AppTheme.Window.mainDefaultWidth, height: AppTheme.Window.mainDefaultHeight)
 }
