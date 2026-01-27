@@ -107,7 +107,7 @@ struct SettingsWindow: View {
     
     @ViewBuilder
     private var detailContent: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
                 headerView(for: selectedTab)
                     .padding(.horizontal, AppTheme.Spacing.xxl)
@@ -134,7 +134,11 @@ struct SettingsWindow: View {
                 .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
-        .background(AppColors.contentBackground)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xl)
+                .fill(AppColors.contentBackground)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.xl))
     }
     
     private func headerView(for tab: SettingsTab) -> some View {

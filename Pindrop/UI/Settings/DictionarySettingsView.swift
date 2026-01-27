@@ -93,7 +93,6 @@ struct DictionarySettingsView: View {
             }
             .padding(AppTheme.Spacing.xl)
         }
-        .background(AppColors.windowBackground)
         .onAppear {
             Log.app.info("DictionarySettingsView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)

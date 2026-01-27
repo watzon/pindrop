@@ -214,7 +214,14 @@ struct SettingsCard<Content: View>: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .fill(AppColors.surfaceBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
+        )
     }
 }
 
