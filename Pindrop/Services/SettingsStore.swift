@@ -35,8 +35,8 @@ final class SettingsStore: ObservableObject {
     @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⇧⌘T"
     @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = 17
     @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = 0x300
-    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = "⇧⌘C"
-    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = 8
+    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = "⇧⌘L"
+    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = 37
     @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = 0x300
     @AppStorage("outputMode") var outputMode: String = "clipboard"
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
@@ -99,8 +99,8 @@ final class SettingsStore: ObservableObject {
         pushToTalkHotkey = "⇧⌘T"
         pushToTalkHotkeyCode = 17
         pushToTalkHotkeyModifiers = 0x300
-        copyLastTranscriptHotkey = "⇧⌘C"
-        copyLastTranscriptHotkeyCode = 8
+        copyLastTranscriptHotkey = "⇧⌘L"
+        copyLastTranscriptHotkeyCode = 37
         copyLastTranscriptHotkeyModifiers = 0x300
         outputMode = "clipboard"
         aiEnhancementEnabled = false
