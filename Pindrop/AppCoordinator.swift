@@ -73,7 +73,8 @@ final class AppCoordinator {
         self.statusBarController.setModelContainer(modelContainer)
         self.floatingIndicatorController = FloatingIndicatorController()
         self.onboardingController = OnboardingWindowController()
-        self.splashController = SplashWindowController()
+        let splashState = SplashScreenState()
+        self.splashController = SplashWindowController(state: splashState)
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)
         self.mainWindowController.onOpenSettings = { [weak self] in
@@ -194,12 +195,72 @@ final class AppCoordinator {
             _ = outputManager.requestAccessibilityPermission()
         }
 
-        do {
-            let modelName = settingsStore.selectedModel
-            try await transcriptionService.loadModel(modelName: modelName)
-        } catch {
-            self.error = error
-            Log.app.error("Failed to load transcription model: \(error)")
+        let modelName = settingsStore.selectedModel
+        
+        // Check if model exists
+        let modelExists = modelManager.isModelDownloaded(modelName)
+        
+        if modelExists {
+            splashController.setLoading("Loading model...")
+            Log.model.info("Model \(modelName) found, loading...")
+            do {
+                try await transcriptionService.loadModel(modelName: modelName)
+                Log.model.info("Model loaded successfully")
+            } catch {
+                self.error = error
+                Log.app.error("Failed to load transcription model: \(error)")
+                
+                // Check if this is a timeout error
+                let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
+                if errorMessage.contains("timed out") {
+                    AlertManager.shared.showModelTimeoutAlert()
+                }
+            }
+        } else {
+            // Model missing - check if any model is available for fallback
+            let downloadedModels = await modelManager.getDownloadedModels()
+            
+            if let fallbackModel = downloadedModels.first {
+                Log.model.info("Selected model \(modelName) not found, falling back to \(fallbackModel.name)")
+                splashController.setLoading("Using \(fallbackModel.displayName)...")
+                settingsStore.selectedModel = fallbackModel.name
+                do {
+                    try await transcriptionService.loadModel(modelName: fallbackModel.name)
+                    Log.model.info("Fallback model loaded successfully")
+                } catch {
+                    self.error = error
+                    Log.app.error("Failed to load fallback model: \(error)")
+                    
+                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
+                    if errorMessage.contains("timed out") {
+                        AlertManager.shared.showModelTimeoutAlert()
+                    }
+                }
+            } else {
+                // No models available - download the selected one
+                splashController.setDownloading("Downloading \(modelName)...")
+                Log.model.info("Model \(modelName) not found, downloading...")
+                
+                do {
+                    try await modelManager.downloadModel(named: modelName) { [weak self] progress in
+                        Task { @MainActor in
+                            self?.splashController.updateProgress(progress)
+                        }
+                    }
+                    splashController.setLoading("Loading model...")
+                    Log.model.info("Model downloaded, loading...")
+                    try await transcriptionService.loadModel(modelName: modelName)
+                    Log.model.info("Model loaded successfully")
+                } catch {
+                    self.error = error
+                    Log.app.error("Failed to download/load model: \(error)")
+                    
+                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
+                    if errorMessage.contains("timed out") {
+                        AlertManager.shared.showModelTimeoutAlert()
+                    }
+                }
+            }
         }
 
         // Load recent transcripts for the menu

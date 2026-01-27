@@ -75,6 +75,26 @@ final class AlertManager {
         _ = alert.runModal()
     }
     
+    func showModelTimeoutAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Model Loading Timed Out"
+        alert.informativeText = """
+            The model failed to load within 60 seconds. This usually means the model files are corrupted or incompatible.
+            
+            To fix this:
+            1. Open Settings → Models
+            2. Delete the problematic model
+            3. Re-download the model
+            
+            If the problem persists, try a smaller model (Tiny or Base).
+            """
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "Open Settings")
+        alert.addButton(withTitle: "OK")
+        
+        _ = alert.runModal()
+    }
+    
     func showTranscriptionErrorAlert(message: String) {
         let alert = NSAlert()
         alert.messageText = "Transcription Failed"

@@ -7,51 +7,74 @@
 
 import SwiftUI
 
+// MARK: - Splash Screen State
+
+@MainActor
+final class SplashScreenState: ObservableObject {
+    @Published var loadingText: String = "Initializing..."
+    @Published var progress: Double?
+    @Published var isDownloading: Bool = false
+    
+    func setLoading(_ text: String) {
+        loadingText = text
+        progress = nil
+        isDownloading = false
+    }
+    
+    func setDownloading(_ text: String) {
+        loadingText = text
+        progress = 0.0
+        isDownloading = true
+    }
+    
+    func updateProgress(_ value: Double) {
+        progress = value
+    }
+    
+    func hideProgress() {
+        progress = nil
+        isDownloading = false
+    }
+}
+
+// MARK: - Splash Screen View
+
 struct SplashScreen: View {
     
+    @ObservedObject var state: SplashScreenState
     @State private var isAnimating = false
-    @State private var loadingText = "Initializing..."
-    
-    let loadingMessages = [
-        "Initializing...",
-        "Loading models...",
-        "Preparing audio...",
-        "Almost ready..."
-    ]
     
     var body: some View {
         ZStack {
             // Background
-            AppColors.windowBackground
+            Color(NSColor.windowBackgroundColor)
                 .ignoresSafeArea()
             
-            VStack(spacing: AppTheme.Spacing.xxl) {
+            VStack(spacing: 24) {
                 Spacer()
                 
                 // App icon area
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: 16) {
                     ZStack {
                         Circle()
-                            .stroke(AppColors.accent.opacity(0.2), lineWidth: 2)
+                            .stroke(Color.accentColor.opacity(0.2), lineWidth: 2)
                             .frame(width: 120, height: 120)
                             .scaleEffect(isAnimating ? 1.3 : 1.0)
                             .opacity(isAnimating ? 0 : 0.6)
                         
                         Circle()
-                            .stroke(AppColors.accent.opacity(0.3), lineWidth: 2)
+                            .stroke(Color.accentColor.opacity(0.3), lineWidth: 2)
                             .frame(width: 100, height: 100)
                             .scaleEffect(isAnimating ? 1.2 : 1.0)
                             .opacity(isAnimating ? 0 : 0.8)
                         
                         Circle()
-                            .fill(AppColors.accentBackground)
+                            .fill(Color.accentColor.opacity(0.15))
                             .frame(width: 80, height: 80)
                         
-                        Image("PindropIcon")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
-                            .foregroundStyle(AppColors.accent)
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 32, weight: .medium))
+                            .foregroundStyle(Color.accentColor)
                             .scaleEffect(isAnimating ? 1.05 : 1.0)
                     }
                     .animation(
@@ -62,46 +85,42 @@ struct SplashScreen: View {
                     // App name
                     Text("Pindrop")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
-                        .foregroundStyle(AppColors.textPrimary)
+                        .foregroundColor(.primary)
                     
                     // Tagline
                     Text("Local voice-to-text")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
                 }
                 
                 Spacer()
                 
                 // Loading indicator
-                VStack(spacing: AppTheme.Spacing.md) {
-                    ProgressView()
-                        .controlSize(.regular)
-                        .tint(AppColors.accent)
+                VStack(spacing: 12) {
+                    if state.isDownloading, let progress = state.progress {
+                        ProgressView(value: progress)
+                            .progressViewStyle(.linear)
+                            .frame(width: 200)
+                        
+                        Text("\(Int(progress * 100))%")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    } else {
+                        ProgressView()
+                            .controlSize(.regular)
+                    }
                     
-                    Text(loadingText)
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textTertiary)
-                        .contentTransition(.numericText())
+                    Text(state.loadingText)
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
                 }
-                .padding(.bottom, AppTheme.Spacing.huge)
+                .padding(.bottom, 40)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 400, height: 500)
         .onAppear {
             isAnimating = true
-            cycleLoadingMessages()
-        }
-    }
-    
-    private func cycleLoadingMessages() {
-        Task {
-            for message in loadingMessages {
-                try? await Task.sleep(for: .milliseconds(800))
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    loadingText = message
-                }
-            }
         }
     }
 }
@@ -112,12 +131,19 @@ struct SplashScreen: View {
 final class SplashWindowController {
     
     private var window: NSWindow?
+    private var hostingController: NSHostingController<SplashScreen>?
+    let state: SplashScreenState
+    
+    init(state: SplashScreenState) {
+        self.state = state
+    }
     
     func show() {
         guard window == nil else { return }
         
-        let splashView = SplashScreen()
+        let splashView = SplashScreen(state: state)
         let hostingController = NSHostingController(rootView: splashView)
+        self.hostingController = hostingController
         
         let window = NSWindow(contentViewController: hostingController)
         window.styleMask = [.borderless]
@@ -129,7 +155,7 @@ final class SplashWindowController {
         
         // Add rounded corners
         window.contentView?.wantsLayer = true
-        window.contentView?.layer?.cornerRadius = AppTheme.Radius.xl
+        window.contentView?.layer?.cornerRadius = 16
         window.contentView?.layer?.masksToBounds = true
         
         // Add subtle shadow
@@ -137,6 +163,22 @@ final class SplashWindowController {
         
         self.window = window
         window.makeKeyAndOrderFront(nil)
+    }
+    
+    func setLoading(_ text: String) {
+        state.setLoading(text)
+    }
+    
+    func setDownloading(_ text: String) {
+        state.setDownloading(text)
+    }
+    
+    func updateProgress(_ value: Double) {
+        state.updateProgress(value)
+    }
+    
+    func hideProgress() {
+        state.hideProgress()
     }
     
     func dismiss(completion: (() -> Void)? = nil) {
@@ -152,19 +194,14 @@ final class SplashWindowController {
         }, completionHandler: {
             window.close()
             self.window = nil
+            self.hostingController = nil
             completion?()
         })
     }
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
 #Preview("Splash Screen") {
-    SplashScreen()
-        .preferredColorScheme(.light)
-}
-
-#Preview("Splash Screen - Dark") {
-    SplashScreen()
-        .preferredColorScheme(.dark)
+    SplashScreen(state: SplashScreenState())
 }

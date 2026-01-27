@@ -52,17 +52,46 @@ class TranscriptionService {
         Log.transcription.info("Loading model: \(modelName) with prewarm enabled...")
         
         do {
-            let config = WhisperKitConfig(
-                model: modelName,
-                verbose: false,
-                logLevel: .error,
-                prewarm: true,
-                load: true
-            )
+            let whisperKitResult: WhisperKit
             
-            whisperKit = try await WhisperKit(config)
+            // Timeout after 60 seconds - pre-warming should never take longer
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(60))
+                throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+            }
+            
+            let loadTask = Task {
+                let config = WhisperKitConfig(
+                    model: modelName,
+                    verbose: false,
+                    logLevel: .error,
+                    prewarm: true,
+                    load: true
+                )
+                return try await WhisperKit(config)
+            }
+            
+            // Race the timeout against the actual load
+            whisperKitResult = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
+                group.addTask { try await loadTask.value }
+                group.addTask {
+                    _ = try await timeoutTask.value
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s")
+                }
+                
+                let result = try await group.next()!
+                group.cancelAll()
+                return result
+            }
+            
+            whisperKit = whisperKitResult
             Log.transcription.info("Model loaded and prewarmed successfully")
             state = .ready
+        } catch let error as TranscriptionError {
+            Log.transcription.error("Model load failed: \(error)")
+            self.error = error
+            state = .error
+            throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)

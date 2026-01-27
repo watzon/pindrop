@@ -253,8 +253,8 @@ class ModelManager {
     private let fileManager = FileManager.default
     
     private var modelsBaseURL: URL {
-        fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("huggingface/models/argmaxinc/whisperkit-coreml")
+        fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Pindrop/models", isDirectory: true)
     }
     
     init() {
@@ -294,10 +294,12 @@ class ModelManager {
     }
     
     func isModelDownloaded(_ modelName: String) -> Bool {
-        downloadedModelNames.contains(modelName)
+        let result = downloadedModelNames.contains(modelName)
+        Log.model.info("isModelDownloaded(\(modelName)): \(result), downloadedModels: \(self.downloadedModelNames)")
+        return result
     }
     
-    func downloadModel(named modelName: String) async throws {
+    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
         guard availableModels.contains(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
@@ -316,21 +318,29 @@ class ModelManager {
         }
         
         do {
-            Log.model.info("Downloading model: \(modelName)")
+            Log.model.info("Downloading model: \(modelName) to \(self.modelsBaseURL.path)")
+            
+            // Ensure the model folder exists
+            try fileManager.createDirectory(at: self.modelsBaseURL, withIntermediateDirectories: true)
+            
             _ = try await WhisperKit.download(
                 variant: modelName,
+                downloadBase: self.modelsBaseURL,
                 progressCallback: { [weak self] progress in
                     Task { @MainActor in
                         self?.downloadProgress = progress.fractionCompleted * 0.8
+                        onProgress?(self?.downloadProgress ?? 0)
                     }
                 }
             )
             
             Log.model.info("Download complete, prewarming model...")
             downloadProgress = 0.85
+            onProgress?(0.85)
             
             let config = WhisperKitConfig(
                 model: modelName,
+                modelFolder: self.modelsBaseURL.appendingPathComponent(modelName).path,
                 verbose: false,
                 logLevel: .error,
                 prewarm: true,
@@ -340,6 +350,7 @@ class ModelManager {
             
             Log.model.info("Model prewarmed successfully")
             downloadProgress = 1.0
+            onProgress?(1.0)
             await refreshDownloadedModels()
         } catch {
             downloadProgress = 0.0
