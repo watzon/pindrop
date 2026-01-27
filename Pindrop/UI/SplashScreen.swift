@@ -57,24 +57,26 @@ struct SplashScreen: View {
                 VStack(spacing: 16) {
                     ZStack {
                         Circle()
-                            .stroke(Color.accentColor.opacity(0.2), lineWidth: 2)
+                            .stroke(AppColors.accent.opacity(0.2), lineWidth: 2)
                             .frame(width: 120, height: 120)
                             .scaleEffect(isAnimating ? 1.3 : 1.0)
                             .opacity(isAnimating ? 0 : 0.6)
                         
                         Circle()
-                            .stroke(Color.accentColor.opacity(0.3), lineWidth: 2)
+                            .stroke(AppColors.accent.opacity(0.3), lineWidth: 2)
                             .frame(width: 100, height: 100)
                             .scaleEffect(isAnimating ? 1.2 : 1.0)
                             .opacity(isAnimating ? 0 : 0.8)
                         
                         Circle()
-                            .fill(Color.accentColor.opacity(0.15))
+                            .fill(AppColors.accent.opacity(0.15))
                             .frame(width: 80, height: 80)
                         
-                        Image(systemName: "mic.fill")
-                            .font(.system(size: 32, weight: .medium))
-                            .foregroundStyle(Color.accentColor)
+                        Image("PindropIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .foregroundStyle(AppColors.accent)
                             .scaleEffect(isAnimating ? 1.05 : 1.0)
                     }
                     .animation(

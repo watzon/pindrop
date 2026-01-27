@@ -72,7 +72,7 @@ struct WelcomeStepView: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [.accentColor, .accentColor.opacity(0.7)],
+                        colors: [AppColors.accent, AppColors.accent.opacity(0.7)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -82,7 +82,7 @@ struct WelcomeStepView: View {
             IconView(icon: .waveform, size: 56)
                 .foregroundStyle(.white)
         }
-        .glassEffect(.regular.tint(.accentColor.opacity(0.2)))
+        .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)))
         .scaleEffect(logoScale)
         .opacity(logoOpacity)
     }
@@ -90,7 +90,7 @@ struct WelcomeStepView: View {
     private func featureRow(icon: Icon, text: String) -> some View {
         HStack(spacing: 12) {
             IconView(icon: icon, size: 16)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .frame(width: 24)
             
             Text(text)

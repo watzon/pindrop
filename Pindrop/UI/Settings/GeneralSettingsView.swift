@@ -162,18 +162,18 @@ struct OutputOptionRow: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: 2)
+                        .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
                         .frame(width: 20, height: 20)
                     
                     if isSelected {
                         Circle()
-                            .fill(Color.accentColor)
+                            .fill(AppColors.accent)
                             .frame(width: 12, height: 12)
                     }
                 }
                 
                 IconView(icon: option.icon, size: 16)
-                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                    .foregroundStyle(isSelected ? AppColors.accent : .secondary)
                     .frame(width: 24)
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -190,7 +190,7 @@ struct OutputOptionRow: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+                    .fill(isSelected ? AppColors.accent.opacity(0.1) : Color.clear)
             )
             .contentShape(RoundedRectangle(cornerRadius: 10))
         }

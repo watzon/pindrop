@@ -52,7 +52,7 @@ struct HotkeySetupStepView: View {
     private var headerSection: some View {
         VStack(spacing: 8) {
             IconView(icon: .keyboard, size: 40)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .padding(.bottom, 8)
             
             Text("Keyboard Shortcuts")
@@ -69,9 +69,9 @@ struct HotkeySetupStepView: View {
     private func hotkeyCard(title: String, description: String, hotkey: String, icon: Icon) -> some View {
         HStack(spacing: 16) {
             IconView(icon: icon, size: 24)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .frame(width: 44, height: 44)
-                .glassEffect(.regular.tint(.accentColor.opacity(0.2)), in: .circle)
+                .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)), in: .circle)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)

@@ -141,9 +141,9 @@ struct OnboardingWindow: View {
         let isPast = step.rawValue < currentStep.rawValue
         
         Circle()
-            .fill(isActive ? Color.accentColor : (isPast ? Color.accentColor.opacity(0.5) : Color.secondary.opacity(0.3)))
+            .fill(isActive ? AppColors.accent : (isPast ? AppColors.accent.opacity(0.5) : Color.secondary.opacity(0.3)))
             .frame(width: isActive ? 10 : 8, height: isActive ? 10 : 8)
-            .glassEffect(.regular.tint(isActive ? .accentColor.opacity(0.3) : .clear))
+            .glassEffect(.regular.tint(isActive ? AppColors.accent.opacity(0.3) : .clear))
             .animation(.spring(duration: 0.3), value: currentStep)
     }
     

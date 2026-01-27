@@ -86,7 +86,7 @@ struct AIEnhancementStepView: View {
     private var headerSection: some View {
         VStack(spacing: 6) {
             IconView(icon: .sparkles, size: 36)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
             
             Text("AI Enhancement")
                 .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -124,10 +124,10 @@ struct AIEnhancementStepView: View {
             .contentShape(Rectangle())
             .background(
                 selectedProvider == provider
-                    ? Color.accentColor.opacity(0.2)
+                    ? AppColors.accent.opacity(0.2)
                     : Color.clear
             )
-            .foregroundStyle(selectedProvider == provider ? Color.accentColor : .secondary)
+            .foregroundStyle(selectedProvider == provider ? AppColors.accent : .secondary)
         }
         .buttonStyle(.plain)
     }
@@ -258,7 +258,7 @@ struct AIEnhancementStepView: View {
                     }
                     .buttonStyle(.borderless)
                     .font(.caption)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(AppColors.accent)
                 }
                 .padding(12)
                 .glassEffect(.regular, in: .rect(cornerRadius: 8))
@@ -327,7 +327,7 @@ struct AIEnhancementStepView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .glassEffect(.regular.tint(.accentColor.opacity(0.1)), in: .rect(cornerRadius: 12))
+        .glassEffect(.regular.tint(AppColors.accent.opacity(0.1)), in: .rect(cornerRadius: 12))
     }
     
     private func featureItem(_ text: String) -> some View {

@@ -656,7 +656,7 @@ struct WelcomePopoverView: View {
     private func popoverItem(icon: Icon, text: String) -> some View {
         HStack(spacing: 8) {
             IconView(icon: icon, size: 12)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .frame(width: 16)
 
             Text(text)

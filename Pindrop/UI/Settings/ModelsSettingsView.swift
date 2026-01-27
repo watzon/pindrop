@@ -195,7 +195,7 @@ struct FilterButton: View {
                 .padding(.vertical, 6)
                 .background(
                     isSelected
-                        ? Color.accentColor.opacity(0.15)
+                        ? AppColors.accent.opacity(0.15)
                         : Color.secondary.opacity(0.1),
                     in: Capsule()
                 )
@@ -305,12 +305,12 @@ struct ModelSettingsRow: View {
         Button(action: onSelect) {
             ZStack {
                 Circle()
-                    .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: 2)
+                    .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
                     .frame(width: 20, height: 20)
                 
                 if isSelected {
                     Circle()
-                        .fill(Color.accentColor)
+                        .fill(AppColors.accent)
                         .frame(width: 12, height: 12)
                 }
             }
@@ -332,7 +332,7 @@ struct ModelSettingsRow: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.accentColor, in: Capsule())
+                    .background(AppColors.accent, in: Capsule())
                     .foregroundStyle(.white)
             }
             
@@ -433,7 +433,7 @@ struct ModelSettingsRow: View {
     
     private var backgroundStyle: some ShapeStyle {
         if isSelected && isDownloaded {
-            return AnyShapeStyle(Color.accentColor.opacity(0.08))
+            return AnyShapeStyle(AppColors.accent.opacity(0.08))
         }
         return AnyShapeStyle(Color.clear)
     }

@@ -91,8 +91,8 @@ struct ModelCard: View {
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.accentColor.opacity(0.2))
-                                .foregroundStyle(Color.accentColor)
+                                .background(AppColors.accent.opacity(0.2))
+                                .foregroundStyle(AppColors.accent)
                                 .clipShape(.capsule)
                         }
                         
@@ -129,12 +129,12 @@ struct ModelCard: View {
                     .fill(.ultraThinMaterial)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+                            .fill(isSelected ? AppColors.accent.opacity(0.1) : Color.clear)
                     )
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                    .strokeBorder(isSelected ? AppColors.accent : Color.clear, lineWidth: 2)
             )
             .contentShape(RoundedRectangle(cornerRadius: 12))
         }
@@ -144,12 +144,12 @@ struct ModelCard: View {
     private var selectionIndicator: some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.3), lineWidth: 2)
+                .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
                 .frame(width: 22, height: 22)
             
             if isSelected {
                 Circle()
-                    .fill(Color.accentColor)
+                    .fill(AppColors.accent)
                     .frame(width: 14, height: 14)
             }
         }

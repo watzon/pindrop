@@ -93,7 +93,7 @@ struct ReadyStepView: View {
     private func summaryRow(icon: Icon, label: String, value: String) -> some View {
         HStack {
             IconView(icon: icon, size: 16)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .frame(width: 24)
             
             Text(label)

@@ -150,11 +150,11 @@ struct AIEnhancementSettingsView: View {
             .contentShape(Rectangle())
             .background(
                 selectedProvider == provider
-                    ? Color.accentColor.opacity(0.2)
+                    ? AppColors.accent.opacity(0.2)
                     : Color.clear,
                 in: RoundedRectangle(cornerRadius: 8)
             )
-            .foregroundStyle(selectedProvider == provider ? Color.accentColor : .secondary)
+            .foregroundStyle(selectedProvider == provider ? AppColors.accent : .secondary)
         }
         .buttonStyle(.plain)
     }

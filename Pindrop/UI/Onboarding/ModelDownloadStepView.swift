@@ -52,7 +52,7 @@ struct ModelDownloadStepView: View {
             Circle()
                 .trim(from: 0, to: modelManager.downloadProgress)
                 .stroke(
-                    Color.accentColor,
+                    AppColors.accent,
                     style: StrokeStyle(lineWidth: 8, lineCap: .round)
                 )
                 .frame(width: 120, height: 120)
@@ -72,7 +72,7 @@ struct ModelDownloadStepView: View {
                 }
             }
         }
-        .glassEffect(.regular.tint(.accentColor.opacity(0.1)), in: .circle)
+        .glassEffect(.regular.tint(AppColors.accent.opacity(0.1)), in: .circle)
         .padding(20)
     }
     
