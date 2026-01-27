@@ -30,6 +30,13 @@ struct HotkeySetupStepView: View {
                     hotkey: settings.pushToTalkHotkey,
                     icon: .hand
                 )
+                
+                hotkeyCard(
+                    title: "Copy Last Transcript",
+                    description: "Quickly copy your last transcription",
+                    hotkey: settings.copyLastTranscriptHotkey,
+                    icon: .copy
+                )
             }
             .padding(.horizontal, 40)
             

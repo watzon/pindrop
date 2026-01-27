@@ -20,7 +20,7 @@ struct ModelSelectionStepView: View {
             
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(modelManager.availableModels) { model in
+                    ForEach(modelManager.availableModels.filter { $0.availability == .available }) { model in
                         ModelCard(
                             model: model,
                             isSelected: selectedModelName == model.name,

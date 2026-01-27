@@ -114,7 +114,7 @@ class ModelManager {
         // WhisperKit Local Models
         WhisperModel(
             name: "openai_whisper-tiny",
-            displayName: "Tiny",
+            displayName: "Whisper Tiny",
             sizeInMB: 75,
             description: "Fastest model, ideal for quick dictation with acceptable accuracy",
             speedRating: 10.0,
@@ -123,7 +123,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-tiny.en",
-            displayName: "Tiny (English)",
+            displayName: "Whisper Tiny (English)",
             sizeInMB: 75,
             description: "English-optimized tiny model with slightly better accuracy",
             speedRating: 10.0,
@@ -132,7 +132,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-base",
-            displayName: "Base",
+            displayName: "Whisper Base",
             sizeInMB: 145,
             description: "Good balance between speed and accuracy for everyday use",
             speedRating: 9.0,
@@ -141,7 +141,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-base.en",
-            displayName: "Base (English)",
+            displayName: "Whisper Base (English)",
             sizeInMB: 145,
             description: "English-optimized base model, recommended for most users",
             speedRating: 9.0,
@@ -150,7 +150,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-small",
-            displayName: "Small",
+            displayName: "Whisper Small",
             sizeInMB: 483,
             description: "Higher accuracy for complex vocabulary and technical terms",
             speedRating: 7.5,
@@ -159,7 +159,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-small.en",
-            displayName: "Small (English)",
+            displayName: "Whisper Small (English)",
             sizeInMB: 483,
             description: "English-optimized with excellent accuracy for professional use",
             speedRating: 7.5,
@@ -168,7 +168,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-large-v3",
-            displayName: "Large v3",
+            displayName: "Whisper Large v3",
             sizeInMB: 3100,
             description: "Maximum accuracy for demanding transcription tasks",
             speedRating: 5.0,
@@ -177,7 +177,7 @@ class ModelManager {
         ),
         WhisperModel(
             name: "openai_whisper-large-v3_turbo",
-            displayName: "Large v3 Turbo",
+            displayName: "Whisper Large v3 Turbo",
             sizeInMB: 809,
             description: "Near large-model accuracy with significantly faster processing",
             speedRating: 7.5,
@@ -254,7 +254,7 @@ class ModelManager {
     
     private var modelsBaseURL: URL {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("Pindrop/models", isDirectory: true)
+            .appendingPathComponent("Pindrop", isDirectory: true)
     }
     
     init() {
@@ -266,7 +266,13 @@ class ModelManager {
     func refreshDownloadedModels() async {
         var downloaded: Set<String> = []
         
-        let basePath = modelsBaseURL.path
+        // WhisperKit stores models in models/argmaxinc/whisperkit-coreml/
+        let whisperKitPath = modelsBaseURL
+            .appendingPathComponent("models", isDirectory: true)
+            .appendingPathComponent("argmaxinc", isDirectory: true)
+            .appendingPathComponent("whisperkit-coreml", isDirectory: true)
+        
+        let basePath = whisperKitPath.path
         guard fileManager.fileExists(atPath: basePath) else {
             downloadedModelNames = []
             return
@@ -275,12 +281,16 @@ class ModelManager {
         do {
             let contents = try fileManager.contentsOfDirectory(atPath: basePath)
             for folder in contents {
-                let folderPath = modelsBaseURL.appendingPathComponent(folder).path
+                // Skip hidden directories like .cache
+                if folder.hasPrefix(".") { continue }
+                
+                let folderPath = whisperKitPath.appendingPathComponent(folder).path
                 var isDirectory: ObjCBool = false
                 if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
                     downloaded.insert(folder)
                 }
             }
+            Log.model.info("Found \(downloaded.count) downloaded models: \(downloaded)")
         } catch {
             Log.model.error("Failed to list downloaded models: \(error)")
         }
@@ -340,7 +350,7 @@ class ModelManager {
             
             let config = WhisperKitConfig(
                 model: modelName,
-                modelFolder: self.modelsBaseURL.appendingPathComponent(modelName).path,
+                downloadBase: self.modelsBaseURL,
                 verbose: false,
                 logLevel: .error,
                 prewarm: true,

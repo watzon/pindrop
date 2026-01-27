@@ -52,15 +52,52 @@ Or simply double-click `Pindrop.xcodeproj` in Finder.
 
 After the first build, Pindrop will appear in your menu bar (look for the microphone icon). The app runs exclusively in the menu bar—no dock icon.
 
-### Building for Release
+### Using the Build System (Recommended)
 
-To create a distributable build:
+This project includes a `justfile` for common build tasks. Install `just` if you haven't already:
+
+```bash
+brew install just
+```
+
+**Common commands:**
+
+```bash
+just build              # Build for development (Debug)
+just build-release      # Build for release
+just test               # Run tests
+just dmg                # Build release + create DMG
+just release            # Full release workflow (clean, build, sign, DMG)
+just clean              # Clean build artifacts
+just --list             # Show all available commands
+```
+
+### Manual Build (Alternative)
+
+To create a distributable build manually:
 
 ```bash
 xcodebuild -scheme Pindrop -configuration Release build
 ```
 
 The compiled app will be in `build/Release/Pindrop.app`.
+
+### Creating a DMG
+
+To create a distributable DMG:
+
+```bash
+just dmg
+```
+
+Or manually:
+
+```bash
+brew install create-dmg
+./scripts/create-dmg.sh
+```
+
+The DMG will be created in `dist/Pindrop.dmg`.
 
 ## First Launch
 

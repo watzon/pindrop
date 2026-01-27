@@ -977,3 +977,273 @@ SWIFT_EMIT_LOC_STRINGS = NO
 - Reactive programming: Settings changes propagate automatically
 - Error handling: All async operations wrapped in try-catch
 - Thread safety: @MainActor ensures UI updates on main thread
+
+## Build System Implementation (2026-01-27)
+
+### Justfile Build Automation
+- Created comprehensive `justfile` with 30+ commands for common operations
+- Commands organized by category: development, release, maintenance, distribution
+- Default recipe shows available commands with `just --list`
+- Variables defined at top for easy configuration (app_name, build_dir, etc.)
+
+### DMG Creation Script
+- `scripts/create-dmg.sh` automates DMG creation with custom layout
+- Uses `create-dmg` tool (brew install create-dmg)
+- Automatically detects version from Info.plist
+- Creates DMG with app icon, window positioning, and Applications symlink
+- Includes error checking and colored output for better UX
+
+### Build Workflow Commands
+- **Development**: `just build`, `just test`, `just dev` (clean + build + test)
+- **Release**: `just build-release`, `just dmg`, `just release` (full workflow)
+- **Maintenance**: `just clean`, `just lint`, `just format`
+- **Distribution**: `just sign`, `just verify-signature`, `just notarize`, `just staple`
+- **Version**: `just version`, `just bump-patch`, `just bump-minor`
+
+### Export Options Template
+- Created `scripts/ExportOptions.plist` for Xcode archive exports
+- Configured for Developer ID distribution method
+- Requires user to add their Team ID before use
+- Supports code signing and notarization workflow
+
+### Documentation
+- `BUILD.md`: Complete build guide with workflows and troubleshooting
+- `scripts/README.md`: Documentation for build scripts
+- `.github/CONTRIBUTING.md`: Contributor guidelines with build instructions
+- Updated main `README.md` with build system usage
+
+### CI/CD Ready
+- `just ci` command runs full CI workflow (clean, build, test, build-release)
+- All commands designed for automation (no interactive prompts)
+- Exit codes properly propagated for CI systems
+- GitHub Actions example included in CONTRIBUTING.md
+
+### Tool Dependencies
+- **Required**: Xcode, xcodebuild (comes with Xcode)
+- **Recommended**: just (brew install just)
+- **Optional**: create-dmg (for DMG creation), swiftlint, swiftformat
+
+### Gotchas
+- DMG creation requires release build to exist first
+- Notarization requires Apple Developer account and credentials setup
+- Code signing requires valid Developer ID certificate
+- `just` uses tabs for indentation in recipes (not spaces)
+- Export options plist needs Team ID customization per developer
+
+
+## Onboarding Improvements (2026-01-27)
+
+### Issue 1: Coming Soon Models Shown in Onboarding
+
+**Problem**: Onboarding "Choose a Model" step was showing ALL models including those marked as `availability: .comingSoon` (Parakeet, OpenAI API, Groq, ElevenLabs).
+
+**Solution**: Filter models in `ModelSelectionStepView.swift` line 23:
+```swift
+// Before
+ForEach(modelManager.availableModels) { model in
+
+// After
+ForEach(modelManager.availableModels.filter { $0.availability == .available }) { model in
+```
+
+**Result**: Only available WhisperKit models shown in onboarding. Coming soon models remain visible in Settings for future use.
+
+### Issue 2: Unnecessary Model Downloads on Reinstall
+
+**Problem**: During reinstall or interrupted onboarding, the app would re-download models that were already present on disk, wasting time and bandwidth.
+
+**Solution**: Added check in `ModelDownloadStepView.swift` `startDownload()` function:
+```swift
+// Check if model is already downloaded
+if modelManager.isModelDownloaded(modelName) {
+    Log.model.info("Model \(modelName) already downloaded, skipping download step")
+    Task.detached { @MainActor in
+        try? await self.transcriptionService.loadModel(modelName: self.modelName)
+    }
+    try? await Task.sleep(for: .milliseconds(300))
+    onComplete()
+    return
+}
+```
+
+**Result**: 
+- Reinstalls skip download if model exists
+- Interrupted onboarding resumes without re-downloading
+- Better UX with faster onboarding for existing users
+
+### Onboarding Flow Optimization
+
+The onboarding now has two levels of download checking:
+1. **Navigation level** (`OnboardingWindow.startModelDownload()`): Skips download step entirely if model exists
+2. **Download step level** (`ModelDownloadStepView.startDownload()`): Double-check in case user navigates directly to download step
+
+This redundancy ensures models are never unnecessarily downloaded.
+
+
+## Complete Model Path Resolution (2026-01-27)
+
+### The Problem Chain
+
+A series of interconnected path issues prevented models from loading after download:
+
+1. **Nested Directory Issue**: Models downloaded to `models/models/` instead of `models/`
+2. **TranscriptionService Path Mismatch**: Service couldn't find downloaded models
+3. **ModelManager Prewarm Failure**: Post-download prewarm used wrong path
+
+### Root Cause Analysis
+
+WhisperKit's architecture:
+- `WhisperKit.download(downloadBase: URL)` downloads to: `{downloadBase}/models/argmaxinc/whisperkit-coreml/{modelName}/`
+- `WhisperKitConfig(model:, downloadBase:)` looks in: `{downloadBase}/models/argmaxinc/whisperkit-coreml/{modelName}/`
+- `WhisperKitConfig(modelFolder:)` looks in: `{modelFolder}/` (exact path, no additions)
+
+### The Fixes
+
+#### Fix 1: ModelManager Download Path (Line 257)
+```swift
+// Before
+.appendingPathComponent("Pindrop/models", isDirectory: true)
+
+// After
+.appendingPathComponent("Pindrop", isDirectory: true)
+```
+**Why**: WhisperKit adds `/models/` automatically, so we only need base `Pindrop` directory.
+
+#### Fix 2: TranscriptionService Load Path (Lines 49-52, 72)
+```swift
+// Added modelsBaseURL property
+private var modelsBaseURL: URL {
+    fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        .appendingPathComponent("Pindrop", isDirectory: true)
+}
+
+// Updated WhisperKitConfig
+let config = WhisperKitConfig(
+    model: modelName,
+    downloadBase: modelsBaseURL,  // Added this parameter
+    // ...
+)
+```
+**Why**: TranscriptionService needs to know where models are stored.
+
+#### Fix 3: ModelManager Prewarm Path (Line 343)
+```swift
+// Before
+modelFolder: self.modelsBaseURL.appendingPathComponent(modelName).path,
+
+// After
+downloadBase: self.modelsBaseURL,
+```
+**Why**: Using `modelFolder` with manual path construction bypassed WhisperKit's path logic. Using `downloadBase` + `model` parameter lets WhisperKit find the model correctly.
+
+### Final Path Structure
+
+```
+~/Library/Application Support/Pindrop/
+└── models/                              ← WhisperKit creates this
+    └── argmaxinc/                       ← WhisperKit creates this
+        └── whisperkit-coreml/           ← WhisperKit creates this
+            ├── openai_whisper-base/     ← Model files
+            │   ├── AudioEncoder.mlmodelc
+            │   ├── TextDecoder.mlmodelc
+            │   └── ...
+            ├── openai_whisper-tiny/
+            └── ...
+```
+
+### Key Learnings
+
+1. **Use `downloadBase` + `model` parameter**: This is the correct way to let WhisperKit manage paths
+2. **Avoid `modelFolder` for downloaded models**: Only use `modelFolder` for custom/external model paths
+3. **Don't duplicate WhisperKit's path logic**: Let WhisperKit handle the `models/argmaxinc/whisperkit-coreml/` structure
+4. **Keep paths consistent**: Both ModelManager and TranscriptionService must use the same base path
+
+### Pattern to Follow
+
+```swift
+// For downloading
+WhisperKit.download(
+    variant: modelName,
+    downloadBase: modelsBaseURL  // Just the base, WhisperKit adds /models/...
+)
+
+// For loading
+WhisperKitConfig(
+    model: modelName,
+    downloadBase: modelsBaseURL  // Same base, WhisperKit finds the model
+)
+```
+
+### Anti-Pattern (What We Fixed)
+
+```swift
+// ❌ DON'T DO THIS
+WhisperKitConfig(
+    model: modelName,
+    modelFolder: modelsBaseURL.appendingPathComponent(modelName).path  // Wrong!
+)
+```
+
+This bypasses WhisperKit's path resolution and creates incorrect paths.
+
+
+## Model Detection Fix (2026-01-27)
+
+### The Problem
+Downloaded models weren't being detected, causing:
+- Models showing as "not downloaded" in Settings
+- Transcription failing because model couldn't be loaded
+- Log showing: `isModelDownloaded(openai_whisper-base): false, downloadedModels: []`
+
+### Root Cause
+`refreshDownloadedModels()` was looking in the wrong directory:
+- **Looking in**: `~/Library/Application Support/Pindrop/`
+- **Finding**: `["argmaxinc", "openai"]` (directory names, not model names)
+- **Should look in**: `~/Library/Application Support/Pindrop/models/argmaxinc/whisperkit-coreml/`
+- **Should find**: `["openai_whisper-base", "openai_whisper-tiny", ...]` (actual model names)
+
+### The Fix
+Updated `refreshDownloadedModels()` to use WhisperKit's standard directory structure:
+
+```swift
+// WhisperKit stores models in models/argmaxinc/whisperkit-coreml/
+let whisperKitPath = modelsBaseURL
+    .appendingPathComponent("models", isDirectory: true)
+    .appendingPathComponent("argmaxinc", isDirectory: true)
+    .appendingPathComponent("whisperkit-coreml", isDirectory: true)
+
+let basePath = whisperKitPath.path
+guard fileManager.fileExists(atPath: basePath) else {
+    downloadedModelNames = []
+    return
+}
+
+do {
+    let contents = try fileManager.contentsOfDirectory(atPath: basePath)
+    for folder in contents {
+        // Skip hidden directories like .cache
+        if folder.hasPrefix(".") { continue }
+        
+        let folderPath = whisperKitPath.appendingPathComponent(folder).path
+        var isDirectory: ObjCBool = false
+        if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
+            downloaded.insert(folder)
+        }
+    }
+    Log.model.info("Found \(downloaded.count) downloaded models: \(downloaded)")
+}
+```
+
+### Key Changes
+1. **Correct path**: Now looks in `models/argmaxinc/whisperkit-coreml/` subdirectory
+2. **Skip hidden dirs**: Filters out `.cache` and other hidden directories
+3. **Better logging**: Shows count and list of found models
+
+### Single Source of Truth
+WhisperKit's directory structure is now the single source of truth:
+- **Download**: `WhisperKit.download(downloadBase: modelsBaseURL)` → Creates `models/argmaxinc/whisperkit-coreml/{modelName}/`
+- **Load**: `WhisperKitConfig(model:, downloadBase: modelsBaseURL)` → Looks in `models/argmaxinc/whisperkit-coreml/{modelName}/`
+- **Detect**: `refreshDownloadedModels()` → Scans `models/argmaxinc/whisperkit-coreml/` for folders
+
+All three operations now use the same path structure, ensuring consistency.
+

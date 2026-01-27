@@ -141,12 +141,12 @@ final class AudioRecorderTests: XCTestCase {
     func testAudioFormatConfiguration() throws {
         // Given: AudioRecorder is initialized
         // When: We check the audio format
-        let format = sut.audioFormat
+        let format = sut.targetFormat
         
         // Then: Format should match WhisperKit requirements
         XCTAssertEqual(format.sampleRate, 16000.0, "Sample rate should be 16kHz")
         XCTAssertEqual(format.channelCount, 1, "Should be mono (1 channel)")
-        XCTAssertEqual(format.commonFormat, .pcmFormatInt16, "Should be 16-bit PCM")
+        XCTAssertEqual(format.commonFormat, .pcmFormatFloat32, "Should be 32-bit float PCM")
     }
     
     // MARK: - Multiple Recording Sessions Tests

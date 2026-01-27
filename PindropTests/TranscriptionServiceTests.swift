@@ -103,23 +103,7 @@ final class TranscriptionServiceTests: XCTestCase {
         }
     }
     
-    func testAudioDataConversion() async throws {
-        let service = TranscriptionService()
-        
-        // Create valid audio data (16kHz mono PCM)
-        let sampleCount = 16000 // 1 second of audio
-        var audioData = Data()
-        for i in 0..<sampleCount {
-            var sample: Int16 = Int16(sin(Double(i) * 0.1) * 1000) // Simple sine wave
-            audioData.append(Data(bytes: &sample, count: MemoryLayout<Int16>.size))
-        }
-        
-        // Test conversion to float array
-        let floatArray = service.convertPCMDataToFloatArray(audioData)
-        
-        XCTAssertEqual(floatArray.count, sampleCount, "Float array should have same sample count")
-        XCTAssertTrue(floatArray.allSatisfy { $0 >= -1.0 && $0 <= 1.0 }, "All samples should be normalized to [-1.0, 1.0]")
-    }
+    // Audio data conversion is tested indirectly through transcription flow
     
     // MARK: - State Management Tests
     

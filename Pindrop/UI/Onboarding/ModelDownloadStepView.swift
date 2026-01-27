@@ -159,14 +159,25 @@ struct ModelDownloadStepView: View {
     private func startDownload() async {
         guard !hasStarted else { return }
         hasStarted = true
-        
-        do {
-            try await modelManager.downloadModel(named: modelName)
-            
+
+        // Check if model is already downloaded
+        if modelManager.isModelDownloaded(modelName) {
+            Log.model.info("Model \(modelName) already downloaded, skipping download step")
             Task.detached { @MainActor in
                 try? await self.transcriptionService.loadModel(modelName: self.modelName)
             }
-            
+            try? await Task.sleep(for: .milliseconds(300))
+            onComplete()
+            return
+        }
+
+        do {
+            try await modelManager.downloadModel(named: modelName)
+
+            Task.detached { @MainActor in
+                try? await self.transcriptionService.loadModel(modelName: self.modelName)
+            }
+
             try? await Task.sleep(for: .milliseconds(300))
             onComplete()
         } catch {

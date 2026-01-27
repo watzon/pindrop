@@ -52,7 +52,29 @@ class TranscriptionService {
         Log.transcription.info("Loading model: \(modelName) with prewarm enabled...")
         
         do {
-            let whisperKitResult: WhisperKit
+            // Create URL for download base to log the full path
+            let fileManager = FileManager.default
+            let downloadBaseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                .appendingPathComponent("Pindrop", isDirectory: true)
+            let expectedModelPath = downloadBaseURL
+                .appendingPathComponent("models", isDirectory: true)
+                .appendingPathComponent("argmaxinc", isDirectory: true)
+                .appendingPathComponent("whisperkit-coreml", isDirectory: true)
+                .appendingPathComponent(modelName, isDirectory: true)
+            
+            Log.transcription.info("Expected model path: \(expectedModelPath.path)")
+            Log.transcription.info("Model folder exists: \(fileManager.fileExists(atPath: expectedModelPath.path))")
+            
+            let config = WhisperKitConfig(
+                model: modelName,
+                downloadBase: downloadBaseURL,
+                verbose: true,
+                logLevel: .debug,
+                prewarm: true,
+                load: true
+            )
+            
+            Log.transcription.info("WhisperKitConfig created - model: \(modelName), downloadBase: \(downloadBaseURL.path), verbose: true, logLevel: .debug, prewarm: true, load: true")
             
             // Timeout after 60 seconds - pre-warming should never take longer
             let timeoutTask = Task {
@@ -61,19 +83,15 @@ class TranscriptionService {
             }
             
             let loadTask = Task {
-                let config = WhisperKitConfig(
-                    model: modelName,
-                    verbose: false,
-                    logLevel: .error,
-                    prewarm: true,
-                    load: true
-                )
-                return try await WhisperKit(config)
+                try await WhisperKit(config)
             }
             
             // Race the timeout against the actual load
-            whisperKitResult = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
-                group.addTask { try await loadTask.value }
+            let whisperKitResult: WhisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
+                group.addTask {
+                    defer { loadTask.cancel() }
+                    return try await loadTask.value
+                }
                 group.addTask {
                     _ = try await timeoutTask.value
                     throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s")
@@ -106,18 +124,50 @@ class TranscriptionService {
         
         Log.transcription.info("Loading model from path: \(modelPath) with prewarm enabled...")
         
+        let config = WhisperKitConfig(
+            modelFolder: modelPath,
+            verbose: true,
+            logLevel: .debug,
+            prewarm: true,
+            load: true
+        )
+        
+        Log.transcription.info("WhisperKitConfig created - modelFolder: \(modelPath), verbose: true, logLevel: .debug, prewarm: true, load: true")
+        
         do {
-            let config = WhisperKitConfig(
-                modelFolder: modelPath,
-                verbose: false,
-                logLevel: .error,
-                prewarm: true,
-                load: true
-            )
+            // Timeout after 60 seconds - pre-warming should never take longer
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(60))
+                throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+            }
             
-            whisperKit = try await WhisperKit(config)
+            let loadTask = Task {
+                try await WhisperKit(config)
+            }
+            
+            // Race the timeout against the actual load
+            whisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
+                group.addTask {
+                    defer { loadTask.cancel() }
+                    return try await loadTask.value
+                }
+                group.addTask {
+                    _ = try await timeoutTask.value
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s")
+                }
+                
+                let result = try await group.next()!
+                group.cancelAll()
+                return result
+            }
+            
             Log.transcription.info("Model loaded and prewarmed successfully")
             state = .ready
+        } catch let error as TranscriptionError {
+            Log.transcription.error("Model load failed: \(error)")
+            self.error = error
+            state = .error
+            throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)
