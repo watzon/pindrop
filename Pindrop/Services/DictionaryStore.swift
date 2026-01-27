@@ -17,6 +17,8 @@ final class DictionaryStore {
         case fetchFailed(String)
         case deleteFailed(String)
         case replacementFailed(String)
+        case exportFailed(String)
+        case importFailed(String)
         
         var errorDescription: String? {
             switch self {
@@ -28,8 +30,17 @@ final class DictionaryStore {
                 return "Failed to delete dictionary entry: \(message)"
             case .replacementFailed(let message):
                 return "Failed to apply replacements: \(message)"
+            case .exportFailed(let message):
+                return "Failed to export dictionary: \(message)"
+            case .importFailed(let message):
+                return "Failed to import dictionary: \(message)"
             }
         }
+    }
+    
+    enum ImportStrategy {
+        case additive  // Add new entries, skip existing
+        case replace   // Clear all and import
     }
     
     private let modelContext: ModelContext
@@ -195,5 +206,148 @@ final class DictionaryStore {
         }
         
         return (result, appliedReplacements)
+    }
+    
+    // MARK: - Import/Export
+    
+    func exportToJSON() throws -> Data {
+        let replacements = try fetchAllReplacements()
+        let vocabulary = try fetchAllVocabularyWords()
+        
+        struct ReplacementExport: Codable {
+            let originals: [String]
+            let replacement: String
+            let sortOrder: Int
+        }
+        
+        struct VocabularyExport: Codable {
+            let word: String
+        }
+        
+        struct ExportFormat: Codable {
+            let version: Int
+            let replacements: [ReplacementExport]
+            let vocabulary: [VocabularyExport]
+            let exportedAt: String
+        }
+        
+        let replacementExports = replacements.map { replacement in
+            ReplacementExport(
+                originals: replacement.originals,
+                replacement: replacement.replacement,
+                sortOrder: replacement.sortOrder
+            )
+        }
+        
+        let vocabularyExports = vocabulary.map { word in
+            VocabularyExport(word: word.word)
+        }
+        
+        let exportData = ExportFormat(
+            version: 1,
+            replacements: replacementExports,
+            vocabulary: vocabularyExports,
+            exportedAt: ISO8601DateFormatter().string(from: Date())
+        )
+        
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            return try encoder.encode(exportData)
+        } catch {
+            throw DictionaryStoreError.exportFailed(error.localizedDescription)
+        }
+    }
+    
+    func importFromJSON(_ data: Data, strategy: ImportStrategy) throws {
+        struct ReplacementImport: Codable {
+            let originals: [String]
+            let replacement: String
+            let sortOrder: Int
+        }
+        
+        struct VocabularyImport: Codable {
+            let word: String
+        }
+        
+        struct ImportFormat: Codable {
+            let version: Int
+            let replacements: [ReplacementImport]
+            let vocabulary: [VocabularyImport]
+            let exportedAt: String?
+        }
+        
+        let importData: ImportFormat
+        do {
+            importData = try JSONDecoder().decode(ImportFormat.self, from: data)
+        } catch {
+            throw DictionaryStoreError.importFailed("Invalid JSON format: \(error.localizedDescription)")
+        }
+        
+        guard importData.version == 1 else {
+            throw DictionaryStoreError.importFailed("Unsupported version: \(importData.version)")
+        }
+        
+        if strategy == .replace {
+            let existingReplacements = try fetchAllReplacements()
+            for replacement in existingReplacements {
+                modelContext.delete(replacement)
+            }
+            
+            let existingVocabulary = try fetchAllVocabularyWords()
+            for word in existingVocabulary {
+                modelContext.delete(word)
+            }
+        }
+        
+        if strategy == .additive {
+            let existingReplacements = try fetchAllReplacements()
+            let existingOriginals = Set(existingReplacements.flatMap { $0.originals.map { $0.lowercased() } })
+            
+            for replacementData in importData.replacements {
+                let hasOverlap = replacementData.originals.contains { original in
+                    existingOriginals.contains(original.lowercased())
+                }
+                
+                if !hasOverlap {
+                    let replacement = WordReplacement(
+                        originals: replacementData.originals,
+                        replacement: replacementData.replacement,
+                        sortOrder: replacementData.sortOrder
+                    )
+                    modelContext.insert(replacement)
+                }
+            }
+            
+            let existingVocabulary = try fetchAllVocabularyWords()
+            let existingWords = Set(existingVocabulary.map { $0.word.lowercased() })
+            
+            for vocabularyData in importData.vocabulary {
+                if !existingWords.contains(vocabularyData.word.lowercased()) {
+                    let word = VocabularyWord(word: vocabularyData.word)
+                    modelContext.insert(word)
+                }
+            }
+        } else {
+            for replacementData in importData.replacements {
+                let replacement = WordReplacement(
+                    originals: replacementData.originals,
+                    replacement: replacementData.replacement,
+                    sortOrder: replacementData.sortOrder
+                )
+                modelContext.insert(replacement)
+            }
+            
+            for vocabularyData in importData.vocabulary {
+                let word = VocabularyWord(word: vocabularyData.word)
+                modelContext.insert(word)
+            }
+        }
+        
+        do {
+            try modelContext.save()
+        } catch {
+            throw DictionaryStoreError.importFailed("Failed to save imported data: \(error.localizedDescription)")
+        }
     }
 }

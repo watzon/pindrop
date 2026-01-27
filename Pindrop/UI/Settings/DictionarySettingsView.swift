@@ -24,10 +24,12 @@ struct DictionarySettingsView: View {
     
     // Error state
     @State private var errorMessage: String?
+    @State private var showingImportStrategyDialog = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                importExportSection
                 wordReplacementsSection
                 vocabularySection
             }
@@ -36,6 +38,46 @@ struct DictionarySettingsView: View {
         .onAppear {
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
+        }
+        .alert("Import Error", isPresented: .constant(errorMessage != nil)) {
+            Button("OK") {
+                errorMessage = nil
+            }
+        } message: {
+            if let errorMessage {
+                Text(errorMessage)
+            }
+        }
+        .confirmationDialog("Import Strategy", isPresented: $showingImportStrategyDialog) {
+            Button("Add to Existing") {
+                performImport(strategy: .additive)
+            }
+            Button("Replace All", role: .destructive) {
+                performImport(strategy: .replace)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Choose how to import the dictionary data")
+        }
+    }
+    
+    // MARK: - Import/Export Section
+    
+    private var importExportSection: some View {
+        SettingsCard(title: "Import/Export", icon: "arrow.up.arrow.down.circle") {
+            HStack(spacing: 12) {
+                Button(action: handleExport) {
+                    Label("Export Dictionary", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.bordered)
+                
+                Button(action: handleImport) {
+                    Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                }
+                .buttonStyle(.bordered)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 8)
         }
     }
     
@@ -304,6 +346,76 @@ struct DictionarySettingsView: View {
         } catch {
             errorMessage = "Failed to load data: \(error.localizedDescription)"
         }
+    }
+    
+    private func handleExport() {
+        guard let store = dictionaryStore else { return }
+        
+        do {
+            let jsonData = try store.exportToJSON()
+            
+            let savePanel = NSSavePanel()
+            savePanel.allowedContentTypes = [.json]
+            savePanel.nameFieldStringValue = "dictionary.json"
+            savePanel.title = "Export Dictionary"
+            savePanel.message = "Choose a location to save the dictionary"
+            
+            if savePanel.runModal() == .OK, let url = savePanel.url {
+                try jsonData.write(to: url)
+            }
+        } catch {
+            errorMessage = "Failed to export dictionary: \(error.localizedDescription)"
+        }
+    }
+    
+    private func handleImport() {
+        let openPanel = NSOpenPanel()
+        openPanel.allowedContentTypes = [.json]
+        openPanel.title = "Import Dictionary"
+        openPanel.message = "Select a dictionary JSON file to import"
+        
+        if openPanel.runModal() == .OK, let url = openPanel.url {
+            do {
+                let data = try Data(contentsOf: url)
+                
+                let decoder = JSONDecoder()
+                _ = try decoder.decode(DictionaryImportPreview.self, from: data)
+                
+                showingImportStrategyDialog = true
+                importDataCache = data
+            } catch {
+                errorMessage = "Failed to read import file: \(error.localizedDescription)"
+            }
+        }
+    }
+    
+    @State private var importDataCache: Data?
+    
+    private func performImport(strategy: DictionaryStore.ImportStrategy) {
+        guard let store = dictionaryStore, let data = importDataCache else { return }
+        
+        do {
+            try store.importFromJSON(data, strategy: strategy)
+            loadData()
+            importDataCache = nil
+        } catch {
+            errorMessage = "Failed to import dictionary: \(error.localizedDescription)"
+        }
+    }
+}
+
+struct DictionaryImportPreview: Codable {
+    let version: Int
+    let replacements: [ReplacementPreview]
+    let vocabulary: [VocabularyPreview]
+    
+    struct ReplacementPreview: Codable {
+        let originals: [String]
+        let replacement: String
+    }
+    
+    struct VocabularyPreview: Codable {
+        let word: String
     }
 }
 
