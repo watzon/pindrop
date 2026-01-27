@@ -390,6 +390,7 @@ struct DictionarySettingsView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.contentBackground)
         )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .strokeBorder(AppColors.border, lineWidth: 1)
@@ -462,6 +463,7 @@ struct DictionarySettingsView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.contentBackground)
         )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .strokeBorder(AppColors.border, lineWidth: 1)
