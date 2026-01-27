@@ -320,6 +320,8 @@ final class AppCoordinator {
             let keyCode = UInt32(settingsStore.copyLastTranscriptHotkeyCode)
             let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.copyLastTranscriptHotkeyModifiers))
 
+            Log.hotkey.info("Registering copy-last-transcript: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.copyLastTranscriptHotkey)")
+
             _ = hotkeyManager.registerHotkey(
                 keyCode: keyCode,
                 modifiers: modifiers,
