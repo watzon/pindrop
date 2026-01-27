@@ -26,6 +26,7 @@ final class AppCoordinator {
     let hotkeyManager: HotkeyManager
     let outputManager: OutputManager
     let historyStore: HistoryStore
+    let dictionaryStore: DictionaryStore
     let settingsStore: SettingsStore
     
     // MARK: - UI Controllers
@@ -44,6 +45,11 @@ final class AppCoordinator {
     
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Dictionary Replacements
+    
+    /// Stores the last applied dictionary replacements for use in AI enhancement prompts
+    var lastAppliedReplacements: [(original: String, replacement: String)] = []
     
     // MARK: - Escape Key Cancellation
     
@@ -65,6 +71,7 @@ final class AppCoordinator {
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
         self.outputManager = OutputManager(outputMode: initialOutputMode)
         self.historyStore = HistoryStore(modelContext: modelContext)
+        self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
@@ -475,7 +482,14 @@ final class AppCoordinator {
             throw error
         }
         
-        var finalText = transcribedText
+        let (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        self.lastAppliedReplacements = appliedReplacements
+        
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+        
+        var finalText = textAfterReplacements
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
@@ -483,17 +497,17 @@ final class AppCoordinator {
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
-                originalText = transcribedText
+                originalText = textAfterReplacements
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 finalText = try await aiEnhancementService.enhance(
-                    text: transcribedText,
+                    text: textAfterReplacements,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
                     customPrompt: settingsStore.aiEnhancementPrompt
                 )
                 enhancedWithModel = settingsStore.aiModel
-                Log.app.info("AI enhancement completed, original: \(transcribedText.count) chars, enhanced: \(finalText.count) chars")
+                Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.warning("AI enhancement failed, using original: \(error)")
                 originalText = nil
