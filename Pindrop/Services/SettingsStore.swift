@@ -85,10 +85,12 @@ final class SettingsStore: ObservableObject {
     private(set) var apiEndpoint: String?
     private(set) var apiKey: String?
     
-    // MARK: - Initialization
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
     
     init() {
-        // Load keychain values on initialization
+        guard !Self.isPreview else { return }
         apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
         apiKey = try? loadFromKeychain(account: apiKeyAccount)
     }

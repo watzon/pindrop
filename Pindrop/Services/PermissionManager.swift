@@ -35,9 +35,18 @@ final class PermissionManager {
         accessibilityPermissionGranted
     }
     
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     init() {
-        self.permissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-        self.accessibilityPermissionGranted = AXIsProcessTrusted()
+        if Self.isPreview {
+            self.permissionStatus = .notDetermined
+            self.accessibilityPermissionGranted = false
+        } else {
+            self.permissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+            self.accessibilityPermissionGranted = AXIsProcessTrusted()
+        }
     }
     
     // MARK: - Microphone Permission Methods

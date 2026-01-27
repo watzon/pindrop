@@ -257,7 +257,12 @@ class ModelManager {
             .appendingPathComponent("Pindrop", isDirectory: true)
     }
     
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     init() {
+        guard !Self.isPreview else { return }
         Task {
             await refreshDownloadedModels()
         }

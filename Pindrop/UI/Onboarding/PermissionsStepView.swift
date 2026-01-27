@@ -16,6 +16,10 @@ struct PermissionsStepView: View {
     @State private var accessibilityGranted = false
     @State private var checkingPermissions = true
     
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     var body: some View {
         VStack(spacing: 24) {
             headerSection
@@ -32,6 +36,10 @@ struct PermissionsStepView: View {
         }
         .padding(.vertical, 24)
         .task {
+            guard !Self.isPreview else {
+                checkingPermissions = false
+                return
+            }
             await checkPermissions()
         }
     }
@@ -39,7 +47,7 @@ struct PermissionsStepView: View {
     private var headerSection: some View {
         VStack(spacing: 8) {
             IconView(icon: .shield, size: 40)
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(AppColors.accent)
                 .padding(.bottom, 8)
             
             Text("Permissions")
@@ -172,9 +180,9 @@ struct PermissionCard: View {
     var body: some View {
         HStack(spacing: 16) {
             IconView(icon: icon, size: 24)
-                .foregroundStyle(isGranted ? .green : Color.accentColor)
+                .foregroundStyle(isGranted ? .green : AppColors.accent)
                 .frame(width: 44, height: 44)
-                .glassEffect(.regular.tint(isGranted ? .green.opacity(0.2) : .accentColor.opacity(0.2)), in: .circle)
+                .glassEffect(.regular.tint(isGranted ? .green.opacity(0.2) : AppColors.accent.opacity(0.2)), in: .circle)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {

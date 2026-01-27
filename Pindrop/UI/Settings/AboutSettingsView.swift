@@ -20,7 +20,7 @@ struct AboutSettingsView: View {
         SettingsCard(title: "About Pindrop", icon: "mic.fill") {
             VStack(spacing: AppTheme.Spacing.lg) {
                 HStack(spacing: AppTheme.Spacing.xl) {
-                    Image(nsImage: NSApp.applicationIconImage)
+                    appIcon
                         .resizable()
                         .scaledToFit()
                         .frame(width: 80, height: 80)
@@ -129,12 +129,31 @@ struct AboutSettingsView: View {
         }
     }
 
+    // MARK: - Preview Detection
+    
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    private var appIcon: Image {
+        if Self.isPreview {
+            return Image(systemName: "mic.fill")
+        }
+        return Image(nsImage: NSApp.applicationIconImage)
+    }
+    
     private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        if Self.isPreview {
+            return "1.0.0"
+        }
+        return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     }
 
     private var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        if Self.isPreview {
+            return "1"
+        }
+        return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
 }
 

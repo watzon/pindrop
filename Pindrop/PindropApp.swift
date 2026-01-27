@@ -14,12 +14,22 @@ struct PindropApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
     var body: some Scene {
         WindowGroup(id: "placeholder") {
             EmptyView()
         }
         .defaultSize(width: 0, height: 0)
         .windowResizability(.contentSize)
+    }
+}
+
+extension AppDelegate {
+    static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 }
 
@@ -44,6 +54,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        guard !Self.isPreview else { return }
+        
         let context = modelContainer.mainContext
         coordinator = AppCoordinator(modelContext: context, modelContainer: modelContainer)
         settingsStore = coordinator?.settingsStore
@@ -88,6 +100,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func updateDockVisibility() {
+        guard !Self.isPreview else { return }
         let showInDock = UserDefaults.standard.bool(forKey: "showInDock")
         let policy: NSApplication.ActivationPolicy = showInDock ? .regular : .accessory
         NSApplication.shared.setActivationPolicy(policy)
