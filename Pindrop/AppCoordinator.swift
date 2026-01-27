@@ -197,7 +197,7 @@ final class AppCoordinator {
 
         let modelName = settingsStore.selectedModel
         
-        // Check if model exists
+        await modelManager.refreshDownloadedModels()
         let modelExists = modelManager.isModelDownloaded(modelName)
         
         if modelExists {
@@ -509,7 +509,8 @@ final class AppCoordinator {
         }
 
         do {
-            try await outputManager.output(finalText)
+            let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
+            try await outputManager.output(outputText)
         } catch {
             Log.app.error("Output failed: \(error)")
         }

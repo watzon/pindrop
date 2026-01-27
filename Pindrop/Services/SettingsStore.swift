@@ -67,6 +67,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("showInDock") var showInDock: Bool = false
+    @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
     
     // MARK: - Onboarding State
     

@@ -29,6 +29,24 @@ struct GeneralSettingsView: View {
                         onSelect: { settings.outputMode = option.rawValue }
                     )
                 }
+                
+                Divider()
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Add trailing space")
+                            .font(.body)
+                        Text("Append a space after each transcription for seamless dictation")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.addTrailingSpace)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
             }
         }
     }
