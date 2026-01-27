@@ -125,8 +125,7 @@ struct SettingsWindow: View {
                     case .ai:
                         AIEnhancementSettingsView(settings: settings)
                     case .dictionary:
-                        Text("Dictionary Settings")
-                            .foregroundStyle(AppColors.textSecondary)
+                        DictionarySettingsView()
                     case .about:
                         AboutSettingsView()
                     }
