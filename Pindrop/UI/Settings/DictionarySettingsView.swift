@@ -77,7 +77,7 @@ struct DictionarySettingsView: View {
     @State private var hoveredRowID: UUID?
     
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: AppTheme.Spacing.xl) {
                 // Section Selector Tabs
                 sectionSelector
