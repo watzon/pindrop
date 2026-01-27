@@ -76,27 +76,20 @@ class TranscriptionService {
             
             Log.transcription.info("WhisperKitConfig created - model: \(modelName), downloadBase: \(downloadBaseURL.path), verbose: true, logLevel: .debug, prewarm: true, load: true")
             
-            // Timeout after 60 seconds - pre-warming should never take longer
-            let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(60))
-                throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
-            }
-            
-            let loadTask = Task {
-                try await WhisperKit(config)
-            }
-            
-            // Race the timeout against the actual load
+            // Race the load against a 60-second timeout
             let whisperKitResult: WhisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
+                // Load task
                 group.addTask {
-                    defer { loadTask.cancel() }
-                    return try await loadTask.value
-                }
-                group.addTask {
-                    _ = try await timeoutTask.value
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s")
+                    try await WhisperKit(config)
                 }
                 
+                // Timeout task - throws if load takes longer than 60s
+                group.addTask {
+                    try await Task.sleep(for: .seconds(60))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+                }
+                
+                // Return whichever completes first
                 let result = try await group.next()!
                 group.cancelAll()
                 return result
@@ -135,27 +128,20 @@ class TranscriptionService {
         Log.transcription.info("WhisperKitConfig created - modelFolder: \(modelPath), verbose: true, logLevel: .debug, prewarm: true, load: true")
         
         do {
-            // Timeout after 60 seconds - pre-warming should never take longer
-            let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(60))
-                throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
-            }
-            
-            let loadTask = Task {
-                try await WhisperKit(config)
-            }
-            
-            // Race the timeout against the actual load
+            // Race the load against a 60-second timeout
             whisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
+                // Load task
                 group.addTask {
-                    defer { loadTask.cancel() }
-                    return try await loadTask.value
-                }
-                group.addTask {
-                    _ = try await timeoutTask.value
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s")
+                    try await WhisperKit(config)
                 }
                 
+                // Timeout task - throws if load takes longer than 60s
+                group.addTask {
+                    try await Task.sleep(for: .seconds(60))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+                }
+                
+                // Return whichever completes first
                 let result = try await group.next()!
                 group.cancelAll()
                 return result
