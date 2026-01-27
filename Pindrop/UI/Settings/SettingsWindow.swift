@@ -169,10 +169,12 @@ struct SettingsWindow: View {
 
 #Preview("Settings Window - Light") {
     SettingsWindow()
+        .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
 }
 
 #Preview("Settings Window - Dark") {
     SettingsWindow()
+        .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)
 }

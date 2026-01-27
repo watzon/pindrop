@@ -8,9 +8,17 @@
 import Foundation
 import os.log
 
-/// Centralized logging utility for Pindrop
 enum Log {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.pindrop"
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    private static let subsystem: String = {
+        if isPreview {
+            return "com.pindrop.preview"
+        }
+        return Bundle.main.bundleIdentifier ?? "com.pindrop"
+    }()
     
     // Log categories
     static let audio = Logger(subsystem: subsystem, category: "Audio")
