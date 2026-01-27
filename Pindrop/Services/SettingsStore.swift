@@ -35,13 +35,13 @@ final class SettingsStore: ObservableObject {
         static let aiEnhancementPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
         
         enum Hotkeys {
-            static let toggleHotkey = "⇧⌘R"
-            static let toggleHotkeyCode = 15
-            static let toggleHotkeyModifiers = 0x300
+            static let toggleHotkey = "⌥Space"
+            static let toggleHotkeyCode = 49
+            static let toggleHotkeyModifiers = 0x800
             
-            static let pushToTalkHotkey = "⇧⌘T"
-            static let pushToTalkHotkeyCode = 17
-            static let pushToTalkHotkeyModifiers = 0x300
+            static let pushToTalkHotkey = "⌥⇧Space"
+            static let pushToTalkHotkeyCode = 49
+            static let pushToTalkHotkeyModifiers = 0xA00
             
             static let copyLastTranscriptHotkey = "⇧⌘C"
             static let copyLastTranscriptHotkeyCode = 8
