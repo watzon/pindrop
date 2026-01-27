@@ -499,12 +499,31 @@ final class AppCoordinator {
             do {
                 originalText = textAfterReplacements
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
+                
+                // Build enhanced prompt with dictionary context
+                var enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                
+                // Add vocabulary section if exists
+                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
+                if !vocabularyWords.isEmpty {
+                    let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
+                    enhancedPrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                }
+                
+                // Add replacements section if applied
+                if !lastAppliedReplacements.isEmpty {
+                    let replacementList = lastAppliedReplacements
+                        .map { "'\($0.original)' → '\($0.replacement)'" }
+                        .joined(separator: ", ")
+                    enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+                }
+                
                 finalText = try await aiEnhancementService.enhance(
                     text: textAfterReplacements,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
-                    customPrompt: settingsStore.aiEnhancementPrompt
+                    customPrompt: enhancedPrompt
                 )
                 enhancedWithModel = settingsStore.aiModel
                 Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
