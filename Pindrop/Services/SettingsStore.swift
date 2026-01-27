@@ -26,22 +26,45 @@ final class SettingsStore: ObservableObject {
         }
     }
     
+    // MARK: - Default Values (Single Source of Truth)
+    
+    enum Defaults {
+        static let selectedModel = "openai_whisper-base"
+        static let outputMode = "clipboard"
+        static let aiModel = "openai/gpt-4o-mini"
+        static let aiEnhancementPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+        
+        enum Hotkeys {
+            static let toggleHotkey = "⇧⌘R"
+            static let toggleHotkeyCode = 15
+            static let toggleHotkeyModifiers = 0x300
+            
+            static let pushToTalkHotkey = "⇧⌘T"
+            static let pushToTalkHotkeyCode = 17
+            static let pushToTalkHotkeyModifiers = 0x300
+            
+            static let copyLastTranscriptHotkey = "⇧⌘C"
+            static let copyLastTranscriptHotkeyCode = 8
+            static let copyLastTranscriptHotkeyModifiers = 0x300
+        }
+    }
+    
     // MARK: - AppStorage Properties
     
-    @AppStorage("selectedModel") var selectedModel: String = "openai_whisper-base"
-    @AppStorage("toggleHotkey") var toggleHotkey: String = "⇧⌘R"
-    @AppStorage("toggleHotkeyCode") var toggleHotkeyCode: Int = 15
-    @AppStorage("toggleHotkeyModifiers") var toggleHotkeyModifiers: Int = 0x300
-    @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = "⇧⌘T"
-    @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = 17
-    @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = 0x300
-    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = "⇧⌘C"
-    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = 8
-    @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = 0x300
-    @AppStorage("outputMode") var outputMode: String = "clipboard"
+    @AppStorage("selectedModel") var selectedModel: String = Defaults.selectedModel
+    @AppStorage("toggleHotkey") var toggleHotkey: String = Defaults.Hotkeys.toggleHotkey
+    @AppStorage("toggleHotkeyCode") var toggleHotkeyCode: Int = Defaults.Hotkeys.toggleHotkeyCode
+    @AppStorage("toggleHotkeyModifiers") var toggleHotkeyModifiers: Int = Defaults.Hotkeys.toggleHotkeyModifiers
+    @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
+    @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = Defaults.Hotkeys.pushToTalkHotkeyCode
+    @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = Defaults.Hotkeys.pushToTalkHotkeyModifiers
+    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = Defaults.Hotkeys.copyLastTranscriptHotkey
+    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
+    @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
+    @AppStorage("outputMode") var outputMode: String = Defaults.outputMode
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
-    @AppStorage("aiModel") var aiModel: String = "openai/gpt-4o-mini"
-    @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+    @AppStorage("aiModel") var aiModel: String = Defaults.aiModel
+    @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("showInDock") var showInDock: Bool = false
     
@@ -92,17 +115,17 @@ final class SettingsStore: ObservableObject {
     }
     
     func resetAllSettings() {
-        selectedModel = "openai_whisper-base"
-        toggleHotkey = "⇧⌘R"
-        toggleHotkeyCode = 15
-        toggleHotkeyModifiers = 0x300
-        pushToTalkHotkey = "⇧⌘T"
-        pushToTalkHotkeyCode = 17
-        pushToTalkHotkeyModifiers = 0x300
-        copyLastTranscriptHotkey = "⇧⌘C"
-        copyLastTranscriptHotkeyCode = 8
-        copyLastTranscriptHotkeyModifiers = 0x300
-        outputMode = "clipboard"
+        selectedModel = Defaults.selectedModel
+        toggleHotkey = Defaults.Hotkeys.toggleHotkey
+        toggleHotkeyCode = Defaults.Hotkeys.toggleHotkeyCode
+        toggleHotkeyModifiers = Defaults.Hotkeys.toggleHotkeyModifiers
+        pushToTalkHotkey = Defaults.Hotkeys.pushToTalkHotkey
+        pushToTalkHotkeyCode = Defaults.Hotkeys.pushToTalkHotkeyCode
+        pushToTalkHotkeyModifiers = Defaults.Hotkeys.pushToTalkHotkeyModifiers
+        copyLastTranscriptHotkey = Defaults.Hotkeys.copyLastTranscriptHotkey
+        copyLastTranscriptHotkeyCode = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
+        copyLastTranscriptHotkeyModifiers = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
+        outputMode = Defaults.outputMode
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false
         hasCompletedOnboarding = false
