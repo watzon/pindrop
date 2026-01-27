@@ -29,7 +29,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsStore: SettingsStore?
     
     private lazy var modelContainer: ModelContainer = {
-        let schema = Schema([TranscriptionRecord.self])
+        let schema = Schema([
+            TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self
+        ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
         do {
