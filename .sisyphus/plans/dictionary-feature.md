@@ -279,16 +279,16 @@ Parallel Speedup: ~40% faster than sequential
 - `Pindrop/Services/HistoryStore.swift:69-92` - fetch() with FetchDescriptor pattern
 
 **Acceptance Criteria**:
-- [ ] **RED**: Create test file `PindropTests/DictionaryStoreTests.swift`
+- [x] **RED**: Create test file `PindropTests/DictionaryStoreTests.swift`
   - Test: `applyReplacements` with "dr" → "Doctor" on "dr smith" returns "Doctor smith"
   - Test: Case-insensitive: "hello" → "hi" on "HELLO world" returns "hi world"
   - Test: Word boundary: "is" → "was" on "this is a test" returns "this was a test" (NOT "thwas was a test")
   - Test: Longer match wins: "new york" vs "york" - "new york city" → only "new york" matches
   - Test: Single pass: ["a"→"b", "b"→"c"] on "a" returns "b" (not "c")
   - `xcodebuild test ...` → FAIL
-- [ ] **GREEN**: Implement DictionaryStore
+- [x] **GREEN**: Implement DictionaryStore
   - `xcodebuild test ...` → PASS
-- [ ] `applyReplacements` returns tuple with applied replacements list
+- [x] `applyReplacements` returns tuple with applied replacements list
 
 **Commit**: YES
 - Message: `feat(services): add DictionaryStore with word replacement logic`
@@ -543,10 +543,10 @@ xcodebuild -scheme Pindrop -configuration Release build
 ```
 
 ### Final Checklist
-- [ ] All "Must Have" present
-- [ ] All "Must NOT Have" absent
-- [ ] All tests pass
-- [ ] Dictionary tab functional
-- [ ] Word replacements apply correctly
-- [ ] Vocabulary appears in AI prompt
-- [ ] Import/Export works end-to-end
+- [x] All "Must Have" present
+- [x] All "Must NOT Have" absent
+- [x] All tests pass
+- [x] Dictionary tab functional
+- [x] Word replacements apply correctly
+- [x] Vocabulary appears in AI prompt
+- [x] Import/Export works end-to-end
