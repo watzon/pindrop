@@ -465,8 +465,14 @@ final class StatusBarController {
             settingsWindow = nil
         }
 
-        let settingsView = SettingsWindow(initialTab: tab)
-        let hostingController = NSHostingController(rootView: settingsView)
+        var settingsView = SettingsWindow(initialTab: tab)
+        let rootView: AnyView
+        if let container = modelContainer {
+            rootView = AnyView(settingsView.modelContainer(container))
+        } else {
+            rootView = AnyView(settingsView)
+        }
+        let hostingController = NSHostingController(rootView: rootView)
 
         let window = NSWindow(contentViewController: hostingController)
         window.title = "Pindrop Settings"
