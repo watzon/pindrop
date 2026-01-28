@@ -1,14 +1,50 @@
-# Pindrop
+# Pindrop 🎤
 
-A native macOS menu bar dictation app powered by local speech-to-text. Built with Swift, SwiftUI, and WhisperKit.
+> The only 100% open source, truly Mac-native AI dictation app
+
+[![GitHub stars](https://img.shields.io/github/stars/watzon/pindrop?style=flat-square)](https://github.com/watzon/pindrop/stargazers)
+[![GitHub license](https://img.shields.io/github/license/watzon/pindrop?style=flat-square)](LICENSE)
+[![macOS](https://img.shields.io/badge/macOS-14.0+-blue?style=flat-square&logo=apple)](https://www.apple.com/macos/)
+[![Swift](https://img.shields.io/badge/Swift-5.9+-orange?style=flat-square&logo=swift)](https://swift.org/)
 
 ![Pindrop Screenshot](assets/images/screenshot.webp)
 
-## What It Does
+**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by Apple's WhisperKit for optimal Apple Silicon performance.
 
-Pindrop turns your speech into text—right from your menu bar. No cloud servers, no subscriptions, no waiting. Just press a hotkey, speak, and watch your words appear wherever you need them.
+**[Download Latest Release](https://github.com/watzon/pindrop/releases)** · **[Documentation](#documentation)** · **[Contributing](#contributing)** · **[Community](#community)**
 
-### Key Features
+---
+
+## Why Pindrop?
+
+While other dictation apps compromise on privacy, performance, or platform fidelity, Pindrop is designed specifically for Mac users who refuse to compromise.
+
+| Pillar | What It Means |
+|--------|---------------|
+| 🍎 **Mac-Native** | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it. |
+| 🔒 **Privacy-First** | 100% local transcription. Your voice never leaves your Mac. |
+| ⚡ **Apple Silicon Optimized** | WhisperKit + Core ML = 2-3x faster than generic Whisper on M-series chips. |
+| 🏆 **100% Open Source** | No freemium tiers, no "Pro" features, no lock-in. Ever. |
+
+---
+
+## Comparison
+
+| Feature | Pindrop | Handy | OpenWhispr |
+|---------|---------|-------|------------|
+| **Platform** | macOS only | Windows, macOS, Linux | Windows, macOS, Linux |
+| **Framework** | Swift/SwiftUI (native) | Tauri (Rust + Web) | Tauri (Rust + Web) |
+| **ML Engine** | WhisperKit (Apple Core ML) | Generic Whisper | Generic Whisper |
+| **Apple Silicon** | Native optimization | Emulated | Emulated |
+| **Source Code** | 100% open source | 100% open source | Freemium (paid "Lazy Edition") |
+| **Battery Impact** | Minimal (native) | Higher (web runtime) | Higher (web runtime) |
+| **Menu Bar Design** | First-class native | Web-based UI | Web-based UI |
+
+**The bottom line:** If you want the best dictation experience on a Mac—maximum speed, minimal battery drain, and true native feel—Pindrop is the only choice.
+
+---
+
+## Features
 
 - **100% Local Transcription** — Runs entirely on your Mac using OpenAI's Whisper model via WhisperKit. Your voice never leaves your computer.
 - **Global Hotkeys** — Toggle mode (press to start, press to stop) or push-to-talk. Works from anywhere in macOS.
@@ -18,6 +54,16 @@ Pindrop turns your speech into text—right from your menu bar. No cloud servers
 - **AI Enhancement (Optional)** — Clean up transcriptions using any OpenAI-compatible API—completely optional and off by default.
 - **Custom Dictionary** — Define custom word replacements and vocabulary to improve transcription accuracy for names, jargon, and specialized terms.
 - **Beautiful macOS Design** — Native SwiftUI interface that feels at home on your Mac.
+
+---
+
+## Built With
+
+- **[Swift](https://swift.org/)** — Apple's modern, fast, and safe programming language
+- **[SwiftUI](https://developer.apple.com/xcode/swiftui/)** — Declarative UI framework for truly native Mac apps
+- **[WhisperKit](https://github.com/argmaxinc/WhisperKit)** — Apple's official Core ML implementation of OpenAI Whisper
+- **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
+- **Just one external dependency** — WhisperKit. Everything else is Apple's first-party frameworks.
 
 ## Requirements
 
@@ -285,6 +331,19 @@ Pindrop/
 xcodebuild test -scheme Pindrop -destination 'platform=macOS'
 ```
 
+## Community
+
+Join the conversation and get help:
+
+- **[GitHub Discussions](https://github.com/watzon/pindrop/discussions)** — Ask questions, share ideas, and connect with other users
+- **[GitHub Issues](https://github.com/watzon/pindrop/issues)** — Report bugs or request features
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
+
+Whether you're fixing a bug, adding a feature, or improving documentation, your help makes Pindrop better for everyone.
+
 ## License
 
 MIT License. See the [LICENSE](LICENSE) file for details.
@@ -293,10 +352,6 @@ MIT License. See the [LICENSE](LICENSE) file for details.
 
 - [WhisperKit](https://github.com/argmaxinc/WhisperKit) — The Swift implementation that makes this possible
 - [OpenAI Whisper](https://github.com/openai/whisper) — The original speech recognition model
-
-## Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ---
 
