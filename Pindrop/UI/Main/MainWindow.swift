@@ -46,6 +46,12 @@ struct MainWindow: View {
     
     var onOpenSettings: (() -> Void)?
     
+    private func navigateToHistory() {
+        withAnimation(AppTheme.Animation.fast) {
+            selectedNav = .history
+        }
+    }
+    
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebarContent
@@ -205,7 +211,7 @@ struct MainWindow: View {
     private var detailContent: some View {
         switch selectedNav {
         case .home:
-            DashboardView(onOpenSettings: openSettings)
+            DashboardView(onOpenSettings: openSettings, onViewAllHistory: navigateToHistory)
         case .history:
             HistoryView()
         case .notes, .transcribe:

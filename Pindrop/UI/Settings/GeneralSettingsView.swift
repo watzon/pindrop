@@ -56,6 +56,24 @@ struct GeneralSettingsView: View {
             VStack(spacing: 16) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
+                        Text("Launch at Login")
+                            .font(.body)
+                        Text("Automatically start Pindrop when you log in")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.launchAtLogin)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+                
+                Divider()
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Show in Dock")
                             .font(.body)
                         Text("Display Pindrop icon in the Dock when running")

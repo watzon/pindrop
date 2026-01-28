@@ -9,6 +9,61 @@ import Foundation
 import Carbon
 import os.log
 
+// MARK: - Hotkey Registration Protocol
+
+protocol HotkeyRegistrationProtocol {
+    func registerHotkey(id: UInt32, keyCode: UInt32, modifiers: UInt32) -> Bool
+    func unregisterHotkey(id: UInt32) -> Bool
+}
+
+// MARK: - Carbon Events Implementation
+
+final class CarbonHotkeyRegistration: HotkeyRegistrationProtocol {
+    private var registeredRefs: [UInt32: EventHotKeyRef] = [:]
+    
+    func registerHotkey(id: UInt32, keyCode: UInt32, modifiers: UInt32) -> Bool {
+        var eventHotKeyID = EventHotKeyID()
+        eventHotKeyID.signature = OSType(("PNDR" as NSString).utf8String!.withMemoryRebound(to: UInt8.self, capacity: 4) { ptr in
+            return UInt32(ptr[0]) << 24 | UInt32(ptr[1]) << 16 | UInt32(ptr[2]) << 8 | UInt32(ptr[3])
+        })
+        eventHotKeyID.id = id
+        
+        var eventHotKeyRef: EventHotKeyRef?
+        let status = RegisterEventHotKey(
+            keyCode,
+            modifiers,
+            eventHotKeyID,
+            GetApplicationEventTarget(),
+            0,
+            &eventHotKeyRef
+        )
+        
+        guard status == noErr, let hotKeyRef = eventHotKeyRef else {
+            return false
+        }
+        
+        registeredRefs[id] = hotKeyRef
+        return true
+    }
+    
+    func unregisterHotkey(id: UInt32) -> Bool {
+        guard let hotKeyRef = registeredRefs[id] else {
+            return false
+        }
+        
+        let status = UnregisterEventHotKey(hotKeyRef)
+        
+        guard status == noErr else {
+            return false
+        }
+        
+        registeredRefs.removeValue(forKey: id)
+        return true
+    }
+}
+
+// MARK: - HotkeyManager
+
 final class HotkeyManager {
     
     enum HotkeyMode {
@@ -56,7 +111,6 @@ final class HotkeyManager {
     
     private struct RegisteredHotkey {
         let configuration: HotkeyConfiguration
-        let eventHotKeyRef: EventHotKeyRef
         let eventHotKeyID: EventHotKeyID
         var isKeyCurrentlyPressed: Bool = false
     }
@@ -64,8 +118,10 @@ final class HotkeyManager {
     private var registeredHotkeys: [String: RegisteredHotkey] = [:]
     private var eventHandlerRef: EventHandlerRef?
     private let logger = Logger(subsystem: "com.pindrop.app", category: "HotkeyManager")
+    private let registration: HotkeyRegistrationProtocol
     
-    init() {
+    init(registration: HotkeyRegistrationProtocol = CarbonHotkeyRegistration()) {
+        self.registration = registration
         setupEventHandler()
     }
     
@@ -96,31 +152,28 @@ final class HotkeyManager {
             onKeyUp: onKeyUp
         )
         
+        // Use truncatingIfNeeded to safely convert hash to UInt32 (handles negative values and overflow)
+        let hotkeyID = UInt32(truncatingIfNeeded: identifier.hashValue)
+        
+        let success = registration.registerHotkey(
+            id: hotkeyID,
+            keyCode: keyCode,
+            modifiers: modifiers.rawValue
+        )
+        
+        guard success else {
+            logger.error("Failed to register hotkey '\(identifier)'")
+            return false
+        }
+        
         var eventHotKeyID = EventHotKeyID()
         eventHotKeyID.signature = OSType(("PNDR" as NSString).utf8String!.withMemoryRebound(to: UInt8.self, capacity: 4) { ptr in
             return UInt32(ptr[0]) << 24 | UInt32(ptr[1]) << 16 | UInt32(ptr[2]) << 8 | UInt32(ptr[3])
         })
-        // Use truncatingIfNeeded to safely convert hash to UInt32 (handles negative values and overflow)
-        eventHotKeyID.id = UInt32(truncatingIfNeeded: identifier.hashValue)
-        
-        var eventHotKeyRef: EventHotKeyRef?
-        let status = RegisterEventHotKey(
-            keyCode,
-            modifiers.rawValue,
-            eventHotKeyID,
-            GetApplicationEventTarget(),
-            0,
-            &eventHotKeyRef
-        )
-        
-        guard status == noErr, let hotKeyRef = eventHotKeyRef else {
-            logger.error("Failed to register hotkey '\(identifier)': OSStatus \(status)")
-            return false
-        }
+        eventHotKeyID.id = hotkeyID
         
         let registeredHotkey = RegisteredHotkey(
             configuration: configuration,
-            eventHotKeyRef: hotKeyRef,
             eventHotKeyID: eventHotKeyID
         )
         
@@ -136,10 +189,11 @@ final class HotkeyManager {
             return false
         }
         
-        let status = UnregisterEventHotKey(registeredHotkey.eventHotKeyRef)
+        let hotkeyID = registeredHotkey.eventHotKeyID.id
+        let success = registration.unregisterHotkey(id: hotkeyID)
         
-        guard status == noErr else {
-            logger.error("Failed to unregister hotkey '\(identifier)': OSStatus \(status)")
+        guard success else {
+            logger.error("Failed to unregister hotkey '\(identifier)'")
             return false
         }
         

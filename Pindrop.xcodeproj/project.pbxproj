@@ -15,10 +15,10 @@
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
 		299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */; };
+		LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */; };
 		2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */; };
 		3A991DE907202841FF536AB0 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */; };
 		440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 440249056D0941BF82CA74EB /* Preview Assets.xcassets */; };
-		4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1175C96AA5AE4B1691893105 /* PindropTests.swift */; };
 		4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643AABFF228E4861A399A74F /* ModelsSettingsView.swift */; };
 		83556706A5B946DA8E8D1F05 /* AboutSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */; };
 		DICTVIEW1A2B3C4D5E6F70 /* DictionarySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTVIEW1A2B3C4D5E6F71 /* DictionarySettingsView.swift */; };
@@ -77,7 +77,6 @@
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1175C96AA5AE4B1691893105 /* PindropTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropTests.swift; sourceTree = "<group>"; };
 		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
 		31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecord.swift; sourceTree = "<group>"; };
 		440249056D0941BF82CA74EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -104,6 +103,7 @@
 		B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReadyStepView.swift; sourceTree = "<group>"; };
 		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
 		BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB05E1BC11534652810B091F /* OutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManager.swift; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-	81f50d309b6a44df90efbd5f /* Services */ = {
+ 		81f50d309b6a44df90efbd5f /* Services */ = {
 		isa = PBXGroup;
 		children = (
 			f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
@@ -204,6 +204,7 @@
 			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
 			D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
 			BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
+			LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
 		);
 		path = Services;
 		sourceTree = "<group>";
@@ -252,7 +253,6 @@
 		AA285F0FC951498CA7AEFEDE /* PindropTests */ = {
 			isa = PBXGroup;
 			children = (
-				1175C96AA5AE4B1691893105 /* PindropTests.swift */,
 				8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */,
 				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
@@ -425,7 +425,6 @@
 		572D6581DD0541D98D9191B2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
-				4B450B1DCBEF4CF199EEA4DE /* PindropTests.swift in Sources */,
 				044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */,
 				B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */,
 				845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */,
@@ -440,6 +439,7 @@
 			01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
+				LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */,
 				5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */,
 				751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */,
 				14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */,

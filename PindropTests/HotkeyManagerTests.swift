@@ -9,29 +9,62 @@ import XCTest
 import Carbon
 @testable import Pindrop
 
+// MARK: - Mock Hotkey Registration
+
+final class MockHotkeyRegistration: HotkeyRegistrationProtocol {
+    var registeredHotkeys: [(id: UInt32, keyCode: UInt32, modifiers: UInt32)] = []
+    var unregisteredIds: [UInt32] = []
+    var shouldSucceed = true
+    var registerCallCount = 0
+    var unregisterCallCount = 0
+    
+    func registerHotkey(id: UInt32, keyCode: UInt32, modifiers: UInt32) -> Bool {
+        registerCallCount += 1
+        guard shouldSucceed else { return false }
+        registeredHotkeys.append((id, keyCode, modifiers))
+        return true
+    }
+    
+    func unregisterHotkey(id: UInt32) -> Bool {
+        unregisterCallCount += 1
+        guard shouldSucceed else { return false }
+        unregisteredIds.append(id)
+        registeredHotkeys.removeAll { $0.id == id }
+        return true
+    }
+    
+    func reset() {
+        registeredHotkeys.removeAll()
+        unregisteredIds.removeAll()
+        shouldSucceed = true
+        registerCallCount = 0
+        unregisterCallCount = 0
+    }
+}
+
+// MARK: - HotkeyManager Tests
+
 final class HotkeyManagerTests: XCTestCase {
     
     var hotkeyManager: HotkeyManager!
+    var mockRegistration: MockHotkeyRegistration!
     
     override func setUp() {
         super.setUp()
-        hotkeyManager = HotkeyManager()
+        mockRegistration = MockHotkeyRegistration()
+        hotkeyManager = HotkeyManager(registration: mockRegistration)
     }
     
     override func tearDown() {
         hotkeyManager = nil
+        mockRegistration = nil
         super.tearDown()
     }
     
     // MARK: - Registration Tests
     
     func testRegisterHotkey() {
-        let expectation = XCTestExpectation(description: "Hotkey registered successfully")
-        var callbackInvoked = false
-        
-        let callback: () -> Void = {
-            callbackInvoked = true
-        }
+        let callback: () -> Void = {}
         
         let result = hotkeyManager.registerHotkey(
             keyCode: 49,
@@ -42,9 +75,10 @@ final class HotkeyManagerTests: XCTestCase {
         
         XCTAssertTrue(result, "Hotkey registration should succeed")
         XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should be registered")
-        
-        expectation.fulfill()
-        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should call registration once")
+        XCTAssertEqual(mockRegistration.registeredHotkeys.count, 1, "Should have one registered hotkey")
+        XCTAssertEqual(mockRegistration.registeredHotkeys[0].keyCode, 49, "Should register correct keyCode")
+        XCTAssertEqual(mockRegistration.registeredHotkeys[0].modifiers, UInt32(optionKey), "Should register correct modifiers")
     }
     
     func testRegisterMultipleHotkeys() {
@@ -90,6 +124,39 @@ final class HotkeyManagerTests: XCTestCase {
         )
         
         XCTAssertFalse(result, "Duplicate identifier registration should fail")
+        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should only attempt registration once")
+    }
+    
+    func testRegisterHotkeyFailure() {
+        mockRegistration.shouldSucceed = false
+        let callback: () -> Void = {}
+        
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 49,
+            modifiers: [.option],
+            identifier: "toggle",
+            onKeyDown: callback
+        )
+        
+        XCTAssertFalse(result, "Registration should fail when mock returns false")
+        XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should not be registered")
+        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should attempt registration")
+    }
+    
+    func testUnregisterHotkeyFailure() {
+        let callback: () -> Void = {}
+        _ = hotkeyManager.registerHotkey(
+            keyCode: 49,
+            modifiers: [.option],
+            identifier: "toggle",
+            onKeyDown: callback
+        )
+        
+        mockRegistration.shouldSucceed = false
+        let result = hotkeyManager.unregisterHotkey(identifier: "toggle")
+        
+        XCTAssertFalse(result, "Unregistration should fail when mock returns false")
+        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should still be registered")
     }
     
     // MARK: - Unregistration Tests
@@ -107,14 +174,15 @@ final class HotkeyManagerTests: XCTestCase {
         
         XCTAssertTrue(result, "Hotkey unregistration should succeed")
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should no longer be registered")
+        XCTAssertEqual(mockRegistration.unregisterCallCount, 1, "Should call unregister once")
+        XCTAssertEqual(mockRegistration.unregisteredIds.count, 1, "Should have one unregistered ID")
     }
     
     func testUnregisterNonexistentHotkey() {
-        // When: Attempting to unregister a hotkey that doesn't exist
         let result = hotkeyManager.unregisterHotkey(identifier: "nonexistent")
         
-        // Then: Unregistration should fail gracefully
         XCTAssertFalse(result, "Unregistering nonexistent hotkey should return false")
+        XCTAssertEqual(mockRegistration.unregisterCallCount, 0, "Should not call unregister for nonexistent hotkey")
     }
     
     func testUnregisterAll() {
@@ -126,6 +194,8 @@ final class HotkeyManagerTests: XCTestCase {
         
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
         XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
+        XCTAssertEqual(mockRegistration.unregisterCallCount, 2, "Should unregister both hotkeys")
+        XCTAssertEqual(mockRegistration.unregisteredIds.count, 2, "Should have two unregistered IDs")
     }
     
     // MARK: - Configuration Tests
@@ -148,10 +218,8 @@ final class HotkeyManagerTests: XCTestCase {
     }
     
     func testGetNonexistentConfiguration() {
-        // When: Getting configuration for nonexistent hotkey
         let config = hotkeyManager.getHotkeyConfiguration(identifier: "nonexistent")
         
-        // Then: Should return nil
         XCTAssertNil(config, "Configuration for nonexistent hotkey should be nil")
     }
     

@@ -16,18 +16,35 @@ Pindrop turns your speech into text—right from your menu bar. No cloud servers
 - **Transcription History** — All your dictations are saved locally with full search. Export to JSON, CSV, or plain text.
 - **Multiple Model Sizes** — Choose from Tiny (fastest) to Large (most accurate) depending on your needs.
 - **AI Enhancement (Optional)** — Clean up transcriptions using any OpenAI-compatible API—completely optional and off by default.
+- **Custom Dictionary** — Define custom word replacements and vocabulary to improve transcription accuracy for names, jargon, and specialized terms.
 - **Beautiful macOS Design** — Native SwiftUI interface that feels at home on your Mac.
 
 ## Requirements
 
-- **macOS 14.0 (Sonoma) or later**
+- **macOS 26.0 or later**
 - **Apple Silicon (M1/M2/M3/M4)** recommended for optimal performance
 - **Microphone access** (required for recording)
 - **Accessibility permission** (optional, enables direct text insertion; clipboard works without it)
 
+## Installation
+
+Since Pindrop is currently distributed as a self-signed build, you'll need to approve it on first launch:
+
+1. Download `Pindrop.dmg` from the [releases page](../../releases)
+2. Open the DMG and drag Pindrop to Applications
+3. **First launch only:** Right-click Pindrop → Open
+4. If you see "cannot be opened because the developer cannot be verified":
+   - Open System Settings → Privacy & Security
+   - Scroll to "Security" section
+   - Click "Open Anyway" next to Pindrop
+   - Enter your password when prompted
+5. Pindrop will now launch normally
+
+**Why this happens:** Pindrop is self-signed because we don't have an Apple Developer account yet. The app is completely safe - this is just macOS being cautious about unverified developers.
+
 ## Building from Source
 
-Since this is an open-source project, you'll need to build it yourself. Don't worry—it's straightforward.
+Since this is an open-source project, you can also build it yourself. Don't worry—it's straightforward.
 
 ### Step 1: Clone the Repository
 
@@ -94,7 +111,7 @@ Or manually:
 
 ```bash
 brew install create-dmg
-./scripts/create-dmg.sh
+just dmg-self-signed
 ```
 
 The DMG will be created in `dist/Pindrop.dmg`.
@@ -113,11 +130,13 @@ When you first open Pindrop, you'll see an onboarding flow:
 ### Recording Modes
 
 **Toggle Mode** (default: `Option+Space`)
+
 - Press once to start recording (menu bar icon turns red)
 - Press again to stop and transcribe
 - Your transcribed text appears in your clipboard immediately
 
 **Push-to-Talk**
+
 - Hold your hotkey to record
 - Release to stop and transcribe
 - Configure a different hotkey in Settings → Hotkeys
@@ -129,6 +148,7 @@ Transcribed text is always copied to your clipboard. If you've granted Accessibi
 ### History
 
 Access all your past transcriptions:
+
 - Click the menu bar icon → History (or press `Cmd+H`)
 - Search through any transcription
 - Copy individual entries or export to JSON/CSV/plain text
@@ -136,25 +156,29 @@ Access all your past transcriptions:
 ## Settings
 
 ### General
+
 - **Output Mode**: Clipboard only, or clipboard + direct insertion
 - **Language**: English (more languages coming in future updates)
 
 ### Hotkeys
+
 - Configure your toggle hotkey and push-to-talk hotkey
 - Press the "Record New Hotkey" button and press your desired keys
 
 ### Models
-| Model | Size | Speed | Accuracy |
-|-------|------|-------|----------|
-| Tiny | ~75 MB | Fastest | Good |
-| Base | ~150 MB | Fast | Good |
-| Small | ~500 MB | Medium | Better |
-| Medium | ~1.5 GB | Slower | High |
-| Large | ~3 GB | Slowest | Highest |
+
+| Model  | Size    | Speed   | Accuracy |
+| ------ | ------- | ------- | -------- |
+| Tiny   | ~75 MB  | Fastest | Good     |
+| Base   | ~150 MB | Fast    | Good     |
+| Small  | ~500 MB | Medium  | Better   |
+| Medium | ~1.5 GB | Slower  | High     |
+| Large  | ~3 GB   | Slowest | Highest  |
 
 Start with Tiny or Base for daily use. Switch to Medium or Large when you need maximum accuracy.
 
 ### AI Enhancement
+
 - Toggle AI-powered text cleanup on/off
 - Enter any OpenAI-compatible API endpoint
 - Your API key is stored securely in the macOS Keychain—not in UserDefaults
@@ -162,30 +186,36 @@ Start with Tiny or Base for daily use. Switch to Medium or Large when you need m
 ## Troubleshooting
 
 ### App doesn't appear in menu bar
+
 Pindrop is a menu bar-only app—it intentionally has no dock icon. Look for the microphone icon in the top-right corner of your menu bar.
 
 ### Microphone permission denied
+
 1. Open **System Settings → Privacy & Security → Microphone**
 2. Enable permission for Pindrop
 3. Restart the app
 
 ### Direct text insertion not working
+
 1. Open **System Settings → Privacy & Security → Accessibility**
 2. Click "+" and add Pindrop
 3. Restart the app
 4. Clipboard output still works without this permission
 
 ### Transcription is slow
+
 - Use a smaller model (Tiny or Base)
 - Make sure you're on Apple Silicon (Intel Macs are supported but slower)
 - Close other resource-intensive applications
 
 ### Model download fails
+
 - Check your internet connection
 - Ensure you have enough disk space (75MB–3GB depending on model)
 - Try downloading again from Settings → Models
 
 ### Hotkey doesn't work
+
 - Check for conflicts with other apps
 - Try a different key combination
 - Click the menu bar icon first to ensure the app has focus
@@ -206,14 +236,42 @@ Pindrop/
 │   │   ├── HistoryStore.swift       # SwiftData persistence
 │   │   ├── SettingsStore.swift      # Settings + Keychain
 │   │   ├── PermissionManager.swift  # Permissions handling
-│   │   └── AIEnhancementService.swift # Optional AI cleanup
+│   │   ├── AIEnhancementService.swift # Optional AI cleanup
+│   │   └── DictionaryStore.swift    # Custom dictionary
 │   ├── Models/
-│   │   └── TranscriptionRecord.swift
+│   │   ├── TranscriptionRecord.swift
+│   │   ├── WordReplacement.swift
+│   │   └── VocabularyWord.swift
 │   ├── UI/
+│   │   ├── Main/
+│   │   │   ├── MainWindow.swift
+│   │   │   ├── DashboardView.swift
+│   │   │   └── HistoryView.swift
+│   │   ├── Settings/
+│   │   │   ├── SettingsWindow.swift
+│   │   │   ├── GeneralSettingsView.swift
+│   │   │   ├── HotkeysSettingsView.swift
+│   │   │   ├── ModelsSettingsView.swift
+│   │   │   ├── AIEnhancementSettingsView.swift
+│   │   │   ├── DictionarySettingsView.swift
+│   │   │   └── AboutSettingsView.swift
+│   │   ├── Onboarding/
+│   │   │   ├── OnboardingWindow.swift
+│   │   │   ├── OnboardingWindowController.swift
+│   │   │   ├── WelcomeStepView.swift
+│   │   │   ├── PermissionsStepView.swift
+│   │   │   ├── ModelSelectionStepView.swift
+│   │   │   ├── ModelDownloadStepView.swift
+│   │   │   ├── HotkeySetupStepView.swift
+│   │   │   ├── AIEnhancementStepView.swift
+│   │   │   └── ReadyStepView.swift
+│   │   ├── Theme/
+│   │   │   └── Theme.swift
+│   │   ├── Components/
+│   │   │   └── CopyButton.swift
 │   │   ├── StatusBarController.swift   # Menu bar icon
-│   │   ├── SettingsWindow.swift        # Settings UI
-│   │   ├── HistoryWindow.swift         # History UI
-│   │   └── FloatingIndicator.swift     # Recording indicator
+│   │   ├── FloatingIndicator.swift     # Recording indicator
+│   │   └── SplashScreen.swift
 │   └── Utils/
 │       ├── Logger.swift           # Logging wrapper
 │       └── AlertManager.swift     # Alert handling

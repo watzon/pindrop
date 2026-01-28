@@ -47,6 +47,18 @@ build-release:
     @echo "✅ Release build complete"
     @echo "📦 App bundle: DerivedData/Build/Products/Release/{{app_name}}.app"
 
+# Self-signed build (no developer account needed)
+build-self-signed:
+    @echo "🔨 Building {{app_name}} (Release)..."
+    xcodebuild -scheme {{scheme}} -configuration Release -derivedDataPath DerivedData build
+    @echo "✅ Self-signed build complete"
+
+# Self-signed DMG (no developer account needed)
+dmg-self-signed: build-self-signed
+    @echo "📦 Creating self-signed DMG..."
+    @./scripts/create-dmg-self-signed.sh
+    @echo "✅ Self-signed DMG created in {{dmg_dir}}/"
+
 # Run the app in Xcode
 run:
     @echo "🚀 Running {{app_name}}..."

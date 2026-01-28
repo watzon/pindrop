@@ -24,6 +24,7 @@ final class AppCoordinator {
     let modelManager: ModelManager
     let aiEnhancementService: AIEnhancementService
     let hotkeyManager: HotkeyManager
+    let launchAtLoginManager: LaunchAtLoginManager
     let outputManager: OutputManager
     let historyStore: HistoryStore
     let dictionaryStore: DictionaryStore
@@ -66,6 +67,7 @@ final class AppCoordinator {
         self.modelManager = ModelManager()
         self.aiEnhancementService = AIEnhancementService()
         self.hotkeyManager = HotkeyManager()
+        self.launchAtLoginManager = LaunchAtLoginManager()
         self.settingsStore = SettingsStore()
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
@@ -118,6 +120,10 @@ final class AppCoordinator {
 
         self.statusBarController.onToggleFloatingIndicator = { [weak self] in
             self?.handleToggleFloatingIndicator()
+        }
+
+        self.statusBarController.onToggleLaunchAtLogin = { [weak self] in
+            self?.handleToggleLaunchAtLogin()
         }
 
         self.statusBarController.onOpenHistory = { [weak self] in
@@ -192,6 +198,13 @@ final class AppCoordinator {
     }
     
     private func startNormalOperation() async {
+        // Sync launch at login state on startup
+        let actualLaunchAtLoginState = launchAtLoginManager.isEnabled
+        if settingsStore.launchAtLogin != actualLaunchAtLoginState {
+            settingsStore.launchAtLogin = actualLaunchAtLoginState
+            Log.app.info("Synced launch at login state: \(actualLaunchAtLoginState)")
+        }
+
         let micGranted = await permissionManager.requestPermission()
         if !micGranted {
             Log.app.warning("Microphone permission denied - recording will not work")
@@ -351,10 +364,10 @@ final class AppCoordinator {
             .sink { [weak self] _ in
                 Task { @MainActor in
                     guard let self = self else { return }
-                    
+
                     let mode: OutputMode = self.settingsStore.outputMode == "clipboard" ? .clipboard : .directInsert
                     self.outputManager.setOutputMode(mode)
-                    
+
                     if mode == .directInsert {
                         let hasPermission = self.outputManager.checkAccessibilityPermission()
                         Log.app.info("Direct Insert mode selected, accessibility permission: \(hasPermission)")
@@ -362,8 +375,9 @@ final class AppCoordinator {
                             AlertManager.shared.showAccessibilityPermissionAlert()
                         }
                     }
-                    
+
                     self.registerHotkeysFromSettings()
+                    self.statusBarController.updateDynamicItems()
                 }
             }
             .store(in: &cancellables)
@@ -713,6 +727,20 @@ final class AppCoordinator {
         settingsStore.floatingIndicatorEnabled.toggle()
         let status = settingsStore.floatingIndicatorEnabled ? "enabled" : "disabled"
         Log.app.info("Floating indicator \(status)")
+    }
+
+    // MARK: - Toggle Launch at Login
+
+    private func handleToggleLaunchAtLogin() {
+        let newValue = !settingsStore.launchAtLogin
+        do {
+            try launchAtLoginManager.setEnabled(newValue)
+            settingsStore.launchAtLogin = newValue
+            let status = newValue ? "enabled" : "disabled"
+            Log.app.info("Launch at login \(status)")
+        } catch {
+            Log.app.error("Failed to toggle launch at login: \(error)")
+        }
     }
 
     // MARK: - Open History

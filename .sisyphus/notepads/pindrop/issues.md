@@ -73,3 +73,45 @@ let config = WhisperKitConfig(
 - TranscriptionService.swift: Added downloadBase parameter to match
 
 **Verification**: ✅ Build succeeded, paths now consistent between download and load
+
+## Build Configuration Issues (2026-01-27)
+
+### Critical Issues
+
+1. **Deployment Target Mismatch**
+   - **Current**: macOS 26.0 (Sequoia 15.0+)
+   - **Documented**: macOS 14.0+ (Sonoma)
+   - **Impact**: App won't run on macOS 14.x systems as documented
+   - **Fix**: Update MACOSX_DEPLOYMENT_TARGET to 14.0 in project settings
+
+2. **Distribution Blockers**
+   - Hardened Runtime disabled (required for notarization)
+   - Empty entitlements file (needs microphone, possibly accessibility)
+   - ExportOptions.plist has placeholder team ID
+   - **Impact**: Cannot notarize or distribute outside development
+
+### Medium Priority Issues
+
+3. **WhisperKit Version Constraint**
+   - **Constraint**: ≥0.9.0, <1.0.0
+   - **Resolved**: 0.15.0
+   - **Gap**: 6 minor versions between minimum and current
+   - **Risk**: May break if someone builds with 0.9.x
+   - **Recommendation**: Update minimum to 0.15.0 or test with 0.9.0
+
+4. **Security Configuration**
+   - App Sandbox disabled
+   - No entitlements declared
+   - **Impact**: May fail App Store review if submitted
+   - **Note**: Acceptable for direct distribution, but limits security
+
+### Low Priority Issues
+
+5. **Build Artifacts**
+   - No .gitignore for DerivedData, dist/ directories
+   - Build outputs may be committed accidentally
+
+6. **Documentation Inconsistencies**
+   - README claims macOS 14.0+ but project requires 26.0
+   - AGENTS.md mentions "Entitlements empty" as a note, but it's a blocker for distribution
+

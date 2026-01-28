@@ -35,16 +35,84 @@ enum OutputManagerError: Error, LocalizedError {
     }
 }
 
+// MARK: - Protocols
+
+protocol ClipboardProtocol {
+    func copyToClipboard(_ text: String) -> Bool
+    func getClipboardContent() -> String?
+    func clearClipboard()
+}
+
+protocol KeySimulationProtocol {
+    func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws
+    func simulatePaste() async throws
+}
+
+// MARK: - Real Implementations
+
+final class SystemClipboard: ClipboardProtocol {
+    func copyToClipboard(_ text: String) -> Bool {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        return pasteboard.setString(text, forType: .string)
+    }
+    
+    func getClipboardContent() -> String? {
+        return NSPasteboard.general.string(forType: .string)
+    }
+    
+    func clearClipboard() {
+        NSPasteboard.general.clearContents()
+    }
+}
+
+final class SystemKeySimulation: KeySimulationProtocol {
+    func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
+        let source = CGEventSource(stateID: .hidSystemState)
+        
+        guard let event = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: keyDown) else {
+            throw OutputManagerError.textInsertionFailed
+        }
+        
+        event.flags = flags
+        event.post(tap: .cghidEventTap)
+    }
+    
+    func simulatePaste() async throws {
+        let vKeyCode: CGKeyCode = 0x09
+        let source = CGEventSource(stateID: .hidSystemState)
+        
+        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) else {
+            Log.output.error("Failed to create CGEvents for paste")
+            throw OutputManagerError.textInsertionFailed
+        }
+        
+        keyDown.flags = .maskCommand
+        keyUp.flags = .maskCommand
+        
+        keyDown.post(tap: .cghidEventTap)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        keyUp.post(tap: .cghidEventTap)
+    }
+}
+
 @MainActor
 final class OutputManager {
     
     private(set) var outputMode: OutputMode
+    private let clipboard: ClipboardProtocol
+    private let keySimulation: KeySimulationProtocol
     
-    init(outputMode: OutputMode = .clipboard) {
+    init(
+        outputMode: OutputMode = .clipboard,
+        clipboard: ClipboardProtocol = SystemClipboard(),
+        keySimulation: KeySimulationProtocol = SystemKeySimulation()
+    ) {
         self.outputMode = outputMode
+        self.clipboard = clipboard
+        self.keySimulation = keySimulation
     }
-    
-    // MARK: - Public API
     
     func setOutputMode(_ mode: OutputMode) {
         self.outputMode = mode
@@ -65,18 +133,14 @@ final class OutputManager {
         }
     }
     
-    // MARK: - Clipboard Operations
-    
     private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
-        let pasteboard = NSPasteboard.general
-        
         var previousContents: String? = nil
         if restoreClipboard {
-            previousContents = pasteboard.string(forType: .string)
+            previousContents = clipboard.getClipboardContent()
         }
         
-        pasteboard.clearContents()
-        let success = pasteboard.setString(text, forType: .string)
+        clipboard.clearClipboard()
+        let success = clipboard.copyToClipboard(text)
         
         guard success else {
             Log.output.error("Failed to write to clipboard")
@@ -84,45 +148,22 @@ final class OutputManager {
         }
         
         try await Task.sleep(nanoseconds: 100_000_000)
-        try simulatePaste()
+        try await keySimulation.simulatePaste()
         
         if restoreClipboard, let previous = previousContents {
             try await Task.sleep(nanoseconds: 500_000_000)
-            pasteboard.clearContents()
-            pasteboard.setString(previous, forType: .string)
+            clipboard.clearClipboard()
+            _ = clipboard.copyToClipboard(previous)
         }
-    }
-    
-    private func simulatePaste() throws {
-        let vKeyCode: CGKeyCode = 0x09
-        let source = CGEventSource(stateID: .hidSystemState)
-        
-        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) else {
-            Log.output.error("Failed to create CGEvents for paste")
-            throw OutputManagerError.textInsertionFailed
-        }
-        
-        keyDown.flags = .maskCommand
-        keyUp.flags = .maskCommand
-        
-        keyDown.post(tap: .cghidEventTap)
-        usleep(50000)
-        keyUp.post(tap: .cghidEventTap)
     }
     
     func copyToClipboard(_ text: String) throws {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        
-        let success = pasteboard.setString(text, forType: .string)
+        let success = clipboard.copyToClipboard(text)
         
         guard success else {
             throw OutputManagerError.clipboardWriteFailed
         }
     }
-    
-    // MARK: - Direct Text Insertion
     
     func checkAccessibilityPermission() -> Bool {
         return AXIsProcessTrusted()
@@ -134,46 +175,22 @@ final class OutputManager {
     }
     
     private func insertTextDirectly(_ text: String) async throws {
-        // Use CGEvent to simulate keyboard input
-        // This approach types each character individually
-        
         for character in text {
             try await typeCharacter(character)
         }
     }
     
     private func typeCharacter(_ character: Character) async throws {
-        // Get the key code and modifiers for this character
         guard let (keyCode, modifiers) = getKeyCodeForCharacter(character) else {
-            // If we can't map the character, fall back to clipboard
             throw OutputManagerError.textInsertionFailed
         }
         
-        // Create key down event
-        guard let keyDownEvent = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true) else {
-            throw OutputManagerError.textInsertionFailed
-        }
-        
-        // Create key up event
-        guard let keyUpEvent = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false) else {
-            throw OutputManagerError.textInsertionFailed
-        }
-        
-        // Apply modifiers if needed
-        keyDownEvent.flags = modifiers
-        keyUpEvent.flags = modifiers
-        
-        // Post events
-        keyDownEvent.post(tap: .cgAnnotatedSessionEventTap)
-        keyUpEvent.post(tap: .cgAnnotatedSessionEventTap)
-        
-        // Small delay between characters for reliability
-        try await Task.sleep(nanoseconds: 1_000_000) // 1ms
+        try keySimulation.postKeyEvent(keyCode: keyCode, flags: modifiers, keyDown: true)
+        try await Task.sleep(nanoseconds: 1_000_000)
+        try keySimulation.postKeyEvent(keyCode: keyCode, flags: modifiers, keyDown: false)
     }
     
-    // MARK: - Character to KeyCode Mapping
-    
-    private func getKeyCodeForCharacter(_ character: Character) -> (CGKeyCode, CGEventFlags)? {
+    func getKeyCodeForCharacter(_ character: Character) -> (CGKeyCode, CGEventFlags)? {
         // Basic ASCII character mapping
         // This is a simplified version - a production implementation would need more complete mapping
         

@@ -9,6 +9,9 @@ DerivedData/
 *.dSYM.zip
 *.dSYM
 
+# Distribution
+dist/
+
 # Swift Package Manager
 .build/
 .swiftpm/

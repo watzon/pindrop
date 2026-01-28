@@ -68,6 +68,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("showInDock") var showInDock: Bool = false
     @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
+    @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
     
     // MARK: - Onboarding State
     
@@ -131,6 +132,7 @@ final class SettingsStore: ObservableObject {
         outputMode = Defaults.outputMode
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false
+        launchAtLogin = false
         hasCompletedOnboarding = false
         currentOnboardingStep = 0
         

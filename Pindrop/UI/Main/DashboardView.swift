@@ -14,13 +14,15 @@ struct DashboardView: View {
     @State private var hasDismissedHotkeyReminder: Bool
     
     var onOpenSettings: (() -> Void)?
+    var onViewAllHistory: (() -> Void)?
     
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
     
-    init(onOpenSettings: (() -> Void)? = nil) {
+    init(onOpenSettings: (() -> Void)? = nil, onViewAllHistory: (() -> Void)? = nil) {
         self.onOpenSettings = onOpenSettings
+        self.onViewAllHistory = onViewAllHistory
         let stored = Self.isPreview ? false : UserDefaults.standard.bool(forKey: "hasDismissedHotkeyReminder")
         _hasDismissedHotkeyReminder = State(initialValue: stored)
     }
@@ -239,7 +241,7 @@ struct DashboardView: View {
                 
                 if !transcriptions.isEmpty {
                     Button("View all") {
-                        // Navigation to history will be handled by parent
+                        onViewAllHistory?()
                     }
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.accent)

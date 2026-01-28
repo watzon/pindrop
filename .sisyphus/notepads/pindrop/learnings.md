@@ -1247,3 +1247,119 @@ WhisperKit's directory structure is now the single source of truth:
 
 All three operations now use the same path structure, ensuring consistency.
 
+
+## Documentation Review - 2026-01-27
+
+### README.md Assessment
+
+**ACCURATE:**
+- ✅ Screenshot path exists: `assets/images/screenshot.webp`
+- ✅ Build system: `justfile` exists with all documented commands
+- ✅ Dependencies: WhisperKit 0.15.0 (README says ≥0.9.0) ✓
+- ✅ Requirements: macOS 14+, Apple Silicon recommended
+- ✅ Architecture diagram matches actual structure
+- ✅ Services listed match actual files in Services/
+- ✅ Info.plist confirms LSUIElement=true (menu bar only)
+- ✅ Microphone permission string matches Info.plist
+- ✅ Scripts exist: create-dmg.sh, justfile commands work
+
+**INACCURATE/OUTDATED:**
+1. ❌ **Architecture section lists `HistoryWindow.swift`** - File does NOT exist
+   - Actual: `HistoryView.swift` in `UI/Main/` directory
+   - README shows: `HistoryWindow.swift` in `UI/` root
+
+2. ❌ **Missing new features in architecture:**
+   - `DictionaryStore.swift` exists but not documented
+   - `DictionarySettingsView.swift` exists but not in README
+   - `WordReplacement.swift` and `VocabularyWord.swift` models exist
+   - `MainWindow.swift`, `DashboardView.swift` exist but not documented
+   - `Theme.swift` exists but not in architecture diagram
+
+3. ⚠️ **UI structure mismatch:**
+   - README shows flat UI structure
+   - Actual: Organized into subdirectories (Settings/, Main/, Onboarding/, Theme/, Components/)
+
+**MISSING DOCUMENTATION:**
+- Dictionary/vocabulary feature (new addition)
+- Main window/dashboard UI
+- Theme system
+- Additional models (WordReplacement, VocabularyWord)
+
+**SUPPORTING DOCS:**
+- ✅ BUILD.md is comprehensive and accurate
+- ✅ CONTRIBUTING.md matches project structure
+- ✅ scripts/README.md accurate
+
+### Recommendations:
+1. Update README architecture section to match actual file structure
+2. Fix HistoryWindow.swift → HistoryView.swift
+3. Add dictionary feature to feature list
+4. Update UI structure to show subdirectories
+5. Add new models to architecture diagram
+
+## Build Configuration Analysis (2026-01-27)
+
+### Dependencies
+- **WhisperKit**: Version constraint `≥0.9.0, <1.0.0` (upToNextMajorVersion)
+  - Currently resolved to v0.15.0
+  - Transitive dependencies:
+    - swift-argument-parser @ 1.7.0
+    - swift-transformers @ 1.1.6
+    - swift-collections @ 1.3.0
+    - Jinja (swift-jinja) @ 2.3.1
+  - All dependencies managed via Swift Package Manager (SPM)
+  - No Package.swift file (dependencies managed in Xcode project)
+
+### Build Settings
+- **Bundle ID**: `app.pindrop.pindrop`
+- **Deployment Target**: macOS 26.0 (CRITICAL: This is macOS Sequoia 15.0+, not 14.0 as documented)
+- **Swift Version**: 5.0
+- **Development Team**: 69CJ6D9UG7
+- **Code Signing**: Apple Development (automatic)
+- **Version**: 1.0 (build 1)
+
+### Optimization Settings (Debug)
+- GCC_OPTIMIZATION_LEVEL: 0
+- SWIFT_OPTIMIZATION_LEVEL: -Onone
+
+### Security & Entitlements
+- **Entitlements File**: `Pindrop/Pindrop.entitlements` (currently empty)
+- **App Sandbox**: DISABLED (ENABLE_APP_SANDBOX = NO)
+- **Hardened Runtime**: DISABLED (ENABLE_HARDENED_RUNTIME = NO)
+- **LSUIElement**: true (menu bar only, no dock icon)
+- **Microphone Permission**: Declared in Info.plist
+
+### Build System
+- **Build Tool**: Xcode + justfile for automation
+- **Schemes**: Pindrop (main), whisperkit-Package
+- **Targets**: Pindrop (main app), PindropTests
+- **Build Configurations**: Debug, Release (default: Release)
+
+### Scripts & Automation
+- `justfile`: Comprehensive build automation (build, test, dmg, release, notarize)
+- `scripts/create-dmg.sh`: DMG creation with create-dmg tool
+- `scripts/ExportOptions.plist`: Export configuration (needs team ID update)
+- `scripts/download-icons.sh`: Icon asset management
+
+### Framework Search Paths
+- Standard macOS app structure
+- Frameworks embedded at `@executable_path/../Frameworks`
+- No custom framework search paths
+
+### Potential Issues Identified
+1. **Deployment Target Mismatch**: Project set to macOS 26.0, but docs claim macOS 14.0+
+2. **Empty Entitlements**: May need microphone, accessibility entitlements for distribution
+3. **No Hardened Runtime**: Required for notarization and distribution outside App Store
+4. **No App Sandbox**: May be required for App Store distribution
+5. **ExportOptions.plist**: Contains placeholder `YOUR_TEAM_ID` that needs updating
+6. **WhisperKit Version**: Using 0.15.0 but constraint allows 0.9.0+ (significant version jump)
+
+### Distribution Readiness
+- ✅ Code signing configured (development)
+- ✅ DMG creation script ready
+- ✅ Notarization workflow documented
+- ⚠️ Hardened Runtime disabled (required for notarization)
+- ⚠️ Entitlements empty (may need mic/accessibility)
+- ⚠️ Export options need team ID update
+- ❌ No CI/CD configuration found
+

@@ -36,6 +36,7 @@ final class StatusBarController {
     private var aiEnhancementItem: NSMenuItem?
 
     private var toggleFloatingIndicatorItem: NSMenuItem?
+    private var launchAtLoginItem: NSMenuItem?
     private var openHistoryItem: NSMenuItem?
 
     private var modelMenu: NSMenu?
@@ -55,6 +56,7 @@ final class StatusBarController {
     var onToggleOutputMode: (() -> Void)?
     var onToggleAIControlled: (() -> Void)?
     var onToggleFloatingIndicator: (() -> Void)?
+    var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
     var onSelectModel: ((String) -> Void)?
 
@@ -241,6 +243,14 @@ final class StatusBarController {
         toggleFloatingIndicatorItem?.target = self
         menu.addItem(toggleFloatingIndicatorItem!)
 
+        launchAtLoginItem = NSMenuItem(
+            title: "Launch at Login: Off",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: "l"
+        )
+        launchAtLoginItem?.target = self
+        menu.addItem(launchAtLoginItem!)
+
         openHistoryItem = NSMenuItem(
             title: "Open History",
             action: #selector(openHistory),
@@ -360,6 +370,10 @@ final class StatusBarController {
         let indicatorText = settingsStore.floatingIndicatorEnabled ? "On" : "Off"
         toggleFloatingIndicatorItem?.title = "Floating Indicator: \(indicatorText)"
 
+        // Update launch at login
+        let launchAtLoginText = settingsStore.launchAtLogin ? "On" : "Off"
+        launchAtLoginItem?.title = "Launch at Login: \(launchAtLoginText)"
+
         // Update model
         let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
         currentModelItem?.title = "Current: \(modelShortName)"
@@ -449,6 +463,10 @@ final class StatusBarController {
 
     @objc private func toggleFloatingIndicator() {
         onToggleFloatingIndicator?()
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        onToggleLaunchAtLogin?()
     }
 
     @objc private func openHistory() {

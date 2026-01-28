@@ -6,19 +6,64 @@
 //
 
 import XCTest
+import AppKit
+import ApplicationServices
 @testable import Pindrop
+
+final class MockClipboard: ClipboardProtocol {
+    var copiedText: String?
+    var clipboardContent: String?
+    var clearCount = 0
+    
+    func copyToClipboard(_ text: String) -> Bool {
+        copiedText = text
+        clipboardContent = text
+        return true
+    }
+    
+    func getClipboardContent() -> String? {
+        return clipboardContent
+    }
+    
+    func clearClipboard() {
+        clearCount += 1
+        clipboardContent = nil
+    }
+}
+
+final class MockKeySimulation: KeySimulationProtocol {
+    var keyEvents: [(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool)] = []
+    var pasteSimulated = false
+    
+    func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
+        keyEvents.append((keyCode, flags, keyDown))
+    }
+    
+    func simulatePaste() async throws {
+        pasteSimulated = true
+    }
+}
 
 @MainActor
 final class OutputManagerTests: XCTestCase {
     
     var outputManager: OutputManager!
+    var mockClipboard: MockClipboard!
+    var mockKeySimulation: MockKeySimulation!
     
     override func setUp() async throws {
-        outputManager = OutputManager()
+        mockClipboard = MockClipboard()
+        mockKeySimulation = MockKeySimulation()
+        outputManager = OutputManager(
+            clipboard: mockClipboard,
+            keySimulation: mockKeySimulation
+        )
     }
     
     override func tearDown() async throws {
         outputManager = nil
+        mockClipboard = nil
+        mockKeySimulation = nil
     }
     
     func testInitialOutputModeIsClipboard() {
@@ -38,10 +83,8 @@ final class OutputManagerTests: XCTestCase {
         
         try outputManager.copyToClipboard(testText)
         
-        let pasteboard = NSPasteboard.general
-        let clipboardContent = pasteboard.string(forType: .string)
-        
-        XCTAssertEqual(clipboardContent, testText)
+        XCTAssertEqual(mockClipboard.copiedText, testText)
+        XCTAssertEqual(mockClipboard.clipboardContent, testText)
     }
     
     func testCopyToClipboardReplacesExistingContent() throws {
@@ -49,12 +92,10 @@ final class OutputManagerTests: XCTestCase {
         let secondText = "Second text"
         
         try outputManager.copyToClipboard(firstText)
+        XCTAssertEqual(mockClipboard.copiedText, firstText)
+        
         try outputManager.copyToClipboard(secondText)
-        
-        let pasteboard = NSPasteboard.general
-        let clipboardContent = pasteboard.string(forType: .string)
-        
-        XCTAssertEqual(clipboardContent, secondText)
+        XCTAssertEqual(mockClipboard.copiedText, secondText)
     }
     
     func testOutputWithClipboardMode() async throws {
@@ -63,10 +104,9 @@ final class OutputManagerTests: XCTestCase {
         
         try await outputManager.output(testText)
         
-        let pasteboard = NSPasteboard.general
-        let clipboardContent = pasteboard.string(forType: .string)
-        
-        XCTAssertEqual(clipboardContent, testText)
+        XCTAssertEqual(mockClipboard.copiedText, testText)
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.clearCount, 1)
     }
     
     func testOutputWithEmptyTextThrowsError() async {
@@ -76,7 +116,7 @@ final class OutputManagerTests: XCTestCase {
             try await outputManager.output("")
             XCTFail("Expected error for empty text")
         } catch OutputManagerError.emptyText {
-            // Expected error
+            XCTAssertNil(mockClipboard.copiedText)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -84,68 +124,72 @@ final class OutputManagerTests: XCTestCase {
     
     func testCheckAccessibilityPermission() {
         let hasPermission = outputManager.checkAccessibilityPermission()
-        
-        // This will be false in test environment unless explicitly granted
-        // We just verify the method doesn't crash
         XCTAssertNotNil(hasPermission)
     }
     
-    func testDirectInsertFallbackToClipboard() async throws {
+    func testDirectInsertRestoresClipboard() async throws {
         outputManager.setOutputMode(.directInsert)
-        let testText = "Direct insert fallback test"
+        let testText = "Direct insert test"
+        let previousContent = "Previous clipboard content"
         
-        // In test environment, accessibility permission is likely denied
-        // So this should fall back to clipboard
+        mockClipboard.clipboardContent = previousContent
+        
         try await outputManager.output(testText)
         
-        // Verify it fell back to clipboard
-        let pasteboard = NSPasteboard.general
-        let clipboardContent = pasteboard.string(forType: .string)
+        XCTAssertEqual(mockClipboard.copiedText, previousContent)
+        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.clearCount, 2)
+    }
+    
+    func testClipboardModeDoesNotRestoreClipboard() async throws {
+        outputManager.setOutputMode(.clipboard)
+        let testText = "Clipboard test"
+        let previousContent = "Previous content"
         
-        XCTAssertEqual(clipboardContent, testText)
+        mockClipboard.clipboardContent = previousContent
+        
+        try await outputManager.output(testText)
+        
+        XCTAssertEqual(mockClipboard.copiedText, testText)
+        XCTAssertEqual(mockClipboard.clipboardContent, testText)
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.clearCount, 1)
     }
     
     func testGetKeyCodeForBasicCharacters() {
-        // Test lowercase letters
         let aKeyCode = outputManager.getKeyCodeForCharacter("a")
         XCTAssertNotNil(aKeyCode)
         XCTAssertEqual(aKeyCode?.0, 0)
         XCTAssertTrue(aKeyCode?.1.isEmpty ?? false)
         
-        // Test uppercase letters (should have shift modifier)
         let AKeyCode = outputManager.getKeyCodeForCharacter("A")
         XCTAssertNotNil(AKeyCode)
         XCTAssertEqual(AKeyCode?.0, 0)
         XCTAssertTrue(AKeyCode?.1.contains(.maskShift) ?? false)
         
-        // Test numbers
         let oneKeyCode = outputManager.getKeyCodeForCharacter("1")
         XCTAssertNotNil(oneKeyCode)
         XCTAssertEqual(oneKeyCode?.0, 18)
         
-        // Test space
         let spaceKeyCode = outputManager.getKeyCodeForCharacter(" ")
         XCTAssertNotNil(spaceKeyCode)
         XCTAssertEqual(spaceKeyCode?.0, 49)
     }
     
     func testGetKeyCodeForSpecialCharacters() {
-        // Test period
         let periodKeyCode = outputManager.getKeyCodeForCharacter(".")
         XCTAssertNotNil(periodKeyCode)
         
-        // Test comma
         let commaKeyCode = outputManager.getKeyCodeForCharacter(",")
         XCTAssertNotNil(commaKeyCode)
         
-        // Test exclamation (should have shift modifier)
         let exclamationKeyCode = outputManager.getKeyCodeForCharacter("!")
         XCTAssertNotNil(exclamationKeyCode)
         XCTAssertTrue(exclamationKeyCode?.1.contains(.maskShift) ?? false)
     }
     
     func testGetKeyCodeForUnsupportedCharacter() {
-        // Test emoji or other unsupported character
         let emojiKeyCode = outputManager.getKeyCodeForCharacter("😀")
         XCTAssertNil(emojiKeyCode)
     }
@@ -156,39 +200,34 @@ final class OutputManagerTests: XCTestCase {
         XCTAssertNotNil(OutputManagerError.clipboardWriteFailed.errorDescription)
         XCTAssertNotNil(OutputManagerError.textInsertionFailed.errorDescription)
     }
-}
-
-// Extension to expose private method for testing
-extension OutputManager {
-    func getKeyCodeForCharacter(_ character: Character) -> (CGKeyCode, CGEventFlags)? {
-        // Call the private method through reflection or make it internal for testing
-        // For now, we'll duplicate the logic here for testing purposes
-        let keyCodeMap: [Character: (CGKeyCode, CGEventFlags)] = [
-            "a": (0, []), "b": (11, []), "c": (8, []), "d": (2, []), "e": (14, []),
-            "f": (3, []), "g": (5, []), "h": (4, []), "i": (34, []), "j": (38, []),
-            "k": (40, []), "l": (37, []), "m": (46, []), "n": (45, []), "o": (31, []),
-            "p": (35, []), "q": (12, []), "r": (15, []), "s": (1, []), "t": (17, []),
-            "u": (32, []), "v": (9, []), "w": (13, []), "x": (7, []), "y": (16, []),
-            "z": (6, []),
-            "A": (0, .maskShift), "B": (11, .maskShift), "C": (8, .maskShift),
-            "D": (2, .maskShift), "E": (14, .maskShift), "F": (3, .maskShift),
-            "G": (5, .maskShift), "H": (4, .maskShift), "I": (34, .maskShift),
-            "J": (38, .maskShift), "K": (40, .maskShift), "L": (37, .maskShift),
-            "M": (46, .maskShift), "N": (45, .maskShift), "O": (31, .maskShift),
-            "P": (35, .maskShift), "Q": (12, .maskShift), "R": (15, .maskShift),
-            "S": (1, .maskShift), "T": (17, .maskShift), "U": (32, .maskShift),
-            "V": (9, .maskShift), "W": (13, .maskShift), "X": (7, .maskShift),
-            "Y": (16, .maskShift), "Z": (6, .maskShift),
-            "0": (29, []), "1": (18, []), "2": (19, []), "3": (20, []), "4": (21, []),
-            "5": (23, []), "6": (22, []), "7": (26, []), "8": (28, []), "9": (25, []),
-            " ": (49, []),
-            ".": (47, []), ",": (43, []), "!": (18, .maskShift), "?": (44, .maskShift),
-            ":": (41, .maskShift), ";": (41, []), "'": (39, []), "\"": (39, .maskShift),
-            "-": (27, []), "_": (27, .maskShift), "(": (25, .maskShift), ")": (29, .maskShift),
-            "\n": (36, []),
-            "\t": (48, []),
-        ]
+    
+    func testMockClipboardTracksOperations() {
+        XCTAssertNil(mockClipboard.copiedText)
+        XCTAssertNil(mockClipboard.clipboardContent)
+        XCTAssertEqual(mockClipboard.clearCount, 0)
         
-        return keyCodeMap[character]
+        let success = mockClipboard.copyToClipboard("test")
+        XCTAssertTrue(success)
+        XCTAssertEqual(mockClipboard.copiedText, "test")
+        XCTAssertEqual(mockClipboard.clipboardContent, "test")
+        
+        mockClipboard.clearClipboard()
+        XCTAssertEqual(mockClipboard.clearCount, 1)
+        XCTAssertNil(mockClipboard.clipboardContent)
+    }
+    
+    func testMockKeySimulationTracksEvents() async throws {
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, 0)
+        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+        
+        try mockKeySimulation.postKeyEvent(keyCode: 0, flags: [], keyDown: true)
+        try mockKeySimulation.postKeyEvent(keyCode: 0, flags: [], keyDown: false)
+        
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, 2)
+        XCTAssertTrue(mockKeySimulation.keyEvents[0].keyDown)
+        XCTAssertFalse(mockKeySimulation.keyEvents[1].keyDown)
+        
+        try await mockKeySimulation.simulatePaste()
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
     }
 }
