@@ -39,15 +39,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsStore: SettingsStore?
     
     private lazy var modelContainer: ModelContainer = {
-        let schema = Schema([
-            TranscriptionRecord.self,
-            WordReplacement.self,
-            VocabularyWord.self
-        ])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
         do {
-            return try ModelContainer(for: schema, configurations: [configuration])
+            return try ModelContainer(
+                for: TranscriptionRecord.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                migrationPlan: TranscriptionRecordMigrationPlan.self
+            )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }

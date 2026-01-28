@@ -86,29 +86,22 @@ final class AIEnhancementServiceTests: XCTestCase {
     
     // MARK: - Test Fallback on API Error
     
-    func testFallbackOnAPIError() async throws {
-        // Given
-        let inputText = "original text"
-        
-        // Mock error response
+    func testThrowsOnAPIError() async throws {
         mockSession.mockError = URLError(.notConnectedToInternet)
         
-        // When
-        let result = try await service.enhance(
-            text: inputText,
-            apiEndpoint: "https://api.openai.com/v1/chat/completions",
-            apiKey: "test-api-key"
-        )
-        
-        // Then - should return original text on error
-        XCTAssertEqual(result, inputText)
+        do {
+            _ = try await service.enhance(
+                text: "original text",
+                apiEndpoint: "https://api.openai.com/v1/chat/completions",
+                apiKey: "test-api-key"
+            )
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is AIEnhancementService.EnhancementError)
+        }
     }
     
-    func testFallbackOnHTTPError() async throws {
-        // Given
-        let inputText = "original text"
-        
-        // Mock HTTP error response
+    func testThrowsOnHTTPError() async throws {
         mockSession.mockData = "Error".data(using: .utf8)
         mockSession.mockResponse = HTTPURLResponse(
             url: URL(string: "https://api.openai.com/v1/chat/completions")!,
@@ -117,22 +110,23 @@ final class AIEnhancementServiceTests: XCTestCase {
             headerFields: nil
         )
         
-        // When
-        let result = try await service.enhance(
-            text: inputText,
-            apiEndpoint: "https://api.openai.com/v1/chat/completions",
-            apiKey: "test-api-key"
-        )
-        
-        // Then - should return original text on HTTP error
-        XCTAssertEqual(result, inputText)
+        do {
+            _ = try await service.enhance(
+                text: "original text",
+                apiEndpoint: "https://api.openai.com/v1/chat/completions",
+                apiKey: "test-api-key"
+            )
+            XCTFail("Expected error to be thrown")
+        } catch let error as AIEnhancementService.EnhancementError {
+            if case .apiError(let message) = error {
+                XCTAssertEqual(message, "HTTP 500")
+            } else {
+                XCTFail("Wrong error type")
+            }
+        }
     }
     
-    func testFallbackOnInvalidJSON() async throws {
-        // Given
-        let inputText = "original text"
-        
-        // Mock invalid JSON response
+    func testThrowsOnInvalidJSON() async throws {
         mockSession.mockData = "Invalid JSON".data(using: .utf8)
         mockSession.mockResponse = HTTPURLResponse(
             url: URL(string: "https://api.openai.com/v1/chat/completions")!,
@@ -141,15 +135,16 @@ final class AIEnhancementServiceTests: XCTestCase {
             headerFields: nil
         )
         
-        // When
-        let result = try await service.enhance(
-            text: inputText,
-            apiEndpoint: "https://api.openai.com/v1/chat/completions",
-            apiKey: "test-api-key"
-        )
-        
-        // Then - should return original text on JSON parsing error
-        XCTAssertEqual(result, inputText)
+        do {
+            _ = try await service.enhance(
+                text: "original text",
+                apiEndpoint: "https://api.openai.com/v1/chat/completions",
+                apiKey: "test-api-key"
+            )
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is AIEnhancementService.EnhancementError)
+        }
     }
     
     // MARK: - Test Request Body

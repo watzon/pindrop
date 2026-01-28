@@ -17,9 +17,11 @@ final class HistoryStoreTests: XCTestCase {
     var historyStore: HistoryStore!
     
     override func setUp() async throws {
-        let schema = Schema([TranscriptionRecord.self])
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+        modelContainer = try ModelContainer(
+            for: TranscriptionRecord.self,
+            migrationPlan: TranscriptionRecordMigrationPlan.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
         modelContext = ModelContext(modelContainer)
         historyStore = HistoryStore(modelContext: modelContext)
     }

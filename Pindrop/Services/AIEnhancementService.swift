@@ -90,18 +90,16 @@ final class AIEnhancementService {
             let (data, response) = try await session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                return text
+                throw EnhancementError.invalidResponse
             }
 
             guard httpResponse.statusCode == 200 else {
-                return text
-            }
-
-            // Check if response contains an error object
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let error = json["error"] as? [String: Any],
-               let _ = error["message"] as? String {
-                return text
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let error = json["error"] as? [String: Any],
+                   let message = error["message"] as? String {
+                    throw EnhancementError.apiError(message)
+                }
+                throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -109,13 +107,14 @@ final class AIEnhancementService {
                   let firstChoice = choices.first,
                   let message = firstChoice["message"] as? [String: Any],
                   let content = message["content"] as? String else {
-                return text
+                throw EnhancementError.invalidResponse
             }
 
             return content.trimmingCharacters(in: .whitespacesAndNewlines)
-
+        } catch let error as EnhancementError {
+            throw error
         } catch {
-            return text
+            throw EnhancementError.apiError(error.localizedDescription)
         }
     }
 

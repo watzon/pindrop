@@ -105,6 +105,63 @@ final class AlertManager {
         alert.runModal()
     }
     
+    func showAIEnhancementErrorAlert(error: Error) {
+        let alert = NSAlert()
+        alert.messageText = "AI Enhancement Failed"
+        
+        let errorDescription = error.localizedDescription
+        
+        if errorDescription.contains("401") || errorDescription.contains("unauthorized") {
+            alert.informativeText = """
+                Your API key appears to be invalid or expired.
+                
+                To fix this:
+                1. Open Settings → AI Enhancement
+                2. Verify your API key is correct
+                3. Check that your API endpoint is correct
+                
+                The transcription was saved without enhancement.
+                """
+        } else if errorDescription.contains("429") || errorDescription.contains("rate limit") {
+            alert.informativeText = """
+                You've exceeded your API rate limit or quota.
+                
+                To fix this:
+                1. Wait a few minutes and try again
+                2. Check your API provider's usage limits
+                3. Consider upgrading your API plan
+                
+                The transcription was saved without enhancement.
+                """
+        } else if errorDescription.contains("network") || errorDescription.contains("connection") {
+            alert.informativeText = """
+                Unable to connect to the AI enhancement service.
+                
+                Please check:
+                1. Your internet connection
+                2. The API endpoint URL is correct
+                3. The service is not experiencing an outage
+                
+                The transcription was saved without enhancement.
+                """
+        } else {
+            alert.informativeText = """
+                An error occurred while enhancing your transcription:
+                
+                \(errorDescription)
+                
+                The original transcription was saved without enhancement.
+                You can try enabling AI enhancement again in Settings.
+                """
+        }
+        
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open Settings")
+        alert.addButton(withTitle: "OK")
+        
+        _ = alert.runModal()
+    }
+    
     func showGenericErrorAlert(title: String, message: String) {
         let alert = NSAlert()
         alert.messageText = title

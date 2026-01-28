@@ -542,7 +542,8 @@ final class AppCoordinator {
                 enhancedWithModel = settingsStore.aiModel
                 Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
             } catch {
-                Log.app.warning("AI enhancement failed, using original: \(error)")
+                Log.app.error("AI enhancement failed: \(error)")
+                AlertManager.shared.showAIEnhancementErrorAlert(error: error)
                 originalText = nil
             }
         } else {
