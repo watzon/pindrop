@@ -1,0 +1,103 @@
+name: Bug Report
+description: Report a bug in Pindrop
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Pindrop Version
+      description: What version of Pindrop are you running?
+      options:
+        - 1.1.0 (Latest)
+        - 1.0.0
+        - Built from source (main branch)
+        - Built from source (other branch)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: macos-version
+    attributes:
+      label: macOS Version
+      description: What version of macOS are you running?
+      options:
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - Other (please specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Mac Chip
+      description: What chip does your Mac have?
+      options:
+        - Apple Silicon (M1/M2/M3/M4)
+        - Intel
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Please describe the bug in detail.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Please copy and paste any relevant log output (if available). You can check Console.app for Pindrop logs.
+      render: shell
+
+  - type: dropdown
+    id: model
+    attributes:
+      label: Whisper Model
+      description: Which Whisper model are you using?
+      options:
+        - Tiny (~75MB)
+        - Base (~150MB)
+        - Small (~500MB)
+        - Medium (~1.5GB)
+        - Large (~3GB)
+        - Not sure
+
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Permissions
+      description: Which permissions have you granted to Pindrop?
+      options:
+        - label: Microphone access
+        - label: Accessibility access
