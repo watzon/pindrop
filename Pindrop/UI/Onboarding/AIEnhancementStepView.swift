@@ -104,7 +104,7 @@ struct AIEnhancementStepView: View {
             }
         }
         .frame(height: 56)
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
+        .glassEffect(.regular, in: .rect(cornerRadius: 12))
     }
     
     private func providerTab(_ provider: AIProvider) -> some View {
@@ -156,7 +156,7 @@ struct AIEnhancementStepView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 16))
     }
     
     private var comingSoonView: some View {
@@ -203,7 +203,7 @@ struct AIEnhancementStepView: View {
                 .buttonStyle(.plain)
             }
             .padding(12)
-            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+            .glassEffect(.regular, in: .rect(cornerRadius: 8))
         }
     }
     
@@ -224,7 +224,7 @@ struct AIEnhancementStepView: View {
             TextField("https://your-api.com/v1", text: $customEndpoint)
                 .textFieldStyle(.plain)
                 .padding(12)
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
         }
     }
     
@@ -237,7 +237,7 @@ struct AIEnhancementStepView: View {
             TextField("e.g., gpt-4o", text: $customModel)
                 .textFieldStyle(.plain)
                 .padding(12)
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
         }
     }
     
@@ -261,7 +261,7 @@ struct AIEnhancementStepView: View {
                     .foregroundStyle(AppColors.accent)
                 }
                 .padding(12)
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
@@ -285,7 +285,7 @@ struct AIEnhancementStepView: View {
                     .foregroundStyle(.secondary)
                 }
                 .padding(12)
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                .glassEffect(.regular, in: .rect(cornerRadius: 8))
             }
         }
     }
@@ -327,7 +327,7 @@ struct AIEnhancementStepView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(AppColors.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+        .glassEffect(.regular.tint(AppColors.accent.opacity(0.1)), in: .rect(cornerRadius: 12))
     }
     
     private func featureItem(_ text: String) -> some View {
@@ -343,7 +343,7 @@ struct AIEnhancementStepView: View {
     private var actionButtons: some View {
         HStack(spacing: 16) {
             Button("Skip for Now", action: onSkip)
-                .buttonStyle(.bordered)
+                .buttonStyle(.glass)
             
             Button(action: saveAndContinue) {
                 Text("Save & Continue")
@@ -351,7 +351,7 @@ struct AIEnhancementStepView: View {
                     .frame(maxWidth: 180)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glassProminent)
             .disabled(!canContinue)
         }
     }

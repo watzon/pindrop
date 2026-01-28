@@ -97,7 +97,7 @@ struct PermissionsStepView: View {
                     .frame(maxWidth: 200)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glassProminent)
             .disabled(!microphoneGranted)
         }
         .padding(.horizontal, 40)
@@ -182,7 +182,7 @@ struct PermissionCard: View {
             IconView(icon: icon, size: 24)
                 .foregroundStyle(isGranted ? .green : AppColors.accent)
                 .frame(width: 44, height: 44)
-                .background((isGranted ? Color.green : AppColors.accent).opacity(0.15), in: Circle())
+                .glassEffect(.regular.tint(isGranted ? .green.opacity(0.2) : AppColors.accent.opacity(0.2)), in: .circle)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
@@ -215,10 +215,10 @@ struct PermissionCard: View {
                 Button("Grant") {
                     action()
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.glass)
             }
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .glassEffect(.regular, in: .rect(cornerRadius: 12))
     }
 }

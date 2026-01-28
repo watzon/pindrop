@@ -47,7 +47,7 @@ struct WelcomeStepView: View {
                     .frame(maxWidth: 200)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glassProminent)
             .opacity(buttonOpacity)
         }
         .padding(.horizontal, 40)
@@ -70,28 +70,20 @@ struct WelcomeStepView: View {
     private var appIcon: some View {
         ZStack {
             Circle()
-                .stroke(AppColors.accent.opacity(0.2), lineWidth: 2)
-                .frame(width: 120, height: 120)
-                .scaleEffect(logoScale == 1.0 ? 1.3 : 1.0)
-                .opacity(logoScale == 1.0 ? 0 : 0.6)
-            
-            Circle()
-                .stroke(AppColors.accent.opacity(0.3), lineWidth: 2)
+                .fill(
+                    LinearGradient(
+                        colors: [AppColors.accent, AppColors.accent.opacity(0.7)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .frame(width: 100, height: 100)
-                .scaleEffect(logoScale == 1.0 ? 1.2 : 1.0)
-                .opacity(logoScale == 1.0 ? 0 : 0.8)
             
-            Circle()
-                .fill(AppColors.accent.opacity(0.15))
-                .frame(width: 80, height: 80)
-            
-            Image("PindropIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 36, height: 36)
-                .foregroundStyle(AppColors.accent)
+            IconView(icon: .waveform, size: 56)
+                .foregroundStyle(.white)
         }
-        .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: logoScale)
+        .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)))
+        .scaleEffect(logoScale)
         .opacity(logoOpacity)
     }
     
@@ -107,7 +99,7 @@ struct WelcomeStepView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
-        .background(.quaternary.opacity(0.5), in: Capsule())
+        .glassEffect(.regular, in: .capsule)
     }
 }
 

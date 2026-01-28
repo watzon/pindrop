@@ -77,7 +77,7 @@ final class SettingsStore: ObservableObject {
     
     // MARK: - Keychain Properties
     
-    private let keychainService = "tech.watzon.pindrop.settings"
+    private let keychainService = "com.pindrop.settings"
     private let apiEndpointAccount = "api-endpoint"
     private let apiKeyAccount = "api-key"
     

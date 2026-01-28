@@ -83,10 +83,10 @@ class TranscriptionService {
                     try await WhisperKit(config)
                 }
                 
-                // Timeout task - throws if load takes longer than 60s
+                // Timeout task
                 group.addTask {
-                    try await Task.sleep(for: .seconds(60))
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+                    try await Task.sleep(for: .seconds(120))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
                 }
                 
                 // Return whichever completes first
@@ -135,10 +135,10 @@ class TranscriptionService {
                     try await WhisperKit(config)
                 }
                 
-                // Timeout task - throws if load takes longer than 60s
+                // Timeout task
                 group.addTask {
-                    try await Task.sleep(for: .seconds(60))
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 60s. The model files may be corrupted. Try deleting and re-downloading the model from Settings.")
+                    try await Task.sleep(for: .seconds(120))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
                 }
                 
                 // Return whichever completes first

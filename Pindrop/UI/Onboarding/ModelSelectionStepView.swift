@@ -63,7 +63,7 @@ struct ModelSelectionStepView: View {
             .frame(maxWidth: 220)
             .padding(.vertical, 12)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.glassProminent)
         .padding(.horizontal, 40)
     }
 }
