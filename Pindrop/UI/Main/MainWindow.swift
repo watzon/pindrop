@@ -110,7 +110,7 @@ struct MainWindow: View {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("v1.0")
+                Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.textTertiary)
             }
