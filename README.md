@@ -7,7 +7,7 @@
 [![macOS](https://img.shields.io/badge/macOS-14.0+-blue?style=flat-square&logo=apple)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange?style=flat-square&logo=swift)](https://swift.org/)
 
-![Pindrop Screenshot](assets/images/screenshot.webp)
+![Pindrop Screenshot](assets/images/screenshot.png)
 
 **Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by Apple's WhisperKit for optimal Apple Silicon performance.
 
@@ -19,26 +19,26 @@
 
 While other dictation apps compromise on privacy, performance, or platform fidelity, Pindrop is designed specifically for Mac users who refuse to compromise.
 
-| Pillar | What It Means |
-|--------|---------------|
-| 🍎 **Mac-Native** | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it. |
-| 🔒 **Privacy-First** | 100% local transcription. Your voice never leaves your Mac. |
+| Pillar                         | What It Means                                                              |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| 🍎 **Mac-Native**              | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it.           |
+| 🔒 **Privacy-First**           | 100% local transcription. Your voice never leaves your Mac.                |
 | ⚡ **Apple Silicon Optimized** | WhisperKit + Core ML = 2-3x faster than generic Whisper on M-series chips. |
-| 🏆 **100% Open Source** | No freemium tiers, no "Pro" features, no lock-in. Ever. |
+| 🏆 **100% Open Source**        | No freemium tiers, no "Pro" features, no lock-in. Ever.                    |
 
 ---
 
 ## Comparison
 
-| Feature | Pindrop | Handy | OpenWhispr |
-|---------|---------|-------|------------|
-| **Platform** | macOS only | Windows, macOS, Linux | Windows, macOS, Linux |
-| **Framework** | Swift/SwiftUI (native) | Tauri (Rust + Web) | Tauri (Rust + Web) |
-| **ML Engine** | WhisperKit (Apple Core ML) | Generic Whisper | Generic Whisper |
-| **Apple Silicon** | Native optimization | Emulated | Emulated |
-| **Source Code** | 100% open source | 100% open source | Freemium (paid "Lazy Edition") |
-| **Battery Impact** | Minimal (native) | Higher (web runtime) | Higher (web runtime) |
-| **Menu Bar Design** | First-class native | Web-based UI | Web-based UI |
+| Feature             | Pindrop                    | Handy                 | OpenWhispr                     |
+| ------------------- | -------------------------- | --------------------- | ------------------------------ |
+| **Platform**        | macOS only                 | Windows, macOS, Linux | Windows, macOS, Linux          |
+| **Framework**       | Swift/SwiftUI (native)     | Tauri (Rust + Web)    | Tauri (Rust + Web)             |
+| **ML Engine**       | WhisperKit (Apple Core ML) | Generic Whisper       | Generic Whisper                |
+| **Apple Silicon**   | Native optimization        | Emulated              | Emulated                       |
+| **Source Code**     | 100% open source           | 100% open source      | Freemium (paid "Lazy Edition") |
+| **Battery Impact**  | Minimal (native)           | Higher (web runtime)  | Higher (web runtime)           |
+| **Menu Bar Design** | First-class native         | Web-based UI          | Web-based UI                   |
 
 **The bottom line:** If you want the best dictation experience on a Mac—maximum speed, minimal battery drain, and true native feel—Pindrop is the only choice.
 
