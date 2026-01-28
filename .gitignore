@@ -31,3 +31,6 @@ Carthage/Build/
 # IDE
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
+
+# Sisyphus working files
+.sisyphus/
