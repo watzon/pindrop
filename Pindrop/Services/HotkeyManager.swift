@@ -117,7 +117,7 @@ final class HotkeyManager {
     
     private var registeredHotkeys: [String: RegisteredHotkey] = [:]
     private var eventHandlerRef: EventHandlerRef?
-    private let logger = Logger(subsystem: "com.pindrop.app", category: "HotkeyManager")
+    private let logger = Logger(subsystem: "tech.watzon.pindrop", category: "HotkeyManager")
     private let registration: HotkeyRegistrationProtocol
     
     init(registration: HotkeyRegistrationProtocol = CarbonHotkeyRegistration()) {

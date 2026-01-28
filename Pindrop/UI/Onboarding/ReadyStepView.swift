@@ -48,7 +48,7 @@ struct ReadyStepView: View {
                 .frame(maxWidth: 240)
                 .padding(.vertical, 14)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             
             Spacer()
         }
@@ -75,7 +75,7 @@ struct ReadyStepView: View {
             IconView(icon: .check, size: 48)
                 .foregroundStyle(.white)
         }
-        .glassEffect(.regular.tint(.green.opacity(0.2)), in: .circle)
+        .shadow(color: .green.opacity(0.3), radius: 20, y: 4)
         .scaleEffect(showConfetti ? 1.0 : 0.5)
         .opacity(showConfetti ? 1.0 : 0)
     }
@@ -87,7 +87,7 @@ struct ReadyStepView: View {
             summaryRow(icon: .sparkles, label: "AI Enhancement", value: settings.aiEnhancementEnabled ? "Enabled" : "Disabled")
         }
         .padding(20)
-        .glassEffect(.regular, in: .rect(cornerRadius: 16))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
     
     private func summaryRow(icon: Icon, label: String, value: String) -> some View {

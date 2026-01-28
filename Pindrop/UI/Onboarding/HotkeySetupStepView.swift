@@ -51,7 +51,8 @@ struct HotkeySetupStepView: View {
     
     private var headerSection: some View {
         VStack(spacing: 8) {
-            IconView(icon: .keyboard, size: 40)
+            Image(systemName: "command")
+                .font(.system(size: 40, weight: .medium))
                 .foregroundStyle(AppColors.accent)
                 .padding(.bottom, 8)
             
@@ -71,7 +72,7 @@ struct HotkeySetupStepView: View {
             IconView(icon: icon, size: 24)
                 .foregroundStyle(AppColors.accent)
                 .frame(width: 44, height: 44)
-                .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)), in: .circle)
+                .background(AppColors.accent.opacity(0.15), in: Circle())
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -89,10 +90,10 @@ struct HotkeySetupStepView: View {
                 .fontWeight(.medium)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .glassEffect(.regular, in: .rect(cornerRadius: 8))
+                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
         }
         .padding(16)
-        .glassEffect(.regular, in: .rect(cornerRadius: 12))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
     
     private var infoSection: some View {
@@ -110,7 +111,7 @@ struct HotkeySetupStepView: View {
     private var actionButtons: some View {
         HStack(spacing: 16) {
             Button("Skip for Now", action: onSkip)
-                .buttonStyle(.glass)
+                .buttonStyle(.bordered)
             
             Button(action: onContinue) {
                 Text("Continue")
@@ -118,7 +119,7 @@ struct HotkeySetupStepView: View {
                     .frame(maxWidth: 180)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
         }
         .padding(.horizontal, 40)
     }

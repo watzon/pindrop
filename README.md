@@ -21,7 +21,7 @@ Pindrop turns your speech into text—right from your menu bar. No cloud servers
 
 ## Requirements
 
-- **macOS 26.0 or later**
+- **macOS 14.0 (Sonoma) or later**
 - **Apple Silicon (M1/M2/M3/M4)** recommended for optimal performance
 - **Microphone access** (required for recording)
 - **Accessibility permission** (optional, enables direct text insertion; clipboard works without it)

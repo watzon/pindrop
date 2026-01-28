@@ -72,7 +72,6 @@ struct ModelDownloadStepView: View {
                 }
             }
         }
-        .glassEffect(.regular.tint(AppColors.accent.opacity(0.1)), in: .circle)
         .padding(20)
     }
     
@@ -122,7 +121,7 @@ struct ModelDownloadStepView: View {
                 .font(.caption)
                 .foregroundStyle(.red)
                 .padding()
-                .glassEffect(.regular.tint(.red.opacity(0.1)), in: .rect(cornerRadius: 8))
+                .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         }
     }
     
@@ -132,18 +131,18 @@ struct ModelDownloadStepView: View {
                 Button("Cancel") {
                     onCancel()
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(.bordered)
             } else if downloadError != nil {
                 Button("Go Back") {
                     onCancel()
                 }
-                .buttonStyle(.glass)
+                .buttonStyle(.bordered)
                 
                 Button("Retry") {
                     downloadError = nil
                     Task { await startDownload() }
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
             } else {
                 Button(action: onComplete) {
                     Text("Continue")
@@ -151,7 +150,7 @@ struct ModelDownloadStepView: View {
                         .frame(maxWidth: 200)
                         .padding(.vertical, 12)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
             }
         }
     }

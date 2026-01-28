@@ -15,9 +15,9 @@ enum Log {
     
     private static let subsystem: String = {
         if isPreview {
-            return "com.pindrop.preview"
+            return "tech.watzon.pindrop.preview"
         }
-        return Bundle.main.bundleIdentifier ?? "com.pindrop"
+        return Bundle.main.bundleIdentifier ?? "tech.watzon.pindrop"
     }()
     
     // Log categories

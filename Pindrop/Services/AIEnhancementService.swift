@@ -41,7 +41,7 @@ final class AIEnhancementService {
     }
 
     private let session: URLSessionProtocol
-    private let keychainService = "com.pindrop.ai-enhancement"
+    private let keychainService = "tech.watzon.pindrop.ai-enhancement"
 
     init(session: URLSessionProtocol = URLSession.shared) {
         self.session = session
