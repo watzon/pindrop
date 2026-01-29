@@ -66,6 +66,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("aiModel") var aiModel: String = Defaults.aiModel
     @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
+    @AppStorage("floatingIndicatorType") var floatingIndicatorType: String = FloatingIndicatorType.pill.rawValue
     @AppStorage("showInDock") var showInDock: Bool = false
     @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
@@ -132,6 +133,7 @@ final class SettingsStore: ObservableObject {
         outputMode = Defaults.outputMode
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false
+        floatingIndicatorType = FloatingIndicatorType.pill.rawValue
         launchAtLogin = false
         hasCompletedOnboarding = false
         currentOnboardingStep = 0

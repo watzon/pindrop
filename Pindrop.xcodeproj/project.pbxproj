@@ -62,6 +62,8 @@
 		MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */; };
 		SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */; };
 		THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME001A2B3C4D5E6F71 /* Theme.swift */; };
+		PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */; };
+		FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +130,8 @@
 		MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		THEME001A2B3C4D5E6F71 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillFloatingIndicator.swift; sourceTree = "<group>"; };
+		FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorType.swift; sourceTree = "<group>"; };
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionServiceTests.swift; sourceTree = "<group>"; };
 		f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
@@ -175,6 +179,7 @@
 				ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */,
 				WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */,
 				VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */,
+				FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -186,8 +191,9 @@
 			MAINGROUP1A2B3C4D5E6F7 /* Main */,
 			A1B2C3D4E5F6789012345678 /* Settings */,
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
-				96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
-				SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
+			96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
+			PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
+			SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
 			AC5569DC7FCD55BB91774AB2 /* Onboarding */,
 			BFA9046303E3874827C62B25 /* Components */,
 			);
@@ -464,8 +470,10 @@
 				4C6B0181BA512555942717CB /* AppCoordinator.swift in Sources */,
 				E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */,
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
-				C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
-				LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
+			C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
+			PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
+			FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */,
+			LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
 				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
 				D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */,
 				7C9FFAAD40CEE61496E8C14C /* OnboardingWindowController.swift in Sources */,

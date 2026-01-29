@@ -90,20 +90,33 @@ struct GeneralSettingsView: View {
                 
                 Divider()
                 
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Floating indicator")
-                            .font(.body)
-                        Text("Shows recording status in a small overlay window")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Floating indicator")
+                                .font(.body)
+                            Text("Shows recording status in a small overlay window")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Toggle("", isOn: $settings.floatingIndicatorEnabled)
+                            .toggleStyle(.switch)
+                            .labelsHidden()
                     }
                     
-                    Spacer()
-                    
-                    Toggle("", isOn: $settings.floatingIndicatorEnabled)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
+                    if settings.floatingIndicatorEnabled {
+                        Picker("Style", selection: $settings.floatingIndicatorType) {
+                            ForEach(FloatingIndicatorType.allCases) { type in
+                                Text(type.displayName)
+                                    .tag(type.rawValue)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.top, 4)
+                    }
                 }
             }
         }

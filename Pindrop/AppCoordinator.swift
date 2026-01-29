@@ -34,6 +34,7 @@ final class AppCoordinator {
     
     let statusBarController: StatusBarController
     let floatingIndicatorController: FloatingIndicatorController
+    let pillFloatingIndicatorController: PillFloatingIndicatorController
     let onboardingController: OnboardingWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
@@ -81,6 +82,7 @@ final class AppCoordinator {
         )
         self.statusBarController.setModelContainer(modelContainer)
         self.floatingIndicatorController = FloatingIndicatorController()
+        self.pillFloatingIndicatorController = PillFloatingIndicatorController()
         self.onboardingController = OnboardingWindowController()
         let splashState = SplashScreenState()
         self.splashController = SplashWindowController(state: splashState)
@@ -142,6 +144,7 @@ final class AppCoordinator {
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
             self?.floatingIndicatorController.updateAudioLevel(level)
+            self?.pillFloatingIndicatorController.updateAudioLevel(level)
         }
         
         self.floatingIndicatorController.onStopRecording = { [weak self] in
@@ -150,6 +153,24 @@ final class AppCoordinator {
             }
         }
         
+        self.pillFloatingIndicatorController.onStopRecording = { [weak self] in
+            Task { @MainActor in
+                await self?.handleToggleRecording()
+            }
+        }
+
+        self.pillFloatingIndicatorController.onCancelRecording = { [weak self] in
+            Task { @MainActor in
+                await self?.handleClearAudioBuffer()
+            }
+        }
+
+        self.pillFloatingIndicatorController.onStartRecording = { [weak self] in
+            Task { @MainActor in
+                await self?.handleToggleRecording()
+            }
+        }
+
         setupHotkeys()
         observeSettings()
         setupEscapeKeyMonitor()
@@ -289,8 +310,13 @@ final class AppCoordinator {
 
         // Load recent transcripts for the menu
         updateRecentTranscriptsMenu()
+        
+        if settingsStore.floatingIndicatorEnabled &&
+           settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+            pillFloatingIndicatorController.showTab()
+        }
     }
-    
+
     // MARK: - Hotkey Setup
     
     private func setupHotkeys() {
@@ -379,12 +405,25 @@ final class AppCoordinator {
                             AlertManager.shared.showAccessibilityPermissionAlert()
                         }
                     }
+                    
+                    self.updateFloatingIndicatorVisibility()
 
                     self.registerHotkeysFromSettings()
                     self.statusBarController.updateDynamicItems()
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    private func updateFloatingIndicatorVisibility() {
+        guard !isRecording && !isProcessing else { return }
+        
+        if settingsStore.floatingIndicatorEnabled &&
+           settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+            pillFloatingIndicatorController.showTab()
+        } else {
+            pillFloatingIndicatorController.hide()
+        }
     }
     
     // MARK: - Recording Flow
@@ -436,7 +475,11 @@ final class AppCoordinator {
         statusBarController.setRecordingState()
         
         if settingsStore.floatingIndicatorEnabled {
-            floatingIndicatorController.startRecording()
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.expandForRecording()
+            } else {
+                floatingIndicatorController.startRecording()
+            }
         }
         
         try await audioRecorder.startRecording()
@@ -454,7 +497,11 @@ final class AppCoordinator {
         statusBarController.setProcessingState()
         
         if settingsStore.floatingIndicatorEnabled {
-            floatingIndicatorController.stopRecording()
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.stopRecording()
+            } else {
+                floatingIndicatorController.stopRecording()
+            }
         }
         
         defer {
@@ -464,7 +511,11 @@ final class AppCoordinator {
             statusBarController.updateMenuState()
             
             if settingsStore.floatingIndicatorEnabled {
-                floatingIndicatorController.finishProcessing()
+                if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                    pillFloatingIndicatorController.finishProcessing()
+                } else {
+                    floatingIndicatorController.finishProcessing()
+                }
             }
         }
         
@@ -632,7 +683,11 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
         
         if settingsStore.floatingIndicatorEnabled {
-            floatingIndicatorController.finishProcessing()
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.finishProcessing()
+            } else {
+                floatingIndicatorController.finishProcessing()
+            }
         }
     }
 
@@ -700,7 +755,11 @@ final class AppCoordinator {
         statusBarController.setIdleState()
 
         if settingsStore.floatingIndicatorEnabled {
-            floatingIndicatorController.stopRecording()
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.finishProcessing()
+            } else {
+                floatingIndicatorController.stopRecording()
+            }
         }
     }
 
