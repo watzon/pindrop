@@ -16,9 +16,9 @@ enum MainNavItem: String, CaseIterable, Identifiable {
     case history = "History"
     case notes = "Notes"
     case transcribe = "Transcribe"
-    
+
     var id: String { rawValue }
-    
+
     var icon: String {
         switch self {
         case .home: return "house.fill"
@@ -27,13 +27,19 @@ enum MainNavItem: String, CaseIterable, Identifiable {
         case .transcribe: return "waveform"
         }
     }
-    
+
     var isComingSoon: Bool {
         switch self {
         case .home, .history: return false
         case .notes, .transcribe: return true
         }
     }
+}
+
+// MARK: - Navigation Notification
+
+extension Notification.Name {
+    static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
 }
 
 // MARK: - Main Window View
@@ -43,12 +49,12 @@ struct MainWindow: View {
     @State private var selectedNav: MainNavItem = .home
     @State private var isHoveringItem: MainNavItem? = nil
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
-    
+
     var onOpenSettings: (() -> Void)?
-    
-    private func navigateToHistory() {
+
+    private func navigateTo(_ item: MainNavItem) {
         withAnimation(AppTheme.Animation.fast) {
-            selectedNav = .history
+            selectedNav = item
         }
     }
     
@@ -65,6 +71,11 @@ struct MainWindow: View {
             minWidth: AppTheme.Window.mainMinWidth,
             minHeight: AppTheme.Window.mainMinHeight
         )
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
+            if let navItem = notification.userInfo?["navItem"] as? MainNavItem {
+                navigateTo(navItem)
+            }
+        }
     }
     
     // MARK: - Sidebar
@@ -211,7 +222,7 @@ struct MainWindow: View {
     private var detailContent: some View {
         switch selectedNav {
         case .home:
-            DashboardView(onOpenSettings: openSettings, onViewAllHistory: navigateToHistory)
+            DashboardView(onOpenSettings: openSettings, onViewAllHistory: { navigateTo(.history) })
         case .history:
             HistoryView()
         case .notes, .transcribe:
@@ -271,11 +282,6 @@ final class MainWindowController {
             return
         }
 
-        var selectedNav: MainNavItem = .home
-        if let item = navigationItem {
-            selectedNav = item
-        }
-
         if window == nil {
             let mainView = MainWindow(onOpenSettings: onOpenSettings)
                 .modelContainer(container)
@@ -303,6 +309,15 @@ final class MainWindowController {
 
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        // Navigate to the requested item if specified
+        if let item = navigationItem {
+            NotificationCenter.default.post(
+                name: .navigateToMainNavItem,
+                object: nil,
+                userInfo: ["navItem": item]
+            )
+        }
     }
     
     func hide() {

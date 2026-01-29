@@ -130,6 +130,10 @@ final class AppCoordinator {
             self?.handleOpenHistory()
         }
 
+        self.statusBarController.onShowApp = { [weak self] in
+            self?.handleShowApp()
+        }
+
         self.statusBarController.onSelectModel = { [weak self] modelName in
             self?.handleSelectModel(modelName)
         }
@@ -748,6 +752,12 @@ final class AppCoordinator {
 
     private func handleOpenHistory() {
         mainWindowController.showHistory()
+    }
+
+    // MARK: - Show App
+
+    private func handleShowApp() {
+        mainWindowController.show()
     }
 
     // MARK: - Select Model

@@ -48,7 +48,7 @@ final class StatusBarController {
     // MARK: - Callbacks
 
     var onToggleRecording: (() async -> Void)?
-    var onOpenMainWindow: (() -> Void)?
+    var onShowApp: (() -> Void)?
     var onCopyLastTranscript: (() async -> Void)?
     var onExportLastTranscript: (() async -> Void)?
     var onClearAudioBuffer: (() async -> Void)?
@@ -235,6 +235,24 @@ final class StatusBarController {
         let viewHeader = createHeaderItem("View")
         menu.addItem(viewHeader)
 
+        let showAppItem = NSMenuItem(
+            title: "Show App",
+            action: #selector(showApp),
+            keyEquivalent: "0"
+        )
+        showAppItem.target = self
+        menu.addItem(showAppItem)
+
+        openHistoryItem = NSMenuItem(
+            title: "Open History",
+            action: #selector(openHistory),
+            keyEquivalent: "h"
+        )
+        openHistoryItem?.target = self
+        menu.addItem(openHistoryItem!)
+
+        menu.addItem(NSMenuItem.separator())
+
         toggleFloatingIndicatorItem = NSMenuItem(
             title: "Floating Indicator: Off",
             action: #selector(toggleFloatingIndicator),
@@ -250,14 +268,6 @@ final class StatusBarController {
         )
         launchAtLoginItem?.target = self
         menu.addItem(launchAtLoginItem!)
-
-        openHistoryItem = NSMenuItem(
-            title: "Open History",
-            action: #selector(openHistory),
-            keyEquivalent: "h"
-        )
-        openHistoryItem?.target = self
-        menu.addItem(openHistoryItem!)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -285,14 +295,6 @@ final class StatusBarController {
         // === APP SECTION ===
         let appHeader = createHeaderItem("App")
         menu.addItem(appHeader)
-
-        let openWindowItem = NSMenuItem(
-            title: "Open Pindrop",
-            action: #selector(openMainWindow),
-            keyEquivalent: "o"
-        )
-        openWindowItem.target = self
-        menu.addItem(openWindowItem)
 
         let settingsItem = NSMenuItem(
             title: "Settings...",
@@ -473,6 +475,10 @@ final class StatusBarController {
         onOpenHistory?()
     }
 
+    @objc private func showApp() {
+        onShowApp?()
+    }
+
     @objc private func openSettings() {
         openSettingsWindow(tab: .general)
     }
@@ -502,10 +508,6 @@ final class StatusBarController {
         settingsWindow = window
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-    }
-
-    @objc private func openMainWindow() {
-        mainWindowController?.show()
     }
 
     @objc private func quit() {
