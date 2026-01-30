@@ -108,11 +108,11 @@ enum TranscriptionRecordSchemaV1: VersionedSchema {
 // V2 Schema Version (Current)
 enum TranscriptionRecordSchemaV2: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 1)
-    
+
     static var models: [any PersistentModel.Type] {
         [TranscriptionRecord.self]
     }
-    
+
     @Model
     final class TranscriptionRecord {
         @Attribute(.unique) var id: UUID

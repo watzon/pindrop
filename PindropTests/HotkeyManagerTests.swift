@@ -2,7 +2,7 @@
 //  HotkeyManagerTests.swift
 //  PindropTests
 //
-//  Created on 1/25/26.
+//  Created on 2026-01-25.
 //
 
 import XCTest
