@@ -1,4 +1,4 @@
 import Foundation
 import SwiftData
 
-typealias Note = NoteSchemaV1.Note
+typealias Note = NoteSchema.Note
