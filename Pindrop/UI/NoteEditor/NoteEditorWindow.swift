@@ -10,8 +10,6 @@ import SwiftData
 import AppKit
 import Combine
 
-// MARK: - NoteEditorWindowController
-
 @MainActor
 final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     
@@ -37,7 +35,6 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         self.note = note
         self.isNewNote = isNewNote
         
-        // If window already exists, bring it to front
         if let window = window {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
@@ -68,7 +65,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.titleVisibility = .visible
         window.titlebarAppearsTransparent = false
-        window.backgroundColor = NSColor(AppColors.accentBackground)
+        window.backgroundColor = NSColor(AppColors.windowBackground)
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.setContentSize(NSSize(width: 600, height: 500))
@@ -87,16 +84,12 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         onClose?()
     }
     
-    // MARK: - NSWindowDelegate
-    
     func windowWillClose(_ notification: Notification) {
         onClose?()
         window = nil
         hostingController = nil
     }
 }
-
-// MARK: - NoteEditorView
 
 struct NoteEditorView: View {
     
@@ -110,6 +103,8 @@ struct NoteEditorView: View {
     @State private var isPinned: Bool = false
     @State private var tags: [String] = []
     @State private var newTag: String = ""
+    @State private var currentNote: NoteSchema.Note?
+    @State private var hasUnsavedChanges: Bool = false
     
     @FocusState private var titleFieldFocused: Bool
     @FocusState private var contentFieldFocused: Bool
@@ -130,32 +125,32 @@ struct NoteEditorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header with title field and actions
             headerView
             
             Divider()
-                .background(AppColors.divider)
+                .foregroundStyle(AppColors.border)
             
-            // Content editor
             contentEditorView
         }
-        .background(AppColors.accentBackground)
+        .background(AppColors.windowBackground)
         .onAppear {
             loadNoteData()
             if isNewNote {
+                createNoteIfNeeded()
                 titleFieldFocused = true
             } else {
                 contentFieldFocused = true
             }
         }
+        .onChange(of: title) { _, _ in saveNote() }
+        .onChange(of: content) { _, _ in saveNote() }
+        .onChange(of: isPinned) { _, _ in saveNote() }
+        .onChange(of: tags) { _, _ in saveNote() }
     }
-    
-    // MARK: - Header View
     
     private var headerView: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             HStack(spacing: AppTheme.Spacing.md) {
-                // Title field
                 TextField("Note Title", text: $title)
                     .font(AppTypography.title)
                     .foregroundStyle(AppColors.textPrimary)
@@ -167,74 +162,59 @@ struct NoteEditorView: View {
                 
                 Spacer(minLength: 0)
                 
-                // Pin button
-                Button(action: togglePin) {
+                Button(action: { isPinned.toggle() }) {
                     Image(systemName: isPinned ? "pin.fill" : "pin")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(isPinned ? AppColors.accent : AppColors.textSecondary)
                 }
                 .buttonStyle(.plain)
                 .help(isPinned ? "Unpin note" : "Pin note")
-                
-                // Close button
-                Button(action: saveAndClose) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(AppColors.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Close editor")
             }
             
-            // Tags row
-            if !tags.isEmpty || !newTag.isEmpty {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Image(systemName: "number")
-                        .font(.caption)
-                        .foregroundStyle(AppColors.textTertiary)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: AppTheme.Spacing.xs) {
-                            ForEach(tags, id: \.self) { tag in
-                                TagChip(tag: tag, onRemove: { removeTag(tag) })
-                            }
-                            
-                            TextField("Add tag...", text: $newTag)
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.textSecondary)
-                                .textFieldStyle(.plain)
-                                .frame(width: 80)
-                                .onSubmit {
-                                    addTag()
-                                }
-                        }
-                    }
-                    
-                    Spacer(minLength: 0)
-                }
-            }
+            tagsRow
         }
         .padding(AppTheme.Spacing.lg)
-        .background(AppColors.accentBackground)
+        .background(AppColors.surfaceBackground)
     }
     
-    // MARK: - Content Editor View
+    @ViewBuilder
+    private var tagsRow: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "number")
+                .font(.caption)
+                .foregroundStyle(AppColors.textTertiary)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    ForEach(tags, id: \.self) { tag in
+                        TagChip(tag: tag, onRemove: { removeTag(tag) })
+                    }
+                    
+                    TextField("Add tag...", text: $newTag)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .textFieldStyle(.plain)
+                        .frame(width: 80)
+                        .onSubmit {
+                            addTag()
+                        }
+                }
+            }
+            
+            Spacer(minLength: 0)
+        }
+    }
     
     private var contentEditorView: some View {
-        ScrollView {
-            TextEditor(text: $content)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textPrimary)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .focused($contentFieldFocused)
-                .frame(maxWidth: .infinity, minHeight: 300)
-                .padding(AppTheme.Spacing.lg)
-        }
-        .background(AppColors.accentBackground)
+        TextEditor(text: $content)
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.textPrimary)
+            .scrollContentBackground(.hidden)
+            .focused($contentFieldFocused)
+            .padding(AppTheme.Spacing.lg)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(AppColors.contentBackground)
     }
-    
-    // MARK: - Actions
     
     private func loadNoteData() {
         if let note = note {
@@ -242,16 +222,45 @@ struct NoteEditorView: View {
             content = note.content
             isPinned = note.isPinned
             tags = note.tags
-        } else {
-            title = ""
-            content = ""
-            isPinned = false
-            tags = []
+            currentNote = note
         }
     }
     
-    private func togglePin() {
-        isPinned.toggle()
+    private func createNoteIfNeeded() {
+        guard isNewNote && currentNote == nil else { return }
+        
+        let initialContent = note?.content ?? ""
+        let newNote = NoteSchema.Note(
+            title: "",
+            content: initialContent,
+            tags: [],
+            isPinned: false
+        )
+        modelContext.insert(newNote)
+        currentNote = newNote
+        
+        do {
+            try modelContext.save()
+        } catch {
+            Log.app.error("Failed to create note: \(error)")
+        }
+    }
+    
+    private func saveNote() {
+        guard let noteToSave = currentNote else { return }
+        
+        noteToSave.title = title.isEmpty ? "Untitled Note" : title
+        noteToSave.content = content
+        noteToSave.isPinned = isPinned
+        noteToSave.tags = tags
+        noteToSave.updatedAt = Date()
+        
+        do {
+            try modelContext.save()
+            onSave(noteToSave)
+        } catch {
+            Log.app.error("Failed to save note: \(error)")
+        }
     }
     
     private func addTag() {
@@ -265,41 +274,7 @@ struct NoteEditorView: View {
     private func removeTag(_ tag: String) {
         tags.removeAll { $0 == tag }
     }
-    
-    private func saveAndClose() {
-        let updatedNote: NoteSchema.Note
-        
-        if isNewNote {
-            updatedNote = NoteSchema.Note(
-                title: title.isEmpty ? "Untitled Note" : title,
-                content: content,
-                tags: tags,
-                isPinned: isPinned
-            )
-            modelContext.insert(updatedNote)
-        } else if let existingNote = note {
-            existingNote.title = title.isEmpty ? "Untitled Note" : title
-            existingNote.content = content
-            existingNote.isPinned = isPinned
-            existingNote.tags = tags
-            existingNote.updatedAt = Date()
-            updatedNote = existingNote
-        } else {
-            return
-        }
-        
-        do {
-            try modelContext.save()
-        } catch {
-            Log.app.error("Failed to save note: \(error)")
-        }
-        
-        onSave(updatedNote)
-        onClose()
-    }
 }
-
-// MARK: - Tag Chip
 
 struct TagChip: View {
     let tag: String
@@ -320,13 +295,11 @@ struct TagChip: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(AppColors.surfaceBackground)
+        .background(AppColors.elevatedSurface)
         .clipShape(Capsule())
         .overlay(Capsule().strokeBorder(AppColors.border, lineWidth: 0.5))
     }
 }
-
-// MARK: - Preview
 
 #Preview("NoteEditorView - New Note") {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
