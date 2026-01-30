@@ -119,7 +119,9 @@ final class AIEnhancementService {
     }
 
     func saveAPIKey(_ key: String, for endpoint: String) throws {
-        let data = key.data(using: .utf8)!
+        guard let data = key.data(using: .utf8) else {
+            throw EnhancementError.keychainError("Failed to encode API key")
+        }
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

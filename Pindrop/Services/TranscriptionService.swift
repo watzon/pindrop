@@ -90,7 +90,9 @@ class TranscriptionService {
                 }
                 
                 // Return whichever completes first
-                let result = try await group.next()!
+                guard let result = try await group.next() else {
+                    throw TranscriptionError.modelLoadFailed("Model loading task returned nil")
+                }
                 group.cancelAll()
                 return result
             }
@@ -105,12 +107,13 @@ class TranscriptionService {
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
-            self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            self.error = loadError
             state = .error
-            throw self.error!
+            throw loadError
         }
     }
-    
+
     func loadModel(modelPath: String) async throws {
         state = .loading
         error = nil
@@ -156,12 +159,13 @@ class TranscriptionService {
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
-            self.error = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            self.error = loadError
             state = .error
-            throw self.error!
+            throw loadError
         }
     }
-    
+
     func transcribe(audioData: Data) async throws -> String {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
         

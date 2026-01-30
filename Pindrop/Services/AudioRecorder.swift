@@ -41,14 +41,14 @@ final class AudioRecorder {
     
     var onAudioLevel: ((Float) -> Void)?
     
-    nonisolated init(permissionManager: PermissionManager) {
+    nonisolated init(permissionManager: PermissionManager) throws {
         guard let format = AVAudioFormat(
             commonFormat: .pcmFormatFloat32,
             sampleRate: 16000.0,
             channels: 1,
             interleaved: false
         ) else {
-            fatalError("Failed to create audio format")
+            throw AudioRecorderError.audioFormatCreationFailed
         }
         self.targetFormat = format
         self.permissionManager = permissionManager

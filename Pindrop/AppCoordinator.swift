@@ -63,7 +63,12 @@ final class AppCoordinator {
     
     init(modelContext: ModelContext, modelContainer: ModelContainer) {
         self.permissionManager = PermissionManager()
-        self.audioRecorder = AudioRecorder(permissionManager: permissionManager)
+        do {
+            self.audioRecorder = try AudioRecorder(permissionManager: permissionManager)
+        } catch {
+            Log.app.error("Failed to initialize AudioRecorder: \(error)")
+            fatalError("Failed to initialize AudioRecorder: \(error)")
+        }
         self.transcriptionService = TranscriptionService()
         self.modelManager = ModelManager()
         self.aiEnhancementService = AIEnhancementService()
