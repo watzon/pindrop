@@ -342,23 +342,18 @@ struct ModelSettingsRow: View {
     }
     
     private var selectionIndicator: some View {
-        Button(action: onSetDefault) {
-            ZStack {
+        ZStack {
+            Circle()
+                .stroke(isActive ? Color.green : Color.secondary.opacity(0.3), lineWidth: 2)
+                .frame(width: 20, height: 20)
+            
+            if isActive {
                 Circle()
-                    .stroke(isDefault ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
-                    .frame(width: 20, height: 20)
-                
-                if isDefault {
-                    Circle()
-                        .fill(AppColors.accent)
-                        .frame(width: 12, height: 12)
-                }
+                    .fill(Color.green)
+                    .frame(width: 12, height: 12)
             }
         }
-        .buttonStyle(.plain)
-        .disabled(!isDownloaded || isComingSoon)
         .padding(.top, 2)
-        .help("Set as default model for startup")
     }
     
     private var headerRow: some View {
