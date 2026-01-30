@@ -264,7 +264,9 @@ final class AppCoordinator {
             splashController.setLoading("Loading model...")
             Log.model.info("Model \(modelName) found, loading...")
             do {
-                try await transcriptionService.loadModel(modelName: modelName)
+                let model = modelManager.availableModels.first { $0.name == modelName }
+                let provider = model?.provider ?? .whisperKit
+                try await transcriptionService.loadModel(modelName: modelName, provider: provider)
                 Log.model.info("Model loaded successfully")
             } catch {
                 self.error = error
@@ -285,7 +287,8 @@ final class AppCoordinator {
                 splashController.setLoading("Using \(fallbackModel.displayName)...")
                 settingsStore.selectedModel = fallbackModel.name
                 do {
-                    try await transcriptionService.loadModel(modelName: fallbackModel.name)
+                    let provider = fallbackModel.provider
+                    try await transcriptionService.loadModel(modelName: fallbackModel.name, provider: provider)
                     Log.model.info("Fallback model loaded successfully")
                 } catch {
                     self.error = error
@@ -309,7 +312,9 @@ final class AppCoordinator {
                     }
                     splashController.setLoading("Loading model...")
                     Log.model.info("Model downloaded, loading...")
-                    try await transcriptionService.loadModel(modelName: modelName)
+                    let downloadedModel = modelManager.availableModels.first { $0.name == modelName }
+                    let provider = downloadedModel?.provider ?? .whisperKit
+                    try await transcriptionService.loadModel(modelName: modelName, provider: provider)
                     Log.model.info("Model loaded successfully")
                 } catch {
                     self.error = error
@@ -1073,7 +1078,9 @@ final class AppCoordinator {
 
         Task {
             do {
-                try await transcriptionService.loadModel(modelName: modelName)
+                let model = modelManager.availableModels.first { $0.name == modelName }
+                let provider = model?.provider ?? .whisperKit
+                try await transcriptionService.loadModel(modelName: modelName, provider: provider)
             } catch {
                 Log.app.error("Failed to load model \(modelName): \(error)")
             }
