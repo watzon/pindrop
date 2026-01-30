@@ -68,11 +68,13 @@ final class NotesStore {
             if let endpoint = settings.apiEndpoint,
                let apiKey = settings.apiKey {
                 do {
+                    let existingTags = (try? getAllUniqueTags()) ?? []
                     let metadata = try await aiService.generateNoteMetadata(
                         content: content,
                         apiEndpoint: endpoint,
                         apiKey: apiKey,
-                        model: settings.aiModel
+                        model: settings.aiModel,
+                        existingTags: existingTags
                     )
                     
                     // Use generated title if no explicit title provided
@@ -206,5 +208,14 @@ final class NotesStore {
         } catch {
             throw NotesStoreError.saveFailed(error.localizedDescription)
         }
+    }
+    
+    func getAllUniqueTags() throws -> [String] {
+        let notes = try fetchAll()
+        var tagSet = Set<String>()
+        for note in notes {
+            tagSet.formUnion(note.tags)
+        }
+        return Array(tagSet).sorted()
     }
 }

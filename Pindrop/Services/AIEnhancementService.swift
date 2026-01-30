@@ -179,23 +179,103 @@ final class AIEnhancementService {
             throw EnhancementError.keychainError("Failed to delete API key: \(status)")
         }
     }
+    // MARK: - Note Enhancement
+    
+    struct EnhancedNote {
+        let content: String
+        let title: String
+        let tags: [String]
+    }
+    
+    func enhanceNote(
+        content: String,
+        apiEndpoint: String,
+        apiKey: String,
+        model: String = "gpt-4o-mini",
+        contentPrompt: String,
+        generateMetadata: Bool = true,
+        existingTags: [String] = []
+    ) async throws -> EnhancedNote {
+        guard !content.isEmpty else {
+            return EnhancedNote(content: content, title: "Untitled Note", tags: [])
+        }
+        
+        let enhancedContent = try await enhance(
+            text: content,
+            apiEndpoint: apiEndpoint,
+            apiKey: apiKey,
+            model: model,
+            customPrompt: contentPrompt
+        )
+        
+        var title = generateFallbackTitle(from: enhancedContent)
+        var tags: [String] = []
+        
+        if generateMetadata {
+            do {
+                let metadata = try await generateNoteMetadata(
+                    content: enhancedContent,
+                    apiEndpoint: apiEndpoint,
+                    apiKey: apiKey,
+                    model: model,
+                    existingTags: existingTags
+                )
+                title = metadata.title
+                tags = metadata.tags
+            } catch {
+                Log.aiEnhancement.warning("Metadata generation failed, using fallback: \(error.localizedDescription)")
+            }
+        }
+        
+        return EnhancedNote(content: enhancedContent, title: title, tags: tags)
+    }
+    
+    func generateFallbackTitle(from content: String) -> String {
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "Untitled Note" }
+        
+        let firstLine = trimmed.components(separatedBy: .newlines).first ?? trimmed
+        let words = firstLine.split(separator: " ").prefix(6).joined(separator: " ")
+        
+        if words.count <= 50 {
+            return words.isEmpty ? "Untitled Note" : words
+        } else {
+            let index = words.index(words.startIndex, offsetBy: 47)
+            return String(words[..<index]) + "..."
+        }
+    }
+    
     // MARK: - Note Metadata Generation
     
-    static let metadataGenerationPrompt = """
-    You are a note organization assistant. Given a note's content, generate:
-    1. A concise title (5-10 words) that summarizes the content
-    2. 3-5 relevant tags/keywords that categorize the content
-    
-    Return ONLY a JSON object in this exact format:
-    {"title": "Generated Title Here", "tags": ["tag1", "tag2", "tag3"]}
-    
-    Rules:
-    - Title should be descriptive but concise (5-10 words)
-    - Tags should be lowercase, single words or short phrases (1-2 words max)
-    - Tags should be relevant keywords for categorization
-    - Do not include any markdown, explanations, or additional text
-    - Return valid JSON only
-    """
+    static func metadataGenerationPrompt(existingTags: [String] = []) -> String {
+        var prompt = """
+        You are a note organization assistant. Given a note's content, generate:
+        1. A concise title (5-10 words) that summarizes the content
+        2. 3-5 relevant tags/keywords that categorize the content
+        
+        Return ONLY a JSON object in this exact format:
+        {"title": "Generated Title Here", "tags": ["tag1", "tag2", "tag3"]}
+        
+        Rules:
+        - Title should be descriptive but concise (5-10 words)
+        - Tags should be lowercase, single words or short phrases (1-2 words max)
+        - Tags should be relevant keywords for categorization
+        - Do not include any markdown, explanations, or additional text
+        - Return valid JSON only
+        """
+        
+        if !existingTags.isEmpty {
+            let tagList = existingTags.prefix(30).joined(separator: ", ")
+            prompt += """
+            
+            
+            IMPORTANT: Prefer using these existing tags when they are relevant to maintain consistency: [\(tagList)]
+            Only create new tags if none of the existing tags appropriately describe the content.
+            """
+        }
+        
+        return prompt
+    }
     
     struct NoteMetadata: Codable {
         let title: String
@@ -206,7 +286,8 @@ final class AIEnhancementService {
         content: String,
         apiEndpoint: String,
         apiKey: String,
-        model: String = "gpt-4o-mini"
+        model: String = "gpt-4o-mini",
+        existingTags: [String] = []
     ) async throws -> (title: String, tags: [String]) {
         guard !content.isEmpty else {
             return ("Untitled Note", [])
@@ -228,7 +309,7 @@ final class AIEnhancementService {
                 "messages": [
                     [
                         "role": "system",
-                        "content": AIEnhancementService.metadataGenerationPrompt
+                        "content": AIEnhancementService.metadataGenerationPrompt(existingTags: existingTags)
                     ],
                     [
                         "role": "user",
