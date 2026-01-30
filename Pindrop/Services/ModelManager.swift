@@ -265,6 +265,11 @@ class ModelManager {
     private(set) var currentDownloadModel: String?
     private(set) var downloadedModelNames: Set<String> = []
     
+    private(set) var featureDownloadProgress: Double = 0.0
+    private(set) var isDownloadingFeature: Bool = false
+    private(set) var currentDownloadingFeature: FeatureModelType?
+    private(set) var downloadedFeatureModels: Set<FeatureModelType> = []
+    
     private let fileManager = FileManager.default
     
     private var modelsBaseURL: URL {
@@ -277,6 +282,12 @@ class ModelManager {
                      .appendingPathComponent("parakeet-coreml", isDirectory: true)
     }
     
+    private var fluidAudioModelsURL: URL {
+        fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("FluidAudio", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+    }
+    
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
@@ -285,6 +296,7 @@ class ModelManager {
         guard !Self.isPreview else { return }
         Task {
             await refreshDownloadedModels()
+            await refreshDownloadedFeatureModels()
         }
     }
     
@@ -476,6 +488,84 @@ class ModelManager {
             await refreshDownloadedModels()
         } catch {
             throw ModelError.deleteFailed(error.localizedDescription)
+        }
+    }
+    
+    // MARK: - Feature Models
+    
+    func isFeatureModelDownloaded(_ type: FeatureModelType) -> Bool {
+        downloadedFeatureModels.contains(type)
+    }
+    
+    func refreshDownloadedFeatureModels() async {
+        var downloaded: Set<FeatureModelType> = []
+        
+        for type in FeatureModelType.allCases {
+            let repoFolder = fluidAudioModelsURL.appendingPathComponent(type.repoFolderName)
+            var isDirectory: ObjCBool = false
+            if fileManager.fileExists(atPath: repoFolder.path, isDirectory: &isDirectory),
+               isDirectory.boolValue {
+                downloaded.insert(type)
+            }
+        }
+        
+        Log.model.debug("Found \(downloaded.count) downloaded feature models: \(downloaded)")
+        downloadedFeatureModels = downloaded
+    }
+    
+    func downloadFeatureModel(
+        _ type: FeatureModelType,
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws {
+        guard !isDownloadingFeature else {
+            throw ModelError.downloadFailed("Another feature download is in progress")
+        }
+        
+        isDownloadingFeature = true
+        currentDownloadingFeature = type
+        featureDownloadProgress = 0.0
+        
+        defer {
+            isDownloadingFeature = false
+            currentDownloadingFeature = nil
+        }
+        
+        Log.model.info("Downloading feature model: \(type.displayName)")
+        
+        do {
+            switch type {
+            case .vad:
+                featureDownloadProgress = 0.1
+                onProgress?(0.1)
+                let _ = try await VadManager(config: .default)
+                
+            case .diarization:
+                featureDownloadProgress = 0.1
+                onProgress?(0.1)
+                let _ = try await DiarizerModels.download()
+                
+            case .streaming:
+                featureDownloadProgress = 0.1
+                onProgress?(0.1)
+                let streamingModelNames = ["streaming_encoder.mlmodelc", "decoder.mlmodelc", "joint_decision.mlmodelc", "vocab.json"]
+                featureDownloadProgress = 0.3
+                onProgress?(0.3)
+                let _ = try await DownloadUtils.loadModels(
+                    .parakeetEou160,
+                    modelNames: streamingModelNames,
+                    directory: fluidAudioModelsURL
+                )
+            }
+            
+            featureDownloadProgress = 1.0
+            onProgress?(1.0)
+            
+            Log.model.info("Feature model download complete: \(type.displayName)")
+            await refreshDownloadedFeatureModels()
+        } catch {
+            featureDownloadProgress = 0.0
+            Log.model.error("Feature model download failed: \(error.localizedDescription)")
+            throw ModelError.downloadFailed(error.localizedDescription)
         }
     }
 }

@@ -45,6 +45,7 @@ struct ModelsSettingsView: View {
             currentModelCard
             filterBar
             availableModelsCard
+            featureModelsCard
             
             if let errorMessage {
                 errorBanner(message: errorMessage)
@@ -52,6 +53,7 @@ struct ModelsSettingsView: View {
         }
         .task {
             await modelManager.refreshDownloadedModels()
+            await modelManager.refreshDownloadedFeatureModels()
         }
         .onAppear {
             if activeModelName == nil {
@@ -145,6 +147,50 @@ struct ModelsSettingsView: View {
                             .padding(.horizontal, 12)
                     }
                 }
+            }
+        }
+    }
+    
+    private var featureModelsCard: some View {
+        SettingsCard(title: "Feature Models", icon: "puzzlepiece.extension") {
+            VStack(spacing: 0) {
+                ForEach(Array(FeatureModelType.allCases.enumerated()), id: \.element.id) { index, featureType in
+                    FeatureModelRow(
+                        featureType: featureType,
+                        isDownloaded: modelManager.isFeatureModelDownloaded(featureType),
+                        isEnabled: settings.isFeatureEnabled(featureType),
+                        isDownloading: modelManager.currentDownloadingFeature == featureType,
+                        downloadProgress: modelManager.featureDownloadProgress,
+                        onToggle: { enabled in toggleFeature(featureType, enabled: enabled) },
+                        onDownload: { downloadFeatureModel(featureType) }
+                    )
+                    
+                    if index < FeatureModelType.allCases.count - 1 {
+                        Divider()
+                            .padding(.horizontal, 12)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func toggleFeature(_ type: FeatureModelType, enabled: Bool) {
+        if enabled && !modelManager.isFeatureModelDownloaded(type) {
+            downloadFeatureModel(type)
+        } else {
+            settings.setFeatureEnabled(type, enabled: enabled)
+        }
+    }
+    
+    private func downloadFeatureModel(_ type: FeatureModelType) {
+        errorMessage = nil
+        
+        Task {
+            do {
+                try await modelManager.downloadFeatureModel(type)
+                settings.setFeatureEnabled(type, enabled: true)
+            } catch {
+                errorMessage = "Failed to download \(type.displayName): \(error.localizedDescription)"
             }
         }
     }
@@ -497,6 +543,88 @@ struct ModelSettingsRow: View {
             return AnyShapeStyle(AppColors.accent.opacity(0.05))
         }
         return AnyShapeStyle(Color.clear)
+    }
+}
+
+struct FeatureModelRow: View {
+    let featureType: FeatureModelType
+    let isDownloaded: Bool
+    let isEnabled: Bool
+    let isDownloading: Bool
+    let downloadProgress: Double
+    let onToggle: (Bool) -> Void
+    let onDownload: () -> Void
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: featureType.iconName)
+                .font(.system(size: 20))
+                .foregroundStyle(isEnabled ? .green : .secondary)
+                .frame(width: 28, height: 28)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text(featureType.displayName)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    
+                    if isDownloaded && isEnabled {
+                        Text("Active")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.green, in: Capsule())
+                            .foregroundStyle(.white)
+                    } else if isDownloaded {
+                        Text("Downloaded")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.secondary.opacity(0.2), in: Capsule())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                Text(featureType.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                
+                MetadataBadge(icon: "internaldrive", text: featureType.formattedSize)
+            }
+            
+            Spacer()
+            
+            if isDownloading {
+                VStack(alignment: .trailing, spacing: 4) {
+                    ProgressView(value: downloadProgress)
+                        .frame(width: 80)
+                    Text("\(Int(downloadProgress * 100))%")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            } else if isDownloaded {
+                Toggle("", isOn: Binding(
+                    get: { isEnabled },
+                    set: { onToggle($0) }
+                ))
+                .toggleStyle(.switch)
+                .labelsHidden()
+            } else {
+                Button(action: onDownload) {
+                    HStack(spacing: 4) {
+                        IconView(icon: .download, size: 12)
+                        Text("Download")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        }
+        .padding(14)
     }
 }
 

@@ -100,6 +100,10 @@ Rules:
     @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
     
+    @AppStorage("vadFeatureEnabled") var vadFeatureEnabled: Bool = false
+    @AppStorage("diarizationFeatureEnabled") var diarizationFeatureEnabled: Bool = false
+    @AppStorage("streamingFeatureEnabled") var streamingFeatureEnabled: Bool = false
+    
     // MARK: - Onboarding State
     
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
@@ -241,5 +245,22 @@ Rules:
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw SettingsError.keychainError("Failed to delete from keychain: \(status)")
         }
+    }
+    
+    func isFeatureEnabled(_ type: FeatureModelType) -> Bool {
+        switch type {
+        case .vad: return vadFeatureEnabled
+        case .diarization: return diarizationFeatureEnabled
+        case .streaming: return streamingFeatureEnabled
+        }
+    }
+    
+    func setFeatureEnabled(_ type: FeatureModelType, enabled: Bool) {
+        switch type {
+        case .vad: vadFeatureEnabled = enabled
+        case .diarization: diarizationFeatureEnabled = enabled
+        case .streaming: streamingFeatureEnabled = enabled
+        }
+        objectWillChange.send()
     }
 }
