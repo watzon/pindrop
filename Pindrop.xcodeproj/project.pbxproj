@@ -71,6 +71,7 @@
 		NOTECARD01A2B3C4D5E6F70 /* NoteCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */; };
 		NOTEEDIT01A2B3C4D5E6F70 /* NoteEditorWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */; };
 		NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */; };
+		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +152,7 @@
 		NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCardView.swift; sourceTree = "<group>"; };
 		NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorWindow.swift; sourceTree = "<group>"; };
 		NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
+		MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -312,6 +314,7 @@
 		children = (
 			049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
 				NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */,
+				MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */,
 		);
 		path = Components;
 		sourceTree = "<group>";
@@ -527,6 +530,7 @@
 			NOTECARD01A2B3C4D5E6F70 /* NoteCardView.swift in Sources */,
 			NOTEEDIT01A2B3C4D5E6F70 /* NoteEditorWindow.swift in Sources */,
 			NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */,
+			MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */,
 			PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
 			);
 		};

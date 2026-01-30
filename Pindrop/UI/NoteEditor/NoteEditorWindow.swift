@@ -54,6 +54,9 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
             },
             onSave: { [weak self] (updatedNote: NoteSchema.Note) in
                 self?.onSave?(updatedNote)
+            },
+            onPinChange: { [weak self] isPinned in
+                self?.updateWindowLevel(isPinned: isPinned)
             }
         )
         .modelContainer(container)
@@ -72,11 +75,19 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         window.minSize = NSSize(width: 400, height: 300)
         window.center()
         
+        if note?.isPinned == true {
+            window.level = .floating
+        }
+        
         self.hostingController = hostingController
         self.window = window
         
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+    
+    private func updateWindowLevel(isPinned: Bool) {
+        window?.level = isPinned ? .floating : .normal
     }
     
     func close() {
@@ -97,6 +108,7 @@ struct NoteEditorView: View {
     let isNewNote: Bool
     let onClose: () -> Void
     let onSave: (NoteSchema.Note) -> Void
+    let onPinChange: (Bool) -> Void
     
     @State private var title: String = ""
     @State private var content: String = ""
@@ -104,7 +116,6 @@ struct NoteEditorView: View {
     @State private var tags: [String] = []
     @State private var newTag: String = ""
     @State private var currentNote: NoteSchema.Note?
-    @State private var hasUnsavedChanges: Bool = false
     
     @FocusState private var titleFieldFocused: Bool
     @FocusState private var contentFieldFocused: Bool
@@ -115,12 +126,14 @@ struct NoteEditorView: View {
         note: NoteSchema.Note? = nil,
         isNewNote: Bool = false,
         onClose: @escaping () -> Void,
-        onSave: @escaping (NoteSchema.Note) -> Void
+        onSave: @escaping (NoteSchema.Note) -> Void,
+        onPinChange: @escaping (Bool) -> Void = { _ in }
     ) {
         self.note = note
         self.isNewNote = isNewNote
         self.onClose = onClose
         self.onSave = onSave
+        self.onPinChange = onPinChange
     }
     
     var body: some View {
@@ -144,7 +157,10 @@ struct NoteEditorView: View {
         }
         .onChange(of: title) { _, _ in saveNote() }
         .onChange(of: content) { _, _ in saveNote() }
-        .onChange(of: isPinned) { _, _ in saveNote() }
+        .onChange(of: isPinned) { _, newValue in
+            onPinChange(newValue)
+            saveNote()
+        }
         .onChange(of: tags) { _, _ in saveNote() }
     }
     
@@ -168,7 +184,7 @@ struct NoteEditorView: View {
                         .foregroundStyle(isPinned ? AppColors.accent : AppColors.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help(isPinned ? "Unpin note" : "Pin note")
+                .help(isPinned ? "Unpin from screen" : "Pin to screen (always on top)")
             }
             
             tagsRow
@@ -206,11 +222,7 @@ struct NoteEditorView: View {
     }
     
     private var contentEditorView: some View {
-        TextEditor(text: $content)
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.textPrimary)
-            .scrollContentBackground(.hidden)
-            .focused($contentFieldFocused)
+        MarkdownEditor(text: $content)
             .padding(AppTheme.Spacing.lg)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(AppColors.contentBackground)
@@ -238,6 +250,7 @@ struct NoteEditorView: View {
         )
         modelContext.insert(newNote)
         currentNote = newNote
+        content = initialContent
         
         do {
             try modelContext.save()
@@ -320,7 +333,7 @@ struct TagChip: View {
     let container = try! ModelContainer(for: NoteSchema.Note.self, configurations: config)
     let note = NoteSchema.Note(
         title: "Project Ideas",
-        content: "1. AI Dictation app\n2. Native Mac experience\n3. Open source\n\nThese are some ideas for the next project.",
+        content: "# Project Ideas\n\n1. **AI Dictation** app\n2. *Native* Mac experience\n3. `Open source`\n\nThese are some ideas for the next project.",
         tags: ["ideas", "dev"],
         isPinned: true
     )
