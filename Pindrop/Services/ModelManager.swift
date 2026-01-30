@@ -7,6 +7,7 @@
 
 import Foundation
 import WhisperKit
+import FluidAudio
 import os.log
 
 @MainActor
@@ -414,13 +415,49 @@ class ModelManager {
         Log.model.info("Parakeet model download requested: \(modelName)")
         Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
         
+        let version: AsrModelVersion
+        if modelName.contains("v3") {
+            version = .v3
+        } else if modelName.contains("v2") {
+            version = .v2
+        } else {
+            throw ModelError.downloadFailed("Unknown Parakeet model version: \(modelName)")
+        }
+        
         do {
             try fileManager.createDirectory(at: parakeetModelsURL, withIntermediateDirectories: true)
         } catch {
             throw ModelError.downloadFailed("Failed to create Parakeet models directory: \(error.localizedDescription)")
         }
         
-        throw ModelError.downloadNotImplemented("Parakeet")
+        downloadProgress = 0.1
+        onProgress?(0.1)
+        Log.model.info("Starting Parakeet model download (version: \(version == .v3 ? "v3" : "v2"))")
+        
+        do {
+            let targetDir = parakeetModelsURL.appendingPathComponent(
+                version == .v3 ? "parakeet-tdt-0.6b-v3-coreml" : "parakeet-tdt-0.6b-v2-coreml",
+                isDirectory: true
+            )
+            
+            downloadProgress = 0.3
+            onProgress?(0.3)
+            
+            _ = try await AsrModels.downloadAndLoad(to: targetDir, version: version)
+            
+            Log.model.info("Parakeet model download complete")
+            downloadProgress = 0.9
+            onProgress?(0.9)
+            
+            downloadProgress = 1.0
+            onProgress?(1.0)
+            
+            await refreshDownloadedModels()
+        } catch {
+            downloadProgress = 0.0
+            Log.model.error("Parakeet model download failed: \(error.localizedDescription)")
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
     }
     
     func deleteModel(named modelName: String) async throws {
