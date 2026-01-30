@@ -269,16 +269,7 @@ struct NoteEditorView: View {
     private func saveAndClose() {
         let updatedNote: NoteSchema.Note
         
-        if let existingNote = note {
-            // Update existing note
-            existingNote.title = title.isEmpty ? "Untitled Note" : title
-            existingNote.content = content
-            existingNote.isPinned = isPinned
-            existingNote.tags = tags
-            existingNote.updatedAt = Date()
-            updatedNote = existingNote
-        } else {
-            // Create new note
+        if isNewNote {
             updatedNote = NoteSchema.Note(
                 title: title.isEmpty ? "Untitled Note" : title,
                 content: content,
@@ -286,9 +277,17 @@ struct NoteEditorView: View {
                 isPinned: isPinned
             )
             modelContext.insert(updatedNote)
+        } else if let existingNote = note {
+            existingNote.title = title.isEmpty ? "Untitled Note" : title
+            existingNote.content = content
+            existingNote.isPinned = isPinned
+            existingNote.tags = tags
+            existingNote.updatedAt = Date()
+            updatedNote = existingNote
+        } else {
+            return
         }
         
-        // Save context
         do {
             try modelContext.save()
         } catch {
