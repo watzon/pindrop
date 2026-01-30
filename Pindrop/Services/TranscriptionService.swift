@@ -174,7 +174,8 @@ class TranscriptionService {
         do {
             let floatCount = audioData.count / MemoryLayout<Float>.size
             let duration = Double(floatCount) / 16000.0
-            Log.transcription.info("Transcribing \(floatCount) samples (\(duration, format: .fixed(precision: 2))s)")
+            let providerName = currentProvider?.rawValue ?? "unknown"
+            Log.transcription.info("Transcribing \(floatCount) samples (\(duration, format: .fixed(precision: 2))s) using \(providerName)")
             
             let startTime = Date()
             let result = try await engine.transcribe(audioData: audioData)
