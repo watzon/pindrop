@@ -72,6 +72,10 @@
 		NOTEEDIT01A2B3C4D5E6F70 /* NoteEditorWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */; };
 		NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */; };
 		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
+		TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */; };
+		TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */; };
+		WHISPERENG02A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */; };
+		WHISPERENG04A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +157,10 @@
 		NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorWindow.swift; sourceTree = "<group>"; };
 		NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
 		MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditor.swift; sourceTree = "<group>"; };
+		TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngine.swift; sourceTree = "<group>"; };
+		TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngineTests.swift; sourceTree = "<group>"; };
+		WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngineTests.swift; sourceTree = "<group>"; };
+		WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,24 +228,34 @@
 			sourceTree = "<group>";
 		};
  		81f50d309b6a44df90efbd5f /* Services */ = {
-		isa = PBXGroup;
-		children = (
-			f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
-			6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
-			a2189a034cf447e08e86f24b /* PermissionManager.swift */,
-		CB05E1BC11534652810B091F /* OutputManager.swift */,
-		CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
-				NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
-		DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
-		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
-			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
-			D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
-			BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
-			LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
-		);
-		path = Services;
-		sourceTree = "<group>";
-	};
+ 		isa = PBXGroup;
+ 		children = (
+ 			f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
+ 			6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
+ 			TRANSGRP01A2B3C4D5E6F /* Transcription */,
+ 			a2189a034cf447e08e86f24b /* PermissionManager.swift */,
+ 		CB05E1BC11534652810B091F /* OutputManager.swift */,
+ 		CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
+ 			NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
+ 		DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
+ 		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
+ 			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
+ 			D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
+ 			BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
+ 			LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
+ 		);
+ 		path = Services;
+ 		sourceTree = "<group>";
+ 	};
+ 		TRANSGRP01A2B3C4D5E6F /* Transcription */ = {
+ 		isa = PBXGroup;
+ 		children = (
+ 			TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */,
+ 			WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
+ 		);
+ 		path = Transcription;
+ 		sourceTree = "<group>";
+ 	};
 		855E92B9E1094A4A99FE07FF /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -289,6 +307,8 @@
 			E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
 			DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
 			NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
+			TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */,
+			WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */,
 		);
 			path = PindropTests;
 			sourceTree = "<group>";
@@ -473,6 +493,8 @@
 			6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
 			DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
 				NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
+				TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
+				WHISPERENG02A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
 		);
 		};
 		6E3989E80A1A4BF5BEC7A015 /* Sources */ = {
@@ -532,8 +554,10 @@
 			NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */,
 			MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */,
 			PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
-			);
-		};
+			TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */,
+			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
+		);
+	};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
