@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WhisperKit
 import os.log
 
 @MainActor
@@ -26,6 +25,7 @@ class TranscriptionService {
         case invalidAudioData
         case transcriptionFailed(String)
         case modelLoadFailed(String)
+        case engineSwitchDuringTranscription
         
         var errorDescription: String? {
             switch self {
@@ -37,68 +37,59 @@ class TranscriptionService {
                 return "Transcription failed: \(message)"
             case .modelLoadFailed(let message):
                 return "Model load failed: \(message)"
+            case .engineSwitchDuringTranscription:
+                return "Cannot switch engines during active transcription"
             }
         }
     }
     
     private(set) var state: State = .unloaded
     private(set) var error: Error?
-    private var whisperKit: WhisperKit?
+    private var engine: (any TranscriptionEngine)?
+    private var currentProvider: ModelManager.ModelProvider?
     
-    func loadModel(modelName: String = "tiny") async throws {
+    func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
+        if state == .transcribing {
+            throw TranscriptionError.engineSwitchDuringTranscription
+        }
+        
+        if currentProvider != nil && currentProvider != provider {
+            await unloadModel()
+        }
+        
         state = .loading
         error = nil
         
-        Log.transcription.info("Loading model: \(modelName) with prewarm enabled...")
+        Log.transcription.info("Loading model: \(modelName) with provider: \(provider.rawValue)...")
         
         do {
-            // Create URL for download base to log the full path
-            let fileManager = FileManager.default
-            let downloadBaseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                .appendingPathComponent("Pindrop", isDirectory: true)
-            let expectedModelPath = downloadBaseURL
-                .appendingPathComponent("models", isDirectory: true)
-                .appendingPathComponent("argmaxinc", isDirectory: true)
-                .appendingPathComponent("whisperkit-coreml", isDirectory: true)
-                .appendingPathComponent(modelName, isDirectory: true)
+            let newEngine: any TranscriptionEngine
+            switch provider {
+            case .whisperKit:
+                newEngine = WhisperKitEngine()
+            case .parakeet:
+                newEngine = ParakeetEngine()
+            default:
+                throw TranscriptionError.modelLoadFailed("Provider \(provider.rawValue) not supported locally")
+            }
             
-            Log.transcription.info("Expected model path: \(expectedModelPath.path)")
-            Log.transcription.info("Model folder exists: \(fileManager.fileExists(atPath: expectedModelPath.path))")
-            
-            let config = WhisperKitConfig(
-                model: modelName,
-                downloadBase: downloadBaseURL,
-                verbose: false,
-                logLevel: .error,
-                prewarm: true,
-                load: true
-            )
-            
-            Log.transcription.info("WhisperKitConfig created - model: \(modelName), downloadBase: \(downloadBaseURL.path), verbose: false, logLevel: .error, prewarm: true, load: true")
-            
-            // Race the load against a 60-second timeout
-            let whisperKitResult: WhisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
-                // Load task
+            try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    try await WhisperKit(config)
+                    try await newEngine.loadModel(name: modelName, downloadBase: self.getDownloadBase())
                 }
                 
-                // Timeout task
                 group.addTask {
                     try await Task.sleep(for: .seconds(120))
                     throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
                 }
                 
-                // Return whichever completes first
-                guard let result = try await group.next() else {
-                    throw TranscriptionError.modelLoadFailed("Model loading task returned nil")
-                }
+                try await group.next()
                 group.cancelAll()
-                return result
             }
             
-            whisperKit = whisperKitResult
-            Log.transcription.info("Model loaded and prewarmed successfully")
+            engine = newEngine
+            currentProvider = provider
+            Log.transcription.info("Model loaded successfully with \(provider.rawValue) engine")
             state = .ready
         } catch let error as TranscriptionError {
             Log.transcription.error("Model load failed: \(error)")
@@ -113,43 +104,40 @@ class TranscriptionService {
             throw loadError
         }
     }
-
+    
     func loadModel(modelPath: String) async throws {
+        if state == .transcribing {
+            throw TranscriptionError.engineSwitchDuringTranscription
+        }
+        
+        if currentProvider != nil {
+            await unloadModel()
+        }
+        
         state = .loading
         error = nil
         
         Log.transcription.info("Loading model from path: \(modelPath) with prewarm enabled...")
         
-        let config = WhisperKitConfig(
-            modelFolder: modelPath,
-            verbose: false,
-            logLevel: .error,
-            prewarm: true,
-            load: true
-        )
-        
-        Log.transcription.info("WhisperKitConfig created - modelFolder: \(modelPath), verbose: false, logLevel: .error, prewarm: true, load: true")
-        
         do {
-            // Race the load against a 60-second timeout
-            whisperKit = try await withThrowingTaskGroup(of: WhisperKit.self) { group in
-                // Load task
+            let newEngine = WhisperKitEngine()
+            
+            try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    try await WhisperKit(config)
+                    try await newEngine.loadModel(path: modelPath)
                 }
                 
-                // Timeout task
                 group.addTask {
                     try await Task.sleep(for: .seconds(120))
                     throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
                 }
                 
-                // Return whichever completes first
-                let result = try await group.next()!
+                try await group.next()
                 group.cancelAll()
-                return result
             }
             
+            engine = newEngine
+            currentProvider = .whisperKit
             Log.transcription.info("Model loaded and prewarmed successfully")
             state = .ready
         } catch let error as TranscriptionError {
@@ -169,7 +157,7 @@ class TranscriptionService {
     func transcribe(audioData: Data) async throws -> String {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
         
-        guard whisperKit != nil else {
+        guard let engine = engine else {
             throw TranscriptionError.modelNotLoaded
         }
         
@@ -184,38 +172,20 @@ class TranscriptionService {
         state = .transcribing
         
         do {
-            let floatArray = dataToFloatArray(audioData)
-            let duration = Double(floatArray.count) / 16000.0
-            Log.transcription.info("Transcribing \(floatArray.count) samples (\(duration, format: .fixed(precision: 2))s)")
-            
-            guard !floatArray.isEmpty else {
-                state = .ready
-                throw TranscriptionError.invalidAudioData
-            }
-            
-            let options = DecodingOptions(
-                task: .transcribe,
-                language: "en",
-                withoutTimestamps: true
-            )
+            let floatCount = audioData.count / MemoryLayout<Float>.size
+            let duration = Double(floatCount) / 16000.0
+            Log.transcription.info("Transcribing \(floatCount) samples (\(duration, format: .fixed(precision: 2))s)")
             
             let startTime = Date()
-            let results = try await whisperKit!.transcribe(
-                audioArray: floatArray,
-                decodeOptions: options
-            )
+            let result = try await engine.transcribe(audioData: audioData)
             
             let elapsed = Date().timeIntervalSince(startTime)
             Log.transcription.info("Transcription completed in \(elapsed, format: .fixed(precision: 2))s")
             
             state = .ready
             
-            guard let firstResult = results.first else {
-                throw TranscriptionError.transcriptionFailed("No transcription results returned")
-            }
-            
-            Log.transcription.debug("Result: '\(firstResult.text)'")
-            return firstResult.text
+            Log.transcription.debug("Result: '\(result)'")
+            return result
         } catch let error as TranscriptionError {
             state = .ready
             throw error
@@ -223,6 +193,19 @@ class TranscriptionService {
             state = .ready
             throw TranscriptionError.transcriptionFailed(error.localizedDescription)
         }
+    }
+    
+    func unloadModel() async {
+        await engine?.unloadModel()
+        engine = nil
+        currentProvider = nil
+        state = .unloaded
+        error = nil
+    }
+    
+    private func getDownloadBase() -> URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Pindrop", isDirectory: true)
     }
     
     private func dataToFloatArray(_ data: Data) -> [Float] {

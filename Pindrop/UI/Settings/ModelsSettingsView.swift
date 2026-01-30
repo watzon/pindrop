@@ -361,16 +361,21 @@ struct ModelSettingsRow: View {
     private var metadataRow: some View {
         HStack(spacing: 12) {
             MetadataBadge(
+                icon: model.provider.iconName,
+                text: model.provider.rawValue
+            )
+
+            MetadataBadge(
                 icon: model.language == .english ? "textformat" : "globe",
                 text: model.language.rawValue
             )
-            
+
             if model.sizeInMB > 0 {
                 MetadataBadge(icon: "internaldrive", text: model.formattedSize)
             } else if !model.provider.isLocal {
                 MetadataBadge(icon: "cloud", text: "Cloud Model")
             }
-            
+
             RatingIndicator(label: "Speed", rating: model.speedRating)
             RatingIndicator(label: "Accuracy", rating: model.accuracyRating)
         }
