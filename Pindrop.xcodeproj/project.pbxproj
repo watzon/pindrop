@@ -66,6 +66,10 @@
 		THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME001A2B3C4D5E6F71 /* Theme.swift */; };
 		PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */; };
 		FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */; };
+		NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */; };
+		NOTECARD01A2B3C4D5E6F70 /* NoteCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */; };
+		NOTEEDIT01A2B3C4D5E6F70 /* NoteEditorWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */; };
+		NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,6 +145,10 @@
 		VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyWord.swift; sourceTree = "<group>"; };
 		NOTESCH001A2B3C4D5E6 /* NoteSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteSchema.swift; sourceTree = "<group>"; };
 		NOTESW001A2B3C4D5E6F7 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCardView.swift; sourceTree = "<group>"; };
+		NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorWindow.swift; sourceTree = "<group>"; };
+		NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,7 +202,8 @@
 			isa = PBXGroup;
 		children = (
 			THEMEGROUP1A2B3C4D5E6F /* Theme */,
-			MAINGROUP1A2B3C4D5E6F7 /* Main */,
+			NOTEEDITGRP1A2B3C4D5E6F /* NoteEditor */,
+				MAINGROUP1A2B3C4D5E6F7 /* Main */,
 			A1B2C3D4E5F6789012345678 /* Settings */,
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
 			96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
@@ -214,6 +223,7 @@
 			a2189a034cf447e08e86f24b /* PermissionManager.swift */,
 		CB05E1BC11534652810B091F /* OutputManager.swift */,
 		CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
+				NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
 		DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
 		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
 			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
@@ -298,14 +308,24 @@
 		isa = PBXGroup;
 		children = (
 			049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
+				NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */,
 		);
 		path = Components;
 		sourceTree = "<group>";
 	};
-	MAINGROUP1A2B3C4D5E6F7 /* Main */ = {
+			NOTEEDITGRP1A2B3C4D5E6F /* NoteEditor */ = {
+			isa = PBXGroup;
+			children = (
+				NOTEEDIT01A2B3C4D5E6F71 /* NoteEditorWindow.swift */,
+			);
+			path = NoteEditor;
+			sourceTree = "<group>";
+		};
+		MAINGROUP1A2B3C4D5E6F7 /* Main */ = {
 			isa = PBXGroup;
 			children = (
 				MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */,
+				NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */,
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
 			);
@@ -499,7 +519,11 @@
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */,
-				PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
+							NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */,
+			NOTECARD01A2B3C4D5E6F70 /* NoteCardView.swift in Sources */,
+			NOTEEDIT01A2B3C4D5E6F70 /* NoteEditorWindow.swift in Sources */,
+			NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */,
+			PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
 			);
 		};
 /* End PBXSourcesBuildPhase section */

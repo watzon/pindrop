@@ -117,8 +117,7 @@ final class NotesStore {
     func search(query: String) throws -> [Note] {
         let predicate = #Predicate<Note> { note in
             note.title.localizedStandardContains(query) ||
-            note.content.localizedStandardContains(query) ||
-            (note.tags as NSArray).contains(query)
+            note.content.localizedStandardContains(query)
         }
         
         let descriptor = FetchDescriptor<Note>(

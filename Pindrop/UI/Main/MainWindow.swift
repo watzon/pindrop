@@ -30,8 +30,8 @@ enum MainNavItem: String, CaseIterable, Identifiable {
 
     var isComingSoon: Bool {
         switch self {
-        case .home, .history: return false
-        case .notes, .transcribe: return true
+        case .home, .history, .notes: return false
+        case .transcribe: return true
         }
     }
 }
@@ -225,7 +225,9 @@ struct MainWindow: View {
             DashboardView(onOpenSettings: openSettings, onViewAllHistory: { navigateTo(.history) })
         case .history:
             HistoryView()
-        case .notes, .transcribe:
+        case .notes:
+            NotesView()
+        case .transcribe:
             comingSoonView(for: selectedNav)
         }
     }
