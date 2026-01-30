@@ -36,14 +36,6 @@ struct NotesView: View {
         }
     }
     
-    private var pinnedNotes: [NoteSchema.Note] {
-        filteredNotes.filter { $0.isPinned }
-    }
-    
-    private var unpinnedNotes: [NoteSchema.Note] {
-        filteredNotes.filter { !$0.isPinned }
-    }
-    
     private func sortNotes(_ notes: [NoteSchema.Note]) -> [NoteSchema.Note] {
         switch sortOrder {
         case .ascending:
@@ -223,63 +215,18 @@ struct NotesView: View {
     
     private var notesGrid: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.xxl, pinnedViews: .sectionHeaders) {
-                // Pinned notes section
-                if !pinnedNotes.isEmpty {
-                    Section {
-                        LazyVGrid(columns: gridColumns, spacing: AppTheme.Spacing.md) {
-                            ForEach(pinnedNotes) { note in
-                                NoteCardView(
-                                    note: note,
-                                    isSelected: selectedNote?.id == note.id,
-                                    onOpen: { openNote(note) },
-                                    onDelete: { deleteNote(note) },
-                                    onTogglePin: { togglePin(note) }
-                                )
-                            }
-                        }
-                    } header: {
-                        sectionHeader("Pinned")
-                    }
-                }
-                
-                // Unpinned notes section
-                if !unpinnedNotes.isEmpty {
-                    Section {
-                        LazyVGrid(columns: gridColumns, spacing: AppTheme.Spacing.md) {
-                            ForEach(unpinnedNotes) { note in
-                                NoteCardView(
-                                    note: note,
-                                    isSelected: selectedNote?.id == note.id,
-                                    onOpen: { openNote(note) },
-                                    onDelete: { deleteNote(note) },
-                                    onTogglePin: { togglePin(note) }
-                                )
-                            }
-                        }
-                    } header: {
-                        if !pinnedNotes.isEmpty {
-                            sectionHeader("All Notes")
-                        }
-                    }
+            LazyVGrid(columns: gridColumns, spacing: AppTheme.Spacing.md) {
+                ForEach(filteredNotes) { note in
+                    NoteCardView(
+                        note: note,
+                        isSelected: selectedNote?.id == note.id,
+                        onOpen: { openNote(note) },
+                        onDelete: { deleteNote(note) }
+                    )
                 }
             }
             .padding(AppTheme.Spacing.xxl)
         }
-    }
-    
-    private func sectionHeader(_ title: String) -> some View {
-        HStack {
-            Text(title.uppercased())
-                .font(AppTypography.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(AppColors.textTertiary)
-                .tracking(0.5)
-            
-            Spacer()
-        }
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .background(AppColors.contentBackground)
     }
     
     // MARK: - Actions
@@ -327,14 +274,6 @@ struct NotesView: View {
             }
         } catch {
             errorMessage = "Failed to delete note: \(error.localizedDescription)"
-        }
-    }
-    
-    private func togglePin(_ note: NoteSchema.Note) {
-        do {
-            try notesStore.togglePin(note)
-        } catch {
-            errorMessage = "Failed to toggle pin: \(error.localizedDescription)"
         }
     }
 }

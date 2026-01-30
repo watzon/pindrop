@@ -13,27 +13,17 @@ struct NoteCardView: View {
     let isSelected: Bool
     let onOpen: () -> Void
     let onDelete: () -> Void
-    let onTogglePin: () -> Void
     
     @State private var isHovered = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
-                Text(note.title.isEmpty ? "Untitled Note" : note.title)
-                    .font(AppTypography.headline)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                
-                Spacer(minLength: 0)
-                
-                if note.isPinned {
-                    Image(systemName: "pin.fill")
-                        .font(.system(size: 10))
-                        .foregroundStyle(AppColors.accent)
-                }
-            }
+            Text(note.title.isEmpty ? "Untitled Note" : note.title)
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             Text(note.content.isEmpty ? "No content" : note.content)
                 .font(AppTypography.body)
@@ -100,10 +90,6 @@ struct NoteCardView: View {
                 Label("Open", systemImage: "arrow.up.right.square")
             }
             
-            Button(action: onTogglePin) {
-                Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
-            }
-            
             Divider()
             
             Button(role: .destructive, action: onDelete) {
@@ -133,8 +119,7 @@ struct NoteCardView: View {
         note: note,
         isSelected: false,
         onOpen: {},
-        onDelete: {},
-        onTogglePin: {}
+        onDelete: {}
     )
     .padding()
     .frame(width: 250, height: 250)
@@ -155,8 +140,7 @@ struct NoteCardView: View {
         note: note,
         isSelected: true,
         onOpen: {},
-        onDelete: {},
-        onTogglePin: {}
+        onDelete: {}
     )
     .padding()
     .frame(width: 250, height: 250)
