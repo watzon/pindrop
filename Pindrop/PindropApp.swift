@@ -2,7 +2,7 @@
 //  PindropApp.swift
 //  Pindrop
 //
-//  Created on 1/25/26.
+//  Created on 2026-01-25.
 //
 
 import SwiftUI
@@ -38,24 +38,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: AppCoordinator?
     private var settingsStore: SettingsStore?
     
-    private lazy var modelContainer: ModelContainer = {
+    private var modelContainer: ModelContainer?
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard !Self.isPreview else { return }
+        
         do {
-            return try ModelContainer(
+            modelContainer = try ModelContainer(
                 for: TranscriptionRecord.self,
                 WordReplacement.self,
                 VocabularyWord.self,
                 migrationPlan: TranscriptionRecordMigrationPlan.self
             )
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            Log.app.error("Failed to create ModelContainer: \(error)")
+            showModelContainerErrorAlert(error: error)
+            NSApplication.shared.terminate(nil)
+            return
         }
-    }()
-    
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        guard !Self.isPreview else { return }
         
-        let context = modelContainer.mainContext
-        coordinator = AppCoordinator(modelContext: context, modelContainer: modelContainer)
+        guard let container = modelContainer else {
+            NSApplication.shared.terminate(nil)
+            return
+        }
+        
+        let context = container.mainContext
+        coordinator = AppCoordinator(modelContext: context, modelContainer: container)
         settingsStore = coordinator?.settingsStore
         
         updateDockVisibility()
@@ -108,5 +116,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             coordinator?.statusBarController.showSettings()
         }
+    }
+    
+    private func showModelContainerErrorAlert(error: Error) {
+        let alert = NSAlert()
+        alert.messageText = "Database Error"
+        alert.informativeText = "Failed to initialize the database: \(error.localizedDescription)\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "Quit")
+        alert.runModal()
     }
 }
