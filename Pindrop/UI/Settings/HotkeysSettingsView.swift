@@ -14,6 +14,7 @@ struct HotkeysSettingsView: View {
     @State private var isRecordingToggle = false
     @State private var isRecordingPushToTalk = false
     @State private var isRecordingCopyLastTranscript = false
+    @State private var isRecordingQuickCapture = false
     @State private var keyMonitor: Any?
     
     var body: some View {
@@ -21,6 +22,7 @@ struct HotkeysSettingsView: View {
             toggleHotkeyCard
             pushToTalkCard
             copyLastTranscriptCard
+            quickCaptureCard
         }
         .onDisappear {
             stopRecording()
@@ -90,21 +92,50 @@ struct HotkeysSettingsView: View {
         }
     }
     
-    private func startRecording(forToggle: Bool = false, forCopyLastTranscript: Bool = false) {
+    private var quickCaptureCard: some View {
+        SettingsCard(title: "Note Capture", icon: "note.text") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Quickly capture a note without switching apps")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                HotkeyRecorderRow(
+                    hotkey: settings.quickCaptureHotkey,
+                    isRecording: isRecordingQuickCapture,
+                    onRecord: { startRecording(forQuickCapture: true) },
+                    onClear: {
+                        settings.quickCaptureHotkey = ""
+                        settings.quickCaptureHotkeyCode = 0
+                        settings.quickCaptureHotkeyModifiers = 0
+                    }
+                )
+            }
+        }
+    }
+    
+    private func startRecording(forToggle: Bool = false, forCopyLastTranscript: Bool = false, forQuickCapture: Bool = false) {
         stopRecording()
 
         if forToggle {
             isRecordingToggle = true
             isRecordingPushToTalk = false
             isRecordingCopyLastTranscript = false
+            isRecordingQuickCapture = false
         } else if forCopyLastTranscript {
             isRecordingToggle = false
             isRecordingPushToTalk = false
             isRecordingCopyLastTranscript = true
+            isRecordingQuickCapture = false
+        } else if forQuickCapture {
+            isRecordingToggle = false
+            isRecordingPushToTalk = false
+            isRecordingCopyLastTranscript = false
+            isRecordingQuickCapture = true
         } else {
             isRecordingToggle = false
             isRecordingPushToTalk = true
             isRecordingCopyLastTranscript = false
+            isRecordingQuickCapture = false
         }
 
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { event in
@@ -126,6 +157,10 @@ struct HotkeysSettingsView: View {
                     settings.copyLastTranscriptHotkey = hotkeyString
                     settings.copyLastTranscriptHotkeyCode = Int(event.keyCode)
                     settings.copyLastTranscriptHotkeyModifiers = Int(carbonModifiers)
+                } else if forQuickCapture {
+                    settings.quickCaptureHotkey = hotkeyString
+                    settings.quickCaptureHotkeyCode = Int(event.keyCode)
+                    settings.quickCaptureHotkeyModifiers = Int(carbonModifiers)
                 } else {
                     settings.pushToTalkHotkey = hotkeyString
                     settings.pushToTalkHotkeyCode = Int(event.keyCode)
@@ -156,6 +191,7 @@ struct HotkeysSettingsView: View {
         isRecordingToggle = false
         isRecordingPushToTalk = false
         isRecordingCopyLastTranscript = false
+        isRecordingQuickCapture = false
     }
     
     private func buildHotkeyString(from event: NSEvent) -> String {
