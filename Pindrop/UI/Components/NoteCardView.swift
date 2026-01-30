@@ -25,14 +25,24 @@ struct NoteCardView: View {
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            Text(note.content.isEmpty ? "No content" : note.content)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
-                .lineLimit(4)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Spacer(minLength: 0)
+            ZStack(alignment: .bottom) {
+                Text(note.content.isEmpty ? "No content" : note.content)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                
+                LinearGradient(
+                    colors: [
+                        (isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground).opacity(0),
+                        (isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 40)
+            }
+            .clipped()
             
             HStack(spacing: AppTheme.Spacing.sm) {
                 if !note.tags.isEmpty {
