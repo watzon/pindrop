@@ -168,14 +168,17 @@ final class PreviewModelManager: ModelManagerProtocol {
 
 enum PreviewContainer {
     @MainActor
-    static func create(with records: [TranscriptionRecord] = []) -> ModelContainer {
+    static func create(with records: [TranscriptionRecord] = [], notes: [NoteSchema.Note] = []) -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
-            for: TranscriptionRecord.self, WordReplacement.self, VocabularyWord.self,
+            for: TranscriptionRecord.self, WordReplacement.self, VocabularyWord.self, NoteSchema.Note.self,
             configurations: config
         )
         for record in records {
             container.mainContext.insert(record)
+        }
+        for note in notes {
+            container.mainContext.insert(note)
         }
         return container
     }
@@ -197,6 +200,42 @@ enum PreviewContainer {
                 timestamp: Date().addingTimeInterval(-3600),
                 duration: 3.8,
                 modelUsed: "base.en"
+            )
+        ])
+    }
+    
+    @MainActor
+    static var withSampleNotes: ModelContainer {
+        create(notes: [
+            NoteSchema.Note(
+                title: "Project Ideas",
+                content: "1. AI Dictation app\n2. Native Mac experience\n3. Open source\n\nThese are some ideas for the next project.",
+                tags: ["ideas", "dev", "swift"],
+                isPinned: true
+            ),
+            NoteSchema.Note(
+                title: "Meeting Notes",
+                content: "Discussed Q1 roadmap and design system updates. Need to follow up on the API documentation.",
+                tags: ["work", "meeting"],
+                isPinned: true
+            ),
+            NoteSchema.Note(
+                title: "Shopping List",
+                content: "- Milk\n- Eggs\n- Bread\n- Coffee beans",
+                tags: ["personal"],
+                isPinned: false
+            ),
+            NoteSchema.Note(
+                title: "SwiftUI Tips",
+                content: "Use @Query for SwiftData fetching. Prefer LazyVGrid for responsive layouts. Always test in both light and dark modes.",
+                tags: ["swift", "tips"],
+                isPinned: false
+            ),
+            NoteSchema.Note(
+                title: "Book Recommendations",
+                content: "1. The Pragmatic Programmer\n2. Clean Code\n3. Designing Data-Intensive Applications",
+                tags: ["books", "learning"],
+                isPinned: false
             )
         ])
     }
