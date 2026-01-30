@@ -48,6 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 for: TranscriptionRecord.self,
                 WordReplacement.self,
                 VocabularyWord.self,
+                Note.self,
                 migrationPlan: TranscriptionRecordMigrationPlan.self
             )
         } catch {
