@@ -95,6 +95,16 @@ final class AlertManager {
         _ = alert.runModal()
     }
     
+    func showModelLoadErrorAlert(error: Error) {
+        let alert = NSAlert()
+        alert.messageText = "Model Loading Failed"
+        alert.informativeText = "Failed to switch model: \(error.localizedDescription)"
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        
+        _ = alert.runModal()
+    }
+    
     func showTranscriptionErrorAlert(message: String) {
         let alert = NSAlert()
         alert.messageText = "Transcription Failed"

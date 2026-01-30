@@ -12,6 +12,12 @@ import Combine
 import AppKit
 import os.log
 
+extension Notification.Name {
+    static let switchModel = Notification.Name("com.pindrop.switchModel")
+    static let modelActiveChanged = Notification.Name("com.pindrop.modelActiveChanged")
+    static let requestActiveModel = Notification.Name("com.pindrop.requestActiveModel")
+}
+
 @MainActor
 @Observable
 final class AppCoordinator {
@@ -48,6 +54,7 @@ final class AppCoordinator {
     
     // MARK: - State
     
+    private(set) var activeModelName: String?
     private(set) var isRecording = false
     private(set) var isProcessing = false
     private(set) var error: Error?
@@ -189,6 +196,36 @@ final class AppCoordinator {
         setupHotkeys()
         observeSettings()
         setupEscapeKeyMonitor()
+        setupNotifications()
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: .switchModel,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self = self,
+                  let modelName = notification.userInfo?["modelName"] as? String else {
+                return
+            }
+            Task {
+                await self.switchToModel(named: modelName)
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .requestActiveModel,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self, let activeModel = self.activeModelName else { return }
+            NotificationCenter.default.post(
+                name: .modelActiveChanged,
+                object: nil,
+                userInfo: ["modelName": activeModel]
+            )
+        }
     }
     
     // MARK: - Lifecycle
@@ -268,6 +305,8 @@ final class AppCoordinator {
                 let provider = model?.provider ?? .whisperKit
                 try await transcriptionService.loadModel(modelName: modelName, provider: provider)
                 Log.model.info("Model loaded successfully")
+                self.activeModelName = modelName
+                NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
             } catch {
                 self.error = error
                 Log.app.error("Failed to load transcription model: \(error)")
@@ -290,6 +329,8 @@ final class AppCoordinator {
                     let provider = fallbackModel.provider
                     try await transcriptionService.loadModel(modelName: fallbackModel.name, provider: provider)
                     Log.model.info("Fallback model loaded successfully")
+                    self.activeModelName = fallbackModel.name
+                    NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": fallbackModel.name])
                 } catch {
                     self.error = error
                     Log.app.error("Failed to load fallback model: \(error)")
@@ -316,6 +357,8 @@ final class AppCoordinator {
                     let provider = downloadedModel?.provider ?? .whisperKit
                     try await transcriptionService.loadModel(modelName: modelName, provider: provider)
                     Log.model.info("Model loaded successfully")
+                    self.activeModelName = modelName
+                    NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
                 } catch {
                     self.error = error
                     Log.app.error("Failed to download/load model: \(error)")
@@ -1071,22 +1114,51 @@ final class AppCoordinator {
     }
 
     // MARK: - Select Model
-
+    
     private func handleSelectModel(_ modelName: String) {
         settingsStore.selectedModel = modelName
-        Log.app.info("Model changed to: \(modelName)")
-
-        Task {
-            do {
-                let model = modelManager.availableModels.first { $0.name == modelName }
-                let provider = model?.provider ?? .whisperKit
-                try await transcriptionService.loadModel(modelName: modelName, provider: provider)
-            } catch {
-                Log.app.error("Failed to load model \(modelName): \(error)")
-            }
+        Log.app.info("Default model changed to: \(modelName)")
+    }
+    
+    func switchToModel(named modelName: String) async {
+        guard modelName != activeModelName else {
+            Log.app.info("Model \(modelName) is already active")
+            return
+        }
+        
+        guard !isRecording && !isProcessing else {
+            Log.app.warning("Cannot switch model while recording or processing")
+            return
+        }
+        
+        Log.app.info("Switching to model: \(modelName)")
+        
+        await modelManager.refreshDownloadedModels()
+        guard let model = modelManager.availableModels.first(where: { $0.name == modelName }) else {
+            Log.app.error("Cannot switch to model \(modelName): not found")
+            return
+        }
+        
+        if !modelManager.isModelDownloaded(modelName) {
+            Log.app.error("Cannot switch to model \(modelName): not downloaded")
+            return
+        }
+        
+        splashController.setLoading("Switching to \(model.displayName)...")
+        
+        do {
+            let provider = model.provider
+            try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+            self.activeModelName = modelName
+            NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
+            Log.model.info("Switched to model \(modelName) successfully")
+        } catch {
+            Log.app.error("Failed to switch model: \(error)")
+            self.error = error
+            AlertManager.shared.showModelLoadErrorAlert(error: error)
         }
     }
-
+    
     // MARK: - Update Recent Transcripts
 
     private func updateRecentTranscriptsMenu() {

@@ -11,6 +11,8 @@ struct ModelsSettingsView: View {
     @ObservedObject var settings: SettingsStore
     @State private var modelManager = ModelManager()
     @State private var downloadingModel: String?
+    @State private var switchingToModel: String?
+    @State private var activeModelName: String?
     @State private var errorMessage: String?
     @State private var selectedFilter: ModelFilter = .all
     
@@ -50,6 +52,18 @@ struct ModelsSettingsView: View {
         }
         .task {
             await modelManager.refreshDownloadedModels()
+        }
+        .onAppear {
+            if activeModelName == nil {
+                activeModelName = settings.selectedModel
+            }
+            NotificationCenter.default.post(name: .requestActiveModel, object: nil)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .modelActiveChanged)) { notification in
+            if let modelName = notification.userInfo?["modelName"] as? String {
+                activeModelName = modelName
+                switchingToModel = nil
+            }
         }
     }
     
@@ -114,11 +128,14 @@ struct ModelsSettingsView: View {
                 ForEach(Array(filteredModels.enumerated()), id: \.element.id) { index, model in
                     ModelSettingsRow(
                         model: model,
-                        isSelected: settings.selectedModel == model.name,
+                        isDefault: settings.selectedModel == model.name,
+                        isActive: activeModelName == model.name,
                         isDownloaded: modelManager.isModelDownloaded(model.name),
                         isDownloading: downloadingModel == model.name,
+                        isSwitching: switchingToModel == model.name,
                         downloadProgress: modelManager.downloadProgress,
-                        onSelect: { settings.selectedModel = model.name },
+                        onSwitch: { switchModel(model) },
+                        onSetDefault: { settings.selectedModel = model.name },
                         onDownload: { downloadModel(model) },
                         onDelete: { deleteModel(model) }
                     )
@@ -153,6 +170,20 @@ struct ModelsSettingsView: View {
         .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
     }
     
+    private func switchModel(_ model: ModelManager.WhisperModel) {
+        guard modelManager.isModelDownloaded(model.name) else { return }
+        guard activeModelName != model.name else { return }
+        
+        switchingToModel = model.name
+        errorMessage = nil
+        
+        NotificationCenter.default.post(
+            name: .switchModel,
+            object: nil,
+            userInfo: ["modelName": model.name]
+        )
+    }
+
     private func downloadModel(_ model: ModelManager.WhisperModel) {
         downloadingModel = model.name
         errorMessage = nil
@@ -260,11 +291,14 @@ struct RatingIndicator: View {
 
 struct ModelSettingsRow: View {
     let model: ModelManager.WhisperModel
-    let isSelected: Bool
+    let isDefault: Bool
+    let isActive: Bool
     let isDownloaded: Bool
     let isDownloading: Bool
+    let isSwitching: Bool
     let downloadProgress: Double
-    let onSelect: () -> Void
+    let onSwitch: () -> Void
+    let onSetDefault: () -> Void
     let onDownload: () -> Void
     let onDelete: () -> Void
     
@@ -299,16 +333,22 @@ struct ModelSettingsRow: View {
         .padding(14)
         .background(backgroundStyle)
         .opacity(isComingSoon ? 0.7 : 1.0)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isDownloaded && !isComingSoon && !isSwitching && !isActive {
+                onSwitch()
+            }
+        }
     }
     
     private var selectionIndicator: some View {
-        Button(action: onSelect) {
+        Button(action: onSetDefault) {
             ZStack {
                 Circle()
-                    .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
+                    .stroke(isDefault ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
                     .frame(width: 20, height: 20)
                 
-                if isSelected {
+                if isDefault {
                     Circle()
                         .fill(AppColors.accent)
                         .frame(width: 12, height: 12)
@@ -318,6 +358,7 @@ struct ModelSettingsRow: View {
         .buttonStyle(.plain)
         .disabled(!isDownloaded || isComingSoon)
         .padding(.top, 2)
+        .help("Set as default model for startup")
     }
     
     private var headerRow: some View {
@@ -326,14 +367,24 @@ struct ModelSettingsRow: View {
                 .font(.subheadline)
                 .fontWeight(.semibold)
             
-            if isSelected && isDownloaded {
+            if isActive {
+                Text("Active")
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.green, in: Capsule())
+                    .foregroundStyle(.white)
+            }
+            
+            if isDefault {
                 Text("Default")
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(AppColors.accent, in: Capsule())
-                    .foregroundStyle(.white)
+                    .background(AppColors.accent.opacity(isActive ? 0.2 : 1.0), in: Capsule())
+                    .foregroundStyle(isActive ? AppColors.accent : .white)
             }
             
             if isComingSoon {
@@ -396,20 +447,27 @@ struct ModelSettingsRow: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
+        } else if isSwitching {
+            ProgressView()
+                .controlSize(.small)
+                .padding(.trailing, 8)
         } else if isDownloaded {
             HStack(spacing: 8) {
-                if isSelected {
+                if isActive {
                     HStack(spacing: 4) {
                         IconView(icon: .circleCheck, size: 14)
-                        Text("Default Model")
+                        Text("Active")
                     }
                     .font(.caption)
                     .foregroundStyle(.green)
                 }
                 
                 Menu {
-                    if !isSelected {
-                        Button("Set as Default", action: onSelect)
+                    if !isDefault {
+                        Button("Set as Default", action: onSetDefault)
+                    }
+                    if !isActive {
+                         Button("Switch to Model", action: onSwitch)
                     }
                     Divider()
                     Button("Delete Model", role: .destructive, action: onDelete)
@@ -437,8 +495,11 @@ struct ModelSettingsRow: View {
     }
     
     private var backgroundStyle: some ShapeStyle {
-        if isSelected && isDownloaded {
-            return AnyShapeStyle(AppColors.accent.opacity(0.08))
+        if isActive {
+            return AnyShapeStyle(Color.green.opacity(0.08))
+        }
+        if isDefault {
+            return AnyShapeStyle(AppColors.accent.opacity(0.05))
         }
         return AnyShapeStyle(Color.clear)
     }
