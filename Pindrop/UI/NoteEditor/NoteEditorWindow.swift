@@ -16,7 +16,8 @@ import Combine
 final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     
     private var window: NSWindow?
-    private var hostingView: NSHostingView<NoteEditorView>?
+    private var hostingController: NSHostingController<AnyView>?
+    private var modelContainer: ModelContainer?
     
     var onClose: (() -> Void)?
     var onSave: ((NoteSchema.Note) -> Void)?
@@ -26,6 +27,10 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     
     override init() {
         super.init()
+    }
+    
+    func setModelContainer(_ container: ModelContainer) {
+        self.modelContainer = container
     }
     
     func show(note: NoteSchema.Note? = nil, isNewNote: Bool = false) {
@@ -39,42 +44,38 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
             return
         }
         
-        // Create window
-        let contentRect = NSRect(x: 0, y: 0, width: 600, height: 500)
-        let window = NSWindow(
-            contentRect: contentRect,
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered,
-            defer: false
-        )
+        guard let container = modelContainer else {
+            Log.ui.error("ModelContainer not set - cannot show NoteEditorWindow")
+            return
+        }
         
-        window.title = isNewNote ? "New Note" : (note?.title ?? "Note")
-        window.titleVisibility = .visible
-        window.titlebarAppearsTransparent = false
-        window.backgroundColor = NSColor(AppColors.accentBackground)
-        window.isReleasedWhenClosed = false
-        window.delegate = self
-        window.minSize = NSSize(width: 400, height: 300)
-        
-        // Center window on screen
-        window.center()
-        
-        // Create content view
         let contentView = NoteEditorView(
             note: note,
             isNewNote: isNewNote,
             onClose: { [weak self] in
                 self?.close()
             },
-            onSave: { [weak self] updatedNote in
+            onSave: { [weak self] (updatedNote: NoteSchema.Note) in
                 self?.onSave?(updatedNote)
             }
         )
+        .modelContainer(container)
         
-        let hostingView = NSHostingView(rootView: contentView)
-        window.contentView = hostingView
-        self.hostingView = hostingView
+        let hostingController = NSHostingController(rootView: AnyView(contentView))
         
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = isNewNote ? "New Note" : (note?.title ?? "Note")
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.titleVisibility = .visible
+        window.titlebarAppearsTransparent = false
+        window.backgroundColor = NSColor(AppColors.accentBackground)
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        window.setContentSize(NSSize(width: 600, height: 500))
+        window.minSize = NSSize(width: 400, height: 300)
+        window.center()
+        
+        self.hostingController = hostingController
         self.window = window
         
         window.makeKeyAndOrderFront(nil)
@@ -91,7 +92,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         onClose?()
         window = nil
-        hostingView = nil
+        hostingController = nil
     }
 }
 

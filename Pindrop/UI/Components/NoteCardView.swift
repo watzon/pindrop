@@ -18,8 +18,8 @@ struct NoteCardView: View {
     @State private var isHovered = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(alignment: .top) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
                 Text(note.title.isEmpty ? "Untitled Note" : note.title)
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.textPrimary)
@@ -30,7 +30,7 @@ struct NoteCardView: View {
                 
                 if note.isPinned {
                     Image(systemName: "pin.fill")
-                        .font(.caption)
+                        .font(.system(size: 10))
                         .foregroundStyle(AppColors.accent)
                 }
             }
@@ -44,23 +44,23 @@ struct NoteCardView: View {
             
             Spacer(minLength: 0)
             
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 if !note.tags.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 4) {
-                            ForEach(note.tags, id: \.self) { tag in
-                                Text("#\(tag)")
-                                    .font(AppTypography.tiny)
-                                    .foregroundStyle(AppColors.textSecondary)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(AppColors.surfaceBackground.opacity(0.5))
-                                    .clipShape(Capsule())
-                                    .overlay(Capsule().strokeBorder(AppColors.border.opacity(0.5), lineWidth: 0.5))
-                            }
+                    HStack(spacing: 4) {
+                        ForEach(note.tags.prefix(3), id: \.self) { tag in
+                            Text("#\(tag)")
+                                .font(AppTypography.tiny)
+                                .foregroundStyle(AppColors.textTertiary)
+                        }
+                        if note.tags.count > 3 {
+                            Text("+\(note.tags.count - 3)")
+                                .font(AppTypography.tiny)
+                                .foregroundStyle(AppColors.textTertiary)
                         }
                     }
                 }
+                
+                Spacer(minLength: 0)
                 
                 Text(relativeDateString)
                     .font(AppTypography.tiny)
@@ -72,11 +72,20 @@ struct NoteCardView: View {
         .aspectRatio(1.0, contentMode: .fit)
         .background(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .fill(backgroundColor)
+                .fill(isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(borderColor, lineWidth: isSelected ? 1.5 : 0.5)
+                .strokeBorder(
+                    isSelected ? AppColors.accent : AppColors.border.opacity(0.5),
+                    lineWidth: isSelected ? 2 : 1
+                )
+        )
+        .shadow(
+            color: isHovered ? Color.black.opacity(0.08) : Color.clear,
+            radius: 8,
+            x: 0,
+            y: 2
         )
         .onHover { hovering in
             withAnimation(AppTheme.Animation.fast) {
@@ -87,6 +96,10 @@ struct NoteCardView: View {
             onOpen()
         }
         .contextMenu {
+            Button(action: onOpen) {
+                Label("Open", systemImage: "arrow.up.right.square")
+            }
+            
             Button(action: onTogglePin) {
                 Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
             }
@@ -99,29 +112,10 @@ struct NoteCardView: View {
         }
     }
     
-    // MARK: - Computed Properties
-    
-    private var backgroundColor: Color {
-        if isSelected {
-            return AppColors.accentBackground
-        }
-        return isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground
-    }
-    
-    private var borderColor: Color {
-        if isSelected {
-            return AppColors.accent
-        }
-        if isHovered {
-            return AppColors.textTertiary.opacity(0.3)
-        }
-        return AppColors.border
-    }
-    
     private var relativeDateString: String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter.localizedString(for: note.createdAt, relativeTo: Date())
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: note.updatedAt, relativeTo: Date())
     }
 }
 

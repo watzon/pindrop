@@ -292,14 +292,13 @@ struct NotesView: View {
     
     private func createNewNote() {
         let editorController = NoteEditorWindowController()
+        editorController.setModelContainer(modelContext.container)
         editorController.show(note: nil, isNewNote: true)
         
         editorController.onClose = {
-            // Note is automatically saved by the editor
         }
         
         editorController.onSave = { _ in
-            // Note saved successfully
         }
     }
     
@@ -307,6 +306,7 @@ struct NotesView: View {
         selectedNote = note
         
         let editorController = NoteEditorWindowController()
+        editorController.setModelContainer(modelContext.container)
         editorController.show(note: note, isNewNote: false)
         
         editorController.onClose = { [weak note] in
@@ -316,7 +316,6 @@ struct NotesView: View {
         }
         
         editorController.onSave = { _ in
-            // Note saved successfully
         }
     }
     

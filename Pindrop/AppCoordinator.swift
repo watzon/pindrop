@@ -102,6 +102,7 @@ final class AppCoordinator {
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
+        self.noteEditorWindowController.setModelContainer(modelContainer)
         self.mainWindowController.onOpenSettings = { [weak self] in
             self?.statusBarController.showSettings(tab: .hotkeys)
         }
