@@ -75,8 +75,10 @@
 		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
 		TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */; };
 		TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */; };
-		WHISPERENG02A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */; };
-		WHISPERENG04A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */; };
+		WHISPERENG02A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */; };
+		WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */; };
+		PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */; };
+		PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -162,6 +164,8 @@
 		TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngineTests.swift; sourceTree = "<group>"; };
 		WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngineTests.swift; sourceTree = "<group>"; };
 		WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngine.swift; sourceTree = "<group>"; };
+		PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngine.swift; sourceTree = "<group>"; };
+		PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +258,7 @@
  		children = (
  			TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */,
  			WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
+ 			PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
  		);
  		path = Transcription;
  		sourceTree = "<group>";
@@ -311,6 +316,7 @@
 			NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
 			TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */,
 			WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */,
+			PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */,
 		);
 			path = PindropTests;
 			sourceTree = "<group>";
@@ -497,8 +503,9 @@
 			6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
 			DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
 				NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
-				TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
-				WHISPERENG02A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
+			TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
+			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
+			PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */,
 		);
 		};
 		6E3989E80A1A4BF5BEC7A015 /* Sources */ = {
@@ -559,7 +566,8 @@
 			MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */,
 			PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
 			TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */,
-			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
+			WHISPERENG02A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
+			PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */,
 		);
 	};
 /* End PBXSourcesBuildPhase section */
