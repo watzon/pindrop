@@ -252,6 +252,14 @@ final class StatusBarController {
         openHistoryItem?.target = self
         menu.addItem(openHistoryItem!)
 
+        let settingsItem = NSMenuItem(
+            title: "Settings...",
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         menu.addItem(NSMenuItem.separator())
 
         toggleFloatingIndicatorItem = NSMenuItem(
@@ -290,20 +298,6 @@ final class StatusBarController {
         let modelMenuItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
         modelMenuItem.submenu = modelMenu
         menu.addItem(modelMenuItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        // === APP SECTION ===
-        let appHeader = createHeaderItem("App")
-        menu.addItem(appHeader)
-
-        let settingsItem = NSMenuItem(
-            title: "Settings...",
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        )
-        settingsItem.target = self
-        menu.addItem(settingsItem)
 
         menu.addItem(NSMenuItem.separator())
 
