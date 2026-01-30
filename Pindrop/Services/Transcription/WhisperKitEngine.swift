@@ -8,9 +8,12 @@
 import Foundation
 import WhisperKit
 
-/// WhisperKit-based implementation of TranscriptionEngine protocol
 @MainActor
-public final class WhisperKitEngine: TranscriptionEngine {
+public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
+    
+    public static var capabilities: AudioEngineCapabilities {
+        [.transcription, .wordTimestamps, .languageDetection, .voiceActivityDetection]
+    }
     
     /// Errors that can occur during transcription operations
     public enum EngineError: Error, LocalizedError {

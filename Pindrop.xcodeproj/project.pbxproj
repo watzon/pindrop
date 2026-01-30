@@ -79,6 +79,11 @@
 		WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */; };
 		PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */; };
 		PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */; };
+		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
+		VADDETECT02A2B3C4D5E6F /* VoiceActivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */; };
+		SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */; };
+		STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */; };
+		TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -166,6 +171,11 @@
 		WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngine.swift; sourceTree = "<group>"; };
 		PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngine.swift; sourceTree = "<group>"; };
 		PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngineTests.swift; sourceTree = "<group>"; };
+		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
+		VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceActivityDetector.swift; sourceTree = "<group>"; };
+		SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiarizer.swift; sourceTree = "<group>"; };
+		STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingTranscriptionEngine.swift; sourceTree = "<group>"; };
+		TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,7 +266,12 @@
  		TRANSGRP01A2B3C4D5E6F /* Transcription */ = {
  		isa = PBXGroup;
  		children = (
+ 			AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */,
  			TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */,
+ 			STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */,
+ 			VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */,
+ 			SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */,
+ 			TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */,
  			WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
  			PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
  		);
@@ -568,6 +583,11 @@
 			TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */,
 			WHISPERENG02A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
 			PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */,
+			AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */,
+			VADDETECT02A2B3C4D5E6F /* VoiceActivityDetector.swift in Sources */,
+			SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */,
+			STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */,
+			TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */,
 		);
 	};
 /* End PBXSourcesBuildPhase section */

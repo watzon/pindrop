@@ -42,7 +42,4 @@ public protocol TranscriptionEngine: AnyObject {
     func unloadModel() async
 }
 
-// MARK: - Future Work
 
-// TODO: Future work - streaming transcription
-// func transcribeStreaming(audioStream: AsyncStream<Data>) async throws -> AsyncStream<String>

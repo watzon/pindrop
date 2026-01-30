@@ -9,7 +9,11 @@ import Foundation
 import FluidAudio
 
 @MainActor
-public final class ParakeetEngine: TranscriptionEngine {
+public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
+    
+    public static var capabilities: AudioEngineCapabilities {
+        [.transcription, .streamingTranscription, .voiceActivityDetection, .speakerDiarization]
+    }
     
     public enum EngineError: Error, LocalizedError {
         case modelNotLoaded
