@@ -179,4 +179,114 @@ final class AIEnhancementService {
             throw EnhancementError.keychainError("Failed to delete API key: \(status)")
         }
     }
+    // MARK: - Note Metadata Generation
+    
+    static let metadataGenerationPrompt = """
+    You are a note organization assistant. Given a note's content, generate:
+    1. A concise title (5-10 words) that summarizes the content
+    2. 3-5 relevant tags/keywords that categorize the content
+    
+    Return ONLY a JSON object in this exact format:
+    {"title": "Generated Title Here", "tags": ["tag1", "tag2", "tag3"]}
+    
+    Rules:
+    - Title should be descriptive but concise (5-10 words)
+    - Tags should be lowercase, single words or short phrases (1-2 words max)
+    - Tags should be relevant keywords for categorization
+    - Do not include any markdown, explanations, or additional text
+    - Return valid JSON only
+    """
+    
+    struct NoteMetadata: Codable {
+        let title: String
+        let tags: [String]
+    }
+    
+    func generateNoteMetadata(
+        content: String,
+        apiEndpoint: String,
+        apiKey: String,
+        model: String = "gpt-4o-mini"
+    ) async throws -> (title: String, tags: [String]) {
+        guard !content.isEmpty else {
+            return ("Untitled Note", [])
+        }
+        
+        guard let url = URL(string: apiEndpoint) else {
+            throw EnhancementError.invalidEndpoint
+        }
+        
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+            
+            let requestBody: [String: Any] = [
+                "model": model,
+                "messages": [
+                    [
+                        "role": "system",
+                        "content": AIEnhancementService.metadataGenerationPrompt
+                    ],
+                    [
+                        "role": "user",
+                        "content": content
+                    ]
+                ],
+                "temperature": 0.3,
+                "max_tokens": 256
+            ]
+            
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw EnhancementError.invalidResponse
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let error = json["error"] as? [String: Any],
+                   let message = error["message"] as? String {
+                    throw EnhancementError.apiError(message)
+                }
+                throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
+            }
+            
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let choices = json["choices"] as? [[String: Any]],
+                  let firstChoice = choices.first,
+                  let message = firstChoice["message"] as? [String: Any],
+                  let content = message["content"] as? String else {
+                throw EnhancementError.invalidResponse
+            }
+            
+            // Parse the JSON response from the AI
+            let cleanedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: "```json", with: "")
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            guard let jsonData = cleanedContent.data(using: .utf8) else {
+                throw EnhancementError.invalidResponse
+            }
+            
+            let metadata = try JSONDecoder().decode(NoteMetadata.self, from: jsonData)
+            
+            // Validate and clean the results
+            let cleanTitle = metadata.title.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanTags = metadata.tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                .filter { !$0.isEmpty }
+            
+            return (cleanTitle.isEmpty ? "Untitled Note" : cleanTitle, cleanTags)
+            
+        } catch let error as EnhancementError {
+            throw error
+        } catch {
+            throw EnhancementError.apiError(error.localizedDescription)
+        }
+    }
 }

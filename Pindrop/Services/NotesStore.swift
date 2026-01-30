@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import os.log
 
 @MainActor
 @Observable
@@ -17,6 +18,7 @@ final class NotesStore {
         case fetchFailed(String)
         case deleteFailed(String)
         case searchFailed(String)
+        case metadataGenerationFailed(String)
         
         var errorDescription: String? {
             switch self {
@@ -28,26 +30,89 @@ final class NotesStore {
                 return "Failed to delete note: \(message)"
             case .searchFailed(let message):
                 return "Failed to search notes: \(message)"
+            case .metadataGenerationFailed(let message):
+                return "Failed to generate metadata: \(message)"
             }
         }
     }
     
     private let modelContext: ModelContext
+    private let aiEnhancementService: AIEnhancementService?
+    private let settingsStore: SettingsStore?
     
-    init(modelContext: ModelContext) {
+    init(
+        modelContext: ModelContext,
+        aiEnhancementService: AIEnhancementService? = nil,
+        settingsStore: SettingsStore? = nil
+    ) {
         self.modelContext = modelContext
+        self.aiEnhancementService = aiEnhancementService
+        self.settingsStore = settingsStore
     }
     
     func create(
-        title: String,
+        title: String? = nil,
         content: String,
-        tags: [String] = [],
-        sourceTranscriptionID: UUID? = nil
-    ) throws {
+        tags: [String]? = nil,
+        sourceTranscriptionID: UUID? = nil,
+        generateMetadata: Bool = false
+    ) async throws {
+        var finalTitle = title
+        var finalTags = tags
+        
+        // Generate metadata if requested and AI enhancement is enabled
+        if generateMetadata,
+           let settings = settingsStore,
+           settings.aiEnhancementEnabled,
+           let aiService = aiEnhancementService {
+            if let endpoint = settings.apiEndpoint,
+               let apiKey = settings.apiKey {
+                do {
+                    let metadata = try await aiService.generateNoteMetadata(
+                        content: content,
+                        apiEndpoint: endpoint,
+                        apiKey: apiKey,
+                        model: settings.aiModel
+                    )
+                    
+                    // Use generated title if no explicit title provided
+                    if finalTitle == nil {
+                        finalTitle = metadata.title
+                    }
+                    
+                    // Use generated tags if no explicit tags provided
+                    if finalTags == nil {
+                        finalTags = metadata.tags
+                    }
+                } catch {
+                    Log.aiEnhancement.warning("Failed to generate note metadata: \(error.localizedDescription)")
+                    // Fall back to default behavior on AI failure
+                }
+            }
+        }
+        
+        // Fall back to first 30 chars of content if no title
+        if finalTitle == nil || finalTitle?.isEmpty == true {
+            let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedContent.isEmpty {
+                finalTitle = "Untitled Note"
+            } else if trimmedContent.count <= 30 {
+                finalTitle = trimmedContent
+            } else {
+                let index = trimmedContent.index(trimmedContent.startIndex, offsetBy: 30)
+                finalTitle = String(trimmedContent[..<index]) + "..."
+            }
+        }
+        
+        // Use empty array if no tags
+        if finalTags == nil {
+            finalTags = []
+        }
+        
         let note = Note(
-            title: title,
+            title: finalTitle!,
             content: content,
-            tags: tags,
+            tags: finalTags!,
             sourceTranscriptionID: sourceTranscriptionID
         )
         

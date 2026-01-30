@@ -87,7 +87,7 @@ final class AppCoordinator {
         self.outputManager = OutputManager(outputMode: initialOutputMode)
         self.historyStore = HistoryStore(modelContext: modelContext)
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
-        self.notesStore = NotesStore(modelContext: modelContext)
+        self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,

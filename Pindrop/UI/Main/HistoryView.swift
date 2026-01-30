@@ -462,45 +462,56 @@ struct HistoryTranscriptionRow: View {
         .transition(.opacity.combined(with: .scale))
     }
     
+    
     private func saveAsNote() {
-        // Generate title from first 50 chars of transcription
-        let title: String
-        let trimmedText = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedText.count > 50 {
-            title = String(trimmedText.prefix(50)) + "..."
-        } else if trimmedText.isEmpty {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-            title = "Note from \(formatter.string(from: record.timestamp))"
-        } else {
-            title = trimmedText
-        }
-        
-        // Use enhanced text if available, otherwise original
-        let content = record.text
-        
-        do {
-            try notesStore.create(
-                title: title,
-                content: content,
-                tags: [],
-                sourceTranscriptionID: record.id
-            )
-            
-            // Show success feedback
-            withAnimation(AppTheme.Animation.fast) {
-                showingSaveSuccess = true
+        Task {
+            // Generate title from first 50 chars of transcription
+            let title: String
+            let trimmedText = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedText.count > 50 {
+                title = String(trimmedText.prefix(50)) + "..."
+            } else if trimmedText.isEmpty {
+                let formatter = DateFormatter()
+                formatter.dateStyle = .medium
+                formatter.timeStyle = .short
+                title = "Note from \(formatter.string(from: record.timestamp))"
+            } else {
+                title = trimmedText
             }
             
-            // Hide after 2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation(AppTheme.Animation.fast) {
-                    showingSaveSuccess = false
+            // Use enhanced text if available, otherwise original
+            let content = record.text
+            
+            do {
+                // Check if AI Enhancement is enabled for metadata generation
+                let settingsStore = SettingsStore()
+                let generateMetadata = settingsStore.aiEnhancementEnabled
+                
+                try await notesStore.create(
+                    title: title,
+                    content: content,
+                    tags: [],
+                    sourceTranscriptionID: record.id,
+                    generateMetadata: generateMetadata
+                )
+                
+                // Show success feedback
+                await MainActor.run {
+                    withAnimation(AppTheme.Animation.fast) {
+                        showingSaveSuccess = true
+                    }
                 }
+                
+                // Hide after 2 seconds
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                await MainActor.run {
+                    withAnimation(AppTheme.Animation.fast) {
+                        showingSaveSuccess = false
+                    }
+                }
+            } catch {
+                Log.ui.error("Failed to save transcription as note: \(error)")
             }
-        } catch {
-            Log.ui.error("Failed to save transcription as note: \(error)")
         }
     }
 }
