@@ -322,7 +322,11 @@ class ModelManager {
                     let folderPath = parakeetModelsURL.appendingPathComponent(folder).path
                     var isDirectory: ObjCBool = false
                     if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
-                        downloaded.insert(folder)
+                        // Strip "-coreml" suffix (7 chars) to match model IDs
+                        let normalizedName = folder.hasSuffix("-coreml")
+                            ? String(folder.dropLast(7))
+                            : folder
+                        downloaded.insert(normalizedName)
                     }
                 }
             } catch {
