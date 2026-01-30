@@ -29,11 +29,38 @@ enum AudioRecorderError: Error, LocalizedError {
     }
 }
 
+/// Thread-safe buffer storage for audio recording.
+/// Uses a lock to allow immediate buffer appending from the audio render thread.
+private final class AudioBufferStorage: @unchecked Sendable {
+    private var buffers: [AVAudioPCMBuffer] = []
+    private let lock = NSLock()
+    
+    func append(_ buffer: AVAudioPCMBuffer) {
+        lock.lock()
+        defer { lock.unlock() }
+        buffers.append(buffer)
+    }
+    
+    func removeAll() -> [AVAudioPCMBuffer] {
+        lock.lock()
+        defer { lock.unlock() }
+        let result = buffers
+        buffers.removeAll()
+        return result
+    }
+    
+    var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return buffers.count
+    }
+}
+
 @MainActor
 final class AudioRecorder {
     
     private var audioEngine: AVAudioEngine?
-    private var audioBuffers: [AVAudioPCMBuffer] = []
+    private let audioBuffers = AudioBufferStorage()
     private(set) var isRecording = false
     
     let targetFormat: AVAudioFormat
@@ -63,7 +90,7 @@ final class AudioRecorder {
             return
         }
         
-        audioBuffers.removeAll()
+        _ = audioBuffers.removeAll()
         
         let engine = AVAudioEngine()
         self.audioEngine = engine
@@ -73,17 +100,19 @@ final class AudioRecorder {
         
         Log.audio.debug("Input format: \(inputFormat)")
         
+        let bufferStorage = self.audioBuffers
+        let targetFmt = self.targetFormat
+        
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
             guard let self = self else { return }
             
-            let level = self.calculateAudioLevel(buffer)
+            if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: targetFmt) {
+                bufferStorage.append(convertedBuffer)
+            }
             
+            let level = self.calculateAudioLevel(buffer)
             Task { @MainActor in
                 self.onAudioLevel?(level)
-                
-                if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: self.targetFormat) {
-                    self.audioBuffers.append(convertedBuffer)
-                }
             }
         }
         
@@ -110,17 +139,16 @@ final class AudioRecorder {
         isRecording = false
         self.audioEngine = nil
         
-        Log.audio.debug("Stopped recording, collected \(self.audioBuffers.count) buffers")
+        let collectedBuffers = audioBuffers.removeAll()
+        Log.audio.debug("Stopped recording, collected \(collectedBuffers.count) buffers")
         
-        let audioData = combineBuffersToData(audioBuffers)
-        audioBuffers.removeAll()
+        let audioData = combineBuffersToData(collectedBuffers)
         
         Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
         
         return audioData
     }
     
-    /// Cancels recording without returning audio data. Discards all captured audio.
     func cancelRecording() {
         guard isRecording, let engine = audioEngine else {
             return
@@ -130,7 +158,7 @@ final class AudioRecorder {
         engine.stop()
         isRecording = false
         self.audioEngine = nil
-        audioBuffers.removeAll()
+        _ = audioBuffers.removeAll()
         
         Log.audio.info("Recording cancelled, audio discarded")
     }
