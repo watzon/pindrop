@@ -150,11 +150,11 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [TranscriptionRecordSchemaV1.self, TranscriptionRecordSchemaV2.self]
     }
-    
+
     static var stages: [MigrationStage] {
         [migrateV1toV2]
     }
-    
+
     // Lightweight migration from V1 to V2
     // Adds optional originalText and enhancedWith fields
     // Existing records will have nil values for new fields

@@ -48,8 +48,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 for: TranscriptionRecord.self,
                 WordReplacement.self,
                 VocabularyWord.self,
-                Note.self,
-                migrationPlan: TranscriptionRecordMigrationPlan.self
+                Note.self
             )
         } catch {
             Log.app.error("Failed to create ModelContainer: \(error)")
