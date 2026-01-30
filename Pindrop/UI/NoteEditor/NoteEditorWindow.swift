@@ -234,23 +234,24 @@ struct NoteEditorView: View {
             content = note.content
             isPinned = note.isPinned
             tags = note.tags
-            currentNote = note
+            // Only set currentNote for existing notes - new notes need to be inserted into context first
+            if !isNewNote {
+                currentNote = note
+            }
         }
     }
     
     private func createNoteIfNeeded() {
         guard isNewNote && currentNote == nil else { return }
         
-        let initialContent = note?.content ?? ""
         let newNote = NoteSchema.Note(
-            title: "",
-            content: initialContent,
-            tags: [],
-            isPinned: false
+            title: title.isEmpty ? "Untitled Note" : title,
+            content: content,
+            tags: tags,
+            isPinned: isPinned
         )
         modelContext.insert(newNote)
         currentNote = newNote
-        content = initialContent
         
         do {
             try modelContext.save()
