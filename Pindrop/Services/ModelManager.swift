@@ -97,6 +97,7 @@ class ModelManager {
         case modelNotFound(String)
         case downloadFailed(String)
         case deleteFailed(String)
+        case downloadNotImplemented(String)
         
         var errorDescription: String? {
             switch self {
@@ -106,6 +107,8 @@ class ModelManager {
                 return "Download failed: \(message)"
             case .deleteFailed(let message):
                 return "Delete failed: \(message)"
+            case .downloadNotImplemented(let provider):
+                return "Download for \(provider) models is not yet implemented"
             }
         }
     }
@@ -185,25 +188,36 @@ class ModelManager {
             language: .multilingual
         ),
         
-        // Coming Soon - Parakeet Models
+        // Parakeet Models (via FluidInference CoreML ports)
         WhisperModel(
-            name: "nvidia_parakeet-tdt-0.6b",
-            displayName: "Parakeet TDT 0.6B",
-            sizeInMB: 600,
-            description: "NVIDIA's state-of-the-art speech recognition model",
+            name: "parakeet-tdt-0.6b-v2",
+            displayName: "Parakeet TDT 0.6B V2",
+            sizeInMB: 2580,
+            description: "NVIDIA's state-of-the-art speech recognition model, English-only",
             speedRating: 8.5,
             accuracyRating: 9.8,
             language: .english,
             provider: .parakeet,
-            availability: .comingSoon
+            availability: .available
         ),
         WhisperModel(
-            name: "nvidia_parakeet-tdt-1.1b",
+            name: "parakeet-tdt-0.6b-v3",
+            displayName: "Parakeet TDT 0.6B V3",
+            sizeInMB: 2670,
+            description: "Latest Parakeet model with multilingual support",
+            speedRating: 8.0,
+            accuracyRating: 9.9,
+            language: .multilingual,
+            provider: .parakeet,
+            availability: .available
+        ),
+        WhisperModel(
+            name: "parakeet-tdt-1.1b",
             displayName: "Parakeet TDT 1.1B",
-            sizeInMB: 1100,
+            sizeInMB: 4400,
             description: "Larger Parakeet model with exceptional accuracy",
             speedRating: 7.0,
-            accuracyRating: 9.9,
+            accuracyRating: 9.95,
             language: .english,
             provider: .parakeet,
             availability: .comingSoon
@@ -257,6 +271,11 @@ class ModelManager {
             .appendingPathComponent("Pindrop", isDirectory: true)
     }
     
+    private var parakeetModelsURL: URL {
+        modelsBaseURL.appendingPathComponent("FluidInference", isDirectory: true)
+                     .appendingPathComponent("parakeet-coreml", isDirectory: true)
+    }
+    
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
@@ -271,35 +290,46 @@ class ModelManager {
     func refreshDownloadedModels() async {
         var downloaded: Set<String> = []
         
-        // WhisperKit stores models in models/argmaxinc/whisperkit-coreml/
         let whisperKitPath = modelsBaseURL
             .appendingPathComponent("models", isDirectory: true)
             .appendingPathComponent("argmaxinc", isDirectory: true)
             .appendingPathComponent("whisperkit-coreml", isDirectory: true)
         
-        let basePath = whisperKitPath.path
-        guard fileManager.fileExists(atPath: basePath) else {
-            downloadedModelNames = []
-            return
-        }
-        
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: basePath)
-            for folder in contents {
-                // Skip hidden directories like .cache
-                if folder.hasPrefix(".") { continue }
-                
-                let folderPath = whisperKitPath.appendingPathComponent(folder).path
-                var isDirectory: ObjCBool = false
-                if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
-                    downloaded.insert(folder)
+        if fileManager.fileExists(atPath: whisperKitPath.path) {
+            do {
+                let contents = try fileManager.contentsOfDirectory(atPath: whisperKitPath.path)
+                for folder in contents {
+                    if folder.hasPrefix(".") { continue }
+                    
+                    let folderPath = whisperKitPath.appendingPathComponent(folder).path
+                    var isDirectory: ObjCBool = false
+                    if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
+                        downloaded.insert(folder)
+                    }
                 }
+            } catch {
+                Log.model.error("Failed to list WhisperKit models: \(error)")
             }
-            Log.model.debug("Found \(downloaded.count) downloaded models: \(downloaded)")
-        } catch {
-            Log.model.error("Failed to list downloaded models: \(error)")
         }
         
+        if fileManager.fileExists(atPath: parakeetModelsURL.path) {
+            do {
+                let contents = try fileManager.contentsOfDirectory(atPath: parakeetModelsURL.path)
+                for folder in contents {
+                    if folder.hasPrefix(".") { continue }
+                    
+                    let folderPath = parakeetModelsURL.appendingPathComponent(folder).path
+                    var isDirectory: ObjCBool = false
+                    if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
+                        downloaded.insert(folder)
+                    }
+                }
+            } catch {
+                Log.model.error("Failed to list Parakeet models: \(error)")
+            }
+        }
+        
+        Log.model.debug("Found \(downloaded.count) downloaded models: \(downloaded)")
         downloadedModelNames = downloaded
     }
     
@@ -315,7 +345,7 @@ class ModelManager {
     }
     
     func downloadModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
-        guard availableModels.contains(where: { $0.name == modelName }) else {
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
         
@@ -332,10 +362,17 @@ class ModelManager {
             currentDownloadModel = nil
         }
         
+        if model.provider == .parakeet {
+            try await downloadParakeetModel(named: modelName, onProgress: onProgress)
+        } else {
+            try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
+        }
+    }
+    
+    private func downloadWhisperKitModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
         do {
-            Log.model.info("Downloading model: \(modelName) to \(self.modelsBaseURL.path)")
+            Log.model.info("Downloading WhisperKit model: \(modelName) to \(self.modelsBaseURL.path)")
             
-            // Ensure the model folder exists
             try fileManager.createDirectory(at: self.modelsBaseURL, withIntermediateDirectories: true)
             
             _ = try await WhisperKit.download(
@@ -371,6 +408,19 @@ class ModelManager {
             downloadProgress = 0.0
             throw ModelError.downloadFailed(error.localizedDescription)
         }
+    }
+    
+    private func downloadParakeetModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+        Log.model.info("Parakeet model download requested: \(modelName)")
+        Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
+        
+        do {
+            try fileManager.createDirectory(at: parakeetModelsURL, withIntermediateDirectories: true)
+        } catch {
+            throw ModelError.downloadFailed("Failed to create Parakeet models directory: \(error.localizedDescription)")
+        }
+        
+        throw ModelError.downloadNotImplemented("Parakeet")
     }
     
     func deleteModel(named modelName: String) async throws {
