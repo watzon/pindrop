@@ -33,6 +33,20 @@ final class SettingsStore: ObservableObject {
         static let outputMode = "clipboard"
         static let aiModel = "openai/gpt-4o-mini"
         static let aiEnhancementPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+        static let noteEnhancementPrompt = """
+You are a note formatting assistant. Transform the transcribed text into a well-structured note.
+
+Rules:
+- Fix grammar, punctuation, and spelling errors
+- For longer content (3+ paragraphs), add markdown formatting:
+  - Use headers (## or ###) to organize sections
+  - Use bullet points or numbered lists where appropriate
+  - Use **bold** for emphasis on key terms
+- For shorter content, keep it simple with minimal formatting
+- Preserve the original meaning and tone
+- Do not add content that wasn't in the original
+- Return only the formatted note without any commentary
+"""
         
         enum Hotkeys {
             static let toggleHotkey = "⌥Space"
@@ -47,9 +61,13 @@ final class SettingsStore: ObservableObject {
             static let copyLastTranscriptHotkeyCode = 8
             static let copyLastTranscriptHotkeyModifiers = 0x300
             
-            static let quickCaptureHotkey = "⇧⌥Space"
-            static let quickCaptureHotkeyCode = 49
-            static let quickCaptureHotkeyModifiers = 0xA00  // Shift + Option
+            static let quickCapturePTTHotkey = "⇧⌥Space"
+            static let quickCapturePTTHotkeyCode = 49
+            static let quickCapturePTTHotkeyModifiers = 0xA00  // Shift + Option
+            
+            static let quickCaptureToggleHotkey = ""
+            static let quickCaptureToggleHotkeyCode = 0
+            static let quickCaptureToggleHotkeyModifiers = 0
         }
     }
     
@@ -65,13 +83,17 @@ final class SettingsStore: ObservableObject {
     @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = Defaults.Hotkeys.copyLastTranscriptHotkey
     @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
     @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
-    @AppStorage("quickCaptureHotkey") var quickCaptureHotkey: String = Defaults.Hotkeys.quickCaptureHotkey
-    @AppStorage("quickCaptureHotkeyCode") var quickCaptureHotkeyCode: Int = Defaults.Hotkeys.quickCaptureHotkeyCode
-    @AppStorage("quickCaptureHotkeyModifiers") var quickCaptureHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureHotkeyModifiers
+    @AppStorage("quickCapturePTTHotkey") var quickCapturePTTHotkey: String = Defaults.Hotkeys.quickCapturePTTHotkey
+    @AppStorage("quickCapturePTTHotkeyCode") var quickCapturePTTHotkeyCode: Int = Defaults.Hotkeys.quickCapturePTTHotkeyCode
+    @AppStorage("quickCapturePTTHotkeyModifiers") var quickCapturePTTHotkeyModifiers: Int = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
+    @AppStorage("quickCaptureToggleHotkey") var quickCaptureToggleHotkey: String = Defaults.Hotkeys.quickCaptureToggleHotkey
+    @AppStorage("quickCaptureToggleHotkeyCode") var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
+    @AppStorage("quickCaptureToggleHotkeyModifiers") var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
     @AppStorage("outputMode") var outputMode: String = Defaults.outputMode
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("aiModel") var aiModel: String = Defaults.aiModel
     @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
+    @AppStorage("noteEnhancementPrompt") var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
     @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
     @AppStorage("floatingIndicatorType") var floatingIndicatorType: String = FloatingIndicatorType.pill.rawValue
     @AppStorage("showInDock") var showInDock: Bool = false
@@ -137,9 +159,12 @@ final class SettingsStore: ObservableObject {
         copyLastTranscriptHotkey = Defaults.Hotkeys.copyLastTranscriptHotkey
         copyLastTranscriptHotkeyCode = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
         copyLastTranscriptHotkeyModifiers = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
-        quickCaptureHotkey = Defaults.Hotkeys.quickCaptureHotkey
-        quickCaptureHotkeyCode = Defaults.Hotkeys.quickCaptureHotkeyCode
-        quickCaptureHotkeyModifiers = Defaults.Hotkeys.quickCaptureHotkeyModifiers
+        quickCapturePTTHotkey = Defaults.Hotkeys.quickCapturePTTHotkey
+        quickCapturePTTHotkeyCode = Defaults.Hotkeys.quickCapturePTTHotkeyCode
+        quickCapturePTTHotkeyModifiers = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
+        quickCaptureToggleHotkey = Defaults.Hotkeys.quickCaptureToggleHotkey
+        quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
+        quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
         outputMode = Defaults.outputMode
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false

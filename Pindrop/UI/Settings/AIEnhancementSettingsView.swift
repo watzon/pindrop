@@ -17,16 +17,41 @@ struct AIEnhancementSettingsView: View {
     @State private var customModel = ""
     @State private var useCustomModel = false
     @State private var enhancementPrompt = ""
+    @State private var noteEnhancementPrompt = ""
+    @State private var selectedPromptType: PromptType = .transcription
     @State private var showingAPIKey = false
     @State private var showingSaveSuccess = false
     @State private var showingPromptSaveSuccess = false
     @State private var errorMessage: String?
     
+    enum PromptType: String, CaseIterable, Identifiable {
+        case transcription = "Transcription"
+        case notes = "Notes"
+        
+        var id: String { rawValue }
+        
+        var icon: Icon {
+            switch self {
+            case .transcription: return .mic
+            case .notes: return .stickyNote
+            }
+        }
+        
+        var description: String {
+            switch self {
+            case .transcription:
+                return "Sent to the AI model when processing dictation for direct text insertion."
+            case .notes:
+                return "Used when capturing notes via hotkey. Can add markdown formatting for longer content."
+            }
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             enableToggleCard
             providerCard
-            promptCard
+            promptsCard
         }
         .task {
             loadCredentials()
@@ -65,62 +90,122 @@ struct AIEnhancementSettingsView: View {
         }
     }
     
-    // MARK: - Prompt Card
+    // MARK: - Prompts Card
     
-    private var promptCard: some View {
-        SettingsCard(title: "Enhancement Prompt", icon: "text.bubble") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Custom System Prompt")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                TextEditor(text: $enhancementPrompt)
-                    .font(.body)
-                    .frame(minHeight: 100, maxHeight: 200)
-                    .padding(8)
-                    .scrollContentBackground(.hidden)
-                    .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
-                
-                HStack {
-                    Button("Reset to Default") {
-                        enhancementPrompt = AIEnhancementService.defaultSystemPrompt
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    
-                    Spacer()
-                    
-                    Text("\(enhancementPrompt.count) characters")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Text("This prompt is sent to the AI model before processing your transcription. Customize how the AI should enhance your text.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
-                HStack {
-                    Button("Save Prompt") {
-                        savePrompt()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(enhancementPrompt.isEmpty)
-                    
-                    Spacer()
-                    
-                    if showingPromptSaveSuccess {
-                        HStack(spacing: 6) {
-                            IconView(icon: .check, size: 12)
-                                .foregroundStyle(.green)
-                            Text("Saved")
-                                .font(.caption)
-                                .foregroundStyle(.green)
-                        }
-                    }
-                }
+    private var promptsCard: some View {
+        SettingsCard(title: "Enhancement Prompts", icon: "text.bubble") {
+            VStack(spacing: 16) {
+                promptTypeTabs
+                promptContent
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             .disabled(!settings.aiEnhancementEnabled)
+        }
+    }
+    
+    private var promptTypeTabs: some View {
+        HStack(spacing: 0) {
+            ForEach(PromptType.allCases) { type in
+                promptTypeTab(type)
+            }
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+    }
+    
+    private func promptTypeTab(_ type: PromptType) -> some View {
+        Button {
+            withAnimation(.spring(duration: 0.3)) {
+                selectedPromptType = type
+            }
+        } label: {
+            VStack(spacing: 3) {
+                IconView(icon: type.icon, size: 14)
+                Text(type.rawValue)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+            .background(
+                selectedPromptType == type
+                    ? AppColors.accent.opacity(0.2)
+                    : Color.clear,
+                in: RoundedRectangle(cornerRadius: 8)
+            )
+            .foregroundStyle(selectedPromptType == type ? AppColors.accent : .secondary)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var promptContent: some View {
+        let currentPrompt = selectedPromptType == .transcription ? $enhancementPrompt : $noteEnhancementPrompt
+        let charCount = selectedPromptType == .transcription ? enhancementPrompt.count : noteEnhancementPrompt.count
+        
+        VStack(alignment: .leading, spacing: 12) {
+            TextEditor(text: currentPrompt)
+                .font(.body)
+                .frame(minHeight: 120, maxHeight: 220)
+                .padding(8)
+                .scrollContentBackground(.hidden)
+                .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+            
+            HStack {
+                Button("Reset to Default") {
+                    resetCurrentPrompt()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                
+                Spacer()
+                
+                Text("\(charCount) characters")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Text(selectedPromptType.description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            HStack {
+                Button("Save Prompt") {
+                    saveCurrentPrompt()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(charCount == 0)
+                
+                Spacer()
+                
+                if showingPromptSaveSuccess {
+                    HStack(spacing: 6) {
+                        IconView(icon: .check, size: 12)
+                            .foregroundStyle(.green)
+                        Text("Saved")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func resetCurrentPrompt() {
+        switch selectedPromptType {
+        case .transcription:
+            enhancementPrompt = AIEnhancementService.defaultSystemPrompt
+        case .notes:
+            noteEnhancementPrompt = SettingsStore.Defaults.noteEnhancementPrompt
+        }
+    }
+    
+    private func saveCurrentPrompt() {
+        switch selectedPromptType {
+        case .transcription:
+            savePrompt()
+        case .notes:
+            saveNotePrompt()
         }
     }
     
@@ -432,10 +517,22 @@ struct AIEnhancementSettingsView: View {
         }
         
         enhancementPrompt = settings.aiEnhancementPrompt
+        noteEnhancementPrompt = settings.noteEnhancementPrompt
     }
     
     private func savePrompt() {
         settings.aiEnhancementPrompt = enhancementPrompt
+        
+        showingPromptSaveSuccess = true
+        
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            showingPromptSaveSuccess = false
+        }
+    }
+    
+    private func saveNotePrompt() {
+        settings.noteEnhancementPrompt = noteEnhancementPrompt
         
         showingPromptSaveSuccess = true
         

@@ -104,7 +104,7 @@ final class AppCoordinator {
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
         self.mainWindowController.onOpenSettings = { [weak self] in
-            self?.statusBarController.showSettings(tab: .hotkeys)
+            self?.statusBarController.showSettings(tab: .general)
         }
 
         self.statusBarController.onToggleRecording = { [weak self] in
@@ -401,28 +401,47 @@ final class AppCoordinator {
             )
         }
 
-        // Register quick capture hotkey (Shift+Option+Space)
-        if !settingsStore.quickCaptureHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.quickCaptureHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCaptureHotkeyModifiers))
+        if !settingsStore.quickCapturePTTHotkey.isEmpty {
+            let keyCode = UInt32(settingsStore.quickCapturePTTHotkeyCode)
+            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCapturePTTHotkeyModifiers))
 
-            Log.hotkey.info("Registering quick-capture: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureHotkey)")
+            Log.hotkey.info("Registering quick-capture-ptt: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCapturePTTHotkey)")
 
             _ = hotkeyManager.registerHotkey(
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "quick-capture",
+                identifier: "quick-capture-ptt",
                 mode: .pushToTalk,
                 onKeyDown: { [weak self] in
                     Task { @MainActor in
-                        await self?.handleQuickCaptureStart()
+                        await self?.handleQuickCapturePTTStart()
                     }
                 },
                 onKeyUp: { [weak self] in
                     Task { @MainActor in
-                        await self?.handleQuickCaptureEnd()
+                        await self?.handleQuickCapturePTTEnd()
                     }
                 }
+            )
+        }
+
+        if !settingsStore.quickCaptureToggleHotkey.isEmpty {
+            let keyCode = UInt32(settingsStore.quickCaptureToggleHotkeyCode)
+            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCaptureToggleHotkeyModifiers))
+
+            Log.hotkey.info("Registering quick-capture-toggle: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureToggleHotkey)")
+
+            _ = hotkeyManager.registerHotkey(
+                keyCode: keyCode,
+                modifiers: modifiers,
+                identifier: "quick-capture-toggle",
+                mode: .toggle,
+                onKeyDown: { [weak self] in
+                    Task { @MainActor in
+                        await self?.handleQuickCaptureToggle()
+                    }
+                },
+                onKeyUp: nil
             )
         }
     }
@@ -490,9 +509,9 @@ final class AppCoordinator {
         }
     }
 
-    // MARK: - Quick Capture Handlers
+    // MARK: - Quick Capture Handlers (Push-to-Talk)
 
-    private func handleQuickCaptureStart() async {
+    private func handleQuickCapturePTTStart() async {
         guard !isRecording && !isProcessing else { return }
 
         isQuickCaptureMode = true
@@ -507,13 +526,12 @@ final class AppCoordinator {
         }
     }
 
-    private func handleQuickCaptureEnd() async {
+    private func handleQuickCapturePTTEnd() async {
         guard isRecording && isQuickCaptureMode else { return }
 
         do {
-            let transcribedText = try await stopRecordingAndTranscribeForQuickCapture()
-            if !transcribedText.isEmpty {
-                openNoteEditorWithTranscription(transcribedText)
+            if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
+                openNoteEditorWithEnhancedNote(enhancedNote)
             }
         } catch {
             self.error = error
@@ -523,10 +541,37 @@ final class AppCoordinator {
         isQuickCaptureMode = false
     }
 
-    private func stopRecordingAndTranscribeForQuickCapture() async throws -> String {
-        guard let startTime = recordingStartTime else {
+    // MARK: - Quick Capture Handlers (Toggle)
+
+    private func handleQuickCaptureToggle() async {
+        if isRecording && isQuickCaptureMode {
+            do {
+                if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
+                    openNoteEditorWithEnhancedNote(enhancedNote)
+                }
+            } catch {
+                self.error = error
+                Log.app.error("Failed to stop quick capture recording: \(error)")
+            }
+            isQuickCaptureMode = false
+        } else if !isRecording && !isProcessing {
+            isQuickCaptureMode = true
+            quickCaptureTranscription = nil
+
+            do {
+                try await startRecording()
+            } catch {
+                self.error = error
+                isQuickCaptureMode = false
+                Log.app.error("Failed to start quick capture recording: \(error)")
+            }
+        }
+    }
+
+    private func stopRecordingAndTranscribeForQuickCapture() async throws -> AIEnhancementService.EnhancedNote? {
+        guard recordingStartTime != nil else {
             Log.app.warning("stopRecordingAndTranscribeForQuickCapture called but recordingStartTime is nil")
-            return ""
+            return nil
         }
 
         isRecording = false
@@ -567,7 +612,7 @@ final class AppCoordinator {
 
         guard !audioData.isEmpty else {
             Log.app.warning("No audio data recorded")
-            return ""
+            return nil
         }
 
         let transcribedText: String
@@ -594,61 +639,61 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
 
-        var finalText = textAfterReplacements
-
-        // Apply AI enhancement if enabled (for quick capture)
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
-                // Build enhanced prompt with dictionary context
-                var enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                var notePrompt = settingsStore.noteEnhancementPrompt
 
-                // Add vocabulary section if exists
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
                 if !vocabularyWords.isEmpty {
                     let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
-                    enhancedPrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                    notePrompt += "\n\nUser's vocabulary includes: \(wordList)"
                 }
 
-                // Add replacements section if applied
                 if !lastAppliedReplacements.isEmpty {
                     let replacementList = lastAppliedReplacements
                         .map { "'\($0.original)' → '\($0.replacement)'" }
                         .joined(separator: ", ")
-                    enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+                    notePrompt += "\n\nNote: These automatic replacements were applied: \(replacementList). Please preserve these corrections."
                 }
 
-                finalText = try await aiEnhancementService.enhance(
-                    text: textAfterReplacements,
+                let existingTags = (try? notesStore.getAllUniqueTags()) ?? []
+                let enhancedNote = try await aiEnhancementService.enhanceNote(
+                    content: textAfterReplacements,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
-                    customPrompt: enhancedPrompt
+                    contentPrompt: notePrompt,
+                    generateMetadata: true,
+                    existingTags: existingTags
                 )
-                Log.app.info("AI enhancement completed for quick capture")
+                Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
+                return enhancedNote
             } catch {
-                Log.app.error("AI enhancement failed for quick capture: \(error)")
-                // Continue with unenhanced text
+                Log.app.error("Note enhancement failed: \(error)")
             }
         }
 
-        return finalText
+        let fallbackTitle = aiEnhancementService.generateFallbackTitle(from: textAfterReplacements)
+        return AIEnhancementService.EnhancedNote(
+            content: textAfterReplacements,
+            title: fallbackTitle,
+            tags: []
+        )
     }
 
-    private func openNoteEditorWithTranscription(_ transcription: String) {
-        // Create a new note with the transcription as content
+    private func openNoteEditorWithEnhancedNote(_ enhancedNote: AIEnhancementService.EnhancedNote) {
         let newNote = NoteSchema.Note(
-            title: "",
-            content: transcription,
-            tags: [],
+            title: enhancedNote.title,
+            content: enhancedNote.content,
+            tags: enhancedNote.tags,
             sourceTranscriptionID: nil
         )
 
-        // Insert into context
         noteEditorWindowController.show(note: newNote, isNewNote: true)
 
-        Log.app.info("Opened note editor with quick capture transcription")
+        Log.app.info("Opened note editor with enhanced note")
     }
 
     private func handleToggleRecording() async {

@@ -66,6 +66,7 @@ enum Icon: String {
     case openrouter = "icon-openrouter"
     
     case circleX = "icon-circle-x"
+    case stickyNote = "icon-sticky-note"
 }
 
 struct IconView: View {
