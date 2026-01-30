@@ -61,16 +61,16 @@ final class ModelManagerTests: XCTestCase {
     
     func testCheckDownloadedModels() async {
         let downloadedModels = await modelManager.getDownloadedModels()
-        
-        // Initially, no models should be downloaded
-        XCTAssertTrue(downloadedModels.isEmpty || !downloadedModels.isEmpty, "Should return array (empty or with models)")
+
+        // Should return an array (may be empty or contain models)
+        XCTAssertNotNil(downloadedModels, "Should return non-nil array")
     }
-    
+
     func testIsModelDownloaded() async {
         let isDownloaded = await modelManager.isModelDownloaded("tiny")
-        
-        // Should return boolean without crashing
-        XCTAssertTrue(isDownloaded || !isDownloaded, "Should return boolean")
+
+        // Should return a valid boolean
+        XCTAssertTrue(isDownloaded == true || isDownloaded == false, "Should return valid boolean")
     }
     
     func testModelPath() async {

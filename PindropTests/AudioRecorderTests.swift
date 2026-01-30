@@ -18,7 +18,7 @@ final class AudioRecorderTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         permissionManager = PermissionManager()
-        sut = AudioRecorder(permissionManager: permissionManager)
+        sut = try AudioRecorder(permissionManager: permissionManager)
     }
     
     override func tearDownWithError() throws {
