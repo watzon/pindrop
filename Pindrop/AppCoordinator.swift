@@ -29,6 +29,7 @@ final class AppCoordinator {
     let historyStore: HistoryStore
     let dictionaryStore: DictionaryStore
     let settingsStore: SettingsStore
+    let notesStore: NotesStore
     
     // MARK: - UI Controllers
     
@@ -38,6 +39,12 @@ final class AppCoordinator {
     let onboardingController: OnboardingWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
+    let noteEditorWindowController: NoteEditorWindowController
+    
+    // MARK: - Quick Capture State
+    
+    private var isQuickCaptureMode = false
+    private var quickCaptureTranscription: String?
     
     // MARK: - State
     
@@ -80,6 +87,7 @@ final class AppCoordinator {
         self.outputManager = OutputManager(outputMode: initialOutputMode)
         self.historyStore = HistoryStore(modelContext: modelContext)
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
+        self.notesStore = NotesStore(modelContext: modelContext)
         
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
@@ -93,6 +101,7 @@ final class AppCoordinator {
         self.splashController = SplashWindowController(state: splashState)
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)
+        self.noteEditorWindowController = NoteEditorWindowController()
         self.mainWindowController.onOpenSettings = { [weak self] in
             self?.statusBarController.showSettings(tab: .hotkeys)
         }
@@ -390,6 +399,31 @@ final class AppCoordinator {
                 onKeyUp: nil
             )
         }
+
+        // Register quick capture hotkey (Shift+Option+Space)
+        if !settingsStore.quickCaptureHotkey.isEmpty {
+            let keyCode = UInt32(settingsStore.quickCaptureHotkeyCode)
+            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCaptureHotkeyModifiers))
+
+            Log.hotkey.info("Registering quick-capture: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureHotkey)")
+
+            _ = hotkeyManager.registerHotkey(
+                keyCode: keyCode,
+                modifiers: modifiers,
+                identifier: "quick-capture",
+                mode: .pushToTalk,
+                onKeyDown: { [weak self] in
+                    Task { @MainActor in
+                        await self?.handleQuickCaptureStart()
+                    }
+                },
+                onKeyUp: { [weak self] in
+                    Task { @MainActor in
+                        await self?.handleQuickCaptureEnd()
+                    }
+                }
+            )
+        }
     }
     
     // MARK: - Settings Observation
@@ -454,7 +488,168 @@ final class AppCoordinator {
             Log.app.error("Failed to stop recording: \(error)")
         }
     }
-    
+
+    // MARK: - Quick Capture Handlers
+
+    private func handleQuickCaptureStart() async {
+        guard !isRecording && !isProcessing else { return }
+
+        isQuickCaptureMode = true
+        quickCaptureTranscription = nil
+
+        do {
+            try await startRecording()
+        } catch {
+            self.error = error
+            isQuickCaptureMode = false
+            Log.app.error("Failed to start quick capture recording: \(error)")
+        }
+    }
+
+    private func handleQuickCaptureEnd() async {
+        guard isRecording && isQuickCaptureMode else { return }
+
+        do {
+            let transcribedText = try await stopRecordingAndTranscribeForQuickCapture()
+            if !transcribedText.isEmpty {
+                openNoteEditorWithTranscription(transcribedText)
+            }
+        } catch {
+            self.error = error
+            Log.app.error("Failed to stop quick capture recording: \(error)")
+        }
+
+        isQuickCaptureMode = false
+    }
+
+    private func stopRecordingAndTranscribeForQuickCapture() async throws -> String {
+        guard let startTime = recordingStartTime else {
+            Log.app.warning("stopRecordingAndTranscribeForQuickCapture called but recordingStartTime is nil")
+            return ""
+        }
+
+        isRecording = false
+        isProcessing = true
+
+        statusBarController.setProcessingState()
+
+        if settingsStore.floatingIndicatorEnabled {
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.stopRecording()
+            } else {
+                floatingIndicatorController.stopRecording()
+            }
+        }
+
+        defer {
+            isProcessing = false
+            recordingStartTime = nil
+            statusBarController.setIdleState()
+            statusBarController.updateMenuState()
+
+            if settingsStore.floatingIndicatorEnabled {
+                if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                    pillFloatingIndicatorController.finishProcessing()
+                } else {
+                    floatingIndicatorController.finishProcessing()
+                }
+            }
+        }
+
+        let audioData: Data
+        do {
+            audioData = try await audioRecorder.stopRecording()
+        } catch {
+            Log.app.error("Failed to stop recording: \(error)")
+            throw error
+        }
+
+        guard !audioData.isEmpty else {
+            Log.app.warning("No audio data recorded")
+            return ""
+        }
+
+        let transcribedText: String
+        do {
+            transcribedText = try await transcriptionService.transcribe(audioData: audioData)
+        } catch let error as TranscriptionService.TranscriptionError {
+            Log.app.error("Transcription failed: \(error)")
+            if case .modelNotLoaded = error {
+                AlertManager.shared.showModelNotLoadedAlert()
+            } else {
+                AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+            }
+            throw error
+        } catch {
+            Log.app.error("Transcription failed: \(error)")
+            AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+            throw error
+        }
+
+        let (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        self.lastAppliedReplacements = appliedReplacements
+
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+
+        var finalText = textAfterReplacements
+
+        // Apply AI enhancement if enabled (for quick capture)
+        if settingsStore.aiEnhancementEnabled,
+           let apiEndpoint = settingsStore.apiEndpoint,
+           let apiKey = settingsStore.apiKey {
+            do {
+                // Build enhanced prompt with dictionary context
+                var enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+
+                // Add vocabulary section if exists
+                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
+                if !vocabularyWords.isEmpty {
+                    let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
+                    enhancedPrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                }
+
+                // Add replacements section if applied
+                if !lastAppliedReplacements.isEmpty {
+                    let replacementList = lastAppliedReplacements
+                        .map { "'\($0.original)' → '\($0.replacement)'" }
+                        .joined(separator: ", ")
+                    enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+                }
+
+                finalText = try await aiEnhancementService.enhance(
+                    text: textAfterReplacements,
+                    apiEndpoint: apiEndpoint,
+                    apiKey: apiKey,
+                    model: settingsStore.aiModel,
+                    customPrompt: enhancedPrompt
+                )
+                Log.app.info("AI enhancement completed for quick capture")
+            } catch {
+                Log.app.error("AI enhancement failed for quick capture: \(error)")
+                // Continue with unenhanced text
+            }
+        }
+
+        return finalText
+    }
+
+    private func openNoteEditorWithTranscription(_ transcription: String) {
+        // Create a new note with the transcription as content
+        let newNote = NoteSchema.Note(
+            title: "",
+            content: transcription,
+            tags: [],
+            sourceTranscriptionID: nil
+        )
+
+        // Insert into context
+        noteEditorWindowController.show(note: newNote, isNewNote: true)
+
+        Log.app.info("Opened note editor with quick capture transcription")
+    }
+
     private func handleToggleRecording() async {
         if isRecording {
             do {
