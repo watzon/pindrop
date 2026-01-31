@@ -155,6 +155,7 @@ final class StatusBarController {
             keyEquivalent: "r"
         )
         toggleRecordingItem?.target = self
+        toggleRecordingItem?.image = NSImage(systemSymbolName: "record.circle", accessibilityDescription: nil)
         menu.addItem(toggleRecordingItem!)
 
         clearAudioBufferItem = NSMenuItem(
@@ -164,6 +165,7 @@ final class StatusBarController {
         )
         clearAudioBufferItem?.target = self
         clearAudioBufferItem?.isEnabled = false
+        clearAudioBufferItem?.image = NSImage(systemSymbolName: "clear", accessibilityDescription: nil)
         menu.addItem(clearAudioBufferItem!)
 
         cancelOperationItem = NSMenuItem(
@@ -173,6 +175,7 @@ final class StatusBarController {
         )
         cancelOperationItem?.target = self
         cancelOperationItem?.isEnabled = false
+        cancelOperationItem?.image = NSImage(systemSymbolName: "stop.circle", accessibilityDescription: nil)
         menu.addItem(cancelOperationItem!)
 
         menu.addItem(NSMenuItem.separator())
@@ -206,6 +209,7 @@ final class StatusBarController {
 
         let recentMenuItem = NSMenuItem(title: "Recent Transcripts", action: nil, keyEquivalent: "")
         recentMenuItem.submenu = transcriptsMenu
+        recentMenuItem.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
         menu.addItem(recentMenuItem)
 
         menu.addItem(NSMenuItem.separator())
@@ -220,6 +224,7 @@ final class StatusBarController {
             keyEquivalent: "o"
         )
         outputModeItem?.target = self
+        outputModeItem?.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: nil)
         menu.addItem(outputModeItem!)
 
         aiEnhancementItem = NSMenuItem(
@@ -228,6 +233,7 @@ final class StatusBarController {
             keyEquivalent: "a"
         )
         aiEnhancementItem?.target = self
+        aiEnhancementItem?.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: nil)
         menu.addItem(aiEnhancementItem!)
 
         menu.addItem(NSMenuItem.separator())
@@ -242,6 +248,7 @@ final class StatusBarController {
             keyEquivalent: "0"
         )
         showAppItem.target = self
+        showAppItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
         menu.addItem(showAppItem)
 
         openHistoryItem = NSMenuItem(
@@ -250,6 +257,7 @@ final class StatusBarController {
             keyEquivalent: "h"
         )
         openHistoryItem?.target = self
+        openHistoryItem?.image = NSImage(systemSymbolName: "clock.arrow.circlepath", accessibilityDescription: nil)
         menu.addItem(openHistoryItem!)
 
         let settingsItem = NSMenuItem(
@@ -268,6 +276,7 @@ final class StatusBarController {
             keyEquivalent: "f"
         )
         toggleFloatingIndicatorItem?.target = self
+        toggleFloatingIndicatorItem?.image = NSImage(systemSymbolName: "pip", accessibilityDescription: nil)
         menu.addItem(toggleFloatingIndicatorItem!)
 
         launchAtLoginItem = NSMenuItem(
@@ -276,6 +285,7 @@ final class StatusBarController {
             keyEquivalent: "l"
         )
         launchAtLoginItem?.target = self
+        launchAtLoginItem?.image = NSImage(systemSymbolName: "power", accessibilityDescription: nil)
         menu.addItem(launchAtLoginItem!)
 
         menu.addItem(NSMenuItem.separator())
@@ -297,6 +307,7 @@ final class StatusBarController {
 
         let modelMenuItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
         modelMenuItem.submenu = modelMenu
+        modelMenuItem.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
         menu.addItem(modelMenuItem)
 
         menu.addItem(NSMenuItem.separator())
@@ -307,6 +318,7 @@ final class StatusBarController {
             keyEquivalent: "q"
         )
         quitItem.target = self
+        quitItem.image = NSImage(systemSymbolName: "xmark.circle", accessibilityDescription: nil)
         menu.addItem(quitItem)
 
         updateMenuState()
