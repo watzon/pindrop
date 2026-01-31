@@ -122,17 +122,16 @@ struct OnboardingWindow: View {
     }
     
     private var stepIndicator: some View {
-        GlassEffectContainer(spacing: 8) {
-            HStack(spacing: 8) {
-                ForEach(OnboardingStep.allCases, id: \.rawValue) { step in
-                    if step != .modelDownload {
-                        stepDot(for: step)
-                    }
+        HStack(spacing: 8) {
+            ForEach(OnboardingStep.allCases, id: \.rawValue) { step in
+                if step != .modelDownload {
+                    stepDot(for: step)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: .capsule)
     }
     
     @ViewBuilder
@@ -143,7 +142,8 @@ struct OnboardingWindow: View {
         Circle()
             .fill(isActive ? AppColors.accent : (isPast ? AppColors.accent.opacity(0.5) : Color.secondary.opacity(0.3)))
             .frame(width: isActive ? 10 : 8, height: isActive ? 10 : 8)
-            .glassEffect(.regular.tint(isActive ? AppColors.accent.opacity(0.3) : .clear))
+            .background(isActive ? AppColors.accent.opacity(0.2) : .clear)
+            .clipShape(.circle)
             .animation(.spring(duration: 0.3), value: currentStep)
     }
     

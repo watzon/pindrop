@@ -71,7 +71,8 @@ struct HotkeySetupStepView: View {
             IconView(icon: icon, size: 24)
                 .foregroundStyle(AppColors.accent)
                 .frame(width: 44, height: 44)
-                .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)), in: .circle)
+                .background(AppColors.accent.opacity(0.1))
+                .background(.ultraThinMaterial, in: .circle)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -89,10 +90,10 @@ struct HotkeySetupStepView: View {
                 .fontWeight(.medium)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .glassEffect(.regular, in: .rect(cornerRadius: 8))
+                .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
         }
         .padding(16)
-        .glassEffect(.regular, in: .rect(cornerRadius: 12))
+        .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
     }
     
     private var infoSection: some View {
@@ -110,7 +111,7 @@ struct HotkeySetupStepView: View {
     private var actionButtons: some View {
         HStack(spacing: 16) {
             Button("Skip for Now", action: onSkip)
-                .buttonStyle(.glass)
+                .buttonStyle(.bordered)
             
             Button(action: onContinue) {
                 Text("Continue")
@@ -118,7 +119,7 @@ struct HotkeySetupStepView: View {
                     .frame(maxWidth: 180)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
         }
         .padding(.horizontal, 40)
     }

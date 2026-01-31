@@ -47,7 +47,7 @@ struct WelcomeStepView: View {
                     .frame(maxWidth: 200)
                     .padding(.vertical, 12)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             .opacity(buttonOpacity)
         }
         .padding(.horizontal, 40)
@@ -82,7 +82,8 @@ struct WelcomeStepView: View {
             IconView(icon: .waveform, size: 56)
                 .foregroundStyle(.white)
         }
-        .glassEffect(.regular.tint(AppColors.accent.opacity(0.2)))
+        .background(AppColors.accent.opacity(0.1))
+        .background(.ultraThinMaterial, in: .circle)
         .scaleEffect(logoScale)
         .opacity(logoOpacity)
     }
@@ -99,7 +100,7 @@ struct WelcomeStepView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
-        .glassEffect(.regular, in: .capsule)
+        .background(.ultraThinMaterial, in: .capsule)
     }
 }
 
