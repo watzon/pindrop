@@ -98,6 +98,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appMenu.addItem(NSMenuItem(title: "Quit Pindrop", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         
         mainMenu.addItem(appMenuItem)
+        
+        // Edit menu (required for Command-V paste to work in TextFields)
+        let editMenu = NSMenu(title: "Edit")
+        let editMenuItem = NSMenuItem()
+        editMenuItem.submenu = editMenu
+        
+        editMenu.addItem(NSMenuItem(title: "Undo", action: Selector(("undo:")), keyEquivalent: "z"))
+        editMenu.addItem(NSMenuItem(title: "Redo", action: Selector(("redo:")), keyEquivalent: "Z"))
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(NSMenuItem(title: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
+        editMenu.addItem(NSMenuItem(title: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
+        editMenu.addItem(NSMenuItem(title: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
+        editMenu.addItem(NSMenuItem(title: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+        
+        mainMenu.addItem(editMenuItem)
+        
         NSApplication.shared.mainMenu = mainMenu
     }
     

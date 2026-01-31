@@ -7,7 +7,7 @@ DMG_NAME="${APP_NAME}.dmg"
 DIST_DIR="dist"
 BACKGROUND_IMG="assets/images/dmg-background.png"
 
-# Create dist directory
+rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}"
 
 # Check if background image exists

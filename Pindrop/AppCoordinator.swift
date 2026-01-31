@@ -69,7 +69,8 @@ final class AppCoordinator {
     
     // MARK: - Escape Key Cancellation
     
-    private var escapeMonitor: Any?
+    private var escapeEventTap: CFMachPort?
+    private var escapeRunLoopSource: CFRunLoopSource?
     private var lastEscapeTime: Date?
     private let doubleEscapeThreshold: TimeInterval = 0.4
     
@@ -929,13 +930,57 @@ final class AppCoordinator {
     // MARK: - Escape Key Cancellation
     
     private func setupEscapeKeyMonitor() {
-        escapeMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard event.keyCode == 53 else { return }
-            
-            Task { @MainActor in
-                self?.handleEscapeKeyPress()
-            }
+        let eventMask = (1 << CGEventType.keyDown.rawValue)
+        
+        let refcon = Unmanaged.passUnretained(self).toOpaque()
+        
+        guard let eventTap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: CGEventMask(eventMask),
+            callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
+                guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
+                
+                let coordinator = Unmanaged<AppCoordinator>.fromOpaque(refcon).takeUnretainedValue()
+                return coordinator.handleKeyEvent(proxy: proxy, type: type, event: event)
+            },
+            userInfo: refcon
+        ) else {
+            Log.app.error("Failed to create CGEventTap - Accessibility permission may be required")
+            return
         }
+        
+        escapeEventTap = eventTap
+        escapeRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+        
+        if let source = escapeRunLoopSource {
+            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+            CGEvent.tapEnable(tap: eventTap, enable: true)
+        }
+    }
+    
+    private nonisolated func handleKeyEvent(
+        proxy: CGEventTapProxy,
+        type: CGEventType,
+        event: CGEvent
+    ) -> Unmanaged<CGEvent>? {
+        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+        guard keyCode == 53 else { return Unmanaged.passUnretained(event) }
+        
+        Task { @MainActor in
+            self.handleEscapeKeyPress()
+        }
+        
+        var shouldBlock = false
+        DispatchQueue.main.sync {
+            shouldBlock = self.isRecording || self.isProcessing
+        }
+        
+        if shouldBlock {
+            return nil
+        }
+        return Unmanaged.passUnretained(event)
     }
     
     private func handleEscapeKeyPress() {
@@ -1176,9 +1221,13 @@ final class AppCoordinator {
     }
 
     func cleanup() {
-        if let monitor = escapeMonitor {
-            NSEvent.removeMonitor(monitor)
-            escapeMonitor = nil
+        if let eventTap = escapeEventTap {
+            CGEvent.tapEnable(tap: eventTap, enable: false)
+            if let source = escapeRunLoopSource {
+                CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            }
+            escapeEventTap = nil
+            escapeRunLoopSource = nil
         }
     }
 }
