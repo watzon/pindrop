@@ -973,8 +973,12 @@ final class AppCoordinator {
         }
         
         var shouldBlock = false
-        DispatchQueue.main.sync {
-            shouldBlock = self.isRecording || self.isProcessing
+        if Thread.isMainThread {
+            shouldBlock = MainActor.assumeIsolated { self.isRecording || self.isProcessing }
+        } else {
+            DispatchQueue.main.sync {
+                shouldBlock = MainActor.assumeIsolated { self.isRecording || self.isProcessing }
+            }
         }
         
         if shouldBlock {
