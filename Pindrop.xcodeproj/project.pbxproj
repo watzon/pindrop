@@ -60,8 +60,9 @@
 		NOTESW001A2B3C4D5E6 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESW001A2B3C4D5E6F7 /* Note.swift */; };
 		FEATMODEL1A2B3C4D5E6F /* FeatureModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEATMODEL1A2B3C4D5E6F7 /* FeatureModelType.swift */; };
 		E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 563D563B8CE142449E7030FB /* WhisperKit */; };
-		FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */; };
-		E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D120A62260BDECC9467BE609 /* AIEnhancementService.swift */; };
+FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */; };
+SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SPARKLEDEP01A2B3C4D5E6F /* Sparkle */; };
+E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D120A62260BDECC9467BE609 /* AIEnhancementService.swift */; };
 		HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */; };
 		LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOGGER001A2B3C4D5E6F71 /* Logger.swift */; };
 		MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */; };
@@ -181,13 +182,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		37A010B78338464E90A60BD4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			files = (
-				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
-				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
-			);
-		};
+37A010B78338464E90A60BD4 /* Frameworks */ = {
+isa = PBXFrameworksBuildPhase;
+files = (
+E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
+FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
+SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
+);
+};
 		CBC1B6398AC040CF9417EDEC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -426,10 +428,11 @@
 			dependencies = (
 			);
 			name = Pindrop;
-			packageProductDependencies = (
-				563D563B8CE142449E7030FB /* WhisperKit */,
-				FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */,
-			);
+packageProductDependencies = (
+563D563B8CE142449E7030FB /* WhisperKit */,
+FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */,
+SPARKLEDEP01A2B3C4D5E6F /* Sparkle */,
+);
 			productName = Pindrop;
 			productReference = 05406A418EF343BAA525028E /* Pindrop.app */;
 			productType = "com.apple.product-type.application";
@@ -479,10 +482,11 @@
 				Base,
 			);
 			mainGroup = 2AE7116BC5A64F50B5790CC7;
-			packageReferences = (
-				CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */,
-				FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */,
-			);
+packageReferences = (
+CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */,
+FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */,
+SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */,
+);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 34D7D79B92CD42AA8CBA1057 /* Products */;
 			projectDirPath = "";
@@ -869,14 +873,22 @@
 				minimumVersion = 0.9.0;
 			};
 		};
-		FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/FluidInference/FluidAudio.git";
-			requirement = {
-				kind = branch;
-				branch = main;
-			};
-		};
+FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
+isa = XCRemoteSwiftPackageReference;
+repositoryURL = "https://github.com/FluidInference/FluidAudio.git";
+requirement = {
+kind = branch;
+branch = main;
+};
+};
+SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+isa = XCRemoteSwiftPackageReference;
+repositoryURL = "https://github.com/sparkle-project/Sparkle";
+requirement = {
+kind = upToNextMajorVersion;
+minimumVersion = 2.6.0;
+};
+};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -885,11 +897,16 @@
 			package = CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */;
 			productName = WhisperKit;
 		};
-		FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */;
-			productName = FluidAudio;
-		};
+FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */ = {
+isa = XCSwiftPackageProductDependency;
+package = FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */;
+productName = FluidAudio;
+};
+SPARKLEDEP01A2B3C4D5E6F /* Sparkle */ = {
+isa = XCSwiftPackageProductDependency;
+package = SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */;
+productName = Sparkle;
+};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 776C744285EF4862B4D98FA8 /* Project object */;
