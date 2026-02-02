@@ -67,29 +67,100 @@ If you need to regenerate the signing keys (e.g., if the private key is lost):
 1. **Update version numbers** in Xcode project settings
 
 2. **Build and sign the release**:
-   ```bash
-   just release
-   ```
-   This will:
-   - Clean build artifacts
-   - Build the release version
-   - Sign the app with your Developer ID
-   - Create a DMG in `dist/Pindrop.dmg`
+```bash
+just release
+```
+This will:
+- Clean build artifacts
+- Build the release version
+- Sign the app with your Developer ID
+- Create a DMG in `dist/Pindrop.dmg`
 
 3. **Generate appcast** (for Sparkle updates):
-   ```bash
-   ./bin/generate_appcast /path/to/your/updates/
-   ```
+```bash
+just appcast dist/Pindrop.dmg
+```
+This will:
+- Download Sparkle tools if not present (to `bin/`)
+- Sign the DMG with your EdDSA private key
+- Generate `appcast.xml` with proper signatures
 
 4. **Upload the release**:
-   - Upload `dist/Pindrop.dmg` to GitHub Releases
-   - Upload the `appcast.xml` to the repository (or your hosting)
+- Upload `dist/Pindrop.dmg` to GitHub Releases
+- Upload the `appcast.xml` to the repository (or your hosting)
 
 5. **Tag the release**:
+```bash
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+## Appcast Generation Workflow
+
+The `just appcast` command automates the appcast generation process:
+
+### What It Does
+
+1. **Validates the DMG** exists at the specified path
+2. **Downloads Sparkle tools** (if not already present):
+   - Downloads Sparkle 2.6.4 release
+   - Extracts `generate_appcast` and `sign_update` to `bin/`
+3. **Generates the appcast**:
+   - Copies DMG to a temporary directory
+   - Runs `generate_appcast` to create signatures
+   - Outputs `appcast.xml` in the project root
+
+### Usage
+
+```bash
+# Generate appcast for the default DMG location
+just appcast dist/Pindrop.dmg
+
+# The appcast.xml will be created in the current directory
+```
+
+### Appcast Structure
+
+The generated `appcast.xml` follows Sparkle's RSS format:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Pindrop Updates</title>
+    <item>
+      <title>Version 1.0.0</title>
+      <sparkle:version>100</sparkle:version>
+      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <enclosure url="..."
+                 sparkle:edSignature="SIGNATURE"
+                 length="SIZE"
+                 type="application/octet-stream"/>
+    </item>
+  </channel>
+</rss>
+```
+
+### Manual Appcast Updates
+
+If you need to manually edit `appcast.xml`:
+
+1. Use the template in `appcast.xml` as a starting point
+2. Update version numbers, release notes, and download URL
+3. Generate the EdDSA signature using:
    ```bash
-   git tag -a v1.0.0 -m "Release version 1.0.0"
-   git push origin v1.0.0
+   ./bin/sign_update /path/to/Pindrop.dmg
    ```
+4. Add the signature to the `<enclosure>` element
+
+### Hosting the Appcast
+
+The appcast can be hosted:
+- **GitHub Pages**: Commit `appcast.xml` to `gh-pages` branch
+- **GitHub Releases**: Upload as a release asset
+- **Custom server**: Any HTTPS URL accessible to users
+
+Update `SUFeedURL` in `Pindrop/Info.plist` to point to your hosted appcast.
 
 ## Security Notes
 

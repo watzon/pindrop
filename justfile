@@ -156,13 +156,44 @@ staple dmg_path:
 
 # Full release workflow: build, sign, DMG, notarize
 release: clean build-release sign dmg
-    @echo "🎉 Release build complete!"
-    @echo "📦 DMG: {{dmg_dir}}/{{app_name}}.dmg"
-    @echo ""
-    @echo "Next steps:"
-    @echo "  1. Test the DMG on a clean Mac"
-    @echo "  2. Notarize: just notarize {{dmg_dir}}/{{app_name}}.dmg"
-    @echo "  3. Staple: just staple {{dmg_dir}}/{{app_name}}.dmg"
+	@echo "🎉 Release build complete!"
+	@echo "📦 DMG: {{dmg_dir}}/{{app_name}}.dmg"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Test the DMG on a clean Mac"
+	@echo "  2. Notarize: just notarize {{dmg_dir}}/{{app_name}}.dmg"
+	@echo "  3. Staple: just staple {{dmg_dir}}/{{app_name}}.dmg"
+
+# Generate appcast.xml for Sparkle updates
+# Usage: just appcast dist/Pindrop.dmg
+appcast dmg_path:
+	@echo "📡 Generating appcast.xml..."
+	@if [ ! -f "{{dmg_path}}" ]; then \
+		echo "❌ DMG not found: {{dmg_path}}"; \
+		echo "   Run: just dmg"; \
+		exit 1; \
+	fi
+	@if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
+		echo "⚠️  Sparkle tools not found. Downloading..."; \
+		curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz"; \
+		tar -xf /tmp/Sparkle.tar.xz -C /tmp; \
+		mkdir -p bin; \
+		cp /tmp/Sparkle-2.6.4/bin/generate_appcast bin/; \
+		cp /tmp/Sparkle-2.6.4/bin/sign_update bin/ 2>/dev/null || true; \
+		rm -rf /tmp/Sparkle.tar.xz /tmp/Sparkle-2.6.4; \
+		echo "✅ Sparkle tools downloaded to bin/"; \
+	fi
+	@echo "🔏 Signing DMG and generating appcast..."
+	@mkdir -p updates
+	@cp "{{dmg_path}}" updates/
+	@./bin/generate_appcast updates/
+	@rm -rf updates/
+	@echo "✅ Appcast generated: appcast.xml"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Review appcast.xml"
+	@echo "  2. Upload {{dmg_path}} to GitHub Releases"
+	@echo "  3. Commit and push appcast.xml to your repository"
 
 # Install dependencies (if any)
 deps:
