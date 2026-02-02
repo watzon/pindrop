@@ -32,8 +32,8 @@
     <string>Pindrop needs microphone access to transcribe your voice.</string>
     <key>SUFeedURL</key>
     <string>https://raw.githubusercontent.com/watzon/pindrop/main/appcast.xml</string>
-    <key>SUPublicEDKey</key>
-    <string>YOUR_PUBLIC_EDDSA_KEY_HERE</string>
+<key>SUPublicEDKey</key>
+<string>TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=</string>
     <key>SUEnableAutomaticChecks</key>
     <true/>
 </dict>
