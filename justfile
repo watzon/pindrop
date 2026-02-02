@@ -154,8 +154,8 @@ staple dmg_path:
     xcrun stapler staple {{dmg_path}}
     @echo "✅ Stapling complete"
 
-# Full release workflow: build, sign, DMG, notarize
-release: clean build-release sign dmg
+# Full local release workflow: build, sign, DMG, notarize
+release-local: clean build-release sign dmg
 	@echo "🎉 Release build complete!"
 	@echo "📦 DMG: {{dmg_dir}}/{{app_name}}.dmg"
 	@echo ""
@@ -163,6 +163,77 @@ release: clean build-release sign dmg
 	@echo "  1. Test the DMG on a clean Mac"
 	@echo "  2. Notarize: just notarize {{dmg_dir}}/{{app_name}}.dmg"
 	@echo "  3. Staple: just staple {{dmg_dir}}/{{app_name}}.dmg"
+
+# GitHub release workflow: bump version, commit, tag, push
+# Usage: just release 1.5.5
+# This triggers the GitHub Actions workflow which builds and creates the release
+release version:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	
+	VERSION="{{version}}"
+	
+	# Validate version format (X.Y.Z)
+	if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		echo "❌ Invalid version format: $VERSION"
+		echo "   Expected format: X.Y.Z (e.g., 1.5.5)"
+		exit 1
+	fi
+	
+	echo "🚀 Releasing Pindrop v${VERSION}"
+	echo ""
+	
+	# Check for uncommitted changes
+	if ! git diff --quiet || ! git diff --cached --quiet; then
+		echo "❌ You have uncommitted changes. Please commit or stash them first."
+		exit 1
+	fi
+	
+	# Get current version
+	CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	echo "📋 Current version: ${CURRENT_VERSION}"
+	echo "📋 New version: ${VERSION}"
+	echo ""
+	
+	# Update MARKETING_VERSION in project.pbxproj
+	echo "📝 Updating version in Xcode project..."
+	sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
+	
+	# Verify the change
+	NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	if [ "$NEW_VERSION" != "$VERSION" ]; then
+		echo "❌ Failed to update version"
+		exit 1
+	fi
+	echo "✅ Version updated to ${VERSION}"
+	
+	# Commit the version bump
+	echo "📦 Committing version bump..."
+	git add Pindrop.xcodeproj/project.pbxproj
+	git commit -m "chore: bump version to ${VERSION}"
+	
+	# Create annotated tag
+	echo "🏷️  Creating tag v${VERSION}..."
+	git tag -a "v${VERSION}" -m "Release v${VERSION}"
+	
+	# Push commit and tag
+	echo "🚀 Pushing to origin..."
+	git push origin main
+	git push origin "v${VERSION}"
+	
+	echo ""
+	echo "✅ Release v${VERSION} initiated!"
+	echo ""
+	echo "📋 Next steps:"
+	echo "  1. Watch the GitHub Actions workflow:"
+	echo "     https://github.com/watzon/pindrop/actions"
+	echo ""
+	echo "  2. Once complete, publish the draft release:"
+	echo "     https://github.com/watzon/pindrop/releases"
+	echo ""
+	echo "  3. Update appcast.xml in main branch:"
+	echo "     gh release download v${VERSION} --pattern appcast.xml -O appcast.xml --clobber"
+	echo "     git add appcast.xml && git commit -m 'chore: update appcast for v${VERSION}' && git push"
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg
