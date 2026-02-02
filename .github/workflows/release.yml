@@ -15,10 +15,11 @@ env:
   APP_NAME: Pindrop
   SCHEME: Pindrop
   CONFIGURATION: Release
+  SPARKLE_VERSION: "2.6.4"
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
     permissions:
       contents: write
 
@@ -38,8 +39,23 @@ jobs:
           # Install create-dmg for DMG creation
           brew install create-dmg
 
-          # Install Sparkle tools for signing and appcast generation
-          brew install --cask sparkle
+          # Download Sparkle tools directly (same as justfile)
+          echo "📦 Downloading Sparkle ${SPARKLE_VERSION} tools..."
+          curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          mkdir -p /tmp/sparkle-extract
+          tar -xf /tmp/Sparkle.tar.xz -C /tmp/sparkle-extract
+          
+          # Copy tools to a known location
+          mkdir -p bin
+          cp /tmp/sparkle-extract/bin/generate_appcast bin/
+          cp /tmp/sparkle-extract/bin/sign_update bin/
+          chmod +x bin/generate_appcast bin/sign_update
+          
+          # Cleanup
+          rm -rf /tmp/Sparkle.tar.xz /tmp/sparkle-extract
+          
+          echo "✅ Sparkle tools installed to bin/"
+          ls -la bin/
 
       - name: Get Version
         id: version
@@ -55,28 +71,25 @@ jobs:
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION (app: $APP_VERSION)"
 
-      - name: Build App
+      - name: Build App (Self-Signed)
         run: |
           # Build the app in Release mode (self-signed, no Developer account)
+          # This matches `just build-self-signed`
           xcodebuild \
             -scheme "${{ env.SCHEME }}" \
             -configuration "${{ env.CONFIGURATION }}" \
-            -derivedDataPath build/DerivedData \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            ARCHS="arm64 x86_64" \
-            clean build
+            -derivedDataPath DerivedData \
+            build
 
           # Locate the built app
-          APP_PATH="build/DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
+          APP_PATH="DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
           echo "App built at: $APP_PATH"
           echo "app_path=$APP_PATH" >> $GITHUB_ENV
 
           # Verify app exists
           if [ ! -d "$APP_PATH" ]; then
             echo "Error: App not found at $APP_PATH"
+            find DerivedData -name "*.app" -type d
             exit 1
           fi
 
@@ -86,11 +99,13 @@ jobs:
           APP_PATH="${{ env.app_path }}"
           VERSION="${{ steps.version.outputs.app_version }}"
           DMG_NAME="${{ env.APP_NAME }}-${VERSION}.dmg"
-          DMG_PATH="build/${DMG_NAME}"
+          DMG_PATH="dist/${DMG_NAME}"
 
-          # Create the DMG
+          mkdir -p dist
+
+          # Create the DMG (matches scripts/create-dmg-self-signed.sh)
           create-dmg \
-            --volname "${{ env.APP_NAME }} ${VERSION}" \
+            --volname "${{ env.APP_NAME }}" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
@@ -108,29 +123,23 @@ jobs:
           SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
         run: |
           if [ -z "$SPARKLE_EDDSA_PRIVATE_KEY" ]; then
-            echo "Error: SPARKLE_EDDSA_PRIVATE_KEY secret is not set"
-            echo "Please add the EdDSA private key to GitHub Secrets"
-            exit 1
+            echo "⚠️  Warning: SPARKLE_EDDSA_PRIVATE_KEY secret is not set"
+            echo "   Skipping EdDSA signing - updates will not be verifiable!"
+            echo "   To enable signing, add your EdDSA private key to GitHub Secrets"
+            echo "dmg_signature=" >> $GITHUB_ENV
+            exit 0
           fi
 
           DMG_PATH="${{ env.dmg_path }}"
 
-          # Create a temporary file for the private key
-          PRIVATE_KEY_FILE=$(mktemp)
-          echo "$SPARKLE_EDDSA_PRIVATE_KEY" > "$PRIVATE_KEY_FILE"
-
           # Sign the DMG using Sparkle's sign_update tool
-          SIGNATURE=$(/usr/local/bin/sign_update "$DMG_PATH" -s "$PRIVATE_KEY_FILE")
+          # The tool reads the private key from stdin when using -f -
+          SIGNATURE=$(echo "$SPARKLE_EDDSA_PRIVATE_KEY" | ./bin/sign_update "$DMG_PATH" -f -)
 
-          # Clean up the temporary key file
-          rm -f "$PRIVATE_KEY_FILE"
-
-          echo "DMG signature: $SIGNATURE"
+          echo "✅ DMG signed with EdDSA"
           echo "dmg_signature=${SIGNATURE}" >> $GITHUB_ENV
 
       - name: Generate Appcast
-        env:
-          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
         run: |
           VERSION="${{ steps.version.outputs.app_version }}"
           FULL_VERSION="${{ steps.version.outputs.version }}"
@@ -144,8 +153,15 @@ jobs:
           # Get current date in RFC 2822 format
           PUB_DATE=$(date -R)
 
+          # Build signature attribute if present
+          if [ -n "$SIGNATURE" ]; then
+            SIG_ATTR="sparkle:edSignature=\"${SIGNATURE}\""
+          else
+            SIG_ATTR=""
+          fi
+
           # Create the appcast.xml
-          cat > build/appcast.xml << EOF
+          cat > dist/appcast.xml << APPCAST_EOF
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
             <channel>
@@ -160,7 +176,7 @@ jobs:
                   url="https://github.com/${{ github.repository }}/releases/download/${FULL_VERSION}/${DMG_NAME}"
                   sparkle:version="${VERSION}"
                   sparkle:shortVersionString="${VERSION}"
-                  sparkle:edSignature="${SIGNATURE}"
+                  ${SIG_ATTR}
                   length="${DMG_SIZE}"
                   type="application/octet-stream"
                 />
@@ -168,51 +184,58 @@ jobs:
               </item>
             </channel>
           </rss>
-          EOF
+          APPCAST_EOF
 
-          echo "Appcast generated at: build/appcast.xml"
-          cat build/appcast.xml
+          echo "✅ Appcast generated at: dist/appcast.xml"
+          cat dist/appcast.xml
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          name: ${{ env.APP_NAME }} ${{ steps.version.outputs.app_version }}
+          name: "${{ env.APP_NAME }} ${{ steps.version.outputs.app_version }}"
           draft: true
           prerelease: false
           files: |
             ${{ env.dmg_path }}
-            build/appcast.xml
+            dist/appcast.xml
           body: |
             ## ${{ env.APP_NAME }} ${{ steps.version.outputs.app_version }}
-
+            
             ### Installation
             1. Download `${{ env.dmg_name }}`
             2. Open the DMG and drag ${{ env.APP_NAME }} to your Applications folder
             3. Launch from Applications
-
-            ### Verification
-            This release is signed with EdDSA for Sparkle auto-update verification.
-
+            
+            ### First Launch (Gatekeeper)
+            Since this is a self-signed build:
+            1. Right-click the app and select Open
+            2. If blocked: System Settings → Privacy & Security → Open Anyway
+            
             ### Notes
             - macOS 14.0+ required
-            - Apple Silicon optimized
+            - Apple Silicon optimized (Universal binary)
             - Self-signed (no Apple Developer account)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
         run: |
+          SIGNED="No (secret not configured)"
+          if [ -n "${{ env.dmg_signature }}" ]; then
+            SIGNED="Yes"
+          fi
+          
           echo "## Release Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **DMG:** ${{ env.dmg_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **EdDSA Signed:** ${SIGNED}" >> $GITHUB_STEP_SUMMARY
           echo "- **Release:** Draft created (requires manual publishing)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Required Secrets" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ SPARKLE_EDDSA_PRIVATE_KEY: Configured" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "1. Review the draft release on GitHub" >> $GITHUB_STEP_SUMMARY
-          echo "2. Publish the release when ready" >> $GITHUB_STEP_SUMMARY
+          echo "2. Add release notes" >> $GITHUB_STEP_SUMMARY
+          echo "3. Publish the release when ready" >> $GITHUB_STEP_SUMMARY
+          echo "4. After publishing, commit the appcast.xml to the main branch" >> $GITHUB_STEP_SUMMARY
