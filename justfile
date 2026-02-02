@@ -232,8 +232,55 @@ release version:
 	echo "     https://github.com/watzon/pindrop/releases"
 	echo ""
 	echo "  3. Update appcast.xml in main branch:"
-	echo "     gh release download v${VERSION} --pattern appcast.xml -O appcast.xml --clobber"
-	echo "     git add appcast.xml && git commit -m 'chore: update appcast for v${VERSION}' && git push"
+	echo "     just update-appcast v${VERSION}"
+
+# Download and commit appcast.xml from a GitHub release
+# Usage: just update-appcast v1.5.5
+update-appcast version:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	
+	VERSION="{{version}}"
+	
+	# Remove 'v' prefix if present for display, but keep it for gh commands
+	DISPLAY_VERSION="${VERSION#v}"
+	TAG_VERSION="v${DISPLAY_VERSION}"
+	
+	echo "📡 Updating appcast.xml from release ${TAG_VERSION}..."
+	
+	# Check if release exists
+	if ! gh release view "${TAG_VERSION}" &>/dev/null; then
+		echo "❌ Release ${TAG_VERSION} not found"
+		echo "   Available releases:"
+		gh release list --limit 5
+		exit 1
+	fi
+	
+	# Download appcast.xml from release
+	echo "📥 Downloading appcast.xml..."
+	gh release download "${TAG_VERSION}" --pattern appcast.xml -O appcast.xml --clobber
+	
+	# Verify it was downloaded
+	if [ ! -f appcast.xml ]; then
+		echo "❌ Failed to download appcast.xml"
+		exit 1
+	fi
+	
+	# Show what version is in the appcast
+	APPCAST_VERSION=$(grep 'sparkle:shortVersionString' appcast.xml | sed 's/.*="\([^"]*\)".*/\1/')
+	echo "✅ Downloaded appcast for version ${APPCAST_VERSION}"
+	
+	# Commit and push
+	echo "📦 Committing appcast.xml..."
+	git add appcast.xml
+	git commit -m "chore: update appcast.xml for v${DISPLAY_VERSION}"
+	
+	echo "🚀 Pushing to origin..."
+	git push origin main
+	
+	echo ""
+	echo "✅ appcast.xml updated and pushed!"
+	echo "   Sparkle will now serve version ${APPCAST_VERSION} to users."
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg

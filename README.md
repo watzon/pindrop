@@ -129,10 +129,16 @@ brew install just
 just build              # Build for development (Debug)
 just build-release      # Build for release
 just test               # Run tests
-just dmg                # Build release + create DMG
-just release            # Full release workflow (clean, build, sign, DMG)
+just dmg-self-signed    # Build + create self-signed DMG
 just clean              # Clean build artifacts
 just --list             # Show all available commands
+```
+
+**Release commands (maintainers):**
+
+```bash
+just release 1.5.5          # Bump version, commit, tag, push → triggers CI
+just update-appcast v1.5.5  # After CI: download and commit appcast.xml
 ```
 
 ### Manual Build (Alternative)
@@ -147,20 +153,37 @@ The compiled app will be in `build/Release/Pindrop.app`.
 
 ### Creating a DMG
 
-To create a distributable DMG:
+To create a distributable DMG (self-signed):
 
 ```bash
-just dmg
-```
-
-Or manually:
-
-```bash
-brew install create-dmg
 just dmg-self-signed
 ```
 
+This requires `create-dmg`:
+
+```bash
+brew install create-dmg
+```
+
 The DMG will be created in `dist/Pindrop.dmg`.
+
+### Creating a Release
+
+Releases are built via GitHub Actions. To create a new release:
+
+```bash
+# 1. Bump version, commit, tag, and push (triggers CI)
+just release 1.5.5
+
+# 2. Wait for GitHub Actions to complete
+#    Watch: https://github.com/watzon/pindrop/actions
+
+# 3. Publish the draft release on GitHub
+#    https://github.com/watzon/pindrop/releases
+
+# 4. Update appcast.xml for Sparkle auto-updates
+just update-appcast v1.5.5
+```
 
 ## First Launch
 
