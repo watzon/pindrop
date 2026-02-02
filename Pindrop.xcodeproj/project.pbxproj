@@ -10,6 +10,7 @@
 		01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E366552FAA4505B9775ACB /* PindropApp.swift */; };
 		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
+		DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEADBEEF0000000000000002 /* UpdateSettingsView.swift */; };
 		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
 		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
@@ -118,6 +119,7 @@ E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PB
 		86FB8BA663AAD1BE56BE198A /* AppCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		8AED90D301B14DA19D138987 /* OutputManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManagerTests.swift; sourceTree = "<group>"; };
 		8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		DEADBEEF0000000000000002 /* UpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsView.swift; sourceTree = "<group>"; };
 		8B28B59A0FB34CF9A0080275 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderTests.swift; sourceTree = "<group>"; };
 		96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FloatingIndicator.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@ SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
 		children = (
 			B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
 			8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
+				DEADBEEF0000000000000002 /* UpdateSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
 			44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */,
@@ -555,6 +558,7 @@ SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */,
 			DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */,
 			2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */,
 				0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */,
+				DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */,
 				AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */,
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
 				83556706A5B946DA8E8D1F05 /* AboutSettingsView.swift in Sources */,

@@ -13,6 +13,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case models = "Models"
     case ai = "AI Enhancement"
     case dictionary = "Dictionary"
+    case update = "Update"
     case about = "About"
 
     var id: String { rawValue }
@@ -24,6 +25,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .models: return "cpu"
         case .ai: return "sparkles"
         case .dictionary: return "text.book.closed"
+        case .update: return "arrow.triangle.2.circlepath"
         case .about: return "info.circle"
         }
     }
@@ -126,6 +128,8 @@ struct SettingsWindow: View {
                         AIEnhancementSettingsView(settings: settings)
                     case .dictionary:
                         DictionarySettingsView()
+                    case .update:
+                        UpdateSettingsView()
                     case .about:
                         AboutSettingsView()
                     }
@@ -161,6 +165,7 @@ struct SettingsWindow: View {
         case .models: return "Manage Whisper transcription models"
         case .ai: return "Configure AI-powered text enhancement"
         case .dictionary: return "Manage word replacements and vocabulary"
+        case .update: return "Check for application updates"
         case .about: return "App information and acknowledgments"
         }
     }

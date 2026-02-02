@@ -28,5 +28,6 @@ enum Log {
     static let hotkey = Logger(subsystem: subsystem, category: "Hotkey")
     static let app = Logger(subsystem: subsystem, category: "App")
     static let ui = Logger(subsystem: subsystem, category: "UI")
+    static let update = Logger(subsystem: subsystem, category: "Update")
     static let aiEnhancement = Logger(subsystem: subsystem, category: "AIEnhancement")
 }

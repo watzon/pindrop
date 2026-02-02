@@ -42,6 +42,7 @@ final class StatusBarController {
 
     private var modelMenu: NSMenu?
     private var currentModelItem: NSMenuItem?
+    private var checkForUpdatesItem: NSMenuItem?
 
     private var settingsWindow: NSWindow?
     private var welcomePopover: NSPopover?
@@ -60,6 +61,7 @@ final class StatusBarController {
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
     var onSelectModel: ((String) -> Void)?
+    var onCheckForUpdates: (() -> Void)?
 
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
@@ -312,6 +314,17 @@ final class StatusBarController {
 
         menu.addItem(NSMenuItem.separator())
 
+        checkForUpdatesItem = NSMenuItem(
+            title: "Check for Updates...",
+            action: #selector(checkForUpdates),
+            keyEquivalent: "u"
+        )
+        checkForUpdatesItem?.target = self
+        checkForUpdatesItem?.image = NSImage(systemSymbolName: "arrow.down.circle", accessibilityDescription: nil)
+        menu.addItem(checkForUpdatesItem!)
+
+        menu.addItem(NSMenuItem.separator())
+
         let quitItem = NSMenuItem(
             title: "Quit Pindrop",
             action: #selector(quit),
@@ -399,6 +412,7 @@ final class StatusBarController {
             toggleRecordingItem?.isEnabled = true
             clearAudioBufferItem?.isEnabled = true
             cancelOperationItem?.isEnabled = true
+            checkForUpdatesItem?.isEnabled = false
         case .processing:
             recordingStatusItem?.attributedTitle = NSAttributedString(
                 string: "⏳ Processing",
@@ -408,6 +422,7 @@ final class StatusBarController {
             toggleRecordingItem?.isEnabled = false
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = true
+            checkForUpdatesItem?.isEnabled = false
         case .idle:
             recordingStatusItem?.attributedTitle = NSAttributedString(
                 string: "● Ready",
@@ -417,6 +432,7 @@ final class StatusBarController {
             toggleRecordingItem?.isEnabled = true
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = false
+            checkForUpdatesItem?.isEnabled = true
         }
     }
 
@@ -519,6 +535,10 @@ final class StatusBarController {
 
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
+    }
+
+    @objc private func checkForUpdates() {
+        onCheckForUpdates?()
     }
 
     private var cachedBaseIcon: NSImage?
