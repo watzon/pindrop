@@ -118,6 +118,43 @@ final class AIEnhancementService {
         }
     }
 
+    /// Builds the messages array for the API request.
+    /// - Parameters:
+    ///   - systemPrompt: The system prompt
+    ///   - text: The user text content
+    ///   - imageBase64: Optional base64-encoded PNG image
+    /// - Returns: Array of message dictionaries for the API
+    static func buildMessages(
+        systemPrompt: String,
+        text: String,
+        imageBase64: String?
+    ) -> [[String: Any]] {
+        let systemMessage: [String: Any] = [
+            "role": "system",
+            "content": systemPrompt
+        ]
+
+        let userMessage: [String: Any]
+        if let imageBase64 = imageBase64 {
+            // Vision format with content array
+            userMessage = [
+                "role": "user",
+                "content": [
+                    ["type": "text", "text": text],
+                    ["type": "image_url", "image_url": ["url": "data:image/png;base64,\(imageBase64)"]]
+                ]
+            ]
+        } else {
+            // Standard text-only format
+            userMessage = [
+                "role": "user",
+                "content": text
+            ]
+        }
+
+        return [systemMessage, userMessage]
+    }
+
     func saveAPIKey(_ key: String, for endpoint: String) throws {
         guard let data = key.data(using: .utf8) else {
             throw EnhancementError.keychainError("Failed to encode API key")
