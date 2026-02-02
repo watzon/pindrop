@@ -74,11 +74,14 @@ jobs:
       - name: Build App (Self-Signed)
         run: |
           # Build the app in Release mode (self-signed, no Developer account)
-          # This matches `just build-self-signed`
+          # Disable code signing for CI - app will be ad-hoc signed
           xcodebuild \
             -scheme "${{ env.SCHEME }}" \
             -configuration "${{ env.CONFIGURATION }}" \
             -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             build
 
           # Locate the built app
