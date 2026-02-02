@@ -136,10 +136,13 @@ jobs:
           DMG_PATH="${{ env.dmg_path }}"
 
           # Sign the DMG using Sparkle's sign_update tool
-          # The tool reads the private key from stdin when using -f -
-          SIGNATURE=$(echo "$SPARKLE_EDDSA_PRIVATE_KEY" | ./bin/sign_update "$DMG_PATH" -f -)
+          # The tool outputs: sparkle:edSignature="..." length="..."
+          # We extract just the signature value
+          SIGN_OUTPUT=$(echo "$SPARKLE_EDDSA_PRIVATE_KEY" | ./bin/sign_update "$DMG_PATH" -f -)
+          SIGNATURE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
 
           echo "✅ DMG signed with EdDSA"
+          echo "   Signature: ${SIGNATURE:0:20}..."
           echo "dmg_signature=${SIGNATURE}" >> $GITHUB_ENV
 
       - name: Generate Appcast
@@ -200,6 +203,7 @@ jobs:
           name: "${{ env.APP_NAME }} ${{ steps.version.outputs.app_version }}"
           draft: true
           prerelease: false
+          make_latest: true
           files: |
             ${{ env.dmg_path }}
             dist/appcast.xml
