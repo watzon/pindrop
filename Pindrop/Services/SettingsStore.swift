@@ -99,7 +99,13 @@ Rules:
     @AppStorage("showInDock") var showInDock: Bool = false
     @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
-    
+    @AppStorage("selectedPresetId") var selectedPresetId: String?
+
+    @AppStorage("enableClipboardContext") var enableClipboardContext: Bool = false
+    @AppStorage("enableImageContext") var enableImageContext: Bool = false
+    @AppStorage("enableScreenshotContext") var enableScreenshotContext: Bool = false
+    @AppStorage("screenshotMode") var screenshotMode: String = "activeWindow"
+
     @AppStorage("vadFeatureEnabled") var vadFeatureEnabled: Bool = false
     @AppStorage("diarizationFeatureEnabled") var diarizationFeatureEnabled: Bool = false
     @AppStorage("streamingFeatureEnabled") var streamingFeatureEnabled: Bool = false
