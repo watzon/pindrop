@@ -36,7 +36,9 @@ final class AppCoordinator {
     let dictionaryStore: DictionaryStore
     let settingsStore: SettingsStore
     let notesStore: NotesStore
-    
+    let contextCaptureService: ContextCaptureService
+    let promptPresetStore: PromptPresetStore
+
     // MARK: - UI Controllers
     
     let statusBarController: StatusBarController
@@ -61,7 +63,8 @@ final class AppCoordinator {
     
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
-    
+    private var capturedContext: CapturedContext?
+
     // MARK: - Dictionary Replacements
     
     /// Stores the last applied dictionary replacements for use in AI enhancement prompts
@@ -96,7 +99,9 @@ final class AppCoordinator {
         self.historyStore = HistoryStore(modelContext: modelContext)
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
-        
+        self.contextCaptureService = ContextCaptureService()
+        self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
+
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
             settingsStore: settingsStore
@@ -236,7 +241,18 @@ final class AppCoordinator {
             showOnboarding()
             return
         }
-        
+
+        // Seed built-in presets on first launch
+        if !UserDefaults.standard.bool(forKey: "hasSeededPresets") {
+            do {
+                try promptPresetStore.seedBuiltInPresets()
+                UserDefaults.standard.set(true, forKey: "hasSeededPresets")
+                Log.app.info("Seeded built-in prompt presets")
+            } catch {
+                Log.app.error("Failed to seed built-in presets: \(error)")
+            }
+        }
+
         splashController.show()
         
         await startNormalOperation()
@@ -639,6 +655,7 @@ final class AppCoordinator {
         defer {
             isProcessing = false
             recordingStartTime = nil
+            capturedContext = nil
             statusBarController.setIdleState()
             statusBarController.updateMenuState()
 
@@ -766,9 +783,29 @@ final class AppCoordinator {
     private func startRecording() async throws {
         isRecording = true
         recordingStartTime = Date()
-        
+
+        // Capture context at recording start if settings enabled
+        if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableScreenshotContext {
+            let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
+            let clipboardImage = settingsStore.enableImageContext ? contextCaptureService.captureClipboardImage() : nil
+            var screenshot: NSImage? = nil
+            if settingsStore.enableScreenshotContext {
+                let mode: ScreenshotMode
+                switch settingsStore.screenshotMode {
+                case "fullScreen":
+                    mode = .fullScreen
+                case "activeWindow":
+                    mode = .activeWindow
+                default:
+                    mode = .activeWindow
+                }
+                screenshot = contextCaptureService.captureScreenshot(mode: mode)
+            }
+            capturedContext = CapturedContext(clipboardText: clipboardText, clipboardImage: clipboardImage, screenshot: screenshot)
+        }
+
         statusBarController.setRecordingState()
-        
+
         if settingsStore.floatingIndicatorEnabled {
             if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
                 pillFloatingIndicatorController.expandForRecording()
@@ -802,9 +839,10 @@ final class AppCoordinator {
         defer {
             isProcessing = false
             recordingStartTime = nil
+            capturedContext = nil
             statusBarController.setIdleState()
             statusBarController.updateMenuState()
-            
+
             if settingsStore.floatingIndicatorEnabled {
                 if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
                     pillFloatingIndicatorController.finishProcessing()
@@ -813,7 +851,7 @@ final class AppCoordinator {
                 }
             }
         }
-        
+
         let audioData: Data
         do {
             audioData = try await audioRecorder.stopRecording()
@@ -864,8 +902,17 @@ final class AppCoordinator {
                 originalText = textAfterReplacements
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 
-                // Build enhanced prompt with dictionary context
-                var enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+            // Build enhanced prompt with dictionary context
+            // Get prompt from selected preset or use default
+            var enhancedPrompt: String
+            if let presetId = settingsStore.selectedPresetId,
+               let presetUUID = UUID(uuidString: presetId),
+               let allPresets = try? promptPresetStore.fetchAll(),
+               let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
+                enhancedPrompt = selectedPreset.prompt.replacingOccurrences(of: "${transcription}", with: textAfterReplacements)
+            } else {
+                enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+            }
                 
                 // Add vocabulary section if exists
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
@@ -882,13 +929,35 @@ final class AppCoordinator {
                     enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
                 }
                 
+                var imageBase64: String? = nil
+                if let context = capturedContext {
+                    let contextImage = context.clipboardImage ?? context.screenshot
+                    if let image = contextImage,
+                       ModelCapabilities.supportsVision(modelId: settingsStore.aiModel) {
+                        imageBase64 = ImageResizer.toBase64PNG(image)
+                    }
+                    
+                    if let clipboardText = context.clipboardText, !clipboardText.isEmpty {
+                        enhancedPrompt = """
+                        Context from clipboard:
+                        ---
+                        \(clipboardText)
+                        ---
+                        
+                        \(enhancedPrompt)
+                        """
+                    }
+                }
+                
                 finalText = try await aiEnhancementService.enhance(
                     text: textAfterReplacements,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
-                    customPrompt: enhancedPrompt
+                    customPrompt: enhancedPrompt,
+                    imageBase64: imageBase64
                 )
+                capturedContext = nil
                 enhancedWithModel = settingsStore.aiModel
                 Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
             } catch {
@@ -1020,8 +1089,9 @@ final class AppCoordinator {
         
         isProcessing = false
         recordingStartTime = nil
+        capturedContext = nil
         error = nil
-        
+
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
         

@@ -118,6 +118,75 @@ final class AIEnhancementService {
         }
     }
 
+    func enhance(
+        text: String,
+        apiEndpoint: String,
+        apiKey: String,
+        model: String = "gpt-4o-mini",
+        customPrompt: String = AIEnhancementService.defaultSystemPrompt,
+        imageBase64: String?
+    ) async throws -> String {
+        guard !text.isEmpty else {
+            return text
+        }
+
+        guard let url = URL(string: apiEndpoint) else {
+            throw EnhancementError.invalidEndpoint
+        }
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+
+            let messages = AIEnhancementService.buildMessages(
+                systemPrompt: customPrompt,
+                text: text,
+                imageBase64: imageBase64
+            )
+
+            let requestBody: [String: Any] = [
+                "model": model,
+                "messages": messages,
+                "temperature": 0.3,
+                "max_tokens": 2048
+            ]
+
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+
+            let (data, response) = try await session.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw EnhancementError.invalidResponse
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let error = json["error"] as? [String: Any],
+                   let message = error["message"] as? String {
+                    throw EnhancementError.apiError(message)
+                }
+                throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
+            }
+
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let choices = json["choices"] as? [[String: Any]],
+                  let firstChoice = choices.first,
+                  let message = firstChoice["message"] as? [String: Any],
+                  let content = message["content"] as? String else {
+                throw EnhancementError.invalidResponse
+            }
+
+            return content.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch let error as EnhancementError {
+            throw error
+        } catch {
+            throw EnhancementError.apiError(error.localizedDescription)
+        }
+    }
+
     /// Builds the messages array for the API request.
     /// - Parameters:
     ///   - systemPrompt: The system prompt
