@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AIEnhancementSettingsView: View {
     @ObservedObject var settings: SettingsStore
+    @Environment(\.modelContext) private var modelContext
     
     @State private var selectedProvider: AIProvider = .openai
     @State private var apiKey = ""
@@ -23,6 +25,13 @@ struct AIEnhancementSettingsView: View {
     @State private var showingSaveSuccess = false
     @State private var showingPromptSaveSuccess = false
     @State private var errorMessage: String?
+    
+    @State private var presets: [PromptPreset] = []
+    @State private var showPresetManagement = false
+    
+    private var promptPresetStore: PromptPresetStore {
+        PromptPresetStore(modelContext: modelContext)
+    }
     
     enum PromptType: String, CaseIterable, Identifiable {
         case transcription = "Transcription"
@@ -56,6 +65,17 @@ struct AIEnhancementSettingsView: View {
         }
         .task {
             loadCredentials()
+            loadPresets()
+        }
+        .onChange(of: settings.selectedPresetId) { _, newValue in
+            handlePresetChange(newValue)
+        }
+        .onChange(of: enhancementPrompt) { _, newValue in
+            handlePromptChange(newValue)
+        }
+        .sheet(isPresented: $showPresetManagement) {
+            Text("Preset Management Coming Soon")
+                .frame(width: 400, height: 300)
         }
     }
     
@@ -96,11 +116,52 @@ struct AIEnhancementSettingsView: View {
     private var promptsCard: some View {
         SettingsCard(title: "Enhancement Prompts", icon: "text.bubble") {
             VStack(spacing: 16) {
+                if selectedPromptType == .transcription {
+                    presetPicker
+                    Divider()
+                        .overlay(AppColors.divider)
+                }
+                
                 promptTypeTabs
                 promptContent
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             .disabled(!settings.aiEnhancementEnabled)
+        }
+    }
+    
+    private var presetPicker: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            Text("Prompt Preset")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+            
+            HStack {
+                Picker("Preset", selection: $settings.selectedPresetId) {
+                    Text("Custom").tag(nil as String?)
+                    ForEach(presets) { preset in
+                        Text(preset.name).tag(preset.id.uuidString as String?)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .frame(maxWidth: 200)
+                
+                Button("Manage Presets...") {
+                    showPresetManagement = true
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                
+                Spacer()
+            }
+            
+            if let presetId = settings.selectedPresetId,
+               let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+                Text(preset.isBuiltIn ? "Built-in preset (read-only)" : "Custom preset")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
         }
     }
 
@@ -171,8 +232,8 @@ struct AIEnhancementSettingsView: View {
             VStack(spacing: 3) {
                 IconView(icon: type.icon, size: 14)
                 Text(type.rawValue)
-                    .font(.caption2)
-                    .fontWeight(.medium)
+                .font(.caption2)
+                .fontWeight(.medium)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.vertical, 10)
@@ -193,6 +254,8 @@ struct AIEnhancementSettingsView: View {
         let currentPrompt = selectedPromptType == .transcription ? $enhancementPrompt : $noteEnhancementPrompt
         let charCount = selectedPromptType == .transcription ? enhancementPrompt.count : noteEnhancementPrompt.count
         
+        let isReadOnly = selectedPromptType == .transcription && isBuiltInPresetSelected
+        
         VStack(alignment: .leading, spacing: 12) {
             TextEditor(text: currentPrompt)
                 .font(.body)
@@ -200,6 +263,8 @@ struct AIEnhancementSettingsView: View {
                 .padding(8)
                 .scrollContentBackground(.hidden)
                 .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+                .disabled(isReadOnly)
+                .opacity(isReadOnly ? 0.7 : 1)
             
             HStack {
                 Button("Reset to Default") {
@@ -224,7 +289,7 @@ struct AIEnhancementSettingsView: View {
                     saveCurrentPrompt()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(charCount == 0)
+                .disabled(charCount == 0 || isReadOnly)
                 
                 Spacer()
                 
@@ -241,9 +306,17 @@ struct AIEnhancementSettingsView: View {
         }
     }
     
+    private var isBuiltInPresetSelected: Bool {
+        guard let id = settings.selectedPresetId,
+              let preset = presets.first(where: { $0.id.uuidString == id })
+        else { return false }
+        return preset.isBuiltIn
+    }
+    
     private func resetCurrentPrompt() {
         switch selectedPromptType {
         case .transcription:
+            settings.selectedPresetId = nil // Reset preset to Custom
             enhancementPrompt = AIEnhancementService.defaultSystemPrompt
         case .notes:
             noteEnhancementPrompt = SettingsStore.Defaults.noteEnhancementPrompt
@@ -619,6 +692,37 @@ struct AIEnhancementSettingsView: View {
             }
         } catch {
             errorMessage = "Failed to save: \(error.localizedDescription)"
+        }
+    }
+    
+    private func loadPresets() {
+        do {
+            presets = try promptPresetStore.fetchAll()
+            
+            // Sync prompt text with selected preset if one is selected
+            if let presetId = settings.selectedPresetId,
+               let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+                enhancementPrompt = preset.prompt
+            }
+        } catch {
+            Log.ui.error("Failed to load presets: \(error)")
+        }
+    }
+    
+    private func handlePresetChange(_ presetId: String?) {
+        if let presetId, let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+            enhancementPrompt = preset.prompt
+        }
+    }
+    
+    private func handlePromptChange(_ newPrompt: String) {
+        // If text is modified and we have a selected preset, switch to Custom
+        // unless the text matches the preset exactly (e.g. initial load)
+        if let presetId = settings.selectedPresetId,
+           let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+            if newPrompt != preset.prompt {
+                settings.selectedPresetId = nil
+            }
         }
     }
 }
