@@ -52,6 +52,7 @@ struct AIEnhancementSettingsView: View {
             enableToggleCard
             providerCard
             promptsCard
+            contextCard
         }
         .task {
             loadCredentials()
@@ -97,6 +98,55 @@ struct AIEnhancementSettingsView: View {
             VStack(spacing: 16) {
                 promptTypeTabs
                 promptContent
+            }
+            .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
+            .disabled(!settings.aiEnhancementEnabled)
+        }
+    }
+
+    // MARK: - Context Card
+
+    private var contextCard: some View {
+        SettingsCard(title: "Context", icon: "camera.viewfinder") {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Context is captured when recording starts and included in the AI prompt.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                VStack(spacing: 12) {
+                    Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
+                        .toggleStyle(.switch)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Toggle("Include clipboard images", isOn: $settings.enableImageContext)
+                        .toggleStyle(.switch)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Toggle("Include screenshot", isOn: $settings.enableScreenshotContext)
+                        .toggleStyle(.switch)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                if settings.enableScreenshotContext {
+                    Picker("Screenshot mode", selection: $settings.screenshotMode) {
+                        Text("Active Window").tag("activeWindow")
+                        Text("Full Screen").tag("fullScreen")
+                    }
+                    .pickerStyle(.segmented)
+                }
+                
+                if settings.enableImageContext || settings.enableScreenshotContext {
+                    HStack(spacing: 6) {
+                        IconView(icon: .info, size: 12)
+                            .foregroundStyle(.secondary)
+                        Text("Note: Images require a vision-capable model (e.g., GPT-4o, Claude 3)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                }
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
             .disabled(!settings.aiEnhancementEnabled)
