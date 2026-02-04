@@ -7,7 +7,7 @@
       "location" : "https://github.com/FluidInference/FluidAudio.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5d9176eb35bcbe009c7b26202f0e92c85ff2dedf"
+        "revision" : "980a7e5256c7a0704871ee02539b6ea93aade832"
       }
     },
     {
@@ -49,7 +49,7 @@
     {
       "identity" : "swift-transformers",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/huggingface/swift-transformers.git",
+      "location" : "https://github.com/huggingface/swift-transformers",
       "state" : {
         "revision" : "573e5c9036c2f136b3a8a071da8e8907322403d0",
         "version" : "1.1.6"

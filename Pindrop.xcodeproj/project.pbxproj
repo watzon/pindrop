@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		PRESETMANGSHEETBUILD /* PresetManagementSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRESETMANGSHEETFILE /* PresetManagementSheet.swift */; };
 		01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E366552FAA4505B9775ACB /* PindropApp.swift */; };
 		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
@@ -30,6 +31,7 @@
 		5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6f62938483ec4a11ad5636be /* TranscriptionService.swift */; };
 		6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0729D0116F8418084311F4C /* HistoryStoreTests.swift */; };
 		DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */; };
+PRESETSTORETEST1A2B3C4D5E6F70 /* PromptPresetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */; };
 		NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */; };
 		6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */; };
 		6EA189DAD2FC954E2AA5B6B3 /* AIEnhancementStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */; };
@@ -108,6 +110,7 @@ E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PB
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		PRESETMANGSHEETFILE /* PresetManagementSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetManagementSheet.swift; sourceTree = "<group>"; };
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +158,7 @@ PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */ = {isa = PBXFileReferenc
 		E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
 		E0729D0116F8418084311F4C /* HistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStoreTests.swift; sourceTree = "<group>"; };
 		DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
+PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptPresetStoreTests.swift; sourceTree = "<group>"; };
 		NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStoreTests.swift; sourceTree = "<group>"; };
 		E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelDownloadStepView.swift; sourceTree = "<group>"; };
@@ -321,10 +325,11 @@ PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */,
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-	A1B2C3D4E5F6789012345678 /* Settings */ = {
-		isa = PBXGroup;
-		children = (
-			B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
+		A1B2C3D4E5F6789012345678 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				PRESETMANGSHEETFILE /* PresetManagementSheet.swift */,
+				B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
 			8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
 				DEADBEEF0000000000000002 /* UpdateSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
@@ -364,8 +369,9 @@ RESOURCESGRP1A2B3C4D5E6F /* Resources */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
 			8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 			E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
-			DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
-			NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
+DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
+PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */,
+NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
 			TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */,
 			WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */,
 			PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */,
@@ -558,8 +564,9 @@ SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */,
 				845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */,
 			1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,
 			6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
-			DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
-				NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
+DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
+PRESETSTORETEST1A2B3C4D5E6F70 /* PromptPresetStoreTests.swift in Sources */,
+NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
 			TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
 			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
 			PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */,
@@ -568,8 +575,9 @@ UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 		};
 		6E3989E80A1A4BF5BEC7A015 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-		files = (
-			01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
+			files = (
+				PRESETMANGSHEETBUILD /* PresetManagementSheet.swift in Sources */,
+				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 				LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */,

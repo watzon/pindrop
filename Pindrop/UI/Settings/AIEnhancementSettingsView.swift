@@ -25,6 +25,7 @@ struct AIEnhancementSettingsView: View {
     @State private var showingSaveSuccess = false
     @State private var showingPromptSaveSuccess = false
     @State private var errorMessage: String?
+    @State private var showScreenRecordingAlert = false
     
     @State private var presets: [PromptPreset] = []
     @State private var showPresetManagement = false
@@ -64,8 +65,8 @@ struct AIEnhancementSettingsView: View {
             contextCard
         }
         .task {
-            loadCredentials()
             loadPresets()
+            loadCredentialsAndPrompt()
         }
         .onChange(of: settings.selectedPresetId) { _, newValue in
             handlePresetChange(newValue)
@@ -74,8 +75,20 @@ struct AIEnhancementSettingsView: View {
             handlePromptChange(newValue)
         }
         .sheet(isPresented: $showPresetManagement) {
-            Text("Preset Management Coming Soon")
-                .frame(width: 400, height: 300)
+            PresetManagementSheet()
+                .onDisappear {
+                    loadPresets()
+                }
+        }
+        .alert("Screen Recording Permission Required", isPresented: $showScreenRecordingAlert) {
+            Button("Open System Settings") {
+                PermissionManager().openScreenRecordingPreferences()
+            }
+            Button("Cancel", role: .cancel) {
+                settings.enableScreenshotContext = false
+            }
+        } message: {
+            Text("Pindrop needs Screen Recording permission to capture screenshots. Please enable it in System Settings > Privacy & Security > Screen Recording.")
         }
     }
     
@@ -130,14 +143,27 @@ struct AIEnhancementSettingsView: View {
         }
     }
     
+    private var validatedPresetSelection: Binding<String?> {
+        Binding(
+            get: {
+                guard let presetId = settings.selectedPresetId,
+                      presets.contains(where: { $0.id.uuidString == presetId }) else {
+                    return nil
+                }
+                return presetId
+            },
+            set: { settings.selectedPresetId = $0 }
+        )
+    }
+    
     private var presetPicker: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Prompt Preset")
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
+                .font(.subheadline)
+                .fontWeight(.medium)
             
-            HStack {
-                Picker("Preset", selection: $settings.selectedPresetId) {
+            HStack(spacing: 8) {
+                Picker("Preset", selection: validatedPresetSelection) {
                     Text("Custom").tag(nil as String?)
                     ForEach(presets) { preset in
                         Text(preset.name).tag(preset.id.uuidString as String?)
@@ -145,7 +171,6 @@ struct AIEnhancementSettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .labelsHidden()
-                .frame(maxWidth: 200)
                 
                 Button("Manage Presets...") {
                     showPresetManagement = true
@@ -154,13 +179,16 @@ struct AIEnhancementSettingsView: View {
                 .controlSize(.small)
                 
                 Spacer()
-            }
-            
-            if let presetId = settings.selectedPresetId,
-               let preset = presets.first(where: { $0.id.uuidString == presetId }) {
-                Text(preset.isBuiltIn ? "Built-in preset (read-only)" : "Custom preset")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
+                
+                if let presetId = settings.selectedPresetId,
+                   let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+                    Text(preset.isBuiltIn ? "Built-in (read-only)" : "Custom")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.ultraThinMaterial, in: Capsule())
+                }
             }
         }
     }
@@ -183,7 +211,15 @@ struct AIEnhancementSettingsView: View {
                         .toggleStyle(.switch)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    Toggle("Include screenshot", isOn: $settings.enableScreenshotContext)
+                        Toggle("Include screenshot", isOn: Binding(
+                            get: { settings.enableScreenshotContext },
+                            set: { newValue in
+                                if newValue {
+                                    checkScreenRecordingPermission()
+                                }
+                                settings.enableScreenshotContext = newValue
+                            }
+                        ))
                         .toggleStyle(.switch)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -612,7 +648,7 @@ struct AIEnhancementSettingsView: View {
         return true
     }
     
-    private func loadCredentials() {
+    private func loadCredentialsAndPrompt() {
         let loadedModel = settings.aiModel
         selectedModel = loadedModel
         
@@ -639,7 +675,6 @@ struct AIEnhancementSettingsView: View {
             apiKey = key
         }
         
-        enhancementPrompt = settings.aiEnhancementPrompt
         noteEnhancementPrompt = settings.noteEnhancementPrompt
     }
     
@@ -699,13 +734,19 @@ struct AIEnhancementSettingsView: View {
         do {
             presets = try promptPresetStore.fetchAll()
             
-            // Sync prompt text with selected preset if one is selected
-            if let presetId = settings.selectedPresetId,
-               let preset = presets.first(where: { $0.id.uuidString == presetId }) {
-                enhancementPrompt = preset.prompt
+            if let presetId = settings.selectedPresetId {
+                if let preset = presets.first(where: { $0.id.uuidString == presetId }) {
+                    enhancementPrompt = preset.prompt
+                } else {
+                    settings.selectedPresetId = nil
+                    enhancementPrompt = settings.aiEnhancementPrompt
+                }
+            } else {
+                enhancementPrompt = settings.aiEnhancementPrompt
             }
         } catch {
             Log.ui.error("Failed to load presets: \(error)")
+            enhancementPrompt = settings.aiEnhancementPrompt
         }
     }
     
@@ -722,6 +763,21 @@ struct AIEnhancementSettingsView: View {
            let preset = presets.first(where: { $0.id.uuidString == presetId }) {
             if newPrompt != preset.prompt {
                 settings.selectedPresetId = nil
+            }
+        }
+    }
+
+    private func checkScreenRecordingPermission() {
+        let permissionManager = PermissionManager()
+        
+        if !permissionManager.checkScreenRecordingPermission() {
+            permissionManager.requestScreenRecordingPermission()
+            
+            Task {
+                try? await Task.sleep(for: .milliseconds(500))
+                if !permissionManager.checkScreenRecordingPermission() {
+                    showScreenRecordingAlert = true
+                }
             }
         }
     }

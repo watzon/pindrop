@@ -242,16 +242,7 @@ final class AppCoordinator {
             return
         }
 
-        // Seed built-in presets on first launch
-        if !UserDefaults.standard.bool(forKey: "hasSeededPresets") {
-            do {
-                try promptPresetStore.seedBuiltInPresets()
-                UserDefaults.standard.set(true, forKey: "hasSeededPresets")
-                Log.app.info("Seeded built-in prompt presets")
-            } catch {
-                Log.app.error("Failed to seed built-in presets: \(error)")
-            }
-        }
+        seedBuiltInPresetsIfNeeded()
 
         splashController.show()
         
@@ -286,8 +277,20 @@ final class AppCoordinator {
     }
     
     private func finishPostOnboardingSetup() async {
+        // Seed built-in presets after onboarding completes
+        seedBuiltInPresetsIfNeeded()
+        
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
             _ = outputManager.requestAccessibilityPermission()
+        }
+    }
+    
+    private func seedBuiltInPresetsIfNeeded() {
+        do {
+            try promptPresetStore.seedBuiltInPresets()
+            Log.app.debug("Synced built-in prompt presets")
+        } catch {
+            Log.app.error("Failed to seed built-in presets: \(error)")
         }
     }
     
@@ -930,7 +933,20 @@ final class AppCoordinator {
                 }
                 
                 var imageBase64: String? = nil
+                var contextMetadata = AIEnhancementService.ContextMetadata.none
+                var userMessageText = textAfterReplacements
+                
                 if let context = capturedContext {
+                    let hasClipboardImage = context.clipboardImage != nil
+                    let hasScreenshot = context.screenshot != nil
+                    let hasClipboardText = context.clipboardText != nil && !context.clipboardText!.isEmpty
+                    
+                    contextMetadata = AIEnhancementService.ContextMetadata(
+                        hasClipboardText: hasClipboardText,
+                        hasClipboardImage: hasClipboardImage,
+                        hasScreenshot: hasScreenshot
+                    )
+                    
                     let contextImage = context.clipboardImage ?? context.screenshot
                     if let image = contextImage,
                        ModelCapabilities.supportsVision(modelId: settingsStore.aiModel) {
@@ -938,24 +954,26 @@ final class AppCoordinator {
                     }
                     
                     if let clipboardText = context.clipboardText, !clipboardText.isEmpty {
-                        enhancedPrompt = """
-                        Context from clipboard:
-                        ---
+                        userMessageText = """
+                        <clipboard_text>
                         \(clipboardText)
-                        ---
+                        </clipboard_text>
                         
-                        \(enhancedPrompt)
+                        <transcription>
+                        \(textAfterReplacements)
+                        </transcription>
                         """
                     }
                 }
                 
                 finalText = try await aiEnhancementService.enhance(
-                    text: textAfterReplacements,
+                    text: userMessageText,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
                     customPrompt: enhancedPrompt,
-                    imageBase64: imageBase64
+                    imageBase64: imageBase64,
+                    context: contextMetadata
                 )
                 capturedContext = nil
                 enhancedWithModel = settingsStore.aiModel

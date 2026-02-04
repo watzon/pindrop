@@ -25,6 +25,7 @@ enum BuiltInPresets {
         cleanTranscript,
         meetingNotes,
         emailDraft,
+        socialMedia,
         bulletSummary,
         technical
     ]
@@ -79,6 +80,23 @@ enum BuiltInPresets {
         4. Maintain professional but friendly tone
         5. Preserve all key information from the dictation
         Return only the formatted email body (no subject line).
+        ${transcription}
+        """
+    )
+
+    /// Social Media - Engaging social media post formatting.
+    static let socialMedia = PresetDefinition(
+        identifier: "social",
+        name: "Social Media",
+        prompt: """
+        You are a social media content assistant. Transform the dictated text into an engaging social media post:
+        1. Break content into short, readable paragraphs (1-2 sentences each)
+        2. Fix grammar, spelling, and punctuation
+        3. Keep the tone conversational and authentic
+        4. Preserve the original message and voice
+        5. Remove filler words while keeping natural flow
+        Do not add hashtags, emojis, or calls-to-action unless explicitly mentioned in the dictation.
+        Return only the formatted post text.
         ${transcription}
         """
     )

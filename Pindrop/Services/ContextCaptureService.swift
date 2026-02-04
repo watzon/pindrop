@@ -23,10 +23,20 @@ enum ScreenshotMode: Equatable {
 
 @MainActor
 final class ContextCaptureService {
+    
+    static let maxClipboardTextLength = 8192
+    
     // MARK: - Clipboard Capture
 
     func captureClipboardText() -> String? {
-        NSPasteboard.general.string(forType: .string)
+        guard let text = NSPasteboard.general.string(forType: .string) else { return nil }
+        return Self.truncateText(text, maxLength: Self.maxClipboardTextLength)
+    }
+    
+    static func truncateText(_ text: String, maxLength: Int) -> String {
+        guard text.count > maxLength else { return text }
+        let truncated = String(text.prefix(maxLength))
+        return truncated + "\n\n[Content truncated - \(text.count - maxLength) characters omitted]"
     }
 
     func captureClipboardImage() -> NSImage? {
@@ -48,6 +58,11 @@ final class ContextCaptureService {
     // MARK: - Screenshot Capture
 
     func captureScreenshot(mode: ScreenshotMode) -> NSImage? {
+        guard CGPreflightScreenCaptureAccess() else {
+            Log.app.warning("Screen recording permission not granted, skipping screenshot capture")
+            return nil
+        }
+        
         let cgImage: CGImage?
 
         switch mode {
