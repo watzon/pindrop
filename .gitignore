@@ -34,3 +34,10 @@ Carthage/Build/
 
 # Docs
 .sisyphus/
+
+# Test coverage
+*.profraw
+
+# Temporary scripts and build artifacts
+*.py
+package-lock.json
