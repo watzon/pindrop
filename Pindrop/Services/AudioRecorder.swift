@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import CoreAudio
 import os.log
 
 enum AudioRecorderError: Error, LocalizedError {
@@ -62,22 +63,40 @@ final class AudioRecorder {
     private var audioEngine: AVAudioEngine?
     private let audioBuffers = AudioBufferStorage()
     private(set) var isRecording = false
+    private var preferredInputDeviceUID: String?
     
-    let targetFormat: AVAudioFormat
+    private let targetFormatStorage: AVAudioFormat
+    var targetFormat: AVAudioFormat {
+        if targetFormatStorage.sampleRate == 0 ||
+            targetFormatStorage.channelCount == 0 ||
+            targetFormatStorage.commonFormat != .pcmFormatFloat32 {
+            return AudioRecorder.makeFallbackFormat()
+        }
+        return targetFormatStorage
+    }
     let permissionManager: PermissionManager
     
     var onAudioLevel: ((Float) -> Void)?
     
     nonisolated init(permissionManager: PermissionManager) throws {
-        guard let format = AVAudioFormat(
-            commonFormat: .pcmFormatFloat32,
-            sampleRate: 16000.0,
-            channels: 1,
-            interleaved: false
-        ) else {
+        var streamDescription = AudioStreamBasicDescription(
+            mSampleRate: 16000.0,
+            mFormatID: kAudioFormatLinearPCM,
+            mFormatFlags: kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked,
+            mBytesPerPacket: 4,
+            mFramesPerPacket: 1,
+            mBytesPerFrame: 4,
+            mChannelsPerFrame: 1,
+            mBitsPerChannel: 32,
+            mReserved: 0
+        )
+        guard let format = AVAudioFormat(streamDescription: &streamDescription) else {
             throw AudioRecorderError.audioFormatCreationFailed
         }
-        self.targetFormat = format
+        guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32 else {
+            throw AudioRecorderError.audioFormatCreationFailed
+        }
+        self.targetFormatStorage = format
         self.permissionManager = permissionManager
     }
     
@@ -96,17 +115,24 @@ final class AudioRecorder {
         self.audioEngine = engine
         
         let inputNode = engine.inputNode
-        let inputFormat = inputNode.outputFormat(forBus: 0)
+        applyPreferredInputDevice(to: inputNode)
+        let nodeFormat = inputNode.inputFormat(forBus: 0)
+        let tapFormat = AVAudioFormat(
+            standardFormatWithSampleRate: nodeFormat.sampleRate,
+            channels: 1
+        ) ?? nodeFormat
         
-        Log.audio.debug("Input format: \(inputFormat)")
+        Log.audio.debug("Input format: \(nodeFormat)")
+        Log.audio.debug("Tap format: \(tapFormat)")
         
         let bufferStorage = self.audioBuffers
         let targetFmt = self.targetFormat
         
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 4096, format: tapFormat) { [weak self] buffer, _ in
             guard let self = self else { return }
-            
-            if let convertedBuffer = self.convertBuffer(buffer, from: inputFormat, to: targetFmt) {
+
+            let bufferFormat = buffer.format
+            if let convertedBuffer = self.convertBuffer(buffer, from: bufferFormat, to: targetFmt) {
                 bufferStorage.append(convertedBuffer)
             }
             
@@ -162,6 +188,11 @@ final class AudioRecorder {
         
         Log.audio.info("Recording cancelled, audio discarded")
     }
+
+    func setPreferredInputDeviceUID(_ uid: String) {
+        let trimmedUID = uid.trimmingCharacters(in: .whitespacesAndNewlines)
+        preferredInputDeviceUID = trimmedUID.isEmpty ? nil : trimmedUID
+    }
     
     private func convertBuffer(
         _ buffer: AVAudioPCMBuffer,
@@ -215,6 +246,28 @@ final class AudioRecorder {
         
         return convertedBuffer
     }
+
+    private static func makeFallbackFormat() -> AVAudioFormat {
+        guard let format = AVAudioFormat(standardFormatWithSampleRate: 16000.0, channels: 1) else {
+            return AVAudioFormat()
+        }
+        return format
+    }
+
+    private func applyPreferredInputDevice(to inputNode: AVAudioInputNode) {
+        guard let preferredUID = preferredInputDeviceUID else { return }
+        guard let deviceID = AudioDeviceManager.inputDeviceID(for: preferredUID) else {
+            Log.audio.warning("Preferred input device not found, using system default")
+            return
+        }
+        
+        do {
+            try inputNode.auAudioUnit.setDeviceID(deviceID)
+            Log.audio.info("Using preferred input device: \(deviceID)")
+        } catch {
+            Log.audio.error("Failed to set input device: \(error.localizedDescription)")
+        }
+    }
     
     private func combineBuffersToData(_ buffers: [AVAudioPCMBuffer]) -> Data {
         var allSamples: [Float] = []
@@ -232,19 +285,50 @@ final class AudioRecorder {
     }
     
     nonisolated private func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
-        guard let channelData = buffer.floatChannelData else { return 0 }
-        
         let frameLength = Int(buffer.frameLength)
         guard frameLength > 0 else { return 0 }
-        
+
+        let audioBufferList = buffer.audioBufferList.pointee
+        let bufferCount = Int(audioBufferList.mNumberBuffers)
+        guard bufferCount > 0 else { return 0 }
+
         var sum: Float = 0
-        for i in 0..<frameLength {
-            let sample = channelData[0][i]
-            sum += sample * sample
+        var sampleCount: Int = 0
+
+        withUnsafePointer(to: audioBufferList.mBuffers) { buffersPointer in
+            let buffers = UnsafeBufferPointer(start: buffersPointer, count: bufferCount)
+            switch buffer.format.commonFormat {
+            case .pcmFormatFloat32:
+                for audioBuffer in buffers {
+                    let dataByteSize = Int(audioBuffer.mDataByteSize)
+                    guard dataByteSize > 0, let data = audioBuffer.mData else { continue }
+                    let count = dataByteSize / MemoryLayout<Float>.size
+                    let bufferPointer = data.bindMemory(to: Float.self, capacity: count)
+                    for index in 0..<count {
+                        let sample = bufferPointer[index]
+                        sum += sample * sample
+                    }
+                    sampleCount += count
+                }
+            case .pcmFormatInt16:
+                for audioBuffer in buffers {
+                    let dataByteSize = Int(audioBuffer.mDataByteSize)
+                    guard dataByteSize > 0, let data = audioBuffer.mData else { continue }
+                    let count = dataByteSize / MemoryLayout<Int16>.size
+                    let bufferPointer = data.bindMemory(to: Int16.self, capacity: count)
+                    for index in 0..<count {
+                        let floatSample = Float(bufferPointer[index]) / Float(Int16.max)
+                        sum += floatSample * floatSample
+                    }
+                    sampleCount += count
+                }
+            default:
+                break
+            }
         }
-        
-        let rms = sqrt(sum / Float(frameLength))
-        let normalizedLevel = min(1.0, rms * 5)
-        return normalizedLevel
+
+        guard sampleCount > 0 else { return 0 }
+        let rms = sqrt(sum / Float(sampleCount))
+        return min(1.0 as Float, rms * 5)
     }
 }

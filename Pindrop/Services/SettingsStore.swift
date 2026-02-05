@@ -31,6 +31,7 @@ final class SettingsStore: ObservableObject {
     enum Defaults {
         static let selectedModel = "openai_whisper-base"
         static let outputMode = "clipboard"
+        static let selectedInputDeviceUID = ""
         static let aiModel = "openai/gpt-4o-mini"
         static let aiEnhancementPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
         static let noteEnhancementPrompt = """
@@ -90,6 +91,7 @@ Rules:
     @AppStorage("quickCaptureToggleHotkeyCode") var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
     @AppStorage("quickCaptureToggleHotkeyModifiers") var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
     @AppStorage("outputMode") var outputMode: String = Defaults.outputMode
+    @AppStorage("selectedInputDeviceUID") var selectedInputDeviceUID: String = Defaults.selectedInputDeviceUID
     @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
     @AppStorage("aiModel") var aiModel: String = Defaults.aiModel
     @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
@@ -176,6 +178,7 @@ Rules:
         quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
         quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
         outputMode = Defaults.outputMode
+        selectedInputDeviceUID = Defaults.selectedInputDeviceUID
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = false
         floatingIndicatorType = FloatingIndicatorType.pill.rawValue

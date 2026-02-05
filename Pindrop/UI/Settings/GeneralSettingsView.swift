@@ -10,10 +10,12 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @ObservedObject var settings: SettingsStore
     @State private var showingResetConfirmation = false
+    @State private var availableInputDevices: [AudioInputDevice] = []
     
     var body: some View {
         VStack(spacing: 20) {
             outputSection
+            audioInputSection
             interfaceSection
             resetSection
         }
@@ -121,6 +123,44 @@ struct GeneralSettingsView: View {
             }
         }
     }
+
+    private var audioInputSection: some View {
+        SettingsCard(title: "Audio Input", icon: "mic") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Choose which microphone Pindrop should use for dictation. Changes apply on the next recording.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                HStack(spacing: 8) {
+                    Picker("Input Device", selection: $settings.selectedInputDeviceUID) {
+                        Text("System Default").tag("")
+                        
+                        if !settings.selectedInputDeviceUID.isEmpty &&
+                            !availableInputDevices.contains(where: { $0.uid == settings.selectedInputDeviceUID }) {
+                            Text("Unavailable device").tag(settings.selectedInputDeviceUID)
+                        }
+                        
+                        ForEach(availableInputDevices) { device in
+                            Text(device.displayName).tag(device.uid)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    
+                    Button("Refresh") {
+                        refreshInputDevices()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            refreshInputDevices()
+        }
+    }
     
     private var resetSection: some View {
         SettingsCard(title: "Reset", icon: "arrow.counterclockwise") {
@@ -152,6 +192,10 @@ struct GeneralSettingsView: View {
         } message: {
             Text("This will clear all your settings, including API keys, hotkeys, and model preferences. The app will quit and show onboarding again on next launch.")
         }
+    }
+
+    private func refreshInputDevices() {
+        availableInputDevices = AudioDeviceManager.inputDevices()
     }
 }
 

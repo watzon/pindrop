@@ -95,6 +95,7 @@ final class AppCoordinator {
         self.hotkeyManager = HotkeyManager()
         self.launchAtLoginManager = LaunchAtLoginManager()
         self.settingsStore = SettingsStore()
+        self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
         self.outputManager = OutputManager(outputMode: initialOutputMode)
@@ -540,6 +541,8 @@ final class AppCoordinator {
                             AlertManager.shared.showAccessibilityPermissionAlert()
                         }
                     }
+                    
+                    self.audioRecorder.setPreferredInputDeviceUID(self.settingsStore.selectedInputDeviceUID)
                     
                     self.updateFloatingIndicatorVisibility()
 

@@ -13,6 +13,7 @@
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
 		DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEADBEEF0000000000000002 /* UpdateSettingsView.swift */; };
 		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
+		A9D8C7B6E5F40123456789AB /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */; };
 		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
@@ -178,6 +179,7 @@ PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */ = {isa = PBXFil
 		bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionServiceTests.swift; sourceTree = "<group>"; };
 UPDATESVC01A2B3C4D5E6F71 /* UpdateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateServiceTests.swift; sourceTree = "<group>"; };
 		f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
 		WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordReplacement.swift; sourceTree = "<group>"; };
 		VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyWord.swift; sourceTree = "<group>"; };
 		NOTESCH001A2B3C4D5E6 /* NoteSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteSchema.swift; sourceTree = "<group>"; };
@@ -279,11 +281,12 @@ sourceTree = "<group>";
 			path = UI;
 			sourceTree = "<group>";
 		};
- 		81f50d309b6a44df90efbd5f /* Services */ = {
- 		isa = PBXGroup;
- 		children = (
- 			f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
- 			6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
+			81f50d309b6a44df90efbd5f /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */,
+				B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */,
+				6f62938483ec4a11ad5636be /* TranscriptionService.swift */,
  			TRANSGRP01A2B3C4D5E6F /* Transcription */,
  			a2189a034cf447e08e86f24b /* PermissionManager.swift */,
  		CB05E1BC11534652810B091F /* OutputManager.swift */,
@@ -579,6 +582,7 @@ UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 				PRESETMANGSHEETBUILD /* PresetManagementSheet.swift in Sources */,
 				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
+				A9D8C7B6E5F40123456789AB /* AudioDeviceManager.swift in Sources */,
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 				LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */,
 			UPDATESVC01A2B3C4D5E6F /* UpdateService.swift in Sources */,
