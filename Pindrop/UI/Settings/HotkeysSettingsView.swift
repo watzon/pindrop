@@ -156,6 +156,40 @@ struct HotkeysSettingsView: View {
                 return nil
             }
 
+            if event.type == .flagsChanged {
+                guard self.isModifierKeyCode(event.keyCode), self.modifierKeyIsDown(event) else {
+                    return event
+                }
+
+                let hotkeyString = self.buildHotkeyString(from: event)
+                let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
+
+                if forToggle {
+                    settings.toggleHotkey = hotkeyString
+                    settings.toggleHotkeyCode = Int(event.keyCode)
+                    settings.toggleHotkeyModifiers = Int(carbonModifiers)
+                } else if forCopyLastTranscript {
+                    settings.copyLastTranscriptHotkey = hotkeyString
+                    settings.copyLastTranscriptHotkeyCode = Int(event.keyCode)
+                    settings.copyLastTranscriptHotkeyModifiers = Int(carbonModifiers)
+                } else if forQuickCapturePTT {
+                    settings.quickCapturePTTHotkey = hotkeyString
+                    settings.quickCapturePTTHotkeyCode = Int(event.keyCode)
+                    settings.quickCapturePTTHotkeyModifiers = Int(carbonModifiers)
+                } else if forQuickCaptureToggle {
+                    settings.quickCaptureToggleHotkey = hotkeyString
+                    settings.quickCaptureToggleHotkeyCode = Int(event.keyCode)
+                    settings.quickCaptureToggleHotkeyModifiers = Int(carbonModifiers)
+                } else {
+                    settings.pushToTalkHotkey = hotkeyString
+                    settings.pushToTalkHotkeyCode = Int(event.keyCode)
+                    settings.pushToTalkHotkeyModifiers = Int(carbonModifiers)
+                }
+
+                self.stopRecording()
+                return nil
+            }
+
             if event.type == .keyDown {
                 let hotkeyString = self.buildHotkeyString(from: event)
                 let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
@@ -251,6 +285,30 @@ struct HotkeysSettingsView: View {
         }
 
         return parts.joined()
+    }
+
+    private func isModifierKeyCode(_ keyCode: UInt16) -> Bool {
+        switch keyCode {
+        case 54, 55, 56, 60, 58, 61, 59, 62:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func modifierKeyIsDown(_ event: NSEvent) -> Bool {
+        switch event.keyCode {
+        case 54, 55:
+            return event.modifierFlags.contains(.command)
+        case 58, 61:
+            return event.modifierFlags.contains(.option)
+        case 56, 60:
+            return event.modifierFlags.contains(.shift)
+        case 59, 62:
+            return event.modifierFlags.contains(.control)
+        default:
+            return false
+        }
     }
     
     private func keyCodeToName(_ keyCode: UInt16) -> String {

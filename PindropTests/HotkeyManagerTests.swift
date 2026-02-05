@@ -7,6 +7,7 @@
 
 import XCTest
 import Carbon
+import CoreGraphics
 @testable import Pindrop
 
 // MARK: - Mock Hotkey Registration
@@ -352,5 +353,62 @@ final class HotkeyManagerTests: XCTestCase {
         
         config.onKeyUp?()
         XCTAssertTrue(keyUpCalled)
+    }
+
+    func testRegisterModifierOnlyHotkeySkipsCarbonRegistration() {
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 54,
+            modifiers: [.command],
+            identifier: "rightCommand",
+            mode: .pushToTalk,
+            onKeyDown: nil,
+            onKeyUp: nil
+        )
+
+        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+        XCTAssertEqual(mockRegistration.registerCallCount, 0, "Modifier-only hotkey should not use Carbon registration")
+    }
+
+    func testModifierOnlyPushToTalkKeyDownAndUp() {
+        let keyDownExpectation = expectation(description: "Modifier key down")
+        let keyUpExpectation = expectation(description: "Modifier key up")
+
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 54,
+            modifiers: [.command],
+            identifier: "rightCommandPTT",
+            mode: .pushToTalk,
+            onKeyDown: { keyDownExpectation.fulfill() },
+            onKeyUp: { keyUpExpectation.fulfill() }
+        )
+
+        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        guard let keyDownEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: 54,
+            keyDown: true
+        ) else {
+            XCTFail("Failed to create keyDown CGEvent")
+            return
+        }
+        keyDownEvent.flags = .maskCommand
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+        wait(for: [keyDownExpectation], timeout: 1.0)
+
+        guard let keyUpEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: 54,
+            keyDown: false
+        ) else {
+            XCTFail("Failed to create keyUp CGEvent")
+            return
+        }
+        keyUpEvent.flags = []
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+        wait(for: [keyUpExpectation], timeout: 1.0)
     }
 }

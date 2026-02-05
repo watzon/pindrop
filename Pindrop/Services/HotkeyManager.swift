@@ -7,6 +7,7 @@
 
 import Foundation
 import Carbon
+import CoreGraphics
 import os.log
 
 // MARK: - Hotkey Registration Protocol
@@ -112,6 +113,7 @@ final class HotkeyManager {
     private struct RegisteredHotkey {
         let configuration: HotkeyConfiguration
         let eventHotKeyID: EventHotKeyID
+        let usesCarbonRegistration: Bool
         var isKeyCurrentlyPressed: Bool = false
     }
     
@@ -155,15 +157,18 @@ final class HotkeyManager {
         // Use truncatingIfNeeded to safely convert hash to UInt32 (handles negative values and overflow)
         let hotkeyID = UInt32(truncatingIfNeeded: identifier.hashValue)
         
-        let success = registration.registerHotkey(
-            id: hotkeyID,
-            keyCode: keyCode,
-            modifiers: modifiers.rawValue
-        )
-        
-        guard success else {
-            logger.error("Failed to register hotkey '\(identifier)'")
-            return false
+        let usesCarbonRegistration = modifierMask(for: keyCode) == nil
+        if usesCarbonRegistration {
+            let success = registration.registerHotkey(
+                id: hotkeyID,
+                keyCode: keyCode,
+                modifiers: modifiers.rawValue
+            )
+            
+            guard success else {
+                logger.error("Failed to register hotkey '\(identifier)'")
+                return false
+            }
         }
         
         var eventHotKeyID = EventHotKeyID()
@@ -174,11 +179,16 @@ final class HotkeyManager {
         
         let registeredHotkey = RegisteredHotkey(
             configuration: configuration,
-            eventHotKeyID: eventHotKeyID
+            eventHotKeyID: eventHotKeyID,
+            usesCarbonRegistration: usesCarbonRegistration
         )
         
         registeredHotkeys[identifier] = registeredHotkey
-        logger.info("Successfully registered hotkey '\(identifier)'")
+        if usesCarbonRegistration {
+            logger.info("Successfully registered hotkey '\(identifier)'")
+        } else {
+            logger.info("Registered modifier-only hotkey '\(identifier)' with keyCode=\(keyCode)")
+        }
         
         return true
     }
@@ -188,13 +198,15 @@ final class HotkeyManager {
             logger.warning("Attempted to unregister nonexistent hotkey '\(identifier)'")
             return false
         }
-        
-        let hotkeyID = registeredHotkey.eventHotKeyID.id
-        let success = registration.unregisterHotkey(id: hotkeyID)
-        
-        guard success else {
-            logger.error("Failed to unregister hotkey '\(identifier)'")
-            return false
+
+        if registeredHotkey.usesCarbonRegistration {
+            let hotkeyID = registeredHotkey.eventHotKeyID.id
+            let success = registration.unregisterHotkey(id: hotkeyID)
+            
+            guard success else {
+                logger.error("Failed to unregister hotkey '\(identifier)'")
+                return false
+            }
         }
         
         registeredHotkeys.removeValue(forKey: identifier)
@@ -220,6 +232,22 @@ final class HotkeyManager {
     
     func convertToCarbonModifiers(_ modifiers: ModifierFlags) -> UInt32 {
         return modifiers.rawValue
+    }
+
+    func handleModifierFlagsChanged(event: CGEvent) {
+        let keyCode = UInt32(event.getIntegerValueField(.keyboardEventKeycode))
+        guard let modifierMask = modifierMask(for: keyCode) else { return }
+
+        let isKeyDown = event.flags.contains(modifierMask)
+        let eventModifiers = modifierFlagsFrom(event.flags)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.handleModifierKeyEvent(
+                keyCode: keyCode,
+                eventModifiers: eventModifiers,
+                isKeyDown: isKeyDown
+            )
+        }
     }
     
     private func setupEventHandler() {
@@ -326,5 +354,59 @@ final class HotkeyManager {
         }
         
         return OSStatus(eventNotHandledErr)
+    }
+
+    private func handleModifierKeyEvent(
+        keyCode: UInt32,
+        eventModifiers: ModifierFlags,
+        isKeyDown: Bool
+    ) {
+        for (identifier, var registeredHotkey) in registeredHotkeys {
+            guard !registeredHotkey.usesCarbonRegistration else { continue }
+            guard registeredHotkey.configuration.keyCode == keyCode else { continue }
+
+            let config = registeredHotkey.configuration
+
+            if isKeyDown {
+                guard eventModifiers == config.modifiers else { continue }
+                guard !registeredHotkey.isKeyCurrentlyPressed else { continue }
+
+                registeredHotkey.isKeyCurrentlyPressed = true
+                registeredHotkeys[identifier] = registeredHotkey
+
+                config.onKeyDown?()
+            } else if registeredHotkey.isKeyCurrentlyPressed {
+                registeredHotkey.isKeyCurrentlyPressed = false
+                registeredHotkeys[identifier] = registeredHotkey
+
+                if config.mode == .pushToTalk {
+                    config.onKeyUp?()
+                }
+            }
+        }
+    }
+
+    private func modifierMask(for keyCode: UInt32) -> CGEventFlags? {
+        switch keyCode {
+        case 54, 55:
+            return .maskCommand
+        case 58, 61:
+            return .maskAlternate
+        case 56, 60:
+            return .maskShift
+        case 59, 62:
+            return .maskControl
+        default:
+            return nil
+        }
+    }
+
+    private func modifierFlagsFrom(_ flags: CGEventFlags) -> ModifierFlags {
+        var modifiers: ModifierFlags = []
+        if flags.contains(.maskCommand) { modifiers.insert(.command) }
+        if flags.contains(.maskAlternate) { modifiers.insert(.option) }
+        if flags.contains(.maskShift) { modifiers.insert(.shift) }
+        if flags.contains(.maskControl) { modifiers.insert(.control) }
+        return modifiers
     }
 }

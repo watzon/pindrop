@@ -74,6 +74,8 @@ final class AppCoordinator {
     
     private var escapeEventTap: CFMachPort?
     private var escapeRunLoopSource: CFRunLoopSource?
+    private var modifierEventTap: CFMachPort?
+    private var modifierRunLoopSource: CFRunLoopSource?
     private var lastEscapeTime: Date?
     private let doubleEscapeThreshold: TimeInterval = 0.4
     
@@ -202,6 +204,7 @@ final class AppCoordinator {
         setupHotkeys()
         observeSettings()
         setupEscapeKeyMonitor()
+        setupModifierKeyMonitor()
         setupNotifications()
     }
     
@@ -1041,6 +1044,37 @@ final class AppCoordinator {
             CGEvent.tapEnable(tap: eventTap, enable: true)
         }
     }
+
+    private func setupModifierKeyMonitor() {
+        let eventMask = (1 << CGEventType.flagsChanged.rawValue)
+
+        let refcon = Unmanaged.passUnretained(self).toOpaque()
+
+        guard let eventTap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: CGEventMask(eventMask),
+            callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
+                guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
+
+                let coordinator = Unmanaged<AppCoordinator>.fromOpaque(refcon).takeUnretainedValue()
+                return coordinator.handleModifierKeyEvent(proxy: proxy, type: type, event: event)
+            },
+            userInfo: refcon
+        ) else {
+            Log.hotkey.error("Failed to create modifier CGEventTap - Accessibility permission may be required")
+            return
+        }
+
+        modifierEventTap = eventTap
+        modifierRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+
+        if let source = modifierRunLoopSource {
+            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+            CGEvent.tapEnable(tap: eventTap, enable: true)
+        }
+    }
     
     private nonisolated func handleKeyEvent(
         proxy: CGEventTapProxy,
@@ -1065,6 +1099,19 @@ final class AppCoordinator {
         
         if shouldBlock {
             return nil
+        }
+        return Unmanaged.passUnretained(event)
+    }
+
+    private nonisolated func handleModifierKeyEvent(
+        proxy: CGEventTapProxy,
+        type: CGEventType,
+        event: CGEvent
+    ) -> Unmanaged<CGEvent>? {
+        guard type == .flagsChanged else { return Unmanaged.passUnretained(event) }
+
+        Task { @MainActor in
+            hotkeyManager.handleModifierFlagsChanged(event: event)
         }
         return Unmanaged.passUnretained(event)
     }
@@ -1331,6 +1378,15 @@ final class AppCoordinator {
             }
             escapeEventTap = nil
             escapeRunLoopSource = nil
+        }
+
+        if let eventTap = modifierEventTap {
+            CGEvent.tapEnable(tap: eventTap, enable: false)
+            if let source = modifierRunLoopSource {
+                CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            }
+            modifierEventTap = nil
+            modifierRunLoopSource = nil
         }
     }
 }
