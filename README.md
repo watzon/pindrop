@@ -60,7 +60,7 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 ## Built With
 
 - **[Swift](https://swift.org/)** — Apple's modern, fast, and safe programming language
-- **[SwiftUI](https://developer.apple.com/xcode/swiftui/)** — Declarative UI framework for truly native Mac apps
+- **[SwiftUI](https://developer.apple.com/swiftui/)** — Declarative UI framework for truly native Mac apps
 - **[WhisperKit](https://github.com/argmaxinc/WhisperKit)** — Apple's official Core ML implementation of OpenAI Whisper
 - **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
 - **Just one external dependency** — WhisperKit. Everything else is Apple's first-party frameworks.
