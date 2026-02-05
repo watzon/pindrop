@@ -139,7 +139,7 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             state = .ready
             return result.text
         } catch {
-            state = .error
+            state = .ready
             self.error = error
             throw error
         }

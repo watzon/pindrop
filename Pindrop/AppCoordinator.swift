@@ -649,6 +649,7 @@ final class AppCoordinator {
 
         isRecording = false
         isProcessing = true
+        var didResetProcessingState = false
 
         statusBarController.setProcessingState()
 
@@ -661,18 +662,8 @@ final class AppCoordinator {
         }
 
         defer {
-            isProcessing = false
-            recordingStartTime = nil
-            capturedContext = nil
-            statusBarController.setIdleState()
-            statusBarController.updateMenuState()
-
-            if settingsStore.floatingIndicatorEnabled {
-                if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
-                    pillFloatingIndicatorController.finishProcessing()
-                } else {
-                    floatingIndicatorController.finishProcessing()
-                }
+            if !didResetProcessingState {
+                resetProcessingState()
             }
         }
 
@@ -694,6 +685,8 @@ final class AppCoordinator {
             transcribedText = try await transcriptionService.transcribe(audioData: audioData)
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
             if case .modelNotLoaded = error {
                 AlertManager.shared.showModelNotLoadedAlert()
             } else {
@@ -702,6 +695,8 @@ final class AppCoordinator {
             throw error
         } catch {
             Log.app.error("Transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
             AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
             throw error
         }
@@ -830,10 +825,11 @@ final class AppCoordinator {
             Log.app.warning("stopRecordingAndTranscribe called but recordingStartTime is nil")
             return
         }
-        
+
         isRecording = false
         isProcessing = true
-        
+        var didResetProcessingState = false
+
         statusBarController.setProcessingState()
         
         if settingsStore.floatingIndicatorEnabled {
@@ -845,18 +841,8 @@ final class AppCoordinator {
         }
         
         defer {
-            isProcessing = false
-            recordingStartTime = nil
-            capturedContext = nil
-            statusBarController.setIdleState()
-            statusBarController.updateMenuState()
-
-            if settingsStore.floatingIndicatorEnabled {
-                if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
-                    pillFloatingIndicatorController.finishProcessing()
-                } else {
-                    floatingIndicatorController.finishProcessing()
-                }
+            if !didResetProcessingState {
+                resetProcessingState()
             }
         }
 
@@ -880,6 +866,8 @@ final class AppCoordinator {
             transcribedText = try await transcriptionService.transcribe(audioData: audioData)
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
             if case .modelNotLoaded = error {
                 AlertManager.shared.showModelNotLoadedAlert()
             } else {
@@ -888,6 +876,8 @@ final class AppCoordinator {
             throw error
         } catch {
             Log.app.error("Transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
             AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
             throw error
         }
@@ -1118,6 +1108,22 @@ final class AppCoordinator {
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
         
+        if settingsStore.floatingIndicatorEnabled {
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.finishProcessing()
+            } else {
+                floatingIndicatorController.finishProcessing()
+            }
+        }
+    }
+
+    private func resetProcessingState() {
+        isProcessing = false
+        recordingStartTime = nil
+        capturedContext = nil
+        statusBarController.setIdleState()
+        statusBarController.updateMenuState()
+
         if settingsStore.floatingIndicatorEnabled {
             if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
                 pillFloatingIndicatorController.finishProcessing()

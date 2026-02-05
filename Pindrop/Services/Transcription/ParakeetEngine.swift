@@ -112,7 +112,7 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
             state = .ready
             return result.text
         } catch {
-            state = .error
+            state = .ready
             self.error = error
             throw EngineError.transcriptionFailed(error.localizedDescription)
         }
