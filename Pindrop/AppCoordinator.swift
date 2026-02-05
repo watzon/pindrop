@@ -277,11 +277,10 @@ final class AppCoordinator {
     }
     
     private func finishPostOnboardingSetup() async {
-        // Seed built-in presets after onboarding completes
         seedBuiltInPresetsIfNeeded()
         
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
-            _ = outputManager.requestAccessibilityPermission()
+            Log.app.info("Accessibility permission not granted after onboarding - direct insert will use clipboard fallback")
         }
     }
     
@@ -302,14 +301,20 @@ final class AppCoordinator {
             Log.app.info("Synced launch at login state: \(actualLaunchAtLoginState)")
         }
 
-        let micGranted = await permissionManager.requestPermission()
-        if !micGranted {
+        let micStatus = permissionManager.checkPermissionStatus()
+        if micStatus == .notDetermined {
+            let micGranted = await permissionManager.requestPermission()
+            if !micGranted {
+                Log.app.warning("Microphone permission denied - recording will not work")
+                AlertManager.shared.showMicrophonePermissionAlert()
+            }
+        } else if micStatus == .denied || micStatus == .restricted {
             Log.app.warning("Microphone permission denied - recording will not work")
             AlertManager.shared.showMicrophonePermissionAlert()
         }
 
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
-            _ = outputManager.requestAccessibilityPermission()
+            Log.app.info("Accessibility permission not granted - direct insert will use clipboard fallback")
         }
 
         let modelName = settingsStore.selectedModel
