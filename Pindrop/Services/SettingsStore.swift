@@ -114,8 +114,7 @@ Rules:
     
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("currentOnboardingStep") var currentOnboardingStep: Int = 0
-    @AppStorage("hasSeededPresets") var hasSeededPresets: Bool = false
-    
+
     // MARK: - Keychain Properties
     
     private let keychainService = "com.pindrop.settings"
