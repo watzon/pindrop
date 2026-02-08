@@ -411,7 +411,7 @@ class ModelManager {
                 model: modelName,
                 downloadBase: self.modelsBaseURL,
                 verbose: false,
-                logLevel: .error,
+                logLevel: .none,
                 prewarm: true,
                 load: false
             )

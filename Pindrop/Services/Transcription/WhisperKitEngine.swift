@@ -63,7 +63,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                 computeOptions: ModelComputeOptions(
                     audioEncoderCompute: .cpuAndNeuralEngine,
                     textDecoderCompute: .cpuAndNeuralEngine
-                )
+                ),
+                verbose: false,
+                logLevel: .error
             )
             
             whisperKit = try await WhisperKit(config)
@@ -91,7 +93,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                 computeOptions: ModelComputeOptions(
                     audioEncoderCompute: .cpuAndNeuralEngine,
                     textDecoderCompute: .cpuAndNeuralEngine
-                )
+                ),
+                verbose: false,
+                logLevel: .error
             )
             
             whisperKit = try await WhisperKit(config)
