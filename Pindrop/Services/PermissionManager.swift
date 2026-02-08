@@ -67,15 +67,27 @@ final class PermissionManager {
     }
     
     func requestPermission() async -> Bool {
-        let granted = await withCheckedContinuation { continuation in
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                continuation.resume(returning: granted)
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        permissionStatus = status
+
+        switch status {
+        case .authorized:
+            return true
+        case .denied, .restricted:
+            return false
+        case .notDetermined:
+            let granted = await withCheckedContinuation { continuation in
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    continuation.resume(returning: granted)
+                }
             }
+
+            await refreshPermissionStatus()
+
+            return granted
+        @unknown default:
+            return false
         }
-        
-        await refreshPermissionStatus()
-        
-        return granted
     }
     
     func refreshPermissionStatus() async {
