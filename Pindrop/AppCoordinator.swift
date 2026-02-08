@@ -573,6 +573,7 @@ final class AppCoordinator {
             try await startRecording()
         } catch {
             self.error = error
+            audioRecorder.resetAudioEngine()
             Log.app.error("Failed to start recording: \(error)")
         }
     }
@@ -584,6 +585,7 @@ final class AppCoordinator {
             try await stopRecordingAndTranscribe()
         } catch {
             self.error = error
+            audioRecorder.resetAudioEngine()
             Log.app.error("Failed to stop recording: \(error)")
         }
     }
@@ -601,6 +603,7 @@ final class AppCoordinator {
         } catch {
             self.error = error
             isQuickCaptureMode = false
+            audioRecorder.resetAudioEngine()
             Log.app.error("Failed to start quick capture recording: \(error)")
         }
     }
@@ -614,6 +617,7 @@ final class AppCoordinator {
             }
         } catch {
             self.error = error
+            audioRecorder.resetAudioEngine()
             Log.app.error("Failed to stop quick capture recording: \(error)")
         }
 
@@ -630,6 +634,7 @@ final class AppCoordinator {
                 }
             } catch {
                 self.error = error
+                audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to stop quick capture recording: \(error)")
             }
             isQuickCaptureMode = false
@@ -642,6 +647,7 @@ final class AppCoordinator {
             } catch {
                 self.error = error
                 isQuickCaptureMode = false
+                audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to start quick capture recording: \(error)")
             }
         }
@@ -777,6 +783,7 @@ final class AppCoordinator {
                 try await stopRecordingAndTranscribe()
             } catch {
                 self.error = error
+                audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to stop recording: \(error)")
             }
         } else if !isProcessing {
@@ -784,16 +791,23 @@ final class AppCoordinator {
                 try await startRecording()
             } catch {
                 self.error = error
+                audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to start recording: \(error)")
             }
         }
     }
     
     private func startRecording() async throws {
+        do {
+            try await audioRecorder.startRecording()
+        } catch {
+            Log.app.error("Audio engine failed to start: \(error)")
+            throw error
+        }
+        
         isRecording = true
         recordingStartTime = Date()
 
-        // Capture context at recording start if settings enabled
         if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableScreenshotContext {
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
             let clipboardImage = settingsStore.enableImageContext ? contextCaptureService.captureClipboardImage() : nil
@@ -822,8 +836,6 @@ final class AppCoordinator {
                 floatingIndicatorController.startRecording()
             }
         }
-        
-        try await audioRecorder.startRecording()
     }
     
     private func stopRecordingAndTranscribe() async throws {
@@ -906,17 +918,17 @@ final class AppCoordinator {
                 originalText = textAfterReplacements
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 
-            // Build enhanced prompt with dictionary context
-            // Get prompt from selected preset or use default
-            var enhancedPrompt: String
-            if let presetId = settingsStore.selectedPresetId,
-               let presetUUID = UUID(uuidString: presetId),
-               let allPresets = try? promptPresetStore.fetchAll(),
-               let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-                enhancedPrompt = selectedPreset.prompt.replacingOccurrences(of: "${transcription}", with: textAfterReplacements)
-            } else {
-                enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
-            }
+                // Build enhanced prompt with dictionary context
+                // Get prompt from selected preset or use default
+                var enhancedPrompt: String
+                if let presetId = settingsStore.selectedPresetId,
+                   let presetUUID = UUID(uuidString: presetId),
+                   let allPresets = try? promptPresetStore.fetchAll(),
+                   let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
+                    enhancedPrompt = selectedPreset.prompt.replacingOccurrences(of: "${transcription}", with: textAfterReplacements)
+                } else {
+                    enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                }
                 
                 // Add vocabulary section if exists
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
@@ -1091,18 +1103,6 @@ final class AppCoordinator {
             self.handleEscapeKeyPress()
         }
         
-        var shouldBlock = false
-        if Thread.isMainThread {
-            shouldBlock = MainActor.assumeIsolated { self.isRecording || self.isProcessing }
-        } else {
-            DispatchQueue.main.sync {
-                shouldBlock = MainActor.assumeIsolated { self.isRecording || self.isProcessing }
-            }
-        }
-        
-        if shouldBlock {
-            return nil
-        }
         return Unmanaged.passUnretained(event)
     }
 
@@ -1145,11 +1145,8 @@ final class AppCoordinator {
         
         Log.app.info("Cancelling current operation via double-escape")
         
-        if isRecording {
-            audioRecorder.cancelRecording()
-            isRecording = false
-        }
-        
+        audioRecorder.resetAudioEngine()
+        isRecording = false
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil

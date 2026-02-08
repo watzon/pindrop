@@ -150,9 +150,23 @@ final class AudioRecorder {
             Log.audio.info("Audio engine started")
         } catch {
             inputNode.removeTap(onBus: 0)
+            engine.reset()
             self.audioEngine = nil
             throw AudioRecorderError.engineStartFailed(error.localizedDescription)
         }
+    }
+    
+    func resetAudioEngine() {
+        if let engine = audioEngine {
+            if isRecording {
+                engine.inputNode.removeTap(onBus: 0)
+                engine.stop()
+            }
+        }
+        audioEngine = nil
+        isRecording = false
+        _ = audioBuffers.removeAll()
+        Log.audio.info("Audio engine reset")
     }
     
     func stopRecording() async throws -> Data {
