@@ -13,170 +13,143 @@ import AVFoundation
 final class AudioRecorderTests: XCTestCase {
     
     var sut: AudioRecorder!
-    var permissionManager: PermissionManager!
+    var mockPermission: MockPermissionProvider!
+    var mockBackend: MockAudioCaptureBackend!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        permissionManager = PermissionManager()
-        sut = try AudioRecorder(permissionManager: permissionManager)
+        mockPermission = MockPermissionProvider()
+        mockBackend = MockAudioCaptureBackend()
+        sut = try AudioRecorder(permissionManager: mockPermission, captureBackend: mockBackend)
     }
     
     override func tearDownWithError() throws {
         sut = nil
+        mockPermission = nil
+        mockBackend = nil
         try super.tearDownWithError()
     }
     
-    // MARK: - Initialization Tests
+    // MARK: - Initialization
     
     func testAudioRecorderInitialization() throws {
-        XCTAssertNotNil(sut, "AudioRecorder should initialize successfully")
-        XCTAssertFalse(sut.isRecording, "AudioRecorder should not be recording initially")
-    }
-    
-    // MARK: - Recording Tests
-    
-    func testStartRecordingRequestsPermission() throws {
-        // Given: AudioRecorder is initialized
-        // When: startRecording is called
-        let expectation = expectation(description: "Permission requested")
-        
-        Task {
-            do {
-                try await sut.startRecording()
-                // If we get here, permission was granted (or already granted)
-                expectation.fulfill()
-            } catch AudioRecorderError.permissionDenied {
-                // Permission was denied - this is also a valid outcome for the test
-                expectation.fulfill()
-            } catch {
-                XCTFail("Unexpected error: \(error)")
-            }
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
-    }
-    
-    func testStartRecordingSetsIsRecordingFlag() throws {
-        // Given: AudioRecorder is initialized
+        XCTAssertNotNil(sut)
         XCTAssertFalse(sut.isRecording)
-        
-        // When: startRecording is called (assuming permission granted)
-        let expectation = expectation(description: "Recording started")
-        
-        Task {
-            do {
-                try await sut.startRecording()
-                // Then: isRecording should be true
-                XCTAssertTrue(self.sut.isRecording, "isRecording should be true after starting")
-                expectation.fulfill()
-            } catch AudioRecorderError.permissionDenied {
-                // Skip test if permission denied
-                expectation.fulfill()
-            } catch {
-                XCTFail("Unexpected error: \(error)")
-            }
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
     }
     
-    func testStopRecordingReturnsAudioData() throws {
-        // Given: Recording has started
-        let startExpectation = expectation(description: "Recording started")
-        let stopExpectation = expectation(description: "Recording stopped")
-        
-        Task {
-            do {
-                try await sut.startRecording()
-                startExpectation.fulfill()
-                
-                // Record for a brief moment
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                
-                // When: stopRecording is called
-                let audioData = try await sut.stopRecording()
-                
-                // Then: Audio data should be returned
-                XCTAssertNotNil(audioData, "Audio data should not be nil")
-                XCTAssertGreaterThan(audioData.count, 0, "Audio data should contain samples")
-                XCTAssertFalse(self.sut.isRecording, "isRecording should be false after stopping")
-                
-                stopExpectation.fulfill()
-            } catch AudioRecorderError.permissionDenied {
-                // Skip test if permission denied
-                startExpectation.fulfill()
-                stopExpectation.fulfill()
-            } catch {
-                XCTFail("Unexpected error: \(error)")
-            }
-        }
-        
-        wait(for: [startExpectation, stopExpectation], timeout: 10.0)
+    // MARK: - Recording
+    
+    func testStartRecordingRequestsPermission() async throws {
+        mockPermission.grantPermission = true
+        try await sut.startRecording()
+        XCTAssertEqual(mockPermission.requestPermissionCallCount, 1)
     }
     
-    func testStopRecordingWithoutStartingThrowsError() throws {
-        // Given: Recording has not started
+    func testStartRecordingSetsIsRecordingFlag() async throws {
+        mockPermission.grantPermission = true
         XCTAssertFalse(sut.isRecording)
-        
-        // When/Then: stopRecording should throw an error
-        let expectation = expectation(description: "Error thrown")
-        
-        Task {
-            do {
-                _ = try await sut.stopRecording()
-                XCTFail("Should have thrown notRecording error")
-            } catch AudioRecorderError.notRecording {
-                // Expected error
-                expectation.fulfill()
-            } catch {
-                XCTFail("Unexpected error: \(error)")
-            }
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
+        try await sut.startRecording()
+        XCTAssertTrue(sut.isRecording)
+        XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
     }
     
-    // MARK: - Audio Format Tests
+    func testStopRecordingReturnsAudioData() async throws {
+        mockPermission.grantPermission = true
+        let buffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
+        mockBackend.simulatedBuffers = [buffer]
+        
+        try await sut.startRecording()
+        let audioData = try await sut.stopRecording()
+        
+        XCTAssertGreaterThan(audioData.count, 0)
+        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(mockBackend.stopCaptureCallCount, 1)
+    }
+    
+    func testStopRecordingWithoutStartingThrowsError() async throws {
+        do {
+            _ = try await sut.stopRecording()
+            XCTFail("Should have thrown notRecording error")
+        } catch AudioRecorderError.notRecording {
+            // Expected
+        }
+    }
+    
+    // MARK: - Audio Format
     
     func testAudioFormatConfiguration() throws {
-        // Given: AudioRecorder is initialized
-        // When: We check the audio format
         let format = sut.targetFormat
-        
-        // Then: Format should match WhisperKit requirements
-        XCTAssertEqual(format.sampleRate, 16000.0, "Sample rate should be 16kHz")
-        XCTAssertEqual(format.channelCount, 1, "Should be mono (1 channel)")
-        XCTAssertEqual(format.commonFormat, .pcmFormatFloat32, "Should be 32-bit float PCM")
+        XCTAssertEqual(format.sampleRate, 16000.0)
+        XCTAssertEqual(format.channelCount, 1)
+        XCTAssertEqual(format.commonFormat, .pcmFormatFloat32)
     }
     
-    // MARK: - Multiple Recording Sessions Tests
+    // MARK: - Multiple Sessions
     
-    func testMultipleRecordingSessions() throws {
-        let expectation = expectation(description: "Multiple sessions completed")
+    func testMultipleRecordingSessions() async throws {
+        mockPermission.grantPermission = true
+        let buffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
+        mockBackend.simulatedBuffers = [buffer]
         
-        Task {
-            do {
-                // First session
-                try await sut.startRecording()
-                try await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-                let firstData = try await sut.stopRecording()
-                XCTAssertGreaterThan(firstData.count, 0)
-                
-                // Second session
-                try await sut.startRecording()
-                try await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-                let secondData = try await sut.stopRecording()
-                XCTAssertGreaterThan(secondData.count, 0)
-                
-                expectation.fulfill()
-            } catch AudioRecorderError.permissionDenied {
-                // Skip test if permission denied
-                expectation.fulfill()
-            } catch {
-                XCTFail("Unexpected error: \(error)")
-            }
+        // First session
+        try await sut.startRecording()
+        let firstData = try await sut.stopRecording()
+        XCTAssertGreaterThan(firstData.count, 0)
+        
+        mockBackend.simulatedBuffers = [buffer]
+        
+        // Second session
+        try await sut.startRecording()
+        let secondData = try await sut.stopRecording()
+        XCTAssertGreaterThan(secondData.count, 0)
+        
+        XCTAssertEqual(mockBackend.startCaptureCallCount, 2)
+        XCTAssertEqual(mockBackend.stopCaptureCallCount, 2)
+    }
+    
+    // MARK: - Error Handling
+    
+    func testStartRecordingThrowsWhenPermissionDenied() async throws {
+        mockPermission.grantPermission = false
+        do {
+            try await sut.startRecording()
+            XCTFail("Should have thrown permissionDenied")
+        } catch AudioRecorderError.permissionDenied {
+            // Expected
         }
+        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(mockBackend.startCaptureCallCount, 0, "Backend should not start when permission denied")
+    }
+    
+    func testStartRecordingThrowsWhenBackendFails() async throws {
+        mockPermission.grantPermission = true
+        mockBackend.shouldThrowOnStart = AudioRecorderError.engineStartFailed("Mock engine failure")
         
-        wait(for: [expectation], timeout: 10.0)
+        do {
+            try await sut.startRecording()
+            XCTFail("Should have thrown engineStartFailed")
+        } catch AudioRecorderError.engineStartFailed {
+            // Expected
+        }
+        XCTAssertFalse(sut.isRecording)
+    }
+    
+    func testCancelRecording() async throws {
+        mockPermission.grantPermission = true
+        try await sut.startRecording()
+        XCTAssertTrue(sut.isRecording)
+        
+        sut.cancelRecording()
+        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(mockBackend.cancelCaptureCallCount, 1)
+    }
+    
+    func testResetAudioEngine() async throws {
+        mockPermission.grantPermission = true
+        try await sut.startRecording()
+        
+        sut.resetAudioEngine()
+        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(mockBackend.resetCallCount, 1)
     }
 }
