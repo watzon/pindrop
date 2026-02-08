@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+
+env:
+  APP_NAME: Pindrop
+  SCHEME: Pindrop
+  CONFIGURATION: Debug
+
+jobs:
+  build-test:
+    runs-on: macos-26
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build App (Unsigned)
+        run: |
+          xcodebuild \
+            -scheme "${{ env.SCHEME }}" \
+            -configuration "${{ env.CONFIGURATION }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+          APP_PATH="DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
+          echo "App built at: $APP_PATH"
+          echo "app_path=$APP_PATH" >> $GITHUB_ENV
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Error: App not found at $APP_PATH"
+            find DerivedData -name "*.app" -type d
+            exit 1
+          fi
+
+      - name: Run Tests
+        env:
+          NSUnbufferedIO: YES
+        run: |
+          xcodebuild \
+            test \
+            -scheme "${{ env.SCHEME }}" \
+            -destination "platform=macOS" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package App Artifact
+        run: |
+          ARTIFACT_DIR="dist"
+          ARTIFACT_NAME="${{ env.APP_NAME }}-${{ github.sha }}.zip"
+          mkdir -p "$ARTIFACT_DIR"
+          ditto -c -k --sequesterRsrc --keepParent "${{ env.app_path }}" "${ARTIFACT_DIR}/${ARTIFACT_NAME}"
+          echo "artifact_path=${ARTIFACT_DIR}/${ARTIFACT_NAME}" >> $GITHUB_ENV
+
+      - name: Upload App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.APP_NAME }}-${{ github.sha }}"
+          path: "${{ env.artifact_path }}"
+          if-no-files-found: error
