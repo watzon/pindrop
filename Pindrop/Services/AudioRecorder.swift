@@ -30,6 +30,22 @@ enum AudioRecorderError: Error, LocalizedError {
     }
 }
 
+// MARK: - AudioCaptureBackend Protocol
+
+/// Abstracts audio capture hardware, enabling mock-based testing.
+protocol AudioCaptureBackend: AnyObject {
+    var isCapturing: Bool { get }
+    var targetFormat: AVAudioFormat { get }
+    
+    func startCapture(onBuffer: @escaping (AVAudioPCMBuffer) -> Void, onAudioLevel: @escaping (Float) -> Void) throws
+    func stopCapture() throws -> [AVAudioPCMBuffer]
+    func cancelCapture()
+    func reset()
+    func setPreferredInputDeviceUID(_ uid: String)
+}
+
+// MARK: - AVAudioEngineCaptureBackend
+
 /// Thread-safe buffer storage for audio recording.
 /// Uses a lock to allow immediate buffer appending from the audio render thread.
 private final class AudioBufferStorage: @unchecked Sendable {
@@ -57,28 +73,25 @@ private final class AudioBufferStorage: @unchecked Sendable {
     }
 }
 
-@MainActor
-final class AudioRecorder {
+final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
     private var audioEngine: AVAudioEngine?
     private let audioBuffers = AudioBufferStorage()
-    private(set) var isRecording = false
     private var preferredInputDeviceUID: String?
+    
+    private(set) var isCapturing = false
     
     private let targetFormatStorage: AVAudioFormat
     var targetFormat: AVAudioFormat {
         if targetFormatStorage.sampleRate == 0 ||
             targetFormatStorage.channelCount == 0 ||
             targetFormatStorage.commonFormat != .pcmFormatFloat32 {
-            return AudioRecorder.makeFallbackFormat()
+            return Self.makeFallbackFormat()
         }
         return targetFormatStorage
     }
-    let permissionManager: PermissionManager
     
-    var onAudioLevel: ((Float) -> Void)?
-    
-    nonisolated init(permissionManager: PermissionManager) throws {
+    init() throws {
         var streamDescription = AudioStreamBasicDescription(
             mSampleRate: 16000.0,
             mFormatID: kAudioFormatLinearPCM,
@@ -97,18 +110,9 @@ final class AudioRecorder {
             throw AudioRecorderError.audioFormatCreationFailed
         }
         self.targetFormatStorage = format
-        self.permissionManager = permissionManager
     }
     
-    func startRecording() async throws {
-        guard await permissionManager.requestPermission() else {
-            throw AudioRecorderError.permissionDenied
-        }
-        
-        if isRecording {
-            return
-        }
-        
+    func startCapture(onBuffer: @escaping (AVAudioPCMBuffer) -> Void, onAudioLevel: @escaping (Float) -> Void) throws {
         _ = audioBuffers.removeAll()
         
         let engine = AVAudioEngine()
@@ -134,19 +138,18 @@ final class AudioRecorder {
             let bufferFormat = buffer.format
             if let convertedBuffer = self.convertBuffer(buffer, from: bufferFormat, to: targetFmt) {
                 bufferStorage.append(convertedBuffer)
+                onBuffer(convertedBuffer)
             }
             
             let level = self.calculateAudioLevel(buffer)
-            Task { @MainActor in
-                self.onAudioLevel?(level)
-            }
+            onAudioLevel(level)
         }
         
         engine.prepare()
         
         do {
             try engine.start()
-            isRecording = true
+            isCapturing = true
             Log.audio.info("Audio engine started")
         } catch {
             inputNode.removeTap(onBus: 0)
@@ -156,57 +159,55 @@ final class AudioRecorder {
         }
     }
     
-    func resetAudioEngine() {
-        if let engine = audioEngine {
-            if isRecording {
-                engine.inputNode.removeTap(onBus: 0)
-                engine.stop()
-            }
-        }
-        audioEngine = nil
-        isRecording = false
-        _ = audioBuffers.removeAll()
-        Log.audio.info("Audio engine reset")
-    }
-    
-    func stopRecording() async throws -> Data {
-        guard isRecording, let engine = audioEngine else {
+    func stopCapture() throws -> [AVAudioPCMBuffer] {
+        guard isCapturing, let engine = audioEngine else {
             throw AudioRecorderError.notRecording
         }
         
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
-        isRecording = false
+        isCapturing = false
         self.audioEngine = nil
         
         let collectedBuffers = audioBuffers.removeAll()
-        Log.audio.debug("Stopped recording, collected \(collectedBuffers.count) buffers")
+        Log.audio.debug("Stopped capturing, collected \(collectedBuffers.count) buffers")
         
-        let audioData = combineBuffersToData(collectedBuffers)
-        
-        Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
-        
-        return audioData
+        return collectedBuffers
     }
     
-    func cancelRecording() {
-        guard isRecording, let engine = audioEngine else {
+    func cancelCapture() {
+        guard isCapturing, let engine = audioEngine else {
             return
         }
         
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
-        isRecording = false
+        isCapturing = false
         self.audioEngine = nil
         _ = audioBuffers.removeAll()
         
-        Log.audio.info("Recording cancelled, audio discarded")
+        Log.audio.info("Capture cancelled, audio discarded")
     }
-
+    
+    func reset() {
+        if let engine = audioEngine {
+            if isCapturing {
+                engine.inputNode.removeTap(onBus: 0)
+                engine.stop()
+            }
+        }
+        audioEngine = nil
+        isCapturing = false
+        _ = audioBuffers.removeAll()
+        Log.audio.info("Audio engine reset")
+    }
+    
     func setPreferredInputDeviceUID(_ uid: String) {
         let trimmedUID = uid.trimmingCharacters(in: .whitespacesAndNewlines)
         preferredInputDeviceUID = trimmedUID.isEmpty ? nil : trimmedUID
     }
+    
+    // MARK: - Private Helpers
     
     private func convertBuffer(
         _ buffer: AVAudioPCMBuffer,
@@ -283,22 +284,7 @@ final class AudioRecorder {
         }
     }
     
-    private func combineBuffersToData(_ buffers: [AVAudioPCMBuffer]) -> Data {
-        var allSamples: [Float] = []
-        
-        for buffer in buffers {
-            guard let channelData = buffer.floatChannelData else { continue }
-            let frameLength = Int(buffer.frameLength)
-            let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
-            allSamples.append(contentsOf: samples)
-        }
-        
-        return allSamples.withUnsafeBufferPointer { bufferPointer in
-            Data(buffer: bufferPointer)
-        }
-    }
-    
-    nonisolated private func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
+    private func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
         let frameLength = Int(buffer.frameLength)
         guard frameLength > 0 else { return 0 }
 
@@ -344,5 +330,105 @@ final class AudioRecorder {
         guard sampleCount > 0 else { return 0 }
         let rms = sqrt(sum / Float(sampleCount))
         return min(1.0 as Float, rms * 5)
+    }
+}
+
+// MARK: - AudioRecorder
+
+@MainActor
+final class AudioRecorder {
+    
+    private(set) var isRecording = false
+    
+    let permissionManager: any PermissionProviding
+    private let captureBackend: AudioCaptureBackend
+    
+    var targetFormat: AVAudioFormat {
+        captureBackend.targetFormat
+    }
+    
+    var onAudioLevel: ((Float) -> Void)?
+    
+    nonisolated init(
+        permissionManager: some PermissionProviding,
+        captureBackend: AudioCaptureBackend? = nil
+    ) throws {
+        self.permissionManager = permissionManager
+        self.captureBackend = try captureBackend ?? AVAudioEngineCaptureBackend()
+    }
+    
+    func startRecording() async throws {
+        guard await permissionManager.requestPermission() else {
+            throw AudioRecorderError.permissionDenied
+        }
+        
+        if isRecording {
+            return
+        }
+        
+        let audioLevelCallback = self.onAudioLevel
+        try captureBackend.startCapture(
+            onBuffer: { _ in },
+            onAudioLevel: { level in
+                Task { @MainActor in
+                    audioLevelCallback?(level)
+                }
+            }
+        )
+        
+        isRecording = true
+    }
+    
+    func stopRecording() async throws -> Data {
+        guard isRecording else {
+            throw AudioRecorderError.notRecording
+        }
+        
+        let collectedBuffers = try captureBackend.stopCapture()
+        isRecording = false
+        
+        let audioData = combineBuffersToData(collectedBuffers)
+        
+        Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
+        
+        return audioData
+    }
+    
+    func cancelRecording() {
+        guard isRecording else {
+            return
+        }
+        
+        captureBackend.cancelCapture()
+        isRecording = false
+        
+        Log.audio.info("Recording cancelled, audio discarded")
+    }
+    
+    func resetAudioEngine() {
+        captureBackend.reset()
+        isRecording = false
+        Log.audio.info("Audio engine reset")
+    }
+
+    func setPreferredInputDeviceUID(_ uid: String) {
+        captureBackend.setPreferredInputDeviceUID(uid)
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func combineBuffersToData(_ buffers: [AVAudioPCMBuffer]) -> Data {
+        var allSamples: [Float] = []
+        
+        for buffer in buffers {
+            guard let channelData = buffer.floatChannelData else { continue }
+            let frameLength = Int(buffer.frameLength)
+            let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
+            allSamples.append(contentsOf: samples)
+        }
+        
+        return allSamples.withUnsafeBufferPointer { bufferPointer in
+            Data(buffer: bufferPointer)
+        }
     }
 }

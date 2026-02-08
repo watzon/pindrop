@@ -12,6 +12,13 @@ import AppKit
 import CoreGraphics
 import Observation
 
+/// Protocol for permission checking, enabling mock-based testing.
+protocol PermissionProviding: AnyObject {
+    func requestPermission() async -> Bool
+}
+
+extension PermissionManager: PermissionProviding {}
+
 @MainActor
 @Observable
 final class PermissionManager {
