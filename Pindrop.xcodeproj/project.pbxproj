@@ -98,6 +98,8 @@ E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PB
 		SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */; };
 		STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */; };
 		TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */; };
+		MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = MOCKPERM02A2B3C4D5E6F /* MockPermissionProvider.swift */; };
+		MOCKCAPT01A2B3C4D5E6F /* MockAudioCaptureBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = MOCKCAPT02A2B3C4D5E6F /* MockAudioCaptureBackend.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -203,6 +205,8 @@ BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference
 		SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiarizer.swift; sourceTree = "<group>"; };
 		STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingTranscriptionEngine.swift; sourceTree = "<group>"; };
 		TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechEngine.swift; sourceTree = "<group>"; };
+		MOCKPERM02A2B3C4D5E6F /* MockPermissionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPermissionProvider.swift; sourceTree = "<group>"; };
+		MOCKCAPT02A2B3C4D5E6F /* MockAudioCaptureBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAudioCaptureBackend.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -367,6 +371,7 @@ RESOURCESGRP1A2B3C4D5E6F /* Resources */,
 		AA285F0FC951498CA7AEFEDE /* PindropTests */ = {
 			isa = PBXGroup;
 			children = (
+				TESTHELPERS01A2B3C4D5E6F /* TestHelpers */,
 				8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */,
 				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
@@ -381,6 +386,15 @@ NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
 UPDATESVC01A2B3C4D5E6F71 /* UpdateServiceTests.swift */,
 		);
 			path = PindropTests;
+			sourceTree = "<group>";
+		};
+		TESTHELPERS01A2B3C4D5E6F /* TestHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				MOCKPERM02A2B3C4D5E6F /* MockPermissionProvider.swift */,
+				MOCKCAPT02A2B3C4D5E6F /* MockAudioCaptureBackend.swift */,
+			);
+			path = TestHelpers;
 			sourceTree = "<group>";
 		};
 	AC5569DC7FCD55BB91774AB2 /* Onboarding */ = {
@@ -574,6 +588,8 @@ NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
 			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
 			PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */,
 UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
+			MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */,
+			MOCKCAPT01A2B3C4D5E6F /* MockAudioCaptureBackend.swift in Sources */,
 		);
 		};
 		6E3989E80A1A4BF5BEC7A015 /* Sources */ = {
