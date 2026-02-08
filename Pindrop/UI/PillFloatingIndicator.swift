@@ -101,7 +101,7 @@ final class PillFloatingIndicatorController: ObservableObject {
             let yPosition = screenFrame.minY + 4
 
             let newFrame = NSRect(x: xPosition, y: yPosition, width: size.width, height: size.height)
-            panel.setFrame(newFrame, display: true, animate: false)
+            panel.setFrame(newFrame, display: false, animate: false)
         }
     }
 
@@ -129,7 +129,7 @@ final class PillFloatingIndicatorController: ObservableObject {
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.15
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(newFrame, display: true)
+            panel.animator().setFrame(newFrame, display: false)
         }
     }
     
@@ -154,13 +154,13 @@ final class PillFloatingIndicatorController: ObservableObject {
 
         let newFrame = NSRect(x: newX, y: newY, width: expandedSize.width, height: expandedSize.height)
 
+        updateContentView(isCompact: false)
+
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.3
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(newFrame, display: true)
+            panel.animator().setFrame(newFrame, display: false)
         }
-
-        updateContentView(isCompact: false)
     }
     
     private func showExpanded() {
@@ -220,12 +220,13 @@ final class PillFloatingIndicatorController: ObservableObject {
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.25
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(newFrame, display: true)
+            panel.animator().setFrame(newFrame, display: false)
         } completionHandler: { [weak self] in
-            self?.updateContentView(isCompact: true)
+            DispatchQueue.main.async {
+                self?.updateContentView(isCompact: true)
+            }
         }
     }
-
     
     func hide() {
         guard let panel = panel else { return }
@@ -241,8 +242,10 @@ final class PillFloatingIndicatorController: ObservableObject {
             localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
             localPanel.close()
-            self?.panel = nil
-            self?.hostingView = nil
+            DispatchQueue.main.async {
+                self?.panel = nil
+                self?.hostingView = nil
+            }
         })
     }
     

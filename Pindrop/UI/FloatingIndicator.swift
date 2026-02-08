@@ -169,8 +169,10 @@ final class FloatingIndicatorController: ObservableObject {
             localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
             localPanel.close()
-            self?.panel = nil
-            self?.hostingView = nil
+            DispatchQueue.main.async {
+                self?.panel = nil
+                self?.hostingView = nil
+            }
         })
     }
     

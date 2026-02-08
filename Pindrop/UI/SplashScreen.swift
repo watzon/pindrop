@@ -193,11 +193,13 @@ final class SplashWindowController {
             context.duration = 0.3
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             window.animator().alphaValue = 0
-        }, completionHandler: {
+        }, completionHandler: { [weak self] in
             window.close()
-            self.window = nil
-            self.hostingController = nil
-            completion?()
+            DispatchQueue.main.async {
+                self?.window = nil
+                self?.hostingController = nil
+                completion?()
+            }
         })
     }
 }
