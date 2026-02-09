@@ -22,17 +22,13 @@ jobs:
     runs-on: macos-26
     permissions:
       contents: write
+      actions: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
 
       - name: Install Dependencies
         run: |
@@ -71,30 +67,108 @@ jobs:
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION (app: $APP_VERSION)"
 
-      - name: Build App (Self-Signed)
+      - name: Resolve Target Commit
+        id: target
         run: |
-          # Build the app in Release mode (self-signed, no Developer account)
-          # Disable code signing for CI - app will be ad-hoc signed
-          xcodebuild \
-            -scheme "${{ env.SCHEME }}" \
-            -configuration "${{ env.CONFIGURATION }}" \
-            -derivedDataPath DerivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ steps.version.outputs.version }}"
+            TARGET_SHA=$(git rev-list -n 1 "$TAG")
+          else
+            TARGET_SHA="${{ github.sha }}"
+          fi
 
-          # Locate the built app
-          APP_PATH="DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
-          echo "App built at: $APP_PATH"
-          echo "app_path=$APP_PATH" >> $GITHUB_ENV
-
-          # Verify app exists
-          if [ ! -d "$APP_PATH" ]; then
-            echo "Error: App not found at $APP_PATH"
-            find DerivedData -name "*.app" -type d
+          if [ -z "$TARGET_SHA" ]; then
+            echo "❌ Failed to resolve target commit SHA"
             exit 1
           fi
+
+          echo "sha=$TARGET_SHA" >> $GITHUB_OUTPUT
+          echo "Target commit: $TARGET_SHA"
+
+      - name: Wait for CI to complete
+        id: wait_for_ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TARGET_SHA="${{ steps.target.outputs.sha }}"
+          echo "Waiting for CI run on commit: $TARGET_SHA"
+
+          for attempt in {1..60}; do
+            RUN_JSON=$(gh run list \
+              --workflow ci.yml \
+              --commit "$TARGET_SHA" \
+              --json databaseId,status,conclusion,url \
+              --limit 1)
+
+            RUN_ID=$(echo "$RUN_JSON" | jq -r '.[0].databaseId // empty')
+            STATUS=$(echo "$RUN_JSON" | jq -r '.[0].status // empty')
+            CONCLUSION=$(echo "$RUN_JSON" | jq -r '.[0].conclusion // empty')
+            URL=$(echo "$RUN_JSON" | jq -r '.[0].url // empty')
+
+            if [ -z "$RUN_ID" ]; then
+              echo "No CI run found yet for this commit (attempt $attempt/60)."
+              sleep 10
+              continue
+            fi
+
+            echo "CI run $RUN_ID status=$STATUS conclusion=$CONCLUSION"
+
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCLUSION" = "success" ]; then
+                echo "✅ CI succeeded: $URL"
+                echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+
+              echo "❌ CI failed with conclusion: $CONCLUSION"
+              echo "Run URL: $URL"
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          echo "❌ Timed out waiting for CI to finish"
+          exit 1
+
+      - name: Download CI Artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TARGET_SHA="${{ steps.target.outputs.sha }}"
+          ARTIFACT_NAME="${{ env.APP_NAME }}-${TARGET_SHA}"
+          mkdir -p dist
+
+          gh run download "${{ steps.wait_for_ci.outputs.run_id }}" \
+            --name "$ARTIFACT_NAME" \
+            --dir dist
+
+          ARTIFACT_PATH="dist/${{ env.APP_NAME }}-${TARGET_SHA}.zip"
+          if [ ! -f "$ARTIFACT_PATH" ]; then
+            echo "❌ Expected artifact not found: $ARTIFACT_PATH"
+            ls -la dist
+            exit 1
+          fi
+
+          echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_ENV
+          echo "✅ Downloaded CI artifact: $ARTIFACT_PATH"
+
+      - name: Extract App from Artifact
+        run: |
+          EXTRACT_DIR="dist/extracted"
+          mkdir -p "$EXTRACT_DIR"
+
+          ditto -x -k "${{ env.artifact_path }}" "$EXTRACT_DIR"
+
+          APP_PATH=$(find "$EXTRACT_DIR" -name "${{ env.APP_NAME }}.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found after extraction"
+            find "$EXTRACT_DIR" -maxdepth 4 -type d
+            exit 1
+          fi
+
+          echo "app_path=$APP_PATH" >> $GITHUB_ENV
+          echo "✅ App extracted at: $APP_PATH"
 
       - name: Create DMG
         id: dmg

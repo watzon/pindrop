@@ -8,7 +8,7 @@ on:
 env:
   APP_NAME: Pindrop
   SCHEME: Pindrop
-  CONFIGURATION: Debug
+  CONFIGURATION: Release
 
 jobs:
   build-test:
@@ -53,6 +53,7 @@ jobs:
           xcodebuild \
             test \
             -scheme "${{ env.SCHEME }}" \
+            -configuration "${{ env.CONFIGURATION }}" \
             -destination "platform=macOS" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
