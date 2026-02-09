@@ -35,6 +35,8 @@ final class StatusBarController {
 
     private var outputModeItem: NSMenuItem?
     private var aiEnhancementItem: NSMenuItem?
+    private var promptPresetMenuItem: NSMenuItem?
+    private var promptPresetMenu: NSMenu?
 
     private var toggleFloatingIndicatorItem: NSMenuItem?
     private var launchAtLoginItem: NSMenuItem?
@@ -57,6 +59,7 @@ final class StatusBarController {
     var onCancelOperation: (() async -> Void)?
     var onToggleOutputMode: (() -> Void)?
     var onToggleAIControlled: (() -> Void)?
+    var onSelectPromptPreset: ((String?) -> Void)?
     var onToggleFloatingIndicator: (() -> Void)?
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
@@ -238,6 +241,22 @@ final class StatusBarController {
         aiEnhancementItem?.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: nil)
         menu.addItem(aiEnhancementItem!)
 
+        promptPresetMenu = NSMenu()
+        let customItem = NSMenuItem(
+            title: "Custom",
+            action: #selector(selectPromptPreset(_:)),
+            keyEquivalent: ""
+        )
+        customItem.target = self
+        customItem.identifier = NSUserInterfaceItemIdentifier("preset_custom")
+        customItem.state = settingsStore.selectedPresetId == nil ? .on : .off
+        promptPresetMenu?.addItem(customItem)
+
+        promptPresetMenuItem = NSMenuItem(title: "Prompt Preset", action: nil, keyEquivalent: "")
+        promptPresetMenuItem?.submenu = promptPresetMenu
+        promptPresetMenuItem?.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
+        menu.addItem(promptPresetMenuItem!)
+
         menu.addItem(NSMenuItem.separator())
 
         // === VIEW SECTION ===
@@ -388,6 +407,9 @@ final class StatusBarController {
         let aiText = settingsStore.aiEnhancementEnabled ? "On" : "Off"
         aiEnhancementItem?.title = "AI Enhancement: \(aiText)"
 
+        // Update prompt preset checkmarks
+        updatePromptPresetCheckmarks()
+
         // Update floating indicator
         let indicatorText = settingsStore.floatingIndicatorEnabled ? "On" : "Off"
         toggleFloatingIndicatorItem?.title = "Floating Indicator: \(indicatorText)"
@@ -399,6 +421,53 @@ final class StatusBarController {
         // Update model
         let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
         currentModelItem?.title = "Current: \(modelShortName)"
+    }
+
+    func updatePromptPresets(_ presets: [(id: String, name: String)]) {
+        guard let promptPresetMenu = promptPresetMenu else { return }
+
+        promptPresetMenu.removeAllItems()
+
+        // "Custom" item (no preset selected)
+        let customItem = NSMenuItem(
+            title: "Custom",
+            action: #selector(selectPromptPreset(_:)),
+            keyEquivalent: ""
+        )
+        customItem.target = self
+        customItem.identifier = NSUserInterfaceItemIdentifier("preset_custom")
+        customItem.state = settingsStore.selectedPresetId == nil ? .on : .off
+        promptPresetMenu.addItem(customItem)
+
+        if !presets.isEmpty {
+            promptPresetMenu.addItem(NSMenuItem.separator())
+        }
+
+        for preset in presets {
+            let item = NSMenuItem(
+                title: preset.name,
+                action: #selector(selectPromptPreset(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.identifier = NSUserInterfaceItemIdentifier("preset_\(preset.id)")
+            item.state = settingsStore.selectedPresetId == preset.id ? .on : .off
+            promptPresetMenu.addItem(item)
+        }
+    }
+
+    private func updatePromptPresetCheckmarks() {
+        guard let promptPresetMenu = promptPresetMenu else { return }
+
+        for item in promptPresetMenu.items {
+            guard let identifier = item.identifier?.rawValue else { continue }
+            if identifier == "preset_custom" {
+                item.state = settingsStore.selectedPresetId == nil ? .on : .off
+            } else {
+                let presetId = identifier.replacingOccurrences(of: "preset_", with: "")
+                item.state = settingsStore.selectedPresetId == presetId ? .on : .off
+            }
+        }
     }
 
     func updateMenuState() {
@@ -484,6 +553,12 @@ final class StatusBarController {
 
     @objc private func toggleAIEnhancement() {
         onToggleAIControlled?()
+    }
+
+    @objc private func selectPromptPreset(_ sender: NSMenuItem) {
+        guard let identifier = sender.identifier?.rawValue else { return }
+        let presetId: String? = identifier == "preset_custom" ? nil : identifier.replacingOccurrences(of: "preset_", with: "")
+        onSelectPromptPreset?(presetId)
     }
 
     @objc private func toggleFloatingIndicator() {

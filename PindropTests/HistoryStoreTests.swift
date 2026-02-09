@@ -161,7 +161,7 @@ final class HistoryStoreTests: XCTestCase {
         try? FileManager.default.removeItem(at: testURL)
         
         // Export using internal method (bypassing NSSavePanel for testing)
-        let exportRecords = try exportToJSONInternal(records: records, to: testURL)
+        _ = try exportToJSONInternal(records: records, to: testURL)
         
         // Verify file was created
         XCTAssertTrue(FileManager.default.fileExists(atPath: testURL.path))

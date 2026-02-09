@@ -151,6 +151,10 @@ final class AppCoordinator {
             self?.handleToggleAIEnhancement()
         }
 
+        self.statusBarController.onSelectPromptPreset = { [weak self] presetId in
+            self?.handleSelectPromptPreset(presetId)
+        }
+
         self.statusBarController.onToggleFloatingIndicator = { [weak self] in
             self?.handleToggleFloatingIndicator()
         }
@@ -247,6 +251,7 @@ final class AppCoordinator {
         }
 
         seedBuiltInPresetsIfNeeded()
+        refreshStatusBarPresets()
 
         splashController.show()
         
@@ -282,6 +287,7 @@ final class AppCoordinator {
     
     private func finishPostOnboardingSetup() async {
         seedBuiltInPresetsIfNeeded()
+        refreshStatusBarPresets()
         
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
             Log.app.info("Accessibility permission not granted after onboarding - direct insert will use clipboard fallback")
@@ -294,6 +300,16 @@ final class AppCoordinator {
             Log.app.debug("Synced built-in prompt presets")
         } catch {
             Log.app.error("Failed to seed built-in presets: \(error)")
+        }
+    }
+
+    private func refreshStatusBarPresets() {
+        do {
+            let presets = try promptPresetStore.fetchAll()
+            let mapped = presets.map { (id: $0.id.uuidString, name: $0.name) }
+            statusBarController.updatePromptPresets(mapped)
+        } catch {
+            Log.app.error("Failed to refresh status bar presets: \(error)")
         }
     }
     
@@ -1272,6 +1288,24 @@ final class AppCoordinator {
         settingsStore.aiEnhancementEnabled.toggle()
         let status = settingsStore.aiEnhancementEnabled ? "enabled" : "disabled"
         Log.app.info("AI enhancement \(status)")
+    }
+
+    // MARK: - Select Prompt Preset
+
+    private func handleSelectPromptPreset(_ presetId: String?) {
+        settingsStore.selectedPresetId = presetId
+
+        if let presetId = presetId,
+           let presetUUID = UUID(uuidString: presetId),
+           let allPresets = try? promptPresetStore.fetchAll(),
+           let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
+            settingsStore.aiEnhancementPrompt = selectedPreset.prompt
+            Log.app.info("Prompt preset changed to: \(selectedPreset.name)")
+        } else {
+            Log.app.info("Prompt preset changed to: Custom")
+        }
+
+        statusBarController.updateDynamicItems()
     }
 
     // MARK: - Toggle Floating Indicator
