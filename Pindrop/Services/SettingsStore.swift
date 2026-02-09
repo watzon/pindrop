@@ -105,8 +105,8 @@ Rules:
 
     @AppStorage("enableClipboardContext") var enableClipboardContext: Bool = false
     @AppStorage("enableImageContext") var enableImageContext: Bool = false
-    @AppStorage("enableScreenshotContext") var enableScreenshotContext: Bool = false
-    @AppStorage("screenshotMode") var screenshotMode: String = "activeWindow"
+    @AppStorage("enableUIContext") var enableUIContext: Bool = false
+    @AppStorage("contextCaptureTimeoutSeconds") var contextCaptureTimeoutSeconds: Double = 2.0
 
     @AppStorage("vadFeatureEnabled") var vadFeatureEnabled: Bool = false
     @AppStorage("diarizationFeatureEnabled") var diarizationFeatureEnabled: Bool = false
@@ -183,6 +183,8 @@ Rules:
         floatingIndicatorEnabled = false
         floatingIndicatorType = FloatingIndicatorType.pill.rawValue
         launchAtLogin = false
+        enableUIContext = false
+        contextCaptureTimeoutSeconds = 2.0
         hasCompletedOnboarding = false
         currentOnboardingStep = 0
         

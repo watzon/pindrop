@@ -37,6 +37,7 @@ final class AppCoordinator {
     let settingsStore: SettingsStore
     let notesStore: NotesStore
     let contextCaptureService: ContextCaptureService
+    let contextEngineService: ContextEngineService
     let promptPresetStore: PromptPresetStore
 
     // MARK: - UI Controllers
@@ -64,6 +65,11 @@ final class AppCoordinator {
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
     private var capturedContext: CapturedContext?
+    private var capturedSnapshot: ContextSnapshot?
+    private var capturedAdapterCapabilities: AppAdapterCapabilities?
+    private var capturedRoutingSignal: PromptRoutingSignal?
+    private let appContextAdapterRegistry = AppContextAdapterRegistry()
+    private let promptRoutingResolver: any PromptRoutingResolver = NoOpPromptRoutingResolver()
 
     // MARK: - Dictionary Replacements
     
@@ -103,6 +109,7 @@ final class AppCoordinator {
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
+        self.contextEngineService = ContextEngineService()
         self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
 
         self.statusBarController = StatusBarController(
@@ -823,24 +830,52 @@ final class AppCoordinator {
         
         isRecording = true
         recordingStartTime = Date()
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
 
-        if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableScreenshotContext {
+        if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableUIContext {
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
             let clipboardImage = settingsStore.enableImageContext ? contextCaptureService.captureClipboardImage() : nil
-            var screenshot: NSImage? = nil
-            if settingsStore.enableScreenshotContext {
-                let mode: ScreenshotMode
-                switch settingsStore.screenshotMode {
-                case "fullScreen":
-                    mode = .fullScreen
-                case "activeWindow":
-                    mode = .activeWindow
-                default:
-                    mode = .activeWindow
+            capturedContext = CapturedContext(clipboardText: clipboardText, clipboardImage: clipboardImage)
+
+            // Capture AX-based UI context when enabled (non-blocking)
+            var appContext: AppContextInfo? = nil
+            var captureWarnings: [ContextCaptureWarning] = []
+            if settingsStore.enableUIContext {
+                let result = contextEngineService.captureAppContext()
+                appContext = result.appContext
+                captureWarnings = result.warnings
+                if !captureWarnings.isEmpty {
+                    Log.app.debug("UI context capture warnings: \(captureWarnings.map(\.localizedDescription).joined(separator: ", "))")
                 }
-                screenshot = contextCaptureService.captureScreenshot(mode: mode)
+                if let ctx = appContext {
+                    Log.app.info("Captured UI context: app=\(ctx.appName), window=\(ctx.windowTitle ?? "nil")")
+                }
             }
-            capturedContext = CapturedContext(clipboardText: clipboardText, clipboardImage: clipboardImage, screenshot: screenshot)
+
+            capturedSnapshot = ContextSnapshot(
+                timestamp: Date(),
+                appContext: appContext,
+                clipboardText: clipboardText,
+                clipboardImage: clipboardImage,
+                warnings: captureWarnings
+            )
+
+            if let snapshot = capturedSnapshot {
+                let routingSignal = PromptRoutingSignal.from(
+                    snapshot: snapshot,
+                    adapterRegistry: appContextAdapterRegistry
+                )
+                capturedRoutingSignal = routingSignal
+                _ = promptRoutingResolver.resolve(signal: routingSignal)
+
+                if let bundleIdentifier = snapshot.appContext?.bundleIdentifier {
+                    let adapter = appContextAdapterRegistry.adapter(for: bundleIdentifier)
+                    capturedAdapterCapabilities = adapter.capabilities
+                    let caps = adapter.capabilities
+                    Log.context.info("Adapter context: app=\(caps.displayName) prefix=\(caps.mentionPrefix) fileMentions=\(caps.supportsFileMentions) codeContext=\(caps.supportsCodeContext) docsMentions=\(caps.supportsDocsMentions) diffContext=\(caps.supportsDiffContext) webContext=\(caps.supportsWebContext) chatHistory=\(caps.supportsChatHistory)")
+                }
+            }
         }
 
         statusBarController.setRecordingState()
@@ -961,22 +996,41 @@ final class AppCoordinator {
                     enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
                 }
                 
+                if let appCtx = capturedSnapshot?.appContext {
+                    var contextParts: [String] = []
+                    contextParts.append("App: \(appCtx.appName)")
+                    if let title = appCtx.windowTitle {
+                        contextParts.append("Window: \(title)")
+                    }
+                    if let selected = appCtx.selectedText, !selected.isEmpty {
+                        contextParts.append("Selected text: \(selected)")
+                    }
+                    if let docPath = appCtx.documentPath {
+                        contextParts.append("Document: \(docPath)")
+                    }
+                    if let url = appCtx.browserURL {
+                        contextParts.append("URL: \(url)")
+                    }
+                    enhancedPrompt += "\n\nUser's active application context:\n\(contextParts.joined(separator: "\n"))"
+                }
+                
                 var imageBase64: String? = nil
                 var contextMetadata = AIEnhancementService.ContextMetadata.none
                 var userMessageText = textAfterReplacements
                 
                 if let context = capturedContext {
                     let hasClipboardImage = context.clipboardImage != nil
-                    let hasScreenshot = context.screenshot != nil
                     let hasClipboardText = context.clipboardText != nil && !context.clipboardText!.isEmpty
                     
                     contextMetadata = AIEnhancementService.ContextMetadata(
                         hasClipboardText: hasClipboardText,
                         hasClipboardImage: hasClipboardImage,
-                        hasScreenshot: hasScreenshot
+                        appContext: capturedSnapshot?.appContext,
+                        adapterCapabilities: capturedAdapterCapabilities,
+                        routingSignal: capturedRoutingSignal
                     )
                     
-                    let contextImage = context.clipboardImage ?? context.screenshot
+                    let contextImage = context.clipboardImage
                     if let image = contextImage,
                        ModelCapabilities.supportsVision(modelId: settingsStore.aiModel) {
                         imageBase64 = ImageResizer.toBase64PNG(image)
@@ -1005,6 +1059,9 @@ final class AppCoordinator {
                     context: contextMetadata
                 )
                 capturedContext = nil
+                capturedSnapshot = nil
+                capturedAdapterCapabilities = nil
+                capturedRoutingSignal = nil
                 enhancedWithModel = settingsStore.aiModel
                 Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
             } catch {
@@ -1166,6 +1223,9 @@ final class AppCoordinator {
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
         error = nil
 
         statusBarController.setIdleState()
@@ -1184,6 +1244,9 @@ final class AppCoordinator {
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
 

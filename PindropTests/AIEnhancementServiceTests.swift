@@ -5,24 +5,28 @@
 //  Created on 2026-01-25.
 //
 
+// XCTest may not be available to the language server in this editor environment.
+#if canImport(XCTest)
 import XCTest
+#endif
 @testable import Pindrop
 
+@MainActor
 final class AIEnhancementServiceTests: XCTestCase {
     
     var service: AIEnhancementService!
     var mockSession: MockURLSession!
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         mockSession = MockURLSession()
         service = AIEnhancementService(session: mockSession)
     }
     
-    override func tearDown() {
+    override func tearDown() async throws {
         service = nil
         mockSession = nil
-        super.tearDown()
+        try await super.tearDown()
     }
     
     // MARK: - Test Enhancement with Mock API
@@ -182,7 +186,8 @@ final class AIEnhancementServiceTests: XCTestCase {
         if let bodyData = mockSession.lastRequest?.httpBody,
            let bodyJSON = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any] {
             
-            XCTAssertEqual(bodyJSON["model"] as? String, "gpt-4")
+            // Current service default model is gpt-4o-mini; validate against that
+            XCTAssertEqual(bodyJSON["model"] as? String, "gpt-4o-mini")
             XCTAssertNotNil(bodyJSON["messages"] as? [[String: Any]])
             
             if let messages = bodyJSON["messages"] as? [[String: Any]] {
@@ -296,24 +301,9 @@ final class AIEnhancementServiceTests: XCTestCase {
     func testContextMetadataImageDescription() {
         let clipboardOnly = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
-            hasClipboardImage: true,
-            hasScreenshot: false
+            hasClipboardImage: true
         )
         XCTAssertEqual(clipboardOnly.imageDescription, "clipboard image")
-
-        let screenshotOnly = AIEnhancementService.ContextMetadata(
-            hasClipboardText: false,
-            hasClipboardImage: false,
-            hasScreenshot: true
-        )
-        XCTAssertEqual(screenshotOnly.imageDescription, "screenshot")
-
-        let both = AIEnhancementService.ContextMetadata(
-            hasClipboardText: false,
-            hasClipboardImage: true,
-            hasScreenshot: true
-        )
-        XCTAssertEqual(both.imageDescription, "clipboard image and screenshot")
 
         let none = AIEnhancementService.ContextMetadata.none
         XCTAssertNil(none.imageDescription)
@@ -339,8 +329,7 @@ final class AIEnhancementServiceTests: XCTestCase {
         let basePrompt = "Enhance this text"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
-            hasClipboardImage: false,
-            hasScreenshot: false
+            hasClipboardImage: false
         )
 
         let result = AIEnhancementService.buildContextAwareSystemPrompt(
@@ -366,12 +355,11 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertFalse(result.contains("${transcription}"))
     }
 
-    func testBuildContextAwareSystemPromptWithImage() {
+    func testBuildContextAwareSystemPromptWithClipboardImage() {
         let basePrompt = "Enhance this text"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
-            hasClipboardImage: false,
-            hasScreenshot: true
+            hasClipboardImage: true
         )
 
         let result = AIEnhancementService.buildContextAwareSystemPrompt(
@@ -380,7 +368,7 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
 
         XCTAssertTrue(result.contains("<supplementary_context>"))
-        XCTAssertTrue(result.contains("<type>screenshot</type>"))
+        XCTAssertTrue(result.contains("<type>clipboard_image</type>"))
         XCTAssertTrue(result.contains(basePrompt))
     }
 
@@ -389,8 +377,7 @@ final class AIEnhancementServiceTests: XCTestCase {
         let userContent = "Hello"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
-            hasClipboardImage: false,
-            hasScreenshot: false
+            hasClipboardImage: false
         )
 
         let messages = AIEnhancementService.buildMessages(
@@ -412,8 +399,7 @@ final class AIEnhancementServiceTests: XCTestCase {
     func testBuildTranscriptionEnhancementInputIncludesXMLBlocks() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
-            hasClipboardImage: false,
-            hasScreenshot: true
+            hasClipboardImage: true
         )
 
         let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
@@ -428,7 +414,7 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertTrue(payload.contains("<clipboard_text>"))
         XCTAssertTrue(payload.contains("clipboard reference"))
         XCTAssertTrue(payload.contains("<image_context>"))
-        XCTAssertTrue(payload.contains("screenshot"))
+        XCTAssertTrue(payload.contains("clipboard image"))
     }
 
     func testBuildTranscriptionEnhancementInputEscapesXML() {
@@ -440,6 +426,190 @@ final class AIEnhancementServiceTests: XCTestCase {
 
         XCTAssertTrue(payload.contains("Use &lt;tag&gt; &amp; symbols &quot;now&quot;"))
         XCTAssertTrue(payload.contains("value with &apos;quotes&apos;"))
+    }
+
+    // MARK: - Test UI Context Sources
+
+    func testContextMetadataUISourceFlags() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.apple.Safari",
+            appName: "Safari",
+            windowTitle: "Apple",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: "selected stuff",
+            documentPath: nil,
+            browserURL: "https://apple.com"
+        )
+        let meta = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        XCTAssertTrue(meta.hasAppMetadata)
+        XCTAssertTrue(meta.hasWindowTitle)
+        XCTAssertTrue(meta.hasSelectedText)
+        XCTAssertFalse(meta.hasDocumentPath)
+        XCTAssertTrue(meta.hasBrowserURL)
+        XCTAssertTrue(meta.hasAnyContext)
+    }
+
+    func testContextMetadataUISourceFlagsNilAppContext() {
+        let meta = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil
+        )
+
+        XCTAssertFalse(meta.hasAppMetadata)
+        XCTAssertFalse(meta.hasWindowTitle)
+        XCTAssertFalse(meta.hasSelectedText)
+        XCTAssertFalse(meta.hasDocumentPath)
+        XCTAssertFalse(meta.hasBrowserURL)
+    }
+
+    func testContextMetadataBackwardCompatInitHasNilAppContext() {
+        let meta = AIEnhancementService.ContextMetadata(
+            hasClipboardText: true,
+            hasClipboardImage: false
+        )
+
+        XCTAssertTrue(meta.hasClipboardText)
+        XCTAssertFalse(meta.hasAppMetadata)
+    }
+
+    func testBuildContextAwareSystemPromptWithUIContextSources() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.apple.Safari",
+            appName: "Safari",
+            windowTitle: "Apple - Search",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: "some text",
+            documentPath: nil,
+            browserURL: "https://apple.com"
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<available>true</available>"))
+        XCTAssertTrue(result.contains("<type>app_metadata</type>"))
+        XCTAssertTrue(result.contains("<type>window_title</type>"))
+        XCTAssertTrue(result.contains("<type>selected_text</type>"))
+        XCTAssertTrue(result.contains("<type>browser_url</type>"))
+        XCTAssertFalse(result.contains("<type>document_path</type>"))
+        XCTAssertTrue(result.contains("app_metadata,window_title,selected_text,document_path,browser_url"))
+    }
+
+    func testBuildContextAwareSystemPromptWithAdapterAndRoutingSources() {
+        let capabilities = CursorAdapter().capabilities
+        let routingSignal = PromptRoutingSignal(
+            appBundleIdentifier: "com.todesktop.230313mzl4w4u92",
+            appName: "cursor",
+            windowTitle: nil,
+            workspacePath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+            browserDomain: nil,
+            isCodeEditorContext: true
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: capabilities,
+            routingSignal: routingSignal
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<type>app_adapter</type>"))
+        XCTAssertTrue(result.contains("<type>routing_signal</type>"))
+        XCTAssertTrue(result.contains("app_adapter,routing_signal"))
+    }
+
+    func testBuildTranscriptionEnhancementInputWithAppContext() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.apple.dt.Xcode",
+            appName: "Xcode",
+            windowTitle: "My<Project>.swift",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: "let x = 1 & 2",
+            documentPath: "/Users/dev/My<Project>.swift",
+            browserURL: nil
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<app_context>"))
+        XCTAssertTrue(payload.contains("<app_name>Xcode</app_name>"))
+        XCTAssertTrue(payload.contains("<bundle_id>com.apple.dt.Xcode</bundle_id>"))
+        XCTAssertTrue(payload.contains("<window_title>My&lt;Project&gt;.swift</window_title>"))
+        XCTAssertTrue(payload.contains("<selected_text>let x = 1 &amp; 2</selected_text>"))
+        XCTAssertTrue(payload.contains("<document_path>/Users/dev/My&lt;Project&gt;.swift</document_path>"))
+        XCTAssertFalse(payload.contains("<browser_url>"))
+    }
+
+    func testBuildTranscriptionEnhancementInputNoAppContext() {
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: nil,
+            context: .none
+        )
+
+        XCTAssertFalse(payload.contains("<app_context>"))
+    }
+
+    func testBuildTranscriptionEnhancementInputWithAdapterAndRoutingMetadata() {
+        let capabilities = VSCodeAdapter().capabilities
+        let routingSignal = PromptRoutingSignal(
+            appBundleIdentifier: "com.microsoft.vscode",
+            appName: "visual studio code",
+            windowTitle: nil,
+            workspacePath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+            browserDomain: nil,
+            isCodeEditorContext: true
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: capabilities,
+            routingSignal: routingSignal
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<app_adapter>"))
+        XCTAssertTrue(payload.contains("<display_name>Visual Studio Code</display_name>"))
+        XCTAssertTrue(payload.contains("<mention_prefix>#</mention_prefix>"))
+        XCTAssertTrue(payload.contains("<supports_file_mentions>true</supports_file_mentions>"))
+        XCTAssertTrue(payload.contains("<routing_signal>"))
+        XCTAssertTrue(payload.contains("<is_code_editor_context>true</is_code_editor_context>"))
     }
 
     // MARK: - Test Model Capabilities

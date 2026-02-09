@@ -9,7 +9,6 @@ import Foundation
 import AVFoundation
 import ApplicationServices
 import AppKit
-import CoreGraphics
 import Observation
 
 /// Protocol for permission checking, enabling mock-based testing.
@@ -43,14 +42,6 @@ final class PermissionManager {
         accessibilityPermissionGranted
     }
 
-    // MARK: - Screen Recording Permission
-
-    private(set) var screenRecordingPermissionGranted: Bool = false
-
-    var isScreenRecordingAuthorized: Bool {
-        screenRecordingPermissionGranted
-    }
-    
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
@@ -125,21 +116,4 @@ final class PermissionManager {
         NSWorkspace.shared.open(url)
     }
 
-    // MARK: - Screen Recording Permission Methods
-
-    func checkScreenRecordingPermission() -> Bool {
-        let granted = CGPreflightScreenCaptureAccess()
-        screenRecordingPermissionGranted = granted
-        return granted
-    }
-
-    func requestScreenRecordingPermission() {
-        let granted = CGRequestScreenCaptureAccess()
-        screenRecordingPermissionGranted = granted
-    }
-
-    func openScreenRecordingPreferences() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
-        NSWorkspace.shared.open(url)
-    }
 }
