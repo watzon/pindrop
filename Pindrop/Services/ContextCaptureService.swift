@@ -10,7 +10,6 @@ import Foundation
 
 struct CapturedContext {
     let clipboardText: String?
-    let clipboardImage: NSImage?
 }
 
 @MainActor
@@ -29,22 +28,6 @@ final class ContextCaptureService {
         guard text.count > maxLength else { return text }
         let truncated = String(text.prefix(maxLength))
         return truncated + "\n\n[Content truncated - \(text.count - maxLength) characters omitted]"
-    }
-
-    func captureClipboardImage() -> NSImage? {
-        let pasteboard = NSPasteboard.general
-
-        if let data = pasteboard.data(forType: .png),
-           let image = NSImage(data: data) {
-            return ImageResizer.resize(image)
-        }
-
-        if let data = pasteboard.data(forType: .tiff),
-           let image = NSImage(data: data) {
-            return ImageResizer.resize(image)
-        }
-
-        return nil
     }
 
 }

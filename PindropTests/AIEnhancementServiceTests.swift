@@ -396,6 +396,38 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertTrue(systemContent!.contains(systemPrompt))
     }
 
+    func testRedactedPayloadLogLinesRedactsImageAndChunks() {
+        // Given
+        let longBase64 = String(repeating: "A", count: 3000)
+        let payload: [String: Any] = [
+            "model": "gpt-4o-mini",
+            "messages": [
+                ["role": "system", "content": "system prompt"],
+                ["role": "user", "content": [
+                    ["type": "text", "text": "hello world"],
+                    ["type": "image_url", "image_url": ["url": "data:image/png;base64,\(longBase64)"]]
+                ]]
+            ]
+        ]
+
+        // When
+        let lines = AIEnhancementService.redactedPayloadLogLines(for: payload, redactImageBase64: true)
+
+        // Then
+        XCTAssertGreaterThan(lines.count, 1, "Expected payload to be chunked into multiple log lines")
+        let combined = lines.joined()
+        XCTAssertTrue(combined.contains("REDACTED_BASE64"), "Expected base64 to be redacted")
+        // Expect size marker to equal length of original base64
+        if let range = combined.range(of: "size=") {
+            let after = combined[range.upperBound...]
+            // read digits
+            let digits = after.prefix { $0.isNumber }
+            XCTAssertEqual(String(digits), "\(longBase64.count)")
+        } else {
+            XCTFail("Size marker not found")
+        }
+    }
+
     func testBuildTranscriptionEnhancementInputIncludesXMLBlocks() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
@@ -610,6 +642,318 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertTrue(payload.contains("<supports_file_mentions>true</supports_file_mentions>"))
         XCTAssertTrue(payload.contains("<routing_signal>"))
         XCTAssertTrue(payload.contains("<is_code_editor_context>true</is_code_editor_context>"))
+    }
+
+    // MARK: - Test Empty Value Sanitization
+
+    func testEmptyWindowTitleNotEmitted() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.example.app",
+            appName: "TestApp",
+            windowTitle: "",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<app_name>TestApp</app_name>"))
+        XCTAssertFalse(payload.contains("<window_title>"))
+        XCTAssertFalse(context.hasWindowTitle)
+    }
+
+    func testWhitespaceOnlyFieldsNotEmitted() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "  ",
+            appName: "TestApp",
+            windowTitle: " \t\n ",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: "",
+            documentPath: "   ",
+            browserURL: "\n"
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<app_name>TestApp</app_name>"))
+        XCTAssertFalse(payload.contains("<bundle_id>"))
+        XCTAssertFalse(payload.contains("<window_title>"))
+        XCTAssertFalse(payload.contains("<selected_text>"))
+        XCTAssertFalse(payload.contains("<document_path>"))
+        XCTAssertFalse(payload.contains("<browser_url>"))
+        XCTAssertFalse(context.hasWindowTitle)
+        XCTAssertFalse(context.hasDocumentPath)
+        XCTAssertFalse(context.hasBrowserURL)
+        XCTAssertFalse(context.hasSelectedText)
+    }
+
+    func testRoutingSignalEmptyFieldsNotEmitted() {
+        let routingSignal = PromptRoutingSignal(
+            appBundleIdentifier: "",
+            appName: "  ",
+            windowTitle: nil,
+            workspacePath: "",
+            browserDomain: nil,
+            isCodeEditorContext: false
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: routingSignal
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<routing_signal>"))
+        XCTAssertFalse(payload.contains("<app_bundle_identifier>"))
+        XCTAssertFalse(payload.contains("<app_name>"))
+        XCTAssertFalse(payload.contains("<workspace_path>"))
+        XCTAssertFalse(payload.contains("<browser_domain>"))
+        XCTAssertTrue(payload.contains("<is_code_editor_context>false</is_code_editor_context>"))
+    }
+
+    func testContextAwareSystemPromptOmitsEmptyFieldSources() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: nil,
+            appName: "TestApp",
+            windowTitle: "",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: "",
+            documentPath: nil,
+            browserURL: "  "
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: appContext
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<type>app_metadata</type>"))
+        XCTAssertFalse(result.contains("<type>window_title</type>"))
+        XCTAssertFalse(result.contains("<type>selected_text</type>"))
+        XCTAssertFalse(result.contains("<type>document_path</type>"))
+        XCTAssertFalse(result.contains("<type>browser_url</type>"))
+    }
+
+    func testEmptyClipboardTextNotEmittedInEnhancementInput() {
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: "   ",
+            context: .none
+        )
+
+        XCTAssertFalse(payload.contains("<clipboard_text>"))
+        XCTAssertTrue(payload.contains("<transcription>"))
+    }
+
+    // MARK: - Test Workspace File Tree Context
+
+    func testHasWorkspaceFileTreeNil() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: nil
+        )
+        XCTAssertFalse(context.hasWorkspaceFileTree)
+    }
+
+    func testHasWorkspaceFileTreeEmpty() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: ""
+        )
+        XCTAssertFalse(context.hasWorkspaceFileTree)
+    }
+
+    func testHasWorkspaceFileTreeWhitespaceOnly() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: "  \n\t  "
+        )
+        XCTAssertFalse(context.hasWorkspaceFileTree)
+    }
+
+    func testHasWorkspaceFileTreeValid() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: "total_files: 5\n---\nsrc/main.swift"
+        )
+        XCTAssertTrue(context.hasWorkspaceFileTree)
+        XCTAssertTrue(context.hasAnyContext)
+    }
+
+    func testBuildContextAwareSystemPromptIncludesWorkspaceFileTreeSource() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: "total_files: 3\n---\nfoo.swift\nbar.swift\nbaz.swift"
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<available>true</available>"))
+        XCTAssertTrue(result.contains("<type>workspace_file_tree</type>"))
+        XCTAssertTrue(result.contains("<usage>reference_only</usage>"))
+    }
+
+    func testBuildContextAwareSystemPromptOmitsWorkspaceFileTreeSourceWhenNil() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: nil
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertFalse(result.contains("<type>workspace_file_tree</type>"))
+    }
+
+    func testBuildTranscriptionEnhancementInputIncludesWorkspaceFileTreeBlock() {
+        let treeSummary = "total_files: 2\n---\nsrc/App.swift\nsrc/Service.swift"
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: treeSummary
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<workspace_file_tree>"))
+        XCTAssertTrue(payload.contains("total_files: 2"))
+        XCTAssertTrue(payload.contains("src/App.swift"))
+    }
+
+    func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenNil() {
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: .none
+        )
+
+        XCTAssertFalse(payload.contains("<workspace_file_tree>"))
+    }
+
+    func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenEmpty() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: "   "
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertFalse(payload.contains("<workspace_file_tree>"))
+    }
+
+    // MARK: - Test Double-Wrap Prevention
+
+    func testBuildMessagesDoesNotDoubleWrapEnhancementRequest() {
+        let basePrompt = "You are a text enhancement assistant."
+        let messages = AIEnhancementService.buildMessages(
+            systemPrompt: basePrompt,
+            text: "hello world",
+            imageBase64: nil,
+            context: .none
+        )
+
+        let systemContent = messages[0]["content"] as! String
+
+        let openCount = systemContent.components(separatedBy: "<enhancement_request>").count - 1
+        let closeCount = systemContent.components(separatedBy: "</enhancement_request>").count - 1
+
+        XCTAssertEqual(openCount, 1, "Expected exactly one <enhancement_request> open tag, got \(openCount)")
+        XCTAssertEqual(closeCount, 1, "Expected exactly one </enhancement_request> close tag, got \(closeCount)")
+    }
+
+    func testBuildMessagesWithAlreadyWrappedPromptStillSingleWraps() {
+        // Inner XML tags get escaped by buildContextAwareSystemPrompt, so only one raw wrapper should exist
+        let alreadyWrapped = "<enhancement_request><instructions>Do stuff</instructions></enhancement_request>"
+        let messages = AIEnhancementService.buildMessages(
+            systemPrompt: alreadyWrapped,
+            text: "hello",
+            imageBase64: nil,
+            context: .none
+        )
+
+        let systemContent = messages[0]["content"] as! String
+
+        let rawOpenCount = systemContent.components(separatedBy: "<enhancement_request>").count - 1
+        XCTAssertEqual(rawOpenCount, 1, "Inner <enhancement_request> should be escaped, only one raw open tag expected")
     }
 
     // MARK: - Test Model Capabilities

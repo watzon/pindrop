@@ -240,23 +240,6 @@ struct AIEnhancementSettingsView: View {
                     Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
                         .toggleStyle(.switch)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Toggle("Include clipboard images", isOn: $settings.enableImageContext)
-                        .toggleStyle(.switch)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                if settings.enableImageContext {
-                    HStack(spacing: 6) {
-                        IconView(icon: .info, size: 12)
-                            .foregroundStyle(.secondary)
-                        Text("Note: Images require a vision-capable model (e.g., GPT-4o, Claude 3)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)

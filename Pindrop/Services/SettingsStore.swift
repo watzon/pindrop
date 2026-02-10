@@ -104,7 +104,6 @@ Rules:
     @AppStorage("selectedPresetId") var selectedPresetId: String?
 
     @AppStorage("enableClipboardContext") var enableClipboardContext: Bool = false
-    @AppStorage("enableImageContext") var enableImageContext: Bool = false
     @AppStorage("enableUIContext") var enableUIContext: Bool = false
     @AppStorage("contextCaptureTimeoutSeconds") var contextCaptureTimeoutSeconds: Double = 2.0
 

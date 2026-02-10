@@ -39,6 +39,7 @@ final class AppCoordinator {
     let contextCaptureService: ContextCaptureService
     let contextEngineService: ContextEngineService
     let promptPresetStore: PromptPresetStore
+    let mentionRewriteService: MentionRewriteService
 
     // MARK: - UI Controllers
     
@@ -111,6 +112,7 @@ final class AppCoordinator {
         self.contextCaptureService = ContextCaptureService()
         self.contextEngineService = ContextEngineService()
         self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
+        self.mentionRewriteService = MentionRewriteService()
 
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
@@ -833,10 +835,9 @@ final class AppCoordinator {
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
 
-        if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableUIContext {
+        if settingsStore.enableClipboardContext || settingsStore.enableUIContext {
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
-            let clipboardImage = settingsStore.enableImageContext ? contextCaptureService.captureClipboardImage() : nil
-            capturedContext = CapturedContext(clipboardText: clipboardText, clipboardImage: clipboardImage)
+            capturedContext = CapturedContext(clipboardText: clipboardText)
 
             // Capture AX-based UI context when enabled (non-blocking)
             var appContext: AppContextInfo? = nil
@@ -857,7 +858,6 @@ final class AppCoordinator {
                 timestamp: Date(),
                 appContext: appContext,
                 clipboardText: clipboardText,
-                clipboardImage: clipboardImage,
                 warnings: captureWarnings
             )
 
@@ -958,7 +958,34 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
         
-        var finalText = textAfterReplacements
+        // Mention rewrite: resolve spoken file mentions to app-specific syntax
+        // Runs whenever adapter supports file mentions AND workspace roots are derivable
+        // (not gated by isCodeEditorContext — enables Antigravity and other non-IDE adapters)
+        var textAfterMentions = textAfterReplacements
+        var derivedWorkspaceRoots: [String] = []
+        if let workspacePath = capturedRoutingSignal?.workspacePath {
+            derivedWorkspaceRoots.append(workspacePath)
+        } else if let docPath = capturedSnapshot?.appContext?.documentPath {
+            let docURL = URL(fileURLWithPath: docPath)
+            derivedWorkspaceRoots.append(docURL.deletingLastPathComponent().path)
+        }
+
+        if let capabilities = capturedAdapterCapabilities,
+           capabilities.supportsFileMentions,
+           !derivedWorkspaceRoots.isEmpty {
+            let rewriteResult = await mentionRewriteService.rewrite(
+                text: textAfterReplacements,
+                capabilities: capabilities,
+                workspaceRoots: derivedWorkspaceRoots,
+                activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+            )
+            textAfterMentions = rewriteResult.text
+            if rewriteResult.didRewrite {
+                Log.app.info("Mention rewrite: \(rewriteResult.rewrittenCount) mention(s) rewritten, \(rewriteResult.preservedCount) preserved")
+            }
+        }
+        
+        var finalText = textAfterMentions
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
@@ -966,26 +993,24 @@ final class AppCoordinator {
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
-                originalText = textAfterReplacements
+                originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 
-                // Build enhanced prompt with dictionary context
-                // Get prompt from selected preset or use default
-                var enhancedPrompt: String
+                var basePrompt: String
                 if let presetId = settingsStore.selectedPresetId,
                    let presetUUID = UUID(uuidString: presetId),
                    let allPresets = try? promptPresetStore.fetchAll(),
                    let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-                    enhancedPrompt = selectedPreset.prompt.replacingOccurrences(of: "${transcription}", with: textAfterReplacements)
+                    basePrompt = selectedPreset.prompt
                 } else {
-                    enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                    basePrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
                 }
                 
                 // Add vocabulary section if exists
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
                 if !vocabularyWords.isEmpty {
                     let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
-                    enhancedPrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                    basePrompt += "\n\nUser's vocabulary includes: \(wordList)"
                 }
                 
                 // Add replacements section if applied
@@ -993,69 +1018,56 @@ final class AppCoordinator {
                     let replacementList = lastAppliedReplacements
                         .map { "'\($0.original)' → '\($0.replacement)'" }
                         .joined(separator: ", ")
-                    enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+                    basePrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
                 }
                 
-                if let appCtx = capturedSnapshot?.appContext {
-                    var contextParts: [String] = []
-                    contextParts.append("App: \(appCtx.appName)")
-                    if let title = appCtx.windowTitle {
-                        contextParts.append("Window: \(title)")
-                    }
-                    if let selected = appCtx.selectedText, !selected.isEmpty {
-                        contextParts.append("Selected text: \(selected)")
-                    }
-                    if let docPath = appCtx.documentPath {
-                        contextParts.append("Document: \(docPath)")
-                    }
-                    if let url = appCtx.browserURL {
-                        contextParts.append("URL: \(url)")
-                    }
-                    enhancedPrompt += "\n\nUser's active application context:\n\(contextParts.joined(separator: "\n"))"
-                }
-                
-                var imageBase64: String? = nil
                 var contextMetadata = AIEnhancementService.ContextMetadata.none
-                var userMessageText = textAfterReplacements
+                var clipboardText: String? = nil
+
+                var workspaceTreeSummary: String? = nil
+                if !derivedWorkspaceRoots.isEmpty {
+                    workspaceTreeSummary = await mentionRewriteService.generateWorkspaceTreeSummary(
+                        workspaceRoots: derivedWorkspaceRoots,
+                        activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                    )
+                }
                 
                 if let context = capturedContext {
-                    let hasClipboardImage = context.clipboardImage != nil
                     let hasClipboardText = context.clipboardText != nil && !context.clipboardText!.isEmpty
+                    clipboardText = hasClipboardText ? context.clipboardText : nil
                     
                     contextMetadata = AIEnhancementService.ContextMetadata(
                         hasClipboardText: hasClipboardText,
-                        hasClipboardImage: hasClipboardImage,
+                        hasClipboardImage: false,
                         appContext: capturedSnapshot?.appContext,
                         adapterCapabilities: capturedAdapterCapabilities,
-                        routingSignal: capturedRoutingSignal
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary
                     )
-                    
-                    let contextImage = context.clipboardImage
-                    if let image = contextImage,
-                       ModelCapabilities.supportsVision(modelId: settingsStore.aiModel) {
-                        imageBase64 = ImageResizer.toBase64PNG(image)
-                    }
-                    
-                    if let clipboardText = context.clipboardText, !clipboardText.isEmpty {
-                        userMessageText = """
-                        <clipboard_text>
-                        \(clipboardText)
-                        </clipboard_text>
-                        
-                        <transcription>
-                        \(textAfterReplacements)
-                        </transcription>
-                        """
-                    }
+                } else if let appContext = capturedSnapshot?.appContext {
+                    contextMetadata = AIEnhancementService.ContextMetadata(
+                        hasClipboardText: false,
+                        hasClipboardImage: false,
+                        appContext: appContext,
+                        adapterCapabilities: capturedAdapterCapabilities,
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary
+                    )
                 }
+                
+                let userMessageText = AIEnhancementService.buildTranscriptionEnhancementInput(
+                    transcription: textAfterMentions,
+                    clipboardText: clipboardText,
+                    context: contextMetadata
+                )
                 
                 finalText = try await aiEnhancementService.enhance(
                     text: userMessageText,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
-                    customPrompt: enhancedPrompt,
-                    imageBase64: imageBase64,
+                    customPrompt: basePrompt,
+                    imageBase64: nil,
                     context: contextMetadata
                 )
                 capturedContext = nil
@@ -1063,7 +1075,7 @@ final class AppCoordinator {
                 capturedAdapterCapabilities = nil
                 capturedRoutingSignal = nil
                 enhancedWithModel = settingsStore.aiModel
-                Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
+                Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.error("AI enhancement failed: \(error)")
                 AlertManager.shared.showAIEnhancementErrorAlert(error: error)

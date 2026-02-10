@@ -56,7 +56,6 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
             timestamp: Date(),
             appContext: result.appContext,
             clipboardText: nil,
-            clipboardImage: nil,
             warnings: result.warnings
         )
 
@@ -83,7 +82,6 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
             timestamp: Date(),
             appContext: result.appContext,
             clipboardText: "some clipboard text",
-            clipboardImage: nil,
             warnings: result.warnings
         )
 

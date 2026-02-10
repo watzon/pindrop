@@ -27,7 +27,6 @@ final class PromptRoutingSignalTests: XCTestCase {
             timestamp: Date(),
             appContext: appContext,
             clipboardText: nil,
-            clipboardImage: nil,
             warnings: []
         )
 
@@ -57,7 +56,6 @@ final class PromptRoutingSignalTests: XCTestCase {
             timestamp: Date(),
             appContext: appContext,
             clipboardText: nil,
-            clipboardImage: nil,
             warnings: []
         )
 
@@ -96,7 +94,6 @@ final class PromptRoutingSignalTests: XCTestCase {
             timestamp: Date(),
             appContext: appContext,
             clipboardText: nil,
-            clipboardImage: nil,
             warnings: []
         )
 
@@ -125,7 +122,6 @@ final class PromptRoutingSignalTests: XCTestCase {
             timestamp: Date(),
             appContext: appContext,
             clipboardText: nil,
-            clipboardImage: nil,
             warnings: []
         )
         let signal = PromptRoutingSignal.from(
@@ -162,7 +158,6 @@ final class PromptRoutingSignalTests: XCTestCase {
                 timestamp: Date(),
                 appContext: appContext,
                 clipboardText: nil,
-                clipboardImage: nil,
                 warnings: []
             ),
             adapterRegistry: AppContextAdapterRegistry()

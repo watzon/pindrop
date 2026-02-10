@@ -5,7 +5,6 @@
 //  Created on 2026-02-08.
 //
 
-import AppKit
 import Foundation
 
 // MARK: - Context Snapshot
@@ -17,20 +16,18 @@ struct ContextSnapshot {
     let timestamp: Date
     let appContext: AppContextInfo?
     let clipboardText: String?
-    let clipboardImage: NSImage?
     let warnings: [ContextCaptureWarning]
 
     /// Whether any meaningful context was captured
     var hasAnyContext: Bool {
-        appContext != nil || clipboardText != nil || clipboardImage != nil
+        appContext != nil || clipboardText != nil
     }
 
     /// Convenience: build a legacy `CapturedContext` for backward compatibility
     /// during migration. Callers that still expect `CapturedContext` can use this.
     var asCapturedContext: CapturedContext {
         CapturedContext(
-            clipboardText: clipboardText,
-            clipboardImage: clipboardImage
+            clipboardText: clipboardText
         )
     }
 
@@ -38,7 +35,6 @@ struct ContextSnapshot {
         timestamp: Date(),
         appContext: nil,
         clipboardText: nil,
-        clipboardImage: nil,
         warnings: []
     )
 }
@@ -70,7 +66,6 @@ struct AppContextInfo {
 /// Describes the type of context source for AI prompt assembly.
 enum ContextSourceType: String, CaseIterable, Sendable {
     case clipboardText = "clipboard_text"
-    case clipboardImage = "clipboard_image"
     case appMetadata = "app_metadata"
     case windowTitle = "window_title"
     case selectedText = "selected_text"
@@ -133,22 +128,17 @@ struct ContextCaptureConfig: Sendable {
     /// Whether to capture clipboard text
     let enableClipboardText: Bool
 
-    /// Whether to capture clipboard images
-    let enableClipboardImage: Bool
-
     static let `default` = ContextCaptureConfig(
         timeoutSeconds: 2.0,
         enableUIContext: true,
-        enableClipboardText: false,
-        enableClipboardImage: false
+        enableClipboardText: false
     )
 
     /// Disabled configuration — captures nothing
     static let disabled = ContextCaptureConfig(
         timeoutSeconds: 0,
         enableUIContext: false,
-        enableClipboardText: false,
-        enableClipboardImage: false
+        enableClipboardText: false
     )
 }
 

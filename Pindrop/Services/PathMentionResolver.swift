@@ -129,7 +129,8 @@ final class PathMentionResolver {
 
     func resolve(
         mention: String,
-        in index: WorkspaceFileIndexService
+        in index: WorkspaceFileIndexService,
+        activeDocumentPath: String? = nil
     ) -> PathResolutionResult {
         let normalizedMention = normalizeMention(mention)
 
@@ -218,6 +219,18 @@ final class PathMentionResolver {
             let result = PathResolutionResult.resolved(candidates[0])
             recordAndLogResult(result)
             return result
+        }
+
+        // Active document disambiguation: when ambiguous, prefer the candidate
+        // matching the currently open file (if provided).
+        if let activeDoc = activeDocumentPath {
+            let normalizedActiveDoc = (activeDoc as NSString).standardizingPath
+            if let activeCandidate = candidates.first(where: { $0.file.absolutePath == normalizedActiveDoc }) {
+                Log.context.info("Path resolve: disambiguated via active document → \(activeCandidate.file.relativePath)")
+                let result = PathResolutionResult.resolved(activeCandidate)
+                recordAndLogResult(result)
+                return result
+            }
         }
 
         let ambiguousCandidates = candidates.filter {
