@@ -221,7 +221,7 @@ jobs:
           </rss>
           APPCAST_EOF
 
-          python3 - <<'PY'
+          VERSION="$VERSION" BUILD_VERSION="$BUILD_VERSION" python3 - <<'PY'
           import os
           import sys
           import xml.etree.ElementTree as ET
