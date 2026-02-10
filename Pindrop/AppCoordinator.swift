@@ -965,23 +965,30 @@ final class AppCoordinator {
         var derivedWorkspaceRoots: [String] = []
         if let workspacePath = capturedRoutingSignal?.workspacePath {
             derivedWorkspaceRoots.append(workspacePath)
-        } else if let docPath = capturedSnapshot?.appContext?.documentPath {
-            let docURL = URL(fileURLWithPath: docPath)
-            derivedWorkspaceRoots.append(docURL.deletingLastPathComponent().path)
+        } else if let docPath = capturedSnapshot?.appContext?.documentPath, !docPath.isEmpty {
+            let parent = (docPath as NSString).deletingLastPathComponent
+            if !parent.isEmpty {
+                derivedWorkspaceRoots.append(parent)
+            }
         }
 
         if let capabilities = capturedAdapterCapabilities,
-           capabilities.supportsFileMentions,
-           !derivedWorkspaceRoots.isEmpty {
-            let rewriteResult = await mentionRewriteService.rewrite(
-                text: textAfterReplacements,
-                capabilities: capabilities,
-                workspaceRoots: derivedWorkspaceRoots,
-                activeDocumentPath: capturedSnapshot?.appContext?.documentPath
-            )
-            textAfterMentions = rewriteResult.text
-            if rewriteResult.didRewrite {
-                Log.app.info("Mention rewrite: \(rewriteResult.rewrittenCount) mention(s) rewritten, \(rewriteResult.preservedCount) preserved")
+           capabilities.supportsFileMentions {
+            if !derivedWorkspaceRoots.isEmpty {
+                let rewriteResult = await mentionRewriteService.rewrite(
+                    text: textAfterReplacements,
+                    capabilities: capabilities,
+                    workspaceRoots: derivedWorkspaceRoots,
+                    activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                )
+                textAfterMentions = rewriteResult.text
+                if rewriteResult.didRewrite {
+                    Log.app.info("Mention rewrite: \(rewriteResult.rewrittenCount) mention(s) rewritten, \(rewriteResult.preservedCount) preserved")
+                }
+            } else {
+                let adapterName = capturedAdapterCapabilities?.displayName ?? "unknown"
+                let hasDocPath = capturedSnapshot?.appContext?.documentPath != nil
+                Log.app.warning("Adapter '\(adapterName)' supports file mentions but no workspace roots derived (documentPath available: \(hasDocPath)); skipping mention rewrite")
             }
         }
         

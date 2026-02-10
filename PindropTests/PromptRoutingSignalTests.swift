@@ -36,7 +36,7 @@ final class PromptRoutingSignalTests: XCTestCase {
         XCTAssertEqual(signal.appBundleIdentifier, "com.todesktop.230313mzl4w4u92")
         XCTAssertEqual(signal.appName, "cursor")
         XCTAssertEqual(signal.windowTitle, "main.swift — MyProject")
-        XCTAssertEqual(signal.workspacePath, "/Users/dev/MyProject/main.swift")
+        XCTAssertEqual(signal.workspacePath, "/Users/dev/MyProject")
         XCTAssertNil(signal.browserDomain)
         XCTAssertTrue(signal.isCodeEditorContext)
     }

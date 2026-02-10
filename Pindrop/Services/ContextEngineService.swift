@@ -299,13 +299,53 @@ final class ContextEngineService {
 
     private func captureDocumentPath(from appElement: AXUIElement) -> String? {
         // Try the focused window's document attribute
-        if let focusedWindow = axProvider.elementAttribute(kAXFocusedWindowAttribute, of: appElement) {
-            if let docPath = axProvider.stringAttribute(kAXDocumentAttribute, of: focusedWindow) {
-                return docPath
-            }
+        if let focusedWindow = axProvider.elementAttribute(kAXFocusedWindowAttribute, of: appElement),
+           let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: focusedWindow),
+           let normalized = normalizeDocumentPath(candidate) {
+            return normalized
         }
-        // Try the app's document attribute directly
-        return axProvider.stringAttribute(kAXDocumentAttribute, of: appElement)
+        
+        // Try the app's document attribute
+        if let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: appElement),
+           let normalized = normalizeDocumentPath(candidate) {
+            return normalized
+        }
+        
+        // Try the focused element's document attribute
+        if let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement),
+           let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: focusedElement),
+           let normalized = normalizeDocumentPath(candidate) {
+            return normalized
+        }
+        
+        return nil
+    }
+    
+    /// Normalizes and validates a document path candidate.
+    /// Accepts absolute paths and file:// URLs; rejects non-file URLs.
+    /// - Parameter candidate: Raw path or URL string from AX attribute
+    /// - Returns: Normalized absolute path, or nil if invalid
+    private func normalizeDocumentPath(_ candidate: String) -> String? {
+        let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        
+        // Handle file:// URLs
+        if trimmed.hasPrefix("file://") {
+            let path = trimmed.replacingOccurrences(of: "file://", with: "")
+            let decoded = path.removingPercentEncoding ?? path
+            // Basic validation: must be absolute path
+            guard decoded.hasPrefix("/") else { return nil }
+            return decoded
+        }
+        
+        // Reject non-file URLs (http://, https://, ftp://, etc.)
+        if trimmed.contains("://") {
+            return nil
+        }
+        
+        // Accept absolute paths only
+        guard trimmed.hasPrefix("/") else { return nil }
+        return trimmed
     }
 
     // MARK: - Browser URL

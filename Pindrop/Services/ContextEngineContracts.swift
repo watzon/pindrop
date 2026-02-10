@@ -175,7 +175,7 @@ struct PromptRoutingSignal {
             appBundleIdentifier: bundleID,
             appName: app?.appName.lowercased(),
             windowTitle: app?.windowTitle,
-            workspacePath: app?.documentPath,
+            workspacePath: Self.deriveWorkspaceRoot(from: app?.documentPath),
             browserDomain: Self.extractDomain(from: app?.browserURL),
             isCodeEditorContext: isCodeEditor
         )
@@ -191,6 +191,25 @@ struct PromptRoutingSignal {
     )
 
     // MARK: - Private
+
+    /// Derive a workspace root directory from a document file path.
+    /// Handles tilde-redacted paths (`~/...`) and `file://` URLs by stripping
+    /// the scheme and returning the parent directory.
+    private static func deriveWorkspaceRoot(from documentPath: String?) -> String? {
+        guard let path = documentPath, !path.isEmpty else { return nil }
+
+        var normalized = path
+        if normalized.hasPrefix("file://") {
+            if let url = URL(string: normalized) {
+                normalized = url.path
+            } else {
+                normalized = String(normalized.dropFirst("file://".count))
+            }
+        }
+
+        let parent = (normalized as NSString).deletingLastPathComponent
+        return parent.isEmpty ? nil : parent
+    }
 
     private static func extractDomain(from urlString: String?) -> String? {
         guard let urlString, let url = URL(string: urlString),

@@ -354,4 +354,67 @@ final class ContextEngineServiceTests: XCTestCase {
             "Document path should have home directory redacted"
         )
     }
+    
+    func testCaptureDocumentPathFallsBackToFocusedElement() {
+        mockAXProvider.isTrusted = true
+        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Antigravity")
+
+        // No document on window or app, but focused element has one
+        mockAXProvider.setElementAttribute(
+            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+        mockAXProvider.setElementAttribute(
+            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
+        
+        let home = NSHomeDirectory()
+        mockAXProvider.setStringAttribute(
+            kAXDocumentAttribute, of: fakeFocusedElement, value: "\(home)/Documents/note.txt")
+
+        let result = sut.captureAppContext()
+
+        XCTAssertNotNil(result.appContext)
+        XCTAssertEqual(
+            result.appContext?.documentPath, "~/Documents/note.txt",
+            "Should fall back to focused element document attribute"
+        )
+    }
+    
+    func testCaptureDocumentPathHandlesFileURL() {
+        mockAXProvider.isTrusted = true
+        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
+        
+        mockAXProvider.setElementAttribute(
+            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+        
+        let home = NSHomeDirectory()
+        let fileURL = "file://\(home)/Code/main.swift"
+        mockAXProvider.setStringAttribute(
+            kAXDocumentAttribute, of: fakeFocusedWindow, value: fileURL)
+
+        let result = sut.captureAppContext()
+
+        XCTAssertNotNil(result.appContext)
+        XCTAssertEqual(
+            result.appContext?.documentPath, "~/Code/main.swift",
+            "Should handle file:// URLs and redact home"
+        )
+    }
+    
+    func testCaptureDocumentPathRejectsNonFileURLs() {
+        mockAXProvider.isTrusted = true
+        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Browser")
+        
+        mockAXProvider.setElementAttribute(
+            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+        
+        mockAXProvider.setStringAttribute(
+            kAXDocumentAttribute, of: fakeFocusedWindow, value: "https://github.com/user/repo")
+
+        let result = sut.captureAppContext()
+
+        XCTAssertNotNil(result.appContext)
+        XCTAssertNil(
+            result.appContext?.documentPath,
+            "Non-file URLs (http, https, etc.) should be rejected"
+        )
+    }
 }

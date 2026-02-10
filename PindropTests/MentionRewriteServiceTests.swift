@@ -278,10 +278,12 @@ final class MentionRewriteServiceTests: XCTestCase {
             workspaceRoots: ["/workspace"]
         )
 
-        if result.didRewrite {
-            XCTAssertTrue(result.text.contains("#"),
-                "VS Code adapter should use # prefix for mentions")
-        }
+        XCTAssertTrue(result.didRewrite,
+            "VS Code adapter should rewrite when workspace has matching files")
+        XCTAssertTrue(result.text.contains("#"),
+            "VS Code adapter should use # prefix for mentions")
+        XCTAssertFalse(result.text.contains("@"),
+            "VS Code adapter should NOT use @ prefix")
     }
 
     func testZedAdapterUsesSlashPrefix() async {
@@ -293,10 +295,88 @@ final class MentionRewriteServiceTests: XCTestCase {
             workspaceRoots: ["/workspace"]
         )
 
-        if result.didRewrite {
-            XCTAssertTrue(result.text.contains("/"),
-                "Zed adapter should use / prefix for mentions")
-        }
+        XCTAssertTrue(result.didRewrite,
+            "Zed adapter should rewrite when workspace has matching files")
+        XCTAssertTrue(result.text.contains("/"),
+            "Zed adapter should use / prefix for mentions")
+    }
+
+    func testWindsurfAdapterUsesAtPrefix() async {
+        let windsurfCapabilities = WindsurfAdapter().capabilities
+
+        let result = await sut.rewrite(
+            text: "check AppCoordinator.swift",
+            capabilities: windsurfCapabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Windsurf adapter should rewrite when workspace has matching files")
+        XCTAssertTrue(result.text.contains("@"),
+            "Windsurf adapter should use @ prefix for mentions")
+    }
+
+    func testCursorAdapterUsesAtPrefix() async {
+        let result = await sut.rewrite(
+            text: "check AppCoordinator.swift",
+            capabilities: cursorCapabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Cursor adapter should rewrite when workspace has matching files")
+        XCTAssertTrue(result.text.contains("@"),
+            "Cursor adapter should use @ prefix for mentions")
+    }
+
+    // MARK: - Per-Editor Exact Mention Format Validation
+
+    func testVSCodeFormatsExactMentionPath() async {
+        let result = await sut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: VSCodeAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("#Pindrop/Services/AppCoordinator.swift"),
+            "VS Code should format as #relative/path — got: \(result.text)")
+    }
+
+    func testZedFormatsExactMentionPath() async {
+        let result = await sut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: ZedAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("/Pindrop/Services/AppCoordinator.swift"),
+            "Zed should format as /relative/path — got: \(result.text)")
+    }
+
+    func testCursorFormatsExactMentionPath() async {
+        let result = await sut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: CursorAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "Cursor should format as @relative/path — got: \(result.text)")
+    }
+
+    func testWindsurfFormatsExactMentionPath() async {
+        let result = await sut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: WindsurfAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "Windsurf should format as @relative/path — got: \(result.text)")
     }
 
     // MARK: - MentionRewriteResult Properties
@@ -622,5 +702,287 @@ final class MentionRewriteServiceTests: XCTestCase {
             "Rewritten text should contain @gen/fixtures.go mention for Cursor adapter")
         XCTAssertFalse(result.text.contains("Fixtures.go"),
             "Original capitalized 'Fixtures.go' should be replaced, not preserved")
+    }
+
+    // MARK: - Antigravity Adapter Integration
+
+    func testAntigravityAdapterRewriteWithTildeRedactedRoot() async {
+        let home = NSHomeDirectory()
+        let projectRoot = "\(home)/Projects/pindrop"
+        mockFS.directories.insert(projectRoot)
+        mockFS.directories.insert("\(projectRoot)/Pindrop")
+        mockFS.directories.insert("\(projectRoot)/Pindrop/Services")
+        mockFS.directories.insert("\(projectRoot)/.git")
+        mockFS.filesByRoot[projectRoot] = [
+            "\(projectRoot)/Pindrop/Services/AppCoordinator.swift",
+            "\(projectRoot)/Pindrop/Services/AudioRecorder.swift",
+            "\(projectRoot)/README.md",
+        ]
+        let agSut = MentionRewriteService(fileSystem: mockFS)
+        let antigravityCapabilities = AntigravityAdapter().capabilities
+
+        let result = await agSut.rewrite(
+            text: "check the AppCoordinator.swift file",
+            capabilities: antigravityCapabilities,
+            workspaceRoots: ["~/Projects/pindrop"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Should rewrite with Antigravity adapter when given tilde-redacted workspace root")
+        XCTAssertTrue(result.text.contains("@"),
+            "Antigravity adapter should use @ prefix")
+    }
+
+    func testAntigravityAdapterNoRewriteWithEmptyWorkspace() async {
+        let antigravityCapabilities = AntigravityAdapter().capabilities
+
+        let result = await sut.rewrite(
+            text: "check the AppCoordinator.swift file",
+            capabilities: antigravityCapabilities,
+            workspaceRoots: []
+        )
+
+        XCTAssertFalse(result.didRewrite,
+            "Should not rewrite when no workspace roots available")
+    }
+
+    func testNormalizeTildeRedactedFilePath() {
+        let home = NSHomeDirectory()
+        let projectRoot = "\(home)/Projects/pindrop"
+        mockFS.directories.insert(projectRoot)
+        mockFS.directories.insert("\(projectRoot)/.git")
+        mockFS.directories.insert("\(projectRoot)/Pindrop")
+        sut = MentionRewriteService(fileSystem: mockFS)
+
+        let result = sut.normalizeWorkspaceRoots([
+            "~/Projects/pindrop/Pindrop/AppCoordinator.swift"
+        ])
+
+        XCTAssertEqual(result, [projectRoot],
+            "Should expand tilde, derive parent dir, and climb to project root")
+    }
+
+    // MARK: - PromptRoutingSignal Workspace Derivation
+
+    func testRoutingSignalDerivesWorkspaceRootFromDocumentPath() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.antigravity.app",
+                appName: "Antigravity",
+                windowTitle: nil,
+                focusedElementRole: nil,
+                focusedElementValue: nil,
+                selectedText: nil,
+                documentPath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+
+        XCTAssertEqual(signal.workspacePath, "~/Projects/pindrop/Pindrop",
+            "workspacePath should be the parent directory of documentPath")
+    }
+
+    func testRoutingSignalDerivesWorkspaceRootFromFileURL() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.antigravity.app",
+                appName: "Antigravity",
+                windowTitle: nil,
+                focusedElementRole: nil,
+                focusedElementValue: nil,
+                selectedText: nil,
+                documentPath: "file:///Users/test/Projects/pindrop/file.swift",
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+
+        XCTAssertEqual(signal.workspacePath, "/Users/test/Projects/pindrop",
+            "workspacePath should strip file:// and return parent directory")
+    }
+
+    func testRoutingSignalNilWorkspaceWhenNoDocumentPath() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.antigravity.app",
+                appName: "Antigravity",
+                windowTitle: nil,
+                focusedElementRole: nil,
+                focusedElementValue: nil,
+                selectedText: nil,
+                documentPath: nil,
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+
+        XCTAssertNil(signal.workspacePath,
+            "workspacePath should be nil when documentPath is nil")
+    }
+
+    // MARK: - Per-Editor Workspace Derivation + Mention Integration
+
+    private func makeEditorIntegrationSut() -> (MentionRewriteService, MockFileSystemProvider) {
+        var fs = MockFileSystemProvider()
+        let home = NSHomeDirectory()
+        let root = "\(home)/Projects/pindrop"
+        fs.directories = [
+            root,
+            "\(root)/.git",
+            "\(root)/Pindrop",
+            "\(root)/Pindrop/Services",
+        ]
+        fs.filesByRoot = [
+            root: [
+                "\(root)/Pindrop/Services/AppCoordinator.swift",
+                "\(root)/Pindrop/Services/AudioRecorder.swift",
+                "\(root)/README.md",
+            ]
+        ]
+        return (MentionRewriteService(fileSystem: fs), fs)
+    }
+
+    func testCursorDerivationAndRewriteFromFilePath() async {
+        let (editorSut, _) = makeEditorIntegrationSut()
+        let home = NSHomeDirectory()
+
+        let result = await editorSut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: CursorAdapter().capabilities,
+            workspaceRoots: ["\(home)/Projects/pindrop/Pindrop/Services/AppCoordinator.swift"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Cursor: should derive workspace root from file path and rewrite")
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "Cursor: should produce @-prefixed relative path — got: \(result.text)")
+    }
+
+    func testVSCodeDerivationAndRewriteFromFileURL() async {
+        let (editorSut, _) = makeEditorIntegrationSut()
+        let home = NSHomeDirectory()
+
+        let result = await editorSut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: VSCodeAdapter().capabilities,
+            workspaceRoots: ["file://\(home)/Projects/pindrop/Pindrop/Services/AppCoordinator.swift"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "VS Code: should derive workspace root from file:// URL and rewrite")
+        XCTAssertTrue(result.text.contains("#Pindrop/Services/AppCoordinator.swift"),
+            "VS Code: should produce #-prefixed relative path — got: \(result.text)")
+    }
+
+    func testZedDerivationAndRewriteFromTildePath() async {
+        let (editorSut, _) = makeEditorIntegrationSut()
+
+        let result = await editorSut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: ZedAdapter().capabilities,
+            workspaceRoots: ["~/Projects/pindrop"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Zed: should derive workspace root from tilde path and rewrite")
+        XCTAssertTrue(result.text.contains("/Pindrop/Services/AppCoordinator.swift"),
+            "Zed: should produce /-prefixed relative path — got: \(result.text)")
+    }
+
+    func testWindsurfDerivationAndRewriteFromSubdirectory() async {
+        let (editorSut, _) = makeEditorIntegrationSut()
+        let home = NSHomeDirectory()
+
+        let result = await editorSut.rewrite(
+            text: "open AppCoordinator.swift",
+            capabilities: WindsurfAdapter().capabilities,
+            workspaceRoots: ["\(home)/Projects/pindrop/Pindrop/Services"]
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Windsurf: should climb from subdirectory to project root and rewrite")
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "Windsurf: should produce @-prefixed relative path — got: \(result.text)")
+    }
+
+    func testWindsurfNoRewriteWithEmptyWorkspace() async {
+        let windsurfCapabilities = WindsurfAdapter().capabilities
+
+        let result = await sut.rewrite(
+            text: "check AppCoordinator.swift",
+            capabilities: windsurfCapabilities,
+            workspaceRoots: []
+        )
+
+        XCTAssertFalse(result.didRewrite,
+            "Windsurf: should not rewrite when no workspace roots available")
+    }
+
+    func testWindsurfRewriteMultipleMentions() async {
+        let result = await sut.rewrite(
+            text: "look at AppCoordinator.swift and AudioRecorder.swift",
+            capabilities: WindsurfAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertGreaterThanOrEqual(result.rewrittenCount + result.preservedCount, 2,
+            "Windsurf: both mentions should be detected as candidates")
+    }
+
+    func testWindsurfActiveDocumentDisambiguation() async {
+        mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
+        mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
+        mockFS.directories.insert("/workspace/gen")
+        mockFS.directories.insert("/workspace/test")
+        mockFS.directories.insert("/workspace")
+        mockFS.directories.insert("/workspace/.git")
+        let wsSut = MentionRewriteService(fileSystem: mockFS)
+
+        let result = await wsSut.rewrite(
+            text: "check fixtures.go",
+            capabilities: WindsurfAdapter().capabilities,
+            workspaceRoots: ["/workspace"],
+            activeDocumentPath: "/workspace/gen/fixtures.go"
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "Windsurf: should disambiguate using active document")
+        XCTAssertTrue(result.text.contains("@gen/fixtures.go"),
+            "Windsurf: should produce @gen/fixtures.go — got: \(result.text)")
+    }
+
+    func testAllEditorsPrefixDeterminism() async {
+        let editors: [(String, AppAdapterCapabilities, String)] = [
+            ("Cursor", CursorAdapter().capabilities, "@"),
+            ("VS Code", VSCodeAdapter().capabilities, "#"),
+            ("Zed", ZedAdapter().capabilities, "/"),
+            ("Windsurf", WindsurfAdapter().capabilities, "@"),
+        ]
+
+        for (name, caps, expectedPrefix) in editors {
+            let result = await sut.rewrite(
+                text: "check AppCoordinator.swift",
+                capabilities: caps,
+                workspaceRoots: ["/workspace"]
+            )
+
+            XCTAssertTrue(result.didRewrite,
+                "\(name): should rewrite with valid workspace")
+            XCTAssertTrue(result.text.contains("\(expectedPrefix)Pindrop/Services/AppCoordinator.swift"),
+                "\(name): expected prefix '\(expectedPrefix)' in mention — got: \(result.text)")
+        }
     }
 }
