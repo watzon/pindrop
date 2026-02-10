@@ -21,6 +21,7 @@ jobs:
   build:
     runs-on: macos-26
     permissions:
+      actions: read
       contents: write
 
     steps:
@@ -28,6 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -60,16 +62,76 @@ jobs:
       - name: Get Version
         id: version
         run: |
+          git fetch --tags --force
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.tag }}"
           else
             VERSION="${GITHUB_REF#refs/tags/}"
           fi
+
+          if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release tag: $VERSION"
+            echo "Expected format: vX.Y.Z"
+            exit 1
+          fi
+
+          TARGET_SHA=$(git rev-list -n 1 "$VERSION")
+          if [ -z "$TARGET_SHA" ]; then
+            echo "❌ Could not resolve tag $VERSION to a commit"
+            exit 1
+          fi
+
           # Remove 'v' prefix for the app version
           APP_VERSION="${VERSION#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
-          echo "Building version: $VERSION (app: $APP_VERSION)"
+          echo "target_sha=$TARGET_SHA" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (app: $APP_VERSION, sha: $TARGET_SHA)"
+
+      - name: Wait For CI To Pass
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TARGET_SHA="${{ steps.version.outputs.target_sha }}"
+          echo "Waiting for CI workflow to pass for commit $TARGET_SHA"
+
+          ATTEMPTS=120
+          SLEEP_SECONDS=15
+
+          for ((i=1; i<=ATTEMPTS; i++)); do
+            RUN_JSON=$(gh run list --workflow ci.yml --commit "$TARGET_SHA" --json databaseId,status,conclusion,url --limit 1)
+            COUNT=$(echo "$RUN_JSON" | jq 'length')
+
+            if [ "$COUNT" -eq 0 ]; then
+              echo "[$i/$ATTEMPTS] CI run not found yet for $TARGET_SHA"
+              sleep "$SLEEP_SECONDS"
+              continue
+            fi
+
+            STATUS=$(echo "$RUN_JSON" | jq -r '.[0].status')
+            CONCLUSION=$(echo "$RUN_JSON" | jq -r '.[0].conclusion')
+            URL=$(echo "$RUN_JSON" | jq -r '.[0].url')
+
+            echo "[$i/$ATTEMPTS] CI status=$STATUS conclusion=$CONCLUSION"
+            echo "CI run: $URL"
+
+            if [ "$STATUS" != "completed" ]; then
+              sleep "$SLEEP_SECONDS"
+              continue
+            fi
+
+            if [ "$CONCLUSION" = "success" ]; then
+              echo "✅ CI passed for $TARGET_SHA"
+              exit 0
+            fi
+
+            echo "❌ CI did not pass for $TARGET_SHA (conclusion: $CONCLUSION)"
+            exit 1
+          done
+
+          echo "❌ Timed out waiting for CI to complete for $TARGET_SHA"
+          exit 1
 
       - name: Build App (Self-Signed)
         run: |
