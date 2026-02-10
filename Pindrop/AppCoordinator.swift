@@ -814,11 +814,17 @@ final class AppCoordinator {
     }
     
     private func startRecording() async throws {
+        let didStartRecording: Bool
         do {
-            try await audioRecorder.startRecording()
+            didStartRecording = try await audioRecorder.startRecording()
         } catch {
             Log.app.error("Audio engine failed to start: \(error)")
             throw error
+        }
+
+        guard didStartRecording else {
+            Log.app.debug("Recording start already in progress; ignoring duplicate start request")
+            return
         }
         
         isRecording = true

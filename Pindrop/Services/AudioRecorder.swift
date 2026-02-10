@@ -339,6 +339,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
 final class AudioRecorder {
     
     private(set) var isRecording = false
+    private var isStartingRecording = false
     
     let permissionManager: any PermissionProviding
     private let captureBackend: AudioCaptureBackend
@@ -357,13 +358,17 @@ final class AudioRecorder {
         self.captureBackend = try captureBackend ?? AVAudioEngineCaptureBackend()
     }
     
-    func startRecording() async throws {
+    @discardableResult
+    func startRecording() async throws -> Bool {
+        if isRecording || isStartingRecording {
+            return false
+        }
+
+        isStartingRecording = true
+        defer { isStartingRecording = false }
+
         guard await permissionManager.requestPermission() else {
             throw AudioRecorderError.permissionDenied
-        }
-        
-        if isRecording {
-            return
         }
         
         let audioLevelCallback = self.onAudioLevel
@@ -377,6 +382,7 @@ final class AudioRecorder {
         )
         
         isRecording = true
+        return true
     }
     
     func stopRecording() async throws -> Data {
