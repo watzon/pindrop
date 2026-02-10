@@ -147,8 +147,8 @@ struct ZedAdapter: AppContextAdapter {
 
 /// Antigravity app adapter.
 /// Basic file mention support.
-struct AntigravityAdapter: AppContextAdapter {
-    let bundleIdentifiers = ["com.antigravity.app"]
+    struct AntigravityAdapter: AppContextAdapter {
+    let bundleIdentifiers = ["com.antigravity.app", "com.google.antigravity"]
 
     let capabilities = AppAdapterCapabilities(
         supportsFileMentions: true,

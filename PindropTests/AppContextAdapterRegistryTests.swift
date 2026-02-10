@@ -34,6 +34,7 @@ final class AppContextAdapterRegistryTests: XCTestCase {
             ("dev.zed.Zed", "Zed"),
             ("dev.zed.Zed-Preview", "Zed"),
             ("com.antigravity.app", "Antigravity"),
+            ("com.google.antigravity", "Antigravity"),
             ("com.openai.codex", "Codex"),
         ]
 
@@ -171,6 +172,7 @@ final class AppContextAdapterRegistryTests: XCTestCase {
             "dev.zed.Zed",
             "dev.zed.Zed-Preview",
             "com.antigravity.app",
+            "com.google.antigravity",
             "com.openai.codex",
         ]
 
