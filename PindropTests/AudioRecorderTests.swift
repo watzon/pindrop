@@ -63,8 +63,8 @@ final class AudioRecorderTests: XCTestCase {
         let firstResult = try await firstStartResult
         let secondResult = try await secondStartResult
 
-        XCTAssertTrue(firstResult)
-        XCTAssertFalse(secondResult)
+        let successfulStarts = [firstResult, secondResult].filter { $0 }.count
+        XCTAssertEqual(successfulStarts, 1, "Exactly one concurrent start should succeed")
         XCTAssertEqual(mockPermission.requestPermissionCallCount, 1)
         XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
         XCTAssertTrue(sut.isRecording)
