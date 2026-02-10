@@ -52,6 +52,23 @@ final class AudioRecorderTests: XCTestCase {
         XCTAssertTrue(sut.isRecording)
         XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
     }
+
+    func testConcurrentStartRecordingOnlyRequestsPermissionOnce() async throws {
+        mockPermission.grantPermission = true
+        mockPermission.delayNanoseconds = 50_000_000
+
+        async let firstStartResult = sut.startRecording()
+        async let secondStartResult = sut.startRecording()
+
+        let firstResult = try await firstStartResult
+        let secondResult = try await secondStartResult
+
+        XCTAssertTrue(firstResult)
+        XCTAssertFalse(secondResult)
+        XCTAssertEqual(mockPermission.requestPermissionCallCount, 1)
+        XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
+        XCTAssertTrue(sut.isRecording)
+    }
     
     func testStopRecordingReturnsAudioData() async throws {
         mockPermission.grantPermission = true

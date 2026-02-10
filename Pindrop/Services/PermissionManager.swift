@@ -26,6 +26,7 @@ final class PermissionManager {
     // MARK: - Microphone Permission
     
     private(set) var permissionStatus: AVAuthorizationStatus
+    private var pendingMicrophonePermissionRequest: Task<Bool, Never>?
     
     var isAuthorized: Bool {
         permissionStatus == .authorized
@@ -83,11 +84,21 @@ final class PermissionManager {
         case .denied, .restricted:
             return false
         case .notDetermined:
-            let granted = await withCheckedContinuation { continuation in
-                AVCaptureDevice.requestAccess(for: .audio) { granted in
-                    continuation.resume(returning: granted)
+            if let pendingRequest = pendingMicrophonePermissionRequest {
+                return await pendingRequest.value
+            }
+
+            let requestTask = Task { () -> Bool in
+                await withCheckedContinuation { continuation in
+                    AVCaptureDevice.requestAccess(for: .audio) { granted in
+                        continuation.resume(returning: granted)
+                    }
                 }
             }
+            pendingMicrophonePermissionRequest = requestTask
+
+            let granted = await requestTask.value
+            pendingMicrophonePermissionRequest = nil
 
             await refreshPermissionStatus()
 
