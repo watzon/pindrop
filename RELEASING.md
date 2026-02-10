@@ -87,7 +87,7 @@ This will:
 
 4. **Upload the release**:
 - Upload `dist/Pindrop.dmg` to GitHub Releases
-- Upload the `appcast.xml` to the repository (or your hosting)
+- Upload `appcast.xml` as a GitHub Release asset (or host it at your feed URL)
 
 5. **Tag the release**:
 ```bash
@@ -145,7 +145,7 @@ The generated `appcast.xml` follows Sparkle's RSS format:
 
 If you need to manually edit `appcast.xml`:
 
-1. Use the template in `appcast.xml` as a starting point
+1. Use a generated appcast file as a starting point
 2. Update version numbers, release notes, and download URL
 3. Generate the EdDSA signature using:
    ```bash

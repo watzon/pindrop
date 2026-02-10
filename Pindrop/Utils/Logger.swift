@@ -31,3 +31,13 @@ enum Log {
     static let update = Logger(subsystem: subsystem, category: "Update")
     static let aiEnhancement = Logger(subsystem: subsystem, category: "AIEnhancement")
 }
+
+extension Bundle {
+    var appShortVersionString: String {
+        infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    }
+
+    var appBuildVersionString: String {
+        infoDictionary?["CFBundleVersion"] as? String ?? "0"
+    }
+}

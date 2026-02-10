@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AVFoundation
 
 struct PermissionsStepView: View {
     let permissionManager: PermissionManager
@@ -105,11 +104,11 @@ struct PermissionsStepView: View {
     
     private func checkPermissions() async {
         checkingPermissions = true
-        
-        let micStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+
+        let micStatus = permissionManager.checkPermissionStatus()
         microphoneGranted = micStatus == .authorized
-        
-        accessibilityGranted = AXIsProcessTrusted()
+
+        accessibilityGranted = permissionManager.checkAccessibilityPermission()
         
         checkingPermissions = false
     }

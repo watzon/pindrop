@@ -411,4 +411,76 @@ final class HotkeyManagerTests: XCTestCase {
         hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
         wait(for: [keyUpExpectation], timeout: 1.0)
     }
+
+    // MARK: - AppCoordinator Hotkey Registration Policy
+
+    func testHotkeyRegistrationStateRequiresOnboardingCompletion() {
+        XCTAssertFalse(
+            HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: false),
+            "Hotkeys should not register before onboarding completes"
+        )
+        XCTAssertTrue(
+            HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: true),
+            "Hotkeys should register after onboarding completes"
+        )
+    }
+
+    func testHotkeyRegistrationStateRegistersUniqueCombinations() {
+        var state = HotkeyRegistrationState()
+
+        let firstConflict = state.register(
+            identifier: "push-to-talk",
+            keyCode: 54,
+            modifiers: UInt32(cmdKey)
+        )
+        let secondConflict = state.register(
+            identifier: "toggle-recording",
+            keyCode: 55,
+            modifiers: UInt32(cmdKey)
+        )
+
+        XCTAssertNil(firstConflict)
+        XCTAssertNil(secondConflict)
+        XCTAssertEqual(state.registeredIdentifiersByCombination.count, 2)
+    }
+
+    func testHotkeyRegistrationStateDetectsCombinationConflicts() {
+        var state = HotkeyRegistrationState()
+        _ = state.register(
+            identifier: "push-to-talk",
+            keyCode: 54,
+            modifiers: UInt32(cmdKey)
+        )
+
+        let conflict = state.register(
+            identifier: "toggle-recording",
+            keyCode: 54,
+            modifiers: UInt32(cmdKey)
+        )
+
+        XCTAssertEqual(conflict?.existingIdentifier, "push-to-talk")
+        XCTAssertEqual(conflict?.incomingIdentifier, "toggle-recording")
+        XCTAssertEqual(conflict?.combination, HotkeyRegistrationState.Combination(keyCode: 54, modifiers: UInt32(cmdKey)))
+        XCTAssertEqual(state.registeredIdentifiersByCombination.count, 1)
+    }
+
+    func testHotkeyConflictKeyIsStableAcrossIdentifierOrder() {
+        let combination = HotkeyRegistrationState.Combination(
+            keyCode: 54,
+            modifiers: UInt32(cmdKey)
+        )
+        let first = HotkeyConflict(
+            existingIdentifier: "push-to-talk",
+            incomingIdentifier: "toggle-recording",
+            combination: combination
+        )
+        let second = HotkeyConflict(
+            existingIdentifier: "toggle-recording",
+            incomingIdentifier: "push-to-talk",
+            combination: combination
+        )
+
+        XCTAssertEqual(first.conflictKey, second.conflictKey)
+        XCTAssertEqual(first.conflictKey, "push-to-talk|toggle-recording|54|256")
+    }
 }

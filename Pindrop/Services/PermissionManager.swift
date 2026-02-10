@@ -22,11 +22,21 @@ extension PermissionManager: PermissionProviding {}
 @MainActor
 @Observable
 final class PermissionManager {
+
+    struct MicrophoneAuthorizationSnapshot {
+        let resolvedStatus: AVAuthorizationStatus
+        let audioApplicationStatus: String
+        let captureDeviceStatus: String
+        let hasRequestedThisLaunch: Bool
+        let cachedDecision: Bool?
+    }
     
     // MARK: - Microphone Permission
     
     private(set) var permissionStatus: AVAuthorizationStatus
     private var pendingMicrophonePermissionRequest: Task<Bool, Never>?
+    private var hasRequestedMicrophonePermissionThisLaunch = false
+    private var cachedMicrophonePermissionDecision: Bool?
     
     var isAuthorized: Bool {
         permissionStatus == .authorized
@@ -61,7 +71,10 @@ final class PermissionManager {
             self.permissionStatus = .notDetermined
             self.accessibilityPermissionGranted = false
         } else {
-            self.permissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+            self.permissionStatus = Self.resolveMicrophonePermissionStatus(
+                audioPermission: AVAudioApplication.shared.recordPermission,
+                capturePermission: AVCaptureDevice.authorizationStatus(for: .audio)
+            )
             self.accessibilityPermissionGranted = AXIsProcessTrusted()
         }
     }
@@ -69,13 +82,21 @@ final class PermissionManager {
     // MARK: - Microphone Permission Methods
     
     func checkPermissionStatus() -> AVAuthorizationStatus {
-        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        let status = currentMicrophonePermissionStatus()
+
+        if status == .notDetermined,
+           hasRequestedMicrophonePermissionThisLaunch,
+           let cachedDecision = cachedMicrophonePermissionDecision {
+            permissionStatus = cachedDecision ? .authorized : .denied
+            return permissionStatus
+        }
+
         permissionStatus = status
         return status
     }
     
     func requestPermission() async -> Bool {
-        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        let status = currentMicrophonePermissionStatus()
         permissionStatus = status
 
         switch status {
@@ -88,9 +109,17 @@ final class PermissionManager {
                 return await pendingRequest.value
             }
 
+            if hasRequestedMicrophonePermissionThisLaunch,
+               let cachedDecision = cachedMicrophonePermissionDecision {
+                permissionStatus = cachedDecision ? .authorized : .denied
+                return cachedDecision
+            }
+
+            hasRequestedMicrophonePermissionThisLaunch = true
+
             let requestTask = Task { () -> Bool in
                 await withCheckedContinuation { continuation in
-                    AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    AVAudioApplication.requestRecordPermission { granted in
                         continuation.resume(returning: granted)
                     }
                 }
@@ -99,8 +128,13 @@ final class PermissionManager {
 
             let granted = await requestTask.value
             pendingMicrophonePermissionRequest = nil
+            cachedMicrophonePermissionDecision = granted
 
             await refreshPermissionStatus()
+
+            if permissionStatus == .notDetermined {
+                permissionStatus = granted ? .authorized : .denied
+            }
 
             return granted
         @unknown default:
@@ -109,7 +143,98 @@ final class PermissionManager {
     }
     
     func refreshPermissionStatus() async {
-        permissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        let status = currentMicrophonePermissionStatus()
+
+        if status == .notDetermined,
+           hasRequestedMicrophonePermissionThisLaunch,
+           let cachedDecision = cachedMicrophonePermissionDecision {
+            permissionStatus = cachedDecision ? .authorized : .denied
+            return
+        }
+
+        permissionStatus = status
+    }
+
+    func microphoneAuthorizationSnapshot() -> MicrophoneAuthorizationSnapshot {
+        let audioStatus = AVAudioApplication.shared.recordPermission
+        let captureStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+
+        return MicrophoneAuthorizationSnapshot(
+            resolvedStatus: Self.resolveMicrophonePermissionStatus(
+                audioPermission: audioStatus,
+                capturePermission: captureStatus
+            ),
+            audioApplicationStatus: Self.describeAudioApplicationPermission(audioStatus),
+            captureDeviceStatus: Self.describeCapturePermission(captureStatus),
+            hasRequestedThisLaunch: hasRequestedMicrophonePermissionThisLaunch,
+            cachedDecision: cachedMicrophonePermissionDecision
+        )
+    }
+
+    private func currentMicrophonePermissionStatus() -> AVAuthorizationStatus {
+        Self.resolveMicrophonePermissionStatus(
+            audioPermission: AVAudioApplication.shared.recordPermission,
+            capturePermission: AVCaptureDevice.authorizationStatus(for: .audio)
+        )
+    }
+
+    private static func resolveMicrophonePermissionStatus(
+        audioPermission: AVAudioApplication.recordPermission,
+        capturePermission: AVAuthorizationStatus
+    ) -> AVAuthorizationStatus {
+        let audioStatus: AVAuthorizationStatus
+        switch audioPermission {
+        case .granted:
+            audioStatus = .authorized
+        case .denied:
+            audioStatus = .denied
+        case .undetermined:
+            audioStatus = .notDetermined
+        @unknown default:
+            audioStatus = .notDetermined
+        }
+
+        if audioStatus == .authorized || capturePermission == .authorized {
+            return .authorized
+        }
+
+        if capturePermission == .restricted {
+            return .restricted
+        }
+
+        if audioStatus == .denied || capturePermission == .denied {
+            return .denied
+        }
+
+        return .notDetermined
+    }
+
+    private static func describeAudioApplicationPermission(_ permission: AVAudioApplication.recordPermission) -> String {
+        switch permission {
+        case .granted:
+            return "granted"
+        case .denied:
+            return "denied"
+        case .undetermined:
+            return "undetermined"
+        @unknown default:
+            return "unknown"
+        }
+    }
+
+    private static func describeCapturePermission(_ status: AVAuthorizationStatus) -> String {
+        switch status {
+        case .authorized:
+            return "authorized"
+        case .denied:
+            return "denied"
+        case .restricted:
+            return "restricted"
+        case .notDetermined:
+            return "notDetermined"
+        @unknown default:
+            return "unknown"
+        }
     }
     
     // MARK: - Accessibility Permission Methods

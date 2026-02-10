@@ -137,8 +137,7 @@ just --list             # Show all available commands
 **Release commands (maintainers):**
 
 ```bash
-just release 1.5.5          # Bump version, commit, tag, push → triggers CI
-just update-appcast v1.5.5  # After CI: download and commit appcast.xml
+just release 1.5.5  # Bump version, commit, tag, push → triggers CI
 ```
 
 ### Manual Build (Alternative)
@@ -180,9 +179,6 @@ just release 1.5.5
 
 # 3. Publish the draft release on GitHub
 #    https://github.com/watzon/pindrop/releases
-
-# 4. Update appcast.xml for Sparkle auto-updates
-just update-appcast v1.5.5
 ```
 
 ## First Launch

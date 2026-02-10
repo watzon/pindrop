@@ -191,26 +191,36 @@ release version:
 	
 	# Get current version
 	CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	NEXT_BUILD=$((CURRENT_BUILD + 1))
 	echo "📋 Current version: ${CURRENT_VERSION}"
+	echo "📋 Current build: ${CURRENT_BUILD}"
 	echo "📋 New version: ${VERSION}"
+	echo "📋 New build: ${NEXT_BUILD}"
 	echo ""
 	
-	# Update MARKETING_VERSION in project.pbxproj
-	echo "📝 Updating version in Xcode project..."
+	# Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
+	echo "📝 Updating version and build number in Xcode project..."
 	sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
+	sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
 	
-	# Verify the change
+	# Verify the changes
 	NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
 	if [ "$NEW_VERSION" != "$VERSION" ]; then
 		echo "❌ Failed to update version"
 		exit 1
 	fi
-	echo "✅ Version updated to ${VERSION}"
+	if [ "$NEW_BUILD" != "$NEXT_BUILD" ]; then
+		echo "❌ Failed to update build number"
+		exit 1
+	fi
+	echo "✅ Version updated to ${VERSION} (build ${NEXT_BUILD})"
 	
 	# Commit the version bump
 	echo "📦 Committing version bump..."
 	git add Pindrop.xcodeproj/project.pbxproj
-	git commit -m "chore: bump version to ${VERSION}"
+	git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
 	
 	# Create annotated tag
 	echo "🏷️  Creating tag v${VERSION}..."
@@ -231,56 +241,8 @@ release version:
 	echo "  2. Once complete, publish the draft release:"
 	echo "     https://github.com/watzon/pindrop/releases"
 	echo ""
-	echo "  3. Update appcast.xml in main branch:"
-	echo "     just update-appcast v${VERSION}"
-
-# Download and commit appcast.xml from a GitHub release
-# Usage: just update-appcast v1.5.5
-update-appcast version:
-	#!/usr/bin/env bash
-	set -euo pipefail
-	
-	VERSION="{{version}}"
-	
-	# Remove 'v' prefix if present for display, but keep it for gh commands
-	DISPLAY_VERSION="${VERSION#v}"
-	TAG_VERSION="v${DISPLAY_VERSION}"
-	
-	echo "📡 Updating appcast.xml from release ${TAG_VERSION}..."
-	
-	# Check if release exists
-	if ! gh release view "${TAG_VERSION}" &>/dev/null; then
-		echo "❌ Release ${TAG_VERSION} not found"
-		echo "   Available releases:"
-		gh release list --limit 5
-		exit 1
-	fi
-	
-	# Download appcast.xml from release
-	echo "📥 Downloading appcast.xml..."
-	gh release download "${TAG_VERSION}" --pattern appcast.xml -O appcast.xml --clobber
-	
-	# Verify it was downloaded
-	if [ ! -f appcast.xml ]; then
-		echo "❌ Failed to download appcast.xml"
-		exit 1
-	fi
-	
-	# Show what version is in the appcast
-	APPCAST_VERSION=$(grep 'sparkle:shortVersionString' appcast.xml | sed 's/.*="\([^"]*\)".*/\1/')
-	echo "✅ Downloaded appcast for version ${APPCAST_VERSION}"
-	
-	# Commit and push
-	echo "📦 Committing appcast.xml..."
-	git add appcast.xml
-	git commit -m "chore: update appcast.xml for v${DISPLAY_VERSION}"
-	
-	echo "🚀 Pushing to origin..."
-	git push origin main
-	
-	echo ""
-	echo "✅ appcast.xml updated and pushed!"
-	echo "   Sparkle will now serve version ${APPCAST_VERSION} to users."
+	echo "  3. No appcast commit step is required."
+	echo "     Sparkle uses releases/latest/download/appcast.xml automatically."
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg

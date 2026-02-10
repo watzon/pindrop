@@ -96,6 +96,34 @@ jobs:
             exit 1
           fi
 
+      - name: Read Bundle Versions
+        run: |
+          APP_PATH="${{ env.app_path }}"
+          INFO_PLIST="${APP_PATH}/Contents/Info.plist"
+
+          SHORT_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$INFO_PLIST")
+          BUILD_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$INFO_PLIST")
+
+          echo "bundle_short_version=${SHORT_VERSION}" >> $GITHUB_ENV
+          echo "bundle_build_version=${BUILD_VERSION}" >> $GITHUB_ENV
+
+          if [ "$SHORT_VERSION" != "${{ steps.version.outputs.app_version }}" ]; then
+            echo "❌ Bundle short version ($SHORT_VERSION) does not match release version (${{ steps.version.outputs.app_version }})"
+            exit 1
+          fi
+
+          if ! [[ "$BUILD_VERSION" =~ ^[0-9]+$ ]]; then
+            echo "❌ Bundle build version ($BUILD_VERSION) must be numeric"
+            exit 1
+          fi
+
+          if [ "$BUILD_VERSION" -lt 1 ]; then
+            echo "❌ Bundle build version ($BUILD_VERSION) must be >= 1"
+            exit 1
+          fi
+
+          echo "✅ Bundle versions: short=${SHORT_VERSION}, build=${BUILD_VERSION}"
+
       - name: Create DMG
         id: dmg
         run: |
@@ -147,7 +175,8 @@ jobs:
 
       - name: Generate Appcast
         run: |
-          VERSION="${{ steps.version.outputs.app_version }}"
+          VERSION="${{ env.bundle_short_version }}"
+          BUILD_VERSION="${{ env.bundle_build_version }}"
           FULL_VERSION="${{ steps.version.outputs.version }}"
           DMG_NAME="${{ env.dmg_name }}"
           DMG_PATH="${{ env.dmg_path }}"
@@ -180,7 +209,7 @@ jobs:
                 <pubDate>${PUB_DATE}</pubDate>
                 <enclosure
                   url="https://github.com/${{ github.repository }}/releases/download/${FULL_VERSION}/${DMG_NAME}"
-                  sparkle:version="${VERSION}"
+                  sparkle:version="${BUILD_VERSION}"
                   sparkle:shortVersionString="${VERSION}"
                   ${SIG_ATTR}
                   length="${DMG_SIZE}"
@@ -191,6 +220,44 @@ jobs:
             </channel>
           </rss>
           APPCAST_EOF
+
+          python3 - <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          expected_short = os.environ["VERSION"]
+          expected_build = os.environ["BUILD_VERSION"]
+
+          root = ET.parse("dist/appcast.xml").getroot()
+          channel = root.find("channel")
+          if channel is None:
+              print("❌ appcast.xml missing channel element")
+              sys.exit(1)
+
+          item = channel.find("item")
+          if item is None:
+              print("❌ appcast.xml missing item element")
+              sys.exit(1)
+
+          enclosure = item.find("enclosure")
+          if enclosure is None:
+              print("❌ appcast.xml missing enclosure element")
+              sys.exit(1)
+
+          sparkle_build = enclosure.attrib.get("{http://www.andymatuschak.org/xml-namespaces/sparkle}version")
+          sparkle_short = enclosure.attrib.get("{http://www.andymatuschak.org/xml-namespaces/sparkle}shortVersionString")
+
+          if sparkle_build != expected_build:
+              print(f"❌ appcast sparkle:version ({sparkle_build}) != bundle build ({expected_build})")
+              sys.exit(1)
+
+          if sparkle_short != expected_short:
+              print(f"❌ appcast sparkle:shortVersionString ({sparkle_short}) != bundle short version ({expected_short})")
+              sys.exit(1)
+
+          print(f"✅ appcast versions verified: short={sparkle_short}, build={sparkle_build}")
+          PY
 
           echo "✅ Appcast generated at: dist/appcast.xml"
           cat dist/appcast.xml
@@ -237,6 +304,7 @@ jobs:
           echo "## Release Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build:** ${{ env.bundle_build_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **DMG:** ${{ env.dmg_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **EdDSA Signed:** ${SIGNED}" >> $GITHUB_STEP_SUMMARY
           echo "- **Release:** Draft created (requires manual publishing)" >> $GITHUB_STEP_SUMMARY
@@ -245,4 +313,4 @@ jobs:
           echo "1. Review the draft release on GitHub" >> $GITHUB_STEP_SUMMARY
           echo "2. Add release notes" >> $GITHUB_STEP_SUMMARY
           echo "3. Publish the release when ready" >> $GITHUB_STEP_SUMMARY
-          echo "4. After publishing, commit the appcast.xml to the main branch" >> $GITHUB_STEP_SUMMARY
+          echo "4. No appcast commit is required; Sparkle uses releases/latest/download/appcast.xml" >> $GITHUB_STEP_SUMMARY

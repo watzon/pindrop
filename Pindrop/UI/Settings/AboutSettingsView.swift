@@ -146,14 +146,14 @@ struct AboutSettingsView: View {
         if Self.isPreview {
             return "1.0.0"
         }
-        return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        return Bundle.main.appShortVersionString
     }
 
     private var buildNumber: String {
         if Self.isPreview {
             return "1"
         }
-        return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return Bundle.main.appBuildVersionString
     }
 }
 

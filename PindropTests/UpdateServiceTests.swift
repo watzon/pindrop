@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import SwiftData
 @testable import Pindrop
 
 @MainActor
@@ -164,5 +165,39 @@ final class UpdateServiceTests: XCTestCase {
         if sut.state == .error {
             XCTAssertNotNil(sut.error, "Error should be set when state is error")
         }
+    }
+
+    func testAppCoordinatorWiresStatusBarCheckForUpdatesAction() async throws {
+        let previousOnboardingState = UserDefaults.standard.object(forKey: "hasCompletedOnboarding")
+        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        defer {
+            if let previousOnboardingState {
+                UserDefaults.standard.set(previousOnboardingState, forKey: "hasCompletedOnboarding")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
+            }
+        }
+
+        let schema = Schema([
+            TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self
+        ])
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+
+        let coordinator = AppCoordinator(
+            modelContext: modelContainer.mainContext,
+            modelContainer: modelContainer
+        )
+
+        XCTAssertNotNil(
+            coordinator.statusBarController.onCheckForUpdates,
+            "Status bar update menu item should be wired to coordinator handler"
+        )
+
+        coordinator.cleanup()
     }
 }

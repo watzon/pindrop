@@ -11,6 +11,7 @@ DerivedData/
 
 # Distribution
 dist/
+appcast.xml
 
 # Swift Package Manager
 .build/

@@ -181,7 +181,17 @@ final class AlertManager {
         
         alert.runModal()
     }
-    
+
+    func showHotkeyConflictAlert(hotkey: String, firstAction: String, secondAction: String) {
+        let alert = NSAlert()
+        alert.messageText = "Hotkey Conflict"
+        alert.informativeText = "\(hotkey) is assigned to both \(firstAction) and \(secondAction). Only the first action will be active. Update your hotkeys in Settings to resolve this conflict."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+
+        alert.runModal()
+    }
+
     private func openAccessibilitySettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)

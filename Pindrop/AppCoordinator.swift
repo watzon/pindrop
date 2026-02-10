@@ -18,10 +18,65 @@ extension Notification.Name {
     static let requestActiveModel = Notification.Name("com.pindrop.requestActiveModel")
 }
 
+struct HotkeyConflict: Equatable {
+    let existingIdentifier: String
+    let incomingIdentifier: String
+    let combination: HotkeyRegistrationState.Combination
+
+    var conflictKey: String {
+        [existingIdentifier, incomingIdentifier]
+            .sorted()
+            .joined(separator: "|") + "|\(combination.keyCode)|\(combination.modifiers)"
+    }
+}
+
+struct HotkeyRegistrationState {
+    struct Combination: Hashable {
+        let keyCode: UInt32
+        let modifiers: UInt32
+    }
+
+    private(set) var registeredIdentifiersByCombination: [Combination: String] = [:]
+
+    static func shouldRegisterHotkeys(hasCompletedOnboarding: Bool) -> Bool {
+        hasCompletedOnboarding
+    }
+
+    mutating func register(
+        identifier: String,
+        keyCode: UInt32,
+        modifiers: UInt32
+    ) -> HotkeyConflict? {
+        let combination = Combination(keyCode: keyCode, modifiers: modifiers)
+
+        if let existingIdentifier = registeredIdentifiersByCombination[combination] {
+            return HotkeyConflict(
+                existingIdentifier: existingIdentifier,
+                incomingIdentifier: identifier,
+                combination: combination
+            )
+        }
+
+        registeredIdentifiersByCombination[combination] = identifier
+        return nil
+    }
+}
+
 @MainActor
 @Observable
 final class AppCoordinator {
-    
+
+    private enum RecordingTriggerSource: String {
+        case statusBarMenu = "status-bar-menu"
+        case hotkeyToggle = "hotkey-toggle"
+        case hotkeyPushToTalk = "hotkey-push-to-talk"
+        case hotkeyQuickCapturePTT = "hotkey-quick-capture-ptt"
+        case hotkeyQuickCaptureToggle = "hotkey-quick-capture-toggle"
+        case floatingIndicatorStop = "floating-indicator-stop"
+        case pillIndicatorStop = "pill-indicator-stop"
+        case pillIndicatorStart = "pill-indicator-start"
+    }
+
     // MARK: - Services
     
     let permissionManager: PermissionManager
@@ -31,6 +86,7 @@ final class AppCoordinator {
     let aiEnhancementService: AIEnhancementService
     let hotkeyManager: HotkeyManager
     let launchAtLoginManager: LaunchAtLoginManager
+    let updateService: UpdateService
     let outputManager: OutputManager
     let historyStore: HistoryStore
     let dictionaryStore: DictionaryStore
@@ -64,6 +120,8 @@ final class AppCoordinator {
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
     private var capturedContext: CapturedContext?
+    private var recordingStartAttemptCounter: UInt64 = 0
+    private var reportedHotkeyConflicts = Set<String>()
 
     // MARK: - Dictionary Replacements
     
@@ -94,6 +152,7 @@ final class AppCoordinator {
         self.aiEnhancementService = AIEnhancementService()
         self.hotkeyManager = HotkeyManager()
         self.launchAtLoginManager = LaunchAtLoginManager()
+        self.updateService = UpdateService()
         self.settingsStore = SettingsStore()
         self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
@@ -124,7 +183,7 @@ final class AppCoordinator {
         }
 
         self.statusBarController.onToggleRecording = { [weak self] in
-            await self?.handleToggleRecording()
+            await self?.handleToggleRecording(source: .statusBarMenu)
         }
 
         self.statusBarController.onCopyLastTranscript = { [weak self] in
@@ -175,6 +234,10 @@ final class AppCoordinator {
             self?.handleSelectModel(modelName)
         }
 
+        self.statusBarController.onCheckForUpdates = { [weak self] in
+            self?.handleCheckForUpdates()
+        }
+
         self.statusBarController.setMainWindowController(mainWindowController)
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
@@ -184,13 +247,13 @@ final class AppCoordinator {
         
         self.floatingIndicatorController.onStopRecording = { [weak self] in
             Task { @MainActor in
-                await self?.handleToggleRecording()
+                await self?.handleToggleRecording(source: .floatingIndicatorStop)
             }
         }
         
         self.pillFloatingIndicatorController.onStopRecording = { [weak self] in
             Task { @MainActor in
-                await self?.handleToggleRecording()
+                await self?.handleToggleRecording(source: .pillIndicatorStop)
             }
         }
 
@@ -202,7 +265,7 @@ final class AppCoordinator {
 
         self.pillFloatingIndicatorController.onStartRecording = { [weak self] in
             Task { @MainActor in
-                await self?.handleToggleRecording()
+                await self?.handleToggleRecording(source: .pillIndicatorStart)
             }
         }
 
@@ -288,6 +351,7 @@ final class AppCoordinator {
     private func finishPostOnboardingSetup() async {
         seedBuiltInPresetsIfNeeded()
         refreshStatusBarPresets()
+        registerHotkeysFromSettings()
         
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
             Log.app.info("Accessibility permission not granted after onboarding - direct insert will use clipboard fallback")
@@ -322,15 +386,11 @@ final class AppCoordinator {
         }
 
         let micStatus = permissionManager.checkPermissionStatus()
-        if micStatus == .notDetermined {
-            let micGranted = await permissionManager.requestPermission()
-            if !micGranted {
-                Log.app.warning("Microphone permission denied - recording will not work")
-                AlertManager.shared.showMicrophonePermissionAlert()
-            }
-        } else if micStatus == .denied || micStatus == .restricted {
+        if micStatus == .denied || micStatus == .restricted {
             Log.app.warning("Microphone permission denied - recording will not work")
             AlertManager.shared.showMicrophonePermissionAlert()
+        } else if micStatus == .notDetermined {
+            Log.app.info("Microphone permission not determined at launch; request deferred until recording starts")
         }
 
         if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
@@ -434,44 +494,69 @@ final class AppCoordinator {
     private func registerHotkeysFromSettings() {
         hotkeyManager.unregisterAll()
         
+        guard HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: settingsStore.hasCompletedOnboarding) else {
+            Log.hotkey.info("Skipping hotkey registration until onboarding is complete")
+            return
+        }
+
+        var registrationState = HotkeyRegistrationState()
+        
         if !settingsStore.pushToTalkHotkey.isEmpty {
             let keyCode = UInt32(settingsStore.pushToTalkHotkeyCode)
             let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.pushToTalkHotkeyModifiers))
-            
-            _ = hotkeyManager.registerHotkey(
+
+            if canRegisterHotkey(
+                identifier: "push-to-talk",
+                displayName: "Push-to-Talk",
+                hotkeyString: settingsStore.pushToTalkHotkey,
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "push-to-talk",
-                mode: .pushToTalk,
-                onKeyDown: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handlePushToTalkStart()
+                registrationState: &registrationState
+            ) {
+                _ = hotkeyManager.registerHotkey(
+                    keyCode: keyCode,
+                    modifiers: modifiers,
+                    identifier: "push-to-talk",
+                    mode: .pushToTalk,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handlePushToTalkStart()
+                        }
+                    },
+                    onKeyUp: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handlePushToTalkEnd()
+                        }
                     }
-                },
-                onKeyUp: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handlePushToTalkEnd()
-                    }
-                }
-            )
+                )
+            }
         }
         
         if !settingsStore.toggleHotkey.isEmpty {
             let keyCode = UInt32(settingsStore.toggleHotkeyCode)
             let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.toggleHotkeyModifiers))
-            
-            _ = hotkeyManager.registerHotkey(
+
+            if canRegisterHotkey(
+                identifier: "toggle-recording",
+                displayName: "Toggle Recording",
+                hotkeyString: settingsStore.toggleHotkey,
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "toggle-recording",
-                mode: .toggle,
-                onKeyDown: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleToggleRecording()
-                    }
-                },
-                onKeyUp: nil
-            )
+                registrationState: &registrationState
+            ) {
+                _ = hotkeyManager.registerHotkey(
+                    keyCode: keyCode,
+                    modifiers: modifiers,
+                    identifier: "toggle-recording",
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleToggleRecording(source: .hotkeyToggle)
+                        }
+                    },
+                    onKeyUp: nil
+                )
+            }
         }
 
         if !settingsStore.copyLastTranscriptHotkey.isEmpty {
@@ -480,18 +565,27 @@ final class AppCoordinator {
 
             Log.hotkey.info("Registering copy-last-transcript: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.copyLastTranscriptHotkey)")
 
-            _ = hotkeyManager.registerHotkey(
+            if canRegisterHotkey(
+                identifier: "copy-last-transcript",
+                displayName: "Copy Last Transcript",
+                hotkeyString: settingsStore.copyLastTranscriptHotkey,
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "copy-last-transcript",
-                mode: .toggle,
-                onKeyDown: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleCopyLastTranscript()
-                    }
-                },
-                onKeyUp: nil
-            )
+                registrationState: &registrationState
+            ) {
+                _ = hotkeyManager.registerHotkey(
+                    keyCode: keyCode,
+                    modifiers: modifiers,
+                    identifier: "copy-last-transcript",
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleCopyLastTranscript()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+            }
         }
 
         if !settingsStore.quickCapturePTTHotkey.isEmpty {
@@ -500,22 +594,31 @@ final class AppCoordinator {
 
             Log.hotkey.info("Registering quick-capture-ptt: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCapturePTTHotkey)")
 
-            _ = hotkeyManager.registerHotkey(
+            if canRegisterHotkey(
+                identifier: "quick-capture-ptt",
+                displayName: "Note Capture (Push-to-Talk)",
+                hotkeyString: settingsStore.quickCapturePTTHotkey,
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "quick-capture-ptt",
-                mode: .pushToTalk,
-                onKeyDown: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleQuickCapturePTTStart()
+                registrationState: &registrationState
+            ) {
+                _ = hotkeyManager.registerHotkey(
+                    keyCode: keyCode,
+                    modifiers: modifiers,
+                    identifier: "quick-capture-ptt",
+                    mode: .pushToTalk,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleQuickCapturePTTStart()
+                        }
+                    },
+                    onKeyUp: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleQuickCapturePTTEnd()
+                        }
                     }
-                },
-                onKeyUp: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleQuickCapturePTTEnd()
-                    }
-                }
-            )
+                )
+            }
         }
 
         if !settingsStore.quickCaptureToggleHotkey.isEmpty {
@@ -524,18 +627,79 @@ final class AppCoordinator {
 
             Log.hotkey.info("Registering quick-capture-toggle: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureToggleHotkey)")
 
-            _ = hotkeyManager.registerHotkey(
+            if canRegisterHotkey(
+                identifier: "quick-capture-toggle",
+                displayName: "Note Capture (Toggle)",
+                hotkeyString: settingsStore.quickCaptureToggleHotkey,
                 keyCode: keyCode,
                 modifiers: modifiers,
-                identifier: "quick-capture-toggle",
-                mode: .toggle,
-                onKeyDown: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleQuickCaptureToggle()
-                    }
-                },
-                onKeyUp: nil
+                registrationState: &registrationState
+            ) {
+                _ = hotkeyManager.registerHotkey(
+                    keyCode: keyCode,
+                    modifiers: modifiers,
+                    identifier: "quick-capture-toggle",
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleQuickCaptureToggle()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+            }
+        }
+    }
+
+    private func canRegisterHotkey(
+        identifier: String,
+        displayName: String,
+        hotkeyString: String,
+        keyCode: UInt32,
+        modifiers: HotkeyManager.ModifierFlags,
+        registrationState: inout HotkeyRegistrationState
+    ) -> Bool {
+        if let conflict = registrationState.register(
+            identifier: identifier,
+            keyCode: keyCode,
+            modifiers: modifiers.rawValue
+        ) {
+            let existingDisplayName = hotkeyDisplayName(for: conflict.existingIdentifier)
+            let conflictKey = conflict.conflictKey
+
+            Log.hotkey.error(
+                "Hotkey conflict detected for \(hotkeyString, privacy: .public): \(existingDisplayName, privacy: .public) conflicts with \(displayName, privacy: .public). Ignoring \(displayName, privacy: .public)"
             )
+
+            if !reportedHotkeyConflicts.contains(conflictKey) {
+                reportedHotkeyConflicts.insert(conflictKey)
+                AlertManager.shared.showHotkeyConflictAlert(
+                    hotkey: hotkeyString,
+                    firstAction: existingDisplayName,
+                    secondAction: displayName
+                )
+            }
+
+            return false
+        }
+
+        return true
+    }
+
+    private func hotkeyDisplayName(for identifier: String) -> String {
+        switch identifier {
+        case "toggle-recording":
+            return "Toggle Recording"
+        case "push-to-talk":
+            return "Push-to-Talk"
+        case "copy-last-transcript":
+            return "Copy Last Transcript"
+        case "quick-capture-ptt":
+            return "Note Capture (Push-to-Talk)"
+        case "quick-capture-toggle":
+            return "Note Capture (Toggle)"
+        default:
+            return identifier
         }
     }
     
@@ -586,7 +750,7 @@ final class AppCoordinator {
         guard !isRecording && !isProcessing else { return }
         
         do {
-            try await startRecording()
+            try await startRecording(source: .hotkeyPushToTalk)
         } catch {
             self.error = error
             audioRecorder.resetAudioEngine()
@@ -615,7 +779,7 @@ final class AppCoordinator {
         quickCaptureTranscription = nil
 
         do {
-            try await startRecording()
+            try await startRecording(source: .hotkeyQuickCapturePTT)
         } catch {
             self.error = error
             isQuickCaptureMode = false
@@ -659,7 +823,7 @@ final class AppCoordinator {
             quickCaptureTranscription = nil
 
             do {
-                try await startRecording()
+                try await startRecording(source: .hotkeyQuickCaptureToggle)
             } catch {
                 self.error = error
                 isQuickCaptureMode = false
@@ -793,7 +957,7 @@ final class AppCoordinator {
         Log.app.info("Opened note editor with enhanced note")
     }
 
-    private func handleToggleRecording() async {
+    private func handleToggleRecording(source: RecordingTriggerSource) async {
         if isRecording {
             do {
                 try await stopRecordingAndTranscribe()
@@ -804,7 +968,7 @@ final class AppCoordinator {
             }
         } else if !isProcessing {
             do {
-                try await startRecording()
+                try await startRecording(source: source)
             } catch {
                 self.error = error
                 audioRecorder.resetAudioEngine()
@@ -813,7 +977,9 @@ final class AppCoordinator {
         }
     }
     
-    private func startRecording() async throws {
+    private func startRecording(source: RecordingTriggerSource) async throws {
+        logRecordingStartAttempt(source: source)
+
         let didStartRecording: Bool
         do {
             didStartRecording = try await audioRecorder.startRecording()
@@ -858,6 +1024,21 @@ final class AppCoordinator {
                 floatingIndicatorController.startRecording()
             }
         }
+    }
+
+    private func logRecordingStartAttempt(source: RecordingTriggerSource) {
+        recordingStartAttemptCounter += 1
+        let snapshot = permissionManager.microphoneAuthorizationSnapshot()
+        let shortVersion = Bundle.main.appShortVersionString
+        let buildVersion = Bundle.main.appBuildVersionString
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "unknown"
+        let bundlePath = Bundle.main.bundleURL.path
+        let executablePath = Bundle.main.executableURL?.path ?? "unknown"
+        let cachedDecision = snapshot.cachedDecision.map { $0 ? "granted" : "denied" } ?? "none"
+
+        Log.app.info(
+            "recording_start_attempt id=\(self.recordingStartAttemptCounter) source=\(source.rawValue, privacy: .public) resolved=\(String(describing: snapshot.resolvedStatus), privacy: .public) avaudio=\(snapshot.audioApplicationStatus, privacy: .public) avcapture=\(snapshot.captureDeviceStatus, privacy: .public) requestedThisLaunch=\(snapshot.hasRequestedThisLaunch) cachedDecision=\(cachedDecision, privacy: .public) bundleId=\(bundleIdentifier, privacy: .public) shortVersion=\(shortVersion, privacy: .public) buildVersion=\(buildVersion, privacy: .public) pid=\(ProcessInfo.processInfo.processIdentifier) onboardingCompleted=\(self.settingsStore.hasCompletedOnboarding) bundlePath=\(bundlePath, privacy: .public) executablePath=\(executablePath, privacy: .public)"
+        )
     }
     
     private func stopRecordingAndTranscribe() async throws {
@@ -1334,6 +1515,18 @@ final class AppCoordinator {
         } catch {
             Log.app.error("Failed to toggle launch at login: \(error)")
         }
+    }
+
+    private func handleCheckForUpdates() {
+        if updateService.shouldDeferUpdate(isRecording: isRecording || isProcessing) {
+            AlertManager.shared.showGenericErrorAlert(
+                title: "Update Deferred",
+                message: "Finish recording or processing before checking for updates."
+            )
+            return
+        }
+
+        updateService.checkForUpdates()
     }
 
     // MARK: - Open History
