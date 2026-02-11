@@ -30,6 +30,7 @@ enum Log {
     static let ui = Logger(subsystem: subsystem, category: "UI")
     static let update = Logger(subsystem: subsystem, category: "Update")
     static let aiEnhancement = Logger(subsystem: subsystem, category: "AIEnhancement")
+    static let context = Logger(subsystem: subsystem, category: "Context")
 }
 
 extension Bundle {

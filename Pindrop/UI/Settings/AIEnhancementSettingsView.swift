@@ -25,7 +25,8 @@ struct AIEnhancementSettingsView: View {
     @State private var showingSaveSuccess = false
     @State private var showingPromptSaveSuccess = false
     @State private var errorMessage: String?
-    @State private var showScreenRecordingAlert = false
+    @State private var showAccessibilityAlert = false
+    @State private var accessibilityPermissionGranted = false
     
     @State private var presets: [PromptPreset] = []
     @State private var showPresetManagement = false
@@ -67,6 +68,7 @@ struct AIEnhancementSettingsView: View {
         .task {
             loadPresets()
             loadCredentialsAndPrompt()
+            refreshPermissionStates()
         }
         .onChange(of: settings.selectedPresetId) { _, newValue in
             handlePresetChange(newValue)
@@ -80,15 +82,13 @@ struct AIEnhancementSettingsView: View {
                     loadPresets()
                 }
         }
-        .alert("Screen Recording Permission Required", isPresented: $showScreenRecordingAlert) {
+        .alert("Accessibility Permission Recommended", isPresented: $showAccessibilityAlert) {
             Button("Open System Settings") {
-                PermissionManager().openScreenRecordingPreferences()
+                PermissionManager().openAccessibilityPreferences()
             }
-            Button("Cancel", role: .cancel) {
-                settings.enableScreenshotContext = false
-            }
+            Button("Continue Without", role: .cancel) {}
         } message: {
-            Text("Pindrop needs Screen Recording permission to capture screenshots. Please enable it in System Settings > Privacy & Security > Screen Recording.")
+            Text("Vibe mode works best with Accessibility permission. Without it, Pindrop falls back to limited app metadata and transcription still works normally.")
         }
     }
     
@@ -196,53 +196,50 @@ struct AIEnhancementSettingsView: View {
     // MARK: - Context Card
 
     private var contextCard: some View {
-        SettingsCard(title: "Context", icon: "camera.viewfinder") {
+        SettingsCard(title: "Vibe Mode", icon: "wand.and.stars") {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Context is captured when recording starts and included in the AI prompt.")
+                Text("Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                Toggle("Enable vibe mode (UI context)", isOn: Binding(
+                    get: { settings.enableUIContext },
+                    set: { newValue in
+                        settings.enableUIContext = newValue
+                        if newValue {
+                            requestAccessibilityPermissionIfNeeded()
+                        }
+                    }
+                ))
+                    .toggleStyle(.switch)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(spacing: 6) {
+                    IconView(icon: accessibilityPermissionGranted ? .check : .info, size: 12)
+                        .foregroundStyle(accessibilityPermissionGranted ? .green : .secondary)
+                    Text(accessibilityPermissionGranted
+                         ? "Accessibility permission is enabled. Full UI context is available."
+                         : "Accessibility permission is not granted. Vibe mode remains non-blocking with limited context.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if !accessibilityPermissionGranted {
+                        Spacer(minLength: 8)
+                        Button("Open Settings") {
+                            PermissionManager().openAccessibilityPreferences()
+                        }
+                        .buttonStyle(.borderless)
+                        .font(.caption)
+                    }
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 
                 VStack(spacing: 12) {
                     Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
                         .toggleStyle(.switch)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Toggle("Include clipboard images", isOn: $settings.enableImageContext)
-                        .toggleStyle(.switch)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                        Toggle("Include screenshot", isOn: Binding(
-                            get: { settings.enableScreenshotContext },
-                            set: { newValue in
-                                if newValue {
-                                    checkScreenRecordingPermission()
-                                }
-                                settings.enableScreenshotContext = newValue
-                            }
-                        ))
-                        .toggleStyle(.switch)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                
-                if settings.enableScreenshotContext {
-                    Picker("Screenshot mode", selection: $settings.screenshotMode) {
-                        Text("Active Window").tag("activeWindow")
-                        Text("Full Screen").tag("fullScreen")
-                    }
-                    .pickerStyle(.segmented)
-                }
-                
-                if settings.enableImageContext || settings.enableScreenshotContext {
-                    HStack(spacing: 6) {
-                        IconView(icon: .info, size: 12)
-                            .foregroundStyle(.secondary)
-                        Text("Note: Images require a vision-capable model (e.g., GPT-4o, Claude 3)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }
             }
             .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
@@ -767,17 +764,26 @@ struct AIEnhancementSettingsView: View {
         }
     }
 
-    private func checkScreenRecordingPermission() {
+    private func refreshPermissionStates() {
         let permissionManager = PermissionManager()
-        
-        if !permissionManager.checkScreenRecordingPermission() {
-            permissionManager.requestScreenRecordingPermission()
-            
-            Task {
-                try? await Task.sleep(for: .milliseconds(500))
-                if !permissionManager.checkScreenRecordingPermission() {
-                    showScreenRecordingAlert = true
-                }
+        accessibilityPermissionGranted = permissionManager.checkAccessibilityPermission()
+    }
+
+    private func requestAccessibilityPermissionIfNeeded() {
+        let permissionManager = PermissionManager()
+        let alreadyGranted = permissionManager.checkAccessibilityPermission()
+        accessibilityPermissionGranted = alreadyGranted
+
+        guard !alreadyGranted else { return }
+
+        _ = permissionManager.requestAccessibilityPermission(showPrompt: true)
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            let granted = permissionManager.checkAccessibilityPermission()
+            accessibilityPermissionGranted = granted
+            if !granted {
+                showAccessibilityAlert = true
             }
         }
     }
