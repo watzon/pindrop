@@ -9,7 +9,6 @@ import Foundation
 import AVFoundation
 import ApplicationServices
 import AppKit
-import CoreGraphics
 import Observation
 
 /// Protocol for permission checking, enabling mock-based testing.
@@ -54,16 +53,18 @@ final class PermissionManager {
         accessibilityPermissionGranted
     }
 
-    // MARK: - Screen Recording Permission
-
-    private(set) var screenRecordingPermissionGranted: Bool = false
-
-    var isScreenRecordingAuthorized: Bool {
-        screenRecordingPermissionGranted
-    }
-    
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
+    private static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+            || ProcessInfo.processInfo.environment["XCTestSessionIdentifier"] != nil
+            || NSClassFromString("XCTestCase") != nil
+    }
+
+    private static var shouldSuppressSystemPermissionPrompts: Bool {
+        isPreview || isRunningTests
     }
     
     init() {
@@ -246,7 +247,8 @@ final class PermissionManager {
     }
     
     func requestAccessibilityPermission(showPrompt: Bool = true) -> Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: showPrompt] as CFDictionary
+        let shouldPrompt = showPrompt && !Self.shouldSuppressSystemPermissionPrompts
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: shouldPrompt] as CFDictionary
         let trusted = AXIsProcessTrustedWithOptions(options)
         accessibilityPermissionGranted = trusted
         return trusted
@@ -257,25 +259,10 @@ final class PermissionManager {
     }
     
     func openAccessibilityPreferences() {
+        guard !Self.shouldSuppressSystemPermissionPrompts else { return }
+
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
         NSWorkspace.shared.open(url)
     }
 
-    // MARK: - Screen Recording Permission Methods
-
-    func checkScreenRecordingPermission() -> Bool {
-        let granted = CGPreflightScreenCaptureAccess()
-        screenRecordingPermissionGranted = granted
-        return granted
-    }
-
-    func requestScreenRecordingPermission() {
-        let granted = CGRequestScreenCaptureAccess()
-        screenRecordingPermissionGranted = granted
-    }
-
-    func openScreenRecordingPreferences() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
-        NSWorkspace.shared.open(url)
-    }
 }

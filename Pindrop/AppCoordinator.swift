@@ -93,7 +93,9 @@ final class AppCoordinator {
     let settingsStore: SettingsStore
     let notesStore: NotesStore
     let contextCaptureService: ContextCaptureService
+    let contextEngineService: ContextEngineService
     let promptPresetStore: PromptPresetStore
+    let mentionRewriteService: MentionRewriteService
 
     // MARK: - UI Controllers
     
@@ -120,8 +122,16 @@ final class AppCoordinator {
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
     private var capturedContext: CapturedContext?
+    private var capturedSnapshot: ContextSnapshot?
+    private var capturedAdapterCapabilities: AppAdapterCapabilities?
+    private var capturedRoutingSignal: PromptRoutingSignal?
     private var recordingStartAttemptCounter: UInt64 = 0
     private var reportedHotkeyConflicts = Set<String>()
+    private let appContextAdapterRegistry = AppContextAdapterRegistry()
+    private let promptRoutingResolver: any PromptRoutingResolver = NoOpPromptRoutingResolver()
+    private var lastObservedOutputMode: String = ""
+    private var hasRequestedAccessibilityPermissionThisLaunch = false
+    private var hasShownAccessibilityFallbackAlertThisLaunch = false
 
     // MARK: - Dictionary Replacements
     
@@ -132,10 +142,14 @@ final class AppCoordinator {
     
     private var escapeEventTap: CFMachPort?
     private var escapeRunLoopSource: CFRunLoopSource?
+    private var escapeGlobalMonitor: Any?
     private var modifierEventTap: CFMachPort?
     private var modifierRunLoopSource: CFRunLoopSource?
+    private var modifierGlobalMonitor: Any?
     private var lastEscapeTime: Date?
+    private var lastEscapeSignalTime: Date?
     private let doubleEscapeThreshold: TimeInterval = 0.4
+    private let duplicateEscapeSignalThreshold: TimeInterval = 0.08
     
     // MARK: - Initialization
     
@@ -154,6 +168,7 @@ final class AppCoordinator {
         self.launchAtLoginManager = LaunchAtLoginManager()
         self.updateService = UpdateService()
         self.settingsStore = SettingsStore()
+        self.lastObservedOutputMode = self.settingsStore.outputMode
         self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
@@ -162,7 +177,9 @@ final class AppCoordinator {
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
+        self.contextEngineService = ContextEngineService()
         self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
+        self.mentionRewriteService = MentionRewriteService()
 
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
@@ -352,10 +369,8 @@ final class AppCoordinator {
         seedBuiltInPresetsIfNeeded()
         refreshStatusBarPresets()
         registerHotkeysFromSettings()
-        
-        if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
-            Log.app.info("Accessibility permission not granted after onboarding - direct insert will use clipboard fallback")
-        }
+
+        ensureAccessibilityPermissionForDirectInsert(trigger: "post-onboarding", showFallbackAlert: false)
     }
     
     private func seedBuiltInPresetsIfNeeded() {
@@ -393,9 +408,7 @@ final class AppCoordinator {
             Log.app.info("Microphone permission not determined at launch; request deferred until recording starts")
         }
 
-        if outputManager.outputMode == .directInsert && !outputManager.checkAccessibilityPermission() {
-            Log.app.info("Accessibility permission not granted - direct insert will use clipboard fallback")
-        }
+        ensureAccessibilityPermissionForDirectInsert(trigger: "startup", showFallbackAlert: false)
 
         let modelName = settingsStore.selectedModel
         
@@ -711,15 +724,15 @@ final class AppCoordinator {
                 Task { @MainActor in
                     guard let self = self else { return }
 
-                    let mode: OutputMode = self.settingsStore.outputMode == "clipboard" ? .clipboard : .directInsert
+                    let outputModeValue = self.settingsStore.outputMode
+                    let didOutputModeChange = outputModeValue != self.lastObservedOutputMode
+                    self.lastObservedOutputMode = outputModeValue
+
+                    let mode: OutputMode = outputModeValue == "clipboard" ? .clipboard : .directInsert
                     self.outputManager.setOutputMode(mode)
 
-                    if mode == .directInsert {
-                        let hasPermission = self.outputManager.checkAccessibilityPermission()
-                        Log.app.info("Direct Insert mode selected, accessibility permission: \(hasPermission)")
-                        if !hasPermission {
-                            AlertManager.shared.showAccessibilityPermissionAlert()
-                        }
+                    if mode == .directInsert && didOutputModeChange {
+                        self.ensureAccessibilityPermissionForDirectInsert(trigger: "settings-change", showFallbackAlert: true)
                     }
                     
                     self.audioRecorder.setPreferredInputDeviceUID(self.settingsStore.selectedInputDeviceUID)
@@ -980,6 +993,10 @@ final class AppCoordinator {
     private func startRecording(source: RecordingTriggerSource) async throws {
         logRecordingStartAttempt(source: source)
 
+        // If permissions were granted after launch, recreate global event taps
+        // so escape-to-cancel and modifier tracking become available mid-session.
+        ensureGlobalKeyMonitorsIfPossible()
+
         let didStartRecording: Bool
         do {
             didStartRecording = try await audioRecorder.startRecording()
@@ -995,24 +1012,50 @@ final class AppCoordinator {
         
         isRecording = true
         recordingStartTime = Date()
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
 
-        if settingsStore.enableClipboardContext || settingsStore.enableImageContext || settingsStore.enableScreenshotContext {
+        if settingsStore.enableClipboardContext || settingsStore.enableUIContext {
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
-            let clipboardImage = settingsStore.enableImageContext ? contextCaptureService.captureClipboardImage() : nil
-            var screenshot: NSImage? = nil
-            if settingsStore.enableScreenshotContext {
-                let mode: ScreenshotMode
-                switch settingsStore.screenshotMode {
-                case "fullScreen":
-                    mode = .fullScreen
-                case "activeWindow":
-                    mode = .activeWindow
-                default:
-                    mode = .activeWindow
+            capturedContext = CapturedContext(clipboardText: clipboardText)
+
+            // Capture AX-based UI context when enabled (non-blocking)
+            var appContext: AppContextInfo? = nil
+            var captureWarnings: [ContextCaptureWarning] = []
+            if settingsStore.enableUIContext {
+                let result = contextEngineService.captureAppContext()
+                appContext = result.appContext
+                captureWarnings = result.warnings
+                if !captureWarnings.isEmpty {
+                    Log.app.debug("UI context capture warnings: \(captureWarnings.map(\.localizedDescription).joined(separator: ", "))")
                 }
-                screenshot = contextCaptureService.captureScreenshot(mode: mode)
+                if let ctx = appContext {
+                    Log.app.info("Captured UI context: app=\(ctx.appName), window=\(ctx.windowTitle ?? "nil")")
+                }
             }
-            capturedContext = CapturedContext(clipboardText: clipboardText, clipboardImage: clipboardImage, screenshot: screenshot)
+
+            capturedSnapshot = ContextSnapshot(
+                timestamp: Date(),
+                appContext: appContext,
+                clipboardText: clipboardText,
+                warnings: captureWarnings
+            )
+
+            if let snapshot = capturedSnapshot {
+                let routingSignal = PromptRoutingSignal.from(
+                    snapshot: snapshot,
+                    adapterRegistry: appContextAdapterRegistry
+                )
+                capturedRoutingSignal = routingSignal
+                _ = promptRoutingResolver.resolve(signal: routingSignal)
+
+                if let bundleIdentifier = snapshot.appContext?.bundleIdentifier {
+                    let adapter = appContextAdapterRegistry.adapter(for: bundleIdentifier)
+                    capturedAdapterCapabilities = adapter.capabilities
+                    let caps = adapter.capabilities
+                    Log.context.info("Adapter context: app=\(caps.displayName) prefix=\(caps.mentionPrefix) fileMentions=\(caps.supportsFileMentions) codeContext=\(caps.supportsCodeContext) docsMentions=\(caps.supportsDocsMentions) diffContext=\(caps.supportsDiffContext) webContext=\(caps.supportsWebContext) chatHistory=\(caps.supportsChatHistory)")
+                }
+            }
         }
 
         statusBarController.setRecordingState()
@@ -1110,7 +1153,41 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
         
-        var finalText = textAfterReplacements
+        // Mention rewrite: resolve spoken file mentions to app-specific syntax
+        // Runs whenever adapter supports file mentions AND workspace roots are derivable
+        // (not gated by isCodeEditorContext — enables Antigravity and other non-IDE adapters)
+        var textAfterMentions = textAfterReplacements
+        var derivedWorkspaceRoots: [String] = []
+        if let workspacePath = capturedRoutingSignal?.workspacePath {
+            derivedWorkspaceRoots.append(workspacePath)
+        } else if let docPath = capturedSnapshot?.appContext?.documentPath, !docPath.isEmpty {
+            let parent = (docPath as NSString).deletingLastPathComponent
+            if !parent.isEmpty {
+                derivedWorkspaceRoots.append(parent)
+            }
+        }
+
+        if let capabilities = capturedAdapterCapabilities,
+           capabilities.supportsFileMentions {
+            if !derivedWorkspaceRoots.isEmpty {
+                let rewriteResult = await mentionRewriteService.rewrite(
+                    text: textAfterReplacements,
+                    capabilities: capabilities,
+                    workspaceRoots: derivedWorkspaceRoots,
+                    activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                )
+                textAfterMentions = rewriteResult.text
+                if rewriteResult.didRewrite {
+                    Log.app.info("Mention rewrite: \(rewriteResult.rewrittenCount) mention(s) rewritten, \(rewriteResult.preservedCount) preserved")
+                }
+            } else {
+                let adapterName = capturedAdapterCapabilities?.displayName ?? "unknown"
+                let hasDocPath = capturedSnapshot?.appContext?.documentPath != nil
+                Log.app.warning("Adapter '\(adapterName)' supports file mentions but no workspace roots derived (documentPath available: \(hasDocPath)); skipping mention rewrite")
+            }
+        }
+        
+        var finalText = textAfterMentions
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
@@ -1118,26 +1195,24 @@ final class AppCoordinator {
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
-                originalText = textAfterReplacements
+                originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 
-                // Build enhanced prompt with dictionary context
-                // Get prompt from selected preset or use default
-                var enhancedPrompt: String
+                var basePrompt: String
                 if let presetId = settingsStore.selectedPresetId,
                    let presetUUID = UUID(uuidString: presetId),
                    let allPresets = try? promptPresetStore.fetchAll(),
                    let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-                    enhancedPrompt = selectedPreset.prompt.replacingOccurrences(of: "${transcription}", with: textAfterReplacements)
+                    basePrompt = selectedPreset.prompt
                 } else {
-                    enhancedPrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                    basePrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
                 }
                 
                 // Add vocabulary section if exists
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
                 if !vocabularyWords.isEmpty {
                     let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
-                    enhancedPrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                    basePrompt += "\n\nUser's vocabulary includes: \(wordList)"
                 }
                 
                 // Add replacements section if applied
@@ -1145,55 +1220,60 @@ final class AppCoordinator {
                     let replacementList = lastAppliedReplacements
                         .map { "'\($0.original)' → '\($0.replacement)'" }
                         .joined(separator: ", ")
-                    enhancedPrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+                    basePrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
                 }
                 
-                var imageBase64: String? = nil
                 var contextMetadata = AIEnhancementService.ContextMetadata.none
-                var userMessageText = textAfterReplacements
+                var clipboardText: String? = nil
+
+                var workspaceTreeSummary: String? = nil
+                if !derivedWorkspaceRoots.isEmpty {
+                    workspaceTreeSummary = await mentionRewriteService.generateWorkspaceTreeSummary(
+                        workspaceRoots: derivedWorkspaceRoots,
+                        activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                    )
+                }
                 
                 if let context = capturedContext {
-                    let hasClipboardImage = context.clipboardImage != nil
-                    let hasScreenshot = context.screenshot != nil
                     let hasClipboardText = context.clipboardText != nil && !context.clipboardText!.isEmpty
+                    clipboardText = hasClipboardText ? context.clipboardText : nil
                     
                     contextMetadata = AIEnhancementService.ContextMetadata(
                         hasClipboardText: hasClipboardText,
-                        hasClipboardImage: hasClipboardImage,
-                        hasScreenshot: hasScreenshot
+                        clipboardText: clipboardText,
+                        hasClipboardImage: false,
+                        appContext: capturedSnapshot?.appContext,
+                        adapterCapabilities: capturedAdapterCapabilities,
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary
                     )
-                    
-                    let contextImage = context.clipboardImage ?? context.screenshot
-                    if let image = contextImage,
-                       ModelCapabilities.supportsVision(modelId: settingsStore.aiModel) {
-                        imageBase64 = ImageResizer.toBase64PNG(image)
-                    }
-                    
-                    if let clipboardText = context.clipboardText, !clipboardText.isEmpty {
-                        userMessageText = """
-                        <clipboard_text>
-                        \(clipboardText)
-                        </clipboard_text>
-                        
-                        <transcription>
-                        \(textAfterReplacements)
-                        </transcription>
-                        """
-                    }
+                } else if let appContext = capturedSnapshot?.appContext {
+                    contextMetadata = AIEnhancementService.ContextMetadata(
+                        hasClipboardText: false,
+                        clipboardText: nil,
+                        hasClipboardImage: false,
+                        appContext: appContext,
+                        adapterCapabilities: capturedAdapterCapabilities,
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary
+                    )
                 }
-                
+
                 finalText = try await aiEnhancementService.enhance(
-                    text: userMessageText,
+                    text: textAfterMentions,
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: settingsStore.aiModel,
-                    customPrompt: enhancedPrompt,
-                    imageBase64: imageBase64,
+                    customPrompt: basePrompt,
+                    imageBase64: nil,
                     context: contextMetadata
                 )
                 capturedContext = nil
+                capturedSnapshot = nil
+                capturedAdapterCapabilities = nil
+                capturedRoutingSignal = nil
                 enhancedWithModel = settingsStore.aiModel
-                Log.app.info("AI enhancement completed, original: \(textAfterReplacements.count) chars, enhanced: \(finalText.count) chars")
+                Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.error("AI enhancement failed: \(error)")
                 AlertManager.shared.showAIEnhancementErrorAlert(error: error)
@@ -1210,6 +1290,10 @@ final class AppCoordinator {
         }
 
         do {
+            if outputManager.outputMode == .directInsert {
+                ensureAccessibilityPermissionForDirectInsert(trigger: "output", showFallbackAlert: true)
+            }
+
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
             try await outputManager.output(outputText)
         } catch {
@@ -1233,6 +1317,16 @@ final class AppCoordinator {
     // MARK: - Escape Key Cancellation
     
     private func setupEscapeKeyMonitor() {
+        if escapeEventTap != nil, escapeRunLoopSource != nil {
+            installEscapeGlobalMonitorFallbackIfNeeded()
+            return
+        }
+
+        if escapeEventTap != nil, escapeRunLoopSource == nil {
+            Log.app.warning("Escape event tap missing run loop source; recreating monitor")
+            escapeEventTap = nil
+        }
+
         let eventMask = (1 << CGEventType.keyDown.rawValue)
         
         let refcon = Unmanaged.passUnretained(self).toOpaque()
@@ -1250,20 +1344,38 @@ final class AppCoordinator {
             },
             userInfo: refcon
         ) else {
-            Log.app.error("Failed to create CGEventTap - Accessibility permission may be required")
+            Log.app.error("Failed to create CGEventTap - Accessibility or Input Monitoring permission may be required")
+            installEscapeGlobalMonitorFallbackIfNeeded()
             return
         }
+
+        installEscapeGlobalMonitorFallbackIfNeeded()
         
         escapeEventTap = eventTap
-        escapeRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
-        
-        if let source = escapeRunLoopSource {
-            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-            CGEvent.tapEnable(tap: eventTap, enable: true)
+
+        guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0) else {
+            Log.app.error("Failed to create run loop source for escape CGEventTap")
+            escapeEventTap = nil
+            return
         }
+
+        escapeRunLoopSource = source
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: eventTap, enable: true)
+        Log.app.info("Escape key monitor installed")
     }
 
     private func setupModifierKeyMonitor() {
+        if modifierEventTap != nil, modifierRunLoopSource != nil {
+            removeModifierGlobalMonitorFallbackIfNeeded()
+            return
+        }
+
+        if modifierEventTap != nil, modifierRunLoopSource == nil {
+            Log.hotkey.warning("Modifier event tap missing run loop source; recreating monitor")
+            modifierEventTap = nil
+        }
+
         let eventMask = (1 << CGEventType.flagsChanged.rawValue)
 
         let refcon = Unmanaged.passUnretained(self).toOpaque()
@@ -1281,17 +1393,69 @@ final class AppCoordinator {
             },
             userInfo: refcon
         ) else {
-            Log.hotkey.error("Failed to create modifier CGEventTap - Accessibility permission may be required")
+            Log.hotkey.error("Failed to create modifier CGEventTap - Accessibility or Input Monitoring permission may be required")
+            installModifierGlobalMonitorFallbackIfNeeded()
             return
         }
 
-        modifierEventTap = eventTap
-        modifierRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+        removeModifierGlobalMonitorFallbackIfNeeded()
 
-        if let source = modifierRunLoopSource {
-            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-            CGEvent.tapEnable(tap: eventTap, enable: true)
+        modifierEventTap = eventTap
+
+        guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0) else {
+            Log.hotkey.error("Failed to create run loop source for modifier CGEventTap")
+            modifierEventTap = nil
+            return
         }
+
+        modifierRunLoopSource = source
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: eventTap, enable: true)
+        Log.hotkey.info("Modifier key monitor installed")
+    }
+
+    private func installEscapeGlobalMonitorFallbackIfNeeded() {
+        guard escapeGlobalMonitor == nil else { return }
+
+        escapeGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
+            guard event.keyCode == 53 else { return }
+            Task { @MainActor in
+                self?.handleEscapeSignal(source: "nsevent-global")
+            }
+        }
+
+        if escapeGlobalMonitor != nil {
+            Log.app.warning("Using NSEvent global monitor fallback for escape key")
+        }
+    }
+
+    private func removeEscapeGlobalMonitorFallbackIfNeeded() {
+        guard let monitor = escapeGlobalMonitor else { return }
+        NSEvent.removeMonitor(monitor)
+        escapeGlobalMonitor = nil
+        Log.app.debug("Removed NSEvent global monitor fallback for escape key")
+    }
+
+    private func installModifierGlobalMonitorFallbackIfNeeded() {
+        guard modifierGlobalMonitor == nil else { return }
+
+        modifierGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.flagsChanged]) { [weak self] event in
+            guard let cgEvent = event.cgEvent else { return }
+            Task { @MainActor in
+                self?.hotkeyManager.handleModifierFlagsChanged(event: cgEvent)
+            }
+        }
+
+        if modifierGlobalMonitor != nil {
+            Log.hotkey.warning("Using NSEvent global monitor fallback for modifier changes")
+        }
+    }
+
+    private func removeModifierGlobalMonitorFallbackIfNeeded() {
+        guard let monitor = modifierGlobalMonitor else { return }
+        NSEvent.removeMonitor(monitor)
+        modifierGlobalMonitor = nil
+        Log.hotkey.debug("Removed NSEvent global monitor fallback for modifier changes")
     }
     
     private nonisolated func handleKeyEvent(
@@ -1299,14 +1463,40 @@ final class AppCoordinator {
         type: CGEventType,
         event: CGEvent
     ) -> Unmanaged<CGEvent>? {
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            let disabledType = type
+            Task { @MainActor in
+                if let tap = self.escapeEventTap {
+                    CGEvent.tapEnable(tap: tap, enable: true)
+                    Log.app.warning("Escape key monitor was disabled (type=\(disabledType.rawValue)); re-enabled")
+                }
+            }
+            return Unmanaged.passUnretained(event)
+        }
+
+        guard type == .keyDown else { return Unmanaged.passUnretained(event) }
+
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         guard keyCode == 53 else { return Unmanaged.passUnretained(event) }
         
         Task { @MainActor in
-            self.handleEscapeKeyPress()
+            self.handleEscapeSignal(source: "cg-event-tap")
         }
         
         return Unmanaged.passUnretained(event)
+    }
+
+    private func handleEscapeSignal(source: String) {
+        let now = Date()
+        if let lastSignal = lastEscapeSignalTime,
+           now.timeIntervalSince(lastSignal) <= duplicateEscapeSignalThreshold {
+            Log.app.debug("Ignoring duplicate escape signal from \(source)")
+            return
+        }
+
+        lastEscapeSignalTime = now
+        Log.app.info("Escape signal received (source=\(source))")
+        handleEscapeKeyPress()
     }
 
     private nonisolated func handleModifierKeyEvent(
@@ -1314,6 +1504,17 @@ final class AppCoordinator {
         type: CGEventType,
         event: CGEvent
     ) -> Unmanaged<CGEvent>? {
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            let disabledType = type
+            Task { @MainActor in
+                if let tap = self.modifierEventTap {
+                    CGEvent.tapEnable(tap: tap, enable: true)
+                    Log.hotkey.warning("Modifier key monitor was disabled (type=\(disabledType.rawValue)); re-enabled")
+                }
+            }
+            return Unmanaged.passUnretained(event)
+        }
+
         guard type == .flagsChanged else { return Unmanaged.passUnretained(event) }
 
         Task { @MainActor in
@@ -1353,6 +1554,9 @@ final class AppCoordinator {
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
         error = nil
 
         statusBarController.setIdleState()
@@ -1371,6 +1575,9 @@ final class AppCoordinator {
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
 
@@ -1467,6 +1674,48 @@ final class AppCoordinator {
         let newMode = settingsStore.outputMode == "clipboard" ? "directInsert" : "clipboard"
         settingsStore.outputMode = newMode
         Log.app.info("Output mode changed to: \(newMode)")
+    }
+
+    private func ensureAccessibilityPermissionForDirectInsert(trigger: String, showFallbackAlert: Bool) {
+        guard outputManager.outputMode == .directInsert else { return }
+
+        let hasPermission = permissionManager.checkAccessibilityPermission()
+        if hasPermission {
+            hasShownAccessibilityFallbackAlertThisLaunch = false
+            ensureGlobalKeyMonitorsIfPossible()
+            return
+        }
+
+        if !hasRequestedAccessibilityPermissionThisLaunch {
+            hasRequestedAccessibilityPermissionThisLaunch = true
+
+            let grantedImmediately = permissionManager.requestAccessibilityPermission(showPrompt: true)
+            Log.app.info("Requested Accessibility permission (trigger=\(trigger), grantedImmediately=\(grantedImmediately))")
+
+            permissionManager.refreshAccessibilityPermissionStatus()
+        }
+
+        let hasPermissionAfterRequest = permissionManager.checkAccessibilityPermission()
+        if hasPermissionAfterRequest {
+            hasShownAccessibilityFallbackAlertThisLaunch = false
+            ensureGlobalKeyMonitorsIfPossible()
+            return
+        }
+
+        Log.app.info("Accessibility permission not granted - direct insert will use clipboard fallback")
+
+        if showFallbackAlert && !hasShownAccessibilityFallbackAlertThisLaunch {
+            hasShownAccessibilityFallbackAlertThisLaunch = true
+            AlertManager.shared.showAccessibilityPermissionAlert()
+        }
+
+    }
+
+    private func ensureGlobalKeyMonitorsIfPossible() {
+        guard permissionManager.checkAccessibilityPermission() else { return }
+
+        setupEscapeKeyMonitor()
+        setupModifierKeyMonitor()
     }
 
     // MARK: - Toggle AI Enhancement
