@@ -132,6 +132,14 @@ final class OutputManager {
             try await pasteViaClipboard(text, restoreClipboard: true)
         }
     }
+
+    func pasteText(_ text: String) async throws {
+        guard !text.isEmpty else {
+            throw OutputManagerError.emptyText
+        }
+
+        try await pasteViaClipboard(text, restoreClipboard: true)
+    }
     
     private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
         var previousContents: String? = nil

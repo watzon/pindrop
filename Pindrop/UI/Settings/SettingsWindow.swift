@@ -52,7 +52,7 @@ struct SettingsWindow: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(minWidth: AppTheme.Window.settingsMinWidth, minHeight: AppTheme.Window.settingsMinHeight)
-        .background(AppColors.windowBackground)
+        .background(AppColors.contentBackground)
     }
     
     private var sidebarContent: some View {
@@ -66,14 +66,14 @@ struct SettingsWindow: View {
             .padding(.horizontal, AppTheme.Spacing.lg)
             .padding(.vertical, AppTheme.Spacing.lg)
             .padding(.top, AppTheme.Spacing.sm)
-            
+
             VStack(spacing: AppTheme.Spacing.xs) {
                 ForEach(SettingsTab.allCases) { tab in
                     settingsTabItem(tab)
                 }
             }
             .padding(.horizontal, AppTheme.Spacing.md)
-            
+
             Spacer()
         }
         .background(AppColors.sidebarBackground)
@@ -138,11 +138,7 @@ struct SettingsWindow: View {
                 .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xl)
-                .fill(AppColors.contentBackground)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.xl))
+        .background(AppColors.contentBackground)
     }
     
     private func headerView(for tab: SettingsTab) -> some View {

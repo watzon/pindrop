@@ -5,7 +5,7 @@ import SwiftData
 import os.log
 
 @MainActor
-final class StatusBarController {
+final class StatusBarController: NSObject, NSMenuDelegate {
 
     enum RecordingState {
         case idle
@@ -30,6 +30,7 @@ final class StatusBarController {
 
     private var transcriptsMenu: NSMenu?
     private var copyLastTranscriptItem: NSMenuItem?
+    private var pasteLastTranscriptItem: NSMenuItem?
     private var exportLastTranscriptItem: NSMenuItem?
     private var recentTranscriptsSeparator: NSMenuItem?
 
@@ -37,6 +38,10 @@ final class StatusBarController {
     private var aiEnhancementItem: NSMenuItem?
     private var promptPresetMenuItem: NSMenuItem?
     private var promptPresetMenu: NSMenu?
+    private var hidePillForOneHourItem: NSMenuItem?
+    private var reportIssueItem: NSMenuItem?
+    private var inputDeviceMenuItem: NSMenuItem?
+    private var inputDeviceMenu: NSMenu?
 
     private var toggleFloatingIndicatorItem: NSMenuItem?
     private var launchAtLoginItem: NSMenuItem?
@@ -45,6 +50,7 @@ final class StatusBarController {
     private var modelMenu: NSMenu?
     private var currentModelItem: NSMenuItem?
     private var checkForUpdatesItem: NSMenuItem?
+    private var switchableModels: [(name: String, displayName: String)] = []
 
     private var settingsWindow: NSWindow?
     private var welcomePopover: NSPopover?
@@ -54,6 +60,7 @@ final class StatusBarController {
     var onToggleRecording: (() async -> Void)?
     var onShowApp: (() -> Void)?
     var onCopyLastTranscript: (() async -> Void)?
+    var onPasteLastTranscript: (() async -> Void)?
     var onExportLastTranscript: (() async -> Void)?
     var onClearAudioBuffer: (() async -> Void)?
     var onCancelOperation: (() async -> Void)?
@@ -63,8 +70,12 @@ final class StatusBarController {
     var onToggleFloatingIndicator: (() -> Void)?
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
+    var onHideFloatingIndicatorForOneHour: (() -> Void)?
+    var onReportIssue: (() -> Void)?
+    var onSelectInputDeviceUID: ((String) -> Void)?
     var onSelectModel: ((String) -> Void)?
     var onCheckForUpdates: (() -> Void)?
+    var onMenuWillOpen: (() async -> Void)?
 
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
@@ -81,6 +92,7 @@ final class StatusBarController {
     init(audioRecorder: AudioRecorder, settingsStore: SettingsStore) {
         self.audioRecorder = audioRecorder
         self.settingsStore = settingsStore
+        super.init()
         setupStatusItem()
         setupMenu()
     }
@@ -103,7 +115,12 @@ final class StatusBarController {
     }
 
     func updateSelectedModel(_ modelName: String) {
-        currentModelItem?.title = "Current: \(modelName.replacingOccurrences(of: "openai_whisper-", with: ""))"
+        if let currentModel = switchableModels.first(where: { $0.name == modelName }) {
+            currentModelItem?.title = "Current: \(currentModel.displayName)"
+        } else {
+            currentModelItem?.title = "Current: \(modelName.replacingOccurrences(of: "openai_whisper-", with: ""))"
+        }
+        refreshModelMenuItems()
     }
 
     // MARK: - Setup
@@ -141,6 +158,7 @@ final class StatusBarController {
 
     private func setupMenu() {
         menu.removeAllItems()
+        menu.delegate = self
 
         // === RECORDING SECTION ===
         let recordingHeader = createHeaderItem("Recording")
@@ -197,6 +215,14 @@ final class StatusBarController {
         )
         copyLastTranscriptItem?.target = self
         transcriptsMenu?.addItem(copyLastTranscriptItem!)
+
+        pasteLastTranscriptItem = NSMenuItem(
+            title: "Paste Last Transcript",
+            action: #selector(pasteLastTranscript),
+            keyEquivalent: ""
+        )
+        pasteLastTranscriptItem?.target = self
+        transcriptsMenu?.addItem(pasteLastTranscriptItem!)
 
         exportLastTranscriptItem = NSMenuItem(
             title: "Export Last Transcript...",
@@ -289,6 +315,47 @@ final class StatusBarController {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        hidePillForOneHourItem = NSMenuItem(
+            title: "Hide this for 1 hour",
+            action: #selector(hideFloatingIndicatorForOneHour),
+            keyEquivalent: ""
+        )
+        hidePillForOneHourItem?.target = self
+        hidePillForOneHourItem?.image = NSImage(systemSymbolName: "eye.slash", accessibilityDescription: nil)
+        if let hidePillForOneHourItem {
+            menu.addItem(hidePillForOneHourItem)
+        }
+
+        reportIssueItem = NSMenuItem(
+            title: "Report an Issue",
+            action: #selector(reportIssue),
+            keyEquivalent: ""
+        )
+        reportIssueItem?.target = self
+        reportIssueItem?.image = NSImage(systemSymbolName: "exclamationmark.bubble", accessibilityDescription: nil)
+        if let reportIssueItem {
+            menu.addItem(reportIssueItem)
+        }
+
+        inputDeviceMenu = NSMenu(title: "Change Microphone")
+        inputDeviceMenuItem = NSMenuItem(title: "Change Microphone", action: nil, keyEquivalent: "")
+        inputDeviceMenuItem?.submenu = inputDeviceMenu
+        inputDeviceMenuItem?.image = NSImage(systemSymbolName: "mic", accessibilityDescription: nil)
+        if let inputDeviceMenuItem {
+            menu.addItem(inputDeviceMenuItem)
+        }
+
+        let languageMenu = NSMenu(title: "Select Language")
+        let englishLanguageItem = NSMenuItem(title: "English (v1)", action: nil, keyEquivalent: "")
+        englishLanguageItem.state = NSControl.StateValue.on
+        englishLanguageItem.isEnabled = false
+        languageMenu.addItem(englishLanguageItem)
+
+        let languageMenuItem = NSMenuItem(title: "Select Language", action: nil, keyEquivalent: "")
+        languageMenuItem.submenu = languageMenu
+        languageMenuItem.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: nil)
+        menu.addItem(languageMenuItem)
+
         menu.addItem(NSMenuItem.separator())
 
         toggleFloatingIndicatorItem = NSMenuItem(
@@ -325,6 +392,7 @@ final class StatusBarController {
         modelMenu?.addItem(currentModelItem!)
 
         modelMenu?.addItem(NSMenuItem.separator())
+        refreshModelMenuItems()
 
         let modelMenuItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
         modelMenuItem.submenu = modelMenu
@@ -355,6 +423,13 @@ final class StatusBarController {
 
         updateMenuState()
         updateDynamicItems()
+    }
+
+    func updateSwitchableModels(_ models: [(name: String, displayName: String)]) {
+        switchableModels = models.sorted {
+            $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+        }
+        refreshModelMenuItems()
     }
 
     private func createHeaderItem(_ title: String) -> NSMenuItem {
@@ -419,8 +494,90 @@ final class StatusBarController {
         launchAtLoginItem?.title = "Launch at Login: \(launchAtLoginText)"
 
         // Update model
-        let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
-        currentModelItem?.title = "Current: \(modelShortName)"
+        if let currentModel = switchableModels.first(where: { $0.name == settingsStore.selectedModel }) {
+            currentModelItem?.title = "Current: \(currentModel.displayName)"
+        } else {
+            let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
+            currentModelItem?.title = "Current: \(modelShortName)"
+        }
+        refreshModelMenuItems()
+
+        let isPillIndicatorEnabled = settingsStore.floatingIndicatorEnabled
+            && settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue
+        hidePillForOneHourItem?.isEnabled = isPillIndicatorEnabled
+
+        refreshInputDeviceMenu()
+    }
+
+    private func refreshModelMenuItems() {
+        guard let modelMenu = modelMenu else { return }
+
+        while modelMenu.items.count > 2 {
+            modelMenu.removeItem(at: 2)
+        }
+
+        if switchableModels.isEmpty {
+            let emptyItem = NSMenuItem(title: "No downloaded models", action: nil, keyEquivalent: "")
+            emptyItem.isEnabled = false
+            modelMenu.addItem(emptyItem)
+            return
+        }
+
+        for model in switchableModels {
+            let item = NSMenuItem(
+                title: model.displayName,
+                action: #selector(selectModel(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = model.name
+            item.state = settingsStore.selectedModel == model.name ? NSControl.StateValue.on : NSControl.StateValue.off
+            modelMenu.addItem(item)
+        }
+    }
+
+    private func refreshInputDeviceMenu() {
+        guard let inputDeviceMenu = inputDeviceMenu else { return }
+
+        inputDeviceMenu.removeAllItems()
+
+        let selectedUID = settingsStore.selectedInputDeviceUID
+        let availableDevices = AudioDeviceManager.inputDevices()
+
+        let systemDefaultItem = NSMenuItem(
+            title: "System Default",
+            action: #selector(selectInputDevice(_:)),
+            keyEquivalent: ""
+        )
+        systemDefaultItem.target = self
+        systemDefaultItem.representedObject = ""
+        systemDefaultItem.state = selectedUID.isEmpty ? NSControl.StateValue.on : NSControl.StateValue.off
+        inputDeviceMenu.addItem(systemDefaultItem)
+
+        if !availableDevices.isEmpty {
+            inputDeviceMenu.addItem(.separator())
+        }
+
+        for device in availableDevices {
+            let item = NSMenuItem(
+                title: device.displayName,
+                action: #selector(selectInputDevice(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = device.uid
+            item.state = selectedUID == device.uid ? NSControl.StateValue.on : NSControl.StateValue.off
+            inputDeviceMenu.addItem(item)
+        }
+
+        if !selectedUID.isEmpty && !availableDevices.contains(where: { $0.uid == selectedUID }) {
+            inputDeviceMenu.addItem(.separator())
+
+            let unavailableItem = NSMenuItem(title: "Unavailable device", action: nil, keyEquivalent: "")
+            unavailableItem.isEnabled = false
+            unavailableItem.state = NSControl.StateValue.on
+            inputDeviceMenu.addItem(unavailableItem)
+        }
     }
 
     func updatePromptPresets(_ presets: [(id: String, name: String)]) {
@@ -519,6 +676,12 @@ final class StatusBarController {
         }
     }
 
+    @objc private func pasteLastTranscript() {
+        Task {
+            await onPasteLastTranscript?()
+        }
+    }
+
     @objc private func exportLastTranscript() {
         Task {
             await onExportLastTranscript?()
@@ -573,6 +736,24 @@ final class StatusBarController {
         onOpenHistory?()
     }
 
+    @objc private func hideFloatingIndicatorForOneHour() {
+        onHideFloatingIndicatorForOneHour?()
+    }
+
+    @objc private func reportIssue() {
+        onReportIssue?()
+    }
+
+    @objc private func selectInputDevice(_ sender: NSMenuItem) {
+        guard let uid = sender.representedObject as? String else { return }
+        onSelectInputDeviceUID?(uid)
+    }
+
+    @objc private func selectModel(_ sender: NSMenuItem) {
+        guard let modelName = sender.representedObject as? String else { return }
+        onSelectModel?(modelName)
+    }
+
     @objc private func showApp() {
         onShowApp?()
     }
@@ -614,6 +795,15 @@ final class StatusBarController {
 
     @objc private func checkForUpdates() {
         onCheckForUpdates?()
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        guard menu === self.menu else { return }
+
+        Task { @MainActor in
+            await onMenuWillOpen?()
+            updateDynamicItems()
+        }
     }
 
     private var cachedBaseIcon: NSImage?

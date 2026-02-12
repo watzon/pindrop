@@ -170,6 +170,8 @@ final class AppCoordinator {
     private var lastObservedSettingsSnapshot: SettingsObservationSnapshot?
     private var hasRequestedAccessibilityPermissionThisLaunch = false
     private var hasShownAccessibilityFallbackAlertThisLaunch = false
+    private var pillIndicatorHiddenUntil: Date?
+    private var pillIndicatorHiddenTask: Task<Void, Never>?
 
     // MARK: - Dictionary Replacements
     
@@ -249,6 +251,10 @@ final class AppCoordinator {
             await self?.handleCopyLastTranscript()
         }
 
+        self.statusBarController.onPasteLastTranscript = { [weak self] in
+            await self?.handlePasteLastTranscript()
+        }
+
         self.statusBarController.onExportLastTranscript = { [weak self] in
             await self?.handleExportLastTranscript()
         }
@@ -285,12 +291,30 @@ final class AppCoordinator {
             self?.handleOpenHistory()
         }
 
+        self.statusBarController.onHideFloatingIndicatorForOneHour = { [weak self] in
+            self?.handleHidePillIndicatorForOneHour()
+        }
+
+        self.statusBarController.onReportIssue = { [weak self] in
+            self?.handleReportIssue()
+        }
+
+        self.statusBarController.onSelectInputDeviceUID = { [weak self] uid in
+            self?.handleSelectInputDeviceUID(uid)
+        }
+
         self.statusBarController.onShowApp = { [weak self] in
             self?.handleShowApp()
         }
 
         self.statusBarController.onSelectModel = { [weak self] modelName in
-            self?.handleSelectModel(modelName)
+            Task { @MainActor in
+                await self?.switchToModel(named: modelName)
+            }
+        }
+
+        self.statusBarController.onMenuWillOpen = { [weak self] in
+            await self?.refreshStatusBarModelMenu()
         }
 
         self.statusBarController.onCheckForUpdates = { [weak self] in
@@ -318,7 +342,7 @@ final class AppCoordinator {
 
         self.pillFloatingIndicatorController.onCancelRecording = { [weak self] in
             Task { @MainActor in
-                await self?.handleClearAudioBuffer()
+                await self?.handleCancelOperation()
             }
         }
 
@@ -327,6 +351,40 @@ final class AppCoordinator {
                 await self?.handleToggleRecording(source: .pillIndicatorStart)
             }
         }
+
+        self.pillFloatingIndicatorController.onHideForOneHour = { [weak self] in
+            self?.handleHidePillIndicatorForOneHour()
+        }
+
+        self.pillFloatingIndicatorController.onReportIssue = { [weak self] in
+            self?.handleReportIssue()
+        }
+
+        self.pillFloatingIndicatorController.onGoToSettings = { [weak self] in
+            self?.statusBarController.showSettings(tab: .general)
+        }
+
+        self.pillFloatingIndicatorController.onViewTranscriptHistory = { [weak self] in
+            self?.handleOpenHistory()
+        }
+
+        self.pillFloatingIndicatorController.onPasteLastTranscript = { [weak self] in
+            await self?.handlePasteLastTranscript()
+        }
+
+        self.pillFloatingIndicatorController.onSelectInputDeviceUID = { [weak self] uid in
+            self?.handleSelectInputDeviceUID(uid)
+        }
+
+        self.pillFloatingIndicatorController.availableInputDevicesProvider = {
+            AudioDeviceManager.inputDevices().map { (uid: $0.uid, displayName: $0.displayName) }
+        }
+
+        self.pillFloatingIndicatorController.selectedInputDeviceUIDProvider = { [weak self] in
+            self?.settingsStore.selectedInputDeviceUID ?? ""
+        }
+
+        self.pillFloatingIndicatorController.updateStartRecordingHotkey(settingsStore.toggleHotkey)
 
         self.lastObservedSettingsSnapshot = currentSettingsObservationSnapshot()
         if self.enableSystemHooks {
@@ -440,8 +498,15 @@ final class AppCoordinator {
         }
     }
 
+    private func refreshStatusBarModelMenu() async {
+        let downloadedModels = await modelManager.getDownloadedModels()
+        let mappedModels = downloadedModels.map { (name: $0.name, displayName: $0.displayName) }
+        statusBarController.updateSwitchableModels(mappedModels)
+    }
+
     private func setActiveModel(_ modelName: String) {
         activeModelName = modelName
+        statusBarController.updateSelectedModel(modelName)
         NotificationCenter.default.post(
             name: .modelActiveChanged,
             object: nil,
@@ -581,11 +646,9 @@ final class AppCoordinator {
 
         // Load recent transcripts for the menu
         updateRecentTranscriptsMenu()
+        await refreshStatusBarModelMenu()
         
-        if settingsStore.floatingIndicatorEnabled &&
-           settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
-            pillFloatingIndicatorController.showTab()
-        }
+        updateFloatingIndicatorVisibility()
 
         updateVibeRuntimeStateFromSettings()
     }
@@ -938,6 +1001,7 @@ final class AppCoordinator {
 
                     if previousSnapshot.hotkeys != snapshot.hotkeys {
                         self.registerHotkeysFromSettings()
+                        self.pillFloatingIndicatorController.updateStartRecordingHotkey(self.settingsStore.toggleHotkey)
                     }
 
                     self.statusBarController.updateDynamicItems()
@@ -959,13 +1023,27 @@ final class AppCoordinator {
     
     private func updateFloatingIndicatorVisibility() {
         guard !isRecording && !isProcessing else { return }
-        
+
+        guard !isPillIndicatorTemporarilyHidden() else {
+            pillFloatingIndicatorController.hide()
+            return
+        }
+
         if settingsStore.floatingIndicatorEnabled &&
            settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
             pillFloatingIndicatorController.showTab()
         } else {
             pillFloatingIndicatorController.hide()
         }
+    }
+
+    private func isPillIndicatorTemporarilyHidden() -> Bool {
+        guard let hiddenUntil = pillIndicatorHiddenUntil else { return false }
+        if Date() >= hiddenUntil {
+            pillIndicatorHiddenUntil = nil
+            return false
+        }
+        return true
     }
 
     // MARK: - Live Session Context
@@ -2354,6 +2432,48 @@ final class AppCoordinator {
         }
     }
 
+    // MARK: - Pill Context Menu Actions
+
+    private func handleHidePillIndicatorForOneHour() {
+        let hideDuration: TimeInterval = 60 * 60
+        pillIndicatorHiddenUntil = Date().addingTimeInterval(hideDuration)
+
+        pillFloatingIndicatorController.hide()
+
+        pillIndicatorHiddenTask?.cancel()
+        pillIndicatorHiddenTask = Task { [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: UInt64(hideDuration * 1_000_000_000))
+            } catch {
+                return
+            }
+
+            await MainActor.run {
+                guard let self = self else { return }
+                self.pillIndicatorHiddenUntil = nil
+                self.updateFloatingIndicatorVisibility()
+            }
+        }
+
+        Log.ui.info("Pill indicator hidden for one hour")
+    }
+
+    private func handleReportIssue() {
+        guard let supportURL = URL(string: "https://github.com/watzon/pindrop/issues") else { return }
+        NSWorkspace.shared.open(supportURL)
+    }
+
+    private func handleSelectInputDeviceUID(_ uid: String) {
+        settingsStore.selectedInputDeviceUID = uid
+        audioRecorder.setPreferredInputDeviceUID(uid)
+
+        if uid.isEmpty {
+            Log.audio.info("Selected input device: system default")
+        } else {
+            Log.audio.info("Selected input device UID: \(uid)")
+        }
+    }
+
     // MARK: - Copy Last Transcript
 
     private func handleCopyLastTranscript() async {
@@ -2372,6 +2492,31 @@ final class AppCoordinator {
             Log.app.info("Copied last transcript to clipboard")
         } catch {
             Log.app.error("Failed to copy last transcript: \(error)")
+        }
+    }
+
+    private func handlePasteLastTranscript() async {
+        do {
+            let records = try historyStore.fetch(limit: 1)
+            guard let lastRecord = records.first else {
+                Log.app.warning("No transcripts to paste")
+                return
+            }
+
+            if permissionManager.checkAccessibilityPermission() {
+                do {
+                    try await outputManager.pasteText(lastRecord.text)
+                    Log.output.info("Pasted last transcript into active app")
+                    return
+                } catch {
+                    Log.output.error("Failed to paste last transcript directly: \(error)")
+                }
+            }
+
+            try outputManager.copyToClipboard(lastRecord.text)
+            Log.output.info("Copied last transcript to clipboard (paste fallback)")
+        } catch {
+            Log.output.error("Failed to prepare last transcript for paste: \(error)")
         }
     }
 
@@ -2408,7 +2553,16 @@ final class AppCoordinator {
     // MARK: - Clear Audio Buffer
 
     private func handleClearAudioBuffer() async {
-        guard isRecording else { return }
+        guard isRecording else {
+            if settingsStore.floatingIndicatorEnabled {
+                if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                    pillFloatingIndicatorController.finishProcessing()
+                } else {
+                    floatingIndicatorController.finishProcessing()
+                }
+            }
+            return
+        }
 
         Log.app.info("Clearing audio buffer")
         audioRecorder.cancelRecording()
@@ -2522,6 +2676,13 @@ final class AppCoordinator {
 
     private func handleToggleFloatingIndicator() {
         settingsStore.floatingIndicatorEnabled.toggle()
+
+        if settingsStore.floatingIndicatorEnabled {
+            pillIndicatorHiddenUntil = nil
+            pillIndicatorHiddenTask?.cancel()
+            pillIndicatorHiddenTask = nil
+        }
+
         let status = settingsStore.floatingIndicatorEnabled ? "enabled" : "disabled"
         Log.app.info("Floating indicator \(status)")
     }
@@ -2564,13 +2725,6 @@ final class AppCoordinator {
         mainWindowController.show()
     }
 
-    // MARK: - Select Model
-    
-    private func handleSelectModel(_ modelName: String) {
-        settingsStore.selectedModel = modelName
-        Log.app.info("Default model changed to: \(modelName)")
-    }
-    
     func switchToModel(named modelName: String) async {
         guard modelName != activeModelName else {
             Log.app.info("Model \(modelName) is already active")
@@ -2600,6 +2754,7 @@ final class AppCoordinator {
         do {
             try await loadAndActivateModel(named: modelName, provider: model.provider)
             settingsStore.selectedModel = modelName
+            statusBarController.updateDynamicItems()
             Log.model.info("Switched to model \(modelName) successfully")
         } catch {
             if model.provider == .whisperKit {
@@ -2609,6 +2764,7 @@ final class AppCoordinator {
                         displayName: model.displayName
                     )
                     settingsStore.selectedModel = modelName
+                    statusBarController.updateDynamicItems()
                     Log.model.info("Model repaired and switched successfully: \(modelName)")
                     return
                 } catch {
@@ -2640,6 +2796,9 @@ final class AppCoordinator {
     }
 
     func cleanup() {
+        pillIndicatorHiddenTask?.cancel()
+        pillIndicatorHiddenTask = nil
+
         if let eventTap = escapeEventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)
             if let source = escapeRunLoopSource {
