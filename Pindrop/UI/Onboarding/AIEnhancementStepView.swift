@@ -58,15 +58,37 @@ struct AIEnhancementStepView: View {
     @ObservedObject var settings: SettingsStore
     let onContinue: () -> Void
     let onSkip: () -> Void
+    let onPreferredContentSizeChange: (CGSize) -> Void
     
     @State private var selectedProvider: AIProvider = .openai
     @State private var apiKey = ""
     @State private var customEndpoint = ""
-    @State private var selectedModel = "gpt-4o-mini"
+    @State private var selectedModel = "openai/gpt-4o-mini"
     @State private var customModel = ""
     @State private var useCustomModel = false
     @State private var showingAPIKey = false
     
+    private static func preferredContentSize(for provider: AIProvider, useCustomModel: Bool) -> CGSize {
+        switch provider {
+        case .openrouter:
+            return CGSize(width: 800, height: useCustomModel ? 840 : 820)
+        case .custom:
+            return CGSize(width: 800, height: 820)
+        default:
+            return CGSize(width: 800, height: 720)
+        }
+    }
+
+    private var preferredContentSize: CGSize {
+        Self.preferredContentSize(for: selectedProvider, useCustomModel: useCustomModel)
+    }
+
+    private func ensureRecommendedModelSelectionIfNeeded() {
+        guard selectedProvider == .openrouter, !useCustomModel else { return }
+        guard !recommendedModels.contains(selectedModel) else { return }
+
+        selectedModel = recommendedModels.first ?? "openai/gpt-4o-mini"
+    }
     var body: some View {
         VStack(spacing: 20) {
             headerSection
@@ -81,6 +103,18 @@ struct AIEnhancementStepView: View {
         .padding(.horizontal, 40)
         .padding(.top, 16)
         .padding(.bottom, 24)
+        .onAppear {
+            ensureRecommendedModelSelectionIfNeeded()
+            onPreferredContentSizeChange(preferredContentSize)
+        }
+        .onChange(of: selectedProvider) { _, _ in
+            ensureRecommendedModelSelectionIfNeeded()
+            onPreferredContentSizeChange(preferredContentSize)
+        }
+        .onChange(of: useCustomModel) { _, _ in
+            ensureRecommendedModelSelectionIfNeeded()
+            onPreferredContentSizeChange(preferredContentSize)
+        }
     }
     
     private var headerSection: some View {
@@ -383,7 +417,8 @@ struct AIEnhancementStepView_Previews: PreviewProvider {
         AIEnhancementStepView(
             settings: SettingsStore(),
             onContinue: {},
-            onSkip: {}
+            onSkip: {},
+            onPreferredContentSizeChange: { _ in }
         )
         .frame(width: 800, height: 600)
     }

@@ -9,18 +9,49 @@ import XCTest
 import ServiceManagement
 @testable import Pindrop
 
+private enum MockLaunchAtLoginFailure: Error {
+    case failed
+}
+
+final class MockLaunchAtLoginService: LaunchAtLoginServiceProtocol {
+    var status: SMAppService.Status = .notRegistered
+    var registerCallCount = 0
+    var unregisterCallCount = 0
+    var registerError: Error?
+    var unregisterError: Error?
+
+    func register() throws {
+        registerCallCount += 1
+        if let registerError {
+            throw registerError
+        }
+        status = .enabled
+    }
+
+    func unregister() throws {
+        unregisterCallCount += 1
+        if let unregisterError {
+            throw unregisterError
+        }
+        status = .notRegistered
+    }
+}
+
 @MainActor
 final class LaunchAtLoginManagerTests: XCTestCase {
     
     var sut: LaunchAtLoginManager!
+    var mockService: MockLaunchAtLoginService!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        sut = LaunchAtLoginManager()
+        mockService = MockLaunchAtLoginService()
+        sut = LaunchAtLoginManager(service: mockService)
     }
     
     override func tearDownWithError() throws {
         sut = nil
+        mockService = nil
         try super.tearDownWithError()
     }
     
@@ -30,72 +61,64 @@ final class LaunchAtLoginManagerTests: XCTestCase {
         XCTAssertNotNil(sut, "LaunchAtLoginManager should initialize successfully")
     }
     
-    func testIsEnabledReturnsBoolean() throws {
-        // When: We check isEnabled
-        let isEnabled = sut.isEnabled
-        
-        // Then: It should return a boolean value
-        XCTAssertNotNil(isEnabled)
-        XCTAssertTrue(isEnabled == true || isEnabled == false)
+    func testIsEnabledReflectsServiceStatus() throws {
+        mockService.status = .enabled
+        XCTAssertTrue(sut.isEnabled)
+
+        mockService.status = .notRegistered
+        XCTAssertFalse(sut.isEnabled)
     }
     
     // MARK: - Enable/Disable Tests
     
-    func testSetEnabledTrueAttemptsRegistration() throws {
-        // Given: LaunchAtLoginManager is initialized
-        let initialState = sut.isEnabled
-        
-        // When: We try to enable it (may fail in test environment)
-        do {
-            try sut.setEnabled(true)
-            // Then: If it succeeds, isEnabled should be true
-            XCTAssertTrue(sut.isEnabled)
-        } catch {
-            // In test environment, this may fail - that's acceptable
-            // Just verify it throws the correct error type
-            XCTAssertTrue(error is LaunchAtLoginManager.LaunchAtLoginError)
-        }
-        
-        // Restore original state
-        try? sut.setEnabled(initialState)
+    func testSetEnabledTrueRegistersService() throws {
+        try sut.setEnabled(true)
+
+        XCTAssertEqual(mockService.registerCallCount, 1)
+        XCTAssertEqual(mockService.unregisterCallCount, 0)
+        XCTAssertTrue(sut.isEnabled)
     }
     
-    func testSetEnabledFalseAttemptsUnregistration() throws {
-        // Given: LaunchAtLoginManager is initialized
-        let initialState = sut.isEnabled
-        
-        // When: We try to disable it (may fail in test environment)
-        do {
-            try sut.setEnabled(false)
-            // Then: If it succeeds, isEnabled should be false
-            XCTAssertFalse(sut.isEnabled)
-        } catch {
-            // In test environment, this may fail - that's acceptable
-            XCTAssertTrue(error is LaunchAtLoginManager.LaunchAtLoginError)
-        }
-        
-        // Restore original state
-        try? sut.setEnabled(initialState)
+    func testSetEnabledFalseUnregistersService() throws {
+        mockService.status = .enabled
+
+        try sut.setEnabled(false)
+
+        XCTAssertEqual(mockService.unregisterCallCount, 1)
+        XCTAssertEqual(mockService.registerCallCount, 0)
+        XCTAssertFalse(sut.isEnabled)
     }
     
     func testToggleState() throws {
-        // Given: Current state
-        let initialState = sut.isEnabled
-        
-        // When: Toggle to opposite state
-        do {
-            try sut.setEnabled(!initialState)
-            // Then: State should be toggled
-            XCTAssertEqual(sut.isEnabled, !initialState)
-            
-            // When: Toggle back
-            try sut.setEnabled(initialState)
-            // Then: State should be restored
-            XCTAssertEqual(sut.isEnabled, initialState)
-        } catch {
-            // In test environment, this may fail - that's acceptable
-            // Just verify no crash occurred
-            XCTAssertTrue(error is LaunchAtLoginManager.LaunchAtLoginError)
+        XCTAssertFalse(sut.isEnabled)
+
+        try sut.setEnabled(true)
+        XCTAssertTrue(sut.isEnabled)
+
+        try sut.setEnabled(false)
+        XCTAssertFalse(sut.isEnabled)
+    }
+
+    func testSetEnabledTrueWrapsRegistrationFailure() throws {
+        mockService.registerError = MockLaunchAtLoginFailure.failed
+
+        XCTAssertThrowsError(try sut.setEnabled(true)) { error in
+            guard case LaunchAtLoginManager.LaunchAtLoginError.registrationFailed = error else {
+                XCTFail("Expected registrationFailed error")
+                return
+            }
+        }
+    }
+
+    func testSetEnabledFalseWrapsUnregistrationFailure() throws {
+        mockService.status = .enabled
+        mockService.unregisterError = MockLaunchAtLoginFailure.failed
+
+        XCTAssertThrowsError(try sut.setEnabled(false)) { error in
+            guard case LaunchAtLoginManager.LaunchAtLoginError.unregistrationFailed = error else {
+                XCTFail("Expected unregistrationFailed error")
+                return
+            }
         }
     }
     
@@ -123,25 +146,14 @@ final class LaunchAtLoginManagerTests: XCTestCase {
     }
     
     // MARK: - State Consistency Tests
-    
+
     func testStateConsistencyAfterMultipleToggles() throws {
-        // Given: Initial state
-        let initialState = sut.isEnabled
-        var lastKnownState = initialState
-        
-        // When: Multiple toggles (with error handling)
         for i in 0..<3 {
-            do {
-                try sut.setEnabled(!lastKnownState)
-                lastKnownState = !lastKnownState
-                XCTAssertEqual(sut.isEnabled, lastKnownState, "Toggle \(i) failed")
-            } catch {
-                // Stop testing if we hit an error
-                break
-            }
+            try sut.setEnabled(i.isMultiple(of: 2))
         }
-        
-        // Restore original state
-        try? sut.setEnabled(initialState)
+
+        XCTAssertTrue(sut.isEnabled)
+        XCTAssertEqual(mockService.registerCallCount, 2)
+        XCTAssertEqual(mockService.unregisterCallCount, 1)
     }
 }

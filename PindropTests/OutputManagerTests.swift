@@ -105,8 +105,8 @@ final class OutputManagerTests: XCTestCase {
         try await outputManager.output(testText)
         
         XCTAssertEqual(mockClipboard.copiedText, testText)
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.clearCount, 1)
+        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.clearCount, 0)
     }
     
     func testOutputWithEmptyTextThrowsError() async {
@@ -153,8 +153,8 @@ final class OutputManagerTests: XCTestCase {
         
         XCTAssertEqual(mockClipboard.copiedText, testText)
         XCTAssertEqual(mockClipboard.clipboardContent, testText)
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.clearCount, 1)
+        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.clearCount, 0)
     }
     
     func testGetKeyCodeForBasicCharacters() {

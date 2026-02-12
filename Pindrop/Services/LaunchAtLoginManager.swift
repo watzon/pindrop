@@ -9,8 +9,30 @@ import Foundation
 import ServiceManagement
 import os.log
 
+protocol LaunchAtLoginServiceProtocol {
+    var status: SMAppService.Status { get }
+    func register() throws
+    func unregister() throws
+}
+
+struct MainAppLaunchAtLoginService: LaunchAtLoginServiceProtocol {
+    var status: SMAppService.Status {
+        SMAppService.mainApp.status
+    }
+
+    func register() throws {
+        try SMAppService.mainApp.register()
+    }
+
+    func unregister() throws {
+        try SMAppService.mainApp.unregister()
+    }
+}
+
 @MainActor
 final class LaunchAtLoginManager {
+
+    private let service: LaunchAtLoginServiceProtocol
     
     // MARK: - Errors
     
@@ -31,7 +53,11 @@ final class LaunchAtLoginManager {
     // MARK: - Properties
     
     var isEnabled: Bool {
-        SMAppService.mainApp.status == .enabled
+        service.status == .enabled
+    }
+
+    init(service: LaunchAtLoginServiceProtocol = MainAppLaunchAtLoginService()) {
+        self.service = service
     }
     
     // MARK: - Methods
@@ -39,7 +65,7 @@ final class LaunchAtLoginManager {
     func setEnabled(_ enabled: Bool) throws {
         if enabled {
             do {
-                try SMAppService.mainApp.register()
+                try service.register()
                 Log.app.info("Enabled launch at login")
             } catch {
                 Log.app.error("Failed to enable launch at login: \(error.localizedDescription)")
@@ -47,7 +73,7 @@ final class LaunchAtLoginManager {
             }
         } else {
             do {
-                try SMAppService.mainApp.unregister()
+                try service.unregister()
                 Log.app.info("Disabled launch at login")
             } catch {
                 Log.app.error("Failed to disable launch at login: \(error.localizedDescription)")

@@ -14,6 +14,11 @@ import os.log
 @MainActor
 @Observable
 class UpdateService: NSObject {
+
+    private static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
     
     // MARK: - Types
     
@@ -74,14 +79,19 @@ class UpdateService: NSObject {
     
     override init() {
         super.init()
-        
-        updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: nil
-        )
-        
-        Log.app.info("UpdateService initialized with Sparkle")
+
+        if Self.isRunningTests {
+            updaterController = nil
+            Log.app.debug("UpdateService initialized in test mode (Sparkle disabled)")
+        } else {
+            updaterController = SPUStandardUpdaterController(
+                startingUpdater: true,
+                updaterDelegate: nil,
+                userDriverDelegate: nil
+            )
+
+            Log.app.info("UpdateService initialized with Sparkle")
+        }
     }
     
     // MARK: - Public Methods

@@ -31,6 +31,11 @@ extension AppDelegate {
     static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
+
+    static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -42,6 +47,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
+        guard !Self.isRunningTests else {
+            Log.app.debug("Detected XCTest environment, skipping app startup flow")
+            return
+        }
         
         do {
             modelContainer = try ModelContainer(

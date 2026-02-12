@@ -168,16 +168,6 @@ final class UpdateServiceTests: XCTestCase {
     }
 
     func testAppCoordinatorWiresStatusBarCheckForUpdatesAction() async throws {
-        let previousOnboardingState = UserDefaults.standard.object(forKey: "hasCompletedOnboarding")
-        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-        defer {
-            if let previousOnboardingState {
-                UserDefaults.standard.set(previousOnboardingState, forKey: "hasCompletedOnboarding")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
-            }
-        }
-
         let schema = Schema([
             TranscriptionRecord.self,
             WordReplacement.self,

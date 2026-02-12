@@ -127,7 +127,7 @@ final class OutputManager {
         
         switch outputMode {
         case .clipboard:
-            try await pasteViaClipboard(text, restoreClipboard: false)
+            try copyToClipboard(text)
         case .directInsert:
             try await pasteViaClipboard(text, restoreClipboard: true)
         }

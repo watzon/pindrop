@@ -58,14 +58,15 @@ final class PermissionManager {
     }
 
     private static var isRunningTests: Bool {
-        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-            || ProcessInfo.processInfo.environment["XCTestSessionIdentifier"] != nil
-            || NSClassFromString("XCTestCase") != nil
+        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
     private static var shouldSuppressSystemPermissionPrompts: Bool {
         isPreview || isRunningTests
     }
+
+    private static var hasRequestedAccessibilityPermissionPromptThisLaunch = false
     
     init() {
         if Self.isPreview {
@@ -106,6 +107,14 @@ final class PermissionManager {
         case .denied, .restricted:
             return false
         case .notDetermined:
+            if Self.shouldSuppressSystemPermissionPrompts {
+                hasRequestedMicrophonePermissionThisLaunch = true
+                let simulatedDecision = cachedMicrophonePermissionDecision ?? false
+                cachedMicrophonePermissionDecision = simulatedDecision
+                permissionStatus = simulatedDecision ? .authorized : .denied
+                return simulatedDecision
+            }
+
             if let pendingRequest = pendingMicrophonePermissionRequest {
                 return await pendingRequest.value
             }
@@ -247,7 +256,20 @@ final class PermissionManager {
     }
     
     func requestAccessibilityPermission(showPrompt: Bool = true) -> Bool {
-        let shouldPrompt = showPrompt && !Self.shouldSuppressSystemPermissionPrompts
+        let currentlyTrusted = AXIsProcessTrusted()
+        accessibilityPermissionGranted = currentlyTrusted
+
+        guard !currentlyTrusted else {
+            return true
+        }
+
+        let shouldPrompt = showPrompt
+            && !Self.shouldSuppressSystemPermissionPrompts
+            && !Self.hasRequestedAccessibilityPermissionPromptThisLaunch
+
+        if shouldPrompt {
+            Self.hasRequestedAccessibilityPermissionPromptThisLaunch = true
+        }
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: shouldPrompt] as CFDictionary
         let trusted = AXIsProcessTrustedWithOptions(options)
         accessibilityPermissionGranted = trusted

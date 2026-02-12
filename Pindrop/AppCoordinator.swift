@@ -62,9 +62,40 @@ struct HotkeyRegistrationState {
     }
 }
 
+struct HotkeyBindingSnapshot: Equatable {
+    let hotkey: String
+    let keyCode: Int
+    let modifiers: Int
+}
+
+struct HotkeySettingsSnapshot: Equatable {
+    let hasCompletedOnboarding: Bool
+    let pushToTalk: HotkeyBindingSnapshot
+    let toggle: HotkeyBindingSnapshot
+    let copyLastTranscript: HotkeyBindingSnapshot
+    let quickCapturePTT: HotkeyBindingSnapshot
+    let quickCaptureToggle: HotkeyBindingSnapshot
+}
+
+struct SettingsObservationSnapshot: Equatable {
+    let outputMode: String
+    let selectedInputDeviceUID: String
+    let floatingIndicatorEnabled: Bool
+    let floatingIndicatorType: String
+    let aiEnhancementEnabled: Bool
+    let enableUIContext: Bool
+    let vibeLiveSessionEnabled: Bool
+    let hotkeys: HotkeySettingsSnapshot
+}
+
 @MainActor
 @Observable
 final class AppCoordinator {
+
+    private static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
 
     private enum RecordingTriggerSource: String {
         case statusBarMenu = "status-bar-menu"
@@ -135,7 +166,8 @@ final class AppCoordinator {
     private var reportedHotkeyConflicts = Set<String>()
     private let appContextAdapterRegistry = AppContextAdapterRegistry()
     private let promptRoutingResolver: any PromptRoutingResolver = NoOpPromptRoutingResolver()
-    private var lastObservedOutputMode: String = ""
+    private let enableSystemHooks: Bool
+    private var lastObservedSettingsSnapshot: SettingsObservationSnapshot?
     private var hasRequestedAccessibilityPermissionThisLaunch = false
     private var hasShownAccessibilityFallbackAlertThisLaunch = false
 
@@ -159,7 +191,12 @@ final class AppCoordinator {
     
     // MARK: - Initialization
     
-    init(modelContext: ModelContext, modelContainer: ModelContainer) {
+    init(
+        modelContext: ModelContext,
+        modelContainer: ModelContainer,
+        enableSystemHooks: Bool? = nil
+    ) {
+        self.enableSystemHooks = enableSystemHooks ?? !Self.isRunningTests
         self.permissionManager = PermissionManager()
         do {
             self.audioRecorder = try AudioRecorder(permissionManager: permissionManager)
@@ -174,7 +211,6 @@ final class AppCoordinator {
         self.launchAtLoginManager = LaunchAtLoginManager()
         self.updateService = UpdateService()
         self.settingsStore = SettingsStore()
-        self.lastObservedOutputMode = self.settingsStore.outputMode
         self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
@@ -292,10 +328,15 @@ final class AppCoordinator {
             }
         }
 
-        setupHotkeys()
+        self.lastObservedSettingsSnapshot = currentSettingsObservationSnapshot()
+        if self.enableSystemHooks {
+            setupHotkeys()
+            setupEscapeKeyMonitor()
+            setupModifierKeyMonitor()
+        } else {
+            Log.app.debug("Skipping global hotkey and key monitor setup in test environment")
+        }
         observeSettings()
-        setupEscapeKeyMonitor()
-        setupModifierKeyMonitor()
         setupNotifications()
     }
     
@@ -398,6 +439,56 @@ final class AppCoordinator {
             Log.app.error("Failed to refresh status bar presets: \(error)")
         }
     }
+
+    private func setActiveModel(_ modelName: String) {
+        activeModelName = modelName
+        NotificationCenter.default.post(
+            name: .modelActiveChanged,
+            object: nil,
+            userInfo: ["modelName": modelName]
+        )
+    }
+
+    private func loadAndActivateModel(
+        named modelName: String,
+        provider: ModelManager.ModelProvider
+    ) async throws {
+        try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+        setActiveModel(modelName)
+    }
+
+    private func attemptWhisperModelRepairAndReload(
+        modelName: String,
+        displayName: String
+    ) async throws {
+        Log.model.warning("Selected Whisper model failed to load, attempting repair for \(modelName)")
+
+        do {
+            try await modelManager.deleteModel(named: modelName)
+        } catch ModelManager.ModelError.modelNotFound {
+            Log.model.debug("Model \(modelName) was not present when starting repair")
+        }
+
+        splashController.setDownloading("Repairing \(displayName)...")
+        try await modelManager.downloadModel(named: modelName) { [weak self] progress in
+            Task { @MainActor in
+                self?.splashController.updateProgress(progress)
+            }
+        }
+
+        splashController.setLoading("Loading \(displayName)...")
+        try await loadAndActivateModel(named: modelName, provider: .whisperKit)
+    }
+
+    private func handleModelLoadError(_ error: Error, context: String) {
+        self.error = error
+        Log.app.error("\(context): \(error)")
+
+        let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
+        if errorMessage.contains("timed out") {
+            AlertManager.shared.showModelTimeoutAlert()
+        }
+    }
     
     private func startNormalOperation() async {
         // Sync launch at login state on startup
@@ -417,7 +508,17 @@ final class AppCoordinator {
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "startup", showFallbackAlert: false)
 
-        let modelName = settingsStore.selectedModel
+        var modelName = settingsStore.selectedModel
+
+        if !modelManager.availableModels.contains(where: { $0.name == modelName }) {
+            Log.model.warning("Selected model \(modelName) is not recognized, resetting to default")
+            modelName = SettingsStore.Defaults.selectedModel
+            settingsStore.selectedModel = modelName
+        }
+
+        let selectedModel = modelManager.availableModels.first(where: { $0.name == modelName })
+        let selectedProvider = selectedModel?.provider ?? .whisperKit
+        let selectedDisplayName = selectedModel?.displayName ?? modelName
         
         await modelManager.refreshDownloadedModels()
         let modelExists = modelManager.isModelDownloaded(modelName)
@@ -426,20 +527,21 @@ final class AppCoordinator {
             splashController.setLoading("Loading model...")
             Log.model.info("Model \(modelName) found, loading...")
             do {
-                let model = modelManager.availableModels.first { $0.name == modelName }
-                let provider = model?.provider ?? .whisperKit
-                try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+                try await loadAndActivateModel(named: modelName, provider: selectedProvider)
                 Log.model.info("Model loaded successfully")
-                self.activeModelName = modelName
-                NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
             } catch {
-                self.error = error
-                Log.app.error("Failed to load transcription model: \(error)")
-                
-                // Check if this is a timeout error
-                let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
-                if errorMessage.contains("timed out") {
-                    AlertManager.shared.showModelTimeoutAlert()
+                if selectedProvider == .whisperKit {
+                    do {
+                        try await attemptWhisperModelRepairAndReload(
+                            modelName: modelName,
+                            displayName: selectedDisplayName
+                        )
+                        Log.model.info("Model repaired and loaded successfully")
+                    } catch {
+                        handleModelLoadError(error, context: "Failed to repair transcription model")
+                    }
+                } else {
+                    handleModelLoadError(error, context: "Failed to load transcription model")
                 }
             }
         } else {
@@ -451,19 +553,10 @@ final class AppCoordinator {
                 splashController.setLoading("Using \(fallbackModel.displayName)...")
                 settingsStore.selectedModel = fallbackModel.name
                 do {
-                    let provider = fallbackModel.provider
-                    try await transcriptionService.loadModel(modelName: fallbackModel.name, provider: provider)
+                    try await loadAndActivateModel(named: fallbackModel.name, provider: fallbackModel.provider)
                     Log.model.info("Fallback model loaded successfully")
-                    self.activeModelName = fallbackModel.name
-                    NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": fallbackModel.name])
                 } catch {
-                    self.error = error
-                    Log.app.error("Failed to load fallback model: \(error)")
-                    
-                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
-                    if errorMessage.contains("timed out") {
-                        AlertManager.shared.showModelTimeoutAlert()
-                    }
+                    handleModelLoadError(error, context: "Failed to load fallback model")
                 }
             } else {
                 // No models available - download the selected one
@@ -478,20 +571,10 @@ final class AppCoordinator {
                     }
                     splashController.setLoading("Loading model...")
                     Log.model.info("Model downloaded, loading...")
-                    let downloadedModel = modelManager.availableModels.first { $0.name == modelName }
-                    let provider = downloadedModel?.provider ?? .whisperKit
-                    try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+                    try await loadAndActivateModel(named: modelName, provider: selectedProvider)
                     Log.model.info("Model loaded successfully")
-                    self.activeModelName = modelName
-                    NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
                 } catch {
-                    self.error = error
-                    Log.app.error("Failed to download/load model: \(error)")
-                    
-                    let errorMessage = (error as? LocalizedError)?.errorDescription ?? ""
-                    if errorMessage.contains("timed out") {
-                        AlertManager.shared.showModelTimeoutAlert()
-                    }
+                    handleModelLoadError(error, context: "Failed to download/load model")
                 }
             }
         }
@@ -514,30 +597,35 @@ final class AppCoordinator {
     }
     
     private func registerHotkeysFromSettings() {
+        guard enableSystemHooks else { return }
+
         hotkeyManager.unregisterAll()
-        
+        reportedHotkeyConflicts.removeAll()
         guard HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: settingsStore.hasCompletedOnboarding) else {
             Log.hotkey.info("Skipping hotkey registration until onboarding is complete")
             return
         }
 
         var registrationState = HotkeyRegistrationState()
-        
-        if !settingsStore.pushToTalkHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.pushToTalkHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.pushToTalkHotkeyModifiers))
 
+        if !settingsStore.pushToTalkHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Push-to-Talk",
+               hotkeyString: settingsStore.pushToTalkHotkey,
+               keyCodeValue: settingsStore.pushToTalkHotkeyCode,
+               modifiersValue: settingsStore.pushToTalkHotkeyModifiers
+           ) {
             if canRegisterHotkey(
                 identifier: "push-to-talk",
                 displayName: "Push-to-Talk",
                 hotkeyString: settingsStore.pushToTalkHotkey,
-                keyCode: keyCode,
-                modifiers: modifiers,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
                 registrationState: &registrationState
             ) {
-                _ = hotkeyManager.registerHotkey(
-                    keyCode: keyCode,
-                    modifiers: modifiers,
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
                     identifier: "push-to-talk",
                     mode: .pushToTalk,
                     onKeyDown: { [weak self] in
@@ -551,24 +639,31 @@ final class AppCoordinator {
                         }
                     }
                 )
+
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Push-to-Talk", hotkeyString: settingsStore.pushToTalkHotkey)
+                }
             }
         }
-        
-        if !settingsStore.toggleHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.toggleHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.toggleHotkeyModifiers))
 
+        if !settingsStore.toggleHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Toggle Recording",
+               hotkeyString: settingsStore.toggleHotkey,
+               keyCodeValue: settingsStore.toggleHotkeyCode,
+               modifiersValue: settingsStore.toggleHotkeyModifiers
+           ) {
             if canRegisterHotkey(
                 identifier: "toggle-recording",
                 displayName: "Toggle Recording",
                 hotkeyString: settingsStore.toggleHotkey,
-                keyCode: keyCode,
-                modifiers: modifiers,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
                 registrationState: &registrationState
             ) {
-                _ = hotkeyManager.registerHotkey(
-                    keyCode: keyCode,
-                    modifiers: modifiers,
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
                     identifier: "toggle-recording",
                     mode: .toggle,
                     onKeyDown: { [weak self] in
@@ -578,26 +673,33 @@ final class AppCoordinator {
                     },
                     onKeyUp: nil
                 )
+
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Toggle Recording", hotkeyString: settingsStore.toggleHotkey)
+                }
             }
         }
 
-        if !settingsStore.copyLastTranscriptHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.copyLastTranscriptHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.copyLastTranscriptHotkeyModifiers))
-
-            Log.hotkey.info("Registering copy-last-transcript: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.copyLastTranscriptHotkey)")
+        if !settingsStore.copyLastTranscriptHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Copy Last Transcript",
+               hotkeyString: settingsStore.copyLastTranscriptHotkey,
+               keyCodeValue: settingsStore.copyLastTranscriptHotkeyCode,
+               modifiersValue: settingsStore.copyLastTranscriptHotkeyModifiers
+           ) {
+            Log.hotkey.info("Registering copy-last-transcript: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.copyLastTranscriptHotkey)")
 
             if canRegisterHotkey(
                 identifier: "copy-last-transcript",
                 displayName: "Copy Last Transcript",
                 hotkeyString: settingsStore.copyLastTranscriptHotkey,
-                keyCode: keyCode,
-                modifiers: modifiers,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
                 registrationState: &registrationState
             ) {
-                _ = hotkeyManager.registerHotkey(
-                    keyCode: keyCode,
-                    modifiers: modifiers,
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
                     identifier: "copy-last-transcript",
                     mode: .toggle,
                     onKeyDown: { [weak self] in
@@ -607,26 +709,33 @@ final class AppCoordinator {
                     },
                     onKeyUp: nil
                 )
+
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Copy Last Transcript", hotkeyString: settingsStore.copyLastTranscriptHotkey)
+                }
             }
         }
 
-        if !settingsStore.quickCapturePTTHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.quickCapturePTTHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCapturePTTHotkeyModifiers))
-
-            Log.hotkey.info("Registering quick-capture-ptt: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCapturePTTHotkey)")
+        if !settingsStore.quickCapturePTTHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Note Capture (Push-to-Talk)",
+               hotkeyString: settingsStore.quickCapturePTTHotkey,
+               keyCodeValue: settingsStore.quickCapturePTTHotkeyCode,
+               modifiersValue: settingsStore.quickCapturePTTHotkeyModifiers
+           ) {
+            Log.hotkey.info("Registering quick-capture-ptt: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCapturePTTHotkey)")
 
             if canRegisterHotkey(
                 identifier: "quick-capture-ptt",
                 displayName: "Note Capture (Push-to-Talk)",
                 hotkeyString: settingsStore.quickCapturePTTHotkey,
-                keyCode: keyCode,
-                modifiers: modifiers,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
                 registrationState: &registrationState
             ) {
-                _ = hotkeyManager.registerHotkey(
-                    keyCode: keyCode,
-                    modifiers: modifiers,
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
                     identifier: "quick-capture-ptt",
                     mode: .pushToTalk,
                     onKeyDown: { [weak self] in
@@ -640,26 +749,32 @@ final class AppCoordinator {
                         }
                     }
                 )
+
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Note Capture (Push-to-Talk)", hotkeyString: settingsStore.quickCapturePTTHotkey)
+                }
             }
         }
 
-        if !settingsStore.quickCaptureToggleHotkey.isEmpty {
-            let keyCode = UInt32(settingsStore.quickCaptureToggleHotkeyCode)
-            let modifiers = HotkeyManager.ModifierFlags(rawValue: UInt32(settingsStore.quickCaptureToggleHotkeyModifiers))
-
-            Log.hotkey.info("Registering quick-capture-toggle: keyCode=\(keyCode), modifiers=0x\(String(modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureToggleHotkey)")
-
+        if !settingsStore.quickCaptureToggleHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Note Capture (Toggle)",
+               hotkeyString: settingsStore.quickCaptureToggleHotkey,
+               keyCodeValue: settingsStore.quickCaptureToggleHotkeyCode,
+               modifiersValue: settingsStore.quickCaptureToggleHotkeyModifiers
+           ) {
+            Log.hotkey.info("Registering quick-capture-toggle: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.quickCaptureToggleHotkey)")
             if canRegisterHotkey(
                 identifier: "quick-capture-toggle",
                 displayName: "Note Capture (Toggle)",
                 hotkeyString: settingsStore.quickCaptureToggleHotkey,
-                keyCode: keyCode,
-                modifiers: modifiers,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
                 registrationState: &registrationState
             ) {
-                _ = hotkeyManager.registerHotkey(
-                    keyCode: keyCode,
-                    modifiers: modifiers,
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
                     identifier: "quick-capture-toggle",
                     mode: .toggle,
                     onKeyDown: { [weak self] in
@@ -669,8 +784,35 @@ final class AppCoordinator {
                     },
                     onKeyUp: nil
                 )
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Note Capture (Toggle)", hotkeyString: settingsStore.quickCaptureToggleHotkey)
+                }
             }
+    }
+    }
+    private func validatedHotkeyBinding(
+        displayName: String,
+        hotkeyString: String,
+        keyCodeValue: Int,
+        modifiersValue: Int
+    ) -> (keyCode: UInt32, modifiers: HotkeyManager.ModifierFlags)? {
+        guard let keyCode = UInt32(exactly: keyCodeValue),
+              let modifiersRawValue = UInt32(exactly: modifiersValue) else {
+            Log.hotkey.error("Invalid hotkey values for \(displayName, privacy: .public): string=\(hotkeyString, privacy: .public), keyCode=\(keyCodeValue), modifiers=\(modifiersValue)")
+            AlertManager.shared.showGenericErrorAlert(
+                title: "Invalid Hotkey Configuration",
+                message: "The saved hotkey for \(displayName) is invalid. Re-record this hotkey in Settings."
+            )
+            return nil
         }
+        return (keyCode: keyCode, modifiers: HotkeyManager.ModifierFlags(rawValue: modifiersRawValue))
+    }
+    private func handleHotkeyRegistrationFailure(displayName: String, hotkeyString: String) {
+        Log.hotkey.error("Failed to register hotkey for \(displayName, privacy: .public): \(hotkeyString, privacy: .public)")
+        AlertManager.shared.showGenericErrorAlert(
+            title: "Hotkey Registration Failed",
+            message: "Could not register '\(hotkeyString)' for \(displayName). Choose a different shortcut in Settings."
+        )
     }
 
     private func canRegisterHotkey(
@@ -727,37 +869,87 @@ final class AppCoordinator {
     
     // MARK: - Settings Observation
     
+    private func currentSettingsObservationSnapshot() -> SettingsObservationSnapshot {
+        SettingsObservationSnapshot(
+            outputMode: settingsStore.outputMode,
+            selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
+            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
+            floatingIndicatorType: settingsStore.floatingIndicatorType,
+            aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
+            enableUIContext: settingsStore.enableUIContext,
+            vibeLiveSessionEnabled: settingsStore.vibeLiveSessionEnabled,
+            hotkeys: HotkeySettingsSnapshot(
+                hasCompletedOnboarding: settingsStore.hasCompletedOnboarding,
+                pushToTalk: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.pushToTalkHotkey,
+                    keyCode: settingsStore.pushToTalkHotkeyCode,
+                    modifiers: settingsStore.pushToTalkHotkeyModifiers
+                ),
+                toggle: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.toggleHotkey,
+                    keyCode: settingsStore.toggleHotkeyCode,
+                    modifiers: settingsStore.toggleHotkeyModifiers
+                ),
+                copyLastTranscript: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.copyLastTranscriptHotkey,
+                    keyCode: settingsStore.copyLastTranscriptHotkeyCode,
+                    modifiers: settingsStore.copyLastTranscriptHotkeyModifiers
+                ),
+                quickCapturePTT: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.quickCapturePTTHotkey,
+                    keyCode: settingsStore.quickCapturePTTHotkeyCode,
+                    modifiers: settingsStore.quickCapturePTTHotkeyModifiers
+                ),
+                quickCaptureToggle: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.quickCaptureToggleHotkey,
+                    keyCode: settingsStore.quickCaptureToggleHotkeyCode,
+                    modifiers: settingsStore.quickCaptureToggleHotkeyModifiers
+                )
+            )
+        )
+    }
     private func observeSettings() {
         settingsStore.objectWillChange
             .sink { [weak self] _ in
                 Task { @MainActor in
                     guard let self = self else { return }
+                    guard !self.settingsStore.isApplyingHotkeyUpdate else { return }
 
-                    let outputModeValue = self.settingsStore.outputMode
-                    let didOutputModeChange = outputModeValue != self.lastObservedOutputMode
-                    self.lastObservedOutputMode = outputModeValue
+                    let snapshot = self.currentSettingsObservationSnapshot()
+                    let previousSnapshot = self.lastObservedSettingsSnapshot ?? snapshot
+                    self.lastObservedSettingsSnapshot = snapshot
 
-                    let mode: OutputMode = outputModeValue == "clipboard" ? .clipboard : .directInsert
-                    self.outputManager.setOutputMode(mode)
-
-                    if mode == .directInsert && didOutputModeChange {
-                        self.ensureAccessibilityPermissionForDirectInsert(trigger: "settings-change", showFallbackAlert: true)
+                    if previousSnapshot.outputMode != snapshot.outputMode {
+                        let mode: OutputMode = snapshot.outputMode == "clipboard" ? .clipboard : .directInsert
+                        self.outputManager.setOutputMode(mode)
+                        if mode == .directInsert {
+                            self.ensureAccessibilityPermissionForDirectInsert(trigger: "settings-change", showFallbackAlert: true)
+                        }
                     }
-                    
-                    self.audioRecorder.setPreferredInputDeviceUID(self.settingsStore.selectedInputDeviceUID)
-                    
-                    self.updateFloatingIndicatorVisibility()
 
-                    self.registerHotkeysFromSettings()
+                    if previousSnapshot.selectedInputDeviceUID != snapshot.selectedInputDeviceUID {
+                        self.audioRecorder.setPreferredInputDeviceUID(snapshot.selectedInputDeviceUID)
+                    }
+
+                    if previousSnapshot.floatingIndicatorEnabled != snapshot.floatingIndicatorEnabled
+                        || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                        self.updateFloatingIndicatorVisibility()
+                    }
+
+                    if previousSnapshot.hotkeys != snapshot.hotkeys {
+                        self.registerHotkeysFromSettings()
+                    }
+
                     self.statusBarController.updateDynamicItems()
-
                     if self.isRecording {
                         if self.shouldRunLiveContextSession() {
                             self.startLiveContextSessionIfNeeded(initialSnapshot: self.capturedSnapshot)
                         } else {
                             self.stopLiveContextSession()
                         }
-                    } else {
+                    } else if previousSnapshot.aiEnhancementEnabled != snapshot.aiEnhancementEnabled
+                        || previousSnapshot.enableUIContext != snapshot.enableUIContext
+                        || previousSnapshot.vibeLiveSessionEnabled != snapshot.vibeLiveSessionEnabled {
                         self.updateVibeRuntimeStateFromSettings()
                     }
                 }
@@ -1124,6 +1316,7 @@ final class AppCoordinator {
             self.error = error
             audioRecorder.resetAudioEngine()
             Log.app.error("Failed to start recording: \(error)")
+            handleRecordingStartFailure(error, source: .hotkeyPushToTalk)
         }
     }
     
@@ -1154,6 +1347,7 @@ final class AppCoordinator {
             isQuickCaptureMode = false
             audioRecorder.resetAudioEngine()
             Log.app.error("Failed to start quick capture recording: \(error)")
+            handleRecordingStartFailure(error, source: .hotkeyQuickCapturePTT)
         }
     }
 
@@ -1198,6 +1392,7 @@ final class AppCoordinator {
                 isQuickCaptureMode = false
                 audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to start quick capture recording: \(error)")
+                handleRecordingStartFailure(error, source: .hotkeyQuickCaptureToggle)
             }
         }
     }
@@ -1239,6 +1434,7 @@ final class AppCoordinator {
 
         guard !audioData.isEmpty else {
             Log.app.warning("No audio data recorded")
+            handleNoSpeechDetected(context: "quick-capture")
             return nil
         }
 
@@ -1263,7 +1459,13 @@ final class AppCoordinator {
             throw error
         }
 
-        let (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
+
+        guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
+            handleNoSpeechDetected(context: "quick-capture")
+            return nil
+        }
         self.lastAppliedReplacements = appliedReplacements
 
         if !appliedReplacements.isEmpty {
@@ -1300,7 +1502,16 @@ final class AppCoordinator {
                     existingTags: existingTags
                 )
                 Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
-                return enhancedNote
+                let normalizedEnhancedContent = normalizedTranscriptionText(enhancedNote.content)
+                guard !isTranscriptionEffectivelyEmpty(normalizedEnhancedContent) else {
+                    handleNoSpeechDetected(context: "quick-capture")
+                    return nil
+                }
+                return AIEnhancementService.EnhancedNote(
+                    content: normalizedEnhancedContent,
+                    title: enhancedNote.title,
+                    tags: enhancedNote.tags
+                )
             } catch {
                 Log.app.error("Note enhancement failed: \(error)")
             }
@@ -1343,6 +1554,7 @@ final class AppCoordinator {
                 self.error = error
                 audioRecorder.resetAudioEngine()
                 Log.app.error("Failed to start recording: \(error)")
+                handleRecordingStartFailure(error, source: source)
             }
         }
     }
@@ -1448,6 +1660,55 @@ final class AppCoordinator {
             "recording_start_attempt id=\(self.recordingStartAttemptCounter) source=\(source.rawValue, privacy: .public) resolved=\(String(describing: snapshot.resolvedStatus), privacy: .public) avaudio=\(snapshot.audioApplicationStatus, privacy: .public) avcapture=\(snapshot.captureDeviceStatus, privacy: .public) requestedThisLaunch=\(snapshot.hasRequestedThisLaunch) cachedDecision=\(cachedDecision, privacy: .public) bundleId=\(bundleIdentifier, privacy: .public) shortVersion=\(shortVersion, privacy: .public) buildVersion=\(buildVersion, privacy: .public) pid=\(ProcessInfo.processInfo.processIdentifier) onboardingCompleted=\(self.settingsStore.hasCompletedOnboarding) bundlePath=\(bundlePath, privacy: .public) executablePath=\(executablePath, privacy: .public)"
         )
     }
+
+    private func normalizedTranscriptionText(_ text: String) -> String {
+        Self.normalizedTranscriptionText(text)
+    }
+
+    static func normalizedTranscriptionText(_ text: String) -> String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private func isTranscriptionEffectivelyEmpty(_ text: String) -> Bool {
+        Self.isTranscriptionEffectivelyEmpty(text)
+    }
+
+    static func isTranscriptionEffectivelyEmpty(_ text: String) -> Bool {
+        let normalizedText = normalizedTranscriptionText(text)
+        if normalizedText.isEmpty {
+            return true
+        }
+        return normalizedText.caseInsensitiveCompare("[BLANK AUDIO]") == .orderedSame
+    }
+
+    static func shouldPersistHistory(outputSucceeded: Bool, text: String) -> Bool {
+        outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
+    }
+
+    private func handleNoSpeechDetected(context: String) {
+        Log.app.info("No speech detected for \(context, privacy: .public); skipping output")
+        AlertManager.shared.showGenericErrorAlert(
+            title: "No Speech Detected",
+            message: "Pindrop couldn't detect any speech. Try speaking closer to your microphone and record again."
+        )
+    }
+
+    private func handleRecordingStartFailure(_ error: Error, source: RecordingTriggerSource) {
+        let isHotkeySource: Bool
+        switch source {
+        case .hotkeyToggle, .hotkeyPushToTalk, .hotkeyQuickCapturePTT, .hotkeyQuickCaptureToggle:
+            isHotkeySource = true
+        default:
+            isHotkeySource = false
+        }
+
+        guard isHotkeySource,
+              let audioError = error as? AudioRecorderError,
+              case .permissionDenied = audioError else {
+            return
+        }
+
+        AlertManager.shared.showMicrophonePermissionAlert()
+    }
     
     private func stopRecordingAndTranscribe() async throws {
         guard let startTime = recordingStartTime else {
@@ -1486,6 +1747,7 @@ final class AppCoordinator {
         
         guard !audioData.isEmpty else {
             Log.app.warning("No audio data recorded")
+            handleNoSpeechDetected(context: "recording")
             return
         }
         
@@ -1512,7 +1774,13 @@ final class AppCoordinator {
             throw error
         }
         
-        let (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
+
+        guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
+            handleNoSpeechDetected(context: "recording")
+            return
+        }
         self.lastAppliedReplacements = appliedReplacements
         
         if !appliedReplacements.isEmpty {
@@ -1572,7 +1840,7 @@ final class AppCoordinator {
             }
         }
         
-        var finalText = textAfterMentions
+        var finalText = normalizedTranscriptionText(textAfterMentions)
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
@@ -1718,16 +1986,25 @@ final class AppCoordinator {
             }
         }
 
+        finalText = normalizedTranscriptionText(finalText)
+        guard !isTranscriptionEffectivelyEmpty(finalText) else {
+            handleNoSpeechDetected(context: "recording")
+            return
+        }
+
+        var outputSucceeded = false
         do {
             if outputManager.outputMode == .directInsert {
                 ensureAccessibilityPermissionForDirectInsert(trigger: "output", showFallbackAlert: true)
             }
-
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
             try await outputManager.output(outputText)
+            outputSucceeded = true
         } catch {
             Log.app.error("Output failed: \(error)")
         }
+
+        guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
 
         do {
             try historyStore.save(
@@ -2321,14 +2598,27 @@ final class AppCoordinator {
         splashController.setLoading("Switching to \(model.displayName)...")
         
         do {
-            let provider = model.provider
-            try await transcriptionService.loadModel(modelName: modelName, provider: provider)
-            self.activeModelName = modelName
-            NotificationCenter.default.post(name: .modelActiveChanged, object: nil, userInfo: ["modelName": modelName])
+            try await loadAndActivateModel(named: modelName, provider: model.provider)
+            settingsStore.selectedModel = modelName
             Log.model.info("Switched to model \(modelName) successfully")
         } catch {
-            Log.app.error("Failed to switch model: \(error)")
-            self.error = error
+            if model.provider == .whisperKit {
+                do {
+                    try await attemptWhisperModelRepairAndReload(
+                        modelName: modelName,
+                        displayName: model.displayName
+                    )
+                    settingsStore.selectedModel = modelName
+                    Log.model.info("Model repaired and switched successfully: \(modelName)")
+                    return
+                } catch {
+                    handleModelLoadError(error, context: "Failed to repair switched model")
+                    AlertManager.shared.showModelLoadErrorAlert(error: error)
+                    return
+                }
+            }
+
+            handleModelLoadError(error, context: "Failed to switch model")
             AlertManager.shared.showModelLoadErrorAlert(error: error)
         }
     }

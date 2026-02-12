@@ -16,6 +16,7 @@ final class SettingsStoreTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         settingsStore = SettingsStore()
+        settingsStore.resetAllSettings()
         
         try? settingsStore.deleteAPIEndpoint()
         try? settingsStore.deleteAPIKey()
@@ -24,6 +25,7 @@ final class SettingsStoreTests: XCTestCase {
     
     override func tearDown() async throws {
         try? settingsStore.deleteAPIEndpoint()
+        settingsStore.resetAllSettings()
         try? settingsStore.deleteAPIKey()
         settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
         settingsStore = nil
@@ -109,11 +111,13 @@ final class SettingsStoreTests: XCTestCase {
     func testDefaultValues() {
         let store = SettingsStore()
         
-        XCTAssertEqual(store.selectedModel, "base")
-        XCTAssertEqual(store.toggleHotkey, "⌘⇧R")
-        XCTAssertEqual(store.pushToTalkHotkey, "⌘⇧T")
+        XCTAssertEqual(store.selectedModel, SettingsStore.Defaults.selectedModel)
+        XCTAssertEqual(store.toggleHotkey, SettingsStore.Defaults.Hotkeys.toggleHotkey)
+        XCTAssertEqual(store.pushToTalkHotkey, SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
         XCTAssertEqual(store.outputMode, "clipboard")
         XCTAssertFalse(store.aiEnhancementEnabled)
+        XCTAssertTrue(store.floatingIndicatorEnabled)
+        XCTAssertEqual(store.floatingIndicatorType, FloatingIndicatorType.pill.rawValue)
         XCTAssertNil(store.apiEndpoint)
         XCTAssertNil(store.apiKey)
     }

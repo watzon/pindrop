@@ -14,6 +14,7 @@ struct PermissionsStepView: View {
     @State private var microphoneGranted = false
     @State private var accessibilityGranted = false
     @State private var checkingPermissions = true
+    @State private var accessibilityRequestInFlight = false
     
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
@@ -78,6 +79,7 @@ struct PermissionsStepView: View {
             description: "Optional: Insert text directly into apps",
             isGranted: accessibilityGranted,
             isRequired: false,
+            isActionDisabled: accessibilityRequestInFlight,
             action: requestAccessibility
         )
     }
@@ -120,12 +122,16 @@ struct PermissionsStepView: View {
     }
     
     private func requestAccessibility() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-        accessibilityGranted = AXIsProcessTrustedWithOptions(options)
-        
+        guard !accessibilityRequestInFlight else { return }
+
+        accessibilityRequestInFlight = true
+        accessibilityGranted = permissionManager.requestAccessibilityPermission(showPrompt: true)
+
         Task {
             try? await Task.sleep(for: .seconds(1))
-            accessibilityGranted = AXIsProcessTrusted()
+            permissionManager.refreshAccessibilityPermissionStatus()
+            accessibilityGranted = permissionManager.checkAccessibilityPermission()
+            accessibilityRequestInFlight = false
         }
     }
 }
@@ -174,6 +180,7 @@ struct PermissionCard: View {
     let description: String
     let isGranted: Bool
     let isRequired: Bool
+    var isActionDisabled: Bool = false
     let action: () -> Void
     
     var body: some View {
@@ -212,10 +219,11 @@ struct PermissionCard: View {
                 IconView(icon: .circleCheck, size: 24)
                     .foregroundStyle(.green)
             } else {
-                Button("Grant") {
+                Button(isActionDisabled ? "Checking..." : "Grant") {
                     action()
                 }
                 .buttonStyle(.bordered)
+                .disabled(isActionDisabled)
             }
         }
         .padding(16)

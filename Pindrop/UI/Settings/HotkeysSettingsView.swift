@@ -17,6 +17,15 @@ struct HotkeysSettingsView: View {
     @State private var isRecordingQuickCapturePTT = false
     @State private var isRecordingQuickCaptureToggle = false
     @State private var keyMonitor: Any?
+    @State private var pendingHotkeyCapture: PendingHotkeyCapture?
+    @State private var activeModifierKeyCodes = Set<UInt16>()
+
+    private struct PendingHotkeyCapture {
+        let hotkeyString: String
+        let keyCode: UInt16
+        let modifiers: UInt32
+        let isModifierOnly: Bool
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -43,9 +52,7 @@ struct HotkeysSettingsView: View {
                     isRecording: isRecordingToggle,
                     onRecord: { startRecording(forToggle: true) },
                     onClear: {
-                        settings.toggleHotkey = ""
-                        settings.toggleHotkeyCode = 0
-                        settings.toggleHotkeyModifiers = 0
+                        settings.updateToggleHotkey("", keyCode: 0, modifiers: 0)
                     }
                 )
             }
@@ -64,9 +71,7 @@ struct HotkeysSettingsView: View {
                     isRecording: isRecordingPushToTalk,
                     onRecord: { startRecording(forToggle: false) },
                     onClear: {
-                        settings.pushToTalkHotkey = ""
-                        settings.pushToTalkHotkeyCode = 0
-                        settings.pushToTalkHotkeyModifiers = 0
+                        settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
                     }
                 )
             }
@@ -85,9 +90,7 @@ struct HotkeysSettingsView: View {
                     isRecording: isRecordingCopyLastTranscript,
                     onRecord: { startRecording(forCopyLastTranscript: true) },
                     onClear: {
-                        settings.copyLastTranscriptHotkey = ""
-                        settings.copyLastTranscriptHotkeyCode = 0
-                        settings.copyLastTranscriptHotkeyModifiers = 0
+                        settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
                     }
                 )
             }
@@ -106,9 +109,7 @@ struct HotkeysSettingsView: View {
                     isRecording: isRecordingQuickCapturePTT,
                     onRecord: { startRecording(forQuickCapturePTT: true) },
                     onClear: {
-                        settings.quickCapturePTTHotkey = ""
-                        settings.quickCapturePTTHotkeyCode = 0
-                        settings.quickCapturePTTHotkeyModifiers = 0
+                        settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
                     }
                 )
             }
@@ -127,9 +128,7 @@ struct HotkeysSettingsView: View {
                     isRecording: isRecordingQuickCaptureToggle,
                     onRecord: { startRecording(forQuickCaptureToggle: true) },
                     onClear: {
-                        settings.quickCaptureToggleHotkey = ""
-                        settings.quickCaptureToggleHotkeyCode = 0
-                        settings.quickCaptureToggleHotkeyModifiers = 0
+                        settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
                     }
                 )
             }
@@ -143,86 +142,125 @@ struct HotkeysSettingsView: View {
         forQuickCaptureToggle: Bool = false
     ) {
         stopRecording()
-
         isRecordingToggle = forToggle
         isRecordingPushToTalk = !forToggle && !forCopyLastTranscript && !forQuickCapturePTT && !forQuickCaptureToggle
         isRecordingCopyLastTranscript = forCopyLastTranscript
         isRecordingQuickCapturePTT = forQuickCapturePTT
         isRecordingQuickCaptureToggle = forQuickCaptureToggle
-
-        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .flagsChanged]) { event in
+        HotkeyManager.setHotkeyCaptureInProgress(true)
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) { event in
             if event.type == .keyDown && event.keyCode == 53 {
                 self.stopRecording()
                 return nil
             }
-
             if event.type == .flagsChanged {
-                guard self.isModifierKeyCode(event.keyCode), self.modifierKeyIsDown(event) else {
-                    return event
+                guard self.isModifierKeyCode(event.keyCode) else {
+                    return nil
+                }
+                if self.modifierKeyIsDown(event) {
+                    self.activeModifierKeyCodes.insert(event.keyCode)
+                    guard self.isAllowedSoloModifierKeyCode(event.keyCode) else {
+                        return nil
+                    }
+
+                    let hotkeyString = self.buildHotkeyString(from: event)
+                    let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
+                    self.pendingHotkeyCapture = PendingHotkeyCapture(
+                        hotkeyString: hotkeyString,
+                        keyCode: event.keyCode,
+                        modifiers: carbonModifiers,
+                        isModifierOnly: true
+                    )
+
+                    return nil
                 }
 
-                let hotkeyString = self.buildHotkeyString(from: event)
-                let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
-
-                if forToggle {
-                    settings.toggleHotkey = hotkeyString
-                    settings.toggleHotkeyCode = Int(event.keyCode)
-                    settings.toggleHotkeyModifiers = Int(carbonModifiers)
-                } else if forCopyLastTranscript {
-                    settings.copyLastTranscriptHotkey = hotkeyString
-                    settings.copyLastTranscriptHotkeyCode = Int(event.keyCode)
-                    settings.copyLastTranscriptHotkeyModifiers = Int(carbonModifiers)
-                } else if forQuickCapturePTT {
-                    settings.quickCapturePTTHotkey = hotkeyString
-                    settings.quickCapturePTTHotkeyCode = Int(event.keyCode)
-                    settings.quickCapturePTTHotkeyModifiers = Int(carbonModifiers)
-                } else if forQuickCaptureToggle {
-                    settings.quickCaptureToggleHotkey = hotkeyString
-                    settings.quickCaptureToggleHotkeyCode = Int(event.keyCode)
-                    settings.quickCaptureToggleHotkeyModifiers = Int(carbonModifiers)
-                } else {
-                    settings.pushToTalkHotkey = hotkeyString
-                    settings.pushToTalkHotkeyCode = Int(event.keyCode)
-                    settings.pushToTalkHotkeyModifiers = Int(carbonModifiers)
+                self.activeModifierKeyCodes.remove(event.keyCode)
+                if self.activeModifierKeyCodes.isEmpty,
+                   let capture = self.pendingHotkeyCapture,
+                   capture.isModifierOnly {
+                    self.applyCapturedHotkey(
+                        capture,
+                        forToggle: forToggle,
+                        forCopyLastTranscript: forCopyLastTranscript,
+                        forQuickCapturePTT: forQuickCapturePTT,
+                        forQuickCaptureToggle: forQuickCaptureToggle
+                    )
+                    self.stopRecording()
                 }
 
-                self.stopRecording()
                 return nil
             }
-
             if event.type == .keyDown {
-                let hotkeyString = self.buildHotkeyString(from: event)
-                let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
-
-                if forToggle {
-                    settings.toggleHotkey = hotkeyString
-                    settings.toggleHotkeyCode = Int(event.keyCode)
-                    settings.toggleHotkeyModifiers = Int(carbonModifiers)
-                } else if forCopyLastTranscript {
-                    settings.copyLastTranscriptHotkey = hotkeyString
-                    settings.copyLastTranscriptHotkeyCode = Int(event.keyCode)
-                    settings.copyLastTranscriptHotkeyModifiers = Int(carbonModifiers)
-                } else if forQuickCapturePTT {
-                    settings.quickCapturePTTHotkey = hotkeyString
-                    settings.quickCapturePTTHotkeyCode = Int(event.keyCode)
-                    settings.quickCapturePTTHotkeyModifiers = Int(carbonModifiers)
-                } else if forQuickCaptureToggle {
-                    settings.quickCaptureToggleHotkey = hotkeyString
-                    settings.quickCaptureToggleHotkeyCode = Int(event.keyCode)
-                    settings.quickCaptureToggleHotkeyModifiers = Int(carbonModifiers)
-                } else {
-                    settings.pushToTalkHotkey = hotkeyString
-                    settings.pushToTalkHotkeyCode = Int(event.keyCode)
-                    settings.pushToTalkHotkeyModifiers = Int(carbonModifiers)
+                guard !self.isModifierKeyCode(event.keyCode) else {
+                    return nil
                 }
 
+                let carbonModifiers = self.carbonModifiersFrom(event.modifierFlags)
+                let hasModifiers = carbonModifiers != 0
+                let isFunctionKey = self.isFunctionKeyCode(event.keyCode)
+                guard hasModifiers || isFunctionKey else {
+                    return nil
+                }
+
+                let hotkeyString = self.buildHotkeyString(from: event)
+                self.pendingHotkeyCapture = PendingHotkeyCapture(
+                    hotkeyString: hotkeyString,
+                    keyCode: event.keyCode,
+                    modifiers: carbonModifiers,
+                    isModifierOnly: false
+                )
+                return nil
+            }
+            if event.type == .keyUp,
+               let capture = self.pendingHotkeyCapture,
+               !capture.isModifierOnly,
+               capture.keyCode == event.keyCode {
+                self.applyCapturedHotkey(
+                    capture,
+                    forToggle: forToggle,
+                    forCopyLastTranscript: forCopyLastTranscript,
+                    forQuickCapturePTT: forQuickCapturePTT,
+                    forQuickCaptureToggle: forQuickCaptureToggle
+                )
                 self.stopRecording()
                 return nil
             }
-            return event
+
+            return nil
         }
     }
-    
+    private func applyCapturedHotkey(
+        _ capture: PendingHotkeyCapture,
+        forToggle: Bool,
+        forCopyLastTranscript: Bool,
+        forQuickCapturePTT: Bool,
+        forQuickCaptureToggle: Bool
+    ) {
+        if forToggle {
+            settings.updateToggleHotkey(capture.hotkeyString, keyCode: Int(capture.keyCode), modifiers: Int(capture.modifiers))
+        } else if forCopyLastTranscript {
+            settings.updateCopyLastTranscriptHotkey(capture.hotkeyString, keyCode: Int(capture.keyCode), modifiers: Int(capture.modifiers))
+        } else if forQuickCapturePTT {
+            settings.updateQuickCapturePTTHotkey(capture.hotkeyString, keyCode: Int(capture.keyCode), modifiers: Int(capture.modifiers))
+        } else if forQuickCaptureToggle {
+            settings.updateQuickCaptureToggleHotkey(capture.hotkeyString, keyCode: Int(capture.keyCode), modifiers: Int(capture.modifiers))
+        } else {
+            settings.updatePushToTalkHotkey(capture.hotkeyString, keyCode: Int(capture.keyCode), modifiers: Int(capture.modifiers))
+        }
+    }
+    private func isAllowedSoloModifierKeyCode(_ keyCode: UInt16) -> Bool {
+        switch keyCode {
+        case 54, 55, 56, 60, 58, 61, 59, 62:
+            return true
+        default:
+            return false
+        }
+    }
+    private func isFunctionKeyCode(_ keyCode: UInt16) -> Bool {
+        keyCodeToName(keyCode).hasPrefix("F")
+    }
+
     private func carbonModifiersFrom(_ flags: NSEvent.ModifierFlags) -> UInt32 {
         var carbon: UInt32 = 0
         if flags.contains(.command) { carbon |= UInt32(cmdKey) }
@@ -233,10 +271,13 @@ struct HotkeysSettingsView: View {
     }
     
     private func stopRecording() {
+        HotkeyManager.setHotkeyCaptureInProgress(false)
         if let monitor = keyMonitor {
             NSEvent.removeMonitor(monitor)
             keyMonitor = nil
         }
+        pendingHotkeyCapture = nil
+        activeModifierKeyCodes.removeAll()
         isRecordingToggle = false
         isRecordingPushToTalk = false
         isRecordingCopyLastTranscript = false

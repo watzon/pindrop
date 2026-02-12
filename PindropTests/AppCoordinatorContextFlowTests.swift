@@ -132,4 +132,27 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
         XCTAssertFalse(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: outsideThreshold, threshold: 0.4))
         XCTAssertFalse(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: nil, threshold: 0.4))
     }
+
+    func testNormalizedTranscriptionTextTrimsWhitespaceAndNewlines() {
+        XCTAssertEqual(AppCoordinator.normalizedTranscriptionText("  hello world \n"), "hello world")
+        XCTAssertEqual(AppCoordinator.normalizedTranscriptionText("\n\t  "), "")
+    }
+
+    func testIsTranscriptionEffectivelyEmptyTreatsBlankAudioPlaceholderAsEmpty() {
+        XCTAssertTrue(AppCoordinator.isTranscriptionEffectivelyEmpty(""))
+        XCTAssertTrue(AppCoordinator.isTranscriptionEffectivelyEmpty("   \n\t"))
+        XCTAssertTrue(AppCoordinator.isTranscriptionEffectivelyEmpty("[BLANK AUDIO]"))
+        XCTAssertTrue(AppCoordinator.isTranscriptionEffectivelyEmpty("  [blank audio]  "))
+
+        XCTAssertFalse(AppCoordinator.isTranscriptionEffectivelyEmpty("[BLANK AUDIO] detected speech"))
+        XCTAssertFalse(AppCoordinator.isTranscriptionEffectivelyEmpty("transcribed text"))
+    }
+
+    func testShouldPersistHistoryRequiresSuccessfulOutputAndNonEmptyText() {
+        XCTAssertTrue(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "transcribed text"))
+
+        XCTAssertFalse(AppCoordinator.shouldPersistHistory(outputSucceeded: false, text: "transcribed text"))
+        XCTAssertFalse(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "   "))
+        XCTAssertFalse(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "[BLANK AUDIO]"))
+    }
 }

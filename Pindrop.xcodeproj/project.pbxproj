@@ -33,6 +33,11 @@
 		6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0729D0116F8418084311F4C /* HistoryStoreTests.swift */; };
 		DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */; };
 PRESETSTORETEST1A2B3C4D5E6F70 /* PromptPresetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */; };
+		PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */; };
+		SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */; };
+		MODELMGRTESTBUILD1A2B3C4D5E6F70 /* ModelManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */; };
+		LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */; };
+		DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */; };
 		NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */; };
 		6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */; };
 		6EA189DAD2FC954E2AA5B6B3 /* AIEnhancementStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */; };
@@ -179,6 +184,11 @@ PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */ = {isa = PBXFileReferenc
 		DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
 PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptPresetStoreTests.swift; sourceTree = "<group>"; };
 		NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStoreTests.swift; sourceTree = "<group>"; };
+		PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManagerTests.swift; sourceTree = "<group>"; };
+		SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
+		MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManagerTests.swift; sourceTree = "<group>"; };
+		LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManagerTests.swift; sourceTree = "<group>"; };
+		DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryModelsTests.swift; sourceTree = "<group>"; };
 		E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelDownloadStepView.swift; sourceTree = "<group>"; };
 		F0DC71BCB19DB51FA606C373 /* Icons.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
@@ -411,6 +421,11 @@ RESOURCESGRP1A2B3C4D5E6F /* Resources */,
 				TESTHELPERS01A2B3C4D5E6F /* TestHelpers */,
 				8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */,
 				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
+				PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */,
+				SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */,
+				MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */,
+				LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */,
+				DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
 			8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 			E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
@@ -633,6 +648,11 @@ NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,
 			WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
 			PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */,
 UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
+			PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */,
+			SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */,
+			MODELMGRTESTBUILD1A2B3C4D5E6F70 /* ModelManagerTests.swift in Sources */,
+			LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */,
+			DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
 			MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */,
 			MOCKCAPT01A2B3C4D5E6F /* MockAudioCaptureBackend.swift in Sources */,
 			CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */,

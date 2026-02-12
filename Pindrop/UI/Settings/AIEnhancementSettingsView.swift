@@ -27,6 +27,7 @@ struct AIEnhancementSettingsView: View {
     @State private var errorMessage: String?
     @State private var showAccessibilityAlert = false
     @State private var accessibilityPermissionGranted = false
+    @State private var accessibilityPermissionRequestInFlight = false
     
     @State private var presets: [PromptPreset] = []
     @State private var showPresetManagement = false
@@ -815,18 +816,19 @@ struct AIEnhancementSettingsView: View {
     }
 
     private func requestAccessibilityPermissionIfNeeded() {
+        guard !accessibilityPermissionRequestInFlight else { return }
         let permissionManager = PermissionManager()
         let alreadyGranted = permissionManager.checkAccessibilityPermission()
         accessibilityPermissionGranted = alreadyGranted
-
         guard !alreadyGranted else { return }
 
+        accessibilityPermissionRequestInFlight = true
         _ = permissionManager.requestAccessibilityPermission(showPrompt: true)
-
         Task {
             try? await Task.sleep(for: .milliseconds(500))
             let granted = permissionManager.checkAccessibilityPermission()
             accessibilityPermissionGranted = granted
+            accessibilityPermissionRequestInFlight = false
             if !granted {
                 showAccessibilityAlert = true
             }

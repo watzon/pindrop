@@ -16,12 +16,24 @@ final class PermissionManagerTests: XCTestCase {
     
     override func setUp() async throws {
         try await super.setUp()
+        try requireIntegrationTestsEnabled()
         permissionManager = PermissionManager()
     }
     
     override func tearDown() async throws {
         permissionManager = nil
         try await super.tearDown()
+    }
+
+    private func requireIntegrationTestsEnabled() throws {
+        let runIntegrationTests = ProcessInfo.processInfo.environment[
+            "PINDROP_RUN_INTEGRATION_TESTS"
+        ] == "1"
+
+        try XCTSkipUnless(
+            runIntegrationTests,
+            "PermissionManager integration tests are disabled by default. Run `just test-integration` to execute them."
+        )
     }
 
     private func expectedSystemPermissionStatus() -> AVAuthorizationStatus {

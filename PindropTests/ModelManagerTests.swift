@@ -27,25 +27,25 @@ final class ModelManagerTests: XCTestCase {
         let models = modelManager.availableModels
         
         XCTAssertFalse(models.isEmpty, "Should have available models")
-        XCTAssertTrue(models.contains { $0.name == "tiny" }, "Should include tiny model")
-        XCTAssertTrue(models.contains { $0.name == "base" }, "Should include base model")
-        XCTAssertTrue(models.contains { $0.name == "small" }, "Should include small model")
-        XCTAssertTrue(models.contains { $0.name == "medium" }, "Should include medium model")
-        XCTAssertTrue(models.contains { $0.name == "large-v3" }, "Should include large-v3 model")
-        XCTAssertTrue(models.contains { $0.name == "turbo" }, "Should include turbo model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-tiny" }, "Should include tiny model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-base" }, "Should include base model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-small" }, "Should include small model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3" }, "Should include large-v3 model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3_turbo" }, "Should include turbo model")
+        XCTAssertTrue(models.contains { $0.name == "parakeet-tdt-0.6b-v2" }, "Should include parakeet model")
     }
     
     func testModelSizes() {
         let models = modelManager.availableModels
         
-        for model in models {
+        for model in models where model.provider.isLocal {
             XCTAssertGreaterThan(model.sizeInMB, 0, "Model \(model.name) should have size > 0")
         }
         
         // Verify size ordering (tiny < base < small < medium < large)
-        let tiny = models.first { $0.name == "tiny" }
-        let base = models.first { $0.name == "base" }
-        let small = models.first { $0.name == "small" }
+        let tiny = models.first { $0.name == "openai_whisper-tiny" }
+        let base = models.first { $0.name == "openai_whisper-base" }
+        let small = models.first { $0.name == "openai_whisper-small" }
         
         XCTAssertNotNil(tiny)
         XCTAssertNotNil(base)
@@ -67,44 +67,44 @@ final class ModelManagerTests: XCTestCase {
     }
 
     func testIsModelDownloaded() async {
-        let isDownloaded = await modelManager.isModelDownloaded("tiny")
+        let isDownloaded = modelManager.isModelDownloaded("openai_whisper-tiny")
 
         // Should return a valid boolean
         XCTAssertTrue(isDownloaded == true || isDownloaded == false, "Should return valid boolean")
     }
     
-    func testModelPath() async {
-        let path = await modelManager.getModelPath(for: "tiny")
-        
-        XCTAssertNotNil(path, "Should return path for valid model")
-        XCTAssertTrue(path!.contains("Pindrop/Models"), "Path should contain Pindrop/Models")
-        XCTAssertTrue(path!.contains("tiny"), "Path should contain model name")
+    func testModelLookup() {
+        let model = modelManager.availableModels.first { $0.name == "openai_whisper-tiny" }
+
+        XCTAssertNotNil(model, "Should return model for valid identifier")
+        XCTAssertEqual(model?.provider, .whisperKit)
     }
-    
-    func testInvalidModelPath() async {
-        let path = await modelManager.getModelPath(for: "nonexistent-model")
-        
-        XCTAssertNil(path, "Should return nil for invalid model")
+
+    func testInvalidModelLookup() {
+        let model = modelManager.availableModels.first { $0.name == "nonexistent-model" }
+
+        XCTAssertNil(model, "Should return nil for invalid model")
     }
-    
-    // MARK: - Model Storage Tests
-    
-    func testModelsDirectory() async {
-        let directory = await modelManager.modelsDirectory
-        
-        XCTAssertTrue(directory.contains("Library/Application Support/Pindrop/Models"), "Should use Application Support directory")
+
+    func testContainsParakeetModels() {
+        let hasParakeetModel = modelManager.availableModels.contains { $0.provider == .parakeet }
+
+        XCTAssertTrue(hasParakeetModel, "Should include at least one Parakeet model")
     }
-    
-    func testModelsDirectoryCreation() async {
-        // This test verifies that the models directory is created if it doesn't exist
-        let directory = await modelManager.modelsDirectory
-        let fileManager = FileManager.default
-        
-        var isDirectory: ObjCBool = false
-        let exists = fileManager.fileExists(atPath: directory, isDirectory: &isDirectory)
-        
-        XCTAssertTrue(exists, "Models directory should exist after initialization")
-        XCTAssertTrue(isDirectory.boolValue, "Models path should be a directory")
+
+    func testDeleteNonexistentModelThrowsModelNotFound() async {
+        do {
+            try await modelManager.deleteModel(named: "nonexistent-model")
+            XCTFail("Should throw modelNotFound for nonexistent model")
+        } catch let error as ModelManager.ModelError {
+            guard case .modelNotFound(let modelName) = error else {
+                XCTFail("Expected modelNotFound error")
+                return
+            }
+            XCTAssertEqual(modelName, "nonexistent-model")
+        } catch {
+            XCTFail("Expected ModelError, got \(error)")
+        }
     }
     
     // MARK: - Download Progress Tests

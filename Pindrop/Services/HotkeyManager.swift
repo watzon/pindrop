@@ -66,6 +66,16 @@ final class CarbonHotkeyRegistration: HotkeyRegistrationProtocol {
 // MARK: - HotkeyManager
 
 final class HotkeyManager {
+    private static let hotkeyCaptureStateDidChangeNotification = Notification.Name("com.pindrop.hotkeyCaptureStateDidChange")
+    private static let hotkeyCaptureStateUserInfoKey = "isCapturing"
+
+    static func setHotkeyCaptureInProgress(_ isCapturing: Bool) {
+        NotificationCenter.default.post(
+            name: hotkeyCaptureStateDidChangeNotification,
+            object: nil,
+            userInfo: [hotkeyCaptureStateUserInfoKey: isCapturing]
+        )
+    }
     
     enum HotkeyMode {
         case toggle
@@ -121,14 +131,17 @@ final class HotkeyManager {
     private var eventHandlerRef: EventHandlerRef?
     private let logger = Logger(subsystem: "com.pindrop.app", category: "HotkeyManager")
     private let registration: HotkeyRegistrationProtocol
+    private var hotkeyCaptureStateObserver: NSObjectProtocol?
+    private var isEventDispatchSuppressed = false
     
     init(registration: HotkeyRegistrationProtocol = CarbonHotkeyRegistration()) {
         self.registration = registration
         setupEventHandler()
+        observeHotkeyCaptureState()
     }
-    
     deinit {
         unregisterAll()
+        removeHotkeyCaptureStateObserver()
         removeEventHandler()
     }
     
@@ -229,12 +242,60 @@ final class HotkeyManager {
     func getHotkeyConfiguration(identifier: String) -> HotkeyConfiguration? {
         return registeredHotkeys[identifier]?.configuration
     }
+
+    func setEventDispatchSuppressed(_ suppressed: Bool) {
+        guard isEventDispatchSuppressed != suppressed else { return }
+        isEventDispatchSuppressed = suppressed
+
+        guard suppressed else { return }
+
+        var keyUpCallbacks: [() -> Void] = []
+
+        for identifier in Array(registeredHotkeys.keys) {
+            guard var registeredHotkey = registeredHotkeys[identifier],
+                  registeredHotkey.isKeyCurrentlyPressed else {
+                continue
+            }
+
+            registeredHotkey.isKeyCurrentlyPressed = false
+            registeredHotkeys[identifier] = registeredHotkey
+
+            if registeredHotkey.configuration.mode == .pushToTalk,
+               let onKeyUp = registeredHotkey.configuration.onKeyUp {
+                keyUpCallbacks.append(onKeyUp)
+            }
+        }
+
+        guard !keyUpCallbacks.isEmpty else { return }
+
+        DispatchQueue.main.async {
+            keyUpCallbacks.forEach { $0() }
+        }
+    }
+
+    private func observeHotkeyCaptureState() {
+        hotkeyCaptureStateObserver = NotificationCenter.default.addObserver(
+            forName: Self.hotkeyCaptureStateDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let isCapturing = notification.userInfo?[Self.hotkeyCaptureStateUserInfoKey] as? Bool else { return }
+            self?.setEventDispatchSuppressed(isCapturing)
+        }
+    }
+
+    private func removeHotkeyCaptureStateObserver() {
+        guard let observer = hotkeyCaptureStateObserver else { return }
+        NotificationCenter.default.removeObserver(observer)
+        hotkeyCaptureStateObserver = nil
+    }
     
     func convertToCarbonModifiers(_ modifiers: ModifierFlags) -> UInt32 {
         return modifiers.rawValue
     }
 
     func handleModifierFlagsChanged(event: CGEvent) {
+        guard !isEventDispatchSuppressed else { return }
         let keyCode = UInt32(event.getIntegerValueField(.keyboardEventKeycode))
         guard let modifierMask = modifierMask(for: keyCode) else { return }
 
@@ -295,6 +356,7 @@ final class HotkeyManager {
     
     private func handleHotkeyEvent(event: EventRef?) -> OSStatus {
         guard let event = event else { return OSStatus(eventNotHandledErr) }
+        guard !isEventDispatchSuppressed else { return noErr }
         
         let eventKind = GetEventKind(event)
         let isKeyDown = (eventKind == UInt32(kEventHotKeyPressed))

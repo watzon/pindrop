@@ -33,6 +33,9 @@ final class OnboardingWindowController {
             onComplete: { [weak self] in
                 self?.closeOnboarding()
                 onComplete()
+            },
+            onPreferredContentSizeChange: { [weak self] size in
+                self?.ensureWindowCanFitContentSize(size)
             }
         )
         
@@ -51,11 +54,30 @@ final class OnboardingWindowController {
         
         window.setContentSize(NSSize(width: 800, height: 600))
         window.minSize = NSSize(width: 800, height: 600)
-        window.maxSize = NSSize(width: 800, height: 600)
         
         self.window = window
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func ensureWindowCanFitContentSize(_ preferredSize: CGSize) {
+        guard let window else { return }
+
+        let minimumSize = NSSize(width: 800, height: 600)
+        let targetSize = NSSize(
+            width: max(minimumSize.width, preferredSize.width),
+            height: max(minimumSize.height, preferredSize.height)
+        )
+
+        let currentSize = window.contentLayoutRect.size
+        guard currentSize.width < targetSize.width || currentSize.height < targetSize.height else {
+            return
+        }
+
+        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: targetSize))
+        frame.origin.x = window.frame.midX - (frame.size.width / 2)
+        frame.origin.y = window.frame.maxY - frame.size.height
+        window.setFrame(frame, display: true, animate: true)
     }
     
     func closeOnboarding() {

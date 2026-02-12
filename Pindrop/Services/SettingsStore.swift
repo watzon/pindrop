@@ -10,6 +10,23 @@ import SwiftUI
 import Security
 import Combine
 
+private enum SettingsStoreRuntime {
+    static let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+
+    static let isRunningTests: Bool = {
+        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }()
+
+    static let appStorageStore: UserDefaults? = {
+        guard isRunningTests else { return nil }
+
+        let suiteName = ProcessInfo.processInfo.environment["PINDROP_TEST_USER_DEFAULTS_SUITE"]
+            ?? "com.pindrop.settings.tests.\(ProcessInfo.processInfo.processIdentifier)"
+        return UserDefaults(suiteName: suiteName)
+    }()
+}
+
 @MainActor
 final class SettingsStore: ObservableObject {
     
@@ -34,6 +51,8 @@ final class SettingsStore: ObservableObject {
         static let selectedInputDeviceUID = ""
         static let aiModel = "openai/gpt-4o-mini"
         static let aiEnhancementPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+        static let floatingIndicatorEnabled = true
+        static let floatingIndicatorType = FloatingIndicatorType.pill.rawValue
         static let noteEnhancementPrompt = """
 You are a note formatting assistant. Transform the transcribed text into a well-structured note.
 
@@ -75,70 +94,73 @@ Rules:
     
     // MARK: - AppStorage Properties
     
-    @AppStorage("selectedModel") var selectedModel: String = Defaults.selectedModel
-    @AppStorage("toggleHotkey") var toggleHotkey: String = Defaults.Hotkeys.toggleHotkey
-    @AppStorage("toggleHotkeyCode") var toggleHotkeyCode: Int = Defaults.Hotkeys.toggleHotkeyCode
-    @AppStorage("toggleHotkeyModifiers") var toggleHotkeyModifiers: Int = Defaults.Hotkeys.toggleHotkeyModifiers
-    @AppStorage("pushToTalkHotkey") var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
-    @AppStorage("pushToTalkHotkeyCode") var pushToTalkHotkeyCode: Int = Defaults.Hotkeys.pushToTalkHotkeyCode
-    @AppStorage("pushToTalkHotkeyModifiers") var pushToTalkHotkeyModifiers: Int = Defaults.Hotkeys.pushToTalkHotkeyModifiers
-    @AppStorage("copyLastTranscriptHotkey") var copyLastTranscriptHotkey: String = Defaults.Hotkeys.copyLastTranscriptHotkey
-    @AppStorage("copyLastTranscriptHotkeyCode") var copyLastTranscriptHotkeyCode: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
-    @AppStorage("copyLastTranscriptHotkeyModifiers") var copyLastTranscriptHotkeyModifiers: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
-    @AppStorage("quickCapturePTTHotkey") var quickCapturePTTHotkey: String = Defaults.Hotkeys.quickCapturePTTHotkey
-    @AppStorage("quickCapturePTTHotkeyCode") var quickCapturePTTHotkeyCode: Int = Defaults.Hotkeys.quickCapturePTTHotkeyCode
-    @AppStorage("quickCapturePTTHotkeyModifiers") var quickCapturePTTHotkeyModifiers: Int = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
-    @AppStorage("quickCaptureToggleHotkey") var quickCaptureToggleHotkey: String = Defaults.Hotkeys.quickCaptureToggleHotkey
-    @AppStorage("quickCaptureToggleHotkeyCode") var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
-    @AppStorage("quickCaptureToggleHotkeyModifiers") var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
-    @AppStorage("outputMode") var outputMode: String = Defaults.outputMode
-    @AppStorage("selectedInputDeviceUID") var selectedInputDeviceUID: String = Defaults.selectedInputDeviceUID
-    @AppStorage("aiEnhancementEnabled") var aiEnhancementEnabled: Bool = false
-    @AppStorage("aiModel") var aiModel: String = Defaults.aiModel
-    @AppStorage("aiEnhancementPrompt") var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
-    @AppStorage("noteEnhancementPrompt") var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
-    @AppStorage("floatingIndicatorEnabled") var floatingIndicatorEnabled: Bool = false
-    @AppStorage("floatingIndicatorType") var floatingIndicatorType: String = FloatingIndicatorType.pill.rawValue
-    @AppStorage("showInDock") var showInDock: Bool = false
-    @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
-    @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
-    @AppStorage("selectedPresetId") var selectedPresetId: String?
-    @AppStorage("mentionTemplateOverridesJSON") var mentionTemplateOverridesJSON: String = Defaults.mentionTemplateOverridesJSON
+    @AppStorage("selectedModel", store: SettingsStoreRuntime.appStorageStore) var selectedModel: String = Defaults.selectedModel
+    @AppStorage("toggleHotkey", store: SettingsStoreRuntime.appStorageStore) var toggleHotkey: String = Defaults.Hotkeys.toggleHotkey
+    @AppStorage("toggleHotkeyCode", store: SettingsStoreRuntime.appStorageStore) var toggleHotkeyCode: Int = Defaults.Hotkeys.toggleHotkeyCode
+    @AppStorage("toggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore) var toggleHotkeyModifiers: Int = Defaults.Hotkeys.toggleHotkeyModifiers
+    @AppStorage("pushToTalkHotkey", store: SettingsStoreRuntime.appStorageStore) var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
+    @AppStorage("pushToTalkHotkeyCode", store: SettingsStoreRuntime.appStorageStore) var pushToTalkHotkeyCode: Int = Defaults.Hotkeys.pushToTalkHotkeyCode
+    @AppStorage("pushToTalkHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore) var pushToTalkHotkeyModifiers: Int = Defaults.Hotkeys.pushToTalkHotkeyModifiers
+    @AppStorage("copyLastTranscriptHotkey", store: SettingsStoreRuntime.appStorageStore) var copyLastTranscriptHotkey: String = Defaults.Hotkeys.copyLastTranscriptHotkey
+    @AppStorage("copyLastTranscriptHotkeyCode", store: SettingsStoreRuntime.appStorageStore) var copyLastTranscriptHotkeyCode: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
+    @AppStorage("copyLastTranscriptHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore) var copyLastTranscriptHotkeyModifiers: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
+    @AppStorage("quickCapturePTTHotkey", store: SettingsStoreRuntime.appStorageStore) var quickCapturePTTHotkey: String = Defaults.Hotkeys.quickCapturePTTHotkey
+    @AppStorage("quickCapturePTTHotkeyCode", store: SettingsStoreRuntime.appStorageStore) var quickCapturePTTHotkeyCode: Int = Defaults.Hotkeys.quickCapturePTTHotkeyCode
+    @AppStorage("quickCapturePTTHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore) var quickCapturePTTHotkeyModifiers: Int = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
+    @AppStorage("quickCaptureToggleHotkey", store: SettingsStoreRuntime.appStorageStore) var quickCaptureToggleHotkey: String = Defaults.Hotkeys.quickCaptureToggleHotkey
+    @AppStorage("quickCaptureToggleHotkeyCode", store: SettingsStoreRuntime.appStorageStore) var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
+    @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore) var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
+    @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String = Defaults.outputMode
+    @AppStorage("selectedInputDeviceUID", store: SettingsStoreRuntime.appStorageStore) var selectedInputDeviceUID: String = Defaults.selectedInputDeviceUID
+    @AppStorage("aiEnhancementEnabled", store: SettingsStoreRuntime.appStorageStore) var aiEnhancementEnabled: Bool = false
+    @AppStorage("aiModel", store: SettingsStoreRuntime.appStorageStore) var aiModel: String = Defaults.aiModel
+    @AppStorage("aiEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore) var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
+    @AppStorage("noteEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore) var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
+    @AppStorage("floatingIndicatorEnabled", store: SettingsStoreRuntime.appStorageStore) var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
+    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore) var floatingIndicatorType: String = Defaults.floatingIndicatorType
+    @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool = false
+    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore) var addTrailingSpace: Bool = true
+    @AppStorage("launchAtLogin", store: SettingsStoreRuntime.appStorageStore) var launchAtLogin: Bool = false
+    @AppStorage("selectedPresetId", store: SettingsStoreRuntime.appStorageStore) var selectedPresetId: String?
+    @AppStorage("mentionTemplateOverridesJSON", store: SettingsStoreRuntime.appStorageStore) var mentionTemplateOverridesJSON: String = Defaults.mentionTemplateOverridesJSON
 
-    @AppStorage("enableClipboardContext") var enableClipboardContext: Bool = false
-    @AppStorage("enableUIContext") var enableUIContext: Bool = false
-    @AppStorage("contextCaptureTimeoutSeconds") var contextCaptureTimeoutSeconds: Double = 2.0
-    @AppStorage("vibeLiveSessionEnabled") var vibeLiveSessionEnabled: Bool = true
+    @AppStorage("enableClipboardContext", store: SettingsStoreRuntime.appStorageStore) var enableClipboardContext: Bool = false
+    @AppStorage("enableUIContext", store: SettingsStoreRuntime.appStorageStore) var enableUIContext: Bool = false
+    @AppStorage("contextCaptureTimeoutSeconds", store: SettingsStoreRuntime.appStorageStore) var contextCaptureTimeoutSeconds: Double = 2.0
+    @AppStorage("vibeLiveSessionEnabled", store: SettingsStoreRuntime.appStorageStore) var vibeLiveSessionEnabled: Bool = true
 
-    @AppStorage("vadFeatureEnabled") var vadFeatureEnabled: Bool = false
-    @AppStorage("diarizationFeatureEnabled") var diarizationFeatureEnabled: Bool = false
-    @AppStorage("streamingFeatureEnabled") var streamingFeatureEnabled: Bool = false
+    @AppStorage("vadFeatureEnabled", store: SettingsStoreRuntime.appStorageStore) var vadFeatureEnabled: Bool = false
+    @AppStorage("diarizationFeatureEnabled", store: SettingsStoreRuntime.appStorageStore) var diarizationFeatureEnabled: Bool = false
+    @AppStorage("streamingFeatureEnabled", store: SettingsStoreRuntime.appStorageStore) var streamingFeatureEnabled: Bool = false
 
     @Published private(set) var vibeRuntimeState: VibeRuntimeState = .degraded
     @Published private(set) var vibeRuntimeDetail: String = "Vibe mode is disabled."
+    @Published private(set) var isApplyingHotkeyUpdate = false
     
     // MARK: - Onboarding State
     
-    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
-    @AppStorage("currentOnboardingStep") var currentOnboardingStep: Int = 0
+    @AppStorage("hasCompletedOnboarding", store: SettingsStoreRuntime.appStorageStore) var hasCompletedOnboarding: Bool = false
+    @AppStorage("currentOnboardingStep", store: SettingsStoreRuntime.appStorageStore) var currentOnboardingStep: Int = 0
 
     // MARK: - Keychain Properties
     
     private let keychainService = "com.pindrop.settings"
     private let apiEndpointAccount = "api-endpoint"
     private let apiKeyAccount = "api-key"
+
+    private static var inMemoryKeychainStorage: [String: String] = [:]
+
+    private static var shouldUseInMemoryKeychain: Bool {
+        SettingsStoreRuntime.isRunningTests
+    }
     
     // MARK: - Cached Keychain Values
     
     private(set) var apiEndpoint: String?
     private(set) var apiKey: String?
     
-    private static var isPreview: Bool {
-        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-    }
-    
     init() {
-        guard !Self.isPreview else { return }
+        guard !SettingsStoreRuntime.isPreview else { return }
         apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
         apiKey = try? loadFromKeychain(account: apiKeyAccount)
     }
@@ -185,8 +207,8 @@ Rules:
         outputMode = Defaults.outputMode
         selectedInputDeviceUID = Defaults.selectedInputDeviceUID
         aiEnhancementEnabled = false
-        floatingIndicatorEnabled = false
-        floatingIndicatorType = FloatingIndicatorType.pill.rawValue
+        floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
+        floatingIndicatorType = Defaults.floatingIndicatorType
         launchAtLogin = false
         mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
         enableUIContext = false
@@ -207,6 +229,52 @@ Rules:
         guard vibeRuntimeState != state || vibeRuntimeDetail != detail else { return }
         vibeRuntimeState = state
         vibeRuntimeDetail = detail
+    }
+
+    func updateToggleHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+        performHotkeyUpdate {
+            toggleHotkey = hotkey
+            toggleHotkeyCode = keyCode
+            toggleHotkeyModifiers = modifiers
+        }
+    }
+
+    func updatePushToTalkHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+        performHotkeyUpdate {
+            pushToTalkHotkey = hotkey
+            pushToTalkHotkeyCode = keyCode
+            pushToTalkHotkeyModifiers = modifiers
+        }
+    }
+
+    func updateCopyLastTranscriptHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+        performHotkeyUpdate {
+            copyLastTranscriptHotkey = hotkey
+            copyLastTranscriptHotkeyCode = keyCode
+            copyLastTranscriptHotkeyModifiers = modifiers
+        }
+    }
+
+    func updateQuickCapturePTTHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+        performHotkeyUpdate {
+            quickCapturePTTHotkey = hotkey
+            quickCapturePTTHotkeyCode = keyCode
+            quickCapturePTTHotkeyModifiers = modifiers
+        }
+    }
+
+    func updateQuickCaptureToggleHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+        performHotkeyUpdate {
+            quickCaptureToggleHotkey = hotkey
+            quickCaptureToggleHotkeyCode = keyCode
+            quickCaptureToggleHotkeyModifiers = modifiers
+        }
+    }
+
+    private func performHotkeyUpdate(_ update: () -> Void) {
+        isApplyingHotkeyUpdate = true
+        defer { isApplyingHotkeyUpdate = false }
+        update()
     }
 
     private static let mentionTemplateOverrideEditorPrefix = "editor:"
@@ -342,6 +410,11 @@ Rules:
     // MARK: - Private Keychain Helpers
     
     private func saveToKeychain(value: String, account: String) throws {
+        if Self.shouldUseInMemoryKeychain {
+            Self.inMemoryKeychainStorage[account] = value
+            return
+        }
+
         guard let data = value.data(using: .utf8) else {
             throw SettingsError.keychainError("Failed to encode value")
         }
@@ -363,6 +436,10 @@ Rules:
     }
     
     private func loadFromKeychain(account: String) throws -> String? {
+        if Self.shouldUseInMemoryKeychain {
+            return Self.inMemoryKeychainStorage[account]
+        }
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
@@ -390,6 +467,11 @@ Rules:
     }
     
     private func deleteFromKeychain(account: String) throws {
+        if Self.shouldUseInMemoryKeychain {
+            Self.inMemoryKeychainStorage.removeValue(forKey: account)
+            return
+        }
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,

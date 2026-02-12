@@ -42,6 +42,7 @@ struct OnboardingWindow: View {
     var transcriptionService: TranscriptionService
     let permissionManager: PermissionManager
     let onComplete: () -> Void
+    let onPreferredContentSizeChange: (CGSize) -> Void
     
     @State private var currentStep: OnboardingStep = .welcome
     @State private var selectedModelName: String = "openai_whisper-base"
@@ -67,6 +68,19 @@ struct OnboardingWindow: View {
         case .hotkeySetup: return .permissions
         case .ready: return .hotkeySetup
         }
+    }
+
+    private static func preferredContentSize(for step: OnboardingStep) -> CGSize {
+        switch step {
+        case .aiEnhancement:
+            return CGSize(width: 800, height: 700)
+        default:
+            return CGSize(width: 800, height: 600)
+        }
+    }
+
+    private var preferredContentSize: CGSize {
+        Self.preferredContentSize(for: currentStep)
     }
     
     var body: some View {
@@ -100,12 +114,14 @@ struct OnboardingWindow: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(width: 800, height: 600)
+        .frame(minWidth: 800, idealWidth: preferredContentSize.width, minHeight: 600, idealHeight: preferredContentSize.height)
         .onAppear {
-            let savedStep = settings.currentOnboardingStep
-            if let step = OnboardingStep(rawValue: savedStep) {
-                currentStep = step
-            }
+            let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
+            currentStep = initialStep
+            onPreferredContentSizeChange(Self.preferredContentSize(for: initialStep))
+        }
+        .onChange(of: currentStep) { _, newStep in
+            onPreferredContentSizeChange(Self.preferredContentSize(for: newStep))
         }
     }
     
@@ -186,7 +202,10 @@ struct OnboardingWindow: View {
                 AIEnhancementStepView(
                     settings: settings,
                     onContinue: { goToStep(.permissions) },
-                    onSkip: { goToStep(.permissions) }
+                    onSkip: { goToStep(.permissions) },
+                    onPreferredContentSizeChange: { size in
+                        onPreferredContentSizeChange(size)
+                    }
                 )
                 .transition(.asymmetric(
                     insertion: .move(edge: direction > 0 ? .trailing : .leading).combined(with: .opacity),
@@ -267,7 +286,8 @@ struct OnboardingWindow_Previews: PreviewProvider {
             modelManager: PreviewModelManagerWindow(),
             transcriptionService: PreviewTranscriptionServiceWindow(),
             permissionManager: PermissionManager(),
-            onComplete: {}
+            onComplete: {},
+            onPreferredContentSizeChange: { _ in }
         )
     }
 }

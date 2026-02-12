@@ -276,6 +276,13 @@ class ModelManager {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("Pindrop", isDirectory: true)
     }
+
+    private var whisperKitModelsURL: URL {
+        modelsBaseURL
+            .appendingPathComponent("models", isDirectory: true)
+            .appendingPathComponent("argmaxinc", isDirectory: true)
+            .appendingPathComponent("whisperkit-coreml", isDirectory: true)
+    }
     
     private var parakeetModelsURL: URL {
         modelsBaseURL.appendingPathComponent("FluidInference", isDirectory: true)
@@ -286,6 +293,18 @@ class ModelManager {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("FluidAudio", isDirectory: true)
             .appendingPathComponent("Models", isDirectory: true)
+    }
+
+    private func localModelPath(for model: WhisperModel) -> URL? {
+        switch model.provider {
+        case .whisperKit:
+            return whisperKitModelsURL.appendingPathComponent(model.name, isDirectory: true)
+        case .parakeet:
+            let folderName = model.name.hasSuffix("-coreml") ? model.name : "\(model.name)-coreml"
+            return parakeetModelsURL.appendingPathComponent(folderName, isDirectory: true)
+        case .openAI, .elevenLabs, .groq:
+            return nil
+        }
     }
     
     private static var isPreview: Bool {
@@ -302,12 +321,9 @@ class ModelManager {
     
     func refreshDownloadedModels() async {
         var downloaded: Set<String> = []
-        
-        let whisperKitPath = modelsBaseURL
-            .appendingPathComponent("models", isDirectory: true)
-            .appendingPathComponent("argmaxinc", isDirectory: true)
-            .appendingPathComponent("whisperkit-coreml", isDirectory: true)
-        
+
+        let whisperKitPath = whisperKitModelsURL
+
         if fileManager.fileExists(atPath: whisperKitPath.path) {
             do {
                 let contents = try fileManager.contentsOfDirectory(atPath: whisperKitPath.path)
@@ -477,12 +493,18 @@ class ModelManager {
     }
     
     func deleteModel(named modelName: String) async throws {
-        let modelPath = modelsBaseURL.appendingPathComponent(modelName)
-        
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+            throw ModelError.modelNotFound(modelName)
+        }
+
+        guard let modelPath = localModelPath(for: model) else {
+            throw ModelError.deleteFailed("Model \(modelName) is not stored locally")
+        }
+
         guard fileManager.fileExists(atPath: modelPath.path) else {
             throw ModelError.modelNotFound(modelName)
         }
-        
+
         do {
             try fileManager.removeItem(at: modelPath)
             await refreshDownloadedModels()

@@ -71,8 +71,23 @@ test:
     xcodebuild test \
         -project {{xcode_project}} \
         -scheme {{scheme}} \
+        -testPlan Unit \
         -destination 'platform=macOS'
     @echo "✅ Tests complete"
+
+# Run integration tests only (opt-in)
+test-integration:
+    @echo "🧪 Running integration tests..."
+    xcodebuild test \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -testPlan Integration \
+        -destination 'platform=macOS'
+    @echo "✅ Integration tests complete"
+
+# Run unit + integration suites
+test-all: test test-integration
+    @echo "✅ All test suites complete"
 
 # Run tests with coverage
 test-coverage:
@@ -80,6 +95,7 @@ test-coverage:
     xcodebuild test \
         -project {{xcode_project}} \
         -scheme {{scheme}} \
+        -testPlan Unit \
         -destination 'platform=macOS' \
         -enableCodeCoverage YES
     @echo "✅ Tests with coverage complete"

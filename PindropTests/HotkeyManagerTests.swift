@@ -412,6 +412,81 @@ final class HotkeyManagerTests: XCTestCase {
         wait(for: [keyUpExpectation], timeout: 1.0)
     }
 
+    func testSuppressedDispatchSkipsModifierOnlyCallbacks() {
+        let unexpectedKeyDown = expectation(description: "Modifier key down should be suppressed")
+        unexpectedKeyDown.isInverted = true
+        let unexpectedKeyUp = expectation(description: "Modifier key up should be suppressed")
+        unexpectedKeyUp.isInverted = true
+
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 54,
+            modifiers: [.command],
+            identifier: "suppressedModifierPTT",
+            mode: .pushToTalk,
+            onKeyDown: { unexpectedKeyDown.fulfill() },
+            onKeyUp: { unexpectedKeyUp.fulfill() }
+        )
+
+        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+        hotkeyManager.setEventDispatchSuppressed(true)
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        guard let keyDownEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: 54,
+            keyDown: true
+        ), let keyUpEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: 54,
+            keyDown: false
+        ) else {
+            XCTFail("Failed to create modifier CGEvents")
+            return
+        }
+
+        keyDownEvent.flags = .maskCommand
+        keyUpEvent.flags = []
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+
+        wait(for: [unexpectedKeyDown, unexpectedKeyUp], timeout: 0.2)
+    }
+
+    func testSuppressingDispatchReleasesPressedPushToTalkHotkey() {
+        let keyDownExpectation = expectation(description: "Modifier key down")
+        let keyUpExpectation = expectation(description: "Suppression should release pressed push-to-talk")
+
+        let result = hotkeyManager.registerHotkey(
+            keyCode: 54,
+            modifiers: [.command],
+            identifier: "suppressionReleasePTT",
+            mode: .pushToTalk,
+            onKeyDown: { keyDownExpectation.fulfill() },
+            onKeyUp: { keyUpExpectation.fulfill() }
+        )
+
+        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        guard let keyDownEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: 54,
+            keyDown: true
+        ) else {
+            XCTFail("Failed to create keyDown CGEvent")
+            return
+        }
+
+        keyDownEvent.flags = .maskCommand
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+        wait(for: [keyDownExpectation], timeout: 1.0)
+
+        hotkeyManager.setEventDispatchSuppressed(true)
+        wait(for: [keyUpExpectation], timeout: 1.0)
+    }
+
     // MARK: - AppCoordinator Hotkey Registration Policy
 
     func testHotkeyRegistrationStateRequiresOnboardingCompletion() {
