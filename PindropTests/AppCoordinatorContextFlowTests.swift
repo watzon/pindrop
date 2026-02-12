@@ -71,6 +71,26 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
 
         let legacy = snapshot.asCapturedContext
         XCTAssertNil(legacy.clipboardText, "Legacy bridge should have nil clipboard text when not captured")
+
+        XCTAssertTrue(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: false))
+        XCTAssertTrue(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: true))
+        XCTAssertFalse(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false))
+
+        let now = Date()
+        XCTAssertTrue(
+            AppCoordinator.isDoubleEscapePress(
+                now: now,
+                lastEscapeTime: now.addingTimeInterval(-0.2),
+                threshold: 0.4
+            )
+        )
+        XCTAssertFalse(
+            AppCoordinator.isDoubleEscapePress(
+                now: now,
+                lastEscapeTime: now.addingTimeInterval(-0.6),
+                threshold: 0.4
+            )
+        )
     }
 
     func testContextTimeoutFallsBackWithoutBlockingTranscription() {
@@ -94,5 +114,22 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
 
         let legacy = snapshot.asCapturedContext
         XCTAssertEqual(legacy.clipboardText, "some clipboard text", "Legacy bridge should preserve clipboard text")
+    }
+
+    func testEscapeSuppressionOnlyWhenRecordingOrProcessing() {
+        XCTAssertTrue(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: false))
+        XCTAssertTrue(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: true))
+        XCTAssertTrue(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: true))
+        XCTAssertFalse(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false))
+    }
+
+    func testDoubleEscapeDetectionHonorsThreshold() {
+        let now = Date()
+        let withinThreshold = now.addingTimeInterval(-0.25)
+        let outsideThreshold = now.addingTimeInterval(-0.6)
+
+        XCTAssertTrue(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: withinThreshold, threshold: 0.4))
+        XCTAssertFalse(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: outsideThreshold, threshold: 0.4))
+        XCTAssertFalse(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: nil, threshold: 0.4))
     }
 }

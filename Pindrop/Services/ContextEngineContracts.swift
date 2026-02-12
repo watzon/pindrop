@@ -39,6 +39,132 @@ struct ContextSnapshot {
     )
 }
 
+// MARK: - Vibe Runtime State
+
+enum VibeRuntimeState: String, CaseIterable, Sendable {
+    case ready
+    case limited
+    case degraded
+}
+
+enum ContextSessionUpdateTrigger: String, Sendable {
+    case recordingStart = "recording_start"
+    case poll = "poll"
+    case frontmostAppChange = "frontmost_app_change"
+    case focusOrWindowChange = "focus_or_window_change"
+}
+
+struct ContextTransitionSignature: Equatable, Sendable {
+    let bundleIdentifier: String?
+    let windowTitle: String?
+    let focusedElementRole: String?
+    let documentPath: String?
+    let selectedText: String?
+}
+
+extension ContextSnapshot {
+    var transitionSignature: ContextTransitionSignature {
+        ContextTransitionSignature(
+            bundleIdentifier: appContext?.bundleIdentifier,
+            windowTitle: appContext?.windowTitle,
+            focusedElementRole: appContext?.focusedElementRole,
+            documentPath: appContext?.documentPath,
+            selectedText: appContext?.selectedText
+        )
+    }
+}
+
+struct ContextSessionTransition: Sendable, Equatable {
+    static let maxSelectedTextPreviewLength = 160
+    let timestamp: Date
+    let trigger: ContextSessionUpdateTrigger
+    let appBundleIdentifier: String?
+    let appName: String?
+    let windowTitle: String?
+    let focusedElementRole: String?
+    let documentPath: String?
+    let selectedTextPreview: String?
+    let activeFilePath: String?
+    let activeFileConfidence: Double?
+    let workspacePath: String?
+    let workspaceConfidence: Double?
+    let outputMode: String?
+    let contextTags: [String]
+    let transitionSignature: String?
+
+    init(
+        timestamp: Date = Date(),
+        trigger: ContextSessionUpdateTrigger,
+        snapshot: ContextSnapshot,
+        activeFilePath: String? = nil,
+        activeFileConfidence: Double? = nil,
+        workspacePath: String? = nil,
+        workspaceConfidence: Double? = nil,
+        outputMode: String? = nil,
+        contextTags: [String] = [],
+        transitionSignature: String? = nil
+    ) {
+        self.timestamp = timestamp
+        self.trigger = trigger
+        self.appBundleIdentifier = snapshot.appContext?.bundleIdentifier
+        self.appName = snapshot.appContext?.appName
+        self.windowTitle = snapshot.appContext?.windowTitle
+        self.focusedElementRole = snapshot.appContext?.focusedElementRole
+        self.documentPath = snapshot.appContext?.documentPath
+        self.activeFilePath = activeFilePath
+        self.activeFileConfidence = activeFileConfidence.map { min(max($0, 0), 1) }
+        self.workspacePath = workspacePath
+        self.workspaceConfidence = workspaceConfidence.map { min(max($0, 0), 1) }
+        self.outputMode = outputMode
+        self.contextTags = contextTags
+        self.transitionSignature = transitionSignature
+        if let selectedText = snapshot.appContext?.selectedText,
+           selectedText.count > Self.maxSelectedTextPreviewLength {
+            self.selectedTextPreview = String(selectedText.prefix(Self.maxSelectedTextPreviewLength)) + "…"
+        } else {
+            self.selectedTextPreview = snapshot.appContext?.selectedText
+        }
+    }
+}
+
+struct ContextSessionState: Sendable {
+    static let maxTransitions = 8
+
+    let startedAt: Date
+    var latestSnapshot: ContextSnapshot
+    var latestRoutingSignal: PromptRoutingSignal
+    var latestAdapterCapabilities: AppAdapterCapabilities?
+    var latestAdapterEnrichment: AppRuntimeEnrichment?
+    var runtimeState: VibeRuntimeState
+    var transitions: [ContextSessionTransition]
+
+    init(
+        startedAt: Date,
+        latestSnapshot: ContextSnapshot,
+        latestRoutingSignal: PromptRoutingSignal,
+        latestAdapterCapabilities: AppAdapterCapabilities?,
+        latestAdapterEnrichment: AppRuntimeEnrichment?,
+        runtimeState: VibeRuntimeState,
+        transitions: [ContextSessionTransition] = []
+    ) {
+        self.startedAt = startedAt
+        self.latestSnapshot = latestSnapshot
+        self.latestRoutingSignal = latestRoutingSignal
+        self.latestAdapterCapabilities = latestAdapterCapabilities
+        self.latestAdapterEnrichment = latestAdapterEnrichment
+        self.runtimeState = runtimeState
+        self.transitions = transitions
+    }
+
+    mutating func appendTransition(_ transition: ContextSessionTransition) {
+        transitions.append(transition)
+        if transitions.count > Self.maxTransitions {
+            transitions.removeFirst(transitions.count - Self.maxTransitions)
+        }
+    }
+}
+
+
 // MARK: - App Context Info
 
 /// Structured information about the frontmost application and window,
@@ -154,6 +280,25 @@ struct PromptRoutingSignal {
     let workspacePath: String?
     let browserDomain: String?
     let isCodeEditorContext: Bool
+    let terminalProviderIdentifier: String?
+
+    init(
+        appBundleIdentifier: String?,
+        appName: String?,
+        windowTitle: String?,
+        workspacePath: String?,
+        browserDomain: String?,
+        isCodeEditorContext: Bool,
+        terminalProviderIdentifier: String? = nil
+    ) {
+        self.appBundleIdentifier = appBundleIdentifier
+        self.appName = appName
+        self.windowTitle = windowTitle
+        self.workspacePath = workspacePath
+        self.browserDomain = browserDomain
+        self.isCodeEditorContext = isCodeEditorContext
+        self.terminalProviderIdentifier = terminalProviderIdentifier
+    }
 
     /// Build a routing signal from a normalized context snapshot.
     static func from(
@@ -171,6 +316,12 @@ struct PromptRoutingSignal {
             isCodeEditor = false
         }
 
+        let terminalProviderIdentifier = Self.inferTerminalProviderIdentifier(
+            bundleIdentifier: bundleID,
+            appName: app?.appName,
+            windowTitle: app?.windowTitle,
+            focusedElementValue: app?.focusedElementValue
+        )
         return PromptRoutingSignal(
             appBundleIdentifier: bundleID,
             appName: app?.appName.lowercased(),
@@ -183,7 +334,8 @@ struct PromptRoutingSignal {
                 focusedElementValue: app?.focusedElementValue
             ),
             browserDomain: Self.extractDomain(from: app?.browserURL),
-            isCodeEditorContext: isCodeEditor
+            isCodeEditorContext: isCodeEditor,
+            terminalProviderIdentifier: terminalProviderIdentifier
         )
     }
 
@@ -193,7 +345,8 @@ struct PromptRoutingSignal {
         windowTitle: nil,
         workspacePath: nil,
         browserDomain: nil,
-        isCodeEditorContext: false
+        isCodeEditorContext: false,
+        terminalProviderIdentifier: nil
     )
 
     // MARK: - Private
@@ -226,7 +379,20 @@ struct PromptRoutingSignal {
         "hyper",
         "tabby",
     ]
-
+    private static func inferTerminalProviderIdentifier(
+        bundleIdentifier: String?,
+        appName: String?,
+        windowTitle: String?,
+        focusedElementValue: String?
+    ) -> String? {
+        guard isTerminalContext(bundleIdentifier: bundleIdentifier, appName: appName) else {
+            return nil
+        }
+        return TerminalProviderRegistry.detectProviderIdentifier(
+            windowTitle: windowTitle,
+            focusedElementValue: focusedElementValue
+        )
+    }
     private static func deriveWorkspaceRoot(
         documentPath: String?,
         bundleIdentifier: String?,
@@ -366,7 +532,6 @@ struct PromptRoutingSignal {
         }
         return trimmed
     }
-
     private static func extractDomain(from urlString: String?) -> String? {
         guard let urlString, let url = URL(string: urlString),
               let host = url.host else {

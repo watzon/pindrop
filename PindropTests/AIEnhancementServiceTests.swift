@@ -698,7 +698,8 @@ final class AIEnhancementServiceTests: XCTestCase {
 
         XCTAssertTrue(payload.contains("<app_adapter>"))
         XCTAssertTrue(payload.contains("<display_name>Visual Studio Code</display_name>"))
-        XCTAssertTrue(payload.contains("<mention_prefix>#</mention_prefix>"))
+        XCTAssertTrue(payload.contains("<mention_prefix>@</mention_prefix>"))
+        XCTAssertTrue(payload.contains("<mention_template>"))
         XCTAssertTrue(payload.contains("<supports_file_mentions>true</supports_file_mentions>"))
         XCTAssertTrue(payload.contains("<routing_signal>"))
         XCTAssertTrue(payload.contains("<is_code_editor_context>true</is_code_editor_context>"))
@@ -797,7 +798,35 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertFalse(payload.contains("<app_name>"))
         XCTAssertFalse(payload.contains("<workspace_path>"))
         XCTAssertFalse(payload.contains("<browser_domain>"))
+        XCTAssertFalse(payload.contains("<terminal_provider_identifier>"))
         XCTAssertTrue(payload.contains("<is_code_editor_context>false</is_code_editor_context>"))
+    }
+
+    func testRoutingSignalIncludesTerminalProviderIdentifierWhenPresent() {
+        let routingSignal = PromptRoutingSignal(
+            appBundleIdentifier: "com.mitchellh.ghostty",
+            appName: "ghostty",
+            windowTitle: "codex",
+            workspacePath: "~/Projects/pindrop",
+            browserDomain: nil,
+            isCodeEditorContext: false,
+            terminalProviderIdentifier: "codex"
+        )
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: routingSignal
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<terminal_provider_identifier>codex</terminal_provider_identifier>"))
     }
 
     func testContextAwareSystemPromptOmitsEmptyFieldSources() {
@@ -979,6 +1008,191 @@ final class AIEnhancementServiceTests: XCTestCase {
 
         XCTAssertFalse(payload.contains("<workspace_file_tree>"))
     }
+
+    func testContextMetadataLiveSessionFlags() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.todesktop.230313mzl4w4u92",
+            appName: "Cursor",
+            windowTitle: "AppCoordinator.swift",
+            focusedElementRole: "AXTextArea",
+            focusedElementValue: nil,
+            selectedText: "handleToggleRecording",
+            documentPath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+            browserURL: nil
+        )
+
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let transition = ContextSessionTransition(
+            trigger: .recordingStart,
+            snapshot: snapshot,
+            activeFilePath: "Pindrop/AppCoordinator.swift",
+            activeFileConfidence: 1.0,
+            workspacePath: "~/Projects/pindrop",
+            workspaceConfidence: 0.9,
+            outputMode: "clipboard",
+            contextTags: ["AppCoordinator.swift", "style:swift"],
+            transitionSignature: "sig-1"
+        )
+
+        let liveContext = AIEnhancementService.LiveSessionContext(
+            runtimeState: .ready,
+            latestAppName: "Cursor",
+            latestWindowTitle: "AppCoordinator.swift",
+            activeFilePath: "Pindrop/AppCoordinator.swift",
+            activeFileConfidence: 1.0,
+            workspacePath: "~/Projects/pindrop",
+            workspaceConfidence: 0.9,
+            fileTagCandidates: ["AppCoordinator.swift"],
+            styleSignals: ["style:swift"],
+            codingSignals: ["code_editor_context"],
+            transitions: [transition]
+        )
+
+        let metadata = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: nil,
+            liveSessionContext: liveContext
+        )
+
+        XCTAssertTrue(metadata.hasLiveSessionContext)
+        XCTAssertTrue(metadata.hasAnyContext)
+    }
+
+    func testBuildContextAwareSystemPromptIncludesLiveSessionContextSource() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.todesktop.230313mzl4w4u92",
+                appName: "Cursor",
+                windowTitle: "AppCoordinator.swift",
+                focusedElementRole: nil,
+                focusedElementValue: nil,
+                selectedText: nil,
+                documentPath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let liveContext = AIEnhancementService.LiveSessionContext(
+            runtimeState: .ready,
+            latestAppName: "Cursor",
+            latestWindowTitle: "AppCoordinator.swift",
+            activeFilePath: "Pindrop/AppCoordinator.swift",
+            activeFileConfidence: 1.0,
+            workspacePath: "~/Projects/pindrop",
+            workspaceConfidence: 0.9,
+            fileTagCandidates: ["AppCoordinator.swift"],
+            styleSignals: ["style:swift"],
+            codingSignals: ["code_editor_context"],
+            transitions: [
+                ContextSessionTransition(
+                    trigger: .recordingStart,
+                    snapshot: snapshot,
+                    activeFilePath: "Pindrop/AppCoordinator.swift",
+                    activeFileConfidence: 1.0,
+                    workspacePath: "~/Projects/pindrop",
+                    workspaceConfidence: 0.9,
+                    outputMode: "clipboard",
+                    contextTags: ["AppCoordinator.swift"],
+                    transitionSignature: "sig-1"
+                )
+            ]
+        )
+
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: nil,
+            liveSessionContext: liveContext
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<type>live_session_context</type>"))
+        XCTAssertTrue(result.contains("<live_session_context>"))
+        XCTAssertTrue(result.contains("<runtime_state>ready</runtime_state>"))
+    }
+
+    func testBuildTranscriptionEnhancementInputIncludesLiveSessionContextBlock() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.todesktop.230313mzl4w4u92",
+                appName: "Cursor",
+                windowTitle: "AppCoordinator.swift",
+                focusedElementRole: nil,
+                focusedElementValue: nil,
+                selectedText: nil,
+                documentPath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            adapterCapabilities: nil,
+            routingSignal: nil,
+            workspaceFileTree: nil,
+            liveSessionContext: AIEnhancementService.LiveSessionContext(
+                runtimeState: .limited,
+                latestAppName: "Cursor",
+                latestWindowTitle: "AppCoordinator.swift",
+                activeFilePath: "Pindrop/AppCoordinator.swift",
+                activeFileConfidence: 0.75,
+                workspacePath: "~/Projects/pindrop",
+                workspaceConfidence: 0.7,
+                fileTagCandidates: ["AppCoordinator.swift"],
+                styleSignals: ["style:swift"],
+                codingSignals: ["code_editor_context"],
+                transitions: [
+                    ContextSessionTransition(
+                        trigger: .poll,
+                        snapshot: snapshot,
+                        activeFilePath: "Pindrop/AppCoordinator.swift",
+                        activeFileConfidence: 0.75,
+                        workspacePath: "~/Projects/pindrop",
+                        workspaceConfidence: 0.7,
+                        outputMode: "clipboard",
+                        contextTags: ["AppCoordinator.swift"],
+                        transitionSignature: "sig-1"
+                    )
+                ]
+            )
+        )
+
+        let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "hello world",
+            clipboardText: nil,
+            context: context
+        )
+
+        XCTAssertTrue(payload.contains("<live_session_context>"))
+        XCTAssertTrue(payload.contains("<runtime_state>limited</runtime_state>"))
+        XCTAssertTrue(payload.contains("<recent_transitions>"))
+    }
+
 
     // MARK: - Test Double-Wrap Prevention
 

@@ -90,6 +90,26 @@ final class MentionRewriteServiceTests: XCTestCase {
         XCTAssertEqual(result.text, "check the AppCoordinator.swift file")
     }
 
+    func testDeriveWorkspaceInsightsReturnsNoneWhenNoRoots() async {
+        let insights = await sut.deriveWorkspaceInsights(workspaceRoots: [], activeDocumentPath: nil)
+
+        XCTAssertEqual(insights, .none)
+    }
+
+    func testDeriveWorkspaceInsightsIncludesActiveDocumentAndTags() async {
+        let insights = await sut.deriveWorkspaceInsights(
+            workspaceRoots: ["/workspace"],
+            activeDocumentPath: "/workspace/Pindrop/Services/AppCoordinator.swift"
+        )
+
+        XCTAssertEqual(insights.activeDocumentRelativePath, "Pindrop/Services/AppCoordinator.swift")
+        XCTAssertEqual(insights.activeDocumentConfidence, 1.0)
+        XCTAssertGreaterThan(insights.workspaceConfidence, 0)
+        XCTAssertFalse(insights.fileTagCandidates.isEmpty)
+        XCTAssertEqual(insights.fileTagCandidates.first, "Pindrop/Services/AppCoordinator.swift")
+    }
+
+
     // MARK: - No Rewrite When Workspace Index Is Empty
 
     func testNoRewriteWhenWorkspaceIndexIsEmpty() async {
@@ -269,7 +289,7 @@ final class MentionRewriteServiceTests: XCTestCase {
 
     // MARK: - Different Adapter Prefixes
 
-    func testVSCodeAdapterUsesHashPrefix() async {
+    func testVSCodeAdapterUsesAtPrefix() async {
         let vsCodeCapabilities = VSCodeAdapter().capabilities
 
         let result = await sut.rewrite(
@@ -280,10 +300,24 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         XCTAssertTrue(result.didRewrite,
             "VS Code adapter should rewrite when workspace has matching files")
-        XCTAssertTrue(result.text.contains("#"),
-            "VS Code adapter should use # prefix for mentions")
-        XCTAssertFalse(result.text.contains("@"),
-            "VS Code adapter should NOT use @ prefix")
+        XCTAssertTrue(result.text.contains("@"),
+            "VS Code adapter should use @ prefix for mentions")
+        XCTAssertFalse(result.text.contains("#"),
+            "VS Code adapter should NOT use # prefix")
+    }
+
+    func testVSCodeRewriteNormalizesExistingHashPrefix() async {
+        let result = await sut.rewrite(
+            text: "Can you update #README.md for me?",
+            capabilities: VSCodeAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("@README.md"),
+            "VS Code rewrite should normalize existing hash-prefixed mention to @ syntax")
+        XCTAssertFalse(result.text.contains("#@README.md"))
+        XCTAssertFalse(result.text.contains("@@README.md"))
     }
 
     func testZedAdapterUsesSlashPrefix() async {
@@ -339,8 +373,8 @@ final class MentionRewriteServiceTests: XCTestCase {
         )
 
         XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("#Pindrop/Services/AppCoordinator.swift"),
-            "VS Code should format as #relative/path — got: \(result.text)")
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "VS Code should format as @relative/path — got: \(result.text)")
     }
 
     func testZedFormatsExactMentionPath() async {
@@ -656,6 +690,26 @@ final class MentionRewriteServiceTests: XCTestCase {
             "Without active document, ambiguous mention should be preserved as-is")
     }
 
+    func testVSCodeRewriteDisambiguatesReadmeInActiveDocumentDirectory() async {
+        mockFS.filesByRoot["/workspace"]?.append("/workspace/docs/README.md")
+        mockFS.directories.insert("/workspace/docs")
+        mockFS.directories.insert("/workspace")
+        mockFS.directories.insert("/workspace/.git")
+        let vsCodeSut = MentionRewriteService(fileSystem: mockFS)
+
+        let result = await vsCodeSut.rewrite(
+            text: "Can you update README.md for me?",
+            capabilities: VSCodeAdapter().capabilities,
+            workspaceRoots: ["/workspace"],
+            activeDocumentPath: "/workspace/CONTRIBUTING.md"
+        )
+
+        XCTAssertTrue(result.didRewrite,
+            "README.md should rewrite to VS Code mention syntax when active document directory provides a unique tie-break")
+        XCTAssertTrue(result.text.contains("@README.md"),
+            "Rewritten text should contain @README.md mention for VS Code adapter")
+    }
+
     func testActiveDocumentPathNormalizesFileURL() async {
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
@@ -906,8 +960,8 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         XCTAssertTrue(result.didRewrite,
             "VS Code: should derive workspace root from file:// URL and rewrite")
-        XCTAssertTrue(result.text.contains("#Pindrop/Services/AppCoordinator.swift"),
-            "VS Code: should produce #-prefixed relative path — got: \(result.text)")
+        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
+            "VS Code: should produce @-prefixed relative path — got: \(result.text)")
     }
 
     func testZedDerivationAndRewriteFromTildePath() async {
@@ -990,7 +1044,7 @@ final class MentionRewriteServiceTests: XCTestCase {
     func testAllEditorsPrefixDeterminism() async {
         let editors: [(String, AppAdapterCapabilities, String)] = [
             ("Cursor", CursorAdapter().capabilities, "@"),
-            ("VS Code", VSCodeAdapter().capabilities, "#"),
+            ("VS Code", VSCodeAdapter().capabilities, "@"),
             ("Zed", ZedAdapter().capabilities, "/"),
             ("Windsurf", WindsurfAdapter().capabilities, "@"),
         ]
@@ -1007,5 +1061,37 @@ final class MentionRewriteServiceTests: XCTestCase {
             XCTAssertTrue(result.text.contains("\(expectedPrefix)Pindrop/Services/AppCoordinator.swift"),
                 "\(name): expected prefix '\(expectedPrefix)' in mention — got: \(result.text)")
         }
+    }
+
+    func testRewriteToCanonicalPlaceholdersUsesCanonicalTemplate() async {
+        let result = await sut.rewriteToCanonicalPlaceholders(
+            text: "check AppCoordinator.swift",
+            capabilities: CursorAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertTrue(result.text.contains("[[:Pindrop/Services/AppCoordinator.swift:]]"))
+    }
+
+    func testRenderCanonicalPlaceholdersUsesCodexMarkdownTemplate() {
+        let result = sut.renderCanonicalPlaceholders(
+            in: "update [[:README.md:]]",
+            capabilities: CodexAdapter().capabilities
+        )
+
+        XCTAssertTrue(result.didRewrite)
+        XCTAssertEqual(result.rewrittenCount, 1)
+        XCTAssertEqual(result.text, "update [@README.md](README.md)")
+    }
+
+    func testRewriteDoesNotCorruptMarkdownLinkTargetPath() async {
+        let result = await sut.rewrite(
+            text: "see [@README.md](README.md)",
+            capabilities: CodexAdapter().capabilities,
+            workspaceRoots: ["/workspace"]
+        )
+
+        XCTAssertEqual(result.text, "see [@README.md](README.md)")
     }
 }

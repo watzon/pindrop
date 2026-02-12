@@ -48,6 +48,7 @@ Rules:
 - Do not add content that wasn't in the original
 - Return only the formatted note without any commentary
 """
+        static let mentionTemplateOverridesJSON = "{}"
         
         enum Hotkeys {
             static let toggleHotkey = "⌥Space"
@@ -102,14 +103,19 @@ Rules:
     @AppStorage("addTrailingSpace") var addTrailingSpace: Bool = true
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
     @AppStorage("selectedPresetId") var selectedPresetId: String?
+    @AppStorage("mentionTemplateOverridesJSON") var mentionTemplateOverridesJSON: String = Defaults.mentionTemplateOverridesJSON
 
     @AppStorage("enableClipboardContext") var enableClipboardContext: Bool = false
     @AppStorage("enableUIContext") var enableUIContext: Bool = false
     @AppStorage("contextCaptureTimeoutSeconds") var contextCaptureTimeoutSeconds: Double = 2.0
+    @AppStorage("vibeLiveSessionEnabled") var vibeLiveSessionEnabled: Bool = true
 
     @AppStorage("vadFeatureEnabled") var vadFeatureEnabled: Bool = false
     @AppStorage("diarizationFeatureEnabled") var diarizationFeatureEnabled: Bool = false
     @AppStorage("streamingFeatureEnabled") var streamingFeatureEnabled: Bool = false
+
+    @Published private(set) var vibeRuntimeState: VibeRuntimeState = .degraded
+    @Published private(set) var vibeRuntimeDetail: String = "Vibe mode is disabled."
     
     // MARK: - Onboarding State
     
@@ -182,8 +188,12 @@ Rules:
         floatingIndicatorEnabled = false
         floatingIndicatorType = FloatingIndicatorType.pill.rawValue
         launchAtLogin = false
+        mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
         enableUIContext = false
         contextCaptureTimeoutSeconds = 2.0
+        vibeLiveSessionEnabled = true
+        vibeRuntimeState = .degraded
+        vibeRuntimeDetail = "Vibe mode is disabled."
         hasCompletedOnboarding = false
         currentOnboardingStep = 0
         
@@ -192,6 +202,142 @@ Rules:
         
         objectWillChange.send()
     }
+
+    func updateVibeRuntimeState(_ state: VibeRuntimeState, detail: String) {
+        guard vibeRuntimeState != state || vibeRuntimeDetail != detail else { return }
+        vibeRuntimeState = state
+        vibeRuntimeDetail = detail
+    }
+
+    private static let mentionTemplateOverrideEditorPrefix = "editor:"
+    private static let mentionTemplateOverrideProviderPrefix = "provider:"
+
+    func mentionTemplateOverride(for key: String) -> String? {
+        let normalizedKey = key.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalizedKey.isEmpty else { return nil }
+        return normalizedMentionTemplate(decodedMentionTemplateOverrides()[normalizedKey])
+    }
+
+    func setMentionTemplateOverride(_ template: String?, for key: String) {
+        let normalizedKey = key.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalizedKey.isEmpty else { return }
+
+        var overrides = decodedMentionTemplateOverrides()
+        if let normalizedTemplate = normalizedMentionTemplate(template) {
+            overrides[normalizedKey] = normalizedTemplate
+        } else {
+            overrides.removeValue(forKey: normalizedKey)
+        }
+
+        persistMentionTemplateOverrides(overrides)
+    }
+
+    func resolveMentionFormatting(
+        editorBundleIdentifier: String?,
+        terminalProviderIdentifier: String?,
+        adapterDefaultTemplate: String,
+        adapterDefaultPrefix: String
+    ) -> (mentionPrefix: String, mentionTemplate: String) {
+        let resolvedTemplate = resolveMentionTemplate(
+            editorBundleIdentifier: editorBundleIdentifier,
+            terminalProviderIdentifier: terminalProviderIdentifier,
+            adapterDefaultTemplate: adapterDefaultTemplate
+        )
+
+        let resolvedPrefix = Self.deriveMentionPrefix(
+            from: resolvedTemplate,
+            fallback: adapterDefaultPrefix
+        )
+
+        return (mentionPrefix: resolvedPrefix, mentionTemplate: resolvedTemplate)
+    }
+
+    static func deriveMentionPrefix(from template: String, fallback: String) -> String {
+        guard let tokenRange = template.range(of: MentionTemplateCatalog.pathToken) else {
+            return fallback
+        }
+
+        let prefixSlice = template[..<tokenRange.lowerBound]
+        if let prefixCharacter = prefixSlice.last(where: { $0 == "@" || $0 == "#" || $0 == "/" }) {
+            return String(prefixCharacter)
+        }
+
+        return fallback
+    }
+
+    private func resolveMentionTemplate(
+        editorBundleIdentifier: String?,
+        terminalProviderIdentifier: String?,
+        adapterDefaultTemplate: String
+    ) -> String {
+        let overrides = decodedMentionTemplateOverrides()
+
+        if let providerKey = providerOverrideKey(terminalProviderIdentifier),
+           let template = normalizedMentionTemplate(overrides[providerKey]) {
+            return template
+        }
+
+        if let editorKey = editorOverrideKey(editorBundleIdentifier),
+           let template = normalizedMentionTemplate(overrides[editorKey]) {
+            return template
+        }
+
+        if let providerDefault = TerminalProviderRegistry.defaultMentionTemplate(for: terminalProviderIdentifier),
+           let template = normalizedMentionTemplate(providerDefault) {
+            return template
+        }
+
+        return normalizedMentionTemplate(adapterDefaultTemplate) ?? AppAdapterCapabilities.none.mentionTemplate
+    }
+
+    private func decodedMentionTemplateOverrides() -> [String: String] {
+        guard let data = mentionTemplateOverridesJSON.data(using: .utf8),
+              !data.isEmpty,
+              let decoded = try? JSONDecoder().decode([String: String].self, from: data) else {
+            return [:]
+        }
+
+        return decoded
+    }
+
+    private func persistMentionTemplateOverrides(_ overrides: [String: String]) {
+        guard let data = try? JSONEncoder().encode(overrides),
+              let encoded = String(data: data, encoding: .utf8) else {
+            return
+        }
+
+        mentionTemplateOverridesJSON = encoded
+    }
+
+    private func normalizedMentionTemplate(_ template: String?) -> String? {
+        guard let template = template?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !template.isEmpty,
+              template.contains(MentionTemplateCatalog.pathToken) else {
+            return nil
+        }
+
+        return template
+    }
+
+    private func editorOverrideKey(_ editorBundleIdentifier: String?) -> String? {
+        guard let editorBundleIdentifier = editorBundleIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !editorBundleIdentifier.isEmpty else {
+            return nil
+        }
+
+        return Self.mentionTemplateOverrideEditorPrefix + editorBundleIdentifier.lowercased()
+    }
+
+    private func providerOverrideKey(_ terminalProviderIdentifier: String?) -> String? {
+        guard let terminalProviderIdentifier = terminalProviderIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !terminalProviderIdentifier.isEmpty else {
+            return nil
+        }
+
+        return Self.mentionTemplateOverrideProviderPrefix + terminalProviderIdentifier.lowercased()
+    }
+
+
     
     // MARK: - Private Keychain Helpers
     

@@ -44,6 +44,23 @@ struct MentionRewriteResult: Sendable, Equatable {
     var didRewrite: Bool { rewrittenCount > 0 }
 }
 
+struct WorkspaceContextInsights: Sendable, Equatable {
+    let normalizedWorkspaceRoots: [String]
+    let workspaceConfidence: Double
+    let activeDocumentRelativePath: String?
+    let activeDocumentConfidence: Double
+    let fileTagCandidates: [String]
+
+    static let none = WorkspaceContextInsights(
+        normalizedWorkspaceRoots: [],
+        workspaceConfidence: 0,
+        activeDocumentRelativePath: nil,
+        activeDocumentConfidence: 0,
+        fileTagCandidates: []
+    )
+}
+
+
 // MARK: - Mention Extraction
 
 /// A candidate mention extracted from transcribed text.
@@ -113,26 +130,105 @@ final class MentionRewriteService {
         workspaceRoots: [String],
         activeDocumentPath: String? = nil
     ) async -> MentionRewriteResult {
+        await rewrite(
+            text: text,
+            capabilities: capabilities,
+            workspaceRoots: workspaceRoots,
+            activeDocumentPath: activeDocumentPath,
+            mentionTemplateOverride: nil
+        )
+    }
 
-        // Guard: empty text — nothing to rewrite
-        guard !text.isEmpty else {
+    func rewriteToCanonicalPlaceholders(
+        text: String,
+        capabilities: AppAdapterCapabilities,
+        workspaceRoots: [String],
+        activeDocumentPath: String? = nil
+    ) async -> MentionRewriteResult {
+        await rewrite(
+            text: text,
+            capabilities: capabilities,
+            workspaceRoots: workspaceRoots,
+            activeDocumentPath: activeDocumentPath,
+            mentionTemplateOverride: MentionTemplateCatalog.canonicalPlaceholderTemplate
+        )
+    }
+
+    func renderCanonicalPlaceholders(
+        in text: String,
+        capabilities: AppAdapterCapabilities
+    ) -> MentionRewriteResult {
+        guard capabilities.supportsFileMentions else {
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
         }
 
+        guard let regex = try? NSRegularExpression(pattern: #"\[\[:(.+?):\]\]"#) else {
+            return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
+        }
+
+        let nsRange = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, range: nsRange)
+        guard !matches.isEmpty else {
+            return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
+        }
+
+        var renderedText = text
+        var rewrittenCount = 0
+        var preservedCount = 0
+
+        for match in matches.reversed() {
+            guard match.numberOfRanges > 1,
+                  let matchRange = Range(match.range, in: renderedText),
+                  let pathRange = Range(match.range(at: 1), in: renderedText) else {
+                preservedCount += 1
+                continue
+            }
+
+            let relativePath = renderedText[pathRange].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !relativePath.isEmpty else {
+                preservedCount += 1
+                continue
+            }
+
+            renderedText.replaceSubrange(matchRange, with: capabilities.renderMention(path: relativePath))
+            rewrittenCount += 1
+        }
+
+        return MentionRewriteResult(text: renderedText, rewrittenCount: rewrittenCount, preservedCount: preservedCount)
+    }
+
+    private func rewrite(
+        text: String,
+        capabilities: AppAdapterCapabilities,
+        workspaceRoots: [String],
+        activeDocumentPath: String? = nil,
+        mentionTemplateOverride: String?
+    ) async -> MentionRewriteResult {
+        guard !text.isEmpty else {
+            return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
+        }
         // Guard: adapter must support file mentions
         guard capabilities.supportsFileMentions else {
             Log.context.debug("Mention rewrite skipped: adapter '\(capabilities.displayName)' does not support file mentions")
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
         }
 
+        let effectiveCapabilities: AppAdapterCapabilities
+        if let mentionTemplateOverride,
+           mentionTemplateOverride.contains(MentionTemplateCatalog.pathToken) {
+            effectiveCapabilities = capabilities.withMentionFormatting(
+                prefix: capabilities.mentionPrefix,
+                template: mentionTemplateOverride
+            )
+        } else {
+            effectiveCapabilities = capabilities
+        }
         // Normalize raw workspace roots (expand ~, strip file://, convert file→dir, climb to project root)
         let normalizedRoots = normalizeWorkspaceRoots(workspaceRoots)
-
         guard !normalizedRoots.isEmpty else {
             Log.context.debug("Mention rewrite skipped: no valid workspace roots after normalization")
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
         }
-
         // Build or reuse file index
         let index: WorkspaceFileIndexService
         do {
@@ -141,15 +237,12 @@ final class MentionRewriteService {
             Log.context.error("Mention rewrite aborted: index build failed: \(error.localizedDescription)")
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
         }
-
         guard index.fileCount > 0 else {
             Log.context.debug("Mention rewrite skipped: workspace index is empty")
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
         }
-
         // Extract candidate mentions from the text
         let candidates = extractMentionCandidates(from: text, index: index)
-
         guard !candidates.isEmpty else {
             Log.context.debug("Mention rewrite: no candidate mentions found in text")
             return MentionRewriteResult(text: text, rewrittenCount: 0, preservedCount: 0)
@@ -158,33 +251,36 @@ final class MentionRewriteService {
         Log.context.info("Mention rewrite: found \(candidates.count) candidate mention(s)")
 
         let normalizedActiveDoc = normalizeActiveDocumentPath(activeDocumentPath)
-
         // Resolve and format each candidate, building the rewritten text
         var rewrittenText = text
         var rewrittenCount = 0
         var preservedCount = 0
-
         // Process candidates in reverse order so range offsets remain valid
         for candidate in candidates.reversed() {
+            if isLikelyMarkdownLinkTarget(candidate.range, in: text) {
+                preservedCount += 1
+                continue
+            }
+            let (replacementRange, originalCandidateText) = replacementRangeAndOriginalText(
+                for: candidate,
+                in: text
+            )
             let resolution = resolver.resolve(mention: candidate.text, in: index, activeDocumentPath: normalizedActiveDoc)
             let formatted = formatter.formatMention(
-                originalText: candidate.text,
+                originalText: originalCandidateText,
                 resolution: resolution,
-                capabilities: capabilities
+                capabilities: effectiveCapabilities
             )
-
             switch formatted {
             case .formatted(let formattedText, let relativePath, let confidence):
-                Log.context.info("Mention rewritten: '\(candidate.text)' → '\(formattedText)' (path: \(relativePath), confidence: \(String(format: "%.2f", confidence)))")
-                rewrittenText.replaceSubrange(candidate.range, with: formattedText)
+                Log.context.info("Mention rewritten: '\(originalCandidateText)' → '\(formattedText)' (path: \(relativePath), confidence: \(String(format: "%.2f", confidence)))")
+                rewrittenText.replaceSubrange(replacementRange, with: formattedText)
                 rewrittenCount += 1
-
             case .preserved(_, let reason):
-                Log.context.debug("Mention preserved: '\(candidate.text)' reason=\(String(describing: reason))")
+                Log.context.debug("Mention preserved: '\(originalCandidateText)' reason=\(String(describing: reason))")
                 preservedCount += 1
             }
         }
-
         Log.context.info("Mention rewrite complete: \(rewrittenCount) rewritten, \(preservedCount) preserved")
         return MentionRewriteResult(
             text: rewrittenText,
@@ -198,6 +294,40 @@ final class MentionRewriteService {
         cachedIndex = nil
         cachedRoots = []
     }
+
+    private static let knownMentionPrefixCharacters: Set<Character> = ["@", "#", "/"]
+
+    private func replacementRangeAndOriginalText(
+        for candidate: ExtractedMention,
+        in sourceText: String
+    ) -> (Range<String.Index>, String) {
+        var replacementStart = candidate.range.lowerBound
+
+        while replacementStart > sourceText.startIndex {
+            let previousIndex = sourceText.index(before: replacementStart)
+            let previousCharacter = sourceText[previousIndex]
+            guard Self.knownMentionPrefixCharacters.contains(previousCharacter) else { break }
+            replacementStart = previousIndex
+        }
+
+        let replacementRange = replacementStart..<candidate.range.upperBound
+        return (replacementRange, String(sourceText[replacementRange]))
+    }
+
+    private func isLikelyMarkdownLinkTarget(
+        _ range: Range<String.Index>,
+        in sourceText: String
+    ) -> Bool {
+        guard range.lowerBound > sourceText.startIndex else { return false }
+
+        let openParenIndex = sourceText.index(before: range.lowerBound)
+        guard sourceText[openParenIndex] == "(" else { return false }
+        guard openParenIndex > sourceText.startIndex else { return false }
+
+        let possibleBracketIndex = sourceText.index(before: openParenIndex)
+        return sourceText[possibleBracketIndex] == "]"
+    }
+
 
     // MARK: - Workspace Root Normalization
 
@@ -468,6 +598,116 @@ final class MentionRewriteService {
         }
         return tokens
     }
+
+    // MARK: - Workspace Insights
+
+    private static let maxFileTagCandidates = 8
+
+    func deriveWorkspaceInsights(
+        workspaceRoots: [String],
+        activeDocumentPath: String? = nil,
+        limit: Int = 8
+    ) async -> WorkspaceContextInsights {
+        let normalizedRoots = normalizeWorkspaceRoots(workspaceRoots)
+        guard !normalizedRoots.isEmpty else { return .none }
+
+        let index: WorkspaceFileIndexService
+        do {
+            index = try await getOrBuildIndex(roots: normalizedRoots)
+        } catch {
+            Log.context.warning("Workspace insights skipped: index build failed: \(error.localizedDescription)")
+            return WorkspaceContextInsights(
+                normalizedWorkspaceRoots: normalizedRoots,
+                workspaceConfidence: 0.2,
+                activeDocumentRelativePath: nil,
+                activeDocumentConfidence: 0,
+                fileTagCandidates: []
+            )
+        }
+
+        guard index.fileCount > 0 else {
+            return WorkspaceContextInsights(
+                normalizedWorkspaceRoots: normalizedRoots,
+                workspaceConfidence: 0.2,
+                activeDocumentRelativePath: nil,
+                activeDocumentConfidence: 0,
+                fileTagCandidates: []
+            )
+        }
+
+        let normalizedActiveDocument = normalizeActiveDocumentPath(activeDocumentPath)
+        let activeDocumentRelativePath = normalizedActiveDocument.flatMap {
+            resolveActiveDocumentRelativePath($0, roots: normalizedRoots)
+        }
+
+        let activeDocumentConfidence: Double
+        if activeDocumentRelativePath != nil {
+            activeDocumentConfidence = 1.0
+        } else if normalizedActiveDocument != nil {
+            activeDocumentConfidence = 0.45
+        } else {
+            activeDocumentConfidence = 0
+        }
+
+        let fileTagCandidates = buildFileTagCandidates(
+            index: index,
+            activeDocumentRelativePath: activeDocumentRelativePath,
+            limit: max(1, limit)
+        )
+
+        return WorkspaceContextInsights(
+            normalizedWorkspaceRoots: normalizedRoots,
+            workspaceConfidence: 0.9,
+            activeDocumentRelativePath: activeDocumentRelativePath,
+            activeDocumentConfidence: activeDocumentConfidence,
+            fileTagCandidates: fileTagCandidates
+        )
+    }
+
+    private func buildFileTagCandidates(
+        index: WorkspaceFileIndexService,
+        activeDocumentRelativePath: String?,
+        limit: Int
+    ) -> [String] {
+        let sortedPaths = index.allFiles.map(\.relativePath).sorted()
+        var candidates: [String] = []
+
+        if let activeDocumentRelativePath {
+            candidates.append(activeDocumentRelativePath)
+
+            let activeFilename = (activeDocumentRelativePath as NSString).lastPathComponent
+            if !activeFilename.isEmpty {
+                candidates.append(activeFilename)
+            }
+
+            let activeDirectory = (activeDocumentRelativePath as NSString).deletingLastPathComponent
+            if !activeDirectory.isEmpty {
+                for path in sortedPaths where path.hasPrefix(activeDirectory + "/") {
+                    candidates.append(path)
+                    if candidates.count >= limit * 2 {
+                        break
+                    }
+                }
+            }
+        }
+
+        candidates.append(contentsOf: sortedPaths)
+
+        var deduped: [String] = []
+        var seen = Set<String>()
+        for candidate in candidates {
+            guard !candidate.isEmpty else { continue }
+            if seen.insert(candidate).inserted {
+                deduped.append(candidate)
+            }
+            if deduped.count >= limit {
+                break
+            }
+        }
+
+        return deduped
+    }
+
 
     // MARK: - Workspace Tree Summary
 

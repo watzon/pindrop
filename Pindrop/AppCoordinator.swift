@@ -125,6 +125,12 @@ final class AppCoordinator {
     private var capturedSnapshot: ContextSnapshot?
     private var capturedAdapterCapabilities: AppAdapterCapabilities?
     private var capturedRoutingSignal: PromptRoutingSignal?
+    private var contextSessionState: ContextSessionState?
+    private var contextSessionPollTimer: Timer?
+    private var contextSessionAppActivationObserver: NSObjectProtocol?
+    private var lastFocusOrWindowUpdateAt: Date?
+    private let contextSessionPollInterval: TimeInterval = 1.25
+    private let contextSessionFocusUpdateThrottle: TimeInterval = 0.75
     private var recordingStartAttemptCounter: UInt64 = 0
     private var reportedHotkeyConflicts = Set<String>()
     private let appContextAdapterRegistry = AppContextAdapterRegistry()
@@ -371,6 +377,7 @@ final class AppCoordinator {
         registerHotkeysFromSettings()
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "post-onboarding", showFallbackAlert: false)
+        updateVibeRuntimeStateFromSettings()
     }
     
     private func seedBuiltInPresetsIfNeeded() {
@@ -496,6 +503,8 @@ final class AppCoordinator {
            settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
             pillFloatingIndicatorController.showTab()
         }
+
+        updateVibeRuntimeStateFromSettings()
     }
 
     // MARK: - Hotkey Setup
@@ -741,6 +750,16 @@ final class AppCoordinator {
 
                     self.registerHotkeysFromSettings()
                     self.statusBarController.updateDynamicItems()
+
+                    if self.isRecording {
+                        if self.shouldRunLiveContextSession() {
+                            self.startLiveContextSessionIfNeeded(initialSnapshot: self.capturedSnapshot)
+                        } else {
+                            self.stopLiveContextSession()
+                        }
+                    } else {
+                        self.updateVibeRuntimeStateFromSettings()
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -756,6 +775,343 @@ final class AppCoordinator {
             pillFloatingIndicatorController.hide()
         }
     }
+
+    // MARK: - Live Session Context
+
+    private func shouldRunLiveContextSession() -> Bool {
+        settingsStore.aiEnhancementEnabled &&
+            settingsStore.enableUIContext &&
+            settingsStore.vibeLiveSessionEnabled
+    }
+
+    private func updateVibeRuntimeStateFromSettings() {
+        guard settingsStore.aiEnhancementEnabled else {
+            settingsStore.updateVibeRuntimeState(.degraded, detail: "AI enhancement is disabled.")
+            return
+        }
+
+        guard settingsStore.enableUIContext else {
+            settingsStore.updateVibeRuntimeState(.degraded, detail: "Vibe mode is disabled.")
+            return
+        }
+
+        guard settingsStore.vibeLiveSessionEnabled else {
+            settingsStore.updateVibeRuntimeState(.limited, detail: "Live session updates are disabled.")
+            return
+        }
+
+        if let contextSessionState {
+            let detail = contextEngineService.deriveRuntimeDetail(
+                for: contextSessionState.latestSnapshot,
+                runtimeState: contextSessionState.runtimeState
+            )
+            settingsStore.updateVibeRuntimeState(contextSessionState.runtimeState, detail: detail)
+            return
+        }
+
+        if permissionManager.checkAccessibilityPermission() {
+            settingsStore.updateVibeRuntimeState(.ready, detail: "Ready for live session context.")
+        } else {
+            settingsStore.updateVibeRuntimeState(.limited, detail: "Accessibility permission not granted. Using limited context.")
+        }
+    }
+
+    private func deriveWorkspaceRoots(
+        routingSignal: PromptRoutingSignal?,
+        snapshot: ContextSnapshot?
+    ) -> [String] {
+        var roots: [String] = []
+
+        if let workspacePath = routingSignal?.workspacePath,
+           !workspacePath.isEmpty {
+            roots.append(workspacePath)
+        } else if let documentPath = snapshot?.appContext?.documentPath,
+                  !documentPath.isEmpty {
+            let parent = (documentPath as NSString).deletingLastPathComponent
+            if !parent.isEmpty {
+                roots.append(parent)
+            }
+        }
+
+        return mergeUniqueContextSignals(roots)
+    }
+
+    private func mergeUniqueContextSignals(_ groups: [String]..., limit: Int = 8) -> [String] {
+        var seen = Set<String>()
+        var merged: [String] = []
+
+        for group in groups {
+            for value in group {
+                let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !normalized.isEmpty else { continue }
+                if seen.insert(normalized).inserted {
+                    merged.append(normalized)
+                }
+                if merged.count >= limit {
+                    return merged
+                }
+            }
+        }
+
+        return merged
+    }
+
+    private func buildSessionTransitionSignature(
+        snapshot: ContextSnapshot,
+        activeFilePath: String?,
+        workspacePath: String?
+    ) -> String {
+        let signature = snapshot.transitionSignature
+        return [
+            signature.bundleIdentifier,
+            signature.windowTitle,
+            signature.focusedElementRole,
+            signature.documentPath,
+            signature.selectedText,
+            activeFilePath,
+            workspacePath
+        ]
+        .map { $0?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "" }
+        .joined(separator: "|")
+    }
+
+    private func shouldAppendTransition(
+        signature: String,
+        trigger: ContextSessionUpdateTrigger,
+        in session: ContextSessionState
+    ) -> Bool {
+        guard trigger != .recordingStart else { return true }
+        guard let lastSignature = session.transitions.last?.transitionSignature else { return true }
+        return lastSignature != signature
+    }
+
+    private func currentLiveSessionContext() -> AIEnhancementService.LiveSessionContext? {
+        guard let contextSessionState else { return nil }
+
+        let enrichment = contextSessionState.latestAdapterEnrichment
+        let latestTransition = contextSessionState.transitions.last
+
+        let fileTagCandidates = mergeUniqueContextSignals(
+            enrichment?.fileTagCandidates ?? [],
+            contextSessionState.transitions.compactMap { $0.activeFilePath },
+            contextSessionState.transitions.flatMap { $0.contextTags }
+        )
+
+        return AIEnhancementService.LiveSessionContext(
+            runtimeState: contextSessionState.runtimeState,
+            latestAppName: contextSessionState.latestSnapshot.appContext?.appName,
+            latestWindowTitle: contextSessionState.latestSnapshot.appContext?.windowTitle,
+            activeFilePath: latestTransition?.activeFilePath ?? enrichment?.activeFilePath ?? contextSessionState.latestSnapshot.appContext?.documentPath,
+            activeFileConfidence: latestTransition?.activeFileConfidence ?? enrichment?.activeFileConfidence ?? 0,
+            workspacePath: latestTransition?.workspacePath ?? contextSessionState.latestRoutingSignal.workspacePath ?? enrichment?.workspacePath,
+            workspaceConfidence: latestTransition?.workspaceConfidence ?? enrichment?.workspaceConfidence ?? 0,
+            fileTagCandidates: fileTagCandidates,
+            styleSignals: enrichment?.styleSignals ?? [],
+            codingSignals: enrichment?.codingSignals ?? [],
+            transitions: contextSessionState.transitions
+        ).bounded()
+    }
+
+    private func startLiveContextSessionIfNeeded(initialSnapshot: ContextSnapshot?) {
+        guard isRecording else { return }
+        guard shouldRunLiveContextSession() else {
+            stopLiveContextSession()
+            updateVibeRuntimeStateFromSettings()
+            return
+        }
+
+        installContextSessionObserversIfNeeded()
+
+        if contextSessionPollTimer == nil {
+            let timer = Timer.scheduledTimer(withTimeInterval: contextSessionPollInterval, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    guard self.isRecording, self.shouldRunLiveContextSession() else { return }
+                    await self.updateContextSession(trigger: .poll)
+                }
+            }
+            timer.tolerance = 0.2
+            RunLoop.main.add(timer, forMode: .common)
+            contextSessionPollTimer = timer
+        }
+
+        if contextSessionState == nil {
+            Task { @MainActor in
+                await self.updateContextSession(trigger: .recordingStart, snapshotOverride: initialSnapshot)
+            }
+        }
+    }
+
+    private func stopLiveContextSession() {
+        contextSessionPollTimer?.invalidate()
+        contextSessionPollTimer = nil
+        removeContextSessionObserversIfNeeded()
+        contextSessionState = nil
+        lastFocusOrWindowUpdateAt = nil
+    }
+    private func suspendLiveContextSessionUpdates() {
+        contextSessionPollTimer?.invalidate()
+        contextSessionPollTimer = nil
+        removeContextSessionObserversIfNeeded()
+    }
+
+    private func installContextSessionObserversIfNeeded() {
+        guard contextSessionAppActivationObserver == nil else { return }
+
+        contextSessionAppActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                guard self.isRecording, self.shouldRunLiveContextSession() else { return }
+                await self.updateContextSession(trigger: .frontmostAppChange)
+            }
+        }
+    }
+
+    private func removeContextSessionObserversIfNeeded() {
+        if let contextSessionAppActivationObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(contextSessionAppActivationObserver)
+            self.contextSessionAppActivationObserver = nil
+        }
+    }
+
+    private func scheduleFocusOrWindowContextRefreshIfNeeded() {
+        guard isRecording, shouldRunLiveContextSession() else { return }
+
+        let now = Date()
+        if let lastFocusOrWindowUpdateAt,
+           now.timeIntervalSince(lastFocusOrWindowUpdateAt) < contextSessionFocusUpdateThrottle {
+            return
+        }
+
+        lastFocusOrWindowUpdateAt = now
+        Task { @MainActor in
+            await self.updateContextSession(trigger: .focusOrWindowChange)
+        }
+    }
+
+    private func updateContextSession(
+        trigger: ContextSessionUpdateTrigger,
+        snapshotOverride: ContextSnapshot? = nil
+    ) async {
+        guard isRecording else { return }
+        guard settingsStore.enableUIContext else { return }
+
+        let clipboardText = settingsStore.enableClipboardContext ? capturedContext?.clipboardText : nil
+        let snapshot = snapshotOverride ?? contextEngineService.captureSnapshot(clipboardText: clipboardText)
+        capturedSnapshot = snapshot
+
+        let routingSignal = PromptRoutingSignal.from(
+            snapshot: snapshot,
+            adapterRegistry: appContextAdapterRegistry
+        )
+        capturedRoutingSignal = routingSignal
+        _ = promptRoutingResolver.resolve(signal: routingSignal)
+
+        var adapterCapabilities: AppAdapterCapabilities?
+        var adapterEnrichment: AppRuntimeEnrichment?
+
+        if let bundleIdentifier = snapshot.appContext?.bundleIdentifier {
+            let adapter = appContextAdapterRegistry.adapter(for: bundleIdentifier)
+            adapterCapabilities = adapter.capabilities
+            adapterEnrichment = appContextAdapterRegistry.enrichment(for: snapshot, routingSignal: routingSignal)
+        }
+
+        capturedAdapterCapabilities = adapterCapabilities
+
+        let workspaceRoots = deriveWorkspaceRoots(routingSignal: routingSignal, snapshot: snapshot)
+        let workspaceInsights = await mentionRewriteService.deriveWorkspaceInsights(
+            workspaceRoots: workspaceRoots,
+            activeDocumentPath: snapshot.appContext?.documentPath
+        )
+
+        let activeFilePath = workspaceInsights.activeDocumentRelativePath
+            ?? adapterEnrichment?.activeFilePath
+            ?? snapshot.appContext?.documentPath
+
+        let activeFileConfidence = max(
+            workspaceInsights.activeDocumentConfidence,
+            adapterEnrichment?.activeFileConfidence ?? 0
+        )
+
+        let workspacePath = routingSignal.workspacePath
+            ?? workspaceInsights.normalizedWorkspaceRoots.first
+            ?? adapterEnrichment?.workspacePath
+
+        let workspaceConfidence = max(
+            workspaceInsights.workspaceConfidence,
+            adapterEnrichment?.workspaceConfidence ?? 0
+        )
+
+        let contextTags = mergeUniqueContextSignals(
+            workspaceInsights.fileTagCandidates,
+            adapterEnrichment?.fileTagCandidates ?? [],
+            adapterEnrichment?.styleSignals ?? [],
+            adapterEnrichment?.codingSignals ?? []
+        )
+
+        let transitionSignature = buildSessionTransitionSignature(
+            snapshot: snapshot,
+            activeFilePath: activeFilePath,
+            workspacePath: workspacePath
+        )
+
+        let runtimeState = contextEngineService.deriveRuntimeState(
+            for: snapshot,
+            adapterCapabilities: adapterCapabilities
+        )
+
+        let transition = ContextSessionTransition(
+            timestamp: snapshot.timestamp,
+            trigger: trigger,
+            snapshot: snapshot,
+            activeFilePath: activeFilePath,
+            activeFileConfidence: activeFileConfidence,
+            workspacePath: workspacePath,
+            workspaceConfidence: workspaceConfidence,
+            outputMode: settingsStore.outputMode,
+            contextTags: contextTags,
+            transitionSignature: transitionSignature
+        )
+
+        if var contextSessionState {
+            contextSessionState.latestSnapshot = snapshot
+            contextSessionState.latestRoutingSignal = routingSignal
+            contextSessionState.latestAdapterCapabilities = adapterCapabilities
+            contextSessionState.latestAdapterEnrichment = adapterEnrichment
+            contextSessionState.runtimeState = runtimeState
+
+            if shouldAppendTransition(
+                signature: transitionSignature,
+                trigger: trigger,
+                in: contextSessionState
+            ) {
+                contextSessionState.appendTransition(transition)
+            }
+
+            self.contextSessionState = contextSessionState
+        } else {
+            self.contextSessionState = ContextSessionState(
+                startedAt: recordingStartTime ?? Date(),
+                latestSnapshot: snapshot,
+                latestRoutingSignal: routingSignal,
+                latestAdapterCapabilities: adapterCapabilities,
+                latestAdapterEnrichment: adapterEnrichment,
+                runtimeState: runtimeState,
+                transitions: [transition]
+            )
+        }
+
+        let runtimeDetail = contextEngineService.deriveRuntimeDetail(
+            for: snapshot,
+            runtimeState: runtimeState
+        )
+        settingsStore.updateVibeRuntimeState(runtimeState, detail: runtimeDetail)
+    }
+
     
     // MARK: - Recording Flow
     
@@ -853,6 +1209,7 @@ final class AppCoordinator {
         }
 
         isRecording = false
+        suspendLiveContextSessionUpdates()
         isProcessing = true
         var didResetProcessingState = false
 
@@ -1014,6 +1371,8 @@ final class AppCoordinator {
         recordingStartTime = Date()
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
+        contextSessionState = nil
+        lastFocusOrWindowUpdateAt = nil
 
         if settingsStore.enableClipboardContext || settingsStore.enableUIContext {
             let clipboardText = settingsStore.enableClipboardContext ? contextCaptureService.captureClipboardText() : nil
@@ -1058,6 +1417,12 @@ final class AppCoordinator {
             }
         }
 
+        if shouldRunLiveContextSession() {
+            startLiveContextSessionIfNeeded(initialSnapshot: capturedSnapshot)
+        } else {
+            updateVibeRuntimeStateFromSettings()
+        }
+
         statusBarController.setRecordingState()
 
         if settingsStore.floatingIndicatorEnabled {
@@ -1091,6 +1456,7 @@ final class AppCoordinator {
         }
 
         isRecording = false
+        suspendLiveContextSessionUpdates()
         isProcessing = true
         var didResetProcessingState = false
 
@@ -1157,25 +1523,44 @@ final class AppCoordinator {
         // Runs whenever adapter supports file mentions AND workspace roots are derivable
         // (not gated by isCodeEditorContext — enables Antigravity and other non-IDE adapters)
         var textAfterMentions = textAfterReplacements
-        var derivedWorkspaceRoots: [String] = []
-        if let workspacePath = capturedRoutingSignal?.workspacePath {
-            derivedWorkspaceRoots.append(workspacePath)
-        } else if let docPath = capturedSnapshot?.appContext?.documentPath, !docPath.isEmpty {
-            let parent = (docPath as NSString).deletingLastPathComponent
-            if !parent.isEmpty {
-                derivedWorkspaceRoots.append(parent)
-            }
-        }
-
+        var mentionFormattingCapabilities = capturedAdapterCapabilities
+        let derivedWorkspaceRoots = deriveWorkspaceRoots(
+            routingSignal: capturedRoutingSignal,
+            snapshot: capturedSnapshot
+        )
+        let shouldUsePlaceholderMentions = settingsStore.aiEnhancementEnabled &&
+            settingsStore.apiEndpoint != nil &&
+            settingsStore.apiKey != nil
         if let capabilities = capturedAdapterCapabilities,
            capabilities.supportsFileMentions {
+            let resolvedMentionFormatting = settingsStore.resolveMentionFormatting(
+                editorBundleIdentifier: capturedRoutingSignal?.appBundleIdentifier,
+                terminalProviderIdentifier: capturedRoutingSignal?.terminalProviderIdentifier,
+                adapterDefaultTemplate: capabilities.mentionTemplate,
+                adapterDefaultPrefix: capabilities.mentionPrefix
+            )
+            let effectiveCapabilities = capabilities.withMentionFormatting(
+                prefix: resolvedMentionFormatting.mentionPrefix,
+                template: resolvedMentionFormatting.mentionTemplate
+            )
+            mentionFormattingCapabilities = effectiveCapabilities
             if !derivedWorkspaceRoots.isEmpty {
-                let rewriteResult = await mentionRewriteService.rewrite(
-                    text: textAfterReplacements,
-                    capabilities: capabilities,
-                    workspaceRoots: derivedWorkspaceRoots,
-                    activeDocumentPath: capturedSnapshot?.appContext?.documentPath
-                )
+                let rewriteResult: MentionRewriteResult
+                if shouldUsePlaceholderMentions {
+                    rewriteResult = await mentionRewriteService.rewriteToCanonicalPlaceholders(
+                        text: textAfterReplacements,
+                        capabilities: effectiveCapabilities,
+                        workspaceRoots: derivedWorkspaceRoots,
+                        activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                    )
+                } else {
+                    rewriteResult = await mentionRewriteService.rewrite(
+                        text: textAfterReplacements,
+                        capabilities: effectiveCapabilities,
+                        workspaceRoots: derivedWorkspaceRoots,
+                        activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                    )
+                }
                 textAfterMentions = rewriteResult.text
                 if rewriteResult.didRewrite {
                     Log.app.info("Mention rewrite: \(rewriteResult.rewrittenCount) mention(s) rewritten, \(rewriteResult.preservedCount) preserved")
@@ -1222,6 +1607,10 @@ final class AppCoordinator {
                         .joined(separator: ", ")
                     basePrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
                 }
+
+                if mentionFormattingCapabilities?.supportsFileMentions == true {
+                    basePrompt += "\n\nIf the input contains file placeholders formatted as [[:relative/path.ext:]], preserve each placeholder token exactly. Do not change brackets, colons, slashes, file names, or extensions inside those tokens."
+                }
                 
                 var contextMetadata = AIEnhancementService.ContextMetadata.none
                 var clipboardText: String? = nil
@@ -1233,6 +1622,8 @@ final class AppCoordinator {
                         activeDocumentPath: capturedSnapshot?.appContext?.documentPath
                     )
                 }
+
+                let liveSessionContext = currentLiveSessionContext()
                 
                 if let context = capturedContext {
                     let hasClipboardText = context.clipboardText != nil && !context.clipboardText!.isEmpty
@@ -1243,9 +1634,10 @@ final class AppCoordinator {
                         clipboardText: clipboardText,
                         hasClipboardImage: false,
                         appContext: capturedSnapshot?.appContext,
-                        adapterCapabilities: capturedAdapterCapabilities,
+                        adapterCapabilities: mentionFormattingCapabilities,
                         routingSignal: capturedRoutingSignal,
-                        workspaceFileTree: workspaceTreeSummary
+                        workspaceFileTree: workspaceTreeSummary,
+                        liveSessionContext: liveSessionContext
                     )
                 } else if let appContext = capturedSnapshot?.appContext {
                     contextMetadata = AIEnhancementService.ContextMetadata(
@@ -1253,9 +1645,21 @@ final class AppCoordinator {
                         clipboardText: nil,
                         hasClipboardImage: false,
                         appContext: appContext,
-                        adapterCapabilities: capturedAdapterCapabilities,
+                        adapterCapabilities: mentionFormattingCapabilities,
                         routingSignal: capturedRoutingSignal,
-                        workspaceFileTree: workspaceTreeSummary
+                        workspaceFileTree: workspaceTreeSummary,
+                        liveSessionContext: liveSessionContext
+                    )
+                } else if let liveSessionContext {
+                    contextMetadata = AIEnhancementService.ContextMetadata(
+                        hasClipboardText: false,
+                        clipboardText: nil,
+                        hasClipboardImage: false,
+                        appContext: nil,
+                        adapterCapabilities: mentionFormattingCapabilities,
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary,
+                        liveSessionContext: liveSessionContext
                     )
                 }
 
@@ -1268,10 +1672,35 @@ final class AppCoordinator {
                     imageBase64: nil,
                     context: contextMetadata
                 )
+                if let capabilities = mentionFormattingCapabilities,
+                   capabilities.supportsFileMentions,
+                   !derivedWorkspaceRoots.isEmpty {
+                    let renderedPlaceholders = mentionRewriteService.renderCanonicalPlaceholders(
+                        in: finalText,
+                        capabilities: capabilities
+                    )
+                    finalText = renderedPlaceholders.text
+
+                    if renderedPlaceholders.didRewrite {
+                        Log.app.info("Post-enhancement placeholder render: \(renderedPlaceholders.rewrittenCount) placeholder(s) rendered, \(renderedPlaceholders.preservedCount) preserved")
+                    } else {
+                        let postEnhancementRewriteResult = await mentionRewriteService.rewrite(
+                            text: finalText,
+                            capabilities: capabilities,
+                            workspaceRoots: derivedWorkspaceRoots,
+                            activeDocumentPath: capturedSnapshot?.appContext?.documentPath
+                        )
+                        finalText = postEnhancementRewriteResult.text
+                        if postEnhancementRewriteResult.didRewrite {
+                            Log.app.info("Post-enhancement mention rewrite: \(postEnhancementRewriteResult.rewrittenCount) mention(s) rewritten, \(postEnhancementRewriteResult.preservedCount) preserved")
+                        }
+                    }
+                }
                 capturedContext = nil
                 capturedSnapshot = nil
                 capturedAdapterCapabilities = nil
                 capturedRoutingSignal = nil
+                stopLiveContextSession()
                 enhancedWithModel = settingsStore.aiModel
                 Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
@@ -1425,7 +1854,7 @@ final class AppCoordinator {
         }
 
         if escapeGlobalMonitor != nil {
-            Log.app.warning("Using NSEvent global monitor fallback for escape key")
+            Log.app.warning("Using NSEvent global monitor fallback for escape key (observation only; suppression unavailable)")
         }
     }
 
@@ -1458,6 +1887,19 @@ final class AppCoordinator {
         Log.hotkey.debug("Removed NSEvent global monitor fallback for modifier changes")
     }
     
+    static func shouldSuppressEscapeEvent(isRecording: Bool, isProcessing: Bool) -> Bool {
+        isRecording || isProcessing
+    }
+
+    static func isDoubleEscapePress(
+        now: Date,
+        lastEscapeTime: Date?,
+        threshold: TimeInterval
+    ) -> Bool {
+        guard let lastEscapeTime else { return false }
+        return now.timeIntervalSince(lastEscapeTime) <= threshold
+    }
+
     private nonisolated func handleKeyEvent(
         proxy: CGEventTapProxy,
         type: CGEventType,
@@ -1477,13 +1919,51 @@ final class AppCoordinator {
         guard type == .keyDown else { return Unmanaged.passUnretained(event) }
 
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-        guard keyCode == 53 else { return Unmanaged.passUnretained(event) }
-        
-        Task { @MainActor in
-            self.handleEscapeSignal(source: "cg-event-tap")
+        guard keyCode == 53 else {
+            Task { @MainActor in
+                self.scheduleFocusOrWindowContextRefreshIfNeeded()
+            }
+            return Unmanaged.passUnretained(event)
         }
         
-        return Unmanaged.passUnretained(event)
+        let shouldSuppress: Bool
+        if Thread.isMainThread {
+            shouldSuppress = MainActor.assumeIsolated {
+                let suppress = Self.shouldSuppressEscapeEvent(
+                    isRecording: self.isRecording,
+                    isProcessing: self.isProcessing
+                )
+                self.handleEscapeSignal(source: "cg-event-tap")
+
+                if suppress {
+                    Log.app.info("Escape intercepted+suppressing (recordingOrProcessing=true)")
+                } else {
+                    Log.app.debug("Escape observed+forwarding (recordingOrProcessing=false)")
+                }
+
+                return suppress
+            }
+        } else {
+            shouldSuppress = DispatchQueue.main.sync {
+                MainActor.assumeIsolated {
+                    let suppress = Self.shouldSuppressEscapeEvent(
+                        isRecording: self.isRecording,
+                        isProcessing: self.isProcessing
+                    )
+                    self.handleEscapeSignal(source: "cg-event-tap")
+
+                    if suppress {
+                        Log.app.info("Escape intercepted+suppressing (recordingOrProcessing=true)")
+                    } else {
+                        Log.app.debug("Escape observed+forwarding (recordingOrProcessing=false)")
+                    }
+
+                    return suppress
+                }
+            }
+        }
+
+        return shouldSuppress ? nil : Unmanaged.passUnretained(event)
     }
 
     private func handleEscapeSignal(source: String) {
@@ -1528,8 +2008,11 @@ final class AppCoordinator {
         
         let now = Date()
         
-        if let lastTime = lastEscapeTime,
-           now.timeIntervalSince(lastTime) <= doubleEscapeThreshold {
+        if Self.isDoubleEscapePress(
+            now: now,
+            lastEscapeTime: lastEscapeTime,
+            threshold: doubleEscapeThreshold
+        ) {
             lastEscapeTime = nil
             floatingIndicatorController.clearEscapePrimed()
             cancelCurrentOperation()
@@ -1557,6 +2040,8 @@ final class AppCoordinator {
         capturedSnapshot = nil
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
+        stopLiveContextSession()
+        updateVibeRuntimeStateFromSettings()
         error = nil
 
         statusBarController.setIdleState()
@@ -1578,6 +2063,8 @@ final class AppCoordinator {
         capturedSnapshot = nil
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
+        stopLiveContextSession()
+        updateVibeRuntimeStateFromSettings()
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
 
@@ -1650,6 +2137,8 @@ final class AppCoordinator {
         audioRecorder.cancelRecording()
         isRecording = false
         recordingStartTime = nil
+        stopLiveContextSession()
+        updateVibeRuntimeStateFromSettings()
 
         statusBarController.setIdleState()
 
@@ -1724,6 +2213,14 @@ final class AppCoordinator {
         settingsStore.aiEnhancementEnabled.toggle()
         let status = settingsStore.aiEnhancementEnabled ? "enabled" : "disabled"
         Log.app.info("AI enhancement \(status)")
+
+        if !settingsStore.aiEnhancementEnabled {
+            stopLiveContextSession()
+        } else if isRecording, shouldRunLiveContextSession() {
+            startLiveContextSessionIfNeeded(initialSnapshot: capturedSnapshot)
+        }
+
+        updateVibeRuntimeStateFromSettings()
     }
 
     // MARK: - Select Prompt Preset

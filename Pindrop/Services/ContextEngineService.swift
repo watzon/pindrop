@@ -137,6 +137,19 @@ final class ContextEngineService {
         "AXSecureTextField",
     ]
 
+    /// AX attributes that may expose a file/document path in editor windows.
+    private static let documentPathAttributes: [String] = [
+        kAXDocumentAttribute,
+        "AXRepresentedFilename",
+        "AXFilename",
+        "AXPath",
+        "AXRepresentedURL",
+        kAXURLAttribute,
+    ]
+
+    private static let maxAXDiagnosticAttributes = 80
+    private static let maxAXDiagnosticValueLength = 512
+
     // MARK: - Properties
 
     private let axProvider: AXProviderProtocol
@@ -234,6 +247,14 @@ final class ContextEngineService {
 
         // Document path (from AX document attribute on the app or window)
         let documentPath = captureDocumentPath(from: appElement)
+        maybeLogAXPayload(
+            bundleIdentifier: bundleIdentifier,
+            appName: appName,
+            appElement: appElement,
+            focusedWindow: axProvider.elementAttribute(kAXFocusedWindowAttribute, of: appElement),
+            focusedElement: focusedElement,
+            documentPath: documentPath
+        )
 
         // Browser URL (from AX, only for known browser bundle IDs)
         let browserURL = captureBrowserURL(
@@ -262,6 +283,67 @@ final class ContextEngineService {
 
         return (appContext: appContext, warnings: warnings)
     }
+
+    func captureSnapshot(clipboardText: String? = nil) -> ContextSnapshot {
+        let captureResult = captureAppContext()
+        return ContextSnapshot(
+            timestamp: Date(),
+            appContext: captureResult.appContext,
+            clipboardText: clipboardText,
+            warnings: captureResult.warnings
+        )
+    }
+
+    func deriveRuntimeState(
+        for snapshot: ContextSnapshot,
+        adapterCapabilities: AppAdapterCapabilities?
+    ) -> VibeRuntimeState {
+        let permissionDenied = snapshot.warnings.contains { warning in
+            if case .accessibilityPermissionDenied = warning {
+                return true
+            }
+            return false
+        }
+
+        if permissionDenied {
+            return snapshot.hasAnyContext ? .limited : .degraded
+        }
+
+        if snapshot.appContext?.hasDetailedContext == true,
+           adapterCapabilities?.supportsCodeContext == true {
+            return .ready
+        }
+
+        if snapshot.hasAnyContext {
+            return .limited
+        }
+
+        return .degraded
+    }
+
+    func deriveRuntimeDetail(
+        for snapshot: ContextSnapshot,
+        runtimeState: VibeRuntimeState
+    ) -> String {
+        switch runtimeState {
+        case .ready:
+            let appName = snapshot.appContext?.appName ?? "current app"
+            return "Live session context active in \(appName)."
+        case .limited:
+            if snapshot.warnings.contains(where: {
+                if case .accessibilityPermissionDenied = $0 {
+                    return true
+                }
+                return false
+            }) {
+                return "Accessibility permission not granted. Using limited context."
+            }
+            return "Using partial context for this recording session."
+        case .degraded:
+            return "Live session context unavailable."
+        }
+    }
+
 
     // MARK: - Non-AX Metadata
 
@@ -298,29 +380,32 @@ final class ContextEngineService {
     // MARK: - Document Path
 
     private func captureDocumentPath(from appElement: AXUIElement) -> String? {
-        // Try the focused window's document attribute
         if let focusedWindow = axProvider.elementAttribute(kAXFocusedWindowAttribute, of: appElement),
-           let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: focusedWindow),
-           let normalized = normalizeDocumentPath(candidate) {
+           let normalized = captureDocumentPath(from: focusedWindow, source: "focusedWindow") {
             return normalized
         }
-        
-        // Try the app's document attribute
-        if let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: appElement),
-           let normalized = normalizeDocumentPath(candidate) {
+
+        if let normalized = captureDocumentPath(from: appElement, source: "app") {
             return normalized
         }
-        
-        // Try the focused element's document attribute
         if let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement),
-           let candidate = axProvider.stringAttribute(kAXDocumentAttribute, of: focusedElement),
-           let normalized = normalizeDocumentPath(candidate) {
+           let normalized = captureDocumentPath(from: focusedElement, source: "focusedElement") {
             return normalized
         }
-        
         return nil
     }
     
+    private func captureDocumentPath(from element: AXUIElement, source: String) -> String? {
+        for attribute in Self.documentPathAttributes {
+            guard let candidate = axProvider.stringAttribute(attribute, of: element) else { continue }
+            if let normalized = normalizeDocumentPath(candidate) {
+                Log.context.debug("Document path captured from \(source).\(attribute)")
+                return normalized
+            }
+            Log.context.debug("Rejected document path candidate from \(source).\(attribute)")
+        }
+        return nil
+    }
     /// Normalizes and validates a document path candidate.
     /// Accepts absolute paths and file:// URLs; rejects non-file URLs.
     /// - Parameter candidate: Raw path or URL string from AX attribute
@@ -328,12 +413,9 @@ final class ContextEngineService {
     private func normalizeDocumentPath(_ candidate: String) -> String? {
         let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
-
-        // Accept tilde-based absolute home paths as-is (already redacted form).
         if trimmed == "~" || trimmed.hasPrefix("~/") {
             return trimmed
         }
-        
         // Handle file:// URLs
         if trimmed.hasPrefix("file://") {
             let path = trimmed.replacingOccurrences(of: "file://", with: "")
@@ -342,16 +424,111 @@ final class ContextEngineService {
             guard decoded.hasPrefix("/") else { return nil }
             return decoded
         }
-        
         // Reject non-file URLs (http://, https://, ftp://, etc.)
         if trimmed.contains("://") {
             return nil
         }
-        
         // Accept absolute paths only
         guard trimmed.hasPrefix("/") else { return nil }
         return trimmed
     }
+
+    private func maybeLogAXPayload(
+        bundleIdentifier: String?,
+        appName: String?,
+        appElement: AXUIElement,
+        focusedWindow: AXUIElement?,
+        focusedElement: AXUIElement?,
+        documentPath: String?
+    ) {
+        guard documentPath == nil else { return }
+
+        let appNameValue = appName ?? "unknown"
+        let bundleValue = bundleIdentifier ?? "unknown"
+        Log.context.info("AX diagnostics: document path missing for app='\(appNameValue)' bundle='\(bundleValue)'.")
+
+        logAXAttributes(for: appElement, label: "app")
+        if let focusedWindow {
+            logAXAttributes(for: focusedWindow, label: "focusedWindow")
+        } else {
+            Log.context.info("AX[focusedWindow]=<nil>")
+        }
+
+        if let focusedElement {
+            logAXAttributes(for: focusedElement, label: "focusedElement")
+        } else {
+            Log.context.info("AX[focusedElement]=<nil>")
+        }
+    }
+
+    private func logAXAttributes(for element: AXUIElement, label: String) {
+        var namesRef: CFArray?
+        let result = AXUIElementCopyAttributeNames(element, &namesRef)
+        guard result == .success,
+              let names = namesRef as? [String],
+              !names.isEmpty else {
+            Log.context.info("AX[\(label)] attributes unavailable (error=\(result.rawValue))")
+            return
+        }
+
+        let sortedNames = names.sorted()
+        Log.context.info("AX[\(label)] attribute_count=\(sortedNames.count)")
+
+        for name in sortedNames.prefix(Self.maxAXDiagnosticAttributes) {
+            let renderedValue = renderAXAttributeValue(attribute: name, on: element)
+            Log.context.info("AX[\(label)].\(name)=\(renderedValue)")
+        }
+
+        if sortedNames.count > Self.maxAXDiagnosticAttributes {
+            let remaining = sortedNames.count - Self.maxAXDiagnosticAttributes
+            Log.context.info("AX[\(label)] truncated \(remaining) additional attribute(s)")
+        }
+    }
+
+    private func renderAXAttributeValue(attribute: String, on element: AXUIElement) -> String {
+        var value: AnyObject?
+        let result = AXUIElementCopyAttributeValue(element, attribute as CFString, &value)
+        guard result == .success else {
+            return "<error:\(result.rawValue)>"
+        }
+
+        guard let value else {
+            return "<nil>"
+        }
+
+        return summarizeAXValue(value)
+    }
+
+    private func summarizeAXValue(_ value: AnyObject) -> String {
+        if CFGetTypeID(value) == AXUIElementGetTypeID() {
+            return "<AXUIElement>"
+        }
+
+        if let stringValue = value as? String {
+            let truncated = Self.sanitizeAndTruncate(
+                stringValue,
+                maxLength: Self.maxAXDiagnosticValueLength,
+                fieldName: "axDiagnosticValue"
+            ) ?? ""
+            return "\"\(truncated)\""
+        }
+
+        if let numberValue = value as? NSNumber {
+            return numberValue.stringValue
+        }
+
+        if let urlValue = value as? URL {
+            return "\"\(urlValue.absoluteString)\""
+        }
+
+        if let arrayValue = value as? [AnyObject] {
+            let preview = arrayValue.prefix(3).map { summarizeAXValue($0) }.joined(separator: ", ")
+            return "[\(preview)] count=\(arrayValue.count)"
+        }
+
+        return "<\(String(describing: type(of: value)))>"
+    }
+
 
     // MARK: - Browser URL
 

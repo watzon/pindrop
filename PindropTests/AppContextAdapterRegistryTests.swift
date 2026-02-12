@@ -48,6 +48,39 @@ final class AppContextAdapterRegistryTests: XCTestCase {
         }
     }
 
+    func testAdapterLookupIsCaseInsensitive() {
+        XCTAssertEqual(sut.adapter(for: "DEV.ZED.ZED").capabilities.displayName, "Zed")
+        XCTAssertEqual(sut.adapter(for: "com.microsoft.vscode").capabilities.displayName, "Visual Studio Code")
+        XCTAssertTrue(sut.hasAdapter(for: "DEV.ZED.ZED"))
+    }
+
+    func testEnrichmentDerivesFilenameFromWindowTitleWhenDocumentPathMissing() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "dev.zed.Zed",
+            appName: "Zed",
+            windowTitle: "nanoclaw — bootstrap-context.ts",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot, adapterRegistry: sut)
+        let enrichment = sut.enrichment(for: snapshot, routingSignal: signal)
+
+        XCTAssertEqual(enrichment.activeFilePath, "bootstrap-context.ts")
+        XCTAssertEqual(enrichment.activeFileConfidence, 0.45, accuracy: 0.001)
+        XCTAssertTrue(enrichment.fileTagCandidates.contains("bootstrap-context.ts"))
+        XCTAssertFalse(enrichment.fileTagCandidates.contains("nanoclaw — bootstrap-context.ts"))
+    }
+
     // MARK: - Unknown Bundle ID Fallback
 
     func testUnknownBundleUsesMetadataFallback() {
@@ -107,9 +140,21 @@ final class AppContextAdapterRegistryTests: XCTestCase {
         XCTAssertEqual(caps.mentionPrefix, "@")
     }
 
-    func testVSCodeUsesDifferentMentionPrefix() {
+    func testVSCodeUsesAtMentionPrefix() {
         let adapter = sut.adapter(for: "com.microsoft.VSCode")
-        XCTAssertEqual(adapter.capabilities.mentionPrefix, "#")
+        XCTAssertEqual(adapter.capabilities.mentionPrefix, "@")
+    }
+
+    func testCodexUsesMarkdownMentionTemplate() {
+        let adapter = sut.adapter(for: "com.openai.codex")
+        XCTAssertEqual(adapter.capabilities.mentionTemplate, "[@{path}]({path})")
+    }
+
+    func testTerminalProviderRegistryDetectsProvidersFromTitleSignals() {
+        XCTAssertEqual(TerminalProviderRegistry.detectProviderIdentifier(windowTitle: "π shell", focusedElementValue: nil), "pi")
+        XCTAssertEqual(TerminalProviderRegistry.detectProviderIdentifier(windowTitle: "oc", focusedElementValue: nil), "opencode")
+        XCTAssertEqual(TerminalProviderRegistry.detectProviderIdentifier(windowTitle: "claude", focusedElementValue: nil), "claude")
+        XCTAssertEqual(TerminalProviderRegistry.detectProviderIdentifier(windowTitle: nil, focusedElementValue: "codex"), "codex")
     }
 
     func testZedUsesSlashPrefix() {

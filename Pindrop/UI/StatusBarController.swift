@@ -587,7 +587,7 @@ final class StatusBarController {
             settingsWindow = nil
         }
 
-        var settingsView = SettingsWindow(initialTab: tab)
+        let settingsView = SettingsWindow(settings: settingsStore, initialTab: tab)
         let rootView: AnyView
         if let container = modelContainer {
             rootView = AnyView(settingsView.modelContainer(container))

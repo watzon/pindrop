@@ -69,6 +69,10 @@ final class MentionFormatterTests: XCTestCase {
         ZedAdapter().capabilities
     }
 
+    private var codexCapabilities: AppAdapterCapabilities {
+        CodexAdapter().capabilities
+    }
+
     private var fallbackCapabilities: AppAdapterCapabilities {
         FallbackAdapter().capabilities
     }
@@ -236,7 +240,7 @@ final class MentionFormatterTests: XCTestCase {
             XCTFail("Expected .formatted for VSCode, got \(vscodeResult)")
             return
         }
-        XCTAssertEqual(vscodeText, "#Pindrop/Services/AppCoordinator.swift")
+        XCTAssertEqual(vscodeText, "@Pindrop/Services/AppCoordinator.swift")
 
         let zedResult = sut.formatMention(
             originalText: "app coordinator",
@@ -248,6 +252,24 @@ final class MentionFormatterTests: XCTestCase {
             return
         }
         XCTAssertEqual(zedText, "/Pindrop/Services/AppCoordinator.swift")
+    }
+
+    func testCodexFormatsResolvedMentionAsMarkdownLink() {
+        let candidate = makeCandidate(relativePath: "README.md", score: 0.9)
+        let result = sut.formatMention(
+            originalText: "readme",
+            resolution: .resolved(candidate),
+            capabilities: codexCapabilities
+        )
+
+        guard case .formatted(let text, let path, let confidence) = result else {
+            XCTFail("Expected .formatted, got \(result)")
+            return
+        }
+
+        XCTAssertEqual(text, "[@README.md](README.md)")
+        XCTAssertEqual(path, "README.md")
+        XCTAssertEqual(confidence, 0.9)
     }
 
     // MARK: - Batch Format Report

@@ -32,17 +32,17 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 }
 
 struct SettingsWindow: View {
-    @StateObject private var settings = SettingsStore()
+    @ObservedObject var settings: SettingsStore
     @State private var selectedTab: SettingsTab
     @State private var hoveredTab: SettingsTab? = nil
     
     var initialTab: SettingsTab = .general
     
-    init(initialTab: SettingsTab = .general) {
+    init(settings: SettingsStore, initialTab: SettingsTab = .general) {
+        self.settings = settings
         self.initialTab = initialTab
         self._selectedTab = State(initialValue: initialTab)
     }
-    
     var body: some View {
         NavigationSplitView {
             sidebarContent
@@ -173,13 +173,13 @@ struct SettingsWindow: View {
 }
 
 #Preview("Settings Window - Light") {
-    SettingsWindow()
+    SettingsWindow(settings: SettingsStore())
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
 }
 
 #Preview("Settings Window - Dark") {
-    SettingsWindow()
+    SettingsWindow(settings: SettingsStore())
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)
 }

@@ -41,6 +41,30 @@ final class PromptRoutingSignalTests: XCTestCase {
         XCTAssertTrue(signal.isCodeEditorContext)
     }
 
+    func testBuildSignalUsesCaseInsensitiveAdapterLookupForCodeEditorContext() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "dev.zed.Zed",
+            appName: "Zed",
+            windowTitle: "nanoclaw — bootstrap-context.ts",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let registry = AppContextAdapterRegistry()
+        let signal = PromptRoutingSignal.from(snapshot: snapshot, adapterRegistry: registry)
+
+        XCTAssertEqual(signal.appBundleIdentifier, "dev.zed.zed")
+        XCTAssertTrue(signal.isCodeEditorContext)
+    }
     func testBuildSignalFromSnapshotWithUnknownApp() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.Safari",
@@ -268,6 +292,72 @@ final class PromptRoutingSignalTests: XCTestCase {
         let signal = PromptRoutingSignal.from(snapshot: snapshot)
 
         XCTAssertNil(signal.workspacePath)
+    }
+
+    func testBuildSignalInfersTerminalProviderFromTitlePrefix() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.mitchellh.ghostty",
+            appName: "Ghostty",
+            windowTitle: "π session",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+        XCTAssertEqual(signal.terminalProviderIdentifier, "pi")
+    }
+
+    func testBuildSignalInfersTerminalProviderFromFocusedValue() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.googlecode.iterm2",
+            appName: "iTerm2",
+            windowTitle: nil,
+            focusedElementRole: "AXTextArea",
+            focusedElementValue: "codex",
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+        XCTAssertEqual(signal.terminalProviderIdentifier, "codex")
+    }
+
+    func testBuildSignalDoesNotInferTerminalProviderForNonTerminalApp() {
+        let appContext = AppContextInfo(
+            bundleIdentifier: "com.apple.Safari",
+            appName: "Safari",
+            windowTitle: "claude",
+            focusedElementRole: nil,
+            focusedElementValue: nil,
+            selectedText: nil,
+            documentPath: nil,
+            browserURL: nil
+        )
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: appContext,
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let signal = PromptRoutingSignal.from(snapshot: snapshot)
+        XCTAssertNil(signal.terminalProviderIdentifier)
     }
 
     // MARK: - Manual Preset Overrides Routing Suggestion

@@ -19,11 +19,13 @@ final class SettingsStoreTests: XCTestCase {
         
         try? settingsStore.deleteAPIEndpoint()
         try? settingsStore.deleteAPIKey()
+        settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
     }
     
     override func tearDown() async throws {
         try? settingsStore.deleteAPIEndpoint()
         try? settingsStore.deleteAPIKey()
+        settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
         settingsStore = nil
         try await super.tearDown()
     }
@@ -115,6 +117,66 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertNil(store.apiEndpoint)
         XCTAssertNil(store.apiKey)
     }
+
+    func testVibeDefaultsAndRuntimeState() {
+        let store = SettingsStore()
+
+        XCTAssertTrue(store.vibeLiveSessionEnabled)
+        XCTAssertEqual(store.vibeRuntimeState, .degraded)
+        XCTAssertEqual(store.vibeRuntimeDetail, "Vibe mode is disabled.")
+    }
+
+    func testUpdateVibeRuntimeState() {
+        settingsStore.updateVibeRuntimeState(.ready, detail: "Live session context active in Cursor.")
+
+        XCTAssertEqual(settingsStore.vibeRuntimeState, .ready)
+        XCTAssertEqual(settingsStore.vibeRuntimeDetail, "Live session context active in Cursor.")
+    }
+
+    func testResetAllSettingsResetsVibeRuntimeState() {
+        settingsStore.vibeLiveSessionEnabled = false
+        settingsStore.updateVibeRuntimeState(.ready, detail: "Live session context active in Cursor.")
+
+        settingsStore.resetAllSettings()
+
+        XCTAssertTrue(settingsStore.vibeLiveSessionEnabled)
+        XCTAssertEqual(settingsStore.vibeRuntimeState, .degraded)
+        XCTAssertEqual(settingsStore.vibeRuntimeDetail, "Vibe mode is disabled.")
+    }
+
+    func testResolveMentionFormattingUsesTerminalProviderDefaultTemplate() {
+        let resolved = settingsStore.resolveMentionFormatting(
+            editorBundleIdentifier: "com.microsoft.VSCode",
+            terminalProviderIdentifier: "codex",
+            adapterDefaultTemplate: "@{path}",
+            adapterDefaultPrefix: "@"
+        )
+
+        XCTAssertEqual(resolved.mentionTemplate, "[@{path}]({path})")
+        XCTAssertEqual(resolved.mentionPrefix, "@")
+    }
+
+    func testResolveMentionFormattingPrefersProviderOverrideOverEditorOverride() {
+        settingsStore.setMentionTemplateOverride("/{path}", for: "provider:codex")
+        settingsStore.setMentionTemplateOverride("@{path}", for: "editor:com.microsoft.vscode")
+
+        let resolved = settingsStore.resolveMentionFormatting(
+            editorBundleIdentifier: "com.microsoft.VSCode",
+            terminalProviderIdentifier: "codex",
+            adapterDefaultTemplate: "#{path}",
+            adapterDefaultPrefix: "#"
+        )
+
+        XCTAssertEqual(resolved.mentionTemplate, "/{path}")
+        XCTAssertEqual(resolved.mentionPrefix, "/")
+    }
+
+    func testSetMentionTemplateOverrideRejectsInvalidTemplate() {
+        settingsStore.setMentionTemplateOverride("not-a-template", for: "provider:codex")
+        XCTAssertNil(settingsStore.mentionTemplateOverride(for: "provider:codex"))
+    }
+
+
     
     func testKeychainErrorHandling() throws {
         XCTAssertNoThrow(try settingsStore.deleteAPIEndpoint())

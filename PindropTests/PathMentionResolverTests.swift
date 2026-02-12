@@ -113,6 +113,63 @@ final class PathMentionResolverTests: XCTestCase {
                        "Should return full relative paths, not bare filenames")
     }
 
+    func testActiveDocumentDirectoryDisambiguatesSingleTopTierCandidate() async throws {
+        var ambiguousFS = MockFileSystemProvider()
+        ambiguousFS.directories = ["/workspace"]
+        ambiguousFS.filesByRoot = [
+            "/workspace": [
+                "/workspace/README.md",
+                "/workspace/docs/README.md",
+                "/workspace/src/main.swift",
+                "/workspace/CONTRIBUTING.md",
+            ]
+        ]
+
+        let ambiguousIndex = WorkspaceFileIndexService(fileSystem: ambiguousFS)
+        try await ambiguousIndex.buildIndex(roots: ["/workspace"])
+
+        let result = sut.resolve(
+            mention: "README.md",
+            in: ambiguousIndex,
+            activeDocumentPath: "/workspace/CONTRIBUTING.md"
+        )
+
+        guard case .resolved(let candidate) = result else {
+            XCTFail("Expected .resolved, got \(result)")
+            return
+        }
+
+        XCTAssertEqual(candidate.file.relativePath, "README.md")
+    }
+
+    func testActiveDocumentDirectoryDoesNotDisambiguateWithoutSameDirectoryCandidate() async throws {
+        var ambiguousFS = MockFileSystemProvider()
+        ambiguousFS.directories = ["/workspace"]
+        ambiguousFS.filesByRoot = [
+            "/workspace": [
+                "/workspace/docs/README.md",
+                "/workspace/samples/README.md",
+                "/workspace/src/main.swift",
+            ]
+        ]
+
+        let ambiguousIndex = WorkspaceFileIndexService(fileSystem: ambiguousFS)
+        try await ambiguousIndex.buildIndex(roots: ["/workspace"])
+
+        let result = sut.resolve(
+            mention: "README.md",
+            in: ambiguousIndex,
+            activeDocumentPath: "/workspace/src/main.swift"
+        )
+
+        guard case .ambiguous(let candidates) = result else {
+            XCTFail("Expected .ambiguous, got \(result)")
+            return
+        }
+
+        XCTAssertEqual(candidates.count, 2)
+    }
+
     // MARK: - Exact Stem Match
 
     func testExactStemMatchWithoutExtension() {

@@ -214,6 +214,10 @@ struct AIEnhancementSettingsView: View {
                     .toggleStyle(.switch)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
+                Toggle("Enable live session updates during recording", isOn: $settings.vibeLiveSessionEnabled)
+                    .toggleStyle(.switch)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 HStack(spacing: 6) {
                     IconView(icon: accessibilityPermissionGranted ? .check : .info, size: 12)
                         .foregroundStyle(accessibilityPermissionGranted ? .green : .secondary)
@@ -235,6 +239,24 @@ struct AIEnhancementSettingsView: View {
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(vibeRuntimeColor)
+                            .frame(width: 8, height: 8)
+                        Text("Runtime: \(vibeRuntimeLabel)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(vibeRuntimeColor)
+                    }
+
+                    Text(settings.vibeRuntimeDetail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 
                 VStack(spacing: 12) {
                     Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
@@ -246,6 +268,29 @@ struct AIEnhancementSettingsView: View {
             .disabled(!settings.aiEnhancementEnabled)
         }
     }
+
+    private var vibeRuntimeLabel: String {
+        switch settings.vibeRuntimeState {
+        case .ready:
+            return "Ready"
+        case .limited:
+            return "Limited"
+        case .degraded:
+            return "Degraded"
+        }
+    }
+
+    private var vibeRuntimeColor: Color {
+        switch settings.vibeRuntimeState {
+        case .ready:
+            return .green
+        case .limited:
+            return .yellow
+        case .degraded:
+            return .orange
+        }
+    }
+
     
     private var promptTypeTabs: some View {
         HStack(spacing: 0) {

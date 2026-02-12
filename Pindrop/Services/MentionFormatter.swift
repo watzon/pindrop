@@ -301,7 +301,7 @@ final class MentionFormatter {
 
         let formatted = buildFormattedMention(
             relativePath: candidate.file.relativePath,
-            prefix: capabilities.mentionPrefix
+            capabilities: capabilities
         )
 
         Log.context.debug(
@@ -342,11 +342,11 @@ final class MentionFormatter {
         )
     }
 
-    /// Build the app-specific mention string.
-    /// Example: prefix="@", path="Pindrop/Services/AppCoordinator.swift"
+    /// Build the app-specific mention string from the adapter template.
+    /// Example: template="@{path}", path="Pindrop/Services/AppCoordinator.swift"
     /// → "@Pindrop/Services/AppCoordinator.swift"
-    private func buildFormattedMention(relativePath: String, prefix: String) -> String {
-        "\(prefix)\(relativePath)"
+    private func buildFormattedMention(relativePath: String, capabilities: AppAdapterCapabilities) -> String {
+        capabilities.renderMention(path: relativePath)
     }
 
     /// Detect if a mention is already in formatted syntax.

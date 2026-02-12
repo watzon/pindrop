@@ -231,8 +231,24 @@ final class PathMentionResolver {
                 recordAndLogResult(result)
                 return result
             }
-        }
 
+            // Directory-level disambiguation: if exactly one top-tier candidate is in
+            // the same directory as the active document, prefer it deterministically.
+            let activeDirectory = (normalizedActiveDoc as NSString).deletingLastPathComponent
+            if !activeDirectory.isEmpty {
+                let sameDirectoryCandidates = candidates.filter { candidate in
+                    topScore - candidate.score < config.ambiguityMargin
+                        && ((candidate.file.absolutePath as NSString).deletingLastPathComponent == activeDirectory)
+                }
+
+                if sameDirectoryCandidates.count == 1, let directoryCandidate = sameDirectoryCandidates.first {
+                    Log.context.info("Path resolve: disambiguated via active document directory → \(directoryCandidate.file.relativePath)")
+                    let result = PathResolutionResult.resolved(directoryCandidate)
+                    recordAndLogResult(result)
+                    return result
+                }
+            }
+        }
         let ambiguousCandidates = candidates.filter {
             topScore - $0.score < config.ambiguityMargin
         }

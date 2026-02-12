@@ -164,6 +164,57 @@ final class ContextEngineServiceTests: XCTestCase {
         XCTAssertFalse(result.warnings.isEmpty, "Should have at least one warning")
     }
 
+    func testCaptureSnapshotIncludesClipboardText() {
+        mockAXProvider.isTrusted = false
+
+        let snapshot = sut.captureSnapshot(clipboardText: "clipboard context")
+
+        XCTAssertEqual(snapshot.clipboardText, "clipboard context")
+        XCTAssertTrue(snapshot.warnings.contains(.accessibilityPermissionDenied))
+    }
+
+    func testDeriveRuntimeStateReadyForDetailedCodeContext() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: AppContextInfo(
+                bundleIdentifier: "com.todesktop.230313mzl4w4u92",
+                appName: "Cursor",
+                windowTitle: "AppCoordinator.swift",
+                focusedElementRole: "AXTextArea",
+                focusedElementValue: nil,
+                selectedText: "func startRecording()",
+                documentPath: "~/Projects/pindrop/Pindrop/AppCoordinator.swift",
+                browserURL: nil
+            ),
+            clipboardText: nil,
+            warnings: []
+        )
+
+        let runtimeState = sut.deriveRuntimeState(
+            for: snapshot,
+            adapterCapabilities: CursorAdapter().capabilities
+        )
+
+        XCTAssertEqual(runtimeState, .ready)
+    }
+
+    func testDeriveRuntimeStateLimitedWhenPermissionDeniedButClipboardPresent() {
+        let snapshot = ContextSnapshot(
+            timestamp: Date(),
+            appContext: nil,
+            clipboardText: "clipboard context",
+            warnings: [.accessibilityPermissionDenied]
+        )
+
+        let runtimeState = sut.deriveRuntimeState(
+            for: snapshot,
+            adapterCapabilities: nil
+        )
+
+        XCTAssertEqual(runtimeState, .limited)
+    }
+
+
     // MARK: - Secure Field Tests
 
     /// Verifies that secure text fields (AXSecureTextField role) have their values skipped.
@@ -396,6 +447,47 @@ final class ContextEngineServiceTests: XCTestCase {
         XCTAssertEqual(
             result.appContext?.documentPath, "~/Code/main.swift",
             "Should handle file:// URLs and redact home"
+        )
+    }
+
+    func testCaptureDocumentPathFallsBackToRepresentedFilenameAttribute() {
+        mockAXProvider.isTrusted = true
+        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
+
+        mockAXProvider.setElementAttribute(
+            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+
+        let home = NSHomeDirectory()
+        mockAXProvider.setStringAttribute(
+            "AXRepresentedFilename", of: fakeFocusedWindow, value: "\(home)/Code/README.md")
+
+        let result = sut.captureAppContext()
+
+        XCTAssertNotNil(result.appContext)
+        XCTAssertEqual(
+            result.appContext?.documentPath, "~/Code/README.md",
+            "Should capture document path from AXRepresentedFilename when AXDocument is unavailable"
+        )
+    }
+
+    func testCaptureDocumentPathAcceptsFileURLFromAXURLAttribute() {
+        mockAXProvider.isTrusted = true
+        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
+
+        mockAXProvider.setElementAttribute(
+            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+
+        let home = NSHomeDirectory()
+        let fileURL = "file://\(home)/Code/main.swift"
+        mockAXProvider.setStringAttribute(
+            kAXURLAttribute, of: fakeFocusedWindow, value: fileURL)
+
+        let result = sut.captureAppContext()
+
+        XCTAssertNotNil(result.appContext)
+        XCTAssertEqual(
+            result.appContext?.documentPath, "~/Code/main.swift",
+            "Should capture file:// path from AXURL when AXDocument is unavailable"
         )
     }
     
