@@ -37,6 +37,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private enum LayoutMetrics {
         static let compactSize = CGSize(width: 40, height: 10)
+        static let compactPillBottomPadding: CGFloat = 6
         static let hoverSize = CGSize(width: 332, height: 68)
         static let recordingSize = CGSize(width: 124, height: 30)
         static let processingSize = CGSize(width: 124, height: 30)
@@ -44,8 +45,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         static let compactBottomInset: CGFloat = 6
         static let expandedBottomInset: CGFloat = 10
 
-        static let hoverActivationInsetX: CGFloat = 0
-        static let hoverActivationInsetY: CGFloat = 0
+        static let hoverActivationInsetX: CGFloat = 20
+        static let hoverActivationInsetY: CGFloat = 20
         static let hoverRetentionInsetX: CGFloat = 10
         static let hoverRetentionInsetY: CGFloat = 8
         static let hoverCollapseDelay: TimeInterval = 0.14
@@ -65,7 +66,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     @Published var isProcessing: Bool = false
     @Published var isHovered: Bool = false
     @Published var isHoverTooltipVisible: Bool = false
-    @Published var startRecordingHotkey: String = "⌥Space"
+    @Published var toggleRecordingHotkey: String = ""
+    @Published var pushToTalkHotkey: String = ""
 
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
@@ -359,7 +361,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             return
         }
 
-        let activationRect = panel.frame.insetBy(
+        let activationRect = compactPillFrame(in: panel.frame).insetBy(
             dx: -LayoutMetrics.hoverActivationInsetX,
             dy: -LayoutMetrics.hoverActivationInsetY
         )
@@ -385,6 +387,18 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             lastHoverContactAt = now
             setHoverState(true)
         }
+    }
+
+    private func compactPillFrame(in panelFrame: NSRect) -> NSRect {
+        let width = LayoutMetrics.compactSize.width
+        let height = LayoutMetrics.compactSize.height
+
+        return NSRect(
+            x: panelFrame.midX - (width / 2),
+            y: panelFrame.minY + LayoutMetrics.compactPillBottomPadding,
+            width: width,
+            height: height
+        )
     }
 
     private func handleRightMouseDown(_ event: NSEvent) {
@@ -463,9 +477,18 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }
     }
 
+    func updateTooltipHotkeys(toggleHotkey: String, pushToTalkHotkey: String) {
+        toggleRecordingHotkey = normalizeHotkey(toggleHotkey)
+        self.pushToTalkHotkey = normalizeHotkey(pushToTalkHotkey)
+    }
+
     func updateStartRecordingHotkey(_ hotkey: String) {
-        let trimmed = hotkey.trimmingCharacters(in: .whitespacesAndNewlines)
-        startRecordingHotkey = trimmed.isEmpty ? "⌥Space" : trimmed
+        let storedPushToTalkHotkey = UserDefaults.standard.string(forKey: "pushToTalkHotkey") ?? ""
+        updateTooltipHotkeys(toggleHotkey: hotkey, pushToTalkHotkey: storedPushToTalkHotkey)
+    }
+
+    private func normalizeHotkey(_ hotkey: String) -> String {
+        hotkey.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func expandForRecording() {
@@ -686,7 +709,10 @@ struct PillIndicatorView: View {
             .contentShape(Capsule())
 
             if controller.isHoverTooltipVisible {
-                PillHoverTooltip(hotkey: controller.startRecordingHotkey)
+                PillHoverTooltip(
+                    toggleHotkey: controller.toggleRecordingHotkey,
+                    pushToTalkHotkey: controller.pushToTalkHotkey
+                )
                     .offset(y: -24)
                     .transition(
                         .asymmetric(
@@ -832,62 +858,57 @@ private struct PillStaticWaveformGlyph: View {
 }
 
 private struct PillHoverTooltip: View {
-    let hotkey: String
+    let toggleHotkey: String
+    let pushToTalkHotkey: String
 
-    private var hotkeyDisplay: String {
-        var cleaned = hotkey
-            .replacingOccurrences(of: " + ", with: "+")
-            .replacingOccurrences(of: " ", with: "")
+    private enum PromptMode {
+        case toggle(String)
+        case pushToTalk(String)
+        case noHotkey
+    }
 
-        if cleaned.isEmpty {
-            cleaned = "Opt+\\"
+    private var promptMode: PromptMode {
+        let normalizedToggle = normalizedHotkeyDisplay(toggleHotkey)
+        if !normalizedToggle.isEmpty {
+            return .toggle(normalizedToggle)
         }
 
-        if cleaned.contains("+") {
-            let parts = cleaned
-                .split(separator: "+")
-                .map(String.init)
-                .map(displayToken(for:))
-
-            return parts.joined(separator: " + ")
+        let normalizedPushToTalk = normalizedHotkeyDisplay(pushToTalkHotkey)
+        if !normalizedPushToTalk.isEmpty {
+            return .pushToTalk(normalizedPushToTalk)
         }
 
-        var parsedTokens: [String] = []
-        var remainder = cleaned
-
-        let modifierMap: [(raw: String, display: String)] = [
-            ("⌃", "Ctrl"),
-            ("⌥", "Opt"),
-            ("⇧", "Shift"),
-            ("⌘", "Cmd")
-        ]
-
-        for modifier in modifierMap {
-            if remainder.contains(modifier.raw) {
-                parsedTokens.append(modifier.display)
-                remainder = remainder.replacingOccurrences(of: modifier.raw, with: "")
-            }
-        }
-
-        if !remainder.isEmpty {
-            parsedTokens.append(displayToken(for: remainder))
-        }
-
-        let fallback = "Opt + \\"
-        return parsedTokens.isEmpty ? fallback : parsedTokens.joined(separator: " + ")
+        return .noHotkey
     }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                Text("Click or hold ")
-                    .foregroundStyle(Color.white.opacity(0.78))
+                switch promptMode {
+                case .toggle(let hotkey):
+                    Text("Click or hold ")
+                        .foregroundStyle(Color.white.opacity(0.78))
 
-                Text(hotkeyDisplay)
-                    .foregroundStyle(Color(red: 0.88, green: 0.67, blue: 0.79))
+                    Text(hotkey)
+                        .foregroundStyle(Color(red: 0.88, green: 0.67, blue: 0.79))
 
-                Text(" to start dictating")
-                    .foregroundStyle(Color.white.opacity(0.78))
+                    Text(" to start talking")
+                        .foregroundStyle(Color.white.opacity(0.78))
+
+                case .pushToTalk(let hotkey):
+                    Text("Click or press ")
+                        .foregroundStyle(Color.white.opacity(0.78))
+
+                    Text(hotkey)
+                        .foregroundStyle(Color(red: 0.88, green: 0.67, blue: 0.79))
+
+                    Text(" to start talking")
+                        .foregroundStyle(Color.white.opacity(0.78))
+
+                case .noHotkey:
+                    Text("Click or set a hotkey to start talking")
+                        .foregroundStyle(Color.white.opacity(0.78))
+                }
             }
             .font(.system(size: 10, weight: .medium, design: .rounded))
             .padding(.horizontal, 11)
@@ -913,23 +934,38 @@ private struct PillHoverTooltip: View {
         }
     }
 
-    private func displayToken(for token: String) -> String {
-        let lower = token.lowercased()
+    private func normalizedHotkeyDisplay(_ hotkey: String) -> String {
+        let trimmed = hotkey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
 
-        switch lower {
-        case "opt", "option", "alt":
-            return "Opt"
-        case "cmd", "command":
-            return "Cmd"
-        case "shift":
-            return "Shift"
-        case "ctrl", "control":
-            return "Ctrl"
-        case "space", "spacebar":
-            return "Space"
-        default:
-            return token
+        var normalized = trimmed
+            .replacingOccurrences(of: " + ", with: "+")
+            .replacingOccurrences(of: " +", with: "+")
+            .replacingOccurrences(of: "+ ", with: "+")
+            .replacingOccurrences(of: "command", with: "⌘", options: .caseInsensitive)
+            .replacingOccurrences(of: "cmd", with: "⌘", options: .caseInsensitive)
+            .replacingOccurrences(of: "control", with: "⌃", options: .caseInsensitive)
+            .replacingOccurrences(of: "ctrl", with: "⌃", options: .caseInsensitive)
+            .replacingOccurrences(of: "option", with: "⌥", options: .caseInsensitive)
+            .replacingOccurrences(of: "opt", with: "⌥", options: .caseInsensitive)
+            .replacingOccurrences(of: "alt", with: "⌥", options: .caseInsensitive)
+            .replacingOccurrences(of: "shift", with: "⇧", options: .caseInsensitive)
+
+        if normalized.contains("+") {
+            normalized = normalized
+                .split(separator: "+")
+                .map(String.init)
+                .map { token in
+                    let lower = token.lowercased()
+                    if lower == "space" || lower == "spacebar" {
+                        return "Space"
+                    }
+                    return token
+                }
+                .joined()
         }
+
+        return normalized
     }
 }
 
@@ -996,7 +1032,7 @@ struct PillWaveformView: View {
     let controller = PillFloatingIndicatorController()
     controller.isHovered = true
     controller.isHoverTooltipVisible = true
-    controller.startRecordingHotkey = "⌥Space"
+    controller.toggleRecordingHotkey = "⌥Space"
     return PillIndicatorView(controller: controller, isCompact: true)
         .frame(width: 332, height: 68)
         .padding()
