@@ -347,7 +347,7 @@ final class AIEnhancementServiceTests: XCTestCase {
         XCTAssertTrue(result.contains(basePrompt))
     }
 
-    func testBuildContextAwareSystemPromptNormalizesTranscriptionPlaceholder() {
+    func testBuildContextAwareSystemPromptRemovesTranscriptionPlaceholder() {
         let basePrompt = "Clean this text: ${transcription}"
 
         let result = AIEnhancementService.buildContextAwareSystemPrompt(
@@ -355,8 +355,19 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: .none
         )
 
-        XCTAssertTrue(result.contains("Clean this text: &lt;transcription/&gt;"))
+        XCTAssertTrue(result.contains("Clean this text:"))
         XCTAssertFalse(result.contains("${transcription}"))
+        XCTAssertFalse(result.contains("&lt;transcription/&gt;"))
+    }
+
+    func testBuildContextAwareSystemPromptIncludesAssistantModeGuardrails() {
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Clean this text",
+            context: .none
+        )
+
+        XCTAssertTrue(result.contains("<interpretation_rule>"))
+        XCTAssertTrue(result.contains("Never ask the user for additional text or clarification"))
     }
 
     func testBuildContextAwareSystemPromptWithClipboardImage() {
@@ -373,6 +384,7 @@ final class AIEnhancementServiceTests: XCTestCase {
 
         XCTAssertTrue(result.contains("<supplementary_context>"))
         XCTAssertTrue(result.contains("<type>clipboard_image</type>"))
+        XCTAssertTrue(result.contains("clipboard_text,clipboard_image"))
         XCTAssertTrue(result.contains(basePrompt))
     }
 
@@ -569,6 +581,57 @@ final class AIEnhancementServiceTests: XCTestCase {
 
         XCTAssertTrue(meta.hasClipboardText)
         XCTAssertFalse(meta.hasAppMetadata)
+        XCTAssertFalse(meta.hasVocabularyWords)
+        XCTAssertFalse(meta.hasReplacementCorrections)
+    }
+
+    func testBuildContextAwareSystemPromptWithVocabularyContext() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            clipboardText: nil,
+            hasClipboardImage: false,
+            appContext: nil,
+            vocabularyWords: ["Butterbase", "OpenCode", "OpenCode", ""]
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<type>custom_vocabulary</type>"))
+        XCTAssertTrue(result.contains("<vocabulary_context>"))
+        XCTAssertTrue(result.contains("<word>Butterbase</word>"))
+        XCTAssertTrue(result.contains("<word>OpenCode</word>"))
+        XCTAssertTrue(result.contains("Use only to improve spelling/casing"))
+        XCTAssertTrue(result.contains("custom_vocabulary"))
+    }
+
+    func testBuildContextAwareSystemPromptWithAppliedReplacementsContext() {
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            clipboardText: nil,
+            hasClipboardImage: false,
+            appContext: nil,
+            replacementCorrections: [
+                AIEnhancementService.ContextMetadata.ReplacementCorrection(original: "hashline", replacement: "hash line"),
+                AIEnhancementService.ContextMetadata.ReplacementCorrection(original: "hashline", replacement: "hash line"),
+                AIEnhancementService.ContextMetadata.ReplacementCorrection(original: "omipy", replacement: "Omipy")
+            ]
+        )
+
+        let result = AIEnhancementService.buildContextAwareSystemPrompt(
+            basePrompt: "Enhance text",
+            context: context
+        )
+
+        XCTAssertTrue(result.contains("<type>applied_replacements</type>"))
+        XCTAssertTrue(result.contains("<applied_replacements>"))
+        XCTAssertTrue(result.contains("<from>hashline</from>"))
+        XCTAssertTrue(result.contains("<to>hash line</to>"))
+        XCTAssertTrue(result.contains("<from>omipy</from>"))
+        XCTAssertTrue(result.contains("<to>Omipy</to>"))
+        XCTAssertTrue(result.contains("custom_vocabulary,applied_replacements"))
     }
 
     func testBuildContextAwareSystemPromptWithUIContextSources() {

@@ -1554,20 +1554,22 @@ final class AppCoordinator {
            let apiEndpoint = settingsStore.apiEndpoint,
            let apiKey = settingsStore.apiKey {
             do {
-                var notePrompt = settingsStore.noteEnhancementPrompt
-
-                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
-                if !vocabularyWords.isEmpty {
-                    let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
-                    notePrompt += "\n\nUser's vocabulary includes: \(wordList)"
+                let notePrompt = settingsStore.noteEnhancementPrompt
+                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
+                let replacementCorrections = appliedReplacements.map {
+                    AIEnhancementService.ContextMetadata.ReplacementCorrection(
+                        original: $0.original,
+                        replacement: $0.replacement
+                    )
                 }
-
-                if !lastAppliedReplacements.isEmpty {
-                    let replacementList = lastAppliedReplacements
-                        .map { "'\($0.original)' → '\($0.replacement)'" }
-                        .joined(separator: ", ")
-                    notePrompt += "\n\nNote: These automatic replacements were applied: \(replacementList). Please preserve these corrections."
-                }
+                let enhancementContext = AIEnhancementService.ContextMetadata(
+                    hasClipboardText: false,
+                    clipboardText: nil,
+                    hasClipboardImage: false,
+                    appContext: nil,
+                    vocabularyWords: vocabularyWords,
+                    replacementCorrections: replacementCorrections
+                )
 
                 let existingTags = (try? notesStore.getAllUniqueTags()) ?? []
                 let enhancedNote = try await aiEnhancementService.enhanceNote(
@@ -1577,7 +1579,8 @@ final class AppCoordinator {
                     model: settingsStore.aiModel,
                     contentPrompt: notePrompt,
                     generateMetadata: true,
-                    existingTags: existingTags
+                    existingTags: existingTags,
+                    context: enhancementContext
                 )
                 Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
                 let normalizedEnhancedContent = normalizedTranscriptionText(enhancedNote.content)
@@ -1938,20 +1941,13 @@ final class AppCoordinator {
                 } else {
                     basePrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
                 }
-                
-                // Add vocabulary section if exists
-                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords()
-                if !vocabularyWords.isEmpty {
-                    let wordList = vocabularyWords.map { $0.word }.joined(separator: ", ")
-                    basePrompt += "\n\nUser's vocabulary includes: \(wordList)"
-                }
-                
-                // Add replacements section if applied
-                if !lastAppliedReplacements.isEmpty {
-                    let replacementList = lastAppliedReplacements
-                        .map { "'\($0.original)' → '\($0.replacement)'" }
-                        .joined(separator: ", ")
-                    basePrompt += "\n\nNote: These automatic replacements were applied to the transcription: \(replacementList). Please preserve these corrections."
+
+                let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
+                let replacementCorrections = lastAppliedReplacements.map {
+                    AIEnhancementService.ContextMetadata.ReplacementCorrection(
+                        original: $0.original,
+                        replacement: $0.replacement
+                    )
                 }
 
                 if mentionFormattingCapabilities?.supportsFileMentions == true {
@@ -1983,7 +1979,9 @@ final class AppCoordinator {
                         adapterCapabilities: mentionFormattingCapabilities,
                         routingSignal: capturedRoutingSignal,
                         workspaceFileTree: workspaceTreeSummary,
-                        liveSessionContext: liveSessionContext
+                        liveSessionContext: liveSessionContext,
+                        vocabularyWords: vocabularyWords,
+                        replacementCorrections: replacementCorrections
                     )
                 } else if let appContext = capturedSnapshot?.appContext {
                     contextMetadata = AIEnhancementService.ContextMetadata(
@@ -1994,7 +1992,9 @@ final class AppCoordinator {
                         adapterCapabilities: mentionFormattingCapabilities,
                         routingSignal: capturedRoutingSignal,
                         workspaceFileTree: workspaceTreeSummary,
-                        liveSessionContext: liveSessionContext
+                        liveSessionContext: liveSessionContext,
+                        vocabularyWords: vocabularyWords,
+                        replacementCorrections: replacementCorrections
                     )
                 } else if let liveSessionContext {
                     contextMetadata = AIEnhancementService.ContextMetadata(
@@ -2005,7 +2005,22 @@ final class AppCoordinator {
                         adapterCapabilities: mentionFormattingCapabilities,
                         routingSignal: capturedRoutingSignal,
                         workspaceFileTree: workspaceTreeSummary,
-                        liveSessionContext: liveSessionContext
+                        liveSessionContext: liveSessionContext,
+                        vocabularyWords: vocabularyWords,
+                        replacementCorrections: replacementCorrections
+                    )
+                } else if !vocabularyWords.isEmpty || !replacementCorrections.isEmpty {
+                    contextMetadata = AIEnhancementService.ContextMetadata(
+                        hasClipboardText: false,
+                        clipboardText: nil,
+                        hasClipboardImage: false,
+                        appContext: nil,
+                        adapterCapabilities: mentionFormattingCapabilities,
+                        routingSignal: capturedRoutingSignal,
+                        workspaceFileTree: workspaceTreeSummary,
+                        liveSessionContext: nil,
+                        vocabularyWords: vocabularyWords,
+                        replacementCorrections: replacementCorrections
                     )
                 }
 
