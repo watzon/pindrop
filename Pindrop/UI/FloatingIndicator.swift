@@ -9,23 +9,43 @@ import SwiftUI
 import AppKit
 import Combine
 
+private enum NotchPanelMetrics {
+    static let fallbackNotchWidth: CGFloat = 186
+    static let minimumNotchWidth: CGFloat = 150
+    static let baseSideWidth: CGFloat = 102
+    static let minimumSideWidth: CGFloat = 82
+    static let maximumSideWidth: CGFloat = 118
+    static let panelHeightMinimum: CGFloat = 30
+    static let horizontalInset: CGFloat = 12
+    static let cornerRadius: CGFloat = 14
+    static let showHideDuration: TimeInterval = 0.2
+    static let hideDuration: TimeInterval = 0.15
+    static let sectionDividerOpacity: CGFloat = 0.18
+    static let sidePadding: CGFloat = 10
+}
+
 extension NSScreen {
-    var notchSize: CGSize? {
-        guard let leftArea = auxiliaryTopLeftArea?.width,
-              let rightArea = auxiliaryTopRightArea?.width else {
-            return nil
-        }
-        let width = frame.width - leftArea - rightArea
-        let height = safeAreaInsets.top
-        return CGSize(width: width, height: height)
+    var notchAreaWidth: CGFloat? {
+        guard safeAreaInsets.left > 0 else { return nil }
+        return safeAreaInsets.left * 2
     }
     
     var hasNotch: Bool {
-        safeAreaInsets.top > 0
+        safeAreaInsets.top > 0 || notchAreaWidth != nil
     }
     
     var menuBarHeight: CGFloat {
         frame.maxY - visibleFrame.maxY
+    }
+    
+    var notchPanelHeight: CGFloat {
+        let notchHeight = safeAreaInsets.top
+        return notchHeight > 0 ? notchHeight : menuBarHeight
+    }
+    
+    func notchPanelWidth(fallback: CGFloat = NotchPanelMetrics.fallbackNotchWidth) -> CGFloat {
+        guard let areaWidth = notchAreaWidth else { return fallback }
+        return max(NotchPanelMetrics.minimumNotchWidth, areaWidth)
     }
 }
 
@@ -66,7 +86,6 @@ struct NotchShape: Shape {
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         path.addLine(to: CGPoint(x: rect.width, y: rect.height - cornerRadius))
@@ -119,17 +138,36 @@ final class FloatingIndicatorController: ObservableObject {
         
         guard let screen = NSScreen.main else { return }
         
-        let notchWidth = screen.notchSize?.width ?? 185
-        let notchHeight = screen.hasNotch ? screen.safeAreaInsets.top : screen.menuBarHeight
-        
-        let sideWidth: CGFloat = 100
+        let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
+        let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
+        let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
+        let dynamicSideWidth = max(
+            NotchPanelMetrics.minimumSideWidth,
+            min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
+        )
+        let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
+        let panelHeight = screen.hasNotch
+            ? screen.notchPanelHeight
+            : max(NotchPanelMetrics.panelHeightMinimum, screen.notchPanelHeight)
         let expandedWidth = notchWidth + (sideWidth * 2)
-        let panelHeight = notchHeight
+        let panelWidth = min(expandedWidth, maxPanelWidth)
         
-        let xPosition = screen.frame.origin.x + (screen.frame.width / 2) - (expandedWidth / 2)
-        let yPosition = screen.frame.origin.y + screen.frame.height - panelHeight
+        let xPosition = screen.visibleFrame.midX - (panelWidth / 2)
+        let yPosition = screen.frame.maxY - panelHeight
         
-        let contentRect = NSRect(x: xPosition, y: yPosition, width: expandedWidth, height: panelHeight)
+        let clampedXPosition = max(
+            screen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
+            min(
+                xPosition,
+                screen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
+            )
+        )
+        let contentRect = NSRect(
+            x: clampedXPosition,
+            y: yPosition,
+            width: panelWidth,
+            height: panelHeight
+        )
         let panel = NotchPanel(contentRect: contentRect)
         
         let contentView = NotchIndicatorView(
@@ -139,7 +177,7 @@ final class FloatingIndicatorController: ObservableObject {
             height: panelHeight
         )
         let hostingView = NSHostingView(rootView: contentView)
-        hostingView.layer?.backgroundColor = .clear
+        hostingView.layer?.backgroundColor = NSColor.clear.cgColor
         self.hostingView = hostingView
         
         panel.contentView = hostingView
@@ -151,7 +189,7 @@ final class FloatingIndicatorController: ObservableObject {
         let localPanel = panel
         
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.2
+            context.duration = NotchPanelMetrics.showHideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             localPanel.animator().alphaValue = 1
         }
@@ -164,7 +202,7 @@ final class FloatingIndicatorController: ObservableObject {
         stopDurationTimer()
         
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.15
+            context.duration = NotchPanelMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
@@ -243,8 +281,6 @@ struct NotchIndicatorView: View {
     let sideWidth: CGFloat
     let height: CGFloat
     
-    private let cornerRadius: CGFloat = 14
-    
     private var formattedDuration: String {
         let minutes = Int(controller.recordingDuration) / 60
         let seconds = Int(controller.recordingDuration) % 60
@@ -255,15 +291,13 @@ struct NotchIndicatorView: View {
     var body: some View {
         HStack(spacing: 0) {
             leftSide
-            
-            Color.black
+            centerSection
                 .frame(width: notchWidth)
-            
             rightSide
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: height)
         .background(Color.black)
-        .clipShape(NotchShape(cornerRadius: cornerRadius))
+        .clipShape(NotchShape(cornerRadius: NotchPanelMetrics.cornerRadius))
     }
     
     private var leftSide: some View {
@@ -273,24 +307,36 @@ struct NotchIndicatorView: View {
             } else {
                 processingIndicator
             }
-            
-            NotchWaveformView(
-                audioLevel: controller.audioLevel,
-                isRecording: controller.isRecording
-            )
-            .frame(maxWidth: .infinity, maxHeight: 18)
+
+            timerDisplay
+            Spacer(minLength: 0)
         }
-        .padding(.leading, 10)
-        .padding(.trailing, 6)
+        .padding(.leading, NotchPanelMetrics.sidePadding)
+        .padding(.trailing, 8)
         .frame(width: sideWidth, height: height)
     }
     
-    private var rightSide: some View {
-        HStack(spacing: 0) {
-            timerDisplay
+    private var centerSection: some View {
+        ZStack {
+            Color.black.opacity(0.55)
+
+            if controller.isProcessing {
+                ProgressView()
+                    .controlSize(.mini)
+                    .tint(.white.opacity(0.9))
+            }
         }
-        .padding(.leading, 6)
-        .padding(.trailing, 10)
+        .frame(width: notchWidth, height: height)
+    }
+
+    private var rightSide: some View {
+        NotchWaveformView(
+            audioLevel: controller.audioLevel,
+            isRecording: controller.isRecording
+        )
+        .frame(maxWidth: .infinity, maxHeight: 18, alignment: .leading)
+        .padding(.leading, 10)
+        .padding(.trailing, NotchPanelMetrics.sidePadding)
         .frame(width: sideWidth, height: height)
     }
     
@@ -301,11 +347,12 @@ struct NotchIndicatorView: View {
             ZStack {
                 Circle()
                     .fill(Color.red)
-                    .frame(width: 20, height: 20)
+                    .frame(width: 18, height: 18)
+                    .shadow(color: Color.red.opacity(0.28), radius: 4)
                 
                 RoundedRectangle(cornerRadius: 2)
                     .fill(Color.white)
-                    .frame(width: 8, height: 8)
+                    .frame(width: 6, height: 6)
             }
         }
         .buttonStyle(.plain)
@@ -314,14 +361,14 @@ struct NotchIndicatorView: View {
     
     private var pulsingRing: some View {
         Circle()
-            .stroke(Color.red.opacity(0.6), lineWidth: 2)
-            .frame(width: 20, height: 20)
-            .scaleEffect(controller.isRecording ? 1.5 : 1)
-            .opacity(controller.isRecording ? 0 : 0.6)
+            .stroke(Color.red.opacity(0.5), lineWidth: 1.6)
+            .frame(width: 18, height: 18)
+            .scaleEffect(controller.isRecording ? 1.4 : 1)
+            .opacity(controller.isRecording ? 0 : 0.2)
             .animation(
                 controller.isRecording
-                    ? .easeOut(duration: 1.2).repeatForever(autoreverses: false)
-                    : .default,
+                    ? .easeOut(duration: 1.1).repeatForever(autoreverses: false)
+                    : .easeInOut(duration: 0.2),
                 value: controller.isRecording
             )
     }
@@ -341,7 +388,7 @@ struct NotchIndicatorView: View {
     private var timerDisplay: some View {
         HStack(spacing: 6) {
             Text(controller.isProcessing ? "..." : formattedDuration)
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .font(.system(size: 13, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
             
             if controller.escapePrimed {
@@ -349,7 +396,7 @@ struct NotchIndicatorView: View {
                     .fill(Color.yellow)
                     .frame(width: 6, height: 6)
                     .transition(.scale.combined(with: .opacity))
-            }
+                }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(.easeInOut(duration: 0.15), value: controller.escapePrimed)
@@ -360,16 +407,29 @@ struct NotchWaveformView: View {
     let audioLevel: Float
     let isRecording: Bool
     
-    private let barCount = 5
+    private let barWidth: CGFloat = 2
+    private let barSpacing: CGFloat = 1.6
+    private let minimumBarCount = 14
     
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.05)) { timeline in
-            HStack(spacing: 2) {
-                ForEach(0..<barCount, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(barColor)
-                        .frame(width: 2, height: barHeight(for: index, date: timeline.date))
+        GeometryReader { proxy in
+            TimelineView(.animation(minimumInterval: 0.05)) { timeline in
+                let barCount = max(
+                    minimumBarCount,
+                    Int((proxy.size.width + barSpacing) / (barWidth + barSpacing))
+                )
+
+                HStack(spacing: barSpacing) {
+                    ForEach(0..<barCount, id: \.self) { index in
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(barColor)
+                            .frame(
+                                width: barWidth,
+                                height: barHeight(for: index, barCount: barCount, date: timeline.date)
+                            )
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
         }
     }
@@ -378,20 +438,25 @@ struct NotchWaveformView: View {
         Color(red: 0.4, green: 0.85, blue: 1.0)
     }
     
-    private func barHeight(for index: Int, date: Date) -> CGFloat {
+    private func barHeight(for index: Int, barCount: Int, date: Date) -> CGFloat {
         guard isRecording else { return 2 }
         
         let time = date.timeIntervalSinceReferenceDate
-        let normalizedIndex = Double(index) / Double(barCount - 1)
+        let phase = Double(index) * 0.35
         
-        let wave1 = sin(time * 5 + normalizedIndex * .pi * 2) * 0.35
-        let wave2 = sin(time * 7 + normalizedIndex * .pi * 1.5) * 0.25
-        let wave3 = sin(time * 11 + normalizedIndex * .pi) * 0.15
-        
-        let combinedWave = (wave1 + wave2 + wave3 + 0.75) / 1.5
-        let levelInfluence = Double(audioLevel) * 0.7 + 0.3
-        
-        let height = combinedWave * levelInfluence * 16
+        let waveA = sin(time * 6.8 + phase) * 0.55
+        let waveB = sin(time * 4.1 + phase * 1.7) * 0.35
+        let combinedWave = (waveA + waveB + 1.9) / 2.8
+
+        let amplifiedLevel = min(1.0, max(0.0, CGFloat(audioLevel) * 5.0))
+        let level = 0.12 + (amplifiedLevel * 0.88)
+        let baseHeight = (4 + combinedWave * 10) * level
+
+        let midpoint = Double(max(1, barCount - 1)) / 2
+        let distance = abs(Double(index) - midpoint) / max(1, midpoint)
+        let edgeAttenuation = CGFloat(1 - (distance * 0.45))
+
+        let height = baseHeight * edgeAttenuation
         return max(2, min(16, height))
     }
 }
@@ -418,4 +483,3 @@ struct NotchWaveformView: View {
         .frame(width: 385, height: 38)
         .background(Color.gray.opacity(0.3))
 }
-
