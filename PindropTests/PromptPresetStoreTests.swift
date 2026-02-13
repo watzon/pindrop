@@ -193,6 +193,55 @@ final class PromptPresetStoreTests: XCTestCase {
         XCTAssertEqual(presets.count, BuiltInPresets.all.count)
     }
 
+    func testSeedBuiltInPresetsUpdatesExistingBuiltInByIdentifier() throws {
+        let stale = PromptPreset(
+            name: BuiltInPresets.cleanTranscript.name,
+            prompt: "stale prompt",
+            isBuiltIn: true,
+            sortOrder: 999,
+            builtInIdentifier: BuiltInPresets.cleanTranscript.identifier
+        )
+        try promptPresetStore.add(stale)
+
+        try promptPresetStore.seedBuiltInPresets()
+
+        let builtIns = try promptPresetStore.fetchBuiltIn()
+        let clean = try XCTUnwrap(
+            builtIns.first(where: { $0.builtInIdentifier == BuiltInPresets.cleanTranscript.identifier })
+        )
+
+        XCTAssertEqual(clean.prompt, BuiltInPresets.cleanTranscript.prompt)
+        XCTAssertEqual(clean.sortOrder, 0)
+    }
+
+    func testSeedBuiltInPresetsAdoptsLegacyBuiltInWithoutIdentifier() throws {
+        let legacy = PromptPreset(
+            name: BuiltInPresets.cleanTranscript.name,
+            prompt: "legacy stale prompt",
+            isBuiltIn: true,
+            sortOrder: 500,
+            builtInIdentifier: nil
+        )
+        try promptPresetStore.add(legacy)
+
+        try promptPresetStore.seedBuiltInPresets()
+
+        let builtIns = try promptPresetStore.fetchBuiltIn()
+        let clean = try XCTUnwrap(
+            builtIns.first(where: { $0.builtInIdentifier == BuiltInPresets.cleanTranscript.identifier })
+        )
+
+        XCTAssertEqual(clean.prompt, BuiltInPresets.cleanTranscript.prompt)
+        XCTAssertEqual(clean.sortOrder, 0)
+    }
+
+    func testCleanTranscriptPresetUsesSingleCommaMapping() {
+        let prompt = BuiltInPresets.cleanTranscript.prompt
+
+        XCTAssertTrue(prompt.contains("comma → a single comma (,),"))
+        XCTAssertFalse(prompt.contains("comma → ,, question mark"))
+    }
+
     // MARK: - Import/Export Tests
 
     func testExportToJSON() throws {

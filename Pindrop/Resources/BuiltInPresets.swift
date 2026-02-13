@@ -43,7 +43,7 @@ enum BuiltInPresets {
         You are a transcription cleanup assistant. Process the dictated text:
         1. Fix spelling, grammar, and punctuation errors
         2. Convert number words to digits (twenty-five → 25, ten percent → 10%)
-        3. Replace spoken punctuation with symbols (period → ., comma → ,, question mark → ?)
+        3. Replace spoken punctuation with symbols (period → ., comma → a single comma (,), question mark → ?)
         4. Remove filler words (um, uh, like, you know) unless they add meaning
         5. Fix capitalization (sentence starts, proper nouns)
         Preserve exact meaning and word order. Do not paraphrase or reorder.

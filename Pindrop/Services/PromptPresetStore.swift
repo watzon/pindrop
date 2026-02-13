@@ -148,10 +148,34 @@ final class PromptPresetStore {
 
     func seedBuiltInPresets() throws {
         let existingBuiltIns = try fetchBuiltIn()
-        let existingIdentifiers = Set(existingBuiltIns.compactMap { $0.builtInIdentifier })
+        var builtInsByIdentifier: [String: PromptPreset] = [:]
+        var legacyBuiltInsByName: [String: PromptPreset] = [:]
+
+        for preset in existingBuiltIns {
+            if let identifier = preset.builtInIdentifier {
+                builtInsByIdentifier[identifier] = preset
+            } else {
+                legacyBuiltInsByName[preset.name.lowercased()] = preset
+            }
+        }
 
         for (index, definition) in BuiltInPresets.all.enumerated() {
-            guard !existingIdentifiers.contains(definition.identifier) else {
+            if let existingPreset = builtInsByIdentifier[definition.identifier] {
+                existingPreset.name = definition.name
+                existingPreset.prompt = definition.prompt
+                existingPreset.sortOrder = index
+                existingPreset.isBuiltIn = true
+                existingPreset.updatedAt = Date()
+                continue
+            }
+
+            if let legacyPreset = legacyBuiltInsByName[definition.name.lowercased()] {
+                legacyPreset.builtInIdentifier = definition.identifier
+                legacyPreset.name = definition.name
+                legacyPreset.prompt = definition.prompt
+                legacyPreset.sortOrder = index
+                legacyPreset.isBuiltIn = true
+                legacyPreset.updatedAt = Date()
                 continue
             }
 
