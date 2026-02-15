@@ -155,10 +155,59 @@ struct GeneralSettingsView: View {
                     
                     Spacer()
                 }
+
+                Divider()
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Pause media during transcription")
+                            .font(.body)
+                        Text("Temporarily pause active media playback while dictation is recording")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $settings.pauseMediaOnRecording)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+
+                Divider()
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Mute system audio during recording")
+                            .font(.body)
+                        Text("Temporarily mute speaker output while dictation is recording")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $settings.muteAudioDuringRecording)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
             }
         }
         .onAppear {
             refreshInputDevices()
+            if settings.pauseMediaOnRecording && settings.muteAudioDuringRecording {
+                settings.muteAudioDuringRecording = false
+            }
+        }
+        .onChange(of: settings.pauseMediaOnRecording) { _, newValue in
+            if newValue {
+                settings.muteAudioDuringRecording = false
+            }
+        }
+        .onChange(of: settings.muteAudioDuringRecording) { _, newValue in
+            if newValue {
+                settings.pauseMediaOnRecording = false
+            }
         }
     }
     

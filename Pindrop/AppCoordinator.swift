@@ -127,6 +127,7 @@ final class AppCoordinator {
     let contextEngineService: ContextEngineService
     let promptPresetStore: PromptPresetStore
     let mentionRewriteService: MentionRewriteService
+    let mediaPauseService: MediaPauseService
 
     // MARK: - UI Controllers
     
@@ -224,6 +225,7 @@ final class AppCoordinator {
         self.contextEngineService = ContextEngineService()
         self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
         self.mentionRewriteService = MentionRewriteService()
+        self.mediaPauseService = MediaPauseService()
 
         self.statusBarController = StatusBarController(
             audioRecorder: audioRecorder,
@@ -1482,6 +1484,7 @@ final class AppCoordinator {
         }
 
         isRecording = false
+        mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
         isProcessing = true
         var didResetProcessingState = false
@@ -1659,6 +1662,13 @@ final class AppCoordinator {
             Log.app.debug("Recording start already in progress; ignoring duplicate start request")
             return
         }
+
+        if settingsStore.pauseMediaOnRecording || settingsStore.muteAudioDuringRecording {
+            mediaPauseService.beginRecordingSession(
+                pauseMedia: settingsStore.pauseMediaOnRecording,
+                muteSystemAudio: settingsStore.muteAudioDuringRecording
+            )
+        }
         
         isRecording = true
         recordingStartTime = Date()
@@ -1798,6 +1808,7 @@ final class AppCoordinator {
         }
 
         isRecording = false
+        mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
         isProcessing = true
         var didResetProcessingState = false
@@ -2403,6 +2414,7 @@ final class AppCoordinator {
         Log.app.info("Cancelling current operation via double-escape")
         
         audioRecorder.resetAudioEngine()
+        mediaPauseService.endRecordingSession()
         isRecording = false
         isProcessing = false
         recordingStartTime = nil
@@ -2427,6 +2439,7 @@ final class AppCoordinator {
     }
 
     private func resetProcessingState() {
+        mediaPauseService.endRecordingSession()
         isProcessing = false
         recordingStartTime = nil
         capturedContext = nil
@@ -2581,6 +2594,7 @@ final class AppCoordinator {
 
         Log.app.info("Clearing audio buffer")
         audioRecorder.cancelRecording()
+        mediaPauseService.endRecordingSession()
         isRecording = false
         recordingStartTime = nil
         stopLiveContextSession()

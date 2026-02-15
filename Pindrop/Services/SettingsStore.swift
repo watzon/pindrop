@@ -120,6 +120,8 @@ Rules:
     @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore) var floatingIndicatorType: String = Defaults.floatingIndicatorType
     @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool = false
     @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore) var addTrailingSpace: Bool = true
+    @AppStorage("pauseMediaOnRecording", store: SettingsStoreRuntime.appStorageStore) var pauseMediaOnRecording: Bool = false
+    @AppStorage("muteAudioDuringRecording", store: SettingsStoreRuntime.appStorageStore) var muteAudioDuringRecording: Bool = false
     @AppStorage("launchAtLogin", store: SettingsStoreRuntime.appStorageStore) var launchAtLogin: Bool = false
     @AppStorage("selectedPresetId", store: SettingsStoreRuntime.appStorageStore) var selectedPresetId: String?
     @AppStorage("mentionTemplateOverridesJSON", store: SettingsStoreRuntime.appStorageStore) var mentionTemplateOverridesJSON: String = Defaults.mentionTemplateOverridesJSON
@@ -209,6 +211,8 @@ Rules:
         aiEnhancementEnabled = false
         floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
         floatingIndicatorType = Defaults.floatingIndicatorType
+        pauseMediaOnRecording = false
+        muteAudioDuringRecording = false
         launchAtLogin = false
         mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
         enableUIContext = false
