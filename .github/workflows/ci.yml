@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - "**"
+    paths-ignore:
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/FUNDING.yml'
+      - 'assets/images/**'
+      - 'LICENSE'
 
 env:
   APP_NAME: Pindrop
