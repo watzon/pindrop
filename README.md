@@ -375,3 +375,7 @@ MIT License. See the [LICENSE](LICENSE) file for details.
 ---
 
 **Note**: This project is currently open source and free to build yourself. Pre-built binaries may be available for purchase in the future.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=watzon/pindrop&type=date&legend=top-left)](https://www.star-history.com/#watzon/pindrop&type=date&legend=top-left)
