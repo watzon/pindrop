@@ -79,6 +79,7 @@ BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */ = {isa = PBXBui
 FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */; };
 SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SPARKLEDEP01A2B3C4D5E6F /* Sparkle */; };
 E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D120A62260BDECC9467BE609 /* AIEnhancementService.swift */; };
+AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
 		HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */; };
 		LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOGGER001A2B3C4D5E6F71 /* Logger.swift */; };
 		IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */; };
@@ -86,6 +87,7 @@ E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PB
 		MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */; };
 		SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */; };
 		THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME001A2B3C4D5E6F71 /* Theme.swift */; };
+SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */; };
 		PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */; };
 		FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */; };
 		NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */; };
@@ -177,6 +179,7 @@ E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PB
 		CTXCNTR02A2B3C4D5E6F7 /* ContextEngineContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEngineContracts.swift; sourceTree = "<group>"; };
 PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptPresetStore.swift; sourceTree = "<group>"; };
 		D120A62260BDECC9467BE609 /* AIEnhancementService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIEnhancementService.swift; sourceTree = "<group>"; };
+AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
 		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
 		DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeysSettingsView.swift; sourceTree = "<group>"; };
@@ -202,6 +205,7 @@ PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */ = {isa = PBXFil
 		MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		THEME001A2B3C4D5E6F71 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchableDropdown.swift; sourceTree = "<group>"; };
 		PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillFloatingIndicator.swift; sourceTree = "<group>"; };
 		FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorType.swift; sourceTree = "<group>"; };
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
@@ -352,6 +356,7 @@ PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */,
  		F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
  			E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
  			D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
+AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */,
  			BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
  			LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
  			UPDATESVC01A2B3C4D5E6F7 /* UpdateService.swift */,
@@ -480,6 +485,7 @@ AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */,
 		isa = PBXGroup;
 		children = (
 			049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
+SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */,
 				NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */,
 				MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */,
 		);
@@ -724,6 +730,7 @@ PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 				5D84F939724532CB7B75F459 /* ReadyStepView.swift in Sources */,
 				70CE9E64F744FED2830FD930 /* Icons.swift in Sources */,
 				THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */,
+SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,
 				MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */,
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
@@ -752,6 +759,7 @@ PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */,
 MNTFMT01A2B3C4D5E6F /* MentionFormatter.swift in Sources */,
 MNTRWRT02A2B3C4D5E6F /* MentionRewriteService.swift in Sources */,
 				MEDIAPAUSEBUILD01A2B3C4D5E6F /* MediaPauseService.swift in Sources */,
+AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */,
 );
 };
 /* End PBXSourcesBuildPhase section */

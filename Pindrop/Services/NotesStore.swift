@@ -66,7 +66,7 @@ final class NotesStore {
            settings.aiEnhancementEnabled,
            let aiService = aiEnhancementService {
             if let endpoint = settings.apiEndpoint,
-               let apiKey = settings.apiKey {
+               let apiKey = settingsStore?.loadAPIKey(for: settingsStore?.currentAIProvider ?? .openai) {
                 do {
                     let existingTags = (try? getAllUniqueTags()) ?? []
                     let metadata = try await aiService.generateNoteMetadata(

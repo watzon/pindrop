@@ -1555,7 +1555,7 @@ final class AppCoordinator {
 
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
-           let apiKey = settingsStore.apiKey {
+           let apiKey = settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) {
             do {
                 let notePrompt = settingsStore.noteEnhancementPrompt
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
@@ -1890,7 +1890,7 @@ final class AppCoordinator {
         )
         let shouldUsePlaceholderMentions = settingsStore.aiEnhancementEnabled &&
             settingsStore.apiEndpoint != nil &&
-            settingsStore.apiKey != nil
+            settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) != nil
         if let capabilities = capturedAdapterCapabilities,
            capabilities.supportsFileMentions {
             let resolvedMentionFormatting = settingsStore.resolveMentionFormatting(
@@ -1938,7 +1938,7 @@ final class AppCoordinator {
 
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
-           let apiKey = settingsStore.apiKey {
+           let apiKey = settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) {
             do {
                 originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
@@ -2085,7 +2085,7 @@ final class AppCoordinator {
                 Log.app.debug("AI enhancement disabled, no original text to save")
             } else if settingsStore.apiEndpoint == nil {
                 Log.app.debug("AI enhancement enabled but no API endpoint configured")
-            } else if settingsStore.apiKey == nil {
+            } else if settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) == nil {
                 Log.app.debug("AI enhancement enabled but no API key configured")
             }
         }
