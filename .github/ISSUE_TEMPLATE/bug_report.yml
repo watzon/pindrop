@@ -6,41 +6,26 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+        Thanks for taking the time to report a bug!
 
-  - type: dropdown
-    id: version
-    attributes:
-      label: Pindrop Version
-      description: What version of Pindrop are you running?
-      options:
-        - 1.1.0 (Latest)
-        - 1.0.0
-        - Built from source (main branch)
-        - Built from source (other branch)
-    validations:
-      required: true
+        ## System Information
 
-  - type: dropdown
-    id: macos-version
-    attributes:
-      label: macOS Version
-      description: What version of macOS are you running?
-      options:
-        - macOS 15 (Sequoia)
-        - macOS 14 (Sonoma)
-        - Other (please specify in description)
-    validations:
-      required: true
+        **Please copy your system info from Pindrop:**
+        1. Open Pindrop
+        2. Go to **Settings → About**
+        3. Click **"Copy System Info for Bug Report"**
+        4. Paste it in the field below
 
-  - type: dropdown
-    id: chip
+  - type: textarea
+    id: system-info
     attributes:
-      label: Mac Chip
-      description: What chip does your Mac have?
-      options:
-        - Apple Silicon (M1/M2/M3/M4)
-        - Intel
+      label: System Information
+      description: Paste the output from Settings → About → "Copy System Info for Bug Report"
+      placeholder: |
+        Pindrop: 1.1.0 (42)
+        macOS: Version 15.1 (Build 24B83)
+        Chip: Apple Silicon
+        Model: openai_whisper-small
     validations:
       required: true
 
@@ -79,19 +64,6 @@ body:
       label: Relevant Logs
       description: Please copy and paste any relevant log output (if available). You can check Console.app for Pindrop logs.
       render: shell
-
-  - type: dropdown
-    id: model
-    attributes:
-      label: Whisper Model
-      description: Which Whisper model are you using?
-      options:
-        - Tiny (~75MB)
-        - Base (~150MB)
-        - Small (~500MB)
-        - Medium (~1.5GB)
-        - Large (~3GB)
-        - Not sure
 
   - type: checkboxes
     id: permissions
