@@ -47,12 +47,16 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 ## Features
 
 - **100% Local Transcription** — Runs entirely on your Mac using OpenAI's Whisper model via WhisperKit. Your voice never leaves your computer.
+- **Multiple Transcription Engines** — Choose between WhisperKit (Core ML optimized) and Parakeet, with streaming transcription support for real-time results.
 - **Global Hotkeys** — Toggle mode (press to start, press to stop) or push-to-talk. Works from anywhere in macOS.
 - **Smart Output** — Text is automatically copied to your clipboard and optionally inserted directly at your cursor.
+- **Notes System** — Full note-taking with pinning, tagging, and AI-powered title generation. Organize and revisit your transcriptions as structured notes.
 - **Transcription History** — All your dictations are saved locally with full search. Export to JSON, CSV, or plain text.
 - **Multiple Model Sizes** — Choose from Tiny (fastest) to Large (most accurate) depending on your needs.
 - **AI Enhancement (Optional)** — Clean up transcriptions using any OpenAI-compatible API—completely optional and off by default.
 - **Custom Dictionary** — Define custom word replacements and vocabulary to improve transcription accuracy for names, jargon, and specialized terms.
+- **Media Controls** — Automatic media pausing and system audio muting during recording so your transcription stays clean.
+- **Auto-Updates** — Sparkle-based automatic update system keeps Pindrop up to date with zero effort.
 - **Beautiful macOS Design** — Native SwiftUI interface that feels at home on your Mac.
 
 ---
@@ -76,7 +80,7 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 Since Pindrop is currently distributed as a self-signed build, you'll need to approve it on first launch:
 
-1. Download `Pindrop.dmg` from the [releases page](../../releases)
+1. Download `Pindrop.dmg` from the [releases page](https://github.com/watzon/pindrop/releases)
 2. Open the DMG and drag Pindrop to Applications
 3. **First launch only:** Right-click Pindrop → Open
 4. If you see "cannot be opened because the developer cannot be verified":
@@ -87,6 +91,10 @@ Since Pindrop is currently distributed as a self-signed build, you'll need to ap
 5. Pindrop will now launch normally
 
 **Why this happens:** Pindrop is self-signed because we don't have an Apple Developer account yet. The app is completely safe - this is just macOS being cautious about unverified developers.
+
+## Screenshots
+
+*Coming soon: Notes & History dashboard, AI Enhancement settings, Recording indicator*
 
 ## Building from Source
 
@@ -293,25 +301,56 @@ Pindrop/
 │   ├── PindropApp.swift         # App entry point + lifecycle
 │   ├── AppCoordinator.swift     # Central service coordination
 │   ├── Services/
-│   │   ├── AudioRecorder.swift      # AVAudioEngine recording
-│   │   ├── TranscriptionService.swift # WhisperKit integration
-│   │   ├── ModelManager.swift       # Model downloads
-│   │   ├── HotkeyManager.swift      # Global shortcuts
-│   │   ├── OutputManager.swift      # Clipboard + text insertion
-│   │   ├── HistoryStore.swift       # SwiftData persistence
-│   │   ├── SettingsStore.swift      # Settings + Keychain
-│   │   ├── PermissionManager.swift  # Permissions handling
-│   │   ├── AIEnhancementService.swift # Optional AI cleanup
-│   │   └── DictionaryStore.swift    # Custom dictionary
+│   │   ├── AudioRecorder.swift          # AVAudioEngine recording
+│   │   ├── AudioDeviceManager.swift     # Audio device selection
+│   │   ├── TranscriptionService.swift   # Transcription orchestration
+│   │   ├── Transcription/               # Transcription engine architecture
+│   │   │   ├── TranscriptionEngine.swift        # Engine protocol
+│   │   │   ├── StreamingTranscriptionEngine.swift # Streaming protocol
+│   │   │   ├── WhisperKitEngine.swift           # WhisperKit backend
+│   │   │   ├── ParakeetEngine.swift             # Parakeet backend
+│   │   │   ├── AudioEngineCapabilities.swift    # Engine capability detection
+│   │   │   ├── VoiceActivityDetector.swift      # VAD support
+│   │   │   ├── SpeakerDiarizer.swift            # Speaker identification
+│   │   │   └── TextToSpeechEngine.swift         # TTS support
+│   │   ├── ModelManager.swift           # Model downloads
+│   │   ├── HotkeyManager.swift          # Global shortcuts
+│   │   ├── OutputManager.swift          # Clipboard + text insertion
+│   │   ├── HistoryStore.swift           # SwiftData persistence
+│   │   ├── NotesStore.swift             # Note-taking system
+│   │   ├── SettingsStore.swift          # Settings + Keychain
+│   │   ├── PermissionManager.swift      # Permissions handling
+│   │   ├── AIEnhancementService.swift   # Optional AI cleanup
+│   │   ├── AIModelService.swift         # AI model management
+│   │   ├── MediaPauseService.swift      # Media pause during recording
+│   │   ├── UpdateService.swift          # Sparkle auto-updates
+│   │   ├── LaunchAtLoginManager.swift   # Login item management
+│   │   ├── PromptPresetStore.swift      # AI prompt presets
+│   │   ├── DictionaryStore.swift        # Custom dictionary
+│   │   ├── ContextEngineService.swift   # Context engine
+│   │   ├── ContextCaptureService.swift  # Context capture
+│   │   ├── ContextEngineContracts.swift # Context engine protocols
+│   │   ├── AppContextAdapter.swift      # App context bridging
+│   │   ├── MentionFormatter.swift       # @mention formatting
+│   │   ├── MentionRewriteService.swift  # Mention rewriting
+│   │   ├── PathMentionResolver.swift    # Path mention resolution
+│   │   └── WorkspaceFileIndexService.swift # Workspace file indexing
 │   ├── Models/
 │   │   ├── TranscriptionRecord.swift
+│   │   ├── TranscriptionRecordSchema.swift
+│   │   ├── Note.swift
+│   │   ├── NoteSchema.swift
+│   │   ├── PromptPreset.swift
 │   │   ├── WordReplacement.swift
-│   │   └── VocabularyWord.swift
+│   │   ├── VocabularyWord.swift
+│   │   ├── FeatureModelType.swift
+│   │   └── FloatingIndicatorType.swift
 │   ├── UI/
 │   │   ├── Main/
 │   │   │   ├── MainWindow.swift
 │   │   │   ├── DashboardView.swift
-│   │   │   └── HistoryView.swift
+│   │   │   ├── HistoryView.swift
+│   │   │   └── NotesView.swift
 │   │   ├── Settings/
 │   │   │   ├── SettingsWindow.swift
 │   │   │   ├── GeneralSettingsView.swift
@@ -319,6 +358,8 @@ Pindrop/
 │   │   │   ├── ModelsSettingsView.swift
 │   │   │   ├── AIEnhancementSettingsView.swift
 │   │   │   ├── DictionarySettingsView.swift
+│   │   │   ├── UpdateSettingsView.swift
+│   │   │   ├── PresetManagementSheet.swift
 │   │   │   └── AboutSettingsView.swift
 │   │   ├── Onboarding/
 │   │   │   ├── OnboardingWindow.swift
@@ -333,13 +374,19 @@ Pindrop/
 │   │   ├── Theme/
 │   │   │   └── Theme.swift
 │   │   ├── Components/
-│   │   │   └── CopyButton.swift
+│   │   │   ├── CopyButton.swift
+│   │   │   ├── SearchableDropdown.swift
+│   │   │   ├── MarkdownEditor.swift
+│   │   │   └── NoteCardView.swift
 │   │   ├── StatusBarController.swift   # Menu bar icon
 │   │   ├── FloatingIndicator.swift     # Recording indicator
 │   │   └── SplashScreen.swift
 │   └── Utils/
 │       ├── Logger.swift           # Logging wrapper
-│       └── AlertManager.swift     # Alert handling
+│       ├── AlertManager.swift     # Alert handling
+│       ├── ModelCapabilities.swift # Model feature detection
+│       ├── ImageResizer.swift     # Image utilities
+│       └── Icons.swift            # Icon assets
 ├── PindropTests/                  # XCTest suite
 └── Pindrop.xcodeproj              # Xcode project
 ```
