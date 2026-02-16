@@ -24,53 +24,58 @@ Pindrop is a 100% open-source, truly Mac-native AI dictation app that runs entir
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        AppDelegate                          │
-│                  (Lifecycle, SwiftData)                     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      AppCoordinator                         │
-│              (@MainActor, @Observable)                      │
-│         Central service wiring and state management         │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-        ┌──────────────┼──────────────┬──────────────┐
-        ▼              ▼              ▼              ▼
-┌──────────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐
-│   Services   │ │   UI     │ │    Models    │ │  Utils   │
-│  (Business)  │ │(Presentation)│ │   (Data)     │ │ (Helpers)│
-└──────────────┘ └──────────┘ └──────────────┘ └──────────┘
+```mermaid
+flowchart TD
+    subgraph AppLayer[" " ]
+        AppDelegate["AppDelegate<br/>(Lifecycle, SwiftData)"]
+    end
+    
+    AppDelegate --> AppCoordinator
+    
+    subgraph CoordinatorLayer[" " ]
+        AppCoordinator["AppCoordinator<br/>(@MainActor, @Observable)<br/>Central service wiring and state management"]
+    end
+    
+    AppCoordinator --> Services
+    AppCoordinator --> UI
+    AppCoordinator --> Models
+    AppCoordinator --> Utils
+    
+    subgraph ServiceLayer["Services Layer"]
+        Services["Services<br/>(Business Logic)"]
+    end
+    
+    subgraph UILayer["UI Layer"]
+        UI["UI<br/>(Presentation)"]
+    end
+    
+    subgraph DataLayer["Data Layer"]
+        Models["Models<br/>(SwiftData)"]
+    end
+    
+    subgraph UtilsLayer["Utilities"]
+        Utils["Utils<br/>(Helpers)"]
+    end
 ```
 
 ### Data Flow
 
 **Recording Flow:**
-```
-Hotkey/StatusBar → AppCoordinator.handleToggleRecording()
-                          │
-                          ▼
-               AudioRecorder.startRecording()
-                          │
-                          ▼
-               TranscriptionService.transcribe()
-                          │
-                          ▼
-               OutputManager.insertText()
-               (Clipboard + Direct Insert)
+```mermaid
+flowchart LR
+    A[Hotkey/StatusBar] -->|trigger| B[AppCoordinator.<br/>handleToggleRecording]
+    B --> C[AudioRecorder.<br/>startRecording]
+    C --> D[TranscriptionService.<br/>transcribe]
+    D --> E[OutputManager.<br/>insertText]
+    E --> F[Clipboard + Direct Insert]
 ```
 
 **Settings Flow:**
-```
-SettingsStore (@AppStorage + Keychain)
-       │
-       ▼
-AppCoordinator (observes changes)
-       │
-       ▼
-Individual Services (react to settings)
+```mermaid
+flowchart TD
+    A[SettingsStore<br/>@AppStorage + Keychain] -->|publishes changes| B[AppCoordinator]
+    B -->|notifies| C[Individual Services]
+    C -->|react| D[Update behavior]
 ```
 
 ### Service Architecture
