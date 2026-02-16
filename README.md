@@ -9,7 +9,7 @@
 
 ![Pindrop Screenshot](assets/images/screenshot.png)
 
-**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by Apple's WhisperKit for optimal Apple Silicon performance.
+**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by WhisperKit for optimal Apple Silicon performance.
 
 **[Download Latest Release](https://github.com/watzon/pindrop/releases)** · **[Documentation](#documentation)** · **[Contributing](#contributing)** · **[Community](#community)**
 
@@ -61,7 +61,7 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 - **[Swift](https://swift.org/)** — Apple's modern, fast, and safe programming language
 - **[SwiftUI](https://developer.apple.com/swiftui/)** — Declarative UI framework for truly native Mac apps
-- **[WhisperKit](https://github.com/argmaxinc/WhisperKit)** — Apple's official Core ML implementation of OpenAI Whisper
+- **[WhisperKit](https://www.argmaxinc.com/whisperkit)** — High-performance Core ML implementation of OpenAI Whisper by Argmax, Inc.
 - **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
 - **Just one external dependency** — WhisperKit. Everything else is Apple's first-party frameworks.
 
