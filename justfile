@@ -50,7 +50,11 @@ build-release:
 # Self-signed build (no developer account needed)
 build-self-signed:
     @echo "🔨 Building {{app_name}} (Release)..."
-    xcodebuild -scheme {{scheme}} -configuration Release -derivedDataPath DerivedData build
+    xcodebuild -scheme {{scheme}} -configuration Release -derivedDataPath DerivedData \
+        CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+        build
+    @echo "🔏 Re-signing with adhoc identity (required for macOS TCC permissions)..."
+    codesign --force --deep --sign - {{app_bundle}}
     @echo "✅ Self-signed build complete"
 
 # Self-signed DMG (no developer account needed)
