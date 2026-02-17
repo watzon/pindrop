@@ -293,9 +293,6 @@ final class AppCoordinator {
             self?.handleOpenHistory()
         }
 
-        self.statusBarController.onHideFloatingIndicatorForOneHour = { [weak self] in
-            self?.handleHidePillIndicatorForOneHour()
-        }
 
         self.statusBarController.onReportIssue = { [weak self] in
             self?.handleReportIssue()

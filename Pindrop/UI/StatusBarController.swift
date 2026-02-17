@@ -38,7 +38,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var aiEnhancementItem: NSMenuItem?
     private var promptPresetMenuItem: NSMenuItem?
     private var promptPresetMenu: NSMenu?
-    private var hidePillForOneHourItem: NSMenuItem?
     private var reportIssueItem: NSMenuItem?
     private var inputDeviceMenuItem: NSMenuItem?
     private var inputDeviceMenu: NSMenu?
@@ -51,6 +50,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var currentModelItem: NSMenuItem?
     private var checkForUpdatesItem: NSMenuItem?
     private var switchableModels: [(name: String, displayName: String)] = []
+
+    private var aiModelMenu: NSMenu?
+    private var currentAIModelItem: NSMenuItem?
+    private let aiModelService = AIModelService()
 
     private var settingsWindow: NSWindow?
     private var welcomePopover: NSPopover?
@@ -70,10 +73,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onToggleFloatingIndicator: (() -> Void)?
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
-    var onHideFloatingIndicatorForOneHour: (() -> Void)?
     var onReportIssue: (() -> Void)?
     var onSelectInputDeviceUID: ((String) -> Void)?
     var onSelectModel: ((String) -> Void)?
+    var onSelectAIModel: ((String) -> Void)?
     var onCheckForUpdates: (() -> Void)?
     var onMenuWillOpen: (() async -> Void)?
 
@@ -314,29 +317,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
-
-        hidePillForOneHourItem = NSMenuItem(
-            title: "Hide this for 1 hour",
-            action: #selector(hideFloatingIndicatorForOneHour),
-            keyEquivalent: ""
-        )
-        hidePillForOneHourItem?.target = self
-        hidePillForOneHourItem?.image = NSImage(systemSymbolName: "eye.slash", accessibilityDescription: nil)
-        if let hidePillForOneHourItem {
-            menu.addItem(hidePillForOneHourItem)
-        }
-
-        reportIssueItem = NSMenuItem(
-            title: "Report an Issue",
-            action: #selector(reportIssue),
-            keyEquivalent: ""
-        )
-        reportIssueItem?.target = self
-        reportIssueItem?.image = NSImage(systemSymbolName: "exclamationmark.bubble", accessibilityDescription: nil)
-        if let reportIssueItem {
-            menu.addItem(reportIssueItem)
-        }
-
         inputDeviceMenu = NSMenu(title: "Change Microphone")
         inputDeviceMenuItem = NSMenuItem(title: "Change Microphone", action: nil, keyEquivalent: "")
         inputDeviceMenuItem?.submenu = inputDeviceMenu
@@ -394,12 +374,41 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         modelMenu?.addItem(NSMenuItem.separator())
         refreshModelMenuItems()
 
-        let modelMenuItem = NSMenuItem(title: "Switch Model", action: nil, keyEquivalent: "")
+        let modelMenuItem = NSMenuItem(title: "Select Voice Model", action: nil, keyEquivalent: "")
         modelMenuItem.submenu = modelMenu
         modelMenuItem.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
         menu.addItem(modelMenuItem)
 
+        aiModelMenu = NSMenu()
+        currentAIModelItem = NSMenuItem(
+            title: "Current: \(settingsStore.aiModel)",
+            action: nil,
+            keyEquivalent: ""
+        )
+        currentAIModelItem?.isEnabled = false
+        aiModelMenu?.addItem(currentAIModelItem!)
+
+        aiModelMenu?.addItem(NSMenuItem.separator())
+        refreshAIModelMenuItems()
+
+        let aiModelMenuItem = NSMenuItem(title: "Select AI Model", action: nil, keyEquivalent: "")
+        aiModelMenuItem.submenu = aiModelMenu
+        aiModelMenuItem.image = NSImage(systemSymbolName: "bolt", accessibilityDescription: nil)
+        menu.addItem(aiModelMenuItem)
+
         menu.addItem(NSMenuItem.separator())
+
+        reportIssueItem = NSMenuItem(
+            title: "Report an Issue",
+            action: #selector(reportIssue),
+            keyEquivalent: ""
+        )
+        reportIssueItem?.target = self
+        reportIssueItem?.image = NSImage(systemSymbolName: "exclamationmark.bubble", accessibilityDescription: nil)
+        if let reportIssueItem {
+            menu.addItem(reportIssueItem)
+        }
+
 
         checkForUpdatesItem = NSMenuItem(
             title: "Check for Updates...",
@@ -502,11 +511,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
         refreshModelMenuItems()
 
-        let isPillIndicatorEnabled = settingsStore.floatingIndicatorEnabled
-            && settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue
-        hidePillForOneHourItem?.isEnabled = isPillIndicatorEnabled
 
         refreshInputDeviceMenu()
+        refreshAIModelMenuItems()
     }
 
     private func refreshModelMenuItems() {
@@ -533,6 +540,46 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             item.representedObject = model.name
             item.state = settingsStore.selectedModel == model.name ? NSControl.StateValue.on : NSControl.StateValue.off
             modelMenu.addItem(item)
+        }
+    }
+
+    private func refreshAIModelMenuItems() {
+        guard let aiModelMenu = aiModelMenu else { return }
+
+        // Remove all items after the separator (index 1)
+        while aiModelMenu.items.count > 2 {
+            aiModelMenu.removeItem(at: 2)
+        }
+
+        let provider = settingsStore.currentAIProvider
+
+        // Update current model display
+        currentAIModelItem?.title = "Current: \(settingsStore.aiModel)"
+
+        guard provider == .openai || provider == .openrouter else {
+            let noModelsItem = NSMenuItem(title: "No models available", action: nil, keyEquivalent: "")
+            noModelsItem.isEnabled = false
+            aiModelMenu.addItem(noModelsItem)
+            return
+        }
+
+        guard let cachedModels = aiModelService.getCachedModels(for: provider), !cachedModels.isEmpty else {
+            let fetchItem = NSMenuItem(title: "Fetch models in Settings", action: nil, keyEquivalent: "")
+            fetchItem.isEnabled = false
+            aiModelMenu.addItem(fetchItem)
+            return
+        }
+
+        for model in cachedModels {
+            let item = NSMenuItem(
+                title: model.name,
+                action: #selector(selectAIModel(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = model.id
+            item.state = settingsStore.aiModel == model.id ? NSControl.StateValue.on : NSControl.StateValue.off
+            aiModelMenu.addItem(item)
         }
     }
 
@@ -736,9 +783,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         onOpenHistory?()
     }
 
-    @objc private func hideFloatingIndicatorForOneHour() {
-        onHideFloatingIndicatorForOneHour?()
-    }
 
     @objc private func reportIssue() {
         onReportIssue?()
@@ -752,6 +796,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func selectModel(_ sender: NSMenuItem) {
         guard let modelName = sender.representedObject as? String else { return }
         onSelectModel?(modelName)
+    }
+
+    @objc private func selectAIModel(_ sender: NSMenuItem) {
+        guard let modelId = sender.representedObject as? String else { return }
+        settingsStore.aiModel = modelId
+        onSelectAIModel?(modelId)
+        refreshAIModelMenuItems()
     }
 
     @objc private func showApp() {
