@@ -238,6 +238,12 @@ struct ModelsSettingsView: View {
             do {
                 try await modelManager.downloadModel(named: model.name)
                 downloadingModel = nil
+                settings.selectedModel = model.name
+                NotificationCenter.default.post(
+                    name: .switchModel,
+                    object: nil,
+                    userInfo: ["modelName": model.name]
+                )
             } catch {
                 errorMessage = "Failed to download \(model.displayName): \(error.localizedDescription)"
                 downloadingModel = nil

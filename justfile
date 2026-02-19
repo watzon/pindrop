@@ -24,7 +24,7 @@ clean:
     rm -rf DerivedData
     @echo "✅ Clean complete"
 
-# Build for development (Debug)
+# Build for development (Debug). Requires Mac Development certificate for team 69CJ6D9UG7.
 build:
     @echo "🔨 Building {{app_name}} (Debug)..."
     xcodebuild \
@@ -32,6 +32,20 @@ build:
         -scheme {{scheme}} \
         -configuration Debug \
         -derivedDataPath DerivedData \
+        build
+    @echo "✅ Debug build complete"
+
+# Debug build without code signing (use when no Mac Development certificate is installed)
+build-no-sign:
+    @echo "🔨 Building {{app_name}} (Debug, no signing)..."
+    xcodebuild \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -configuration Debug \
+        -derivedDataPath DerivedData \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
         build
     @echo "✅ Debug build complete"
 

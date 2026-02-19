@@ -319,27 +319,38 @@ class ModelManager {
         }
     }
     
+    /// Candidate directories for WhisperKit models (canonical first, then fallbacks for different WhisperKit versions or legacy paths).
+    private var whisperKitSearchURLs: [URL] {
+        [
+            whisperKitModelsURL,
+            modelsBaseURL.appendingPathComponent("models", isDirectory: true).appendingPathComponent("argmaxinc", isDirectory: true),
+            modelsBaseURL.appendingPathComponent("models", isDirectory: true).appendingPathComponent("models", isDirectory: true).appendingPathComponent("argmaxinc", isDirectory: true).appendingPathComponent("whisperkit-coreml", isDirectory: true),
+        ]
+    }
+
     func refreshDownloadedModels() async {
         var downloaded: Set<String> = []
 
-        let whisperKitPath = whisperKitModelsURL
-
-        if fileManager.fileExists(atPath: whisperKitPath.path) {
+        for searchURL in whisperKitSearchURLs {
+            guard fileManager.fileExists(atPath: searchURL.path) else { continue }
             do {
-                let contents = try fileManager.contentsOfDirectory(atPath: whisperKitPath.path)
+                let contents = try fileManager.contentsOfDirectory(atPath: searchURL.path)
                 for folder in contents {
                     if folder.hasPrefix(".") { continue }
-                    
-                    let folderPath = whisperKitPath.appendingPathComponent(folder).path
+                    let folderPath = searchURL.appendingPathComponent(folder).path
                     var isDirectory: ObjCBool = false
                     if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
                         downloaded.insert(folder)
                     }
                 }
+                if !contents.isEmpty {
+                    Log.model.debug("Scanned \(searchURL.path): \(contents.filter { !$0.hasPrefix(".") }.joined(separator: ", "))")
+                }
             } catch {
-                Log.model.error("Failed to list WhisperKit models: \(error)")
+                Log.model.error("Failed to list WhisperKit models at \(searchURL.path): \(error)")
             }
         }
+        Log.model.info("Detected WhisperKit models: \(downloaded.isEmpty ? "none" : downloaded.sorted().joined(separator: ", "))")
         
         if fileManager.fileExists(atPath: parakeetModelsURL.path) {
             do {
@@ -361,8 +372,6 @@ class ModelManager {
                 Log.model.error("Failed to list Parakeet models: \(error)")
             }
         }
-        
-        Log.model.debug("Found \(downloaded.count) downloaded models: \(downloaded)")
         downloadedModelNames = downloaded
     }
     
@@ -403,14 +412,15 @@ class ModelManager {
     }
     
     private func downloadWhisperKitModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+        let basePath = modelsBaseURL.path
+        Log.model.info("Downloading WhisperKit model: \(modelName) to \(basePath)")
         do {
-            Log.model.info("Downloading WhisperKit model: \(modelName) to \(self.modelsBaseURL.path)")
-            
-            try fileManager.createDirectory(at: self.modelsBaseURL, withIntermediateDirectories: true)
-            
+            try fileManager.createDirectory(at: modelsBaseURL, withIntermediateDirectories: true)
+            onProgress?(0.05)
+            Log.model.debug("Calling WhisperKit.download(variant: \(modelName), downloadBase: \(basePath))")
             _ = try await WhisperKit.download(
                 variant: modelName,
-                downloadBase: self.modelsBaseURL,
+                downloadBase: modelsBaseURL,
                 progressCallback: { [weak self] progress in
                     Task { @MainActor in
                         self?.downloadProgress = progress.fractionCompleted * 0.8
@@ -418,28 +428,30 @@ class ModelManager {
                     }
                 }
             )
-            
             Log.model.info("Download complete, prewarming model...")
             downloadProgress = 0.85
             onProgress?(0.85)
-            
             let config = WhisperKitConfig(
                 model: modelName,
-                downloadBase: self.modelsBaseURL,
+                downloadBase: modelsBaseURL,
                 verbose: false,
                 logLevel: .none,
                 prewarm: true,
                 load: false
             )
             _ = try await WhisperKit(config)
-            
             Log.model.info("Model prewarmed successfully")
             downloadProgress = 1.0
             onProgress?(1.0)
             await refreshDownloadedModels()
         } catch {
             downloadProgress = 0.0
-            throw ModelError.downloadFailed(error.localizedDescription)
+            let nsError = error as NSError
+            let detail = [nsError.localizedDescription, nsError.localizedFailureReason, (nsError.userInfo[NSUnderlyingErrorKey] as? NSError)?.localizedDescription].compactMap { $0 }.joined(separator: "; ")
+            Log.model.error("WhisperKit download failed for \(modelName): \(detail)")
+            let isNetworkRelated = (nsError.domain == NSURLErrorDomain) || (nsError.domain == "NSPOSIXErrorDomain" && nsError.code == 61)
+            let suggestion = isNetworkRelated ? " Check your internet connection and try again." : ""
+            throw ModelError.downloadFailed(nsError.localizedDescription + suggestion)
         }
     }
     
@@ -569,7 +581,7 @@ class ModelManager {
             case .streaming:
                 featureDownloadProgress = 0.1
                 onProgress?(0.1)
-                let streamingModelNames = ["streaming_encoder.mlmodelc", "decoder.mlmodelc", "joint_decision.mlmodelc", "vocab.json"]
+                let streamingModelNames = ["streaming_encoder.mlmodelc", "decoder.mlmodelc", "joint_decision.mlmodelc"]
                 featureDownloadProgress = 0.3
                 onProgress?(0.3)
                 let _ = try await DownloadUtils.loadModels(

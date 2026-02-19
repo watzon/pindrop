@@ -69,7 +69,15 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         
         do {
             let version: AsrModelVersion = name.contains("v3") ? .v3 : .v2
-            let models = try await AsrModels.downloadAndLoad(version: version)
+            let targetDir: URL? = if let base = downloadBase {
+                base
+                    .appendingPathComponent("FluidInference", isDirectory: true)
+                    .appendingPathComponent("parakeet-coreml", isDirectory: true)
+                    .appendingPathComponent(version == .v3 ? "parakeet-tdt-0.6b-v3-coreml" : "parakeet-tdt-0.6b-v2-coreml", isDirectory: true)
+            } else {
+                nil
+            }
+            let models = try await AsrModels.downloadAndLoad(to: targetDir, version: version)
             
             let manager = AsrManager(config: .default)
             try await manager.initialize(models: models)
