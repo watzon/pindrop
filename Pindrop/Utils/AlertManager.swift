@@ -67,7 +67,7 @@ final class AlertManager {
     func showModelNotLoadedAlert() {
         let alert = NSAlert()
         alert.messageText = "No Model Loaded"
-        alert.informativeText = "Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model."
+        alert.informativeText = "Download a model in Settings → Models first. It will be used automatically after download."
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Open Settings")
         alert.addButton(withTitle: "OK")
