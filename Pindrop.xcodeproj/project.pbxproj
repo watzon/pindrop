@@ -105,6 +105,7 @@ SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */ = {is
 		VADDETECT02A2B3C4D5E6F /* VoiceActivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */; };
 		SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */; };
 		STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */; };
+		PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */; };
 		TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */; };
 		MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = MOCKPERM02A2B3C4D5E6F /* MockPermissionProvider.swift */; };
 		MOCKCAPT01A2B3C4D5E6F /* MockAudioCaptureBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = MOCKCAPT02A2B3C4D5E6F /* MockAudioCaptureBackend.swift */; };
@@ -235,6 +236,7 @@ BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference
 		VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceActivityDetector.swift; sourceTree = "<group>"; };
 		SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiarizer.swift; sourceTree = "<group>"; };
 		STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingTranscriptionEngine.swift; sourceTree = "<group>"; };
+		PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetStreamingEngine.swift; sourceTree = "<group>"; };
 		TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechEngine.swift; sourceTree = "<group>"; };
 		MOCKPERM02A2B3C4D5E6F /* MockPermissionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPermissionProvider.swift; sourceTree = "<group>"; };
 		MOCKCAPT02A2B3C4D5E6F /* MockAudioCaptureBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAudioCaptureBackend.swift; sourceTree = "<group>"; };
@@ -375,6 +377,7 @@ AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */,
  			TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */,
  			WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
  			PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
+ 			PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */,
  		);
  		path = Transcription;
  		sourceTree = "<group>";
@@ -749,6 +752,7 @@ SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 			VADDETECT02A2B3C4D5E6F /* VoiceActivityDetector.swift in Sources */,
 			SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */,
 			STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */,
+			PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */,
 TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */,
 CTXCAPT02A2B3C4D5E6F /* ContextCaptureService.swift in Sources */,
 CTXCNTR02A2B3C4D5E6F /* ContextEngineContracts.swift in Sources */,

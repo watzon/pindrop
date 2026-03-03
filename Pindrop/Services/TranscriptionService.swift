@@ -5,6 +5,7 @@
 //  Created on 2026-01-25.
 //
 
+import AVFoundation
 import Foundation
 import os.log
 
@@ -26,6 +27,11 @@ class TranscriptionService {
         case transcriptionFailed(String)
         case modelLoadFailed(String)
         case engineSwitchDuringTranscription
+        case streamingModelNotAvailable(String)
+        case streamingNotReady
+        case streamingStartFailed(String)
+        case streamingProcessingFailed(String)
+        case streamingStopFailed(String)
         
         var errorDescription: String? {
             switch self {
@@ -39,6 +45,16 @@ class TranscriptionService {
                 return "Model load failed: \(message)"
             case .engineSwitchDuringTranscription:
                 return "Cannot switch engines during active transcription"
+            case .streamingModelNotAvailable(let path):
+                return "Streaming model not available at path: \(path)"
+            case .streamingNotReady:
+                return "Streaming engine not ready. Call prepareStreamingEngine() first."
+            case .streamingStartFailed(let message):
+                return "Failed to start streaming transcription: \(message)"
+            case .streamingProcessingFailed(let message):
+                return "Failed to process streaming audio: \(message)"
+            case .streamingStopFailed(let message):
+                return "Failed to stop streaming transcription: \(message)"
             }
         }
     }
@@ -46,7 +62,19 @@ class TranscriptionService {
     private(set) var state: State = .unloaded
     private(set) var error: Error?
     private var engine: (any TranscriptionEngine)?
+    private var streamingEngine: (any StreamingTranscriptionEngine)?
     private var currentProvider: ModelManager.ModelProvider?
+    private var streamingPartialCallback: (@Sendable (String) -> Void)?
+    private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
+    private let streamingEngineFactory: @MainActor () -> any StreamingTranscriptionEngine
+
+    init(
+        streamingEngineFactory: @escaping @MainActor () -> any StreamingTranscriptionEngine = {
+            ParakeetStreamingEngine()
+        }
+    ) {
+        self.streamingEngineFactory = streamingEngineFactory
+    }
     
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
         if state == .transcribing {
@@ -198,15 +226,160 @@ class TranscriptionService {
     
     func unloadModel() async {
         await engine?.unloadModel()
+        await streamingEngine?.unloadModel()
         engine = nil
+        streamingEngine = nil
         currentProvider = nil
         state = .unloaded
         error = nil
+    }
+
+    func setStreamingCallbacks(
+        onPartial: (@Sendable (String) -> Void)? = nil,
+        onFinalUtterance: (@Sendable (String) -> Void)? = nil
+    ) {
+        streamingPartialCallback = onPartial
+        streamingFinalUtteranceCallback = onFinalUtterance
+        applyStreamingCallbacks()
+    }
+
+    func prepareStreamingEngine() async throws {
+        if streamingEngine == nil {
+            streamingEngine = streamingEngineFactory()
+            applyStreamingCallbacks()
+        }
+
+        guard let streamingEngine else {
+            throw TranscriptionError.streamingNotReady
+        }
+
+        switch streamingEngine.state {
+        case .ready, .streaming, .paused:
+            if state == .unloaded || state == .error {
+                state = .ready
+            }
+            return
+        case .loading:
+            return
+        case .unloaded, .error:
+            break
+        }
+
+        let modelPath = FeatureModelType.streaming.repoFolderName
+        do {
+            try await streamingEngine.loadModel(name: modelPath)
+            if state == .unloaded || state == .error {
+                state = .ready
+            }
+        } catch {
+            let path = getStreamingModelBase()
+                .appendingPathComponent(modelPath, isDirectory: true)
+                .path
+            let streamingError = TranscriptionError.streamingModelNotAvailable(path)
+            self.error = streamingError
+            state = .error
+            throw streamingError
+        }
+    }
+
+    func startStreaming() async throws {
+        guard state != .transcribing else {
+            throw TranscriptionError.transcriptionFailed("Transcription already in progress")
+        }
+
+        do {
+            try await prepareStreamingEngine()
+            guard let streamingEngine else {
+                throw TranscriptionError.streamingNotReady
+            }
+            try await streamingEngine.startStreaming()
+            state = .transcribing
+            error = nil
+        } catch let error as TranscriptionError {
+            self.error = error
+            throw error
+        } catch {
+            let streamingError = TranscriptionError.streamingStartFailed(error.localizedDescription)
+            self.error = streamingError
+            throw streamingError
+        }
+    }
+
+    func processStreamingAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {
+        guard state == .transcribing else {
+            throw TranscriptionError.streamingNotReady
+        }
+
+        guard let streamingEngine else {
+            throw TranscriptionError.streamingNotReady
+        }
+
+        do {
+            try await streamingEngine.processAudioBuffer(buffer)
+        } catch let error as TranscriptionError {
+            throw error
+        } catch {
+            let streamingError = TranscriptionError.streamingProcessingFailed(error.localizedDescription)
+            self.error = streamingError
+            throw streamingError
+        }
+    }
+
+    func stopStreaming() async throws -> String {
+        guard let streamingEngine else {
+            throw TranscriptionError.streamingNotReady
+        }
+
+        do {
+            let finalText = try await streamingEngine.stopStreaming()
+            state = .ready
+            return finalText
+        } catch let error as TranscriptionError {
+            state = .ready
+            throw error
+        } catch {
+            let streamingError = TranscriptionError.streamingStopFailed(error.localizedDescription)
+            self.error = streamingError
+            state = .ready
+            throw streamingError
+        }
+    }
+
+    func cancelStreaming() async {
+        await streamingEngine?.reset()
+        if engine != nil || streamingEngine != nil {
+            state = .ready
+        } else {
+            state = .unloaded
+        }
     }
     
     private func getDownloadBase() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("Pindrop", isDirectory: true)
+    }
+
+    private func getStreamingModelBase() -> URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("FluidAudio", isDirectory: true)
+            .appendingPathComponent("Models", isDirectory: true)
+    }
+
+    private func applyStreamingCallbacks() {
+        guard let streamingEngine else { return }
+
+        streamingEngine.setTranscriptionCallback { [weak self] result in
+            guard !result.isFinal else { return }
+            Task { @MainActor [weak self] in
+                self?.streamingPartialCallback?(result.text)
+            }
+        }
+
+        streamingEngine.setEndOfUtteranceCallback { [weak self] text in
+            Task { @MainActor [weak self] in
+                self?.streamingFinalUtteranceCallback?(text)
+            }
+        }
     }
     
     private func dataToFloatArray(_ data: Data) -> [Float] {

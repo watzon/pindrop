@@ -34,6 +34,7 @@ final class MockClipboard: ClipboardProtocol {
 final class MockKeySimulation: KeySimulationProtocol {
     var keyEvents: [(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool)] = []
     var pasteSimulated = false
+    var simulatePasteCallCount = 0
     
     func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
         keyEvents.append((keyCode, flags, keyDown))
@@ -41,6 +42,7 @@ final class MockKeySimulation: KeySimulationProtocol {
     
     func simulatePaste() async throws {
         pasteSimulated = true
+        simulatePasteCallCount += 1
     }
 }
 
@@ -107,6 +109,69 @@ final class OutputManagerTests: XCTestCase {
         XCTAssertEqual(mockClipboard.copiedText, testText)
         XCTAssertFalse(mockKeySimulation.pasteSimulated)
         XCTAssertEqual(mockClipboard.clearCount, 0)
+    }
+
+    func testBeginAndUpdateStreamingInsertionTypesInitialText() async throws {
+        outputManager.setOutputMode(.directInsert)
+        outputManager.beginStreamingInsertion()
+
+        try await outputManager.updateStreamingInsertion(with: "hello")
+
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, 10)
+        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+    }
+
+    func testStreamingUpdateBackspacesChangedSuffixOnly() async throws {
+        outputManager.setOutputMode(.directInsert)
+        outputManager.beginStreamingInsertion()
+
+        try await outputManager.updateStreamingInsertion(with: "hello")
+        mockKeySimulation.keyEvents.removeAll()
+
+        try await outputManager.updateStreamingInsertion(with: "help")
+
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, 6)
+        XCTAssertEqual(mockKeySimulation.keyEvents[0].keyCode, 51)
+        XCTAssertEqual(mockKeySimulation.keyEvents[1].keyCode, 51)
+        XCTAssertEqual(mockKeySimulation.keyEvents[2].keyCode, 51)
+        XCTAssertEqual(mockKeySimulation.keyEvents[3].keyCode, 51)
+        XCTAssertEqual(mockKeySimulation.keyEvents[4].keyCode, 35)
+        XCTAssertEqual(mockKeySimulation.keyEvents[5].keyCode, 35)
+    }
+
+    func testFinishStreamingInsertionAppendsTrailingSpaceWhenRequested() async throws {
+        outputManager.setOutputMode(.directInsert)
+        outputManager.beginStreamingInsertion()
+
+        try await outputManager.updateStreamingInsertion(with: "hello")
+        mockKeySimulation.keyEvents.removeAll()
+
+        try await outputManager.finishStreamingInsertion(finalText: "hello", appendTrailingSpace: true)
+
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, 2)
+        XCTAssertEqual(mockKeySimulation.keyEvents[0].keyCode, 49)
+        XCTAssertEqual(mockKeySimulation.keyEvents[1].keyCode, 49)
+    }
+
+    func testCancelStreamingInsertionPreservesTypedTextWhenRequested() async throws {
+        outputManager.setOutputMode(.directInsert)
+        outputManager.beginStreamingInsertion()
+
+        try await outputManager.updateStreamingInsertion(with: "keep me")
+        let eventCountBeforeCancel = mockKeySimulation.keyEvents.count
+
+        await outputManager.cancelStreamingInsertion(removeInsertedText: false)
+
+        XCTAssertEqual(mockKeySimulation.keyEvents.count, eventCountBeforeCancel)
+
+        do {
+            try await outputManager.updateStreamingInsertion(with: "new text")
+            XCTFail("Expected streaming insertion to be inactive after cancel")
+        } catch OutputManagerError.textInsertionFailed {
+            XCTAssertTrue(true)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
     }
     
     func testOutputWithEmptyTextThrowsError() async {

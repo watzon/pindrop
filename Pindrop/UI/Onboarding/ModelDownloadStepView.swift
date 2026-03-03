@@ -194,7 +194,7 @@ struct ModelDownloadStepView_Previews: PreviewProvider {
     static var previews: some View {
         ModelDownloadStepView(
             modelManager: PreviewModelManagerDownload(),
-            transcriptionService: PreviewTranscriptionServiceDownload(),
+            transcriptionService: TranscriptionService(),
             modelName: "openai_whisper-base.en",
             onComplete: {},
             onCancel: {}
@@ -206,12 +206,6 @@ struct ModelDownloadStepView_Previews: PreviewProvider {
 final class PreviewModelManagerDownload: ModelManager {
     override init() {
         // Skip async initialization to avoid launching WhisperKit in preview
-    }
-}
-
-final class PreviewTranscriptionServiceDownload: TranscriptionService {
-    override init() {
-        // Skip model loading in preview
     }
 }
 #endif

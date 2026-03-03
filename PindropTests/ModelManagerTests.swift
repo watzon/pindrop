@@ -126,4 +126,12 @@ final class ModelManagerTests: XCTestCase {
             XCTAssertTrue(error is ModelManager.ModelError, "Should throw ModelError")
         }
     }
+    
+    // MARK: - Feature Models Tests
+    
+    func testFeatureModelRepoFolderNamesMatchDownloaderCacheLayout() {
+        XCTAssertEqual(FeatureModelType.vad.repoFolderName, "silero-vad-coreml")
+        XCTAssertEqual(FeatureModelType.diarization.repoFolderName, "speaker-diarization-coreml")
+        XCTAssertEqual(FeatureModelType.streaming.repoFolderName, "parakeet-eou-streaming/160ms")
+    }
 }

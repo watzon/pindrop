@@ -103,6 +103,8 @@ final class OutputManager {
     private(set) var outputMode: OutputMode
     private let clipboard: ClipboardProtocol
     private let keySimulation: KeySimulationProtocol
+    private var streamingSessionActive = false
+    private var lastStreamingText = ""
     
     init(
         outputMode: OutputMode = .clipboard,
@@ -139,6 +141,59 @@ final class OutputManager {
         }
 
         try await pasteViaClipboard(text, restoreClipboard: true)
+    }
+
+    func beginStreamingInsertion() {
+        streamingSessionActive = true
+        lastStreamingText = ""
+    }
+
+    func updateStreamingInsertion(with text: String) async throws {
+        guard streamingSessionActive else {
+            throw OutputManagerError.textInsertionFailed
+        }
+
+        let commonPrefixLength = longestCommonPrefixLength(lastStreamingText, text)
+        let charactersToDelete = lastStreamingText.count - commonPrefixLength
+        if charactersToDelete > 0 {
+            try await deleteBackward(count: charactersToDelete)
+        }
+
+        let suffixToInsert = String(text.dropFirst(commonPrefixLength))
+        if !suffixToInsert.isEmpty {
+            try await insertStreamingSuffix(suffixToInsert)
+        }
+
+        lastStreamingText = text
+    }
+
+    func finishStreamingInsertion(finalText: String, appendTrailingSpace: Bool) async throws {
+        guard streamingSessionActive else {
+            throw OutputManagerError.textInsertionFailed
+        }
+
+        var finalOutput = finalText
+        if appendTrailingSpace, !finalOutput.isEmpty {
+            finalOutput += " "
+        }
+
+        try await updateStreamingInsertion(with: finalOutput)
+        streamingSessionActive = false
+        lastStreamingText = ""
+    }
+
+    func cancelStreamingInsertion(removeInsertedText: Bool) async {
+        guard streamingSessionActive else {
+            lastStreamingText = ""
+            return
+        }
+
+        if removeInsertedText && !lastStreamingText.isEmpty {
+            try? await deleteBackward(count: lastStreamingText.count)
+        }
+
+        streamingSessionActive = false
+        lastStreamingText = ""
     }
     
     private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
@@ -186,6 +241,35 @@ final class OutputManager {
         for character in text {
             try await typeCharacter(character)
         }
+    }
+
+    private func insertStreamingSuffix(_ text: String) async throws {
+        if supportsDirectTyping(text) {
+            try await insertTextDirectly(text)
+        } else {
+            try await pasteViaClipboard(text, restoreClipboard: true)
+        }
+    }
+
+    private func supportsDirectTyping(_ text: String) -> Bool {
+        text.allSatisfy { getKeyCodeForCharacter($0) != nil }
+    }
+
+    private func deleteBackward(count: Int) async throws {
+        guard count > 0 else { return }
+        for _ in 0..<count {
+            try keySimulation.postKeyEvent(keyCode: 51, flags: [], keyDown: true)
+            try await Task.sleep(nanoseconds: 1_000_000)
+            try keySimulation.postKeyEvent(keyCode: 51, flags: [], keyDown: false)
+        }
+    }
+
+    private func longestCommonPrefixLength(_ lhs: String, _ rhs: String) -> Int {
+        var length = 0
+        for (left, right) in zip(lhs, rhs) where left == right {
+            length += 1
+        }
+        return length
     }
     
     private func typeCharacter(_ character: Character) async throws {

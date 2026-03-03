@@ -349,6 +349,7 @@ final class AudioRecorder {
     }
     
     var onAudioLevel: ((Float) -> Void)?
+    var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
     
     nonisolated init(
         permissionManager: some PermissionProviding,
@@ -371,12 +372,15 @@ final class AudioRecorder {
             throw AudioRecorderError.permissionDenied
         }
         
-        let audioLevelCallback = self.onAudioLevel
         try captureBackend.startCapture(
-            onBuffer: { _ in },
-            onAudioLevel: { level in
-                Task { @MainActor in
-                    audioLevelCallback?(level)
+            onBuffer: { [weak self] buffer in
+                Task { @MainActor [weak self] in
+                    self?.onAudioBuffer?(buffer)
+                }
+            },
+            onAudioLevel: { [weak self] level in
+                Task { @MainActor [weak self] in
+                    self?.onAudioLevel?(level)
                 }
             }
         )

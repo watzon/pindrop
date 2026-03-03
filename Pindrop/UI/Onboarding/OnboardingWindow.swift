@@ -284,7 +284,7 @@ struct OnboardingWindow_Previews: PreviewProvider {
         OnboardingWindow(
             settings: SettingsStore(),
             modelManager: PreviewModelManagerWindow(),
-            transcriptionService: PreviewTranscriptionServiceWindow(),
+            transcriptionService: TranscriptionService(),
             permissionManager: PermissionManager(),
             onComplete: {},
             onPreferredContentSizeChange: { _ in }
@@ -295,12 +295,6 @@ struct OnboardingWindow_Previews: PreviewProvider {
 final class PreviewModelManagerWindow: ModelManager {
     override init() {
         // Skip async initialization to avoid launching WhisperKit in preview
-    }
-}
-
-final class PreviewTranscriptionServiceWindow: TranscriptionService {
-    override init() {
-        // Skip model loading in preview
     }
 }
 #endif

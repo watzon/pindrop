@@ -155,4 +155,51 @@ final class AppCoordinatorContextFlowTests: XCTestCase {
         XCTAssertFalse(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "   "))
         XCTAssertFalse(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "[BLANK AUDIO]"))
     }
+
+    func testShouldUseStreamingTranscriptionTruthTable() {
+        XCTAssertTrue(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                aiEnhancementEnabled: false,
+                isQuickCaptureMode: false
+            )
+        )
+
+        XCTAssertFalse(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: false,
+                outputMode: .directInsert,
+                aiEnhancementEnabled: false,
+                isQuickCaptureMode: false
+            )
+        )
+
+        XCTAssertFalse(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .clipboard,
+                aiEnhancementEnabled: false,
+                isQuickCaptureMode: false
+            )
+        )
+
+        XCTAssertFalse(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                aiEnhancementEnabled: true,
+                isQuickCaptureMode: false
+            )
+        )
+
+        XCTAssertFalse(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                aiEnhancementEnabled: false,
+                isQuickCaptureMode: true
+            )
+        )
+    }
 }

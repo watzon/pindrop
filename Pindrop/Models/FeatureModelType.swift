@@ -78,7 +78,7 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
         case .diarization:
             return "speaker-diarization-coreml"
         case .streaming:
-            return "parakeet-realtime-eou-120m-coreml"
+            return "parakeet-eou-streaming/160ms"
         }
     }
 }

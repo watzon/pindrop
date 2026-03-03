@@ -569,13 +569,11 @@ class ModelManager {
             case .streaming:
                 featureDownloadProgress = 0.1
                 onProgress?(0.1)
-                let streamingModelNames = ["streaming_encoder.mlmodelc", "decoder.mlmodelc", "joint_decision.mlmodelc", "vocab.json"]
                 featureDownloadProgress = 0.3
                 onProgress?(0.3)
-                let _ = try await DownloadUtils.loadModels(
+                try await DownloadUtils.downloadRepo(
                     .parakeetEou160,
-                    modelNames: streamingModelNames,
-                    directory: fluidAudioModelsURL
+                    to: fluidAudioModelsURL
                 )
             }
             

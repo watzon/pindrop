@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import Combine
+import AVFoundation
 import AppKit
 import os.log
 
@@ -143,6 +144,9 @@ final class AppCoordinator {
     
     private var isQuickCaptureMode = false
     private var quickCaptureTranscription: String?
+    private var isStreamingTranscriptionSessionActive = false
+    private var streamingAudioProcessingTask: Task<Void, Never>?
+    private var streamingInsertionUpdateTask: Task<Void, Never>?
     
     // MARK: - State
     
@@ -1647,15 +1651,23 @@ final class AppCoordinator {
         // so escape-to-cancel and modifier tracking become available mid-session.
         ensureGlobalKeyMonitorsIfPossible()
 
+        await beginStreamingSessionIfAvailable()
+
         let didStartRecording: Bool
         do {
             didStartRecording = try await audioRecorder.startRecording()
         } catch {
+            if isStreamingTranscriptionSessionActive {
+                await cancelStreamingSession(preserveInsertedText: true)
+            }
             Log.app.error("Audio engine failed to start: \(error)")
             throw error
         }
 
         guard didStartRecording else {
+            if isStreamingTranscriptionSessionActive {
+                await cancelStreamingSession(preserveInsertedText: true)
+            }
             Log.app.debug("Recording start already in progress; ignoring duplicate start request")
             return
         }
@@ -1772,6 +1784,27 @@ final class AppCoordinator {
         outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
     }
 
+    static func shouldUseStreamingTranscription(
+        streamingFeatureEnabled: Bool,
+        outputMode: OutputMode,
+        aiEnhancementEnabled: Bool,
+        isQuickCaptureMode: Bool
+    ) -> Bool {
+        streamingFeatureEnabled &&
+            outputMode == .directInsert &&
+            !aiEnhancementEnabled &&
+            !isQuickCaptureMode
+    }
+
+    private func shouldUseStreamingTranscriptionForCurrentSession() -> Bool {
+        Self.shouldUseStreamingTranscription(
+            streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
+            outputMode: outputManager.outputMode,
+            aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
+            isQuickCaptureMode: isQuickCaptureMode
+        )
+    }
+
     private func handleNoSpeechDetected(context: String) {
         Log.app.info("No speech detected for \(context); skipping output")
         AlertManager.shared.showGenericErrorAlert(
@@ -1797,10 +1830,223 @@ final class AppCoordinator {
 
         AlertManager.shared.showMicrophonePermissionAlert()
     }
+
+    private func beginStreamingSessionIfAvailable() async {
+        let shouldUseStreaming = shouldUseStreamingTranscriptionForCurrentSession()
+        guard shouldUseStreaming else {
+            let reasons = [
+                settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
+                outputManager.outputMode == .directInsert ? nil : "output-mode-not-directInsert",
+                settingsStore.aiEnhancementEnabled ? "ai-enhancement-enabled" : nil,
+                isQuickCaptureMode ? "quick-capture-mode" : nil
+            ].compactMap { $0 }
+            Log.transcription.info("Streaming transcription disabled for session: \(reasons.joined(separator: ","))")
+            isStreamingTranscriptionSessionActive = false
+            clearStreamingSessionBindings(cancelPendingWork: true)
+            return
+        }
+
+        do {
+            setStreamingTranscriptionCallbacks()
+            try await transcriptionService.prepareStreamingEngine()
+            try await transcriptionService.startStreaming()
+            outputManager.beginStreamingInsertion()
+            attachStreamingAudioForwarding()
+            isStreamingTranscriptionSessionActive = true
+            Log.transcription.info("Streaming transcription enabled for current session")
+        } catch {
+            Log.transcription.error("Streaming transcription unavailable, falling back to batch: \(error)")
+            await cancelStreamingSession(preserveInsertedText: true)
+        }
+    }
+
+    private func setStreamingTranscriptionCallbacks() {
+        transcriptionService.setStreamingCallbacks(
+            onPartial: { [weak self] text in
+                Task { @MainActor in
+                    self?.enqueueStreamingInsertionUpdate(text, source: "partial")
+                }
+            },
+            onFinalUtterance: { [weak self] text in
+                Task { @MainActor in
+                    self?.enqueueStreamingInsertionUpdate(text, source: "final-utterance")
+                }
+            }
+        )
+    }
+
+    private func attachStreamingAudioForwarding() {
+        audioRecorder.onAudioBuffer = { [weak self] buffer in
+            self?.enqueueStreamingAudioBuffer(buffer)
+        }
+    }
+
+    private func enqueueStreamingAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        guard isStreamingTranscriptionSessionActive else { return }
+
+        let previousTask = streamingAudioProcessingTask
+        streamingAudioProcessingTask = Task { @MainActor [weak self] in
+            _ = await previousTask?.result
+            guard let self, self.isStreamingTranscriptionSessionActive else { return }
+            do {
+                try await self.transcriptionService.processStreamingAudioBuffer(buffer)
+            } catch {
+                Log.transcription.error("Streaming audio buffer processing failed: \(error)")
+            }
+        }
+    }
+
+    private func enqueueStreamingInsertionUpdate(_ text: String, source: String) {
+        guard isStreamingTranscriptionSessionActive else { return }
+
+        let previousTask = streamingInsertionUpdateTask
+        streamingInsertionUpdateTask = Task { @MainActor [weak self] in
+            _ = await previousTask?.result
+            guard let self, self.isStreamingTranscriptionSessionActive else { return }
+            do {
+                try await self.outputManager.updateStreamingInsertion(with: text)
+                Log.transcription.debug("Applied streaming \(source) update (chars=\(text.count))")
+            } catch {
+                Log.output.error("Failed applying streaming \(source) update: \(error)")
+            }
+        }
+    }
+
+    private func flushStreamingSessionWork() async {
+        if let task = streamingAudioProcessingTask {
+            _ = await task.result
+        }
+        streamingAudioProcessingTask = nil
+
+        if let task = streamingInsertionUpdateTask {
+            _ = await task.result
+        }
+        streamingInsertionUpdateTask = nil
+    }
+
+    private func clearStreamingSessionBindings(cancelPendingWork: Bool) {
+        audioRecorder.onAudioBuffer = nil
+        transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+        if cancelPendingWork {
+            streamingAudioProcessingTask?.cancel()
+            streamingInsertionUpdateTask?.cancel()
+            streamingAudioProcessingTask = nil
+            streamingInsertionUpdateTask = nil
+        }
+    }
+
+    private func cancelStreamingSession(preserveInsertedText: Bool) async {
+        clearStreamingSessionBindings(cancelPendingWork: true)
+        await transcriptionService.cancelStreaming()
+        await outputManager.cancelStreamingInsertion(removeInsertedText: !preserveInsertedText)
+        isStreamingTranscriptionSessionActive = false
+    }
+
+    private func stopRecordingAndFinalizeStreaming() async throws {
+        guard let startTime = recordingStartTime else {
+            Log.app.warning("stopRecordingAndFinalizeStreaming called but recordingStartTime is nil")
+            return
+        }
+
+        isRecording = false
+        mediaPauseService.endRecordingSession()
+        suspendLiveContextSessionUpdates()
+        isProcessing = true
+        var didResetProcessingState = false
+
+        statusBarController.setProcessingState()
+
+        if settingsStore.floatingIndicatorEnabled {
+            if settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
+                pillFloatingIndicatorController.stopRecording()
+            } else {
+                floatingIndicatorController.stopRecording()
+            }
+        }
+
+        defer {
+            if !didResetProcessingState {
+                resetProcessingState()
+            }
+        }
+
+        do {
+            _ = try await audioRecorder.stopRecording()
+        } catch {
+            Log.app.error("Failed to stop recording for streaming session: \(error)")
+            await cancelStreamingSession(preserveInsertedText: true)
+            throw error
+        }
+
+        await flushStreamingSessionWork()
+        transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+
+        let finalStreamedText: String
+        do {
+            finalStreamedText = try await transcriptionService.stopStreaming()
+            Log.transcription.info("Streaming transcription finalized")
+        } catch {
+            Log.transcription.error("Failed to stop streaming transcription: \(error)")
+            await cancelStreamingSession(preserveInsertedText: true)
+            throw error
+        }
+
+        clearStreamingSessionBindings(cancelPendingWork: false)
+        isStreamingTranscriptionSessionActive = false
+
+        var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: finalStreamedText)
+        textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
+        self.lastAppliedReplacements = appliedReplacements
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+
+        guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
+            handleNoSpeechDetected(context: "streaming recording")
+            try? await outputManager.finishStreamingInsertion(finalText: "", appendTrailingSpace: false)
+            return
+        }
+
+        var outputSucceeded = false
+        do {
+            try await outputManager.finishStreamingInsertion(
+                finalText: textAfterReplacements,
+                appendTrailingSpace: settingsStore.addTrailingSpace
+            )
+            outputSucceeded = true
+            Log.transcription.debug("Applied final streaming transcription output")
+        } catch {
+            Log.output.error("Final streaming insertion failed: \(error)")
+            await outputManager.cancelStreamingInsertion(removeInsertedText: false)
+        }
+
+        guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: textAfterReplacements) else {
+            return
+        }
+
+        let duration = Date().timeIntervalSince(startTime)
+        do {
+            try historyStore.save(
+                text: textAfterReplacements,
+                originalText: nil,
+                duration: duration,
+                modelUsed: settingsStore.selectedModel,
+                enhancedWith: nil
+            )
+            updateRecentTranscriptsMenu()
+        } catch {
+            Log.app.error("Failed to save streamed transcription to history: \(error)")
+        }
+    }
     
     private func stopRecordingAndTranscribe() async throws {
         guard let startTime = recordingStartTime else {
             Log.app.warning("stopRecordingAndTranscribe called but recordingStartTime is nil")
+            return
+        }
+
+        if isStreamingTranscriptionSessionActive {
+            try await stopRecordingAndFinalizeStreaming()
             return
         }
 
@@ -2409,7 +2655,17 @@ final class AppCoordinator {
         }
         
         Log.app.info("Cancelling current operation via double-escape")
-        
+        let hadStreamingSession = isStreamingTranscriptionSessionActive
+        clearStreamingSessionBindings(cancelPendingWork: true)
+        isStreamingTranscriptionSessionActive = false
+        if hadStreamingSession {
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                await self.transcriptionService.cancelStreaming()
+                await self.outputManager.cancelStreamingInsertion(removeInsertedText: false)
+            }
+        }
+
         audioRecorder.resetAudioEngine()
         mediaPauseService.endRecordingSession()
         isRecording = false
@@ -2591,6 +2847,11 @@ final class AppCoordinator {
 
         Log.app.info("Clearing audio buffer")
         audioRecorder.cancelRecording()
+        if isStreamingTranscriptionSessionActive {
+            await cancelStreamingSession(preserveInsertedText: true)
+        } else {
+            clearStreamingSessionBindings(cancelPendingWork: true)
+        }
         mediaPauseService.endRecordingSession()
         isRecording = false
         recordingStartTime = nil

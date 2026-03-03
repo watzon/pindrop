@@ -159,6 +159,7 @@ struct ModelsSettingsView: View {
                         featureType: featureType,
                         isDownloaded: modelManager.isFeatureModelDownloaded(featureType),
                         isEnabled: settings.isFeatureEnabled(featureType),
+                        aiEnhancementEnabled: settings.aiEnhancementEnabled,
                         isDownloading: modelManager.currentDownloadingFeature == featureType,
                         downloadProgress: modelManager.featureDownloadProgress,
                         onToggle: { enabled in toggleFeature(featureType, enabled: enabled) },
@@ -550,10 +551,15 @@ struct FeatureModelRow: View {
     let featureType: FeatureModelType
     let isDownloaded: Bool
     let isEnabled: Bool
+    let aiEnhancementEnabled: Bool
     let isDownloading: Bool
     let downloadProgress: Double
     let onToggle: (Bool) -> Void
     let onDownload: () -> Void
+
+    private var showsStreamingAIWarning: Bool {
+        featureType == .streaming && aiEnhancementEnabled
+    }
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -591,6 +597,18 @@ struct FeatureModelRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+
+                if showsStreamingAIWarning {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                        Text("Streaming transcription is disabled while AI Enhancement is enabled.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 
                 MetadataBadge(icon: "internaldrive", text: featureType.formattedSize)
             }

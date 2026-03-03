@@ -53,6 +53,22 @@ final class AudioRecorderTests: XCTestCase {
         XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
     }
 
+    func testStartRecordingForwardsAudioBufferCallback() async throws {
+        mockPermission.grantPermission = true
+        let expectation = expectation(description: "Audio buffer callback invoked")
+        let sampleBuffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
+
+        sut.onAudioBuffer = { buffer in
+            XCTAssertEqual(buffer.frameLength, sampleBuffer.frameLength)
+            expectation.fulfill()
+        }
+
+        try await sut.startRecording()
+        mockBackend.capturedOnBuffer?(sampleBuffer)
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+    }
+
     func testConcurrentStartRecordingOnlyRequestsPermissionOnce() async throws {
         mockPermission.grantPermission = true
         mockPermission.delayNanoseconds = 50_000_000
