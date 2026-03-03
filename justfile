@@ -317,27 +317,28 @@ appcast dmg_path:
 	@echo "📡 Generating appcast.xml..."
 	@if [ ! -f "{{dmg_path}}" ]; then \
 		echo "❌ DMG not found: {{dmg_path}}"; \
-		echo "   Run: just dmg"; \
+		echo "   Run: just dmg-self-signed"; \
 		exit 1; \
 	fi
 	@if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
 		echo "⚠️  Sparkle tools not found. Downloading..."; \
 		curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz"; \
-		tar -xf /tmp/Sparkle.tar.xz -C /tmp; \
+		mkdir -p /tmp/sparkle-extract; \
+		tar -xf /tmp/Sparkle.tar.xz -C /tmp/sparkle-extract; \
 		mkdir -p bin; \
-		cp /tmp/Sparkle-2.6.4/bin/generate_appcast bin/; \
-		cp /tmp/Sparkle-2.6.4/bin/sign_update bin/ 2>/dev/null || true; \
-		rm -rf /tmp/Sparkle.tar.xz /tmp/Sparkle-2.6.4; \
+		cp /tmp/sparkle-extract/bin/generate_appcast bin/; \
+		cp /tmp/sparkle-extract/bin/sign_update bin/ 2>/dev/null || true; \
+		rm -rf /tmp/Sparkle.tar.xz /tmp/sparkle-extract; \
 		echo "✅ Sparkle tools downloaded to bin/"; \
 	fi
-	@TAG_VERSION="v$$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
-	DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/$${TAG_VERSION}/"; \
-	echo "🔏 Signing DMG and generating appcast for $${TAG_VERSION}..."; \
-	echo "🔗 Download prefix: $${DOWNLOAD_PREFIX}"
+	@TAG_VERSION="v$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
+	DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/"; \
+	echo "🔏 Signing DMG and generating appcast for ${TAG_VERSION}..."; \
+	echo "🔗 Download prefix: ${DOWNLOAD_PREFIX}"
 	@mkdir -p updates
 	@cp "{{dmg_path}}" updates/
 	@if ./bin/generate_appcast --help 2>&1 | grep -q -- '--download-url-prefix'; then \
-		./bin/generate_appcast --download-url-prefix "$${DOWNLOAD_PREFIX}" updates/; \
+		./bin/generate_appcast --download-url-prefix "${DOWNLOAD_PREFIX}" updates/; \
 	else \
 		echo "⚠️  generate_appcast does not support --download-url-prefix; generating without explicit URL prefix"; \
 		./bin/generate_appcast updates/; \
