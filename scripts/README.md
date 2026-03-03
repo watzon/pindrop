@@ -62,17 +62,19 @@ just build-release
 just dmg
 ```
 
-### Full Release (with signing)
+### Manual GitHub Release
 
 ```bash
-just release
+just release 1.9.0
 ```
 
 This will:
-1. Clean build artifacts
-2. Build release version
-3. Sign the app bundle
-4. Create DMG
+1. Bump version/build and commit the change
+2. Run tests
+3. Build release DMG
+4. Generate `appcast.xml`
+5. Create and push tag
+6. Create GitHub release using `gh` and attach DMG + `appcast.xml`
 
 ### Notarization (requires Apple Developer account)
 

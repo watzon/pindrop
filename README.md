@@ -145,7 +145,7 @@ just --list             # Show all available commands
 **Release commands (maintainers):**
 
 ```bash
-just release 1.5.5  # Bump version, commit, tag, push → triggers CI
+just release 1.9.0  # Local manual release (tests, DMG, appcast, tag, push tag, GitHub release)
 ```
 
 ### Manual Build (Alternative)
@@ -176,17 +176,32 @@ The DMG will be created in `dist/Pindrop.dmg`.
 
 ### Creating a Release
 
-Releases are built via GitHub Actions. To create a new release:
+Releases are published manually from a local machine using `just` + `gh`.
+Use either the one-command flow or the explicit step-by-step flow.
 
 ```bash
-# 1. Bump version, commit, tag, and push (triggers CI)
-just release 1.5.5
+# One command (recommended)
+just release 1.9.0
+```
 
-# 2. Wait for GitHub Actions to complete
-#    Watch: https://github.com/watzon/pindrop/actions
+Equivalent explicit steps:
 
-# 3. Publish the draft release on GitHub
-#    https://github.com/watzon/pindrop/releases
+```bash
+# 1. Ensure tests pass
+just test
+
+# 2. Build release DMG
+just dmg
+
+# 3. Generate appcast.xml for the current version
+just appcast dist/Pindrop.dmg
+
+# 4. Create and push tag
+git tag -a v1.9.0 -m "Release v1.9.0"
+git push origin v1.9.0
+
+# 5. Create GitHub release and attach DMG + appcast.xml
+gh release create v1.9.0 dist/Pindrop.dmg appcast.xml --title "Pindrop v1.9.0" --generate-notes
 ```
 
 ## First Launch

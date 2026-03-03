@@ -44,7 +44,8 @@ just dev                # Clean + build + test
 ```bash
 just build-release      # Release build
 just dmg                # Build + create DMG
-just release            # Full release workflow
+just appcast dist/Pindrop.dmg   # Generate appcast.xml for DMG
+just release 1.9.0      # Manual GitHub release workflow (local)
 ```
 
 ### Maintenance
@@ -94,21 +95,24 @@ This runs:
 
 Output: `dist/Pindrop.dmg`
 
-### 4. Full Release (Signed)
+### 4. Manual GitHub Release
 
-For App Store or notarized distribution:
+For maintainer releases (local machine, not CI):
 
 ```bash
-just release
+just release 1.9.0
 ```
 
 This runs:
-1. `clean` - Remove old artifacts
-2. `build-release` - Create release build
-3. `sign` - Code sign the app
-4. `dmg` - Create DMG
+1. Bump version/build in `project.pbxproj`
+2. Commit version bump
+3. `just test`
+4. `just dmg`
+5. `just appcast dist/Pindrop.dmg`
+6. Create and push tag (`vX.Y.Z`)
+7. Create GitHub release with DMG + `appcast.xml` via `gh`
 
-Then manually:
+Optional notarization/stapling for signed distribution:
 ```bash
 just notarize dist/Pindrop.dmg
 just staple dist/Pindrop.dmg

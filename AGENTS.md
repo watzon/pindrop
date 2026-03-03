@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Last updated: 2026-02-16
+Last updated: 2026-03-03
 
 ## Project Snapshot
 
@@ -109,8 +109,13 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 ## Release and Distribution
 
 - Local release helpers: `just build-release`, `just dmg`, `just dmg-self-signed`
-- Version/tag flow automation exists in `just release <X.Y.Z>`
-- CI workflows under `.github/workflows/` drive build/release pipeline
+- Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
+  1. Run tests
+  2. Build release DMG
+  3. Generate `appcast.xml`
+  4. Create + push tag
+  5. Create GitHub release via `gh` and upload DMG + `appcast.xml`
+- CI workflows under `.github/workflows/` are for build/test validation; release publishing is manual
 - Sparkle appcast generation is scripted via `just appcast <dmg-path>`
 
 ## Quick PR Checklist

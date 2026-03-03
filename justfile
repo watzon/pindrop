@@ -184,28 +184,56 @@ release-local: clean build-release sign dmg
 	@echo "  2. Notarize: just notarize {{dmg_dir}}/{{app_name}}.dmg"
 	@echo "  3. Staple: just staple {{dmg_dir}}/{{app_name}}.dmg"
 
-# GitHub release workflow: bump version, commit, tag, push
-# Usage: just release 1.5.5
-# This triggers the GitHub Actions workflow which builds and creates the release
+# Manual GitHub release workflow
+# Usage: just release 1.9.0
+# Runs locally: tests -> DMG -> appcast -> tag -> push tag -> gh release create
 release version:
 	#!/usr/bin/env bash
 	set -euo pipefail
 	
 	VERSION="{{version}}"
+	TAG="v${VERSION}"
+	DMG_PATH="{{dmg_dir}}/{{app_name}}.dmg"
+	APPCAST_PATH="appcast.xml"
 	
 	# Validate version format (X.Y.Z)
 	if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 		echo "❌ Invalid version format: $VERSION"
-		echo "   Expected format: X.Y.Z (e.g., 1.5.5)"
+		echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
 		exit 1
 	fi
 	
-	echo "🚀 Releasing Pindrop v${VERSION}"
+	echo "🚀 Releasing Pindrop ${TAG}"
 	echo ""
 	
 	# Check for uncommitted changes
 	if ! git diff --quiet || ! git diff --cached --quiet; then
 		echo "❌ You have uncommitted changes. Please commit or stash them first."
+		exit 1
+	fi
+
+	# Ensure required tools are available
+	for tool in just gh create-dmg; do
+		if ! command -v "$tool" >/dev/null 2>&1; then
+			echo "❌ Required tool not found: $tool"
+			exit 1
+		fi
+	done
+
+	# Ensure gh is authenticated
+	if ! gh auth status -h github.com >/dev/null 2>&1; then
+		echo "❌ GitHub CLI is not authenticated."
+		echo "   Run: gh auth login"
+		exit 1
+	fi
+
+	# Ensure tag does not already exist
+	if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+		echo "❌ Tag already exists locally: ${TAG}"
+		exit 1
+	fi
+	if git ls-remote --exit-code --tags origin "${TAG}" >/dev/null 2>&1; then
+		echo "❌ Tag already exists on origin: ${TAG}"
 		exit 1
 	fi
 	
@@ -241,28 +269,41 @@ release version:
 	echo "📦 Committing version bump..."
 	git add Pindrop.xcodeproj/project.pbxproj
 	git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
+
+	# Step 1: Ensure tests pass
+	echo "🧪 Running test suite..."
+	just test
+
+	# Step 2: Build release DMG
+	echo "📦 Building release DMG..."
+	just dmg
+
+	# Step 3: Update appcast
+	echo "📡 Generating appcast.xml..."
+	just appcast "${DMG_PATH}"
 	
 	# Create annotated tag
-	echo "🏷️  Creating tag v${VERSION}..."
-	git tag -a "v${VERSION}" -m "Release v${VERSION}"
+	echo "🏷️  Creating tag ${TAG}..."
+	git tag -a "${TAG}" -m "Release ${TAG}"
 	
-	# Push commit and tag
-	echo "🚀 Pushing to origin..."
-	git push origin main
-	git push origin "v${VERSION}"
+	# Push tag
+	echo "🚀 Pushing tag to origin..."
+	git push origin "${TAG}"
+
+	# Create GitHub release and attach assets
+	echo "📤 Creating GitHub release with DMG + appcast..."
+	gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" \
+		--title "Pindrop ${TAG}" \
+		--generate-notes
 	
 	echo ""
-	echo "✅ Release v${VERSION} initiated!"
+	echo "✅ Release ${TAG} published!"
 	echo ""
-	echo "📋 Next steps:"
-	echo "  1. Watch the GitHub Actions workflow:"
-	echo "     https://github.com/watzon/pindrop/actions"
+	echo "📋 Uploaded assets:"
+	echo "  - ${DMG_PATH}"
+	echo "  - ${APPCAST_PATH}"
 	echo ""
-	echo "  2. Once complete, publish the draft release:"
-	echo "     https://github.com/watzon/pindrop/releases"
-	echo ""
-	echo "  3. No appcast commit step is required."
-	echo "     Sparkle uses releases/latest/download/appcast.xml automatically."
+	echo "ℹ️  Optional follow-up: push main when you're ready."
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg
@@ -283,17 +324,24 @@ appcast dmg_path:
 		rm -rf /tmp/Sparkle.tar.xz /tmp/Sparkle-2.6.4; \
 		echo "✅ Sparkle tools downloaded to bin/"; \
 	fi
-	@echo "🔏 Signing DMG and generating appcast..."
+	@TAG_VERSION="v$$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
+	DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/$${TAG_VERSION}/"; \
+	echo "🔏 Signing DMG and generating appcast for $${TAG_VERSION}..."; \
+	echo "🔗 Download prefix: $${DOWNLOAD_PREFIX}"
 	@mkdir -p updates
 	@cp "{{dmg_path}}" updates/
-	@./bin/generate_appcast updates/
+	@if ./bin/generate_appcast --help 2>&1 | grep -q -- '--download-url-prefix'; then \
+		./bin/generate_appcast --download-url-prefix "$${DOWNLOAD_PREFIX}" updates/; \
+	else \
+		echo "⚠️  generate_appcast does not support --download-url-prefix; generating without explicit URL prefix"; \
+		./bin/generate_appcast updates/; \
+	fi
 	@rm -rf updates/
 	@echo "✅ Appcast generated: appcast.xml"
 	@echo ""
 	@echo "Next steps:"
 	@echo "  1. Review appcast.xml"
-	@echo "  2. Upload {{dmg_path}} to GitHub Releases"
-	@echo "  3. Commit and push appcast.xml to your repository"
+	@echo "  2. Attach {{dmg_path}} and appcast.xml to the matching GitHub release tag"
 
 # Install dependencies (if any)
 deps:
