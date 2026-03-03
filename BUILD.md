@@ -44,6 +44,7 @@ just dev                # Clean + build + test
 ```bash
 just build-release      # Release build
 just dmg                # Build + create DMG
+just dmg-self-signed    # Build + create self-signed DMG (no Apple developer account)
 just appcast dist/Pindrop.dmg   # Generate appcast.xml for DMG
 just release 1.9.0      # Manual GitHub release workflow (local)
 ```
@@ -107,7 +108,7 @@ This runs:
 1. Bump version/build in `project.pbxproj`
 2. Commit version bump
 3. `just test`
-4. `just dmg`
+4. `just dmg-self-signed`
 5. `just appcast dist/Pindrop.dmg`
 6. Create and push tag (`vX.Y.Z`)
 7. Create GitHub release with DMG + `appcast.xml` via `gh`

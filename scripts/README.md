@@ -71,7 +71,7 @@ just release 1.9.0
 This will:
 1. Bump version/build and commit the change
 2. Run tests
-3. Build release DMG
+3. Build self-signed release DMG
 4. Generate `appcast.xml`
 5. Create and push tag
 6. Create GitHub release using `gh` and attach DMG + `appcast.xml`

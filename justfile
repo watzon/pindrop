@@ -186,7 +186,7 @@ release-local: clean build-release sign dmg
 
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
-# Runs locally: tests -> DMG -> appcast -> tag -> push tag -> gh release create
+# Runs locally: tests -> self-signed DMG -> appcast -> tag -> push tag -> gh release create
 release version:
 	#!/usr/bin/env bash
 	set -euo pipefail
@@ -274,9 +274,9 @@ release version:
 	echo "🧪 Running test suite..."
 	just test
 
-	# Step 2: Build release DMG
-	echo "📦 Building release DMG..."
-	just dmg
+	# Step 2: Build self-signed release DMG
+	echo "📦 Building self-signed release DMG..."
+	just dmg-self-signed
 
 	# Step 3: Update appcast
 	echo "📡 Generating appcast.xml..."

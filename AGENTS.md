@@ -111,7 +111,7 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Local release helpers: `just build-release`, `just dmg`, `just dmg-self-signed`
 - Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
   1. Run tests
-  2. Build release DMG
+  2. Build self-signed release DMG
   3. Generate `appcast.xml`
   4. Create + push tag
   5. Create GitHub release via `gh` and upload DMG + `appcast.xml`

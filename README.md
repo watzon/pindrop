@@ -145,7 +145,7 @@ just --list             # Show all available commands
 **Release commands (maintainers):**
 
 ```bash
-just release 1.9.0  # Local manual release (tests, DMG, appcast, tag, push tag, GitHub release)
+just release 1.9.0  # Local manual release (tests, self-signed DMG, appcast, tag, push tag, GitHub release)
 ```
 
 ### Manual Build (Alternative)
@@ -190,8 +190,8 @@ Equivalent explicit steps:
 # 1. Ensure tests pass
 just test
 
-# 2. Build release DMG
-just dmg
+# 2. Build self-signed release DMG
+just dmg-self-signed
 
 # 3. Generate appcast.xml for the current version
 just appcast dist/Pindrop.dmg
