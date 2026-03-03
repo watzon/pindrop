@@ -71,6 +71,7 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
         }
     }
     
+    /// Must match FluidAudio repo folderName (e.g. parakeetEou160 → "parakeet-eou-streaming/160ms").
     var repoFolderName: String {
         switch self {
         case .vad:
@@ -78,7 +79,7 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
         case .diarization:
             return "speaker-diarization-coreml"
         case .streaming:
-            return "parakeet-realtime-eou-120m-coreml"
+            return "parakeet-eou-streaming/160ms"
         }
     }
 }
