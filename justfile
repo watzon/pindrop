@@ -372,7 +372,7 @@ release-notes version:
 	fi
 
 	printf '%s\n' \
-		'## What's New' \
+		"## What's New" \
 		'' \
 		"- TODO: Add 2-5 user-facing highlights for ${TAG}." \
 		'' \
