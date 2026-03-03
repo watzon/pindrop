@@ -240,35 +240,41 @@ release version:
 	# Get current version
 	CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
 	CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-	NEXT_BUILD=$((CURRENT_BUILD + 1))
 	echo "📋 Current version: ${CURRENT_VERSION}"
 	echo "📋 Current build: ${CURRENT_BUILD}"
 	echo "📋 New version: ${VERSION}"
-	echo "📋 New build: ${NEXT_BUILD}"
 	echo ""
-	
-	# Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
-	echo "📝 Updating version and build number in Xcode project..."
-	sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
-	sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
-	
-	# Verify the changes
-	NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-	NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-	if [ "$NEW_VERSION" != "$VERSION" ]; then
-		echo "❌ Failed to update version"
-		exit 1
+
+	if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+		echo "ℹ️  Version already set to ${VERSION}; keeping build ${CURRENT_BUILD}."
+	else
+		NEXT_BUILD=$((CURRENT_BUILD + 1))
+		echo "📋 New build: ${NEXT_BUILD}"
+		echo ""
+		
+		# Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
+		echo "📝 Updating version and build number in Xcode project..."
+		sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
+		sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
+		
+		# Verify the changes
+		NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+		NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+		if [ "$NEW_VERSION" != "$VERSION" ]; then
+			echo "❌ Failed to update version"
+			exit 1
+		fi
+		if [ "$NEW_BUILD" != "$NEXT_BUILD" ]; then
+			echo "❌ Failed to update build number"
+			exit 1
+		fi
+		echo "✅ Version updated to ${VERSION} (build ${NEXT_BUILD})"
+		
+		# Commit the version bump
+		echo "📦 Committing version bump..."
+		git add Pindrop.xcodeproj/project.pbxproj
+		git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
 	fi
-	if [ "$NEW_BUILD" != "$NEXT_BUILD" ]; then
-		echo "❌ Failed to update build number"
-		exit 1
-	fi
-	echo "✅ Version updated to ${VERSION} (build ${NEXT_BUILD})"
-	
-	# Commit the version bump
-	echo "📦 Committing version bump..."
-	git add Pindrop.xcodeproj/project.pbxproj
-	git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
 
 	# Step 1: Ensure tests pass
 	echo "🧪 Running test suite..."
