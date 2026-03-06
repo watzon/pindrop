@@ -28,6 +28,18 @@ protocol AXProviderProtocol: Sendable {
     /// Returns a nested AXUIElement attribute value, or nil.
     func elementAttribute(_ attribute: String, of element: AXUIElement) -> AXUIElement?
 
+    /// Returns a CGPoint AXValue attribute, or nil.
+    func pointAttribute(_ attribute: String, of element: AXUIElement) -> CGPoint?
+
+    /// Returns a CGSize AXValue attribute, or nil.
+    func sizeAttribute(_ attribute: String, of element: AXUIElement) -> CGSize?
+
+    /// Returns a CFRange AXValue attribute, or nil.
+    func rangeAttribute(_ attribute: String, of element: AXUIElement) -> CFRange?
+
+    /// Returns a CGRect for a parameterized range attribute, or nil.
+    func rectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement) -> CGRect?
+
     /// Returns the pid of the frontmost application, or nil.
     func frontmostAppPID() -> pid_t?
 }
@@ -63,8 +75,56 @@ final class SystemAXProvider: AXProviderProtocol, @unchecked Sendable {
         return (value as! AXUIElement)
     }
 
+    func pointAttribute(_ attribute: String, of element: AXUIElement) -> CGPoint? {
+        guard let value = copyAXValue(attribute, of: element) else { return nil }
+        var point = CGPoint.zero
+        guard AXValueGetType(value) == .cgPoint, AXValueGetValue(value, .cgPoint, &point) else { return nil }
+        return point
+    }
+
+    func sizeAttribute(_ attribute: String, of element: AXUIElement) -> CGSize? {
+        guard let value = copyAXValue(attribute, of: element) else { return nil }
+        var size = CGSize.zero
+        guard AXValueGetType(value) == .cgSize, AXValueGetValue(value, .cgSize, &size) else { return nil }
+        return size
+    }
+
+    func rangeAttribute(_ attribute: String, of element: AXUIElement) -> CFRange? {
+        guard let value = copyAXValue(attribute, of: element) else { return nil }
+        var range = CFRange()
+        guard AXValueGetType(value) == .cfRange, AXValueGetValue(value, .cfRange, &range) else { return nil }
+        return range
+    }
+
+    func rectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement) -> CGRect? {
+        var localRange = range
+        guard let rangeValue = AXValueCreate(.cfRange, &localRange) else { return nil }
+
+        var value: AnyObject?
+        let result = AXUIElementCopyParameterizedAttributeValue(
+            element,
+            attribute as CFString,
+            rangeValue,
+            &value
+        )
+        guard result == .success, let axValue = value, CFGetTypeID(axValue) == AXValueGetTypeID() else { return nil }
+
+        let typedValue = axValue as! AXValue
+        var rect = CGRect.zero
+        guard AXValueGetType(typedValue) == .cgRect, AXValueGetValue(typedValue, .cgRect, &rect) else { return nil }
+        return rect
+    }
+
     func frontmostAppPID() -> pid_t? {
         NSWorkspace.shared.frontmostApplication?.processIdentifier
+    }
+
+    private func copyAXValue(_ attribute: String, of element: AXUIElement) -> AXValue? {
+        var value: AnyObject?
+        let result = AXUIElementCopyAttributeValue(element, attribute as CFString, &value)
+        guard result == .success, let rawValue = value else { return nil }
+        guard CFGetTypeID(rawValue) == AXValueGetTypeID() else { return nil }
+        return unsafeBitCast(rawValue, to: AXValue.self)
     }
 }
 
@@ -282,6 +342,31 @@ final class ContextEngineService {
         Log.context.info("Context capture: latency=\(String(format: "%.1f", latencyMs))ms hasDetail=\(appContext.hasDetailedContext) totalCaptures=\(self.metrics.captureCount) avgLatency=\(String(format: "%.1f", self.metrics.averageCaptureLatencyMs))ms")
 
         return (appContext: appContext, warnings: warnings)
+    }
+
+    func captureFocusedElementAnchorRect() -> CGRect? {
+        guard axProvider.isProcessTrusted() else { return nil }
+        guard let appElement = axProvider.copyFrontmostApplication() else { return nil }
+        guard let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement) else { return nil }
+
+        if let range = axProvider.rangeAttribute(kAXSelectedTextRangeAttribute, of: focusedElement),
+           let rangeRect = axProvider.rectForRangeAttribute(
+               kAXBoundsForRangeParameterizedAttribute,
+               range: range,
+               of: focusedElement
+           ),
+           !rangeRect.isNull,
+           !rangeRect.isEmpty {
+            return rangeRect.standardized
+        }
+
+        guard let position = axProvider.pointAttribute(kAXPositionAttribute, of: focusedElement),
+              let size = axProvider.sizeAttribute(kAXSizeAttribute, of: focusedElement) else {
+            return nil
+        }
+
+        let rect = CGRect(origin: position, size: size).standardized
+        return rect.isEmpty ? nil : rect
     }
 
     func captureSnapshot(clipboardText: String? = nil) -> ContextSnapshot {

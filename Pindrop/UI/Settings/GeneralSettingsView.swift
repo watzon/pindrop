@@ -16,6 +16,7 @@ struct GeneralSettingsView: View {
         VStack(spacing: 20) {
             outputSection
             audioInputSection
+            floatingIndicatorSection
             interfaceSection
             resetSection
         }
@@ -91,37 +92,13 @@ struct GeneralSettingsView: View {
                 }
                 
                 Divider()
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Floating indicator")
-                                .font(.body)
-                            Text("Shows recording status in a small overlay window")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Toggle("", isOn: $settings.floatingIndicatorEnabled)
-                            .toggleStyle(.switch)
-                            .labelsHidden()
-                    }
-                    
-                    if settings.floatingIndicatorEnabled {
-                        Picker("Style", selection: $settings.floatingIndicatorType) {
-                            ForEach(FloatingIndicatorType.allCases) { type in
-                                Text(type.displayName)
-                                    .tag(type.rawValue)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.top, 4)
-                    }
-                }
+
             }
         }
+    }
+
+    private var floatingIndicatorSection: some View {
+        FloatingIndicatorSettingsCard(settings: settings)
     }
 
     private var audioInputSection: some View {

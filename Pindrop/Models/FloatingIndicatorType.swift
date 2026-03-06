@@ -10,6 +10,7 @@ import Foundation
 enum FloatingIndicatorType: String, CaseIterable, Identifiable {
     case notch = "notch"
     case pill = "pill"
+    case bubble = "bubble"
 
     var id: String { rawValue }
 
@@ -19,6 +20,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return "Notch"
         case .pill:
             return "Pill"
+        case .bubble:
+            return "Bubble"
         }
     }
 
@@ -28,6 +31,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return "Shows in the menu bar/notch area"
         case .pill:
             return "Shows as a pill at the bottom of the screen"
+        case .bubble:
+            return "Shows beside the focused text field/caret"
         }
     }
 }

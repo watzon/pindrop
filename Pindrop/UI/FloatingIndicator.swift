@@ -7,7 +7,6 @@
 
 import SwiftUI
 import AppKit
-import Combine
 
 private enum NotchPanelMetrics {
     static let fallbackNotchWidth: CGFloat = 186
@@ -111,26 +110,27 @@ struct NotchShape: Shape {
 }
 
 @MainActor
-final class FloatingIndicatorController: ObservableObject {
-    
+final class FloatingIndicatorController: FloatingIndicatorPresenting {
+    let type: FloatingIndicatorType = .notch
+    let state: FloatingIndicatorState
+
     private var panel: NotchPanel?
     private var hostingView: NSHostingView<NotchIndicatorView>?
-    
-    @Published var isRecording: Bool = false
-    @Published var recordingDuration: TimeInterval = 0
-    @Published var audioLevel: Float = 0.0
-    @Published var isProcessing: Bool = false
-    @Published var escapePrimed: Bool = false
-    
-    private var recordingStartTime: Date?
-    private var durationTimer: Timer?
-    private var escapePrimedResetTask: Task<Void, Never>?
-    
-    var onStopRecording: (() -> Void)?
-    
-    init() {}
-    
-    func show() {
+    private var actions = FloatingIndicatorActions()
+
+    init(state: FloatingIndicatorState) {
+        self.state = state
+    }
+
+    func configure(actions: FloatingIndicatorActions) {
+        self.actions = actions
+    }
+
+    func showIdleIndicator() {
+        hide()
+    }
+
+    private func show() {
         guard panel == nil else {
             panel?.orderFrontRegardless()
             return
@@ -171,10 +171,13 @@ final class FloatingIndicatorController: ObservableObject {
         let panel = NotchPanel(contentRect: contentRect)
         
         let contentView = NotchIndicatorView(
-            controller: self,
+            state: state,
             notchWidth: notchWidth,
             sideWidth: sideWidth,
-            height: panelHeight
+            height: panelHeight,
+            onStopRecording: { [weak self] in
+                self?.handleStopButtonTapped()
+            }
         )
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
@@ -198,9 +201,7 @@ final class FloatingIndicatorController: ObservableObject {
     func hide() {
         guard let panel = panel else { return }
         let localPanel = panel
-        
-        stopDurationTimer()
-        
+
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = NotchPanelMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
@@ -215,79 +216,35 @@ final class FloatingIndicatorController: ObservableObject {
     }
     
     func startRecording() {
-        isRecording = true
-        isProcessing = false
-        recordingStartTime = Date()
-        recordingDuration = 0
-        startDurationTimer()
+        state.startRecording()
         show()
     }
     
-    func stopRecording() {
-        isRecording = false
-        isProcessing = true
-        stopDurationTimer()
+    func transitionToProcessing() {
+        state.transitionToProcessing()
     }
     
     func finishProcessing() {
-        isRecording = false
-        isProcessing = false
-        audioLevel = 0
-        clearEscapePrimed()
+        state.finishSession()
         hide()
     }
-    
-    func updateAudioLevel(_ level: Float) {
-        let smoothed = audioLevel * 0.3 + level * 0.7
-        audioLevel = min(1.0, max(0.0, smoothed))
-    }
-    
-    func showEscapePrimed() {
-        escapePrimedResetTask?.cancel()
-        escapePrimed = true
-        
-        escapePrimedResetTask = Task {
-            try? await Task.sleep(for: .milliseconds(400))
-            if !Task.isCancelled {
-                escapePrimed = false
-            }
-        }
-    }
-    
-    func clearEscapePrimed() {
-        escapePrimedResetTask?.cancel()
-        escapePrimed = false
-    }
-    
+
     func handleStopButtonTapped() {
-        onStopRecording?()
-    }
-    
-    private func startDurationTimer() {
-        durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self, let startTime = self.recordingStartTime else { return }
-                self.recordingDuration = Date().timeIntervalSince(startTime)
-            }
-        }
-    }
-    
-    private func stopDurationTimer() {
-        durationTimer?.invalidate()
-        durationTimer = nil
+        actions.onStopRecording?(type)
     }
 }
 
 struct NotchIndicatorView: View {
-    @ObservedObject var controller: FloatingIndicatorController
+    @ObservedObject var state: FloatingIndicatorState
     let notchWidth: CGFloat
     let sideWidth: CGFloat
     let height: CGFloat
+    let onStopRecording: () -> Void
     
     private var formattedDuration: String {
-        let minutes = Int(controller.recordingDuration) / 60
-        let seconds = Int(controller.recordingDuration) % 60
-        let tenths = Int((controller.recordingDuration.truncatingRemainder(dividingBy: 1)) * 10)
+        let minutes = Int(state.recordingDuration) / 60
+        let seconds = Int(state.recordingDuration) % 60
+        let tenths = Int((state.recordingDuration.truncatingRemainder(dividingBy: 1)) * 10)
         return String(format: "%d:%02d.%d", minutes, seconds, tenths)
     }
     
@@ -305,7 +262,7 @@ struct NotchIndicatorView: View {
     
     private var leftSide: some View {
         HStack(spacing: 8) {
-            if controller.isRecording {
+            if state.isRecording {
                 stopButton
             } else {
                 processingIndicator
@@ -323,7 +280,7 @@ struct NotchIndicatorView: View {
         ZStack {
             Color.black.opacity(0.55)
 
-            if controller.isProcessing {
+            if state.isProcessing {
                 ProgressView()
                     .controlSize(.mini)
                     .tint(.white.opacity(0.9))
@@ -333,9 +290,10 @@ struct NotchIndicatorView: View {
     }
 
     private var rightSide: some View {
-        NotchWaveformView(
-            audioLevel: controller.audioLevel,
-            isRecording: controller.isRecording
+        FloatingIndicatorWaveformView(
+            audioLevel: state.audioLevel,
+            isRecording: state.isRecording,
+            style: .notch
         )
         .frame(maxWidth: .infinity, maxHeight: 18, alignment: .leading)
         .padding(.leading, 10)
@@ -345,7 +303,7 @@ struct NotchIndicatorView: View {
     
     private var stopButton: some View {
         Button {
-            controller.handleStopButtonTapped()
+            onStopRecording()
         } label: {
             ZStack {
                 Circle()
@@ -366,13 +324,13 @@ struct NotchIndicatorView: View {
         Circle()
             .stroke(Color.red.opacity(0.5), lineWidth: 1.6)
             .frame(width: 18, height: 18)
-            .scaleEffect(controller.isRecording ? 1.4 : 1)
-            .opacity(controller.isRecording ? 0 : 0.2)
+            .scaleEffect(state.isRecording ? 1.4 : 1)
+            .opacity(state.isRecording ? 0 : 0.2)
             .animation(
-                controller.isRecording
+                state.isRecording
                     ? .easeOut(duration: 1.1).repeatForever(autoreverses: false)
                     : .easeInOut(duration: 0.2),
-                value: controller.isRecording
+                value: state.isRecording
             )
     }
     
@@ -390,11 +348,11 @@ struct NotchIndicatorView: View {
     
     private var timerDisplay: some View {
         HStack(spacing: 6) {
-            Text(controller.isProcessing ? "..." : formattedDuration)
+            Text(state.isProcessing ? "..." : formattedDuration)
                 .font(.system(size: 13, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
             
-            if controller.escapePrimed {
+            if state.escapePrimed {
                 Circle()
                     .fill(Color.yellow)
                     .frame(width: 6, height: 6)
@@ -402,87 +360,39 @@ struct NotchIndicatorView: View {
                 }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .animation(.easeInOut(duration: 0.15), value: controller.escapePrimed)
-    }
-}
-
-struct NotchWaveformView: View {
-    let audioLevel: Float
-    let isRecording: Bool
-    
-    private let barWidth: CGFloat = 2
-    private let barSpacing: CGFloat = 1.6
-    private let minimumBarCount = 14
-    
-    var body: some View {
-        GeometryReader { proxy in
-            TimelineView(.animation(minimumInterval: 0.05)) { timeline in
-                let barCount = max(
-                    minimumBarCount,
-                    Int((proxy.size.width + barSpacing) / (barWidth + barSpacing))
-                )
-
-                HStack(spacing: barSpacing) {
-                    ForEach(0..<barCount, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(barColor)
-                            .frame(
-                                width: barWidth,
-                                height: barHeight(for: index, barCount: barCount, date: timeline.date)
-                            )
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            }
-        }
-    }
-    
-    private var barColor: Color {
-        Color(red: 0.4, green: 0.85, blue: 1.0)
-    }
-    
-    private func barHeight(for index: Int, barCount: Int, date: Date) -> CGFloat {
-        guard isRecording else { return 2 }
-        
-        let time = date.timeIntervalSinceReferenceDate
-        let phase = Double(index) * 0.35
-        
-        let waveA = sin(time * 6.8 + phase) * 0.55
-        let waveB = sin(time * 4.1 + phase * 1.7) * 0.35
-        let combinedWave = (waveA + waveB + 1.9) / 2.8
-
-        let amplifiedLevel = min(1.0, max(0.0, CGFloat(audioLevel) * 5.0))
-        let level = 0.12 + (amplifiedLevel * 0.88)
-        let baseHeight = (4 + combinedWave * 10) * level
-
-        let midpoint = Double(max(1, barCount - 1)) / 2
-        let distance = abs(Double(index) - midpoint) / max(1, midpoint)
-        let edgeAttenuation = CGFloat(1 - (distance * 0.45))
-
-        let height = baseHeight * edgeAttenuation
-        return max(2, min(16, height))
+        .animation(.easeInOut(duration: 0.15), value: state.escapePrimed)
     }
 }
 
 #Preview("Notch Indicator - Recording") {
-    let controller = FloatingIndicatorController()
-    controller.isRecording = true
-    controller.recordingDuration = 5.3
-    controller.audioLevel = 0.6
-    
-    return NotchIndicatorView(controller: controller, notchWidth: 185, sideWidth: 100, height: 38)
+    notchRecordingPreview
+}
+
+#Preview("Notch Indicator - Processing") {
+    notchProcessingPreview
+}
+
+@MainActor
+private var notchRecordingPreview: some View {
+    let state = FloatingIndicatorState()
+    state.isRecording = true
+    state.recordingDuration = 5.3
+    state.audioLevel = 0.6
+
+    return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
         .background(Color.gray.opacity(0.3))
 }
 
-#Preview("Notch Indicator - Processing") {
-    let controller = FloatingIndicatorController()
-    controller.isRecording = false
-    controller.isProcessing = true
-    controller.recordingDuration = 12.7
-    controller.audioLevel = 0.0
-    
-    return NotchIndicatorView(controller: controller, notchWidth: 185, sideWidth: 100, height: 38)
+@MainActor
+private var notchProcessingPreview: some View {
+    let state = FloatingIndicatorState()
+    state.isRecording = false
+    state.isProcessing = true
+    state.recordingDuration = 12.7
+    state.audioLevel = 0.0
+
+    return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
         .background(Color.gray.opacity(0.3))
 }

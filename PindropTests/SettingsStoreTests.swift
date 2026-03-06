@@ -122,6 +122,38 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertNil(store.apiKey)
     }
 
+    func testSelectedFloatingIndicatorTypeBridgesStoredValue() {
+        settingsStore.selectedFloatingIndicatorType = .notch
+
+        XCTAssertEqual(settingsStore.floatingIndicatorType, FloatingIndicatorType.notch.rawValue)
+        XCTAssertEqual(settingsStore.selectedFloatingIndicatorType, .notch)
+    }
+
+    func testSelectedFloatingIndicatorTypeFallsBackToPillForUnknownValue() {
+        settingsStore.floatingIndicatorType = "unknown"
+
+        XCTAssertEqual(settingsStore.selectedFloatingIndicatorType, .pill)
+    }
+
+    func testPillFloatingIndicatorOffsetBridgesStoredValue() {
+        settingsStore.pillFloatingIndicatorOffset = CGSize(width: 42, height: -18)
+
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffsetX, 42)
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffsetY, -18)
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.width, 42)
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.height, -18)
+    }
+
+    func testSwitchingAwayFromPillResetsStoredPillOffset() {
+        settingsStore.selectedFloatingIndicatorType = .pill
+        settingsStore.pillFloatingIndicatorOffset = CGSize(width: 36, height: 12)
+
+        settingsStore.selectedFloatingIndicatorType = .bubble
+
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.width, 0)
+        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.height, 0)
+    }
+
     func testVibeDefaultsAndRuntimeState() {
         let store = SettingsStore()
 

@@ -82,7 +82,7 @@ struct SettingsObservationSnapshot: Equatable {
     let outputMode: String
     let selectedInputDeviceUID: String
     let floatingIndicatorEnabled: Bool
-    let floatingIndicatorType: String
+    let floatingIndicatorType: FloatingIndicatorType
     let aiEnhancementEnabled: Bool
     let enableUIContext: Bool
     let vibeLiveSessionEnabled: Bool
@@ -104,9 +104,12 @@ final class AppCoordinator {
         case hotkeyPushToTalk = "hotkey-push-to-talk"
         case hotkeyQuickCapturePTT = "hotkey-quick-capture-ptt"
         case hotkeyQuickCaptureToggle = "hotkey-quick-capture-toggle"
+        case floatingIndicatorStart = "floating-indicator-start"
         case floatingIndicatorStop = "floating-indicator-stop"
         case pillIndicatorStop = "pill-indicator-stop"
         case pillIndicatorStart = "pill-indicator-start"
+        case bubbleIndicatorStart = "bubble-indicator-start"
+        case bubbleIndicatorStop = "bubble-indicator-stop"
     }
 
     // MARK: - Services
@@ -133,8 +136,11 @@ final class AppCoordinator {
     // MARK: - UI Controllers
     
     let statusBarController: StatusBarController
+    let floatingIndicatorState: FloatingIndicatorState
     let floatingIndicatorController: FloatingIndicatorController
     let pillFloatingIndicatorController: PillFloatingIndicatorController
+    let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
+    let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let onboardingController: OnboardingWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
@@ -175,13 +181,9 @@ final class AppCoordinator {
     private var lastObservedSettingsSnapshot: SettingsObservationSnapshot?
     private var hasRequestedAccessibilityPermissionThisLaunch = false
     private var hasShownAccessibilityFallbackAlertThisLaunch = false
-    private var pillIndicatorHiddenUntil: Date?
-    private var pillIndicatorHiddenTask: Task<Void, Never>?
-
-    private enum ActiveFloatingIndicatorStyle {
-        case notch
-        case pill
-    }
+    private var floatingIndicatorHiddenUntil: Date?
+    private var floatingIndicatorHiddenTask: Task<Void, Never>?
+    private var activeFloatingIndicatorType: FloatingIndicatorType?
 
     // MARK: - Dictionary Replacements
     
@@ -241,8 +243,18 @@ final class AppCoordinator {
             settingsStore: settingsStore
         )
         self.statusBarController.setModelContainer(modelContainer)
-        self.floatingIndicatorController = FloatingIndicatorController()
-        self.pillFloatingIndicatorController = PillFloatingIndicatorController()
+        self.floatingIndicatorState = FloatingIndicatorState()
+        self.floatingIndicatorController = FloatingIndicatorController(state: floatingIndicatorState)
+        self.pillFloatingIndicatorController = PillFloatingIndicatorController(
+            state: floatingIndicatorState,
+            settingsStore: settingsStore
+        )
+        self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(state: floatingIndicatorState)
+        self.floatingIndicatorPresenters = [
+            .notch: floatingIndicatorController,
+            .pill: pillFloatingIndicatorController,
+            .bubble: caretBubbleFloatingIndicatorController
+        ]
         self.onboardingController = OnboardingWindowController()
         let splashState = SplashScreenState()
         self.splashController = SplashWindowController(state: splashState)
@@ -332,67 +344,61 @@ final class AppCoordinator {
         self.statusBarController.setMainWindowController(mainWindowController)
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
-            self?.floatingIndicatorController.updateAudioLevel(level)
-            self?.pillFloatingIndicatorController.updateAudioLevel(level)
+            self?.floatingIndicatorState.updateAudioLevel(level)
         }
-        
-        self.floatingIndicatorController.onStopRecording = { [weak self] in
-            Task { @MainActor in
-                await self?.handleToggleRecording(source: .floatingIndicatorStop)
+
+        let floatingIndicatorActions = FloatingIndicatorActions(
+            onStartRecording: { [weak self] type in
+                Task { @MainActor in
+                    await self?.handleToggleRecording(source: self?.recordingTriggerSourceForIndicatorStart(type) ?? .floatingIndicatorStart)
+                }
+            },
+            onStopRecording: { [weak self] type in
+                Task { @MainActor in
+                    await self?.handleToggleRecording(source: self?.recordingTriggerSourceForIndicatorStop(type) ?? .floatingIndicatorStop)
+                }
+            },
+            onCancelRecording: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleCancelOperation()
+                }
+            },
+            onHideForOneHour: { [weak self] in
+                self?.handleHideFloatingIndicatorForOneHour()
+            },
+            onReportIssue: { [weak self] in
+                self?.handleReportIssue()
+            },
+            onGoToSettings: { [weak self] in
+                self?.statusBarController.showSettings(tab: .general)
+            },
+            onViewTranscriptHistory: { [weak self] in
+                self?.handleOpenHistory()
+            },
+            onPasteLastTranscript: { [weak self] in
+                await self?.handlePasteLastTranscript()
+            },
+            onSelectInputDeviceUID: { [weak self] uid in
+                self?.handleSelectInputDeviceUID(uid)
+            },
+            availableInputDevicesProvider: {
+                AudioDeviceManager.inputDevices().map { (uid: $0.uid, displayName: $0.displayName) }
+            },
+            selectedInputDeviceUIDProvider: { [weak self] in
+                self?.settingsStore.selectedInputDeviceUID ?? ""
+            },
+            anchorProvider: { [weak self] in
+                self?.contextEngineService.captureFocusedElementAnchorRect()
             }
-        }
-        
-        self.pillFloatingIndicatorController.onStopRecording = { [weak self] in
-            Task { @MainActor in
-                await self?.handleToggleRecording(source: .pillIndicatorStop)
-            }
-        }
+        )
 
-        self.pillFloatingIndicatorController.onCancelRecording = { [weak self] in
-            Task { @MainActor in
-                await self?.handleCancelOperation()
-            }
+        for presenter in self.floatingIndicatorPresenters.values {
+            presenter.configure(actions: floatingIndicatorActions)
         }
-
-        self.pillFloatingIndicatorController.onStartRecording = { [weak self] in
-            Task { @MainActor in
-                await self?.handleToggleRecording(source: .pillIndicatorStart)
-            }
-        }
-
-        self.pillFloatingIndicatorController.onHideForOneHour = { [weak self] in
-            self?.handleHidePillIndicatorForOneHour()
-        }
-
-        self.pillFloatingIndicatorController.onReportIssue = { [weak self] in
-            self?.handleReportIssue()
-        }
-
-        self.pillFloatingIndicatorController.onGoToSettings = { [weak self] in
-            self?.statusBarController.showSettings(tab: .general)
-        }
-
-        self.pillFloatingIndicatorController.onViewTranscriptHistory = { [weak self] in
-            self?.handleOpenHistory()
-        }
-
-        self.pillFloatingIndicatorController.onPasteLastTranscript = { [weak self] in
-            await self?.handlePasteLastTranscript()
-        }
-
-        self.pillFloatingIndicatorController.onSelectInputDeviceUID = { [weak self] uid in
-            self?.handleSelectInputDeviceUID(uid)
-        }
-
-        self.pillFloatingIndicatorController.availableInputDevicesProvider = {
-            AudioDeviceManager.inputDevices().map { (uid: $0.uid, displayName: $0.displayName) }
-        }
-
-        self.pillFloatingIndicatorController.selectedInputDeviceUIDProvider = { [weak self] in
-            self?.settingsStore.selectedInputDeviceUID ?? ""
-        }
-
-        self.pillFloatingIndicatorController.updateStartRecordingHotkey(settingsStore.toggleHotkey)
+        self.floatingIndicatorState.updateHotkeys(
+            toggleHotkey: settingsStore.toggleHotkey,
+            pushToTalkHotkey: settingsStore.pushToTalkHotkey
+        )
 
         self.lastObservedSettingsSnapshot = currentSettingsObservationSnapshot()
         if self.enableSystemHooks {
@@ -945,7 +951,7 @@ final class AppCoordinator {
             outputMode: settingsStore.outputMode,
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
-            floatingIndicatorType: settingsStore.floatingIndicatorType,
+            floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
             aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
             enableUIContext: settingsStore.enableUIContext,
             vibeLiveSessionEnabled: settingsStore.vibeLiveSessionEnabled,
@@ -1004,12 +1010,19 @@ final class AppCoordinator {
 
                     if previousSnapshot.floatingIndicatorEnabled != snapshot.floatingIndicatorEnabled
                         || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                        if (!previousSnapshot.floatingIndicatorEnabled && snapshot.floatingIndicatorEnabled)
+                            || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                            self.clearFloatingIndicatorTemporaryHiddenState()
+                        }
                         self.updateFloatingIndicatorVisibility()
                     }
 
                     if previousSnapshot.hotkeys != snapshot.hotkeys {
                         self.registerHotkeysFromSettings()
-                        self.pillFloatingIndicatorController.updateStartRecordingHotkey(self.settingsStore.toggleHotkey)
+                        self.floatingIndicatorState.updateHotkeys(
+                            toggleHotkey: self.settingsStore.toggleHotkey,
+                            pushToTalkHotkey: self.settingsStore.pushToTalkHotkey
+                        )
                     }
 
                     self.statusBarController.updateDynamicItems()
@@ -1032,76 +1045,98 @@ final class AppCoordinator {
     private func updateFloatingIndicatorVisibility() {
         guard !isRecording && !isProcessing else { return }
 
-        guard !isPillIndicatorTemporarilyHidden() else {
-            pillFloatingIndicatorController.hide()
+        guard !isFloatingIndicatorTemporarilyHidden() else {
+            hideAllFloatingIndicators()
             return
         }
 
-        if settingsStore.floatingIndicatorEnabled &&
-           settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue {
-            pillFloatingIndicatorController.showTab()
-        } else {
-            pillFloatingIndicatorController.hide()
+        guard settingsStore.floatingIndicatorEnabled else {
+            hideAllFloatingIndicators()
+            return
+        }
+
+        let selectedType = configuredFloatingIndicatorType()
+        hideAllFloatingIndicators(except: selectedType)
+        floatingIndicatorPresenters[selectedType]?.showIdleIndicator()
+    }
+
+    private func configuredFloatingIndicatorType() -> FloatingIndicatorType {
+        settingsStore.selectedFloatingIndicatorType
+    }
+
+    private func recordingTriggerSourceForIndicatorStart(_ type: FloatingIndicatorType) -> RecordingTriggerSource {
+        switch type {
+        case .pill:
+            .pillIndicatorStart
+        case .notch:
+            .floatingIndicatorStart
+        case .bubble:
+            .bubbleIndicatorStart
         }
     }
 
-    private func configuredFloatingIndicatorStyle() -> ActiveFloatingIndicatorStyle {
-        settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue ? .pill : .notch
+    private func recordingTriggerSourceForIndicatorStop(_ type: FloatingIndicatorType) -> RecordingTriggerSource {
+        switch type {
+        case .pill:
+            .pillIndicatorStop
+        case .notch:
+            .floatingIndicatorStop
+        case .bubble:
+            .bubbleIndicatorStop
+        }
     }
 
-    private func activeFloatingIndicatorStyle() -> ActiveFloatingIndicatorStyle? {
-        if pillFloatingIndicatorController.isRecording || pillFloatingIndicatorController.isProcessing {
-            return .pill
+    private func hideAllFloatingIndicators(except selectedType: FloatingIndicatorType? = nil) {
+        for (type, presenter) in floatingIndicatorPresenters where type != selectedType {
+            presenter.hide()
         }
-
-        if floatingIndicatorController.isRecording || floatingIndicatorController.isProcessing {
-            return .notch
-        }
-
-        return nil
     }
 
     private func startRecordingIndicatorSession() {
         guard settingsStore.floatingIndicatorEnabled else { return }
 
-        switch configuredFloatingIndicatorStyle() {
-        case .pill:
-            pillFloatingIndicatorController.expandForRecording()
-        case .notch:
-            floatingIndicatorController.startRecording()
-        }
+        let selectedType = configuredFloatingIndicatorType()
+        activeFloatingIndicatorType = selectedType
+        hideAllFloatingIndicators(except: selectedType)
+        floatingIndicatorPresenters[selectedType]?.startRecording()
     }
 
     private func transitionRecordingIndicatorToProcessing() {
         guard settingsStore.floatingIndicatorEnabled else {
-            floatingIndicatorController.finishProcessing()
-            pillFloatingIndicatorController.finishProcessing()
+            finishIndicatorSession()
             return
         }
 
-        switch activeFloatingIndicatorStyle() ?? configuredFloatingIndicatorStyle() {
-        case .pill:
-            pillFloatingIndicatorController.stopRecording()
-        case .notch:
-            floatingIndicatorController.stopRecording()
-        }
+        let activeType = activeFloatingIndicatorType ?? configuredFloatingIndicatorType()
+        floatingIndicatorPresenters[activeType]?.transitionToProcessing()
     }
 
     private func finishIndicatorSession() {
-        floatingIndicatorController.finishProcessing()
-        pillFloatingIndicatorController.finishProcessing()
+        for presenter in floatingIndicatorPresenters.values {
+            presenter.finishProcessing()
+        }
+        activeFloatingIndicatorType = nil
 
-        guard settingsStore.floatingIndicatorEnabled else { return }
+        guard settingsStore.floatingIndicatorEnabled else {
+            hideAllFloatingIndicators()
+            return
+        }
         updateFloatingIndicatorVisibility()
     }
 
-    private func isPillIndicatorTemporarilyHidden() -> Bool {
-        guard let hiddenUntil = pillIndicatorHiddenUntil else { return false }
+    private func isFloatingIndicatorTemporarilyHidden() -> Bool {
+        guard let hiddenUntil = floatingIndicatorHiddenUntil else { return false }
         if Date() >= hiddenUntil {
-            pillIndicatorHiddenUntil = nil
+            floatingIndicatorHiddenUntil = nil
             return false
         }
         return true
+    }
+
+    private func clearFloatingIndicatorTemporaryHiddenState() {
+        floatingIndicatorHiddenUntil = nil
+        floatingIndicatorHiddenTask?.cancel()
+        floatingIndicatorHiddenTask = nil
     }
 
     // MARK: - Live Session Context
@@ -2735,12 +2770,12 @@ final class AppCoordinator {
             threshold: doubleEscapeThreshold
         ) {
             lastEscapeTime = nil
-            floatingIndicatorController.clearEscapePrimed()
+            floatingIndicatorState.clearEscapePrimed()
             cancelCurrentOperation()
         } else {
             lastEscapeTime = now
             if settingsStore.floatingIndicatorEnabled {
-                floatingIndicatorController.showEscapePrimed()
+                floatingIndicatorState.showEscapePrimed()
             }
         }
     }
@@ -2798,16 +2833,16 @@ final class AppCoordinator {
         finishIndicatorSession()
     }
 
-    // MARK: - Pill Context Menu Actions
+    // MARK: - Floating Indicator Actions
 
-    private func handleHidePillIndicatorForOneHour() {
+    private func handleHideFloatingIndicatorForOneHour() {
         let hideDuration: TimeInterval = 60 * 60
-        pillIndicatorHiddenUntil = Date().addingTimeInterval(hideDuration)
+        floatingIndicatorHiddenUntil = Date().addingTimeInterval(hideDuration)
 
-        pillFloatingIndicatorController.hide()
+        hideAllFloatingIndicators()
 
-        pillIndicatorHiddenTask?.cancel()
-        pillIndicatorHiddenTask = Task { [weak self] in
+        floatingIndicatorHiddenTask?.cancel()
+        floatingIndicatorHiddenTask = Task { [weak self] in
             do {
                 try await Task.sleep(nanoseconds: UInt64(hideDuration * 1_000_000_000))
             } catch {
@@ -2816,12 +2851,12 @@ final class AppCoordinator {
 
             await MainActor.run {
                 guard let self = self else { return }
-                self.pillIndicatorHiddenUntil = nil
+                self.floatingIndicatorHiddenUntil = nil
                 self.updateFloatingIndicatorVisibility()
             }
         }
 
-        Log.ui.info("Pill indicator hidden for one hour")
+        Log.ui.info("Floating indicator hidden for one hour")
     }
 
     private func handleReportIssue() {
@@ -3038,9 +3073,7 @@ final class AppCoordinator {
         settingsStore.floatingIndicatorEnabled.toggle()
 
         if settingsStore.floatingIndicatorEnabled {
-            pillIndicatorHiddenUntil = nil
-            pillIndicatorHiddenTask?.cancel()
-            pillIndicatorHiddenTask = nil
+            clearFloatingIndicatorTemporaryHiddenState()
         }
 
         let status = settingsStore.floatingIndicatorEnabled ? "enabled" : "disabled"
@@ -3156,8 +3189,8 @@ final class AppCoordinator {
     }
 
     func cleanup() {
-        pillIndicatorHiddenTask?.cancel()
-        pillIndicatorHiddenTask = nil
+        floatingIndicatorHiddenTask?.cancel()
+        floatingIndicatorHiddenTask = nil
 
         if let eventTap = escapeEventTap {
             CGEvent.tapEnable(tap: eventTap, enable: false)

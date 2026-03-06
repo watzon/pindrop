@@ -55,6 +55,8 @@ final class SettingsStore: ObservableObject {
          "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
       static let floatingIndicatorEnabled = true
       static let floatingIndicatorType = FloatingIndicatorType.pill.rawValue
+      static let pillFloatingIndicatorOffsetX = 0.0
+      static let pillFloatingIndicatorOffsetY = 0.0
       static let noteEnhancementPrompt = """
          You are a note formatting assistant. Transform the transcribed text into a well-structured note.
 
@@ -150,6 +152,10 @@ final class SettingsStore: ObservableObject {
    var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore)
    var floatingIndicatorType: String = Defaults.floatingIndicatorType
+   @AppStorage("pillFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
+   var pillFloatingIndicatorOffsetX: Double = Defaults.pillFloatingIndicatorOffsetX
+   @AppStorage("pillFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
+   var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
    @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool =
       false
    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore)
@@ -222,6 +228,38 @@ final class SettingsStore: ObservableObject {
          return provider
       }
       return .openai
+   }
+
+   var selectedFloatingIndicatorType: FloatingIndicatorType {
+      get { FloatingIndicatorType(rawValue: floatingIndicatorType) ?? .pill }
+      set {
+         let previousValue = selectedFloatingIndicatorType
+         floatingIndicatorType = newValue.rawValue
+
+         if previousValue == .pill, newValue != .pill {
+            resetPillFloatingIndicatorOffset()
+         }
+      }
+   }
+
+   var pillFloatingIndicatorOffset: CGSize {
+      get {
+         CGSize(
+            width: pillFloatingIndicatorOffsetX,
+            height: pillFloatingIndicatorOffsetY
+         )
+      }
+      set {
+         pillFloatingIndicatorOffsetX = newValue.width
+         pillFloatingIndicatorOffsetY = newValue.height
+      }
+   }
+
+   func resetPillFloatingIndicatorOffset() {
+      pillFloatingIndicatorOffset = CGSize(
+         width: Defaults.pillFloatingIndicatorOffsetX,
+         height: Defaults.pillFloatingIndicatorOffsetY
+      )
    }
 
    private func provider(for endpoint: String?) -> AIProvider? {
@@ -342,6 +380,7 @@ final class SettingsStore: ObservableObject {
       aiProvider = AIProvider.openai.rawValue
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
       floatingIndicatorType = Defaults.floatingIndicatorType
+      resetPillFloatingIndicatorOffset()
       pauseMediaOnRecording = false
       muteAudioDuringRecording = false
       launchAtLogin = false

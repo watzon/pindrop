@@ -7,7 +7,6 @@
 
 import SwiftUI
 import AppKit
-import Combine
 
 private final class PillHostingView: NSHostingView<PillIndicatorView> {
     var onRightMouseDown: ((NSEvent) -> Void)?
@@ -26,7 +25,10 @@ private final class PillHostingView: NSHostingView<PillIndicatorView> {
 }
 
 @MainActor
-final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuDelegate {
+final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuDelegate, FloatingIndicatorPresenting {
+    let type: FloatingIndicatorType = .pill
+    let state: FloatingIndicatorState
+    private let settingsStore: SettingsStore
 
     private enum LayoutState {
         case compact
@@ -60,57 +62,48 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private var microphoneMenu: NSMenu?
     private var microphoneItem: NSMenuItem?
 
-    @Published var isRecording: Bool = false
-    @Published var recordingDuration: TimeInterval = 0
-    @Published var audioLevel: Float = 0.0
-    @Published var isProcessing: Bool = false
     @Published var isHovered: Bool = false
     @Published var isHoverTooltipVisible: Bool = false
-    @Published var toggleRecordingHotkey: String = ""
-    @Published var pushToTalkHotkey: String = ""
-
-    private var recordingStartTime: Date?
-    private var durationTimer: Timer?
+    @Published private(set) var isDragging = false
     private var screenTrackingTimer: Timer?
     private var hoverIntentTimer: Timer?
     private var hoverTooltipTimer: Timer?
     private var lastScreen: NSScreen?
     private var lastHoverContactAt: Date = .distantPast
     private var isContextMenuOpen = false
+    private var dragStartMouseLocation: CGPoint?
+    private var dragStartOffset: CGSize = .zero
+    private var dragOffset: CGSize = .zero
 
-    var onStartRecording: (() -> Void)?
-    var onStopRecording: (() -> Void)?
-    var onCancelRecording: (() -> Void)?
-    var onHideForOneHour: (() -> Void)?
-    var onReportIssue: (() -> Void)?
-    var onGoToSettings: (() -> Void)?
-    var onViewTranscriptHistory: (() -> Void)?
-    var onPasteLastTranscript: (() async -> Void)?
-    var onSelectInputDeviceUID: ((String) -> Void)?
-
-    var availableInputDevicesProvider: (() -> [(uid: String, displayName: String)])?
-    var selectedInputDeviceUIDProvider: (() -> String)?
+    private var actions = FloatingIndicatorActions()
 
     private var isVisible: Bool = false
 
-    override init() {
+    init(state: FloatingIndicatorState, settingsStore: SettingsStore) {
+        self.state = state
+        self.settingsStore = settingsStore
+        self.dragOffset = settingsStore.pillFloatingIndicatorOffset
         super.init()
         contextMenu = makeContextMenu()
     }
 
+    func configure(actions: FloatingIndicatorActions) {
+        self.actions = actions
+    }
+
     private var layoutState: LayoutState {
-        if isRecording {
+        if state.isRecording {
             return .recording
         }
 
-        if isProcessing {
+        if state.isProcessing {
             return .processing
         }
 
         return isHovered ? .hover : .compact
     }
 
-    func showTab() {
+    func showIdleIndicator() {
         guard !isVisible else {
             refreshLayout(animated: false)
             panel?.orderFrontRegardless()
@@ -125,6 +118,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         let contentView = PillIndicatorView(
             controller: self,
+            state: self.state,
             isCompact: true
         )
         let hostingView = makeHostingView(for: contentView, size: size(for: state))
@@ -183,7 +177,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         hoverTooltipTimer = Timer.scheduledTimer(withTimeInterval: LayoutMetrics.hoverTooltipDelay, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self else { return }
-                guard self.isHovered, !self.isRecording, !self.isProcessing, !self.isContextMenuOpen else { return }
+                guard self.isHovered, !self.state.isRecording, !self.state.isProcessing, !self.isContextMenuOpen else { return }
                 self.isHoverTooltipVisible = true
             }
         }
@@ -275,8 +269,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         microphoneMenu.removeAllItems()
 
-        let selectedUID = selectedInputDeviceUIDProvider?() ?? ""
-        let availableDevices = availableInputDevicesProvider?() ?? []
+        let selectedUID = actions.selectedInputDeviceUIDProvider?() ?? ""
+        let availableDevices = actions.availableInputDevicesProvider?() ?? []
 
         let systemDefaultItem = NSMenuItem(
             title: "System Default",
@@ -318,39 +312,39 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     @objc
     private func handleHideForOneHourMenuItem() {
-        onHideForOneHour?()
+        actions.onHideForOneHour?()
     }
 
     @objc
     private func handleReportIssueMenuItem() {
-        onReportIssue?()
+        actions.onReportIssue?()
     }
 
     @objc
     private func handleGoToSettingsMenuItem() {
-        onGoToSettings?()
+        actions.onGoToSettings?()
     }
 
     @objc
     private func handleViewTranscriptHistoryMenuItem() {
-        onViewTranscriptHistory?()
+        actions.onViewTranscriptHistory?()
     }
 
     @objc
     private func handlePasteLastTranscriptMenuItem() {
         Task { @MainActor in
-            await onPasteLastTranscript?()
+            await actions.onPasteLastTranscript?()
         }
     }
 
     @objc
     private func handleSelectInputDeviceMenuItem(_ sender: NSMenuItem) {
         guard let uid = sender.representedObject as? String else { return }
-        onSelectInputDeviceUID?(uid)
+        actions.onSelectInputDeviceUID?(uid)
     }
 
     private func evaluateHoverIntent() {
-        guard isVisible, !isRecording, !isProcessing else { return }
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
         guard let panel = panel else { return }
 
         let mouseLocation = NSEvent.mouseLocation
@@ -402,7 +396,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func handleRightMouseDown(_ event: NSEvent) {
-        guard isVisible, !isRecording, !isProcessing else { return }
+        guard isVisible, !state.isRecording, !state.isProcessing else { return }
         guard let hostingView = hostingView, let contextMenu = contextMenu else { return }
 
         setHoverState(true)
@@ -447,7 +441,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func checkAndUpdateScreenPosition() {
-        guard isVisible, !isRecording, !isProcessing else { return }
+        guard isVisible, !state.isRecording, !state.isProcessing else { return }
         guard let currentScreen = NSScreen.main, let panel = panel else { return }
 
         if lastScreen !== currentScreen {
@@ -458,7 +452,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     func setHoverState(_ hovering: Bool) {
-        guard isVisible, !isRecording, !isProcessing else { return }
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
         guard isHovered != hovering else { return }
 
         isHovered = hovering
@@ -477,53 +471,31 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }
     }
 
-    func updateTooltipHotkeys(toggleHotkey: String, pushToTalkHotkey: String) {
-        toggleRecordingHotkey = normalizeHotkey(toggleHotkey)
-        self.pushToTalkHotkey = normalizeHotkey(pushToTalkHotkey)
-    }
-
-    func updateStartRecordingHotkey(_ hotkey: String) {
-        let storedPushToTalkHotkey = UserDefaults.standard.string(forKey: "pushToTalkHotkey") ?? ""
-        updateTooltipHotkeys(toggleHotkey: hotkey, pushToTalkHotkey: storedPushToTalkHotkey)
-    }
-
-    private func normalizeHotkey(_ hotkey: String) -> String {
-        hotkey.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func expandForRecording() {
+    func startRecording() {
         isHovered = false
         hideHoverTooltip()
         lastHoverContactAt = .distantPast
-        isRecording = true
-        isProcessing = false
-        recordingStartTime = Date()
-        recordingDuration = 0
-        startDurationTimer()
+        state.startRecording()
 
         if !isVisible {
-            showTab()
+            showIdleIndicator()
             return
         }
 
         refreshLayout(animated: true, duration: 0.24)
     }
 
-    func stopRecording() {
-        isRecording = false
-        isProcessing = true
+    func transitionToProcessing() {
+        state.transitionToProcessing()
         hideHoverTooltip()
         lastHoverContactAt = .distantPast
-        stopDurationTimer()
         refreshLayout(animated: true, duration: 0.2)
     }
 
     func finishProcessing() {
-        isRecording = false
-        isProcessing = false
+        state.finishSession()
         isHovered = false
         hideHoverTooltip()
-        audioLevel = 0
         lastHoverContactAt = .distantPast
         refreshLayout(animated: true, duration: 0.22)
     }
@@ -532,14 +504,13 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         guard let panel = panel else { return }
         let localPanel = panel
 
-        stopDurationTimer()
         stopScreenTracking()
         stopHoverIntentMonitoring()
         hideHoverTooltip()
         isVisible = false
+        isDragging = false
+        dragStartMouseLocation = nil
         isHovered = false
-        isRecording = false
-        isProcessing = false
         isContextMenuOpen = false
 
         NSAnimationContext.runAnimationGroup({ context in
@@ -555,21 +526,51 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         })
     }
 
-    func updateAudioLevel(_ level: Float) {
-        let smoothed = audioLevel * 0.3 + level * 0.7
-        audioLevel = min(1.0, max(0.0, smoothed))
-    }
-
     func handleStopButtonTapped() {
-        onStopRecording?()
+        actions.onStopRecording?(type)
     }
 
     func handleCancelButtonTapped() {
-        onCancelRecording?()
+        actions.onCancelRecording?()
     }
 
     func handleCompactTapped() {
-        onStartRecording?()
+        actions.onStartRecording?(type)
+    }
+
+    func beginDrag() {
+        guard isVisible, !isContextMenuOpen else { return }
+        guard !isDragging else { return }
+
+        isDragging = true
+        dragStartMouseLocation = NSEvent.mouseLocation
+        dragStartOffset = settingsStore.pillFloatingIndicatorOffset
+        dragOffset = dragStartOffset
+        isHovered = false
+        hideHoverTooltip()
+        refreshLayout(animated: false)
+    }
+
+    func updateDrag(translation: CGSize) {
+        guard isDragging else { return }
+        guard let dragStartMouseLocation else { return }
+
+        dragOffset = CGSize(
+            width: dragStartOffset.width + (NSEvent.mouseLocation.x - dragStartMouseLocation.x),
+            height: dragStartOffset.height + (NSEvent.mouseLocation.y - dragStartMouseLocation.y)
+        )
+        refreshLayout(animated: false)
+    }
+
+    func endDrag(translation: CGSize) {
+        guard isDragging else { return }
+
+        updateDrag(translation: translation)
+        settingsStore.pillFloatingIndicatorOffset = dragOffset
+        dragStartOffset = dragOffset
+        isDragging = false
+        dragStartMouseLocation = nil
+        refreshLayout(animated: false)
     }
 
     private func createPanel(contentRect: NSRect) -> NSPanel {
@@ -623,16 +624,29 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func frame(for screen: NSScreen, state: LayoutState) -> NSRect {
         let panelSize = size(for: state)
         let screenFrame = screen.visibleFrame
+        let offset = isDragging ? dragOffset : settingsStore.pillFloatingIndicatorOffset
 
-        let xPosition = screenFrame.midX - (panelSize.width / 2)
-        let yPosition = screenFrame.minY + bottomInset(for: state)
+        let xPosition = screenFrame.midX - (panelSize.width / 2) + offset.width
+        let yPosition = screenFrame.minY + bottomInset(for: state) + offset.height
 
         return NSRect(
-            x: xPosition,
-            y: yPosition,
+            x: clamp(
+                xPosition,
+                min: screenFrame.minX,
+                max: screenFrame.maxX - panelSize.width
+            ),
+            y: clamp(
+                yPosition,
+                min: screenFrame.minY,
+                max: screenFrame.maxY - panelSize.height
+            ),
             width: panelSize.width,
             height: panelSize.height
         )
+    }
+
+    private func clamp(_ value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
+        Swift.max(min, Swift.min(max, value))
     }
 
     private func refreshLayout(animated: Bool, duration: TimeInterval = 0.22) {
@@ -658,33 +672,25 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
                 applyContentSize()
             }
         } else {
-            panel.setFrame(targetFrame, display: false)
+            if panel.frame.size == targetFrame.size {
+                panel.setFrameOrigin(targetFrame.origin)
+            } else {
+                panel.setFrame(targetFrame, display: false)
+            }
             applyContentSize()
         }
     }
 
-    private func startDurationTimer() {
-        durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self, let startTime = self.recordingStartTime else { return }
-                self.recordingDuration = Date().timeIntervalSince(startTime)
-            }
-        }
-    }
-
-    private func stopDurationTimer() {
-        durationTimer?.invalidate()
-        durationTimer = nil
-    }
 }
 
 struct PillIndicatorView: View {
     @ObservedObject var controller: PillFloatingIndicatorController
+    @ObservedObject var state: FloatingIndicatorState
     let isCompact: Bool
     @Namespace private var pillShellNamespace
 
     private var showsExpandedState: Bool {
-        controller.isRecording || controller.isProcessing || !isCompact
+        state.isRecording || state.isProcessing || !isCompact
     }
 
     var body: some View {
@@ -696,6 +702,18 @@ struct PillIndicatorView: View {
             }
         }
         .animation(.easeInOut(duration: 0.18), value: showsExpandedState)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 4)
+                .onChanged { _ in
+                    if !controller.isDragging {
+                        controller.beginDrag()
+                    }
+                    controller.updateDrag(translation: .zero)
+                }
+                .onEnded { _ in
+                    controller.endDrag(translation: .zero)
+                }
+        )
     }
 
     private var compactView: some View {
@@ -710,8 +728,8 @@ struct PillIndicatorView: View {
 
             if controller.isHoverTooltipVisible {
                 PillHoverTooltip(
-                    toggleHotkey: controller.toggleRecordingHotkey,
-                    pushToTalkHotkey: controller.pushToTalkHotkey
+                    toggleHotkey: state.toggleRecordingHotkey,
+                    pushToTalkHotkey: state.pushToTalkHotkey
                 )
                     .offset(y: -24)
                     .transition(
@@ -733,7 +751,7 @@ struct PillIndicatorView: View {
         ZStack {
             expandedPillShell
 
-            if controller.isRecording {
+            if state.isRecording {
                 HStack(spacing: 8) {
                     Button {
                         controller.handleCancelButtonTapped()
@@ -750,9 +768,10 @@ struct PillIndicatorView: View {
                     }
                     .buttonStyle(.plain)
 
-                    PillWaveformView(
-                        audioLevel: controller.audioLevel,
-                        isRecording: controller.isRecording
+                    FloatingIndicatorWaveformView(
+                        audioLevel: state.audioLevel,
+                        isRecording: state.isRecording,
+                        style: .pill
                     )
                     .frame(width: 46, height: 14)
 
@@ -980,80 +999,68 @@ private struct TooltipPointer: Shape {
     }
 }
 
-struct PillWaveformView: View {
-    let audioLevel: Float
-    let isRecording: Bool
-
-    private let barCount = 5
-    private let barWidth: CGFloat = 2
-    private let barSpacing: CGFloat = 2
-    private let centerScale: [CGFloat] = [0.55, 0.78, 1.0, 0.78, 0.55]
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 0.05)) { timeline in
-            HStack(spacing: barSpacing) {
-                ForEach(0..<barCount, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(Color.white.opacity(isRecording ? 0.95 : 0.55))
-                        .frame(width: barWidth, height: barHeight(for: index, date: timeline.date))
-                }
-            }
-        }
-    }
-
-    private func barHeight(for index: Int, date: Date) -> CGFloat {
-        guard isRecording else { return 3 }
-
-        let time = date.timeIntervalSinceReferenceDate
-        let phase = Double(index) * 0.85
-
-        let waveA = sin(time * 6.8 + phase) * 0.55
-        let waveB = sin(time * 4.1 + phase * 1.7) * 0.35
-        let combinedWave = (waveA + waveB + 1.9) / 2.8
-
-        let amplifiedLevel = min(1.0, max(0.0, CGFloat(audioLevel) * 5.0))
-        let level = 0.12 + (amplifiedLevel * 0.88)
-        let baseHeight = (4 + combinedWave * 10) * level
-
-        let height = baseHeight * centerScale[index]
-        return max(3, min(14, height))
-    }
-}
-
 #Preview("Pill Compact") {
-    let controller = PillFloatingIndicatorController()
-    return PillIndicatorView(controller: controller, isCompact: true)
-        .frame(width: 332, height: 68)
-        .padding()
-        .background(Color.black.opacity(0.1))
+    pillCompactPreview
 }
 
 #Preview("Pill Hover") {
-    let controller = PillFloatingIndicatorController()
-    controller.isHovered = true
-    controller.isHoverTooltipVisible = true
-    controller.toggleRecordingHotkey = "⌥Space"
-    return PillIndicatorView(controller: controller, isCompact: true)
+    pillHoverPreview
+}
+
+#Preview("Pill Expanded - Recording") {
+    pillRecordingPreview
+}
+
+#Preview("Pill Expanded - Processing") {
+    pillProcessingPreview
+}
+
+@MainActor
+private var pillCompactPreview: some View {
+    let state = FloatingIndicatorState()
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+
+    return PillIndicatorView(controller: controller, state: state, isCompact: true)
         .frame(width: 332, height: 68)
         .padding()
         .background(Color.black.opacity(0.1))
 }
 
-#Preview("Pill Expanded - Recording") {
-    let controller = PillFloatingIndicatorController()
-    controller.isRecording = true
-    controller.audioLevel = 0.7
-    return PillIndicatorView(controller: controller, isCompact: false)
+@MainActor
+private var pillHoverPreview: some View {
+    let state = FloatingIndicatorState()
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    controller.isHovered = true
+    controller.isHoverTooltipVisible = true
+    state.toggleRecordingHotkey = "⌥Space"
+
+    return PillIndicatorView(controller: controller, state: state, isCompact: true)
+        .frame(width: 332, height: 68)
+        .padding()
+        .background(Color.black.opacity(0.1))
+}
+
+@MainActor
+private var pillRecordingPreview: some View {
+    let state = FloatingIndicatorState()
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    state.isRecording = true
+    state.audioLevel = 0.7
+
+    return PillIndicatorView(controller: controller, state: state, isCompact: false)
         .frame(width: 124, height: 30)
         .padding()
         .background(Color.black.opacity(0.1))
 }
 
-#Preview("Pill Expanded - Processing") {
-    let controller = PillFloatingIndicatorController()
-    controller.isRecording = false
-    controller.isProcessing = true
-    return PillIndicatorView(controller: controller, isCompact: false)
+@MainActor
+private var pillProcessingPreview: some View {
+    let state = FloatingIndicatorState()
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    state.isRecording = false
+    state.isProcessing = true
+
+    return PillIndicatorView(controller: controller, state: state, isCompact: false)
         .frame(width: 124, height: 30)
         .padding()
         .background(Color.black.opacity(0.1))

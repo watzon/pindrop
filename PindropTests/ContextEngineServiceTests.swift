@@ -28,6 +28,10 @@ final class MockAXProvider: AXProviderProtocol, @unchecked Sendable {
 
     /// Map of (attribute, element-hash) → AXUIElement value.
     private var elementAttributes: [String: AXUIElement] = [:]
+    private var pointAttributes: [String: CGPoint] = [:]
+    private var sizeAttributes: [String: CGSize] = [:]
+    private var rangeAttributes: [String: CFRange] = [:]
+    private var rectForRangeAttributes: [String: CGRect] = [:]
 
     // MARK: - Protocol Implementation
 
@@ -49,6 +53,26 @@ final class MockAXProvider: AXProviderProtocol, @unchecked Sendable {
         return elementAttributes[key]
     }
 
+    func pointAttribute(_ attribute: String, of element: AXUIElement) -> CGPoint? {
+        let key = "\(attribute):\(CFHash(element))"
+        return pointAttributes[key]
+    }
+
+    func sizeAttribute(_ attribute: String, of element: AXUIElement) -> CGSize? {
+        let key = "\(attribute):\(CFHash(element))"
+        return sizeAttributes[key]
+    }
+
+    func rangeAttribute(_ attribute: String, of element: AXUIElement) -> CFRange? {
+        let key = "\(attribute):\(CFHash(element))"
+        return rangeAttributes[key]
+    }
+
+    func rectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement) -> CGRect? {
+        let key = "\(attribute):\(range.location):\(range.length):\(CFHash(element))"
+        return rectForRangeAttributes[key]
+    }
+
     func frontmostAppPID() -> pid_t? {
         frontmostPID
     }
@@ -65,6 +89,26 @@ final class MockAXProvider: AXProviderProtocol, @unchecked Sendable {
     func setElementAttribute(_ attribute: String, of element: AXUIElement, value: AXUIElement) {
         let key = "\(attribute):\(CFHash(element))"
         elementAttributes[key] = value
+    }
+
+    func setPointAttribute(_ attribute: String, of element: AXUIElement, value: CGPoint) {
+        let key = "\(attribute):\(CFHash(element))"
+        pointAttributes[key] = value
+    }
+
+    func setSizeAttribute(_ attribute: String, of element: AXUIElement, value: CGSize) {
+        let key = "\(attribute):\(CFHash(element))"
+        sizeAttributes[key] = value
+    }
+
+    func setRangeAttribute(_ attribute: String, of element: AXUIElement, value: CFRange) {
+        let key = "\(attribute):\(CFHash(element))"
+        rangeAttributes[key] = value
+    }
+
+    func setRectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement, value: CGRect) {
+        let key = "\(attribute):\(range.location):\(range.length):\(CFHash(element))"
+        rectForRangeAttributes[key] = value
     }
 }
 
@@ -212,6 +256,34 @@ final class ContextEngineServiceTests: XCTestCase {
         )
 
         XCTAssertEqual(runtimeState, .limited)
+    }
+
+    func testCaptureFocusedElementAnchorRectPrefersSelectedRangeBounds() {
+        let range = CFRange(location: 12, length: 0)
+        mockAXProvider.setElementAttribute(
+            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
+        mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fakeFocusedElement, value: range)
+        mockAXProvider.setRectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: range,
+            of: fakeFocusedElement,
+            value: CGRect(x: 320, y: 480, width: 2, height: 18)
+        )
+
+        let rect = sut.captureFocusedElementAnchorRect()
+
+        XCTAssertEqual(rect, CGRect(x: 320, y: 480, width: 2, height: 18))
+    }
+
+    func testCaptureFocusedElementAnchorRectFallsBackToFocusedElementFrame() {
+        mockAXProvider.setElementAttribute(
+            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
+        mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fakeFocusedElement, value: CGPoint(x: 200, y: 300))
+        mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fakeFocusedElement, value: CGSize(width: 420, height: 36))
+
+        let rect = sut.captureFocusedElementAnchorRect()
+
+        XCTAssertEqual(rect, CGRect(x: 200, y: 300, width: 420, height: 36))
     }
 
 

@@ -61,7 +61,10 @@ UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */ = {isa = PBXB
 PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */; };
 		C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6BA5D6DB40F25222D224E /* StatusBarController.swift */; };
 		C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */; };
+		BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */; };
 		CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049276EAC4FEBCA2F91F807E /* CopyButton.swift */; };
+		FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */; };
+		FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */; };
 		D6FEA1BD5772A0BC1316C3A9 /* ModelSelectionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */; };
 		PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = PREVMOCKS1A2B3C4D5E6F71 /* PreviewMocks.swift */; };
 		D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */; };
@@ -161,6 +164,9 @@ SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */ = {is
 		8B28B59A0FB34CF9A0080275 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderTests.swift; sourceTree = "<group>"; };
 		96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FloatingIndicator.swift; sourceTree = "<group>"; };
+		BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaretBubbleFloatingIndicator.swift; sourceTree = "<group>"; };
+		FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorShared.swift; sourceTree = "<group>"; };
+		FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorSettingsCard.swift; sourceTree = "<group>"; };
 		9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIEnhancementStepView.swift; sourceTree = "<group>"; };
 		A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
@@ -320,13 +326,15 @@ sourceTree = "<group>";
 };
 		643083A84C484508864DA167 /* UI */ = {
 			isa = PBXGroup;
-		children = (
+			children = (
 			THEMEGROUP1A2B3C4D5E6F /* Theme */,
 			NOTEEDITGRP1A2B3C4D5E6F /* NoteEditor */,
 				MAINGROUP1A2B3C4D5E6F7 /* Main */,
 			A1B2C3D4E5F6789012345678 /* Settings */,
-				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
+			68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
 			96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
+			BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */,
+			FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
 			PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
 			SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
 			AC5569DC7FCD55BB91774AB2 /* Onboarding */,
@@ -399,6 +407,7 @@ AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */,
 				PRESETMANGSHEETFILE /* PresetManagementSheet.swift */,
 				B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
 			8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
+			FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */,
 				DEADBEEF0000000000000002 /* UpdateSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
@@ -707,6 +716,7 @@ BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */,
 PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 			2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */,
 				0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */,
+				FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */,
 				DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */,
 				AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */,
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
@@ -717,8 +727,10 @@ PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 				B2C3D4E5F6789012345678AB /* ModelManager.swift in Sources */,
 				4C6B0181BA512555942717CB /* AppCoordinator.swift in Sources */,
 				E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */,
-				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
+			C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 			C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
+			BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */,
+			FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */,
 			PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
 			FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */,
 			LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
