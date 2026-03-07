@@ -369,6 +369,20 @@ final class HotkeyManagerTests: XCTestCase {
         XCTAssertEqual(mockRegistration.registerCallCount, 0, "Modifier-only hotkey should not use Carbon registration")
     }
 
+    func testRegisterFnModifierOnlyHotkeySkipsCarbonRegistration() {
+        let result = hotkeyManager.registerHotkey(
+            keyCode: UInt32(kVK_Function),
+            modifiers: [.function],
+            identifier: "fnOnly",
+            mode: .pushToTalk,
+            onKeyDown: nil,
+            onKeyUp: nil
+        )
+
+        XCTAssertTrue(result, "Fn-only hotkey registration should succeed")
+        XCTAssertEqual(mockRegistration.registerCallCount, 0, "Fn-only hotkey should not use Carbon registration")
+    }
+
     func testModifierOnlyPushToTalkKeyDownAndUp() {
         let keyDownExpectation = expectation(description: "Modifier key down")
         let keyUpExpectation = expectation(description: "Modifier key up")
@@ -404,6 +418,49 @@ final class HotkeyManagerTests: XCTestCase {
             keyDown: false
         ) else {
             XCTFail("Failed to create keyUp CGEvent")
+            return
+        }
+        keyUpEvent.flags = []
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+        wait(for: [keyUpExpectation], timeout: 1.0)
+    }
+
+    func testFnOnlyPushToTalkKeyDownAndUp() {
+        let keyDownExpectation = expectation(description: "Fn key down")
+        let keyUpExpectation = expectation(description: "Fn key up")
+
+        let result = hotkeyManager.registerHotkey(
+            keyCode: UInt32(kVK_Function),
+            modifiers: [.function],
+            identifier: "fnPTT",
+            mode: .pushToTalk,
+            onKeyDown: { keyDownExpectation.fulfill() },
+            onKeyUp: { keyUpExpectation.fulfill() }
+        )
+
+        XCTAssertTrue(result, "Fn-only hotkey registration should succeed")
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        guard let keyDownEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: CGKeyCode(kVK_Function),
+            keyDown: true
+        ) else {
+            XCTFail("Failed to create Fn keyDown CGEvent")
+            return
+        }
+        keyDownEvent.flags = .maskSecondaryFn
+
+        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+        wait(for: [keyDownExpectation], timeout: 1.0)
+
+        guard let keyUpEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: CGKeyCode(kVK_Function),
+            keyDown: false
+        ) else {
+            XCTFail("Failed to create Fn keyUp CGEvent")
             return
         }
         keyUpEvent.flags = []

@@ -251,7 +251,7 @@ struct HotkeysSettingsView: View {
     }
     private func isAllowedSoloModifierKeyCode(_ keyCode: UInt16) -> Bool {
         switch keyCode {
-        case 54, 55, 56, 60, 58, 61, 59, 62:
+        case 54, 55, 56, 60, 58, 61, 59, 62, UInt16(kVK_Function):
             return true
         default:
             return false
@@ -267,6 +267,7 @@ struct HotkeysSettingsView: View {
         if flags.contains(.option) { carbon |= UInt32(optionKey) }
         if flags.contains(.control) { carbon |= UInt32(controlKey) }
         if flags.contains(.shift) { carbon |= UInt32(shiftKey) }
+        if flags.contains(.function) { carbon |= UInt32(kEventKeyModifierFnMask) }
         return carbon
     }
     
@@ -298,6 +299,7 @@ struct HotkeysSettingsView: View {
         else if keyCode == 60 { parts.append("⇧R") } // Right Shift
         else if keyCode == 55 { parts.append("⌘L") } // Left Command
         else if keyCode == 54 { parts.append("⌘R") } // Right Command
+        else if keyCode == UInt16(kVK_Function) { parts.append("fn") }
         else {
             // Regular modifiers (for non-modifier keys)
             let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
@@ -305,6 +307,7 @@ struct HotkeysSettingsView: View {
             if modifiers.contains(.option) { parts.append("⌥") }
             if modifiers.contains(.shift) { parts.append("⇧") }
             if modifiers.contains(.command) { parts.append("⌘") }
+            if modifiers.contains(.function) { parts.append("fn") }
 
             // Add the key character
             if let characters = event.charactersIgnoringModifiers?.uppercased(), !characters.isEmpty {
@@ -330,7 +333,7 @@ struct HotkeysSettingsView: View {
 
     private func isModifierKeyCode(_ keyCode: UInt16) -> Bool {
         switch keyCode {
-        case 54, 55, 56, 60, 58, 61, 59, 62:
+        case 54, 55, 56, 60, 58, 61, 59, 62, UInt16(kVK_Function):
             return true
         default:
             return false
@@ -347,6 +350,8 @@ struct HotkeysSettingsView: View {
             return event.modifierFlags.contains(.shift)
         case 59, 62:
             return event.modifierFlags.contains(.control)
+        case UInt16(kVK_Function):
+            return event.modifierFlags.contains(.function)
         default:
             return false
         }
@@ -359,6 +364,7 @@ struct HotkeysSettingsView: View {
         case 49: return "Space"
         case 51: return "⌫"
         case 53: return "⎋"
+        case UInt16(kVK_Function): return "fn"
         case 96: return "F5"
         case 97: return "F6"
         case 98: return "F7"

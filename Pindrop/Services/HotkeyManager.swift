@@ -88,6 +88,7 @@ final class HotkeyManager {
         static let option = ModifierFlags(rawValue: UInt32(optionKey))
         static let shift = ModifierFlags(rawValue: UInt32(shiftKey))
         static let control = ModifierFlags(rawValue: UInt32(controlKey))
+        static let function = ModifierFlags(rawValue: UInt32(kEventKeyModifierFnMask))
     }
     
     struct HotkeyConfiguration {
@@ -456,6 +457,8 @@ final class HotkeyManager {
             return .maskShift
         case 59, 62:
             return .maskControl
+        case UInt32(kVK_Function):
+            return .maskSecondaryFn
         default:
             return nil
         }
@@ -467,6 +470,7 @@ final class HotkeyManager {
         if flags.contains(.maskAlternate) { modifiers.insert(.option) }
         if flags.contains(.maskShift) { modifiers.insert(.shift) }
         if flags.contains(.maskControl) { modifiers.insert(.control) }
+        if flags.contains(.maskSecondaryFn) { modifiers.insert(.function) }
         return modifiers
     }
 }
