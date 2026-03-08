@@ -456,10 +456,15 @@ final class TranscriptionServiceTests: XCTestCase {
             return
         }
 
+        guard let firstSegment = diarizedSegments.first,
+              let lastSegment = diarizedSegments.last else {
+            return XCTFail("Expected diarized segments to contain entries")
+        }
+
         XCTAssertGreaterThan(diarizedSegments.count, 1)
         XCTAssertEqual(Set(diarizedSegments.map(\.speakerId)), ["speaker-a"])
-        XCTAssertEqual(diarizedSegments.first?.startTime, 0.0, accuracy: 0.0001)
-        XCTAssertEqual(diarizedSegments.last?.endTime, 48.0, accuracy: 0.0001)
+        XCTAssertEqual(firstSegment.startTime, 0.0, accuracy: 0.0001)
+        XCTAssertEqual(lastSegment.endTime, 48.0, accuracy: 0.0001)
         XCTAssertTrue(
             diarizedSegments.dropFirst().allSatisfy { $0.startTime >= 0 && $0.endTime > $0.startTime },
             "Split segments should preserve increasing timestamp windows"
