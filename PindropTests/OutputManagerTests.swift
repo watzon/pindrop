@@ -78,6 +78,9 @@ final class OutputManagerTests: XCTestCase {
         
         outputManager.setOutputMode(.clipboard)
         XCTAssertEqual(outputManager.outputMode, .clipboard)
+
+        outputManager.setOutputMode([.clipboard, .directInsert])
+        XCTAssertEqual(outputManager.outputMode, [.clipboard, .directInsert])
     }
     
     func testCopyToClipboard() throws {
@@ -220,6 +223,29 @@ final class OutputManagerTests: XCTestCase {
         XCTAssertEqual(mockClipboard.clipboardContent, testText)
         XCTAssertFalse(mockKeySimulation.pasteSimulated)
         XCTAssertEqual(mockClipboard.clearCount, 0)
+    }
+    
+    func testCombinedModePastesAndKeepsTranscriptionInClipboard() async throws {
+        outputManager.setOutputMode([.clipboard, .directInsert])
+        let testText = "Combined mode test"
+        let previousContent = "Previous content"
+        
+        mockClipboard.clipboardContent = previousContent
+        
+        try await outputManager.output(testText)
+        
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.copiedText, testText)
+        XCTAssertEqual(mockClipboard.clipboardContent, testText)
+        XCTAssertEqual(mockClipboard.clearCount, 1)
+    }
+    
+    func testOutputModeStoredValueRoundTrip() {
+        XCTAssertEqual(OutputMode.fromStoredValue("clipboard"), [.clipboard])
+        XCTAssertEqual(OutputMode.fromStoredValue("directInsert"), [.directInsert])
+        XCTAssertEqual(OutputMode.fromStoredValue("clipboard,directInsert"), [.clipboard, .directInsert])
+        XCTAssertEqual(OutputMode.fromStoredValue("directInsert,clipboard").storedValue, "clipboard,directInsert")
+        XCTAssertEqual(OutputMode.fromStoredValue(""), .clipboard)
     }
     
     func testGetKeyCodeForBasicCharacters() {

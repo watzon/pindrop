@@ -28,8 +28,8 @@ struct GeneralSettingsView: View {
                 ForEach(OutputOption.allCases) { option in
                     OutputOptionRow(
                         option: option,
-                        isSelected: settings.outputMode == option.rawValue,
-                        onSelect: { settings.outputMode = option.rawValue }
+                        isSelected: selectedOutputOptions.contains(option),
+                        onToggle: { toggleOutputOption(option) }
                     )
                 }
                 
@@ -52,6 +52,21 @@ struct GeneralSettingsView: View {
                 }
             }
         }
+    }
+    
+    private var selectedOutputOptions: Set<OutputOption> {
+        OutputOption.fromStoredValue(settings.outputMode)
+    }
+    
+    private func toggleOutputOption(_ option: OutputOption) {
+        var options = selectedOutputOptions
+        if options.contains(option) {
+            guard options.count > 1 else { return }
+            options.remove(option)
+        } else {
+            options.insert(option)
+        }
+        settings.outputMode = OutputOption.toStoredValue(options)
     }
     
     private var interfaceSection: some View {
@@ -251,27 +266,40 @@ enum OutputOption: String, CaseIterable, Identifiable {
         case .directInsert: return .textCursor
         }
     }
+    
+    static func fromStoredValue(_ storedValue: String) -> Set<OutputOption> {
+        let options = Set(
+            storedValue
+                .split(separator: ",")
+                .compactMap { Self(rawValue: $0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        )
+        return options.isEmpty ? [.clipboard] : options
+    }
+    
+    static func toStoredValue(_ options: Set<OutputOption>) -> String {
+        var storedValues: [String] = []
+        if options.contains(.clipboard) {
+            storedValues.append(OutputOption.clipboard.rawValue)
+        }
+        if options.contains(.directInsert) {
+            storedValues.append(OutputOption.directInsert.rawValue)
+        }
+        return storedValues.joined(separator: ",")
+    }
 }
 
 struct OutputOptionRow: View {
     let option: OutputOption
     let isSelected: Bool
-    let onSelect: () -> Void
+    let onToggle: () -> Void
     
     var body: some View {
-        Button(action: onSelect) {
+        Button(action: onToggle) {
             HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
-                        .frame(width: 20, height: 20)
-                    
-                    if isSelected {
-                        Circle()
-                            .fill(AppColors.accent)
-                            .frame(width: 12, height: 12)
-                    }
-                }
+                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(isSelected ? AppColors.accent : .secondary)
+                    .frame(width: 20, height: 20)
                 
                 IconView(icon: option.icon, size: 16)
                     .foregroundStyle(isSelected ? AppColors.accent : .secondary)

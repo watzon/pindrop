@@ -359,7 +359,7 @@ final class AppCoordinator {
         self.settingsStore = SettingsStore()
         self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
-        let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
+        let initialOutputMode = OutputMode.fromStoredValue(settingsStore.outputMode)
         self.outputManager = OutputManager(outputMode: initialOutputMode)
         self.historyStore = HistoryStore(modelContext: modelContext)
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
@@ -439,8 +439,12 @@ final class AppCoordinator {
             await self?.handleCancelOperation()
         }
 
-        self.statusBarController.onToggleOutputMode = { [weak self] in
-            self?.handleToggleOutputMode()
+        self.statusBarController.onToggleClipboardOutput = { [weak self] in
+            self?.handleToggleClipboardOutput()
+        }
+
+        self.statusBarController.onToggleDirectInsertOutput = { [weak self] in
+            self?.handleToggleDirectInsertOutput()
         }
 
         self.statusBarController.onToggleAIControlled = { [weak self] in
@@ -1146,9 +1150,9 @@ final class AppCoordinator {
                     self.lastObservedSettingsSnapshot = snapshot
 
                     if previousSnapshot.outputMode != snapshot.outputMode {
-                        let mode: OutputMode = snapshot.outputMode == "clipboard" ? .clipboard : .directInsert
+                        let mode = OutputMode.fromStoredValue(snapshot.outputMode)
                         self.outputManager.setOutputMode(mode)
-                        if mode == .directInsert {
+                        if mode.contains(.directInsert) {
                             self.ensureAccessibilityPermissionForDirectInsert(trigger: "settings-change", showFallbackAlert: true)
                         }
                     }
@@ -2051,7 +2055,7 @@ final class AppCoordinator {
         isQuickCaptureMode: Bool
     ) -> Bool {
         streamingFeatureEnabled &&
-            outputMode == .directInsert &&
+            outputMode.contains(.directInsert) &&
             !aiEnhancementEnabled &&
             !isQuickCaptureMode
     }
@@ -2112,7 +2116,7 @@ final class AppCoordinator {
         guard shouldUseStreaming else {
             let reasons = [
                 settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
-                outputManager.outputMode == .directInsert ? nil : "output-mode-not-directInsert",
+                outputManager.outputMode.contains(.directInsert) ? nil : "output-mode-not-directInsert",
                 settingsStore.aiEnhancementEnabled ? "ai-enhancement-enabled" : nil,
                 isQuickCaptureMode ? "quick-capture-mode" : nil
             ].compactMap { $0 }
@@ -2627,7 +2631,7 @@ final class AppCoordinator {
 
         var outputSucceeded = false
         do {
-            if outputManager.outputMode == .directInsert {
+            if outputManager.outputMode.contains(.directInsert) {
                 ensureAccessibilityPermissionForDirectInsert(trigger: "output", showFallbackAlert: true)
             }
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
@@ -3472,14 +3476,33 @@ final class AppCoordinator {
 
     // MARK: - Toggle Output Mode
 
-    private func handleToggleOutputMode() {
-        let newMode = settingsStore.outputMode == "clipboard" ? "directInsert" : "clipboard"
-        settingsStore.outputMode = newMode
-        Log.app.info("Output mode changed to: \(newMode)")
+    private func handleToggleClipboardOutput() {
+        toggleOutputDestination(.clipboard)
+    }
+
+    private func handleToggleDirectInsertOutput() {
+        toggleOutputDestination(.directInsert)
+    }
+
+    private func toggleOutputDestination(_ destination: OutputMode) {
+        var mode = OutputMode.fromStoredValue(settingsStore.outputMode)
+
+        if mode.contains(destination) {
+            mode.remove(destination)
+            if mode.isEmpty {
+                mode.insert(destination)
+                return
+            }
+        } else {
+            mode.insert(destination)
+        }
+
+        settingsStore.outputMode = mode.storedValue
+        Log.app.info("Output mode changed to: \(mode.displayName)")
     }
 
     private func ensureAccessibilityPermissionForDirectInsert(trigger: String, showFallbackAlert: Bool) {
-        guard outputManager.outputMode == .directInsert else { return }
+        guard outputManager.outputMode.contains(.directInsert) else { return }
 
         let hasPermission = permissionManager.checkAccessibilityPermission()
         if hasPermission {

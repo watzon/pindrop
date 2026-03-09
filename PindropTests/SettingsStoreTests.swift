@@ -45,6 +45,9 @@ final class SettingsStoreTests: XCTestCase {
         settingsStore.outputMode = "directInsert"
         XCTAssertEqual(settingsStore.outputMode, "directInsert")
         
+        settingsStore.outputMode = "clipboard,directInsert"
+        XCTAssertEqual(settingsStore.outputMode, "clipboard,directInsert")
+        
         settingsStore.aiEnhancementEnabled = true
         XCTAssertTrue(settingsStore.aiEnhancementEnabled)
         
@@ -52,7 +55,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(newStore.selectedModel, "large-v3")
         XCTAssertEqual(newStore.toggleHotkey, "⌘⇧A")
         XCTAssertEqual(newStore.pushToTalkHotkey, "⌘⇧B")
-        XCTAssertEqual(newStore.outputMode, "directInsert")
+        XCTAssertEqual(newStore.outputMode, "clipboard,directInsert")
         XCTAssertTrue(newStore.aiEnhancementEnabled)
         
         settingsStore.selectedModel = "base"

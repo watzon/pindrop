@@ -34,7 +34,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var exportLastTranscriptItem: NSMenuItem?
     private var recentTranscriptsSeparator: NSMenuItem?
 
-    private var outputModeItem: NSMenuItem?
+    private var clipboardOutputItem: NSMenuItem?
+    private var directInsertOutputItem: NSMenuItem?
     private var aiEnhancementItem: NSMenuItem?
     private var promptPresetMenuItem: NSMenuItem?
     private var promptPresetMenu: NSMenu?
@@ -67,7 +68,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onExportLastTranscript: (() async -> Void)?
     var onClearAudioBuffer: (() async -> Void)?
     var onCancelOperation: (() async -> Void)?
-    var onToggleOutputMode: (() -> Void)?
+    var onToggleClipboardOutput: (() -> Void)?
+    var onToggleDirectInsertOutput: (() -> Void)?
     var onToggleAIControlled: (() -> Void)?
     var onSelectPromptPreset: ((String?) -> Void)?
     var onToggleFloatingIndicator: (() -> Void)?
@@ -252,14 +254,23 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         let outputHeader = createHeaderItem("Output")
         menu.addItem(outputHeader)
 
-        outputModeItem = NSMenuItem(
-            title: "Mode: Clipboard",
-            action: #selector(toggleOutputMode),
-            keyEquivalent: "o"
+        clipboardOutputItem = NSMenuItem(
+            title: "Clipboard",
+            action: #selector(toggleClipboardOutput),
+            keyEquivalent: ""
         )
-        outputModeItem?.target = self
-        outputModeItem?.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: nil)
-        menu.addItem(outputModeItem!)
+        clipboardOutputItem?.target = self
+        clipboardOutputItem?.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: nil)
+        menu.addItem(clipboardOutputItem!)
+
+        directInsertOutputItem = NSMenuItem(
+            title: "Direct Insert",
+            action: #selector(toggleDirectInsertOutput),
+            keyEquivalent: ""
+        )
+        directInsertOutputItem?.target = self
+        directInsertOutputItem?.image = NSImage(systemSymbolName: "text.cursor", accessibilityDescription: nil)
+        menu.addItem(directInsertOutputItem!)
 
         aiEnhancementItem = NSMenuItem(
             title: "AI Enhancement: Off",
@@ -483,9 +494,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     func updateDynamicItems() {
-        // Update output mode
-        let outputModeText = settingsStore.outputMode == "clipboard" ? "Clipboard" : "Direct Insert"
-        outputModeItem?.title = "Mode: \(outputModeText)"
+        // Update output mode toggles
+        let outputMode = OutputMode.fromStoredValue(settingsStore.outputMode)
+        clipboardOutputItem?.state = outputMode.contains(.clipboard) ? .on : .off
+        directInsertOutputItem?.state = outputMode.contains(.directInsert) ? .on : .off
 
         // Update AI enhancement
         let aiText = settingsStore.aiEnhancementEnabled ? "On" : "Off"
@@ -757,8 +769,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
-    @objc private func toggleOutputMode() {
-        onToggleOutputMode?()
+    @objc private func toggleClipboardOutput() {
+        onToggleClipboardOutput?()
+    }
+
+    @objc private func toggleDirectInsertOutput() {
+        onToggleDirectInsertOutput?()
     }
 
     @objc private func toggleAIEnhancement() {

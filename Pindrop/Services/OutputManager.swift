@@ -10,9 +10,60 @@ import AppKit
 import ApplicationServices
 import os.log
 
-enum OutputMode {
-    case clipboard
-    case directInsert
+struct OutputMode: OptionSet, CustomStringConvertible {
+    let rawValue: Int
+    
+    static let clipboard = OutputMode(rawValue: 1 << 0)
+    static let directInsert = OutputMode(rawValue: 1 << 1)
+    static let `default`: OutputMode = [.clipboard]
+    
+    var description: String {
+        displayName
+    }
+    
+    var displayName: String {
+        let hasClipboard = contains(.clipboard)
+        let hasDirectInsert = contains(.directInsert)
+
+        if hasClipboard && hasDirectInsert {
+            return "Clipboard + Direct Insert"
+        }
+        if hasClipboard {
+            return "Clipboard"
+        }
+        if hasDirectInsert {
+            return "Direct Insert"
+        }
+        return "Unknown"
+    }
+    
+    var storedValue: String {
+        var values: [String] = []
+        if contains(.clipboard) {
+            values.append("clipboard")
+        }
+        if contains(.directInsert) {
+            values.append("directInsert")
+        }
+        return values.joined(separator: ",")
+    }
+    
+    static func fromStoredValue(_ storedValue: String) -> OutputMode {
+        var mode: OutputMode = []
+        for token in storedValue
+            .split(separator: ",")
+            .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) {
+            switch token {
+            case "clipboard":
+                mode.insert(.clipboard)
+            case "directInsert":
+                mode.insert(.directInsert)
+            default:
+                continue
+            }
+        }
+        return mode.isEmpty ? .default : mode
+    }
 }
 
 enum OutputManagerError: Error, LocalizedError {
@@ -126,12 +177,17 @@ final class OutputManager {
         }
         
         Log.output.debug("Output called, mode: \(String(describing: self.outputMode)), length: \(text.count)")
-        
-        switch outputMode {
-        case .clipboard:
+
+        let shouldCopyToClipboard = outputMode.contains(.clipboard)
+        let shouldDirectInsert = outputMode.contains(.directInsert)
+
+        if shouldDirectInsert {
+            try await pasteViaClipboard(text, restoreClipboard: !shouldCopyToClipboard)
+            return
+        }
+
+        if shouldCopyToClipboard {
             try copyToClipboard(text)
-        case .directInsert:
-            try await pasteViaClipboard(text, restoreClipboard: true)
         }
     }
 
