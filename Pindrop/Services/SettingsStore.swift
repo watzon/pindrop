@@ -144,6 +144,8 @@ final class SettingsStore: ObservableObject {
    var openRouterModelsCacheTimestamp: TimeInterval = 0
    @AppStorage("openAIModelsCacheTimestamp", store: SettingsStoreRuntime.appStorageStore)
    var openAIModelsCacheTimestamp: TimeInterval = 0
+   @AppStorage("ollamaModelsCacheTimestamp", store: SettingsStoreRuntime.appStorageStore)
+   var ollamaModelsCacheTimestamp: TimeInterval = 0
    @AppStorage("aiEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore)
    var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
    @AppStorage("noteEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore)
@@ -284,9 +286,17 @@ final class SettingsStore: ObservableObject {
       if normalizedEndpoint.contains("openrouter.ai") {
          return .openrouter
       }
-      if normalizedEndpoint.contains("localhost:11434")
+      // Only infer Ollama for explicit local endpoints to avoid misclassifying
+      // authenticated custom proxies that merely contain "ollama" in host/path.
+      if let components = URLComponents(string: endpoint),
+         let host = components.host?.lowercased()
+      {
+         let isLocalhost = host == "localhost" || host == "127.0.0.1"
+         if isLocalhost && components.port == 11434 {
+            return .ollama
+         }
+      } else if normalizedEndpoint.contains("localhost:11434")
          || normalizedEndpoint.contains("127.0.0.1:11434")
-         || normalizedEndpoint.contains("ollama")
       {
          return .ollama
       }
@@ -398,6 +408,9 @@ final class SettingsStore: ObservableObject {
       vibeRuntimeDetail = "Vibe mode is disabled."
       hasCompletedOnboarding = false
       currentOnboardingStep = 0
+      openRouterModelsCacheTimestamp = 0
+      openAIModelsCacheTimestamp = 0
+      ollamaModelsCacheTimestamp = 0
 
       try? deleteAPIEndpoint()
       for provider in AIProvider.allCases {
@@ -416,6 +429,8 @@ final class SettingsStore: ObservableObject {
          cacheTimestamp = openRouterModelsCacheTimestamp
       case .openai:
          cacheTimestamp = openAIModelsCacheTimestamp
+      case .ollama:
+         cacheTimestamp = ollamaModelsCacheTimestamp
       default:
          return true
       }

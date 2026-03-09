@@ -603,7 +603,7 @@ struct AIEnhancementStepView: View {
          case .openai:
             settings.openAIModelsCacheTimestamp = Date().timeIntervalSince1970
          case .ollama:
-            break
+            settings.ollamaModelsCacheTimestamp = Date().timeIntervalSince1970
          default:
             break
          }

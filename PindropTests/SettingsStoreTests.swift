@@ -122,6 +122,27 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertNil(store.apiKey)
     }
 
+    func testCurrentAIProviderDoesNotInferOllamaFromNonLocalHostContainingName() throws {
+        try settingsStore.saveAPIEndpoint("https://ollama.company.internal/v1/chat/completions")
+
+        XCTAssertEqual(settingsStore.currentAIProvider, .custom)
+    }
+
+    func testCurrentAIProviderInfersOllamaForLocalhostPort11434() throws {
+        try settingsStore.saveAPIEndpoint("http://localhost:11434/v1/chat/completions")
+
+        XCTAssertEqual(settingsStore.currentAIProvider, .ollama)
+    }
+
+    func testOllamaModelCacheTimestampFreshness() {
+        settingsStore.ollamaModelsCacheTimestamp = Date().timeIntervalSince1970
+        XCTAssertFalse(settingsStore.isModelCacheStale(for: .ollama))
+
+        settingsStore.ollamaModelsCacheTimestamp = Date().addingTimeInterval(-(60 * 60 * 24 * 8))
+            .timeIntervalSince1970
+        XCTAssertTrue(settingsStore.isModelCacheStale(for: .ollama))
+    }
+
     func testSelectedFloatingIndicatorTypeBridgesStoredValue() {
         settingsStore.selectedFloatingIndicatorType = .notch
 

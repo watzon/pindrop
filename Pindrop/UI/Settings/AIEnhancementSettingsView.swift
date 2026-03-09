@@ -776,16 +776,16 @@ struct AIEnhancementSettingsView: View {
          updateSelectedModelIfNeeded(for: provider, models: models)
 
          // Update cache timestamp in settings
-      switch provider {
-      case .openrouter:
-         settings.openRouterModelsCacheTimestamp = Date().timeIntervalSince1970
-      case .openai:
-         settings.openAIModelsCacheTimestamp = Date().timeIntervalSince1970
-      case .ollama:
-         break
-      default:
-         break
-      }
+         switch provider {
+         case .openrouter:
+            settings.openRouterModelsCacheTimestamp = Date().timeIntervalSince1970
+         case .openai:
+            settings.openAIModelsCacheTimestamp = Date().timeIntervalSince1970
+         case .ollama:
+            settings.ollamaModelsCacheTimestamp = Date().timeIntervalSince1970
+         default:
+            break
+         }
       } catch {
          Log.aiEnhancement.error("Failed to fetch \(provider.rawValue) models: \(error)")
          modelError = error.localizedDescription
@@ -842,20 +842,8 @@ struct AIEnhancementSettingsView: View {
 
       if let endpoint = settings.apiEndpoint {
          customEndpoint = endpoint
-         if endpoint.contains("openai.com") {
-            selectedProvider = .openai
-         } else if endpoint.contains("anthropic.com") {
-            selectedProvider = .anthropic
-         } else if endpoint.contains("googleapis.com") {
-            selectedProvider = .google
-         } else if endpoint.contains("openrouter.ai") {
-            selectedProvider = .openrouter
-         } else if endpoint.contains("localhost:11434")
-            || endpoint.contains("127.0.0.1:11434")
-            || endpoint.contains("ollama")
-         {
-            selectedProvider = .ollama
-         } else if !endpoint.isEmpty {
+         selectedProvider = settings.currentAIProvider
+         if selectedProvider == .custom && !endpoint.isEmpty {
             selectedProvider = .custom
             customModel = loadedModel
          }
