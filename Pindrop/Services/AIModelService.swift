@@ -82,15 +82,15 @@ final class AIModelService {
                 return "Invalid API endpoint URL"
             case .invalidResponse:
                 return "Invalid response from API"
-            case .apiError(let message):
+            case let .apiError(message):
                 return "API error: \(message)"
             case .missingAPIKey:
                 return "Missing API key"
             case .unsupportedProvider:
                 return "Unsupported AI provider"
-            case .cacheWriteFailed(let message):
+            case let .cacheWriteFailed(message):
                 return "Failed to write model cache: \(message)"
-            case .invalidProvider(let provider):
+            case let .invalidProvider(provider):
                 return "Invalid AI provider: \(provider)"
             }
         }
@@ -112,6 +112,8 @@ final class AIModelService {
                 return try await fetchOpenRouterModels()
             case .openai:
                 return try await fetchOpenAIModels(apiKey: apiKey)
+            case .ollama:
+                return try await fetchOllamaModels()
             default:
                 throw ModelError.unsupportedProvider
             }
@@ -258,6 +260,37 @@ final class AIModelService {
         }
     }
 
+    private func fetchOllamaModels() async throws -> [AIModel] {
+        Log.aiEnhancement.info("Fetching Ollama models")
+        let request = try buildRequest(urlString: "http://localhost:11434/api/tags", apiKey: nil)
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ModelError.invalidResponse
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            throw parseHTTPError(from: data, statusCode: httpResponse.statusCode)
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            let payload = try decoder.decode(OllamaResponse.self, from: data)
+            let models = payload.models.map {
+                AIModel(
+                    id: $0.name,
+                    name: $0.name,
+                    provider: .ollama,
+                    description: nil,
+                    contextLength: nil
+                )
+            }
+            return models.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        } catch {
+            throw ModelError.invalidResponse
+        }
+    }
+
     private func buildRequest(urlString: String, apiKey: String?) throws -> URLRequest {
         guard let url = URL(string: urlString) else {
             throw ModelError.invalidEndpoint
@@ -276,7 +309,8 @@ final class AIModelService {
     private func parseHTTPError(from data: Data, statusCode: Int) -> ModelError {
         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let error = json["error"] as? [String: Any],
-           let message = error["message"] as? String {
+           let message = error["message"] as? String
+        {
             return .apiError(message)
         }
         return .apiError("HTTP \(statusCode)")
@@ -309,4 +343,12 @@ private struct OpenAIResponse: Decodable {
     }
 
     let data: [Model]
+}
+
+private struct OllamaResponse: Decodable {
+    struct Model: Decodable {
+        let name: String
+    }
+
+    let models: [Model]
 }
