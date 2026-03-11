@@ -615,9 +615,9 @@ final class AppCoordinator {
             if let fallbackModel = downloadedModels.first {
                 Log.model.info("Selected model \(modelName) not found, falling back to \(fallbackModel.name)")
                 splashController.setLoading("Using \(fallbackModel.displayName)...")
-                settingsStore.selectedModel = fallbackModel.name
                 do {
                     try await loadAndActivateModel(named: fallbackModel.name, provider: fallbackModel.provider)
+                    settingsStore.selectedModel = fallbackModel.name
                     Log.model.info("Fallback model loaded successfully")
                 } catch {
                     handleModelLoadError(error, context: "Failed to load fallback model")

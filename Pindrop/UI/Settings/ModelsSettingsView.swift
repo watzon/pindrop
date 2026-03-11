@@ -137,7 +137,7 @@ struct ModelsSettingsView: View {
                         isSwitching: switchingToModel == model.name,
                         downloadProgress: modelManager.downloadProgress,
                         onSwitch: { switchModel(model) },
-                        onSetDefault: { settings.selectedModel = model.name },
+                        onSetDefault: { setDefaultModel(model) },
                         onDownload: { downloadModel(model) },
                         onDelete: { deleteModel(model) }
                     )
@@ -230,6 +230,13 @@ struct ModelsSettingsView: View {
         )
     }
 
+    /// Triggers switch so coordinator persists selectedModel only after successful load.
+    private func setDefaultModel(_ model: ModelManager.WhisperModel) {
+        guard modelManager.isModelDownloaded(model.name) else { return }
+        if activeModelName == model.name { return }
+        switchModel(model)
+    }
+
     private func downloadModel(_ model: ModelManager.WhisperModel) {
         downloadingModel = model.name
         errorMessage = nil
@@ -238,7 +245,6 @@ struct ModelsSettingsView: View {
             do {
                 try await modelManager.downloadModel(named: model.name)
                 downloadingModel = nil
-                settings.selectedModel = model.name
                 NotificationCenter.default.post(
                     name: .switchModel,
                     object: nil,
