@@ -17,6 +17,7 @@ struct GeneralSettingsView: View {
             outputSection
             audioInputSection
             floatingIndicatorSection
+            dictionarySection
             interfaceSection
             resetSection
         }
@@ -99,6 +100,28 @@ struct GeneralSettingsView: View {
 
     private var floatingIndicatorSection: some View {
         FloatingIndicatorSettingsCard(settings: settings)
+    }
+
+    private var dictionarySection: some View {
+        SettingsCard(title: "Dictionary", icon: "text.book.closed") {
+            VStack(spacing: 16) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Learn corrected words automatically")
+                            .font(.body)
+                        Text("Automatically add words you correct to your vocabulary")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $settings.automaticDictionaryLearningEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+            }
+        }
     }
 
     private var audioInputSection: some View {

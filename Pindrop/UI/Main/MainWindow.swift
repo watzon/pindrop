@@ -14,6 +14,7 @@ import AppKit
 enum MainNavItem: String, CaseIterable, Identifiable {
     case home = "Home"
     case history = "History"
+    case dictionary = "Dictionary"
     case notes = "Notes"
     case transcribe = "Transcribe"
 
@@ -23,6 +24,7 @@ enum MainNavItem: String, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .history: return "clock.fill"
+        case .dictionary: return "text.book.closed"
         case .notes: return "note.text"
         case .transcribe: return "waveform"
         }
@@ -167,6 +169,8 @@ struct MainWindow: View {
             HistoryView()
         case .notes:
             NotesView()
+        case .dictionary:
+            DictionaryView()
         case .transcribe:
             if let mediaTranscriptionState,
                let modelManager,

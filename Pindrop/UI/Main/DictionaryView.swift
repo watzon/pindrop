@@ -1,8 +1,8 @@
 //
-//  DictionarySettingsView.swift
+//  DictionaryView.swift
 //  Pindrop
 //
-//  Created on 2026-01-27.
+//  Main window view for dictionary management
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ import SwiftData
 enum DictionarySection: String, CaseIterable {
     case replacements = "Word Replacements"
     case vocabulary = "Vocabulary"
-    
+
     var icon: String {
         switch self {
         case .replacements:
@@ -20,7 +20,7 @@ enum DictionarySection: String, CaseIterable {
             return "textformat"
         }
     }
-    
+
     var bannerDescription: String {
         switch self {
         case .replacements:
@@ -38,7 +38,7 @@ enum DictionarySection: String, CaseIterable {
             return "Teach custom words"
         }
     }
-    
+
     var addFormPlaceholder: String {
         switch self {
         case .replacements:
@@ -47,7 +47,7 @@ enum DictionarySection: String, CaseIterable {
             return "Enter word to add"
         }
     }
-    
+
     var addFormSecondaryPlaceholder: String {
         switch self {
         case .replacements:
@@ -58,9 +58,8 @@ enum DictionarySection: String, CaseIterable {
     }
 }
 
-struct DictionarySettingsView: View {
+struct DictionaryView: View {
     @Environment(\.modelContext) private var modelContext
-    @ObservedObject var settings: SettingsStore
     @State private var dictionaryStore: DictionaryStore?
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
@@ -86,25 +85,22 @@ struct DictionarySettingsView: View {
     // Hover state
     @State private var hoveredRowID: UUID?
     
+    private var totalItemCount: Int {
+        replacements.count + vocabularyWords.count
+    }
+    
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: AppTheme.Spacing.xl) {
-                // Section Selector Tabs
-                sectionSelector
-                
-                // Info Banner
-                infoBanner
-                
-                // Add Form
-                addFormSection
-                
-                // Content Table
-                contentTable
-            }
-            .padding(AppTheme.Spacing.xl)
+        VStack(spacing: 0) {
+            // Header with section selector and import/export
+            headerSection
+            
+            // Content
+            contentArea
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(AppColors.contentBackground)
         .onAppear {
-            Log.app.info("DictionarySettingsView appeared, initializing store with modelContext")
+            Log.app.info("DictionaryView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
         }
@@ -129,7 +125,57 @@ struct DictionarySettingsView: View {
             Text("Choose how to import the dictionary data")
         }
     }
-
+    
+    // MARK: - Header
+    
+    private var headerSection: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            HStack {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                    Text("Dictionary")
+                        .font(AppTypography.largeTitle)
+                        .foregroundStyle(AppColors.textPrimary)
+                    
+                    Text("\(totalItemCount) items")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                
+                Spacer()
+                
+                // Import/Export menu
+                Menu {
+                    Button(action: handleImport) {
+                        Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                    }
+                    
+                    Button(action: handleExport) {
+                        Label("Export Dictionary", systemImage: "square.and.arrow.up")
+                    }
+                } label: {
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        Image(systemName: "arrow.up.arrow.down")
+                        Text("Import/Export")
+                    }
+                    .font(AppTypography.subheadline)
+                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                }
+                .menuStyle(.borderlessButton)
+            }
+            
+            // Section selector tabs
+            sectionSelector
+            
+            // Add form
+            addFormSection
+        }
+        .padding(.horizontal, AppTheme.Spacing.xxl)
+        .padding(.bottom, AppTheme.Spacing.xxl)
+        .padding(.top, AppTheme.Window.mainContentTopInset)
+        .background(AppColors.contentBackground)
+    }
+    
     // MARK: - Section Selector
     
     private var sectionSelector: some View {
@@ -180,67 +226,6 @@ struct DictionarySettingsView: View {
             .foregroundStyle(selectedSection == section ? AppColors.accent : AppColors.textPrimary)
         }
         .buttonStyle(.plain)
-    }
-    
-    // MARK: - Info Banner
-    
-    private var infoBanner: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.sm) {
-                Image(systemName: "info.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(AppColors.accent)
-                
-                Text(selectedSection.bannerDescription)
-                    .font(AppTypography.bodySmall)
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                Spacer()
-                
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Button(action: handleImport) {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .help("Import Dictionary")
-                    
-                    Button(action: handleExport) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .help("Export Dictionary")
-                }
-            }
-
-            if selectedSection == .replacements {
-                Divider()
-
-                HStack(spacing: AppTheme.Spacing.md) {
-                    Text("Learn corrected words automatically")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
-
-                    Spacer()
-
-                    Toggle("", isOn: $settings.automaticDictionaryLearningEnabled)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-            }
-        }
-        .padding(AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                .fill(AppColors.accent.opacity(0.05))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                .strokeBorder(AppColors.accent.opacity(0.2), lineWidth: 1)
-        )
     }
     
     // MARK: - Add Form Section
@@ -327,6 +312,74 @@ struct DictionarySettingsView: View {
         }
     }
     
+    // MARK: - Content
+    
+    @ViewBuilder
+    private var contentArea: some View {
+        if let errorMessage = errorMessage {
+            errorView(errorMessage)
+        } else if isContentEmpty {
+            emptyStateView
+        } else {
+            contentTable
+                .padding(.horizontal, AppTheme.Spacing.xxl)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+    
+    private var isContentEmpty: Bool {
+        switch selectedSection {
+        case .replacements:
+            return replacements.isEmpty
+        case .vocabulary:
+            return vocabularyWords.isEmpty
+        }
+    }
+    
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(AppColors.warning)
+            
+            Text("Something went wrong")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+            
+            Text(message)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+            
+            Button("Dismiss") {
+                self.errorMessage = nil
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            Image(systemName: selectedSection == .replacements ? "arrow.left.arrow.right" : "textformat")
+                .font(.system(size: 48))
+                .foregroundStyle(AppColors.textTertiary)
+            
+            Text(selectedSection == .replacements ? "No Replacements" : "No Vocabulary Words")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+            
+            Text(selectedSection == .replacements
+                 ? "Add word replacements to automatically correct common transcription errors."
+                 : "Add custom words to improve transcription accuracy for specialized terms, names, or jargon.")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 400)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
     // MARK: - Content Table
     
     @ViewBuilder
@@ -376,16 +429,10 @@ struct DictionarySettingsView: View {
                 .background(AppColors.divider)
             
             // Rows
-            if replacements.isEmpty {
-                emptyStateView(
-                    icon: "arrow.left.arrow.right",
-                    title: "No Replacements",
-                    message: "Add word replacements to automatically correct common transcription errors."
-                )
-            } else {
+            ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(replacements.sorted(by: { $0.sortOrder < $1.sortOrder })) { replacement in
-                        ReplacementRowNew(
+                        ReplacementRow(
                             replacement: replacement,
                             isEditing: editingReplacement?.id == replacement.id,
                             editOriginals: $editPrimaryInput,
@@ -409,7 +456,7 @@ struct DictionarySettingsView: View {
                                 .padding(.horizontal, AppTheme.Spacing.md)
                                 .background(AppColors.divider)
                         }
-                    }
+                        }
                 }
             }
         }
@@ -423,7 +470,7 @@ struct DictionarySettingsView: View {
                 .strokeBorder(AppColors.border, lineWidth: 1)
         )
     }
-    
+
     // MARK: - Vocabulary Table
     
     private var vocabularyTable: some View {
@@ -450,16 +497,10 @@ struct DictionarySettingsView: View {
                 .background(AppColors.divider)
             
             // Rows
-            if vocabularyWords.isEmpty {
-                emptyStateView(
-                    icon: "textformat",
-                    title: "No Vocabulary Words",
-                    message: "Add custom words to improve transcription accuracy for specialized terms, names, or jargon."
-                )
-            } else {
+            ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(vocabularyWords.sorted(by: { $0.word < $1.word })) { word in
-                        VocabularyRowNew(
+                        VocabularyRow(
                             word: word,
                             isEditing: editingVocabulary?.id == word.id,
                             editText: $editPrimaryInput,
@@ -496,30 +537,7 @@ struct DictionarySettingsView: View {
                 .strokeBorder(AppColors.border, lineWidth: 1)
         )
     }
-    
-    // MARK: - Empty State
-    
-    private func emptyStateView(icon: String, title: String, message: String) -> some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 32))
-                .foregroundStyle(AppColors.textTertiary)
-            
-            Text(title)
-                .font(AppTypography.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(AppColors.textSecondary)
-            
-            Text(message)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textTertiary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.xxl)
-    }
-    
+
     // MARK: - Actions
     
     private func handleAdd() {
@@ -770,7 +788,7 @@ struct DictionaryImportPreview: Codable {
 
 // MARK: - Replacement Row
 
-struct ReplacementRowNew: View {
+struct ReplacementRow: View {
     let replacement: WordReplacement
     let isEditing: Bool
     @Binding var editOriginals: String
@@ -893,7 +911,7 @@ struct ReplacementRowNew: View {
 
 // MARK: - Vocabulary Row
 
-struct VocabularyRowNew: View {
+struct VocabularyRow: View {
     let word: VocabularyWord
     let isEditing: Bool
     @Binding var editText: String
@@ -1029,9 +1047,18 @@ struct FlowLayout: Layout {
     }
 }
 
-#Preview {
-    DictionarySettingsView(settings: SettingsStore())
+// MARK: - Preview
+
+#Preview("Dictionary View - Empty") {
+    DictionaryView()
         .modelContainer(PreviewContainer.empty)
-        .padding()
-        .frame(width: 700, height: 600)
+        .frame(width: 900, height: 600)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dictionary View - Dark") {
+    DictionaryView()
+        .modelContainer(PreviewContainer.empty)
+        .frame(width: 900, height: 600)
+        .preferredColorScheme(.dark)
 }

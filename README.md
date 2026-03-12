@@ -369,6 +369,7 @@ Pindrop/
 │   │   │   ├── MainWindow.swift
 │   │   │   ├── DashboardView.swift
 │   │   │   ├── HistoryView.swift
+│   │   │   ├── DictionaryView.swift
 │   │   │   └── NotesView.swift
 │   │   ├── Settings/
 │   │   │   ├── SettingsWindow.swift
@@ -376,7 +377,6 @@ Pindrop/
 │   │   │   ├── HotkeysSettingsView.swift
 │   │   │   ├── ModelsSettingsView.swift
 │   │   │   ├── AIEnhancementSettingsView.swift
-│   │   │   ├── DictionarySettingsView.swift
 │   │   │   ├── UpdateSettingsView.swift
 │   │   │   ├── PresetManagementSheet.swift
 │   │   │   └── AboutSettingsView.swift

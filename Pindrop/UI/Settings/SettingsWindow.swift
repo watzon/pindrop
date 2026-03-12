@@ -12,7 +12,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case hotkeys = "Hotkeys"
     case models = "Models"
     case ai = "AI Enhancement"
-    case dictionary = "Dictionary"
     case update = "Update"
     case about = "About"
 
@@ -24,7 +23,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .hotkeys: return "keyboard"
         case .models: return "cpu"
         case .ai: return "sparkles"
-        case .dictionary: return "text.book.closed"
         case .update: return "arrow.triangle.2.circlepath"
         case .about: return "info.circle"
         }
@@ -118,8 +116,6 @@ struct SettingsWindow: View {
                         ModelsSettingsView(settings: settings)
                     case .ai:
                         AIEnhancementSettingsView(settings: settings)
-                    case .dictionary:
-                        DictionarySettingsView(settings: settings)
                     case .update:
                         UpdateSettingsView()
                     case .about:
@@ -151,7 +147,6 @@ struct SettingsWindow: View {
         case .hotkeys: return "Configure keyboard shortcuts"
         case .models: return "Manage Whisper transcription models"
         case .ai: return "Configure AI-powered text enhancement"
-        case .dictionary: return "Manage word replacements, vocabulary, and automatic learning"
         case .update: return "Check for application updates"
         case .about: return "App information and acknowledgments"
         }
