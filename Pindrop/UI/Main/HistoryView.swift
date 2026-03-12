@@ -93,7 +93,9 @@ struct HistoryView: View {
             // Search bar
             searchBar
         }
-        .padding(AppTheme.Spacing.xxl)
+        .padding(.horizontal, AppTheme.Spacing.xxl)
+        .padding(.bottom, AppTheme.Spacing.xxl)
+        .padding(.top, AppTheme.Window.mainContentTopInset)
         .background(AppColors.contentBackground)
     }
     

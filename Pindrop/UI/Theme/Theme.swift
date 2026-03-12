@@ -52,7 +52,12 @@ enum AppTheme {
         static let mainMinHeight: CGFloat = 600
         static let mainDefaultWidth: CGFloat = 1186
         static let mainDefaultHeight: CGFloat = 753
-        
+
+        static let sidebarTopInset: CGFloat = 32
+        static let sidebarContentGap: CGFloat = 12
+        static let mainContentTopInset: CGFloat = 32
+        static let panelCornerRadius: CGFloat = 24
+
         static let sidebarWidth: CGFloat = 260
         static let sidebarCollapsedWidth: CGFloat = 64
         
@@ -60,6 +65,7 @@ enum AppTheme {
         static let settingsMinHeight: CGFloat = 600
         static let settingsDefaultWidth: CGFloat = 850
         static let settingsDefaultHeight: CGFloat = 753
+        static let settingsSidebarWidth: CGFloat = 220
     }
     
     // MARK: - Animation

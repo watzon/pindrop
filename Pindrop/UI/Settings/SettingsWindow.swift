@@ -42,19 +42,29 @@ struct SettingsWindow: View {
         self.initialTab = initialTab
         self._selectedTab = State(initialValue: initialTab)
     }
+
     var body: some View {
-        NavigationSplitView {
-            SettingsSidebar(
-                selectedTab: selectedTab,
-                onSelect: selectTab
-            )
-                .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 250)
-        } detail: {
-            detailContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            AppColors.windowBackground
+                .ignoresSafeArea()
+
+            HStack(spacing: AppTheme.Window.sidebarContentGap) {
+                SettingsSidebar(
+                    selectedTab: selectedTab,
+                    onSelect: selectTab
+                )
+                .frame(width: AppTheme.Window.settingsSidebarWidth)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .padding(.top, AppTheme.Window.sidebarTopInset)
+
+                detailPanel
+            }
+            .ignoresSafeArea()
         }
-        .frame(minWidth: AppTheme.Window.settingsMinWidth, minHeight: AppTheme.Window.settingsMinHeight)
-        .background(AppColors.contentBackground)
+        .frame(
+            minWidth: AppTheme.Window.settingsMinWidth,
+            minHeight: AppTheme.Window.settingsMinHeight
+        )
     }
 
     private func selectTab(_ tab: SettingsTab) {
@@ -63,13 +73,39 @@ struct SettingsWindow: View {
         }
     }
     
+    private var detailPanel: some View {
+        let panelShape = UnevenRoundedRectangle(
+            cornerRadii: .init(
+                topLeading: AppTheme.Window.panelCornerRadius / 2,
+                bottomLeading: AppTheme.Window.panelCornerRadius / 2,
+                bottomTrailing: 0,
+                topTrailing: 0
+            ),
+            style: .continuous
+        )
+
+        return detailContent
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                panelShape
+                    .fill(AppColors.contentBackground)
+            )
+            .clipShape(panelShape)
+            .overlay(
+                panelShape
+                    .strokeBorder(AppColors.border.opacity(0.8), lineWidth: 1)
+            )
+            .layoutPriority(1)
+            .zIndex(1)
+    }
+
     @ViewBuilder
     private var detailContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
                 headerView(for: selectedTab)
                     .padding(.horizontal, AppTheme.Spacing.xxl)
-                    .padding(.top, AppTheme.Spacing.xxl)
+                    .padding(.top, AppTheme.Window.mainContentTopInset)
                     .padding(.bottom, AppTheme.Spacing.lg)
                 
                 Group {
@@ -94,7 +130,6 @@ struct SettingsWindow: View {
                 .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
-        .background(AppColors.contentBackground)
     }
     
     private func headerView(for tab: SettingsTab) -> some View {
@@ -138,20 +173,20 @@ private struct SettingsSidebar: View {
                     .foregroundStyle(AppColors.textPrimary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.leading, AppTheme.Spacing.lg)
+            .padding(.trailing, AppTheme.Spacing.sm)
             .padding(.vertical, AppTheme.Spacing.lg)
-            .padding(.top, AppTheme.Spacing.sm)
 
             VStack(spacing: AppTheme.Spacing.xs) {
                 ForEach(SettingsTab.allCases) { tab in
                     settingsTabItem(tab)
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.leading, AppTheme.Spacing.md)
+            .padding(.trailing, AppTheme.Spacing.xs)
 
             Spacer()
         }
-        .background(AppColors.sidebarBackground)
     }
 
     private func settingsTabItem(_ tab: SettingsTab) -> some View {

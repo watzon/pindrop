@@ -826,11 +826,30 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         } else {
             rootView = AnyView(settingsView)
         }
-        let hostingController = NSHostingController(rootView: rootView)
+        let hostingController = TitlebarlessHostingController(rootView: rootView)
 
-        let window = NSWindow(contentViewController: hostingController)
+        let window = NSWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: AppTheme.Window.settingsDefaultWidth,
+                height: AppTheme.Window.settingsDefaultHeight
+            ),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.contentViewController = hostingController
         window.title = "Pindrop Settings"
-        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.toolbar = nil
+        window.toolbarStyle = .unifiedCompact
+        window.isMovableByWindowBackground = true
+        window.backgroundColor = .clear
+        window.isOpaque = false
+        window.hasShadow = true
         window.setContentSize(NSSize(width: AppTheme.Window.settingsDefaultWidth, height: AppTheme.Window.settingsDefaultHeight))
         window.minSize = NSSize(width: AppTheme.Window.settingsMinWidth, height: AppTheme.Window.settingsMinHeight)
         window.center()

@@ -37,12 +37,49 @@ extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
 }
 
+final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
+    private let zeroSafeAreaLayoutGuide = NSLayoutGuide()
+
+    required init(rootView: Content) {
+        super.init(rootView: rootView)
+
+        addLayoutGuide(zeroSafeAreaLayoutGuide)
+        NSLayoutConstraint.activate([
+            zeroSafeAreaLayoutGuide.leadingAnchor.constraint(equalTo: leadingAnchor),
+            zeroSafeAreaLayoutGuide.trailingAnchor.constraint(equalTo: trailingAnchor),
+            zeroSafeAreaLayoutGuide.topAnchor.constraint(equalTo: topAnchor),
+            zeroSafeAreaLayoutGuide.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var safeAreaInsets: NSEdgeInsets {
+        NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+
+    override var safeAreaRect: NSRect {
+        bounds
+    }
+
+    override var safeAreaLayoutGuide: NSLayoutGuide {
+        zeroSafeAreaLayoutGuide
+    }
+}
+
+final class TitlebarlessHostingController<Content: View>: NSHostingController<Content> {
+    override func loadView() {
+        view = TitlebarlessHostingView(rootView: rootView)
+    }
+}
+
 // MARK: - Main Window View
 
 struct MainWindow: View {
-    @Environment(\.modelContext) private var modelContext
     @State private var selectedNav: MainNavItem = .home
-    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
     let settingsStore: SettingsStore?
@@ -61,18 +98,16 @@ struct MainWindow: View {
     }
 
     var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            MainSidebar(
-                selectedNav: selectedNav,
-                onSelect: navigateTo,
-                onOpenSettings: openSettings
-            )
-                .navigationSplitViewColumnWidth(min: 200, ideal: AppTheme.Window.sidebarWidth, max: 260)
-        } detail: {
-            detailContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            AppColors.windowBackground
+                .ignoresSafeArea()
+
+            HStack(spacing: AppTheme.Window.sidebarContentGap) {
+                sidebarPanel
+                detailPanel
+            }
+            .ignoresSafeArea()
         }
-        .background(AppColors.windowBackground)
         .frame(
             minWidth: AppTheme.Window.mainMinWidth,
             minHeight: AppTheme.Window.mainMinHeight
@@ -82,6 +117,43 @@ struct MainWindow: View {
                 navigateTo(navItem)
             }
         }
+    }
+
+    private var sidebarPanel: some View {
+        return MainSidebar(
+            selectedNav: selectedNav,
+            onSelect: navigateTo,
+            onOpenSettings: openSettings
+        )
+        .frame(width: AppTheme.Window.sidebarWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.top, AppTheme.Window.sidebarTopInset)
+    }
+
+    private var detailPanel: some View {
+        let panelShape = UnevenRoundedRectangle(
+            cornerRadii: .init(
+                topLeading: AppTheme.Window.panelCornerRadius / 2,
+                bottomLeading: AppTheme.Window.panelCornerRadius / 2,
+                bottomTrailing: 0,
+                topTrailing: 0
+            ),
+            style: .continuous
+        )
+
+        return detailContent
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                panelShape
+                    .fill(AppColors.contentBackground)
+            )
+            .clipShape(panelShape)
+            .overlay(
+                panelShape
+                    .strokeBorder(AppColors.border.opacity(0.8), lineWidth: 1)
+            )
+            .layoutPriority(1)
+            .zIndex(1)
     }
 
     // MARK: - Detail Content
@@ -158,14 +230,14 @@ private struct MainSidebar: View {
                     sidebarItem(item)
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.leading, AppTheme.Spacing.md)
+            .padding(.trailing, AppTheme.Spacing.xs)
             .padding(.top, AppTheme.Spacing.md)
 
             Spacer()
 
             bottomSection
         }
-        .background(AppColors.sidebarBackground)
     }
 
     private var appHeader: some View {
@@ -194,9 +266,9 @@ private struct MainSidebar: View {
 
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.lg)
-        .padding(.top, AppTheme.Spacing.sm)
+        .padding(.leading, AppTheme.Spacing.lg)
+        .padding(.trailing, AppTheme.Spacing.sm)
+        .padding(.vertical, AppTheme.Spacing.md)
     }
 
     private func sidebarItem(_ item: MainNavItem) -> some View {
@@ -275,7 +347,8 @@ private struct MainSidebar: View {
                 isHoveringSettings = hovering
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.leading, AppTheme.Spacing.md)
+        .padding(.trailing, AppTheme.Spacing.xs)
         .padding(.bottom, AppTheme.Spacing.lg)
     }
 }
@@ -344,13 +417,30 @@ final class MainWindowController {
                 onOpenSettings: onOpenSettings
             )
                 .modelContainer(container)
-            let hostingController = NSHostingController(rootView: mainView)
+            let hostingController = TitlebarlessHostingController(rootView: mainView)
 
-            let window = NSWindow(contentViewController: hostingController)
+            let window = NSWindow(
+                contentRect: NSRect(
+                    x: 0,
+                    y: 0,
+                    width: AppTheme.Window.mainDefaultWidth,
+                    height: AppTheme.Window.mainDefaultHeight
+                ),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+            window.contentViewController = hostingController
             window.title = "Pindrop"
-            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            window.titlebarAppearsTransparent = false
-            window.titleVisibility = .visible
+            window.titleVisibility = .hidden
+            window.titlebarAppearsTransparent = true
+            window.titlebarSeparatorStyle = .none
+            window.toolbar = nil
+            window.toolbarStyle = .unifiedCompact
+            window.isMovableByWindowBackground = true
+            window.backgroundColor = .clear
+            window.isOpaque = false
+            window.hasShadow = true
             window.setContentSize(NSSize(
                 width: AppTheme.Window.mainDefaultWidth,
                 height: AppTheme.Window.mainDefaultHeight
