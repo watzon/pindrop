@@ -845,9 +845,11 @@ AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */,
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 69CJ6D9UG7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.10.1;
@@ -1053,9 +1055,11 @@ AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */,
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 69CJ6D9UG7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.10.1;

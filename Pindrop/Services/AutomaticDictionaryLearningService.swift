@@ -256,10 +256,12 @@ enum AutomaticDictionaryLearningSkipReason: Equatable {
     case unableToResolveObservedInsertedSegment
     case expectedTokenExtractionFailed
     case observedTokenExtractionFailed
-    case expectedSideWasNotSingleToken
+    case expectedSideWasNotLearnableSpan
     case observedSideWasNotSingleToken
     case unchangedToken
     case ambiguousInsertedTokenOccurrence(count: Int)
+    case mergedOriginalDidNotMatchReplacement
+    case mergedOriginalContainedNonWhitespaceSeparators
 
     var logDescription: String {
         switch self {
@@ -275,14 +277,18 @@ enum AutomaticDictionaryLearningSkipReason: Equatable {
             return "expected-token-extraction-failed"
         case .observedTokenExtractionFailed:
             return "observed-token-extraction-failed"
-        case .expectedSideWasNotSingleToken:
-            return "expected-side-not-single-token"
+        case .expectedSideWasNotLearnableSpan:
+            return "expected-side-not-learnable-span"
         case .observedSideWasNotSingleToken:
             return "observed-side-not-single-token"
         case .unchangedToken:
             return "unchanged-token"
         case .ambiguousInsertedTokenOccurrence(let count):
             return "ambiguous-inserted-token-occurrence-\(count)"
+        case .mergedOriginalDidNotMatchReplacement:
+            return "merged-original-did-not-match-replacement"
+        case .mergedOriginalContainedNonWhitespaceSeparators:
+            return "merged-original-contained-non-whitespace-separators"
         }
     }
 }
@@ -362,45 +368,65 @@ struct AutomaticDictionaryLearningDetector {
             return .skipped(.noObservedDifference)
         }
 
-        let diff = differingRanges(expected: expectedInsertedSegment, observed: observedInsertedSegment)
-        guard let diff else { return .skipped(.noObservedDifference) }
-
-        guard let expectedTokenRange = expandToTokenRange(
-            in: expectedInsertedSegment,
-            around: diff.expectedRange,
-            limitingTo: nil
-        ), let observedTokenRange = expandToTokenRange(
-            in: observedInsertedSegment,
-            around: diff.observedRange,
-            limitingTo: nil
-        ) else {
-            let reason: AutomaticDictionaryLearningSkipReason
-            if expandToTokenRange(in: expectedInsertedSegment, around: diff.expectedRange, limitingTo: nil) == nil {
-                reason = .expectedTokenExtractionFailed
-            } else {
-                reason = .observedTokenExtractionFailed
-            }
-            return .skipped(reason)
+        let expectedTokens = tokenMatches(in: expectedInsertedSegment)
+        let observedTokens = tokenMatches(in: observedInsertedSegment)
+        guard !expectedTokens.isEmpty else {
+            return .skipped(.expectedTokenExtractionFailed)
+        }
+        guard !observedTokens.isEmpty else {
+            return .skipped(.observedTokenExtractionFailed)
         }
 
-        let expectedSegmentNSString = expectedInsertedSegment as NSString
-        let observedSegmentNSString = observedInsertedSegment as NSString
-        let expectedDiff = expectedSegmentNSString.substring(with: expectedTokenRange)
-        let observedDiff = observedSegmentNSString.substring(with: observedTokenRange)
+        let tokenDiff = differingTokenSpans(expected: expectedTokens, observed: observedTokens)
+        guard let tokenDiff else { return .skipped(.noObservedDifference) }
 
-        guard isSingleToken(expectedDiff) else {
-            return .skipped(.expectedSideWasNotSingleToken)
-        }
+        let expectedChangedTokens = Array(expectedTokens[tokenDiff.expectedRange])
+        let observedChangedTokens = Array(observedTokens[tokenDiff.observedRange])
 
-        guard isSingleToken(observedDiff) else {
+        guard observedChangedTokens.count == 1 else {
             return .skipped(.observedSideWasNotSingleToken)
+        }
+
+        let observedDiff = observedChangedTokens[0].text
+        let expectedDiff: String
+
+        switch expectedChangedTokens.count {
+        case 1:
+            expectedDiff = expectedChangedTokens[0].text
+        case 2...4:
+            guard separatorsBetweenTokensAreWhitespaceOnly(
+                expectedChangedTokens,
+                in: expectedInsertedSegment
+            ) else {
+                return .skipped(.mergedOriginalContainedNonWhitespaceSeparators)
+            }
+
+            let expectedMerged = normalizedMergedTokenCandidate(
+                expectedChangedTokens.map(\.text).joined()
+            )
+            let observedMerged = normalizedMergedTokenCandidate(observedDiff)
+            guard !expectedMerged.isEmpty, expectedMerged == observedMerged else {
+                return .skipped(.mergedOriginalDidNotMatchReplacement)
+            }
+
+            expectedDiff = expectedChangedTokens.map(\.text).joined(separator: " ")
+        default:
+            return .skipped(.expectedSideWasNotLearnableSpan)
         }
 
         guard expectedDiff != observedDiff else {
             return .skipped(.unchangedToken)
         }
 
-        let occurrenceCount = tokenOccurrenceCount(expectedDiff, in: expectedInsertedSegment)
+        let occurrenceCount: Int
+        if expectedChangedTokens.count == 1 {
+            occurrenceCount = tokenOccurrenceCount(expectedDiff, in: expectedInsertedSegment)
+        } else {
+            occurrenceCount = tokenSequenceOccurrenceCount(
+                expectedChangedTokens.map(\.text),
+                in: expectedTokens
+            )
+        }
         guard occurrenceCount == 1 else {
             return .skipped(.ambiguousInsertedTokenOccurrence(count: occurrenceCount))
         }
@@ -766,6 +792,112 @@ struct AutomaticDictionaryLearningDetector {
         return suffixLength
     }
 
+    private struct TokenMatch: Equatable {
+        let text: String
+        let range: NSRange
+    }
+
+    private static func tokenMatches(in text: String) -> [TokenMatch] {
+        guard let regex = try? NSRegularExpression(
+            pattern: #"[[:alnum:]][[:alnum:]'’-]*"#,
+            options: []
+        ) else {
+            return []
+        }
+
+        let nsText = text as NSString
+        let range = NSRange(location: 0, length: nsText.length)
+        return regex.matches(in: text, options: [], range: range).map { match in
+            TokenMatch(text: nsText.substring(with: match.range), range: match.range)
+        }
+    }
+
+    private static func differingTokenSpans(
+        expected: [TokenMatch],
+        observed: [TokenMatch]
+    ) -> (expectedRange: Range<Int>, observedRange: Range<Int>)? {
+        let prefixCount = commonTokenPrefixCount(expected, observed)
+        let suffixCount = commonTokenSuffixCount(expected, observed, prefixCount: prefixCount)
+
+        let expectedUpperBound = expected.count - suffixCount
+        let observedUpperBound = observed.count - suffixCount
+        guard expectedUpperBound >= prefixCount, observedUpperBound >= prefixCount else {
+            return nil
+        }
+
+        let expectedRange = prefixCount..<expectedUpperBound
+        let observedRange = prefixCount..<observedUpperBound
+        guard !expectedRange.isEmpty || !observedRange.isEmpty else {
+            return nil
+        }
+
+        return (expectedRange, observedRange)
+    }
+
+    private static func commonTokenPrefixCount(
+        _ lhs: [TokenMatch],
+        _ rhs: [TokenMatch]
+    ) -> Int {
+        let sharedCount = min(lhs.count, rhs.count)
+        var prefixCount = 0
+        while prefixCount < sharedCount && lhs[prefixCount].text == rhs[prefixCount].text {
+            prefixCount += 1
+        }
+        return prefixCount
+    }
+
+    private static func commonTokenSuffixCount(
+        _ lhs: [TokenMatch],
+        _ rhs: [TokenMatch],
+        prefixCount: Int
+    ) -> Int {
+        let lhsRemaining = lhs.count - prefixCount
+        let rhsRemaining = rhs.count - prefixCount
+        let sharedCount = min(lhsRemaining, rhsRemaining)
+        guard sharedCount > 0 else { return 0 }
+
+        var suffixCount = 0
+        while suffixCount < sharedCount {
+            let lhsIndex = lhs.count - suffixCount - 1
+            let rhsIndex = rhs.count - suffixCount - 1
+            guard lhsIndex >= prefixCount, rhsIndex >= prefixCount else { break }
+            guard lhs[lhsIndex].text == rhs[rhsIndex].text else { break }
+            suffixCount += 1
+        }
+        return suffixCount
+    }
+
+    private static func separatorsBetweenTokensAreWhitespaceOnly(
+        _ tokens: [TokenMatch],
+        in text: String
+    ) -> Bool {
+        guard tokens.count >= 2 else { return true }
+        let nsText = text as NSString
+
+        for index in 0..<(tokens.count - 1) {
+            let current = tokens[index]
+            let next = tokens[index + 1]
+            let separatorRange = NSRange(
+                location: current.range.upperBound,
+                length: next.range.location - current.range.upperBound
+            )
+            guard separatorRange.length >= 0 else { return false }
+            let separator = nsText.substring(with: separatorRange)
+            guard separator.unicodeScalars.allSatisfy(CharacterSet.whitespacesAndNewlines.contains) else {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private static func normalizedMergedTokenCandidate(_ text: String) -> String {
+        text.unicodeScalars
+            .filter(CharacterSet.alphanumerics.contains)
+            .map { Character($0).lowercased() }
+            .joined()
+    }
+
     private static func expandToTokenRange(
         in text: String,
         around range: NSRange,
@@ -833,6 +965,23 @@ struct AutomaticDictionaryLearningDetector {
             options: [],
             range: NSRange(location: 0, length: (text as NSString).length)
         )
+    }
+
+    private static func tokenSequenceOccurrenceCount(_ tokens: [String], in matches: [TokenMatch]) -> Int {
+        guard !tokens.isEmpty, tokens.count <= matches.count else { return 0 }
+
+        let normalizedTokens = tokens.map { $0.localizedLowercase }
+        var occurrenceCount = 0
+        let maxStart = matches.count - tokens.count
+
+        for start in 0...maxStart {
+            let candidate = matches[start..<(start + tokens.count)].map(\.text.localizedLowercase)
+            if candidate == normalizedTokens {
+                occurrenceCount += 1
+            }
+        }
+
+        return occurrenceCount
     }
 }
 

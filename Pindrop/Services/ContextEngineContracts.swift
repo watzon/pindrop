@@ -322,17 +322,28 @@ struct PromptRoutingSignal {
             windowTitle: app?.windowTitle,
             focusedElementValue: app?.focusedElementValue
         )
+        let workspacePath = Self.deriveWorkspaceRoot(
+            documentPath: app?.documentPath,
+            bundleIdentifier: bundleID,
+            appName: app?.appName,
+            windowTitle: app?.windowTitle,
+            focusedElementValue: app?.focusedElementValue
+        )
+        if workspacePath == nil {
+            Self.logWorkspaceRootDerivationFailure(
+                bundleIdentifier: bundleID,
+                appName: app?.appName,
+                documentPath: app?.documentPath,
+                windowTitle: app?.windowTitle,
+                focusedElementValue: app?.focusedElementValue,
+                terminalProviderIdentifier: terminalProviderIdentifier
+            )
+        }
         return PromptRoutingSignal(
             appBundleIdentifier: bundleID,
             appName: app?.appName.lowercased(),
             windowTitle: app?.windowTitle,
-            workspacePath: Self.deriveWorkspaceRoot(
-                documentPath: app?.documentPath,
-                bundleIdentifier: bundleID,
-                appName: app?.appName,
-                windowTitle: app?.windowTitle,
-                focusedElementValue: app?.focusedElementValue
-            ),
+            workspacePath: workspacePath,
             browserDomain: Self.extractDomain(from: app?.browserURL),
             isCodeEditorContext: isCodeEditor,
             terminalProviderIdentifier: terminalProviderIdentifier
@@ -419,6 +430,36 @@ struct PromptRoutingSignal {
         }
 
         return nil
+    }
+
+    private static func logWorkspaceRootDerivationFailure(
+        bundleIdentifier: String?,
+        appName: String?,
+        documentPath: String?,
+        windowTitle: String?,
+        focusedElementValue: String?,
+        terminalProviderIdentifier: String?
+    ) {
+        guard hasUsableContextValue(bundleIdentifier)
+                || hasUsableContextValue(appName)
+                || hasUsableContextValue(documentPath)
+                || hasUsableContextValue(windowTitle)
+                || hasUsableContextValue(focusedElementValue) else {
+            return
+        }
+
+        let isTerminal = isTerminalContext(bundleIdentifier: bundleIdentifier, appName: appName)
+        let documentPathPresent = hasUsableContextValue(documentPath)
+        let windowTitlePresent = hasUsableContextValue(windowTitle)
+        let focusedValuePresent = hasUsableContextValue(focusedElementValue)
+        let titlePathCandidatePresent = extractTerminalPathCandidate(from: windowTitle) != nil
+        let focusedPathCandidatePresent = extractTerminalPathCandidate(from: focusedElementValue) != nil
+
+        Log.context.debug(
+            """
+            Workspace root derivation returned nil. bundle=\(bundleIdentifier ?? "nil") app=\(appName ?? "nil") terminalContext=\(isTerminal) terminalProvider=\(terminalProviderIdentifier ?? "nil") documentPathPresent=\(documentPathPresent) windowTitlePresent=\(windowTitlePresent) focusedValuePresent=\(focusedValuePresent) titlePathCandidatePresent=\(titlePathCandidatePresent) focusedPathCandidatePresent=\(focusedPathCandidatePresent)
+            """
+        )
     }
 
     /// Derive a workspace root directory from a document path.
@@ -532,6 +573,14 @@ struct PromptRoutingSignal {
         }
         return trimmed
     }
+
+    private static func hasUsableContextValue(_ value: String?) -> Bool {
+        guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return false
+        }
+        return !value.isEmpty
+    }
+
     private static func extractDomain(from urlString: String?) -> String? {
         guard let urlString, let url = URL(string: urlString),
               let host = url.host else {

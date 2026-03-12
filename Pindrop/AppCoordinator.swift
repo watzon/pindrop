@@ -1371,6 +1371,25 @@ final class AppCoordinator {
         return mergeUniqueContextSignals(roots)
     }
 
+    private func mentionRewriteWorkspaceDebugSummary(
+        adapterName: String,
+        routingSignal: PromptRoutingSignal?,
+        snapshot: ContextSnapshot?,
+        derivedWorkspaceRoots: [String]
+    ) -> String {
+        let appContext = snapshot?.appContext
+        return """
+        adapter=\(adapterName) bundle=\(routingSignal?.appBundleIdentifier ?? "nil") app=\(appContext?.appName ?? "nil") signalWorkspacePresent=\(hasUsableContextValue(routingSignal?.workspacePath)) documentPathPresent=\(hasUsableContextValue(appContext?.documentPath)) windowTitlePresent=\(hasUsableContextValue(appContext?.windowTitle)) focusedValuePresent=\(hasUsableContextValue(appContext?.focusedElementValue)) terminalProvider=\(routingSignal?.terminalProviderIdentifier ?? "nil") isCodeEditorContext=\(routingSignal?.isCodeEditorContext ?? false) derivedWorkspaceRootCount=\(derivedWorkspaceRoots.count)
+        """
+    }
+
+    private func hasUsableContextValue(_ value: String?) -> Bool {
+        guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return false
+        }
+        return !value.isEmpty
+    }
+
     private func mergeUniqueContextSignals(_ groups: [String]..., limit: Int = 8) -> [String] {
         var seen = Set<String>()
         var merged: [String] = []
@@ -2475,7 +2494,13 @@ final class AppCoordinator {
             } else {
                 let adapterName = capturedAdapterCapabilities?.displayName ?? "unknown"
                 let hasDocPath = capturedSnapshot?.appContext?.documentPath != nil
-                Log.app.warning("Adapter '\(adapterName)' supports file mentions but no workspace roots derived (documentPath available: \(hasDocPath)); skipping mention rewrite")
+                let debugSummary = mentionRewriteWorkspaceDebugSummary(
+                    adapterName: adapterName,
+                    routingSignal: capturedRoutingSignal,
+                    snapshot: capturedSnapshot,
+                    derivedWorkspaceRoots: derivedWorkspaceRoots
+                )
+                Log.app.warning("Adapter '\(adapterName)' supports file mentions but no workspace roots derived (documentPath available: \(hasDocPath)); skipping mention rewrite. \(debugSummary)")
             }
         }
         

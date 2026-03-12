@@ -169,6 +169,26 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
         XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "teh", replacement: "the"))
     }
 
+    func testDetectorSupportsMergedSplitWordCorrection() {
+        let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
+            preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
+            insertedText: "a UR ",
+            observedSnapshot: makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0))
+        )
+
+        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "a UR", replacement: "AUR"))
+    }
+
+    func testDetectorSupportsThreeTokenMergedWordCorrection() {
+        let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
+            preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
+            insertedText: "chat g p t ",
+            observedSnapshot: makeSnapshot(text: "ChatGPT ", selectedRange: CFRange(location: 8, length: 0))
+        )
+
+        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "chat g p t", replacement: "ChatGPT"))
+    }
+
     func testDetectorSupportsCorrectionWhenOtherFieldChangesExistOutsideInsertedSegment() {
         let originalText = "Outside changes can happen earlier in the field while anchor text remains stable. "
         let selectedRange = CFRange(location: (originalText as NSString).length, length: 0)
@@ -218,6 +238,16 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh foo",
             observedSnapshot: makeSnapshot(text: "the bar", selectedRange: CFRange(location: 7, length: 0))
+        )
+
+        XCTAssertNil(candidate)
+    }
+
+    func testDetectorIgnoresMergedReplacementWhenWordsDoNotCollapseToReplacement() {
+        let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
+            preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
+            insertedText: "new york ",
+            observedSnapshot: makeSnapshot(text: "NYC ", selectedRange: CFRange(location: 3, length: 0))
         )
 
         XCTAssertNil(candidate)
@@ -370,6 +400,27 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
         XCTAssertEqual(store.upsertCalls.count, 1)
         XCTAssertEqual(store.upsertCalls.first?.original, "teh")
         XCTAssertEqual(store.upsertCalls.first?.replacement, "the")
+    }
+
+    func testMergedSplitWordCorrectionPersistsExactlyOnce() async throws {
+        let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
+        snapshotProvider.snapshots = [
+            makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0)),
+            makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0)),
+            makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0))
+        ]
+
+        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "a UR ")
+        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        try await Task.sleep(for: .milliseconds(30))
+        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        try await Task.sleep(for: .milliseconds(30))
+        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        try await Task.sleep(for: .milliseconds(30))
+
+        XCTAssertEqual(store.upsertCalls.count, 1)
+        XCTAssertEqual(store.upsertCalls.first?.original, "a UR")
+        XCTAssertEqual(store.upsertCalls.first?.replacement, "AUR")
     }
 
     private func makeSnapshot(
