@@ -155,6 +155,7 @@ struct HotkeySettingsSnapshot: Equatable {
 
 struct SettingsObservationSnapshot: Equatable {
     let outputMode: String
+    let automaticDictionaryLearningEnabled: Bool
     let selectedInputDeviceUID: String
     let floatingIndicatorEnabled: Bool
     let floatingIndicatorType: FloatingIndicatorType
@@ -249,6 +250,8 @@ final class AppCoordinator {
     let notesStore: NotesStore
     let contextCaptureService: ContextCaptureService
     let contextEngineService: ContextEngineService
+    let toastService: ToastService
+    let automaticDictionaryLearningService: AutomaticDictionaryLearningService
     let promptPresetStore: PromptPresetStore
     let mentionRewriteService: MentionRewriteService
     let mediaPauseService: MediaPauseService
@@ -268,6 +271,7 @@ final class AppCoordinator {
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
     let noteEditorWindowController: NoteEditorWindowController
+    let toastWindowController: ToastWindowController
     
     // MARK: - Quick Capture State
     
@@ -366,6 +370,13 @@ final class AppCoordinator {
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
         self.contextEngineService = ContextEngineService()
+        self.toastWindowController = ToastWindowController()
+        self.toastService = ToastService(presenter: toastWindowController)
+        self.automaticDictionaryLearningService = AutomaticDictionaryLearningService(
+            snapshotProvider: contextEngineService,
+            dictionaryStore: dictionaryStore,
+            toastService: toastService
+        )
         self.promptPresetStore = PromptPresetStore(modelContext: modelContext)
         self.mentionRewriteService = MentionRewriteService()
         self.mediaPauseService = MediaPauseService()
@@ -1098,6 +1109,7 @@ final class AppCoordinator {
     private func currentSettingsObservationSnapshot() -> SettingsObservationSnapshot {
         SettingsObservationSnapshot(
             outputMode: settingsStore.outputMode,
+            automaticDictionaryLearningEnabled: settingsStore.automaticDictionaryLearningEnabled,
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
@@ -1172,6 +1184,11 @@ final class AppCoordinator {
                             toggleHotkey: self.settingsStore.toggleHotkey,
                             pushToTalkHotkey: self.settingsStore.pushToTalkHotkey
                         )
+                    }
+
+                    if previousSnapshot.automaticDictionaryLearningEnabled
+                        && !snapshot.automaticDictionaryLearningEnabled {
+                        self.automaticDictionaryLearningService.cancelObservation()
                     }
 
                     self.statusBarController.updateDynamicItems()
@@ -1904,6 +1921,7 @@ final class AppCoordinator {
     }
     
     private func startRecording(source: RecordingTriggerSource) async throws {
+        automaticDictionaryLearningService.cancelObservation()
         logRecordingStartAttempt(source: source)
 
         // If permissions were granted after launch, recreate global event taps
@@ -2625,6 +2643,10 @@ final class AppCoordinator {
             return
         }
 
+        let directInsertSnapshot = outputManager.outputMode == .directInsert
+            && settingsStore.automaticDictionaryLearningEnabled
+            ? contextEngineService.captureFocusedTextSnapshot()
+            : nil
         var outputSucceeded = false
         do {
             if outputManager.outputMode == .directInsert {
@@ -2633,6 +2655,15 @@ final class AppCoordinator {
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
             try await outputManager.output(outputText)
             outputSucceeded = true
+            if outputManager.outputMode == .directInsert,
+               settingsStore.automaticDictionaryLearningEnabled {
+                automaticDictionaryLearningService.beginObservation(
+                    preInsertSnapshot: directInsertSnapshot,
+                    insertedText: outputText
+                )
+            } else if outputManager.outputMode == .directInsert {
+                Log.app.info("Automatic dictionary learning disabled in settings; skipping observation")
+            }
         } catch {
             Log.app.error("Output failed: \(error)")
         }

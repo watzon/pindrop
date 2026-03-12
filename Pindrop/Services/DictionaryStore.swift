@@ -8,9 +8,22 @@
 import Foundation
 import SwiftData
 
+struct LearnedReplacementChange: Equatable {
+    let replacementID: UUID
+    let replacement: String
+    let learnedOriginal: String
+    let createdReplacement: Bool
+}
+
+@MainActor
+protocol LearnedReplacementPersisting: AnyObject {
+    func upsertLearnedReplacement(original: String, replacement: String) throws -> LearnedReplacementChange?
+    func undoLearnedReplacement(_ change: LearnedReplacementChange) throws
+}
+
 @MainActor
 @Observable
-final class DictionaryStore {
+final class DictionaryStore: LearnedReplacementPersisting {
     
     enum DictionaryStoreError: Error, LocalizedError {
         case saveFailed(String)
@@ -138,6 +151,67 @@ final class DictionaryStore {
             try modelContext.save()
         } catch {
             throw DictionaryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    func upsertLearnedReplacement(original: String, replacement: String) throws -> LearnedReplacementChange? {
+        let normalizedOriginal = original.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedReplacement = replacement.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !normalizedOriginal.isEmpty, !normalizedReplacement.isEmpty else {
+            return nil
+        }
+
+        let replacements = try fetchAllReplacements()
+        if let existing = replacements.first(where: {
+            $0.replacement.compare(normalizedReplacement, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        }) {
+            let alreadyLearned = existing.originals.contains {
+                $0.compare(normalizedOriginal, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+            }
+            guard !alreadyLearned else {
+                return nil
+            }
+
+            existing.originals.append(normalizedOriginal)
+            try saveContext()
+
+            return LearnedReplacementChange(
+                replacementID: existing.id,
+                replacement: existing.replacement,
+                learnedOriginal: normalizedOriginal,
+                createdReplacement: false
+            )
+        }
+
+        let nextSortOrder = (replacements.map(\.sortOrder).max() ?? -1) + 1
+        let learnedReplacement = WordReplacement(
+            originals: [normalizedOriginal],
+            replacement: normalizedReplacement,
+            sortOrder: nextSortOrder
+        )
+        try add(learnedReplacement)
+
+        return LearnedReplacementChange(
+            replacementID: learnedReplacement.id,
+            replacement: learnedReplacement.replacement,
+            learnedOriginal: normalizedOriginal,
+            createdReplacement: true
+        )
+    }
+
+    func undoLearnedReplacement(_ change: LearnedReplacementChange) throws {
+        let replacement = try resolveReplacement(for: change)
+        guard let replacement else { return }
+
+        replacement.originals.removeAll {
+            $0.compare(change.learnedOriginal, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        }
+
+        if replacement.originals.isEmpty {
+            try delete(replacement)
+        } else {
+            try saveContext()
         }
     }
     
@@ -357,5 +431,16 @@ final class DictionaryStore {
         } catch {
             throw DictionaryStoreError.importFailed("Failed to save imported data: \(error.localizedDescription)")
         }
+    }
+
+    private func resolveReplacement(for change: LearnedReplacementChange) throws -> WordReplacement? {
+        let replacements = try fetchAllReplacements()
+        if let exactMatch = replacements.first(where: { $0.id == change.replacementID }) {
+            return exactMatch
+        }
+
+        return replacements.first(where: {
+            $0.replacement.compare(change.replacement, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        })
     }
 }

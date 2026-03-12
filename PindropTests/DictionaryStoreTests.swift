@@ -141,6 +141,65 @@ final class DictionaryStoreTests: XCTestCase {
         XCTAssertEqual(words.count, 1)
         XCTAssertEqual(words.first?.word, "keep")
     }
+
+    func testUpsertLearnedReplacementCreatesNewReplacement() throws {
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "teh", replacement: "the")
+
+        XCTAssertNotNil(change)
+        XCTAssertEqual(change?.learnedOriginal, "teh")
+        XCTAssertEqual(change?.replacement, "the")
+        XCTAssertEqual(change?.createdReplacement, true)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        XCTAssertEqual(replacements.count, 1)
+        XCTAssertEqual(replacements.first?.originals, ["teh"])
+        XCTAssertEqual(replacements.first?.replacement, "the")
+    }
+
+    func testUpsertLearnedReplacementMergesIntoExistingReplacement() throws {
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["adress"],
+                replacement: "address",
+                sortOrder: 0
+            )
+        )
+
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "addres", replacement: "address")
+
+        XCTAssertEqual(change?.createdReplacement, false)
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        XCTAssertEqual(replacements.count, 1)
+        XCTAssertEqual(replacements.first?.originals, ["adress", "addres"])
+    }
+
+    func testUndoLearnedReplacementRemovesOnlyLearnedOriginal() throws {
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["adress"],
+                replacement: "address",
+                sortOrder: 0
+            )
+        )
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "addres", replacement: "address")
+        XCTAssertNotNil(change)
+
+        try dictionaryStore.undoLearnedReplacement(change!)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        XCTAssertEqual(replacements.count, 1)
+        XCTAssertEqual(replacements.first?.originals, ["adress"])
+    }
+
+    func testUndoLearnedReplacementDeletesEmptyReplacementRow() throws {
+        let change = try dictionaryStore.upsertLearnedReplacement(original: "teh", replacement: "the")
+        XCTAssertNotNil(change)
+
+        try dictionaryStore.undoLearnedReplacement(change!)
+
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        XCTAssertTrue(replacements.isEmpty)
+    }
     
     // MARK: - applyReplacements Tests
     

@@ -49,6 +49,7 @@ final class SettingsStore: ObservableObject {
    enum Defaults {
       static let selectedModel = "openai_whisper-base"
       static let outputMode = "clipboard"
+      static let automaticDictionaryLearningEnabled = true
       static let selectedInputDeviceUID = ""
       static let aiModel = "openai/gpt-4o-mini"
       static let aiEnhancementPrompt =
@@ -132,6 +133,8 @@ final class SettingsStore: ObservableObject {
    var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
    @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
       Defaults.outputMode
+   @AppStorage("automaticDictionaryLearningEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var automaticDictionaryLearningEnabled: Bool = Defaults.automaticDictionaryLearningEnabled
    @AppStorage("selectedInputDeviceUID", store: SettingsStoreRuntime.appStorageStore)
    var selectedInputDeviceUID: String = Defaults.selectedInputDeviceUID
    @AppStorage("aiEnhancementEnabled", store: SettingsStoreRuntime.appStorageStore)

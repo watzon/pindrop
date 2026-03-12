@@ -83,33 +83,55 @@ final class AppLogCategory {
     }
 
     func debug(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
-        log(level: .debug, message(), file: file, line: line)
+        log(level: .debug, message(), visibility: .hashedPrivate, file: file, line: line)
     }
 
     func info(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
-        log(level: .info, message(), file: file, line: line)
+        log(level: .info, message(), visibility: .hashedPrivate, file: file, line: line)
     }
 
     func warning(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
-        log(level: .warning, message(), file: file, line: line)
+        log(level: .warning, message(), visibility: .hashedPrivate, file: file, line: line)
     }
 
     func error(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
-        log(level: .error, message(), file: file, line: line)
+        log(level: .error, message(), visibility: .hashedPrivate, file: file, line: line)
     }
 
-    private func log(level: AppLogLevel, _ message: String, file: StaticString, line: UInt) {
+    func debugVisible(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
+        log(level: .debug, message(), visibility: .visible, file: file, line: line)
+    }
+
+    func infoVisible(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
+        log(level: .info, message(), visibility: .visible, file: file, line: line)
+    }
+
+    func warningVisible(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
+        log(level: .warning, message(), visibility: .visible, file: file, line: line)
+    }
+
+    func errorVisible(_ message: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) {
+        log(level: .error, message(), visibility: .visible, file: file, line: line)
+    }
+
+    private func log(
+        level: AppLogLevel,
+        _ message: String,
+        visibility: AppLogVisibility,
+        file: StaticString,
+        line: UInt
+    ) {
         let redactedMessage = LogRedactor.redact(message: message, category: category)
 
         switch level {
         case .debug:
-            logger.debug("\(redactedMessage, privacy: .private(mask: .hash))")
+            writeToConsole(redactedMessage, level: .debug, visibility: visibility)
         case .info:
-            logger.info("\(redactedMessage, privacy: .private(mask: .hash))")
+            writeToConsole(redactedMessage, level: .info, visibility: visibility)
         case .warning:
-            logger.warning("\(redactedMessage, privacy: .private(mask: .hash))")
+            writeToConsole(redactedMessage, level: .warning, visibility: visibility)
         case .error:
-            logger.error("\(redactedMessage, privacy: .private(mask: .hash))")
+            writeToConsole(redactedMessage, level: .error, visibility: visibility)
         }
 
         Log.record(
@@ -120,6 +142,27 @@ final class AppLogCategory {
             line: line
         )
     }
+
+    private func writeToConsole(_ message: String, level: AppLogLevel, visibility: AppLogVisibility) {
+        switch (level, visibility) {
+        case (.debug, .hashedPrivate):
+            logger.debug("\(message, privacy: .private(mask: .hash))")
+        case (.info, .hashedPrivate):
+            logger.info("\(message, privacy: .private(mask: .hash))")
+        case (.warning, .hashedPrivate):
+            logger.warning("\(message, privacy: .private(mask: .hash))")
+        case (.error, .hashedPrivate):
+            logger.error("\(message, privacy: .private(mask: .hash))")
+        case (.debug, .visible):
+            logger.debug("\(message, privacy: .public)")
+        case (.info, .visible):
+            logger.info("\(message, privacy: .public)")
+        case (.warning, .visible):
+            logger.warning("\(message, privacy: .public)")
+        case (.error, .visible):
+            logger.error("\(message, privacy: .public)")
+        }
+    }
 }
 
 enum AppLogLevel: String {
@@ -127,6 +170,11 @@ enum AppLogLevel: String {
     case info = "INFO"
     case warning = "WARN"
     case error = "ERROR"
+}
+
+private enum AppLogVisibility {
+    case hashedPrivate
+    case visible
 }
 
 private final class LogFileSink {

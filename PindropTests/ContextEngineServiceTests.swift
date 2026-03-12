@@ -258,6 +258,35 @@ final class ContextEngineServiceTests: XCTestCase {
         XCTAssertEqual(runtimeState, .limited)
     }
 
+    func testCaptureFocusedTextSnapshotReturnsTextRangeAndAnchorRect() {
+        mockAXProvider.setElementAttribute(
+            kAXFocusedUIElementAttribute,
+            of: fakeAppElement,
+            value: fakeFocusedElement
+        )
+        mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fakeFocusedElement, value: "AXTextArea")
+        mockAXProvider.setStringAttribute(kAXValueAttribute, of: fakeFocusedElement, value: "hello world")
+        mockAXProvider.setRangeAttribute(
+            kAXSelectedTextRangeAttribute,
+            of: fakeFocusedElement,
+            value: CFRange(location: 6, length: 5)
+        )
+        mockAXProvider.setRectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: CFRange(location: 6, length: 5),
+            of: fakeFocusedElement,
+            value: CGRect(x: 100, y: 200, width: 50, height: 20)
+        )
+
+        let snapshot = sut.captureFocusedTextSnapshot()
+
+        XCTAssertNotNil(snapshot)
+        XCTAssertEqual(snapshot?.text, "hello world")
+        XCTAssertEqual(snapshot?.selectedRange.location, 6)
+        XCTAssertEqual(snapshot?.selectedRange.length, 5)
+        XCTAssertEqual(snapshot?.anchorRect, CGRect(x: 100, y: 200, width: 50, height: 20))
+    }
+
     func testCaptureFocusedElementAnchorRectPrefersSelectedRangeBounds() {
         let range = CFRange(location: 12, length: 0)
         mockAXProvider.setElementAttribute(

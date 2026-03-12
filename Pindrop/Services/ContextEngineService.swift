@@ -10,6 +10,30 @@ import ApplicationServices
 import Foundation
 import os.log
 
+struct FocusedTextSnapshot: Equatable {
+    let appBundleIdentifier: String?
+    let windowTitle: String?
+    let focusedElementRole: String?
+    let text: String
+    let selectedRange: CFRange
+    let anchorRect: CGRect?
+
+    static func == (lhs: FocusedTextSnapshot, rhs: FocusedTextSnapshot) -> Bool {
+        lhs.appBundleIdentifier == rhs.appBundleIdentifier &&
+            lhs.windowTitle == rhs.windowTitle &&
+            lhs.focusedElementRole == rhs.focusedElementRole &&
+            lhs.text == rhs.text &&
+            lhs.selectedRange.location == rhs.selectedRange.location &&
+            lhs.selectedRange.length == rhs.selectedRange.length &&
+            lhs.anchorRect == rhs.anchorRect
+    }
+}
+
+@MainActor
+protocol FocusedTextSnapshotCapturing: AnyObject {
+    func captureFocusedTextSnapshot() -> FocusedTextSnapshot?
+}
+
 // MARK: - AX Provider Protocol
 
 /// Protocol abstracting Accessibility API calls for testability.
@@ -369,6 +393,47 @@ final class ContextEngineService {
         return rect.isEmpty ? nil : rect
     }
 
+    func captureFocusedTextSnapshot() -> FocusedTextSnapshot? {
+        guard axProvider.isProcessTrusted() else {
+            Log.context.infoVisible("Focused text snapshot unavailable: accessibility permission not granted")
+            return nil
+        }
+        guard let appElement = axProvider.copyFrontmostApplication() else {
+            Log.context.debugVisible("Focused text snapshot unavailable: no frontmost application AX element")
+            return nil
+        }
+        guard let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement) else {
+            Log.context.debugVisible("Focused text snapshot unavailable: no focused AX element")
+            return nil
+        }
+
+        let focusedElementRole = axProvider.stringAttribute(kAXRoleAttribute, of: focusedElement)
+        let subrole = axProvider.stringAttribute(kAXSubroleAttribute, of: focusedElement)
+        guard !isSecureField(role: focusedElementRole, subrole: subrole) else {
+            Log.context.debugVisible("Focused text snapshot unavailable: focused element is a secure field")
+            return nil
+        }
+
+        guard let text = axProvider.stringAttribute(kAXValueAttribute, of: focusedElement),
+              let selectedRange = axProvider.rangeAttribute(kAXSelectedTextRangeAttribute, of: focusedElement) else {
+            Log.context.debugVisible("Focused text snapshot unavailable: focused element does not expose text value and selected range")
+            return nil
+        }
+
+        let bundleIdentifier = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        let windowTitle = captureWindowTitle(from: appElement)
+        let anchorRect = captureFocusedElementAnchorRect()
+
+        return FocusedTextSnapshot(
+            appBundleIdentifier: bundleIdentifier,
+            windowTitle: windowTitle,
+            focusedElementRole: focusedElementRole,
+            text: text,
+            selectedRange: selectedRange,
+            anchorRect: anchorRect
+        )
+    }
+
     func captureSnapshot(clipboardText: String? = nil) -> ContextSnapshot {
         let captureResult = captureAppContext()
         return ContextSnapshot(
@@ -723,3 +788,5 @@ final class ContextEngineService {
         return components.string ?? urlString
     }
 }
+
+extension ContextEngineService: FocusedTextSnapshotCapturing {}

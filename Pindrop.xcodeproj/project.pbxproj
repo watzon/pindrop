@@ -121,8 +121,13 @@ SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */ = {is
 		CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */; };
 		ROUTESIGTEST01A2B3C4D5E6F /* PromptRoutingSignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ROUTESIGTEST02A2B3C4D5E6F /* PromptRoutingSignalTests.swift */; };
 		CTXENGN01A2B3C4D5E6F /* ContextEngineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXENGN02A2B3C4D5E6F /* ContextEngineService.swift */; };
+		TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */; };
+		AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */; };
+		TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */; };
 		CTXENGNTEST01A2B3C4D5E6F /* ContextEngineServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */; };
 		COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */; };
+		TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */; };
+		AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */; };
 		WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */; };
 		PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */; };
 		PATHRESTEST02A2B3C4D5E6F /* PathMentionResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PATHRESTEST01A2B3C4D5E6F /* PathMentionResolverTests.swift */; };
@@ -263,8 +268,13 @@ BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference
 		CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextAdapterRegistryTests.swift; sourceTree = "<group>"; };
 		ROUTESIGTEST02A2B3C4D5E6F /* PromptRoutingSignalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptRoutingSignalTests.swift; sourceTree = "<group>"; };
 		CTXENGN02A2B3C4D5E6F /* ContextEngineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEngineService.swift; sourceTree = "<group>"; };
+		TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastService.swift; sourceTree = "<group>"; };
+		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningService.swift; sourceTree = "<group>"; };
+		TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastWindowController.swift; sourceTree = "<group>"; };
 		CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEngineServiceTests.swift; sourceTree = "<group>"; };
 		COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorContextFlowTests.swift; sourceTree = "<group>"; };
+		TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastServiceTests.swift; sourceTree = "<group>"; };
+		AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningServiceTests.swift; sourceTree = "<group>"; };
 		WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFileIndexService.swift; sourceTree = "<group>"; };
 		PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMentionResolver.swift; sourceTree = "<group>"; };
 		PATHRESTEST01A2B3C4D5E6F /* PathMentionResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMentionResolverTests.swift; sourceTree = "<group>"; };
@@ -352,6 +362,7 @@ sourceTree = "<group>";
 			BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */,
 			FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
 			PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
+			TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */,
 			SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
 			AC5569DC7FCD55BB91774AB2 /* Onboarding */,
 			BFA9046303E3874827C62B25 /* Components */,
@@ -373,9 +384,11 @@ sourceTree = "<group>";
  		DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
 PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */,
 		CTXCAPT02A2B3C4D5E6F7 /* ContextCaptureService.swift */,
- 		CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */,
+		CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */,
 		CTXCNTR02A2B3C4D5E6F7 /* ContextEngineContracts.swift */,
 		CTXENGN02A2B3C4D5E6F /* ContextEngineService.swift */,
+		TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
+		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */,
 		WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */,
 		PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */,
 		MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */,
@@ -481,7 +494,9 @@ NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
 UPDATESVC01A2B3C4D5E6F71 /* UpdateServiceTests.swift */,
 CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */,
 ROUTESIGTEST02A2B3C4D5E6F /* PromptRoutingSignalTests.swift */,
-CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */,
+			CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */,
+			TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
+			AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */,
 				COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */,
 PATHRESTEST01A2B3C4D5E6F /* PathMentionResolverTests.swift */,
 MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
@@ -705,6 +720,8 @@ UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 			CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */,
 			ROUTESIGTEST01A2B3C4D5E6F /* PromptRoutingSignalTests.swift in Sources */,
 			CTXENGNTEST01A2B3C4D5E6F /* ContextEngineServiceTests.swift in Sources */,
+			TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
+			AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */,
 			COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */,
 			PATHRESTEST02A2B3C4D5E6F /* PathMentionResolverTests.swift in Sources */,
 			MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
@@ -757,6 +774,7 @@ PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 			BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */,
 			FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */,
 			PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
+			TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */,
 			FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */,
 			LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
 			IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */,
@@ -800,6 +818,8 @@ CTXCAPT02A2B3C4D5E6F /* ContextCaptureService.swift in Sources */,
 CTXCNTR02A2B3C4D5E6F /* ContextEngineContracts.swift in Sources */,
 CTXADAPT01A2B3C4D5E6F /* AppContextAdapter.swift in Sources */,
 CTXENGN01A2B3C4D5E6F /* ContextEngineService.swift in Sources */,
+TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
+AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */,
 WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */,
 PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */,
 MNTFMT01A2B3C4D5E6F /* MentionFormatter.swift in Sources */,

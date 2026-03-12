@@ -21,12 +21,21 @@ enum DictionarySection: String, CaseIterable {
         }
     }
     
-    var description: String {
+    var bannerDescription: String {
         switch self {
         case .replacements:
             return "Define word replacements to automatically replace specific words or phrases"
         case .vocabulary:
             return "Add words to help Pindrop recognize them properly"
+        }
+    }
+
+    var tabDescription: String {
+        switch self {
+        case .replacements:
+            return "Replace words and phrases"
+        case .vocabulary:
+            return "Teach custom words"
         }
     }
     
@@ -51,6 +60,7 @@ enum DictionarySection: String, CaseIterable {
 
 struct DictionarySettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @ObservedObject var settings: SettingsStore
     @State private var dictionaryStore: DictionaryStore?
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
@@ -119,7 +129,7 @@ struct DictionarySettingsView: View {
             Text("Choose how to import the dictionary data")
         }
     }
-    
+
     // MARK: - Section Selector
     
     private var sectionSelector: some View {
@@ -148,7 +158,7 @@ struct DictionarySettingsView: View {
                     Spacer()
                 }
                 
-                Text(section.description)
+                Text(section.tabDescription)
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                     .multilineTextAlignment(.leading)
@@ -175,34 +185,51 @@ struct DictionarySettingsView: View {
     // MARK: - Info Banner
     
     private var infoBanner: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            Image(systemName: "info.circle.fill")
-                .font(.system(size: 14))
-                .foregroundStyle(AppColors.accent)
-            
-            Text(selectedSection.description)
-                .font(AppTypography.bodySmall)
-                .foregroundStyle(AppColors.textSecondary)
-            
-            Spacer()
-            
-            // Import/Export buttons in banner
-            HStack(spacing: AppTheme.Spacing.xs) {
-                Button(action: handleImport) {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.system(size: 12))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .help("Import Dictionary")
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Image(systemName: "info.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppColors.accent)
                 
-                Button(action: handleExport) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 12))
+                Text(selectedSection.bannerDescription)
+                    .font(AppTypography.bodySmall)
+                    .foregroundStyle(AppColors.textSecondary)
+                
+                Spacer()
+                
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Button(action: handleImport) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .help("Import Dictionary")
+                    
+                    Button(action: handleExport) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .help("Export Dictionary")
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .help("Export Dictionary")
+            }
+
+            if selectedSection == .replacements {
+                Divider()
+
+                HStack(spacing: AppTheme.Spacing.md) {
+                    Text("Learn corrected words automatically")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+
+                    Spacer()
+
+                    Toggle("", isOn: $settings.automaticDictionaryLearningEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
             }
         }
         .padding(AppTheme.Spacing.md)
@@ -1003,7 +1030,7 @@ struct FlowLayout: Layout {
 }
 
 #Preview {
-    DictionarySettingsView()
+    DictionarySettingsView(settings: SettingsStore())
         .modelContainer(PreviewContainer.empty)
         .padding()
         .frame(width: 700, height: 600)
