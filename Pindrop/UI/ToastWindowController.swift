@@ -19,6 +19,7 @@ private enum ToastMetrics {
     static let minWidth: CGFloat = 180
     static let showDuration: TimeInterval = 0.18
     static let hideDuration: TimeInterval = 0.14
+    static let expandedCornerRadius: CGFloat = AppTheme.Radius.lg
 }
 
 private final class ToastPanel: NSPanel {
@@ -31,8 +32,19 @@ final class ToastWindowController: ToastPresenting {
     private var panel: ToastPanel?
     private var hostingView: NSHostingView<ToastView>?
 
-    func show(payload: ToastPayload, onAction: @escaping (UUID) -> Void) {
-        let rootView = ToastView(payload: payload, onAction: onAction)
+    func show(
+        payload: ToastPayload,
+        onAction: @escaping (UUID) -> Void,
+        onHoverChange: @escaping (Bool) -> Void
+    ) {
+        let rootView = ToastView(
+            payload: payload,
+            onAction: onAction,
+            onHoverChange: { [weak self] (isHovering: Bool) in
+                onHoverChange(isHovering)
+                self?.updateToastFrame(for: payload)
+            }
+        )
         let hostingView = self.hostingView ?? NSHostingView(rootView: rootView)
         hostingView.rootView = rootView
         hostingView.translatesAutoresizingMaskIntoConstraints = false
@@ -128,19 +140,61 @@ final class ToastWindowController: ToastPresenting {
         guard let hintRect, !hintRect.isEmpty else { return NSScreen.main }
         return NSScreen.screens.first(where: { $0.frame.intersects(hintRect) }) ?? NSScreen.main
     }
+
+    private func updateToastFrame(for payload: ToastPayload) {
+        guard let panel, let hostingView else { return }
+
+        DispatchQueue.main.async { [weak self, weak panel, weak hostingView] in
+            guard let self, let panel, let hostingView else { return }
+            hostingView.layoutSubtreeIfNeeded()
+
+            let fittedSize = hostingView.fittingSize
+            let size = CGSize(
+                width: min(max(fittedSize.width, ToastMetrics.minWidth), ToastMetrics.maxWidth),
+                height: fittedSize.height
+            )
+            let frame = self.frameForToast(size: size, hintRect: payload.screenHintRect)
+
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = ToastMetrics.showDuration
+                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                panel.animator().setFrame(frame, display: true)
+            }
+        }
+    }
 }
 
 private struct ToastView: View {
     let payload: ToastPayload
     let onAction: (UUID) -> Void
+    let onHoverChange: (Bool) -> Void
+
+    @State private var isHovering = false
+    @State private var showsWrappedText = false
+    @State private var usesExpandedLayout = false
+    @State private var wrapRevealTask: Task<Void, Never>?
+    @State private var lockedWidth: CGFloat?
+
+    private var cornerRadius: CGFloat {
+        (isHovering || usesExpandedLayout || showsWrappedText) ? ToastMetrics.expandedCornerRadius : AppTheme.Radius.full
+    }
+
+    private var expandedWidth: CGFloat? {
+        guard usesExpandedLayout || showsWrappedText else { return nil }
+        return lockedWidth
+    }
 
     var body: some View {
         HStack(alignment: .center, spacing: ToastMetrics.toastSpacing) {
-            Text(payload.message)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textPrimary)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
+            ZStack(alignment: .leading) {
+                if usesExpandedLayout && !showsWrappedText {
+                    messageText(wrapped: true)
+                        .hidden()
+                        .accessibilityHidden(true)
+                }
+
+                messageText(wrapped: showsWrappedText)
+            }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if !payload.actions.isEmpty {
@@ -156,23 +210,195 @@ private struct ToastView: View {
         }
         .padding(.horizontal, ToastMetrics.horizontalPadding)
         .padding(.vertical, ToastMetrics.verticalPadding)
+        .frame(width: expandedWidth, alignment: .leading)
         .frame(maxWidth: ToastMetrics.maxWidth)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.full, style: .continuous)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(AppColors.elevatedSurface)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.full, style: .continuous)
-                .stroke(AppColors.border, lineWidth: 1)
+            ToastTimerBorderView(
+                toastID: payload.id,
+                duration: payload.duration,
+                style: payload.style,
+                isPaused: isHovering,
+                cornerRadius: cornerRadius
+            )
         )
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        updateLockedWidth(to: geometry.size.width)
+                    }
+                    .onChange(of: geometry.size.width, initial: false) { _, newWidth in
+                        updateLockedWidth(to: newWidth)
+                    }
+            }
+        }
         .shadow(
             color: Color.black.opacity(0.16),
             radius: AppTheme.Shadow.lg.radius,
             x: AppTheme.Shadow.lg.x,
             y: AppTheme.Shadow.lg.y
         )
+        .onHover { hovering in
+            guard isHovering != hovering else { return }
+            wrapRevealTask?.cancel()
+
+            if hovering {
+                isHovering = true
+                setExpandedLayout(true)
+                DispatchQueue.main.async {
+                    onHoverChange(true)
+                }
+
+                wrapRevealTask = Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: UInt64(ToastMetrics.showDuration * 1_000_000_000))
+                    guard !Task.isCancelled, isHovering else { return }
+                    setWrappedText(true)
+                }
+                return
+            }
+
+            isHovering = false
+            setWrappedText(false)
+            setExpandedLayout(false)
+            onHoverChange(false)
+        }
         .padding(.horizontal, ToastMetrics.screenInset)
         .padding(.vertical, AppTheme.Spacing.xs)
+    }
+
+    private func messageText(wrapped: Bool) -> some View {
+        Text(payload.message)
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.textPrimary)
+            .lineLimit(wrapped ? nil : 1)
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: wrapped)
+    }
+
+    private func setWrappedText(_ wrapped: Bool) {
+        var transaction = Transaction()
+        transaction.animation = nil
+        withTransaction(transaction) {
+            showsWrappedText = wrapped
+        }
+    }
+
+    private func setExpandedLayout(_ expanded: Bool) {
+        var transaction = Transaction()
+        transaction.animation = nil
+        withTransaction(transaction) {
+            usesExpandedLayout = expanded
+        }
+    }
+
+    private func updateLockedWidth(to width: CGFloat) {
+        guard !usesExpandedLayout, !showsWrappedText else { return }
+        guard width > 0 else { return }
+        lockedWidth = min(width, ToastMetrics.maxWidth)
+    }
+}
+
+private struct ToastTimerBorderView: View {
+    private struct TimerState {
+        let duration: TimeInterval
+        let startDate: Date
+        var pausedAt: Date?
+        var accumulatedPauseDuration: TimeInterval = 0
+
+        mutating func pause(at date: Date) {
+            guard pausedAt == nil else { return }
+            pausedAt = date
+        }
+
+        mutating func resume(at date: Date) {
+            guard let pausedAt else { return }
+            accumulatedPauseDuration += date.timeIntervalSince(pausedAt)
+            self.pausedAt = nil
+        }
+
+        func progress(at date: Date) -> Double {
+            guard duration > 0 else { return 0 }
+            let currentDate = pausedAt ?? date
+            let elapsed = max(0, currentDate.timeIntervalSince(startDate) - accumulatedPauseDuration)
+            return max(0, min(1, 1 - (elapsed / duration)))
+        }
+    }
+
+    let toastID: UUID
+    let duration: TimeInterval?
+    let style: ToastStyle
+    let isPaused: Bool
+    let cornerRadius: CGFloat
+
+    @State private var timerState: TimerState?
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(AppColors.border, lineWidth: 1.5)
+
+            if hasTimer {
+                TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { context in
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .trim(from: 0, to: timerState?.progress(at: context.date) ?? 1)
+                        .stroke(
+                            timerColor,
+                            style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+                        )
+                }
+            }
+        }
+        .onAppear {
+            resetTimer()
+        }
+        .onChange(of: toastID, initial: false) { _, _ in
+            resetTimer()
+        }
+        .onChange(of: isPaused, initial: false) { _, paused in
+            updatePauseState(paused)
+        }
+    }
+
+    private var hasTimer: Bool {
+        guard let duration else { return false }
+        return duration > 0
+    }
+
+    private var timerColor: Color {
+        switch style {
+        case .standard:
+            return AppColors.accent
+        case .error:
+            return AppColors.error
+        }
+    }
+
+    private func resetTimer() {
+        guard let duration, duration > 0 else {
+            timerState = nil
+            return
+        }
+
+        var state = TimerState(duration: duration, startDate: Date())
+        if isPaused {
+            state.pause(at: Date())
+        }
+        timerState = state
+    }
+
+    private func updatePauseState(_ paused: Bool) {
+        guard var timerState else { return }
+        if paused {
+            timerState.pause(at: Date())
+        } else {
+            timerState.resume(at: Date())
+        }
+        self.timerState = timerState
     }
 }
 

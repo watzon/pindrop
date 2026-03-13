@@ -13,15 +13,22 @@ private final class MockToastPresenter: ToastPresenting {
     private(set) var shownPayloads: [ToastPayload] = []
     private(set) var hideCallCount = 0
     private(set) var currentActionHandler: ((UUID) -> Void)?
+    private(set) var currentHoverHandler: ((Bool) -> Void)?
 
-    func show(payload: ToastPayload, onAction: @escaping (UUID) -> Void) {
+    func show(
+        payload: ToastPayload,
+        onAction: @escaping (UUID) -> Void,
+        onHoverChange: @escaping (Bool) -> Void
+    ) {
         shownPayloads.append(payload)
         currentActionHandler = onAction
+        currentHoverHandler = onHoverChange
     }
 
     func hide() {
         hideCallCount += 1
         currentActionHandler = nil
+        currentHoverHandler = nil
     }
 }
 
@@ -107,6 +114,24 @@ final class ToastServiceTests: XCTestCase {
         presenter.currentActionHandler?(payload.actions[0].id)
 
         XCTAssertTrue(actionTriggered)
+        XCTAssertEqual(presenter.hideCallCount, 1)
+    }
+
+    func testHoverPausesAndResumesAutoDismiss() async throws {
+        toastService.show(ToastPayload(message: "Saved", duration: 0.25))
+
+        try await Task.sleep(for: .milliseconds(80))
+        presenter.currentHoverHandler?(true)
+
+        try await Task.sleep(for: .milliseconds(250))
+        XCTAssertEqual(presenter.hideCallCount, 0)
+
+        presenter.currentHoverHandler?(false)
+
+        try await Task.sleep(for: .milliseconds(80))
+        XCTAssertEqual(presenter.hideCallCount, 0)
+
+        try await Task.sleep(for: .milliseconds(160))
         XCTAssertEqual(presenter.hideCallCount, 1)
     }
 }

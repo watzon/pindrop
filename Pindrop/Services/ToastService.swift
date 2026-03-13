@@ -13,6 +13,11 @@ enum ToastPlacement: Equatable {
     case bottomCenter
 }
 
+enum ToastStyle: Equatable {
+    case standard
+    case error
+}
+
 enum ToastActionRole: Equatable {
     case primary
     case secondary
@@ -42,6 +47,7 @@ struct ToastPayload {
     let message: String
     let actions: [ToastAction]
     let duration: TimeInterval?
+    let style: ToastStyle
     let placement: ToastPlacement
     let screenHintRect: CGRect?
 
@@ -50,6 +56,7 @@ struct ToastPayload {
         message: String,
         actions: [ToastAction] = [],
         duration: TimeInterval? = 4.0,
+        style: ToastStyle = .standard,
         placement: ToastPlacement = .bottomCenter,
         screenHintRect: CGRect? = nil
     ) {
@@ -57,6 +64,7 @@ struct ToastPayload {
         self.message = message
         self.actions = Array(actions.prefix(2))
         self.duration = duration
+        self.style = style
         self.placement = placement
         self.screenHintRect = screenHintRect
     }
@@ -64,7 +72,11 @@ struct ToastPayload {
 
 @MainActor
 protocol ToastPresenting: AnyObject {
-    func show(payload: ToastPayload, onAction: @escaping (UUID) -> Void)
+    func show(
+        payload: ToastPayload,
+        onAction: @escaping (UUID) -> Void,
+        onHoverChange: @escaping (Bool) -> Void
+    )
     func hide()
 }
 
@@ -78,6 +90,14 @@ protocol ToastShowing: AnyObject {
 final class ToastService: ToastShowing {
     private struct ActiveToast {
         var payload: ToastPayload
+        var remainingDuration: TimeInterval?
+        var dismissStartedAt: Date?
+        var isTimerPaused = false
+
+        init(payload: ToastPayload) {
+            self.payload = payload
+            self.remainingDuration = payload.duration
+        }
     }
 
     private let presenter: ToastPresenting
@@ -92,10 +112,16 @@ final class ToastService: ToastShowing {
     func show(_ payload: ToastPayload) {
         if let activeToast, activeToast.payload.signature == payload.signature {
             self.activeToast = ActiveToast(payload: payload)
-            presenter.show(payload: payload, onAction: { [weak self] actionID in
-                self?.handleActionSelection(id: actionID)
-            })
-            scheduleDismiss(for: payload)
+            presenter.show(
+                payload: payload,
+                onAction: { [weak self] actionID in
+                    self?.handleActionSelection(id: actionID)
+                },
+                onHoverChange: { [weak self] isHovering in
+                    self?.setTimerPaused(isHovering)
+                }
+            )
+            scheduleDismiss(for: payload.duration)
             return
         }
 
@@ -119,34 +145,93 @@ final class ToastService: ToastShowing {
         dismissCurrentToast()
     }
 
+    func pauseAutoDismiss() {
+        setTimerPaused(true)
+    }
+
+    func resumeAutoDismiss() {
+        setTimerPaused(false)
+    }
+
     private func presentNextToastIfPossible() {
         guard activeToast == nil, !queue.isEmpty else { return }
         let nextToast = queue.removeFirst()
         activeToast = ActiveToast(payload: nextToast)
-        presenter.show(payload: nextToast, onAction: { [weak self] actionID in
-            self?.handleActionSelection(id: actionID)
-        })
-        scheduleDismiss(for: nextToast)
+        presenter.show(
+            payload: nextToast,
+            onAction: { [weak self] actionID in
+                self?.handleActionSelection(id: actionID)
+            },
+            onHoverChange: { [weak self] isHovering in
+                self?.setTimerPaused(isHovering)
+            }
+        )
+        scheduleDismiss(for: nextToast.duration)
     }
 
-    private func scheduleDismiss(for payload: ToastPayload) {
+    private func scheduleDismiss(for remainingDuration: TimeInterval?) {
         dismissTask?.cancel()
-        guard let duration = payload.duration, duration > 0 else {
+        guard var activeToast else {
             dismissTask = nil
             return
         }
 
+        guard let remainingDuration, remainingDuration > 0 else {
+            activeToast.remainingDuration = remainingDuration
+            activeToast.dismissStartedAt = nil
+            activeToast.isTimerPaused = false
+            self.activeToast = activeToast
+            dismissTask = nil
+            return
+        }
+
+        activeToast.remainingDuration = remainingDuration
+        activeToast.dismissStartedAt = Date()
+        activeToast.isTimerPaused = false
+        self.activeToast = activeToast
+
         dismissTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            try? await Task.sleep(nanoseconds: UInt64(remainingDuration * 1_000_000_000))
             guard !Task.isCancelled else { return }
             self?.dismissCurrentToast()
         }
+    }
+
+    private func setTimerPaused(_ isPaused: Bool) {
+        guard var activeToast else { return }
+        guard activeToast.isTimerPaused != isPaused else { return }
+        guard let remainingDuration = activeToast.remainingDuration else { return }
+
+        if isPaused {
+            dismissTask?.cancel()
+            dismissTask = nil
+
+            if let dismissStartedAt = activeToast.dismissStartedAt {
+                let elapsed = Date().timeIntervalSince(dismissStartedAt)
+                activeToast.remainingDuration = max(0, remainingDuration - elapsed)
+            }
+
+            activeToast.dismissStartedAt = nil
+            activeToast.isTimerPaused = true
+            self.activeToast = activeToast
+            return
+        }
+
+        activeToast.isTimerPaused = false
+        self.activeToast = activeToast
+
+        guard let resumedDuration = activeToast.remainingDuration, resumedDuration > 0 else {
+            dismissCurrentToast()
+            return
+        }
+
+        scheduleDismiss(for: resumedDuration)
     }
 }
 
 private extension ToastPayload {
     var signature: String {
         let actionSignature = actions.map { "\($0.title)|\($0.role)" }.joined(separator: "|")
-        return "\(message)|\(placement)|\(actionSignature)"
+        return "\(message)|\(style)|\(placement)|\(actionSignature)"
     }
 }

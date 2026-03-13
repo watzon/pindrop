@@ -5,7 +5,7 @@ import SwiftData
 import os.log
 
 @MainActor
-final class StatusBarController: NSObject, NSMenuDelegate {
+final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
 
     enum RecordingState {
         case idle
@@ -56,6 +56,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let aiModelService = AIModelService()
 
     private var settingsWindow: NSWindow?
+    private var settingsHostingController: TitlebarlessHostingController<AnyView>?
     private var welcomePopover: NSPopover?
 
     // MARK: - Callbacks
@@ -83,7 +84,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
 
-    // MARK: - State
+    // MARK: - StateNo idea
 
     private var currentState: RecordingState = .idle {
         didSet {
@@ -814,18 +815,16 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     private func openSettingsWindow(tab: SettingsTab) {
-        if let existingWindow = settingsWindow {
-            existingWindow.close()
-            settingsWindow = nil
+        let rootView = makeSettingsRootView(tab: tab)
+
+        if let existingWindow = settingsWindow,
+           let existingHostingController = settingsHostingController {
+            existingHostingController.rootView = rootView
+            existingWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
         }
 
-        let settingsView = SettingsWindow(settings: settingsStore, initialTab: tab)
-        let rootView: AnyView
-        if let container = modelContainer {
-            rootView = AnyView(settingsView.modelContainer(container))
-        } else {
-            rootView = AnyView(settingsView)
-        }
         let hostingController = TitlebarlessHostingController(rootView: rootView)
 
         let window = NSWindow(
@@ -840,6 +839,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             defer: false
         )
         window.contentViewController = hostingController
+        window.delegate = self
         window.title = "Pindrop Settings"
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
@@ -850,13 +850,29 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         window.backgroundColor = .clear
         window.isOpaque = false
         window.hasShadow = true
+        window.isReleasedWhenClosed = false
         window.setContentSize(NSSize(width: AppTheme.Window.settingsDefaultWidth, height: AppTheme.Window.settingsDefaultHeight))
         window.minSize = NSSize(width: AppTheme.Window.settingsMinWidth, height: AppTheme.Window.settingsMinHeight)
         window.center()
 
+        settingsHostingController = hostingController
         settingsWindow = window
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        guard notification.object as? NSWindow === settingsWindow else { return }
+        settingsWindow = nil
+        settingsHostingController = nil
+    }
+
+    private func makeSettingsRootView(tab: SettingsTab) -> AnyView {
+        let settingsView = SettingsWindow(settings: settingsStore, initialTab: tab)
+        if let container = modelContainer {
+            return AnyView(settingsView.modelContainer(container))
+        }
+        return AnyView(settingsView)
     }
 
     @objc private func quit() {

@@ -1811,17 +1811,22 @@ final class AppCoordinator {
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
-            if case .modelNotLoaded = error {
-                AlertManager.shared.showModelNotLoadedAlert()
+            let message = if case .modelNotLoaded = error {
+                "No model loaded. Please download a model in Settings."
             } else {
-                AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+                "Transcription failed: \(error.localizedDescription)"
             }
+            toastService.show(
+                ToastPayload(message: message, style: .error)
+            )
             throw error
         } catch {
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
-            AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+            toastService.show(
+                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+            )
             throw error
         }
 
@@ -2120,9 +2125,10 @@ final class AppCoordinator {
 
     private func handleNoSpeechDetected(context: String) {
         Log.app.info("No speech detected for \(context); skipping output")
-        AlertManager.shared.showGenericErrorAlert(
-            title: "No Speech Detected",
-            message: "Pindrop couldn't detect any speech. Try speaking closer to your microphone and record again."
+        toastService.show(
+            ToastPayload(
+                message: "No speech detected. Try speaking closer to your microphone."
+            )
         )
     }
 
@@ -2406,17 +2412,22 @@ final class AppCoordinator {
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
-            if case .modelNotLoaded = error {
-                AlertManager.shared.showModelNotLoadedAlert()
+            let message = if case .modelNotLoaded = error {
+                "No model loaded. Please download a model in Settings."
             } else {
-                AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+                "Transcription failed: \(error.localizedDescription)"
             }
+            toastService.show(
+                ToastPayload(message: message, style: .error)
+            )
             throw error
         } catch {
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
-            AlertManager.shared.showTranscriptionErrorAlert(message: error.localizedDescription)
+            toastService.show(
+                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+            )
             throw error
         }
 
@@ -2649,8 +2660,13 @@ final class AppCoordinator {
                 Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.error("AI enhancement failed: \(error)")
-                AlertManager.shared.showAIEnhancementErrorAlert(error: error)
-                originalText = nil
+                toastService.show(
+                    ToastPayload(
+                        message: "AI enhancement failed. Transcription inserted without enhancement.",
+                        style: .error
+                    )
+                )
+                // Keep originalText so the unenhanced transcription is saved to history
             }
         } else {
             if !settingsStore.aiEnhancementEnabled {
