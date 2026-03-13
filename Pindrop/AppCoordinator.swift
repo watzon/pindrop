@@ -89,9 +89,9 @@ private final class EventTapRunLoopThread: Thread {
 }
 
 extension Notification.Name {
-    static let switchModel = Notification.Name("com.pindrop.switchModel")
-    static let modelActiveChanged = Notification.Name("com.pindrop.modelActiveChanged")
-    static let requestActiveModel = Notification.Name("com.pindrop.requestActiveModel")
+    static let switchModel = Notification.Name("tech.watzon.pindrop.switchModel")
+    static let modelActiveChanged = Notification.Name("tech.watzon.pindrop.modelActiveChanged")
+    static let requestActiveModel = Notification.Name("tech.watzon.pindrop.requestActiveModel")
 }
 
 struct HotkeyConflict: Equatable {
@@ -326,7 +326,7 @@ final class AppCoordinator {
     private var modifierEventTap: CFMachPort?
     private var modifierRunLoopSource: CFRunLoopSource?
     private var modifierGlobalMonitor: Any?
-    private let eventTapRunLoopThread = EventTapRunLoopThread(name: "com.pindrop.event-tap-runloop")
+    private let eventTapRunLoopThread = EventTapRunLoopThread(name: "tech.watzon.pindrop.event-tap-runloop")
     private var escapeEventTapDisableState = EventTapDisableState()
     private var modifierEventTapDisableState = EventTapDisableState()
     private var escapeEventTapRecoveryTask: Task<Void, Never>?
@@ -1856,8 +1856,9 @@ final class AppCoordinator {
 
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
-           let apiKey = settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) {
+           settingsStore.currentAIProviderHasRequiredAPIKey() {
             do {
+                let apiKey = settingsStore.configuredAPIKeyForCurrentAIProvider()
                 let notePrompt = settingsStore.noteEnhancementPrompt
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
                 let replacementCorrections = appliedReplacements.map {
@@ -2467,7 +2468,7 @@ final class AppCoordinator {
         )
         let shouldUsePlaceholderMentions = settingsStore.aiEnhancementEnabled &&
             settingsStore.apiEndpoint != nil &&
-            settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) != nil
+            settingsStore.currentAIProviderHasRequiredAPIKey()
         if let capabilities = capturedAdapterCapabilities,
            capabilities.supportsFileMentions {
             let resolvedMentionFormatting = settingsStore.resolveMentionFormatting(
@@ -2521,8 +2522,9 @@ final class AppCoordinator {
 
         if settingsStore.aiEnhancementEnabled,
            let apiEndpoint = settingsStore.apiEndpoint,
-           let apiKey = settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) {
+           settingsStore.currentAIProviderHasRequiredAPIKey() {
             do {
+                let apiKey = settingsStore.configuredAPIKeyForCurrentAIProvider()
                 originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
                 
@@ -2673,7 +2675,7 @@ final class AppCoordinator {
                 Log.app.debug("AI enhancement disabled, no original text to save")
             } else if settingsStore.apiEndpoint == nil {
                 Log.app.debug("AI enhancement enabled but no API endpoint configured")
-            } else if settingsStore.loadAPIKey(for: settingsStore.currentAIProvider) == nil {
+            } else if settingsStore.requiresAPIKey(for: settingsStore.currentAIProvider) {
                 Log.app.debug("AI enhancement enabled but no API key configured")
             }
         }

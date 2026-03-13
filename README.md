@@ -78,19 +78,17 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 ## Installation
 
-Since Pindrop is currently distributed as a self-signed build, you'll need to approve it on first launch:
+Pindrop releases are now signed with the project's Apple Developer identity. After the app is notarized and stapled, macOS should open it normally:
 
 1. Download `Pindrop.dmg` from the [releases page](https://github.com/watzon/pindrop/releases)
 2. Open the DMG and drag Pindrop to Applications
-3. **First launch only:** Right-click Pindrop → Open
-4. If you see "cannot be opened because the developer cannot be verified":
-   - Open System Settings → Privacy & Security
-   - Scroll to "Security" section
-   - Click "Open Anyway" next to Pindrop
-   - Enter your password when prompted
-5. Pindrop will now launch normally
+3. Launch Pindrop from Applications
+4. If you downloaded a build that has not been notarized yet, macOS may still warn on first launch:
+   - Right-click Pindrop → Open, or
+   - Open System Settings → Privacy & Security and use "Open Anyway"
+5. After notarization, Pindrop should launch without the old self-signed workaround
 
-**Why this happens:** Pindrop is self-signed because we don't have an Apple Developer account yet. The app is completely safe - this is just macOS being cautious about unverified developers.
+**For maintainers:** the default local release flow now exports a signed app bundle before packaging the DMG. `just dmg-self-signed` remains available only as a fallback when Apple signing is unavailable.
 
 ## Screenshots
 
@@ -136,8 +134,10 @@ brew install just
 ```bash
 just build              # Build for development (Debug)
 just build-release      # Build for release
+just export-app         # Export a signed app for distribution
+just dmg                # Export signed app + create DMG
 just test               # Run tests
-just dmg-self-signed    # Build + create self-signed DMG
+just dmg-self-signed    # Fallback self-signed DMG
 just clean              # Clean build artifacts
 just --list             # Show all available commands
 ```
@@ -146,7 +146,7 @@ just --list             # Show all available commands
 
 ```bash
 just release-notes 1.9.0  # Create draft release notes file at release-notes/v1.9.0.md
-just release 1.9.0  # Local manual release (tests, self-signed DMG, appcast, tag, push tag, GitHub release)
+just release 1.9.0  # Local manual release (tests, signed DMG, appcast, tag, push tag, GitHub release)
 ```
 
 ### Manual Build (Alternative)
@@ -157,14 +157,22 @@ To create a distributable build manually:
 xcodebuild -scheme Pindrop -configuration Release build
 ```
 
-The compiled app will be in `build/Release/Pindrop.app`.
+The compiled app will be in `DerivedData/Build/Products/Release/Pindrop.app`.
+
+### Exporting a Signed App
+
+To export a Developer ID-signed app bundle:
+
+```bash
+just export-app
+```
 
 ### Creating a DMG
 
-To create a distributable DMG (self-signed):
+To create a distributable signed DMG:
 
 ```bash
-just dmg-self-signed
+just dmg
 ```
 
 This requires `create-dmg`:
@@ -194,8 +202,8 @@ just release-notes 1.9.0
 # 1. Ensure tests pass
 just test
 
-# 2. Build self-signed release DMG
-just dmg-self-signed
+# 2. Build signed release DMG
+just dmg
 
 # 3. Generate appcast.xml for the current version
 just appcast dist/Pindrop.dmg

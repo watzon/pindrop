@@ -4,10 +4,8 @@
 <dict>
 	<key>method</key>
 	<string>developer-id</string>
-	<key>teamID</key>
-	<string>YOUR_TEAM_ID</string>
 	<key>signingStyle</key>
-	<string>manual</string>
+	<string>automatic</string>
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>uploadSymbols</key>

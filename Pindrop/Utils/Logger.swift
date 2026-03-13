@@ -20,9 +20,9 @@ enum Log {
 
     private static let subsystem: String = {
         if isPreview {
-            return "com.pindrop.preview"
+            return "tech.watzon.pindrop.preview"
         }
-        return Bundle.main.bundleIdentifier ?? "com.pindrop"
+        return Bundle.main.bundleIdentifier ?? "tech.watzon.pindrop"
     }()
 
     private static let shouldPersistLogsToDisk = !isPreview && !isRunningTests
@@ -182,7 +182,7 @@ private final class LogFileSink {
 
     let logsDirectoryURL: URL
 
-    private let queue = DispatchQueue(label: "com.pindrop.log-file-sink", qos: .utility)
+    private let queue = DispatchQueue(label: "tech.watzon.pindrop.log-file-sink", qos: .utility)
     private let fileManager = FileManager.default
     private let maxLogFileSizeBytes = 2_000_000
     private let maxRetainedLogFiles = 15

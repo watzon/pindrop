@@ -11,7 +11,7 @@ Complete guide for building, testing, and distributing Pindrop.
 
 ### Optional (for distribution)
 - **create-dmg** - DMG creation (`brew install create-dmg`)
-- **Apple Developer Account** - For code signing and notarization
+- **Apple Developer Account** - Required for the default signed release/export workflow and notarization
 - **swiftlint** - Code linting (`brew install swiftlint`)
 - **swiftformat** - Code formatting (`brew install swiftformat`)
 
@@ -37,14 +37,16 @@ just build              # Debug build
 just test               # Run test suite
 just test-coverage      # Run tests with coverage
 just dev                # Clean + build + test
+just build-unsigned     # Debug build without signing (CI/fallback)
 ```
 
 ### Release
 
 ```bash
 just build-release      # Release build
-just dmg                # Build + create DMG
-just dmg-self-signed    # Build + create self-signed DMG (no Apple developer account)
+just export-app         # Archive + export Developer ID-signed app
+just dmg                # Export signed app + create DMG
+just dmg-self-signed    # Fallback self-signed DMG (only if Apple signing is unavailable)
 just appcast dist/Pindrop.dmg   # Generate appcast.xml for DMG
 just release-notes 1.9.0        # Create draft release notes file
 just release 1.9.0      # Manual GitHub release workflow (local)
@@ -75,15 +77,29 @@ This runs:
 
 ### 2. Release Build
 
-For creating a distributable app:
+For creating a local Release build with Xcode-managed signing:
 
 ```bash
 just build-release
 ```
 
-Output: `build/Release/Pindrop.app`
+Output: `DerivedData/Build/Products/Release/Pindrop.app`
 
-### 3. DMG Creation
+### 3. Export Signed App
+
+For a public Developer ID-signed app bundle:
+
+```bash
+just export-app
+```
+
+This runs:
+1. `archive` - Create an Xcode archive
+2. `xcodebuild -exportArchive` - Export a Developer ID-signed app with automatic signing
+
+Output: `DerivedData/Build/Products/Release/Pindrop.app`
+
+### 4. DMG Creation
 
 For distribution to users:
 
@@ -92,12 +108,12 @@ just dmg
 ```
 
 This runs:
-1. `build-release` - Create release build
+1. `export-app` - Export Developer ID-signed app
 2. `create-dmg.sh` - Package into DMG
 
 Output: `dist/Pindrop.dmg`
 
-### 4. Manual GitHub Release
+### 5. Manual GitHub Release
 
 For maintainer releases (local machine, not CI):
 
@@ -110,7 +126,7 @@ This runs:
 2. Bump version/build in `project.pbxproj` (if needed)
 3. Commit version bump (if needed)
 4. `just test`
-5. `just dmg-self-signed`
+5. `just dmg`
 6. `just appcast dist/Pindrop.dmg`
 7. Create and push tag (`vX.Y.Z`)
 8. Create GitHub release with notes + DMG + `appcast.xml` via `gh`
@@ -125,22 +141,22 @@ just staple dist/Pindrop.dmg
 
 ### Setup
 
-1. Get your Team ID:
+1. Sign into Xcode with your Apple Developer account and enable automatic signing for the `Pindrop` target.
+
+2. Verify signing identities:
 ```bash
 security find-identity -v -p codesigning
 ```
 
-2. Update `scripts/ExportOptions.plist`:
-```xml
-<key>teamID</key>
-<string>YOUR_TEAM_ID</string>
-```
+`just export-app` uses `scripts/ExportOptions.plist` with `method=developer-id` and automatic signing, so it defaults to the team used for the archive.
 
 ### Sign App Bundle
 
 ```bash
 just sign
 ```
+
+Use this only for manual re-signing; the default release flow goes through `just export-app` / `just dmg`.
 
 ### Verify Signature
 
@@ -234,9 +250,9 @@ jobs:
 
 The `just ci` command runs:
 1. `clean`
-2. `build` (Debug)
-3. `test`
-4. `build-release`
+2. `build-unsigned` (Debug)
+3. `test-unsigned`
+4. `build-release-unsigned`
 
 ## Troubleshooting
 
@@ -259,7 +275,7 @@ just test
 Check requirements:
 ```bash
 brew install create-dmg
-just build-release
+just export-app
 just dmg-quick
 ```
 
@@ -281,13 +297,14 @@ xcrun notarytool history --keychain-profile "notarytool-password"
 
 ```
 pindrop/
-├── build/                  # Build output
-│   └── Release/
-│       └── Pindrop.app
+├── DerivedData/            # Local build + export output
+│   └── Build/Products/Release/Pindrop.app
 ├── dist/                   # Distribution files
 │   └── Pindrop.dmg
 ├── scripts/                # Build scripts
 │   ├── create-dmg.sh
+│   ├── create-dmg-self-signed.sh
+│   ├── sign-app-bundle.sh
 │   └── ExportOptions.plist
 ├── justfile                # Build commands
 └── Pindrop.xcodeproj       # Xcode project

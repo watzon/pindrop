@@ -6,6 +6,10 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>Pindrop</string>
+	<key>CFBundleIconName</key>
+	<string>Pindrop</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -20,21 +24,17 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-	<key>CFBundleIconFile</key>
-	<string>Pindrop</string>
-	<key>CFBundleIconName</key>
-	<string>Pindrop</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Pindrop needs microphone access to transcribe your voice.</string>
-    <key>SUFeedURL</key>
-    <string>https://github.com/watzon/pindrop/releases/latest/download/appcast.xml</string>
-<key>SUPublicEDKey</key>
-<string>TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=</string>
-    <key>SUEnableAutomaticChecks</key>
-    <true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Pindrop needs microphone access to transcribe your voice.</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://github.com/watzon/pindrop/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>TCU0MwULuIK6y0ubIossVr+61PGh/wHZfFrRFc9F2Is=</string>
 </dict>
 </plist>

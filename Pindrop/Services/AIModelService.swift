@@ -105,13 +105,24 @@ final class AIModelService {
         self.session = session
     }
 
-    func fetchModels(for provider: AIProvider, apiKey: String?) async throws -> [AIModel] {
+    func fetchModels(
+        for provider: AIProvider,
+        apiKey: String?,
+        endpointOverride: String? = nil,
+        customLocalProvider: CustomProviderType = .custom
+    ) async throws -> [AIModel] {
         do {
             switch provider {
             case .openrouter:
                 return try await fetchOpenRouterModels()
             case .openai:
                 return try await fetchOpenAIModels(apiKey: apiKey)
+            case .custom:
+                return try await fetchCustomProviderModels(
+                    endpointOverride: endpointOverride,
+                    apiKey: apiKey,
+                    customLocalProvider: customLocalProvider
+                )
             default:
                 throw ModelError.unsupportedProvider
             }
@@ -122,14 +133,31 @@ final class AIModelService {
         }
     }
 
-    func refreshModels(for provider: AIProvider, apiKey: String?) async throws -> [AIModel] {
-        let models = try await fetchModels(for: provider, apiKey: apiKey)
-        try saveCache(AIModelCache(models: models, fetchedAt: Date()), for: provider)
+    func refreshModels(
+        for provider: AIProvider,
+        apiKey: String?,
+        endpointOverride: String? = nil,
+        customLocalProvider: CustomProviderType = .custom
+    ) async throws -> [AIModel] {
+        let models = try await fetchModels(
+            for: provider,
+            apiKey: apiKey,
+            endpointOverride: endpointOverride,
+            customLocalProvider: customLocalProvider
+        )
+        try saveCache(
+            AIModelCache(models: models, fetchedAt: Date()),
+            for: provider,
+            customLocalProvider: customLocalProvider
+        )
         return models
     }
 
-    func getCachedModels(for provider: AIProvider) -> [AIModel]? {
-        guard let cache = loadCache(for: provider) else {
+    func getCachedModels(
+        for provider: AIProvider,
+        customLocalProvider: CustomProviderType = .custom
+    ) -> [AIModel]? {
+        guard let cache = loadCache(for: provider, customLocalProvider: customLocalProvider) else {
             return nil
         }
         guard !isCacheStale(cache) else {
@@ -138,8 +166,11 @@ final class AIModelService {
         return cache.models
     }
 
-    func isCacheStale(for provider: AIProvider) -> Bool {
-        guard let cache = loadCache(for: provider) else {
+    func isCacheStale(
+        for provider: AIProvider,
+        customLocalProvider: CustomProviderType = .custom
+    ) -> Bool {
+        guard let cache = loadCache(for: provider, customLocalProvider: customLocalProvider) else {
             return true
         }
         return isCacheStale(cache)
@@ -155,13 +186,25 @@ final class AIModelService {
             .appendingPathComponent("AIModels", isDirectory: true)
     }
 
-    private func cacheFileURL(for provider: AIProvider) -> URL {
-        let slug = provider.rawValue.lowercased().replacingOccurrences(of: " ", with: "-")
+    private func cacheFileURL(
+        for provider: AIProvider,
+        customLocalProvider: CustomProviderType = .custom
+    ) -> URL {
+        let slug: String
+        switch provider {
+        case .custom:
+            slug = "custom-\(customLocalProvider.storageKey)"
+        default:
+            slug = provider.rawValue.lowercased().replacingOccurrences(of: " ", with: "-")
+        }
         return cacheBaseURL.appendingPathComponent("ai-model-cache-\(slug).json", isDirectory: false)
     }
 
-    private func loadCache(for provider: AIProvider) -> AIModelCache? {
-        let url = cacheFileURL(for: provider)
+    private func loadCache(
+        for provider: AIProvider,
+        customLocalProvider: CustomProviderType = .custom
+    ) -> AIModelCache? {
+        let url = cacheFileURL(for: provider, customLocalProvider: customLocalProvider)
         guard fileManager.fileExists(atPath: url.path) else {
             return nil
         }
@@ -176,8 +219,12 @@ final class AIModelService {
         }
     }
 
-    private func saveCache(_ cache: AIModelCache, for provider: AIProvider) throws {
-        let url = cacheFileURL(for: provider)
+    private func saveCache(
+        _ cache: AIModelCache,
+        for provider: AIProvider,
+        customLocalProvider: CustomProviderType = .custom
+    ) throws {
+        let url = cacheFileURL(for: provider, customLocalProvider: customLocalProvider)
         do {
             try fileManager.createDirectory(at: cacheBaseURL, withIntermediateDirectories: true)
             let encoder = JSONEncoder()
@@ -229,7 +276,43 @@ final class AIModelService {
         }
 
         Log.aiEnhancement.info("Fetching OpenAI models")
-        let request = try buildRequest(urlString: "https://api.openai.com/v1/models", apiKey: apiKey)
+        return try await fetchOpenAICompatibleModels(
+            urlString: "https://api.openai.com/v1/models",
+            provider: .openai,
+            apiKey: apiKey
+        )
+    }
+
+    private func fetchCustomProviderModels(
+        endpointOverride: String?,
+        apiKey: String?,
+        customLocalProvider: CustomProviderType
+    ) async throws -> [AIModel] {
+        guard customLocalProvider.supportsModelListing else {
+            throw ModelError.unsupportedProvider
+        }
+
+        let modelsURL = try modelsURLString(
+            from: endpointOverride,
+            customLocalProvider: customLocalProvider
+        )
+        let normalizedAPIKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        Log.aiEnhancement.info("Fetching \(customLocalProvider.rawValue) models")
+        return try await fetchOpenAICompatibleModels(
+            urlString: modelsURL,
+            provider: .custom,
+            apiKey: normalizedAPIKey
+        )
+    }
+
+    private func fetchOpenAICompatibleModels(
+        urlString: String,
+        provider: AIProvider,
+        apiKey: String?
+    ) async throws -> [AIModel] {
+        let normalizedAPIKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let request = try buildRequest(urlString: urlString, apiKey: normalizedAPIKey?.isEmpty == false ? normalizedAPIKey : nil)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -247,7 +330,7 @@ final class AIModelService {
                 AIModel(
                     id: $0.id,
                     name: $0.id,
-                    provider: .openai,
+                    provider: provider,
                     description: nil,
                     contextLength: nil
                 )
@@ -256,6 +339,47 @@ final class AIModelService {
         } catch {
             throw ModelError.invalidResponse
         }
+    }
+
+    private func modelsURLString(
+        from endpointOverride: String?,
+        customLocalProvider: CustomProviderType
+    ) throws -> String {
+        if let endpointOverride = endpointOverride?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !endpointOverride.isEmpty
+        {
+            if endpointOverride.hasSuffix("/models") {
+                return endpointOverride
+            }
+            if endpointOverride.hasSuffix("/chat/completions") {
+                return String(endpointOverride.dropLast("/chat/completions".count)) + "/models"
+            }
+            if endpointOverride.hasSuffix("/completions") {
+                return String(endpointOverride.dropLast("/completions".count)) + "/models"
+            }
+            if endpointOverride.hasSuffix("/responses") {
+                return String(endpointOverride.dropLast("/responses".count)) + "/models"
+            }
+            if endpointOverride.hasSuffix("/v1") {
+                return endpointOverride + "/models"
+            }
+            if endpointOverride.contains("/v1/") {
+                guard let url = URL(string: endpointOverride), var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                    throw ModelError.invalidEndpoint
+                }
+                components.path = "/v1/models"
+                guard let rebuiltURL = components.url else {
+                    throw ModelError.invalidEndpoint
+                }
+                return rebuiltURL.absoluteString
+            }
+            return endpointOverride + "/models"
+        }
+
+        guard let defaultModelsEndpoint = customLocalProvider.defaultModelsEndpoint else {
+            throw ModelError.invalidEndpoint
+        }
+        return defaultModelsEndpoint
     }
 
     private func buildRequest(urlString: String, apiKey: String?) throws -> URLRequest {

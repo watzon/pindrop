@@ -197,7 +197,7 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
 }
 
 private final class FluidSpeakerDiarizerWorker {
-    private let queue = DispatchQueue(label: "com.pindrop.transcription.diarizer")
+    private let queue = DispatchQueue(label: "tech.watzon.pindrop.transcription.diarizer")
     private let config: DiarizerConfig
 
     private var diarizerManager: DiarizerManager?

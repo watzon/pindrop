@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Last updated: 2026-03-03
+Last updated: 2026-03-13
 
 ## Project Snapshot
 
@@ -26,6 +26,7 @@ Last updated: 2026-03-03
 - Xcode with command-line tools (`xcodebuild`)
 - `just` for all routine workflows: `brew install just`
 - Optional: `swiftlint`, `swiftformat`, `create-dmg`
+- Apple Developer signing configured in Xcode for signed local/release builds; CI recipes use explicit unsigned overrides
 
 ## Build and Run Commands
 
@@ -34,12 +35,14 @@ Prefer `just` recipes over ad-hoc shell commands.
 ```bash
 just build                 # Debug build
 just build-release         # Release build
+just export-app            # Developer ID export for distribution
+just dmg                   # Signed DMG for distribution
 just test                  # Unit test plan
 just test-integration      # Integration test plan (opt-in)
 just test-all              # Unit + integration
 just test-coverage         # Unit tests with coverage
 just dev                   # clean + build + test
-just ci                    # clean + build + test + build-release
+just ci                    # clean + unsigned build + unsigned test + unsigned release build
 just run                   # open Xcode project
 just xcode                 # open Xcode project
 ```
@@ -108,16 +111,17 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 ## Release and Distribution
 
-- Local release helpers: `just build-release`, `just dmg`, `just dmg-self-signed`
+- Local release helpers: `just build-release`, `just export-app`, `just dmg`, `just dmg-self-signed` (fallback only)
 - Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
   1. Create/edit contextual release notes (`release-notes/vX.Y.Z.md`)
   2. Run tests
-  3. Build self-signed release DMG
+  3. Build signed release DMG (`just dmg` exports a Developer ID-signed app first)
   4. Generate `appcast.xml`
   5. Create + push tag
   6. Create GitHub release via `gh` with notes + DMG + `appcast.xml`
 - CI workflows under `.github/workflows/` are for build/test validation; release publishing is manual
 - Sparkle appcast generation is scripted via `just appcast <dmg-path>`
+- Keep `just build-self-signed` / `just dmg-self-signed` only as a fallback when Apple signing is unavailable
 
 ## Quick PR Checklist
 

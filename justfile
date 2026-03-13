@@ -24,7 +24,7 @@ clean:
     rm -rf DerivedData
     @echo "✅ Clean complete"
 
-# Build for development (Debug)
+# Build for development (Debug, Xcode-managed signing)
 build:
     @echo "🔨 Building {{app_name}} (Debug)..."
     xcodebuild \
@@ -35,7 +35,7 @@ build:
         build
     @echo "✅ Debug build complete"
 
-# Build for release
+# Build for release (Xcode-managed signing)
 build-release:
     @echo "🔨 Building {{app_name}} (Release)..."
     xcodebuild \
@@ -47,12 +47,36 @@ build-release:
     @echo "✅ Release build complete"
     @echo "📦 App bundle: DerivedData/Build/Products/Release/{{app_name}}.app"
 
-# Self-signed build (no developer account needed)
-build-self-signed:
-    @echo "🔨 Building {{app_name}} (Release)..."
-    xcodebuild -scheme {{scheme}} -configuration Release -derivedDataPath DerivedData \
-        CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+# Build for development on unsigned CI runners
+build-unsigned:
+    @echo "🔨 Building {{app_name}} (Debug, unsigned)..."
+    xcodebuild \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -configuration Debug \
+        -derivedDataPath DerivedData \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
         build
+    @echo "✅ Unsigned debug build complete"
+
+# Build for release on unsigned CI runners
+build-release-unsigned:
+    @echo "🔨 Building {{app_name}} (Release, unsigned)..."
+    xcodebuild \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -configuration Release \
+        -derivedDataPath DerivedData \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
+        build
+    @echo "✅ Unsigned release build complete"
+
+# Legacy fallback when no Apple signing identity is available
+build-self-signed: build-release-unsigned
     @echo "🔏 Re-signing with explicit nested order (required for macOS TCC permissions)..."
     ./scripts/sign-app-bundle.sh {{app_bundle}} -
     @echo "✅ Self-signed build complete"
@@ -116,13 +140,13 @@ typecheck:
         build
     @echo "✅ Type check complete"
 
-# Create DMG for distribution
-dmg: build-release
+# Create a signed DMG for distribution
+dmg: export-app
     @echo "📦 Creating DMG..."
     @./scripts/create-dmg.sh
     @echo "✅ DMG created in {{dmg_dir}}/"
 
-# Quick DMG (assumes release build exists)
+# Quick DMG (assumes exported signed app exists)
 dmg-quick:
     @echo "📦 Creating DMG (skipping build)..."
     @./scripts/create-dmg.sh
@@ -135,16 +159,18 @@ archive:
         -project {{xcode_project}} \
         -scheme {{scheme}} \
         -configuration Release \
-        -archivePath {{build_dir}}/{{app_name}}.xcarchive
+        -archivePath {{build_dir}}/{{app_name}}.xcarchive \
+        -allowProvisioningUpdates
     @echo "✅ Archive created: {{build_dir}}/{{app_name}}.xcarchive"
 
-# Export archive to .app
+# Export a Developer ID-signed app bundle for distribution
 export-app: archive
     @echo "📤 Exporting app..."
     xcodebuild -exportArchive \
         -archivePath {{build_dir}}/{{app_name}}.xcarchive \
         -exportPath {{release_dir}} \
-        -exportOptionsPlist scripts/ExportOptions.plist
+        -exportOptionsPlist scripts/ExportOptions.plist \
+        -allowProvisioningUpdates
     @echo "✅ App exported to {{release_dir}}"
 
 # Sign the app bundle (requires Developer ID certificate)
@@ -160,6 +186,19 @@ verify-signature:
     spctl --assess --type execute --verbose=2 {{app_bundle}}
     @echo "✅ Signature verified"
 
+# Run tests on unsigned CI runners
+test-unsigned:
+    @echo "🧪 Running tests (unsigned CI mode)..."
+    xcodebuild test \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -testPlan Unit \
+        -destination 'platform=macOS' \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO
+    @echo "✅ Unsigned CI tests complete"
+
 # Notarize the DMG (requires Apple Developer account)
 notarize dmg_path:
     @echo "📝 Notarizing {{dmg_path}}..."
@@ -174,8 +213,8 @@ staple dmg_path:
     xcrun stapler staple {{dmg_path}}
     @echo "✅ Stapling complete"
 
-# Full local release workflow: build, sign, DMG, notarize
-release-local: clean build-release sign dmg
+# Full local release workflow: clean export, DMG, then notarize manually
+release-local: clean dmg
 	@echo "🎉 Release build complete!"
 	@echo "📦 DMG: {{dmg_dir}}/{{app_name}}.dmg"
 	@echo ""
@@ -186,7 +225,7 @@ release-local: clean build-release sign dmg
 
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
-# Runs locally: tests -> self-signed DMG -> appcast -> release notes -> tag -> push tag -> gh release create
+# Runs locally: tests -> signed DMG -> appcast -> release notes -> tag -> push tag -> gh release create
 release version:
 	#!/usr/bin/env bash
 	set -euo pipefail
@@ -291,9 +330,9 @@ release version:
 	echo "🧪 Running test suite..."
 	just test
 
-	# Step 2: Build self-signed release DMG
-	echo "📦 Building self-signed release DMG..."
-	just dmg-self-signed
+	# Step 2: Build signed release DMG
+	echo "📦 Building signed release DMG..."
+	just dmg
 
 	# Step 3: Update appcast
 	echo "📡 Generating appcast.xml..."
@@ -398,7 +437,7 @@ appcast dmg_path:
 	@echo "📡 Generating appcast.xml..."
 	@if [ ! -f "{{dmg_path}}" ]; then \
 		echo "❌ DMG not found: {{dmg_path}}"; \
-		echo "   Run: just dmg-self-signed"; \
+		echo "   Run: just dmg"; \
 		exit 1; \
 	fi
 	@if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
@@ -508,6 +547,6 @@ info:
 dev: clean build test
     @echo "✅ Development build and test complete"
 
-# CI workflow: clean, build, test, build-release
-ci: clean build test build-release
+# CI workflow: clean, unsigned build, unsigned test, unsigned release build
+ci: clean build-unsigned test-unsigned build-release-unsigned
     @echo "✅ CI workflow complete"

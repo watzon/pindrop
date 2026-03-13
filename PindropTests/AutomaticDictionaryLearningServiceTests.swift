@@ -386,7 +386,7 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
         service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
         changeObserver.lastSession?.emit(
             .frontmostApplicationChanged(
-                bundleIdentifier: "app.pindrop.pindrop",
+                bundleIdentifier: "tech.watzon.pindrop",
                 localizedName: "Pindrop",
                 processIdentifier: 999
             )

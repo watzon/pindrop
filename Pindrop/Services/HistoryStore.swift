@@ -10,7 +10,7 @@ import SwiftData
 import AppKit
 
 extension Notification.Name {
-    static let historyStoreDidChange = Notification.Name("com.pindrop.historyStoreDidChange")
+    static let historyStoreDidChange = Notification.Name("tech.watzon.pindrop.historyStoreDidChange")
 }
 
 @MainActor

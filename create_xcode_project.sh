@@ -25,7 +25,7 @@ cat > Info.plist << 'PLISTEOF'
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.pindrop.app</string>
+    <string>tech.watzon.pindrop</string>
 </dict>
 </plist>
 PLISTEOF

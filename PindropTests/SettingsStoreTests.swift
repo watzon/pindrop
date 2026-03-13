@@ -107,7 +107,37 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(newStore.apiEndpoint, endpoint2)
         XCTAssertEqual(newStore.apiKey, key2)
     }
-    
+
+    func testCustomLocalProviderIsInferredFromOllamaEndpoint() throws {
+        try settingsStore.saveAPIEndpoint("http://localhost:11434/v1/chat/completions")
+
+        XCTAssertEqual(settingsStore.currentAIProvider, .custom)
+        XCTAssertEqual(settingsStore.currentCustomLocalProvider, .ollama)
+        XCTAssertFalse(settingsStore.requiresAPIKey(for: .custom))
+    }
+
+    func testCustomProviderAPIKeysAreScopedBySubtype() throws {
+        try settingsStore.saveAPIKey("custom-key", for: .custom, customLocalProvider: .custom)
+        try settingsStore.saveAPIKey("lmstudio-key", for: .custom, customLocalProvider: .lmStudio)
+
+        XCTAssertEqual(
+            settingsStore.loadAPIKey(for: .custom, customLocalProvider: .custom),
+            "custom-key"
+        )
+        XCTAssertEqual(
+            settingsStore.loadAPIKey(for: .custom, customLocalProvider: .lmStudio),
+            "lmstudio-key"
+        )
+        XCTAssertNil(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .ollama))
+    }
+
+    func testSavingBlankAPIKeyDeletesStoredValue() throws {
+        try settingsStore.saveAPIKey("temporary-key", for: .openai)
+        try settingsStore.saveAPIKey("   ", for: .openai)
+
+        XCTAssertNil(settingsStore.loadAPIKey(for: .openai))
+    }
+     
     func testDefaultValues() {
         let store = SettingsStore()
         

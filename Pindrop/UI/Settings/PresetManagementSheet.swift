@@ -193,8 +193,9 @@ struct PresetManagementSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             TextField("Preset Name", text: $newName)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
                 .font(AppTypography.body)
+                .aiSettingsInputChrome()
             
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 Text("Prompt")
@@ -615,8 +616,9 @@ struct PresetRow: View {
     private var editingView: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             TextField("Preset Name", text: $editName)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
                 .font(AppTypography.body)
+                .aiSettingsInputChrome()
             
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 TextEditor(text: $editPrompt)

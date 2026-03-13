@@ -13,21 +13,50 @@ import ApplicationServices
 final class MockClipboard: ClipboardProtocol {
     var copiedText: String?
     var clipboardContent: String?
-    var clearCount = 0
+    var restoreCount = 0
+    var lastRestoredSnapshot: ClipboardSnapshot?
+    var changeCount = 0
     
     func copyToClipboard(_ text: String) -> Bool {
         copiedText = text
         clipboardContent = text
+        changeCount += 1
         return true
     }
     
-    func getClipboardContent() -> String? {
-        return clipboardContent
+    func captureSnapshot() -> ClipboardSnapshot {
+        guard let clipboardContent else {
+            return ClipboardSnapshot(items: [], changeCount: changeCount)
+        }
+
+        let data = Data(clipboardContent.utf8)
+        return ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.string.rawValue: data]], changeCount: changeCount)
     }
-    
-    func clearClipboard() {
-        clearCount += 1
-        clipboardContent = nil
+
+    func currentChangeCount() -> Int {
+        changeCount
+    }
+
+    func currentStringContent() -> String? {
+        clipboardContent
+    }
+
+    func restoreSnapshot(_ snapshot: ClipboardSnapshot) -> Bool {
+        restoreCount += 1
+        lastRestoredSnapshot = snapshot
+        changeCount += 1
+
+        guard let firstItem = snapshot.items.first,
+              let data = firstItem[NSPasteboard.PasteboardType.string.rawValue] else {
+            clipboardContent = nil
+            copiedText = nil
+            return true
+        }
+
+        let restoredText = String(data: data, encoding: .utf8)
+        clipboardContent = restoredText
+        copiedText = restoredText
+        return true
     }
 }
 
@@ -58,7 +87,9 @@ final class OutputManagerTests: XCTestCase {
         mockKeySimulation = MockKeySimulation()
         outputManager = OutputManager(
             clipboard: mockClipboard,
-            keySimulation: mockKeySimulation
+            keySimulation: mockKeySimulation,
+            accessibilityPermissionChecker: { true },
+            frontmostApplicationProvider: { nil }
         )
     }
     
@@ -103,12 +134,16 @@ final class OutputManagerTests: XCTestCase {
     func testOutputWithClipboardMode() async throws {
         outputManager.setOutputMode(.clipboard)
         let testText = "Clipboard mode test"
-        
+        let previousContent = "Previous clipboard content"
+
+        mockClipboard.clipboardContent = previousContent
+
         try await outputManager.output(testText)
-        
-        XCTAssertEqual(mockClipboard.copiedText, testText)
-        XCTAssertFalse(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.clearCount, 0)
+
+        XCTAssertEqual(mockClipboard.copiedText, previousContent)
+        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.restoreCount, 1)
     }
 
     func testBeginAndUpdateStreamingInsertionTypesInitialText() async throws {
@@ -198,28 +233,46 @@ final class OutputManagerTests: XCTestCase {
         let previousContent = "Previous clipboard content"
         
         mockClipboard.clipboardContent = previousContent
-        
+
         try await outputManager.output(testText)
-        
+
+        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.restoreCount, 0)
+        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
+    }
+
+    func testDirectInsertFallsBackToClipboardPasteForUnsupportedText() async throws {
+        outputManager.setOutputMode(.directInsert)
+        let previousContent = "Previous clipboard content"
+
+        mockClipboard.clipboardContent = previousContent
+
+        try await outputManager.output("hello 😀")
+
+        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        XCTAssertEqual(mockClipboard.restoreCount, 1)
         XCTAssertEqual(mockClipboard.copiedText, previousContent)
         XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.clearCount, 2)
     }
-    
-    func testClipboardModeDoesNotRestoreClipboard() async throws {
+
+    func testClipboardModeFallsBackToCopyWithoutAccessibility() async throws {
         outputManager.setOutputMode(.clipboard)
+
+        outputManager = OutputManager(
+            outputMode: .clipboard,
+            clipboard: mockClipboard,
+            keySimulation: mockKeySimulation,
+            accessibilityPermissionChecker: { false },
+            frontmostApplicationProvider: { nil }
+        )
+
         let testText = "Clipboard test"
-        let previousContent = "Previous content"
-        
-        mockClipboard.clipboardContent = previousContent
-        
         try await outputManager.output(testText)
-        
+
         XCTAssertEqual(mockClipboard.copiedText, testText)
         XCTAssertEqual(mockClipboard.clipboardContent, testText)
         XCTAssertFalse(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.clearCount, 0)
+        XCTAssertEqual(mockClipboard.restoreCount, 0)
     }
     
     func testGetKeyCodeForBasicCharacters() {
@@ -269,16 +322,20 @@ final class OutputManagerTests: XCTestCase {
     func testMockClipboardTracksOperations() {
         XCTAssertNil(mockClipboard.copiedText)
         XCTAssertNil(mockClipboard.clipboardContent)
-        XCTAssertEqual(mockClipboard.clearCount, 0)
-        
+        XCTAssertEqual(mockClipboard.restoreCount, 0)
+
         let success = mockClipboard.copyToClipboard("test")
         XCTAssertTrue(success)
         XCTAssertEqual(mockClipboard.copiedText, "test")
         XCTAssertEqual(mockClipboard.clipboardContent, "test")
-        
-        mockClipboard.clearClipboard()
-        XCTAssertEqual(mockClipboard.clearCount, 1)
-        XCTAssertNil(mockClipboard.clipboardContent)
+
+        let snapshot = mockClipboard.captureSnapshot()
+        mockClipboard.clipboardContent = nil
+        mockClipboard.copiedText = nil
+
+        XCTAssertTrue(mockClipboard.restoreSnapshot(snapshot))
+        XCTAssertEqual(mockClipboard.restoreCount, 1)
+        XCTAssertEqual(mockClipboard.clipboardContent, "test")
     }
     
     func testMockKeySimulationTracksEvents() async throws {

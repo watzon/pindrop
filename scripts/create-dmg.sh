@@ -72,9 +72,8 @@ if [ -f "$DMG_PATH" ]; then
     echo ""
     echo -e "${YELLOW}Next steps:${NC}"
     echo "  1. Test the DMG on a clean Mac"
-    echo "  2. Sign: codesign --sign 'Developer ID Application' '${DMG_PATH}'"
-    echo "  3. Notarize: just notarize '${DMG_PATH}'"
-    echo "  4. Staple: just staple '${DMG_PATH}'"
+    echo "  2. Notarize: just notarize '${DMG_PATH}'"
+    echo "  3. Staple: just staple '${DMG_PATH}'"
 else
     echo -e "${RED}❌ Error: DMG creation failed${NC}"
     exit 1

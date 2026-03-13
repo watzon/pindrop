@@ -39,8 +39,17 @@ enum OutputManagerError: Error, LocalizedError {
 
 protocol ClipboardProtocol {
     func copyToClipboard(_ text: String) -> Bool
-    func getClipboardContent() -> String?
-    func clearClipboard()
+    func captureSnapshot() -> ClipboardSnapshot
+    func currentChangeCount() -> Int
+    func currentStringContent() -> String?
+    func restoreSnapshot(_ snapshot: ClipboardSnapshot) -> Bool
+}
+
+struct ClipboardSnapshot {
+    let items: [[String: Data]]
+    let changeCount: Int
+
+    static let empty = ClipboardSnapshot(items: [], changeCount: 0)
 }
 
 protocol KeySimulationProtocol {
@@ -56,13 +65,51 @@ final class SystemClipboard: ClipboardProtocol {
         pasteboard.clearContents()
         return pasteboard.setString(text, forType: .string)
     }
-    
-    func getClipboardContent() -> String? {
-        return NSPasteboard.general.string(forType: .string)
+
+    func captureSnapshot() -> ClipboardSnapshot {
+        let pasteboard = NSPasteboard.general
+        guard let pasteboardItems = pasteboard.pasteboardItems else {
+            return .empty
+        }
+
+        let items = pasteboardItems.map { item in
+            var capturedItem: [String: Data] = [:]
+            for type in item.types {
+                if let data = item.data(forType: type) {
+                    capturedItem[type.rawValue] = data
+                }
+            }
+            return capturedItem
+        }
+
+        return ClipboardSnapshot(items: items, changeCount: pasteboard.changeCount)
     }
-    
-    func clearClipboard() {
-        NSPasteboard.general.clearContents()
+
+    func currentChangeCount() -> Int {
+        NSPasteboard.general.changeCount
+    }
+
+    func currentStringContent() -> String? {
+        NSPasteboard.general.string(forType: .string)
+    }
+
+    func restoreSnapshot(_ snapshot: ClipboardSnapshot) -> Bool {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+
+        guard !snapshot.items.isEmpty else {
+            return true
+        }
+
+        let pasteboardItems = snapshot.items.map { capturedItem in
+            let item = NSPasteboardItem()
+            for (type, data) in capturedItem {
+                item.setData(data, forType: NSPasteboard.PasteboardType(type))
+            }
+            return item
+        }
+
+        return pasteboard.writeObjects(pasteboardItems)
     }
 }
 
@@ -79,6 +126,31 @@ final class SystemKeySimulation: KeySimulationProtocol {
     }
     
     func simulatePaste() async throws {
+        if try runSystemEventsPasteScript() {
+            return
+        }
+
+        try await simulatePasteWithCGEvent()
+    }
+
+    private func runSystemEventsPasteScript() throws -> Bool {
+        let scriptSource = "tell application \"System Events\" to keystroke \"v\" using command down"
+        guard let script = NSAppleScript(source: scriptSource) else {
+            return false
+        }
+
+        var error: NSDictionary?
+        script.executeAndReturnError(&error)
+
+        if let error {
+            Log.output.debug("System Events paste failed: \(String(describing: error))")
+            return false
+        }
+
+        return true
+    }
+
+    private func simulatePasteWithCGEvent() async throws {
         let vKeyCode: CGKeyCode = 0x09
         let source = CGEventSource(stateID: .hidSystemState)
         
@@ -103,17 +175,23 @@ final class OutputManager {
     private(set) var outputMode: OutputMode
     private let clipboard: ClipboardProtocol
     private let keySimulation: KeySimulationProtocol
+    private let accessibilityPermissionChecker: () -> Bool
+    private let frontmostApplicationProvider: () -> NSRunningApplication?
     private var streamingSessionActive = false
     private var lastStreamingText = ""
     
     init(
         outputMode: OutputMode = .clipboard,
         clipboard: ClipboardProtocol = SystemClipboard(),
-        keySimulation: KeySimulationProtocol = SystemKeySimulation()
+        keySimulation: KeySimulationProtocol = SystemKeySimulation(),
+        accessibilityPermissionChecker: @escaping () -> Bool = { AXIsProcessTrusted() },
+        frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { NSWorkspace.shared.frontmostApplication }
     ) {
         self.outputMode = outputMode
         self.clipboard = clipboard
         self.keySimulation = keySimulation
+        self.accessibilityPermissionChecker = accessibilityPermissionChecker
+        self.frontmostApplicationProvider = frontmostApplicationProvider
     }
     
     func setOutputMode(_ mode: OutputMode) {
@@ -129,9 +207,9 @@ final class OutputManager {
         
         switch outputMode {
         case .clipboard:
-            try copyToClipboard(text)
+            try await outputViaClipboard(text)
         case .directInsert:
-            try await pasteViaClipboard(text, restoreClipboard: true)
+            try await outputViaDirectInsert(text)
         }
     }
 
@@ -196,27 +274,71 @@ final class OutputManager {
         lastStreamingText = ""
     }
     
-    private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
-        var previousContents: String? = nil
-        if restoreClipboard {
-            previousContents = clipboard.getClipboardContent()
+    private func outputViaClipboard(_ text: String) async throws {
+        guard checkAccessibilityPermission() else {
+            try copyToClipboard(text)
+            return
         }
-        
-        clipboard.clearClipboard()
+
+        do {
+            try await pasteViaClipboard(text, restoreClipboard: true)
+        } catch {
+            try copyToClipboard(text)
+        }
+    }
+
+    private func outputViaDirectInsert(_ text: String) async throws {
+        guard checkAccessibilityPermission() else {
+            try copyToClipboard(text)
+            return
+        }
+
+        if supportsDirectTyping(text) {
+            try await insertTextDirectly(text)
+            return
+        }
+
+        try await pasteViaClipboard(text, restoreClipboard: true)
+    }
+
+    private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
+        let previousSnapshot = restoreClipboard ? clipboard.captureSnapshot() : .empty
+        let targetApplication = frontmostApplicationProvider()
         let success = clipboard.copyToClipboard(text)
-        
+
         guard success else {
             Log.output.error("Failed to write to clipboard")
             throw OutputManagerError.clipboardWriteFailed
         }
-        
-        try await Task.sleep(nanoseconds: 100_000_000)
-        try await keySimulation.simulatePaste()
-        
-        if restoreClipboard, let previous = previousContents {
-            try await Task.sleep(nanoseconds: 500_000_000)
-            clipboard.clearClipboard()
-            _ = clipboard.copyToClipboard(previous)
+
+        let temporaryClipboardChangeCount = clipboard.currentChangeCount()
+
+        do {
+            try await Task.sleep(nanoseconds: 120_000_000)
+            targetApplication?.activate(options: [.activateIgnoringOtherApps])
+            try await Task.sleep(nanoseconds: 80_000_000)
+            try await keySimulation.simulatePaste()
+
+            if restoreClipboard {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                if shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
+                    let restored = clipboard.restoreSnapshot(previousSnapshot)
+                    if !restored {
+                        Log.output.error("Failed to restore clipboard snapshot")
+                    }
+                } else {
+                    Log.output.info("Skipping clipboard restore because clipboard changed externally")
+                }
+            }
+        } catch {
+            if restoreClipboard && shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
+                let restored = clipboard.restoreSnapshot(previousSnapshot)
+                if !restored {
+                    Log.output.error("Failed to restore clipboard snapshot after paste failure")
+                }
+            }
+
+            throw error
         }
     }
     
@@ -229,12 +351,17 @@ final class OutputManager {
     }
     
     func checkAccessibilityPermission() -> Bool {
-        return AXIsProcessTrusted()
+        accessibilityPermissionChecker()
     }
     
     func requestAccessibilityPermission() -> Bool {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
+    }
+
+    private func shouldRestoreClipboard(expectedChangeCount: Int, insertedText: String) -> Bool {
+        clipboard.currentChangeCount() == expectedChangeCount
+            || clipboard.currentStringContent() == insertedText
     }
     
     private func insertTextDirectly(_ text: String) async throws {

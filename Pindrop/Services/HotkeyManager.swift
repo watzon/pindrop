@@ -65,7 +65,7 @@ final class CarbonHotkeyRegistration: HotkeyRegistrationProtocol {
 // MARK: - HotkeyManager
 
 final class HotkeyManager {
-    private static let hotkeyCaptureStateDidChangeNotification = Notification.Name("com.pindrop.hotkeyCaptureStateDidChange")
+    private static let hotkeyCaptureStateDidChangeNotification = Notification.Name("tech.watzon.pindrop.hotkeyCaptureStateDidChange")
     private static let hotkeyCaptureStateUserInfoKey = "isCapturing"
 
     static func setHotkeyCaptureInProgress(_ isCapturing: Bool) {

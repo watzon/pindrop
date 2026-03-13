@@ -23,7 +23,7 @@ private enum SettingsStoreRuntime {
 
       let suiteName =
          ProcessInfo.processInfo.environment["PINDROP_TEST_USER_DEFAULTS_SUITE"]
-         ?? "com.pindrop.settings.tests.\(ProcessInfo.processInfo.processIdentifier)"
+         ?? "tech.watzon.pindrop.settings.tests.\(ProcessInfo.processInfo.processIdentifier)"
       return UserDefaults(suiteName: suiteName)
    }()
 }
@@ -141,6 +141,8 @@ final class SettingsStore: ObservableObject {
    var aiEnhancementEnabled: Bool = false
    @AppStorage("aiProvider", store: SettingsStoreRuntime.appStorageStore)
    var aiProvider: String = AIProvider.openai.rawValue
+   @AppStorage("customLocalProviderType", store: SettingsStoreRuntime.appStorageStore)
+   var customLocalProviderType: String = CustomProviderType.custom.rawValue
    @AppStorage("aiModel", store: SettingsStoreRuntime.appStorageStore) var aiModel: String =
       Defaults.aiModel
    @AppStorage("openRouterModelsCacheTimestamp", store: SettingsStoreRuntime.appStorageStore)
@@ -216,7 +218,7 @@ final class SettingsStore: ObservableObject {
    // MARK: - Cached Keychain Values
 
    private(set) var apiEndpoint: String?
-   private var apiKeys: [AIProvider: String] = [:]
+   private var apiKeys: [String: String] = [:]
 
    @available(*, deprecated, message: "Use loadAPIKey(for:)")
    var apiKey: String? {
@@ -231,6 +233,16 @@ final class SettingsStore: ObservableObject {
          return provider
       }
       return .openai
+   }
+
+   var currentCustomLocalProvider: CustomProviderType {
+      if let storedProvider = CustomProviderType(rawValue: customLocalProviderType),
+         storedProvider != .custom
+      {
+         return storedProvider
+      }
+
+      return inferredCustomLocalProvider(for: apiEndpoint) ?? .custom
    }
 
    var selectedFloatingIndicatorType: FloatingIndicatorType {
@@ -291,17 +303,70 @@ final class SettingsStore: ObservableObject {
       return .custom
    }
 
+   func inferredCustomLocalProvider(for endpoint: String?) -> CustomProviderType? {
+      guard
+         let endpoint = endpoint?.trimmingCharacters(in: .whitespacesAndNewlines),
+         !endpoint.isEmpty
+      else {
+         return nil
+      }
+
+      let normalizedEndpoint = endpoint.lowercased()
+      if normalizedEndpoint.contains("localhost:11434") || normalizedEndpoint.contains("127.0.0.1:11434") {
+         return .ollama
+      }
+      if normalizedEndpoint.contains("localhost:1234") || normalizedEndpoint.contains("127.0.0.1:1234") {
+         return .lmStudio
+      }
+
+      return .custom
+   }
+
    init() {
       guard !SettingsStoreRuntime.isPreview else { return }
       apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
       if let provider = provider(for: apiEndpoint) {
          aiProvider = provider.rawValue
       }
+      if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
+         customLocalProviderType = customProvider.rawValue
+      }
    }
 
    // MARK: - Keychain Methods
-   private func apiKeyAccount(for provider: AIProvider) -> String {
-      "api-key-\(provider.rawValue)"
+   private func resolvedCustomLocalProvider(_ customLocalProvider: CustomProviderType?) ->
+      CustomProviderType
+   {
+      customLocalProvider ?? currentCustomLocalProvider
+   }
+
+   private func normalizedAPIKey(_ key: String?) -> String? {
+      guard let key = key?.trimmingCharacters(in: .whitespacesAndNewlines), !key.isEmpty else {
+         return nil
+      }
+      return key
+   }
+
+   private func apiKeyAccount(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) -> String {
+      guard provider == .custom else {
+         return "api-key-\(provider.rawValue)"
+      }
+
+      let resolvedProvider = resolvedCustomLocalProvider(customLocalProvider)
+      return "api-key-\(provider.rawValue)-\(resolvedProvider.storageKey)"
+   }
+
+   private func apiKeyAccounts(for provider: AIProvider) -> [String] {
+      guard provider == .custom else {
+         return [apiKeyAccount(for: provider)]
+      }
+
+      return CustomProviderType.allCases.map {
+         apiKeyAccount(for: provider, customLocalProvider: $0)
+      } + ["api-key-\(provider.rawValue)"]
    }
 
    func saveAPIEndpoint(_ endpoint: String) throws {
@@ -310,11 +375,26 @@ final class SettingsStore: ObservableObject {
       if let provider = provider(for: endpoint) {
          aiProvider = provider.rawValue
       }
+      if let customProvider = inferredCustomLocalProvider(for: endpoint), currentAIProvider == .custom {
+         customLocalProviderType = customProvider.rawValue
+      }
    }
 
-   func saveAPIKey(_ key: String, for provider: AIProvider) throws {
-      try saveToKeychain(value: key, account: apiKeyAccount(for: provider))
-      apiKeys[provider] = key
+   func saveAPIKey(
+      _ key: String,
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) throws {
+      let account = apiKeyAccount(for: provider, customLocalProvider: customLocalProvider)
+
+      guard let normalizedKey = normalizedAPIKey(key) else {
+         try deleteFromKeychain(account: account)
+         apiKeys.removeValue(forKey: account)
+         return
+      }
+
+      try saveToKeychain(value: normalizedKey, account: account)
+      apiKeys[account] = normalizedKey
    }
 
    @available(*, deprecated, message: "Use saveAPIKey(_:for:)")
@@ -322,27 +402,77 @@ final class SettingsStore: ObservableObject {
       try saveAPIKey(key, for: currentAIProvider)
    }
 
-   func loadAPIKey(for provider: AIProvider) -> String? {
-      if let cachedKey = apiKeys[provider] {
+   func loadAPIKey(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) -> String? {
+      let resolvedCustomProvider = resolvedCustomLocalProvider(customLocalProvider)
+      let account = apiKeyAccount(for: provider, customLocalProvider: resolvedCustomProvider)
+
+      if let cachedKey = apiKeys[account] {
          return cachedKey
       }
 
-      let storedKey = (try? loadFromKeychain(account: apiKeyAccount(for: provider))) ?? nil
-      if let key = storedKey {
-         apiKeys[provider] = key
-         return key
+      if let storedKey = normalizedAPIKey((try? loadFromKeychain(account: account)) ?? nil) {
+         apiKeys[account] = storedKey
+         return storedKey
+      }
+
+      if provider == .custom,
+         resolvedCustomProvider == .custom,
+         let legacyCustomKey = normalizedAPIKey((try? loadFromKeychain(account: "api-key-\(provider.rawValue)")) ?? nil)
+      {
+         try? saveToKeychain(value: legacyCustomKey, account: account)
+         apiKeys[account] = legacyCustomKey
+         try? deleteFromKeychain(account: "api-key-\(provider.rawValue)")
+         return legacyCustomKey
       }
 
       guard provider == currentAIProvider else { return nil }
 
-      let legacyKey = (try? loadFromKeychain(account: legacyAPIKeyAccount)) ?? nil
-      guard let key = legacyKey else { return nil }
+      guard let legacyKey = normalizedAPIKey((try? loadFromKeychain(account: legacyAPIKeyAccount)) ?? nil)
+      else { return nil }
 
-      try? saveToKeychain(value: key, account: apiKeyAccount(for: provider))
-      apiKeys[provider] = key
+      try? saveToKeychain(value: legacyKey, account: account)
+      apiKeys[account] = legacyKey
       try? deleteFromKeychain(account: legacyAPIKeyAccount)
 
-      return key
+      return legacyKey
+   }
+
+   func configuredAPIKey(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) -> String? {
+      normalizedAPIKey(loadAPIKey(for: provider, customLocalProvider: customLocalProvider))
+   }
+
+   func requiresAPIKey(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) -> Bool {
+      switch provider {
+      case .custom:
+         return resolvedCustomLocalProvider(customLocalProvider).requiresAPIKey
+      default:
+         return true
+      }
+   }
+
+   func hasRequiredAPIKey(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) -> Bool {
+      !requiresAPIKey(for: provider, customLocalProvider: customLocalProvider)
+         || configuredAPIKey(for: provider, customLocalProvider: customLocalProvider) != nil
+   }
+
+   func configuredAPIKeyForCurrentAIProvider() -> String? {
+      configuredAPIKey(for: currentAIProvider)
+   }
+
+   func currentAIProviderHasRequiredAPIKey() -> Bool {
+      hasRequiredAPIKey(for: currentAIProvider)
    }
 
    func deleteAPIEndpoint() throws {
@@ -350,9 +480,13 @@ final class SettingsStore: ObservableObject {
       apiEndpoint = nil
    }
 
-   func deleteAPIKey(for provider: AIProvider) throws {
-      try deleteFromKeychain(account: apiKeyAccount(for: provider))
-      apiKeys.removeValue(forKey: provider)
+   func deleteAPIKey(
+      for provider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) throws {
+      let account = apiKeyAccount(for: provider, customLocalProvider: customLocalProvider)
+      try deleteFromKeychain(account: account)
+      apiKeys.removeValue(forKey: account)
    }
 
    @available(*, deprecated, message: "Use deleteAPIKey(for:)")
@@ -381,6 +515,7 @@ final class SettingsStore: ObservableObject {
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID
       aiEnhancementEnabled = false
       aiProvider = AIProvider.openai.rawValue
+      customLocalProviderType = CustomProviderType.custom.rawValue
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
       floatingIndicatorType = Defaults.floatingIndicatorType
       resetPillFloatingIndicatorOffset()
@@ -398,7 +533,9 @@ final class SettingsStore: ObservableObject {
 
       try? deleteAPIEndpoint()
       for provider in AIProvider.allCases {
-         try? deleteAPIKey(for: provider)
+         for account in apiKeyAccounts(for: provider) {
+            try? deleteFromKeychain(account: account)
+         }
       }
       try? deleteFromKeychain(account: legacyAPIKeyAccount)
       apiKeys.removeAll()

@@ -87,6 +87,32 @@ final class AIEnhancementServiceTests: XCTestCase {
             "application/json"
         )
     }
+
+    func testEnhanceWithoutAPIKeyOmitsAuthorizationHeader() async throws {
+        mockSession.mockData = """
+        {
+            "choices": [{
+                "message": {
+                    "content": "Enhanced text"
+                }
+            }]
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "http://localhost:11434/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        _ = try await service.enhance(
+            text: "test",
+            apiEndpoint: "http://localhost:11434/v1/chat/completions",
+            apiKey: nil
+        )
+
+        XCTAssertNil(mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization"))
+    }
     
     // MARK: - Test Fallback on API Error
     

@@ -17,6 +17,15 @@ enum AIProvider: String, CaseIterable, Identifiable {
 
    var id: String { rawValue }
 
+   var displayName: String {
+      switch self {
+      case .custom:
+         return "Custom/Local"
+      default:
+         return rawValue
+      }
+   }
+
    var icon: Icon {
       switch self {
       case .openai: return .openai
@@ -55,26 +64,93 @@ enum AIProvider: String, CaseIterable, Identifiable {
    }
 }
 
-private struct AIModelOption: Identifiable, Hashable, Codable {
-   let id: String
-   let name: String?
+enum CustomProviderType: String, CaseIterable, Identifiable {
+   case custom = "Custom"
+   case ollama = "Ollama"
+   case lmStudio = "LM Studio"
 
-   var displayName: String {
-      let trimmedName = name?.trimmingCharacters(in: .whitespacesAndNewlines)
-      return trimmedName?.isEmpty == false ? trimmedName! : id
-   }
-}
+   var id: String { rawValue }
 
-private enum ModelFetchError: LocalizedError {
-   case invalidResponse
-   case apiError(String)
-
-   var errorDescription: String? {
+   var icon: Icon {
       switch self {
-      case .invalidResponse:
-         return "Invalid response from model API"
-      case .apiError(let message):
-         return message
+      case .custom:
+         return .server
+      case .ollama, .lmStudio:
+         return .hardDrive
+      }
+   }
+
+   var storageKey: String {
+      switch self {
+      case .custom:
+         return "custom"
+      case .ollama:
+         return "ollama"
+      case .lmStudio:
+         return "lm-studio"
+      }
+   }
+
+   var requiresAPIKey: Bool {
+      self == .custom
+   }
+
+   var supportsModelListing: Bool {
+      self != .custom
+   }
+
+   var defaultEndpoint: String {
+      switch self {
+      case .custom:
+         return ""
+      case .ollama:
+         return "http://localhost:11434/v1/chat/completions"
+      case .lmStudio:
+         return "http://localhost:1234/v1/chat/completions"
+      }
+   }
+
+   var defaultModelsEndpoint: String? {
+      switch self {
+      case .custom:
+         return nil
+      case .ollama:
+         return "http://localhost:11434/v1/models"
+      case .lmStudio:
+         return "http://localhost:1234/v1/models"
+      }
+   }
+
+   var apiKeyPlaceholder: String {
+      switch self {
+      case .custom:
+         return "Enter API key"
+      case .ollama:
+         return "Optional (usually not needed)"
+      case .lmStudio:
+         return "Optional unless auth is enabled"
+      }
+   }
+
+   var endpointPlaceholder: String {
+      switch self {
+      case .custom:
+         return "https://your-api.com/v1/chat/completions"
+      case .ollama:
+         return defaultEndpoint
+      case .lmStudio:
+         return defaultEndpoint
+      }
+   }
+
+   var modelPlaceholder: String {
+      switch self {
+      case .custom:
+         return "e.g., gpt-4o"
+      case .ollama:
+         return "e.g., llama3.2"
+      case .lmStudio:
+         return "e.g., local-model"
       }
    }
 }
@@ -86,24 +162,27 @@ struct AIEnhancementStepView: View {
    let onPreferredContentSizeChange: (CGSize) -> Void
 
    @State private var selectedProvider: AIProvider = .openai
+   @State private var selectedCustomProvider: CustomProviderType = .custom
    @State private var apiKey = ""
    @State private var customEndpoint = ""
    @State private var selectedModel = "gpt-4o-mini"
    @State private var customModel = ""
    @State private var showingAPIKey = false
-   @State private var availableModels: [AIModelOption] = []
+   @State private var availableModels: [AIModelService.AIModel] = []
    @State private var isLoadingModels = false
    @State private var modelError: String?
+   @State private var modelService = AIModelService()
+   @State private var endpointRefreshTask: Task<Void, Never>?
 
    private static func preferredContentSize(for provider: AIProvider) -> CGSize {
-      switch provider {
-      case .openrouter, .openai:
-         return CGSize(width: 800, height: 820)
-      case .custom:
-         return CGSize(width: 800, height: 820)
-      default:
-         return CGSize(width: 800, height: 720)
-      }
+       switch provider {
+       case .openrouter, .openai:
+          return CGSize(width: 800, height: 820)
+       case .custom:
+          return CGSize(width: 800, height: 900)
+       default:
+          return CGSize(width: 800, height: 720)
+       }
    }
    private var preferredContentSize: CGSize {
       Self.preferredContentSize(for: selectedProvider)
@@ -121,25 +200,59 @@ struct AIEnhancementStepView: View {
          actionButtons
       }
       .padding(.horizontal, 40)
-      .padding(.top, 16)
-      .padding(.bottom, 24)
-      .onAppear {
-         apiKey = settings.loadAPIKey(for: selectedProvider) ?? ""
-         onPreferredContentSizeChange(preferredContentSize)
-         Task { await loadModelsIfNeeded(for: selectedProvider) }
-      }
-      .onChange(of: selectedProvider) { _, newValue in
-         apiKey = settings.loadAPIKey(for: newValue) ?? ""
-         onPreferredContentSizeChange(preferredContentSize)
-         Task { await loadModelsIfNeeded(for: newValue) }
-      }
-      .onChange(of: apiKey) { _, newValue in
-         guard selectedProvider == .openai else { return }
-         guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-         Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
-      }
+       .padding(.top, 16)
+       .padding(.bottom, 24)
+       .onAppear {
+          loadSavedConfiguration()
+          onPreferredContentSizeChange(preferredContentSize)
+       }
+       .onChange(of: selectedProvider) { oldValue, newValue in
+          if newValue == .custom {
+             applyCustomEndpointDefault(forceReset: oldValue != .custom)
+          }
 
-   }
+          apiKey = settings.loadAPIKey(for: newValue, customLocalProvider: selectedCustomProvider) ?? ""
+          onPreferredContentSizeChange(preferredContentSize)
+          Task {
+             await loadModelsIfNeeded(
+                for: newValue,
+                customLocalProvider: selectedCustomProvider,
+                forceRefresh: newValue == .custom
+             )
+          }
+       }
+       .onChange(of: apiKey) { _, newValue in
+          guard selectedProvider == .openai else { return }
+          guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+          Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
+       }
+       .onChange(of: selectedCustomProvider) { oldValue, newValue in
+          applyCustomEndpointDefault(previousCustomProvider: oldValue)
+
+          apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
+
+          if newValue == .custom {
+             if customModel.isEmpty {
+                customModel = selectedModel
+             }
+             availableModels = []
+             modelError = nil
+          }
+
+          Task {
+             await loadModelsIfNeeded(
+                for: .custom,
+                customLocalProvider: newValue,
+                forceRefresh: true
+             )
+          }
+       }
+       .onChange(of: customEndpoint) { _, newValue in
+          guard selectedProvider == .custom, selectedCustomProvider.supportsModelListing else { return }
+          scheduleEndpointRefresh(for: newValue)
+       }
+
+    }
 
    private var headerSection: some View {
       VStack(spacing: 6) {
@@ -173,7 +286,7 @@ struct AIEnhancementStepView: View {
       } label: {
          VStack(spacing: 4) {
             IconView(icon: provider.icon, size: 18)
-            Text(provider.rawValue)
+            Text(provider.displayName)
                .font(.caption)
                .fontWeight(.medium)
          }
@@ -196,6 +309,10 @@ struct AIEnhancementStepView: View {
          if !selectedProvider.isImplemented {
             comingSoonView
          } else {
+            if selectedProvider == .custom {
+               customProviderPicker
+            }
+
             apiKeyField
 
             if selectedProvider == .openrouter || selectedProvider == .openai {
@@ -203,8 +320,12 @@ struct AIEnhancementStepView: View {
             }
 
             if selectedProvider == .custom {
-               customModelField
-               customEndpointField
+               if selectedCustomProvider.supportsModelListing {
+                  modelPicker
+                } else {
+                  customModelField
+                }
+                customEndpointField
             }
 
             Spacer()
@@ -224,7 +345,7 @@ struct AIEnhancementStepView: View {
          IconView(icon: .construction, size: 40)
             .foregroundStyle(.secondary)
 
-         Text("\(selectedProvider.rawValue) Support Coming Soon")
+          Text("\(selectedProvider.displayName) Support Coming Soon")
             .font(.headline)
 
          Text(
@@ -238,21 +359,32 @@ struct AIEnhancementStepView: View {
       }
    }
 
-   private var apiKeyField: some View {
-      VStack(alignment: .leading, spacing: 8) {
-         Text("API Key")
-            .font(.subheadline)
-            .fontWeight(.medium)
+    private var apiKeyField: some View {
+       VStack(alignment: .leading, spacing: 8) {
+          HStack(spacing: 8) {
+             Text("API Key")
+                .font(.subheadline)
+                .fontWeight(.medium)
 
-         HStack {
-            Group {
-               if showingAPIKey {
-                  TextField(selectedProvider.apiKeyPlaceholder, text: $apiKey)
-               } else {
-                  SecureField(selectedProvider.apiKeyPlaceholder, text: $apiKey)
-               }
-            }
-            .textFieldStyle(.plain)
+             if isAPIKeyOptional {
+                Text("Optional")
+                   .font(.caption)
+                   .foregroundStyle(.secondary)
+                   .padding(.horizontal, 8)
+                   .padding(.vertical, 4)
+                   .background(.ultraThinMaterial, in: Capsule())
+             }
+          }
+
+          HStack {
+             Group {
+                if showingAPIKey {
+                  TextField(currentAPIKeyPlaceholder, text: $apiKey)
+                } else {
+                  SecureField(currentAPIKeyPlaceholder, text: $apiKey)
+                }
+             }
+             .textFieldStyle(.plain)
 
             Button {
                showingAPIKey.toggle()
@@ -260,15 +392,36 @@ struct AIEnhancementStepView: View {
                IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
                   .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
-         }
-         .padding(12)
-         .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
-      }
-   }
+             .buttonStyle(.plain)
+           }
+           .aiSettingsInputChrome()
 
-   private var customEndpointField: some View {
-      VStack(alignment: .leading, spacing: 8) {
+           if let apiKeyHelpText {
+              Text(apiKeyHelpText)
+                 .font(.caption)
+                .foregroundStyle(.secondary)
+          }
+       }
+    }
+
+    private var customProviderPicker: some View {
+       VStack(alignment: .leading, spacing: 8) {
+          Text("Provider Type")
+             .font(.subheadline)
+             .fontWeight(.medium)
+
+          SelectField(
+             options: customProviderOptions,
+             selection: customProviderSelection,
+             placeholder: "Select a provider type"
+          )
+          .frame(maxWidth: 220, alignment: .leading)
+       }
+       .frame(maxWidth: .infinity, alignment: .leading)
+     }
+
+    private var customEndpointField: some View {
+       VStack(alignment: .leading, spacing: 8) {
          HStack {
             Text("API Endpoint")
                .font(.subheadline)
@@ -276,33 +429,31 @@ struct AIEnhancementStepView: View {
 
             Spacer()
 
-            Text("Must be OpenAI-compatible")
-               .font(.caption)
-               .foregroundStyle(.secondary)
-         }
+             Text(selectedCustomProvider == .custom ? "Must be OpenAI-compatible" : "OpenAI-compatible local server")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+          }
 
-         TextField("https://your-api.com/v1", text: $customEndpoint)
-            .textFieldStyle(.plain)
-            .padding(12)
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
-      }
-   }
+           TextField(selectedCustomProvider.endpointPlaceholder, text: $customEndpoint)
+              .textFieldStyle(.plain)
+              .aiSettingsInputChrome()
+       }
+    }
 
    private var customModelField: some View {
       VStack(alignment: .leading, spacing: 8) {
-         Text("AI Model")
-            .font(.subheadline)
-            .fontWeight(.medium)
+          Text("AI Model")
+             .font(.subheadline)
+             .fontWeight(.medium)
 
-         TextField("e.g., gpt-4o", text: $customModel)
-            .textFieldStyle(.plain)
-            .padding(12)
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
-      }
-   }
+           TextField(selectedCustomProvider.modelPlaceholder, text: $customModel)
+              .textFieldStyle(.plain)
+              .aiSettingsInputChrome()
+        }
+     }
 
-   private var modelPicker: some View {
-      VStack(alignment: .leading, spacing: 8) {
+    private var modelPicker: some View {
+       VStack(alignment: .leading, spacing: 8) {
          HStack {
             Text("AI Model")
                .font(.subheadline)
@@ -315,8 +466,14 @@ struct AIEnhancementStepView: View {
             }
 
             Button("Refresh") {
-               Task { await loadModelsIfNeeded(for: selectedProvider, forceRefresh: true) }
-            }
+                Task {
+                   await loadModelsIfNeeded(
+                      for: selectedProvider,
+                      customLocalProvider: selectedCustomProvider,
+                      forceRefresh: true
+                   )
+                }
+             }
             .buttonStyle(.bordered)
             .controlSize(.small)
             .disabled(
@@ -326,247 +483,260 @@ struct AIEnhancementStepView: View {
             )
          }
 
-         if availableModels.isEmpty {
-            Text(emptyModelsMessage)
-               .font(.caption)
-               .foregroundStyle(.secondary)
-               .frame(maxWidth: .infinity, alignment: .leading)
-               .padding(10)
-               .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-         } else {
-            SearchableDropdown(
-               items: availableModels,
-               selection: Binding(
+          if availableModels.isEmpty {
+             Text(emptyModelsMessage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .aiSettingsInputChrome()
+           } else {
+              SearchableDropdown(
+                 items: availableModels,
+                 selection: Binding(
                   get: { selectedModel.isEmpty ? nil : selectedModel },
                   set: { selectedModel = $0 ?? "" }
                ),
-               placeholder: "Select a model",
-               emptyMessage: "No models found.",
-               searchPlaceholder: "Search models..."
-            )
-            .padding(10)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-         }
+                placeholder: "Select a model",
+                emptyMessage: "No models found.",
+                searchPlaceholder: "Search models..."
+             )
+             .frame(maxWidth: .infinity)
+          }
 
-         if let modelError {
-            HStack(spacing: 6) {
-               IconView(icon: .warning, size: 12)
-                  .foregroundStyle(.red)
-               Text(modelError)
-                  .font(.caption)
-                  .foregroundStyle(.red)
-            }
-         }
-      }
-   }
+          if let modelError {
+             HStack(spacing: 6) {
+                IconView(icon: .warning, size: 12)
+                   .foregroundStyle(.red)
+                Text(modelError)
+                   .font(.caption)
+                   .foregroundStyle(.red)
+             }
+          }
+       }
+       .zIndex(10)
+    }
 
 
    private var emptyModelsMessage: String {
       if isLoadingModels {
          return "Loading models..."
       }
-      if selectedProvider == .openai,
-         apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-      {
-         return "Enter an OpenAI API key to load models."
-      }
-      if modelError != nil {
-         return "Unable to load models. Try refresh."
-      }
-      return "No models available."
-   }
+       if selectedProvider == .openai,
+          apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+       {
+          return "Enter an OpenAI API key to load models."
+       }
+       if modelError != nil {
+          return "Unable to load models. Try refresh."
+       }
+       if selectedProvider == .custom && selectedCustomProvider.supportsModelListing {
+          return "No models available. Try Refresh or enter a model ID manually."
+       }
+       return "No models available."
+    }
 
-   @MainActor
-   private func loadModelsIfNeeded(for provider: AIProvider, forceRefresh: Bool = false) async {
-      guard provider == .openrouter || provider == .openai else { return }
-      modelError = nil
+    private var isAPIKeyOptional: Bool {
+       selectedProvider == .custom && !selectedCustomProvider.requiresAPIKey
+    }
 
-      switch provider {
-      case .openai where selectedModel.contains("/"):
-         selectedModel = defaultModelIdentifier(for: provider)
-      case .openrouter where !selectedModel.contains("/"):
-         selectedModel = defaultModelIdentifier(for: provider)
-      default:
-         break
-      }
+    private var currentAPIKeyPlaceholder: String {
+       selectedProvider == .custom ? selectedCustomProvider.apiKeyPlaceholder : selectedProvider.apiKeyPlaceholder
+    }
 
-      let cachedModels = loadCachedModels(for: provider)
-      if !cachedModels.isEmpty {
-         availableModels = cachedModels
-         updateSelectedModelIfNeeded(for: provider, models: cachedModels)
-      } else {
-         availableModels = []
-      }
+    private var apiKeyHelpText: String? {
+       guard selectedProvider == .custom else { return nil }
 
-      let shouldRefresh =
-         forceRefresh || settings.isModelCacheStale(for: provider) || cachedModels.isEmpty
-      guard shouldRefresh else { return }
+       switch selectedCustomProvider {
+       case .custom:
+          return nil
+       case .ollama:
+          return "Ollama usually does not require authentication for local requests."
+       case .lmStudio:
+          return "LM Studio only needs a token if local server authentication is enabled."
+       }
+    }
 
-      if provider == .openai {
-         let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-         guard !trimmedKey.isEmpty else {
-            return
-         }
-      }
+    private func applyCustomEndpointDefault(
+       previousCustomProvider: CustomProviderType? = nil,
+       forceReset: Bool = false
+    ) {
+       guard selectedProvider == .custom else { return }
 
-      await refreshModels(for: provider)
-   }
+       if forceReset {
+          customEndpoint = selectedCustomProvider.defaultEndpoint
+          return
+       }
 
-   @MainActor
-   private func refreshModels(for provider: AIProvider) async {
-      guard !isLoadingModels else { return }
-      isLoadingModels = true
-      defer { isLoadingModels = false }
+       let trimmedEndpoint = customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+       let previousDefaultEndpoint = previousCustomProvider?.defaultEndpoint
+       if trimmedEndpoint.isEmpty || trimmedEndpoint == previousDefaultEndpoint {
+          customEndpoint = selectedCustomProvider.defaultEndpoint
+       }
+    }
 
-      do {
-         let models = try await fetchModels(for: provider)
-         availableModels = models
-         saveCachedModels(models, for: provider)
-         updateSelectedModelIfNeeded(for: provider, models: models)
-      } catch {
-         Log.aiEnhancement.error("Failed to fetch \(provider.rawValue) models: \(error)")
-         modelError = error.localizedDescription
-      }
-   }
+    private func scheduleEndpointRefresh(for endpoint: String) {
+       endpointRefreshTask?.cancel()
 
-   private func fetchModels(for provider: AIProvider) async throws -> [AIModelOption] {
-      let urlString: String
-      switch provider {
-      case .openrouter:
-         urlString = "https://openrouter.ai/api/v1/models"
-      case .openai:
-         urlString = "https://api.openai.com/v1/models"
-      default:
-         throw ModelFetchError.invalidResponse
-      }
+       let trimmedEndpoint = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+       guard !trimmedEndpoint.isEmpty else {
+          availableModels = []
+          modelError = nil
+          return
+       }
 
-      guard let url = URL(string: urlString) else {
-         throw ModelFetchError.invalidResponse
-      }
+       endpointRefreshTask = Task {
+          try? await Task.sleep(for: .milliseconds(300))
+          guard !Task.isCancelled else { return }
+          await loadModelsIfNeeded(
+             for: .custom,
+             customLocalProvider: selectedCustomProvider,
+             forceRefresh: true
+          )
+       }
+    }
 
-      var request = URLRequest(url: url)
-      request.httpMethod = "GET"
+    private func loadSavedConfiguration() {
+       selectedProvider = settings.currentAIProvider
+       selectedCustomProvider = settings.currentCustomLocalProvider
+       selectedModel = settings.aiModel
+       customModel = settings.aiModel
+       customEndpoint = settings.apiEndpoint ?? selectedCustomProvider.defaultEndpoint
+       apiKey = settings.loadAPIKey(
+          for: selectedProvider,
+          customLocalProvider: selectedCustomProvider
+       ) ?? ""
 
-      if provider == .openai {
-         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-      }
+       if let endpoint = settings.apiEndpoint,
+          selectedProvider == .custom {
+          selectedCustomProvider = settings.inferredCustomLocalProvider(for: endpoint)
+             ?? settings.currentCustomLocalProvider
+          customEndpoint = endpoint
+       }
 
-      let (data, response) = try await URLSession.shared.data(for: request)
+       Task {
+          await loadModelsIfNeeded(
+             for: selectedProvider,
+             customLocalProvider: selectedCustomProvider
+          )
+       }
+    }
 
-      guard let httpResponse = response as? HTTPURLResponse else {
-         throw ModelFetchError.invalidResponse
-      }
+    @MainActor
+    private func loadModelsIfNeeded(
+       for provider: AIProvider,
+       customLocalProvider: CustomProviderType? = nil,
+       forceRefresh: Bool = false
+    ) async {
+       let resolvedCustomProvider = customLocalProvider ?? selectedCustomProvider
+       let shouldUseCachedModels = !(provider == .custom && resolvedCustomProvider.supportsModelListing)
+       let supportsModelListing = provider == .openrouter || provider == .openai
+          || (provider == .custom && resolvedCustomProvider.supportsModelListing)
+       guard supportsModelListing else {
+          availableModels = []
+          modelError = nil
+          return
+       }
+       modelError = nil
 
-      guard httpResponse.statusCode == 200 else {
-         let message = modelErrorMessage(from: data, statusCode: httpResponse.statusCode)
-         throw ModelFetchError.apiError(message)
-      }
+       switch provider {
+       case .openai where selectedModel.contains("/"):
+          selectedModel = defaultModelIdentifier(for: provider)
+       case .openrouter where !selectedModel.contains("/"):
+          selectedModel = defaultModelIdentifier(for: provider)
+       default:
+          break
+       }
 
-      guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-         let dataArray = json["data"] as? [[String: Any]]
-      else {
-         throw ModelFetchError.invalidResponse
-      }
+        if shouldUseCachedModels,
+           let cachedModels = modelService.getCachedModels(
+              for: provider,
+              customLocalProvider: resolvedCustomProvider
+           )
+        {
+           availableModels = cachedModels
+           updateSelectedModelIfNeeded(for: provider, models: cachedModels)
+        } else {
+           availableModels = []
+        }
 
-      let models = dataArray.compactMap { entry -> AIModelOption? in
-         guard let id = entry["id"] as? String else { return nil }
-         let name = entry["name"] as? String
-         return AIModelOption(id: id, name: name)
-      }
+        let shouldRefresh =
+           forceRefresh || !shouldUseCachedModels || modelService.isCacheStale(
+              for: provider,
+              customLocalProvider: resolvedCustomProvider
+           ) || availableModels.isEmpty
+        guard shouldRefresh else { return }
 
-      return sortedModels(models)
-   }
+       if provider == .openai {
+          let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+          guard !trimmedKey.isEmpty else {
+             return
+          }
+       }
 
-   private func modelErrorMessage(from data: Data, statusCode: Int) -> String {
-      if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-         let error = json["error"] as? [String: Any],
-         let message = error["message"] as? String
-      {
-         return message
-      }
-      return "HTTP \(statusCode)"
-   }
+       await refreshModels(for: provider, customLocalProvider: resolvedCustomProvider)
+    }
 
-   private func updateSelectedModelIfNeeded(for provider: AIProvider, models: [AIModelOption]) {
-      guard !models.isEmpty else { return }
-      guard !models.contains(where: { $0.id == selectedModel }) else { return }
+    @MainActor
+    private func refreshModels(
+       for provider: AIProvider,
+       customLocalProvider: CustomProviderType? = nil
+    ) async {
+       guard !isLoadingModels else { return }
+       isLoadingModels = true
+       defer { isLoadingModels = false }
 
-      let preferredModel = defaultModelIdentifier(for: provider)
-      if let matching = models.first(where: { $0.id == preferredModel }) {
-         selectedModel = matching.id
-      } else if let firstModel = models.first {
-         selectedModel = firstModel.id
-      }
-   }
+        let resolvedCustomProvider = customLocalProvider ?? selectedCustomProvider
 
-   private func defaultModelIdentifier(for provider: AIProvider) -> String {
-      switch provider {
-      case .openrouter:
-         return "openai/gpt-4o-mini"
-      case .openai:
-         return "gpt-4o-mini"
-      default:
-         return "gpt-4o-mini"
-      }
-   }
+        if provider == .custom && resolvedCustomProvider.supportsModelListing {
+           availableModels = []
+        }
 
-   private func sortedModels(_ models: [AIModelOption]) -> [AIModelOption] {
-      models.sorted {
-         $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
-      }
-   }
+        do {
+           let models = try await modelService.refreshModels(
+             for: provider,
+             apiKey: settings.configuredAPIKey(
+                for: provider,
+                customLocalProvider: resolvedCustomProvider
+             ) ?? apiKey,
+             endpointOverride: provider == .custom ? customEndpoint : nil,
+             customLocalProvider: resolvedCustomProvider
+          )
+          availableModels = models
+          updateSelectedModelIfNeeded(for: provider, models: models)
+        } catch {
+           if provider == .custom && resolvedCustomProvider.supportsModelListing {
+              availableModels = []
+           }
+           Log.aiEnhancement.error("Failed to fetch \(provider.rawValue) models: \(error)")
+           modelError = error.localizedDescription
+        }
+    }
 
-   private var modelCacheDirectory: URL? {
-      FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-         .appendingPathComponent("Pindrop", isDirectory: true)
-         .appendingPathComponent("AIModels", isDirectory: true)
-   }
+    private func updateSelectedModelIfNeeded(
+       for provider: AIProvider,
+       models: [AIModelService.AIModel]
+    ) {
+       guard !models.isEmpty else { return }
+       guard !models.contains(where: { $0.id == selectedModel }) else { return }
 
-   private func cacheURL(for provider: AIProvider) -> URL? {
-      guard let directory = modelCacheDirectory else { return nil }
-      switch provider {
-      case .openrouter:
-         return directory.appendingPathComponent("openrouter-models.json")
-      case .openai:
-         return directory.appendingPathComponent("openai-models.json")
-      default:
-         return nil
-      }
-   }
+       let preferredModel = defaultModelIdentifier(for: provider)
+       if let matching = models.first(where: { $0.id == preferredModel }) {
+          selectedModel = matching.id
+       } else if let firstModel = models.first {
+          selectedModel = firstModel.id
+       }
+    }
 
-   private func loadCachedModels(for provider: AIProvider) -> [AIModelOption] {
-      guard let cacheURL = cacheURL(for: provider) else { return [] }
-      do {
-         let data = try Data(contentsOf: cacheURL)
-         let models = try JSONDecoder().decode([AIModelOption].self, from: data)
-         return sortedModels(models)
-      } catch {
-         Log.aiEnhancement.warning("Failed to load cached \(provider.rawValue) models: \(error)")
-         return []
-      }
-   }
-
-   private func saveCachedModels(_ models: [AIModelOption], for provider: AIProvider) {
-      guard let cacheURL = cacheURL(for: provider) else { return }
-      do {
-         try FileManager.default.createDirectory(
-            at: cacheURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-         )
-         let data = try JSONEncoder().encode(models)
-         try data.write(to: cacheURL, options: .atomic)
-         switch provider {
-         case .openrouter:
-            settings.openRouterModelsCacheTimestamp = Date().timeIntervalSince1970
-         case .openai:
-            settings.openAIModelsCacheTimestamp = Date().timeIntervalSince1970
-         default:
-            break
-         }
-      } catch {
-         Log.aiEnhancement.error("Failed to save cached \(provider.rawValue) models: \(error)")
-      }
-   }
+    private func defaultModelIdentifier(for provider: AIProvider) -> String {
+       switch provider {
+       case .openrouter:
+          return "openai/gpt-4o-mini"
+       case .openai:
+          return "gpt-4o-mini"
+       default:
+          return selectedModel
+       }
+    }
 
    private var featureList: some View {
       VStack(alignment: .leading, spacing: 8) {
@@ -611,34 +781,75 @@ struct AIEnhancementStepView: View {
       }
    }
 
-   private var canContinue: Bool {
-      guard selectedProvider.isImplemented else { return false }
-      if apiKey.isEmpty { return false }
-      if selectedProvider == .custom && customEndpoint.isEmpty { return false }
-      if selectedProvider == .custom && customModel.isEmpty { return false }
-      if (selectedProvider == .openrouter || selectedProvider == .openai) && selectedModel.isEmpty {
-         return false
-      }
-      return true
-   }
+    private var canContinue: Bool {
+       guard selectedProvider.isImplemented else { return false }
+       if settings.requiresAPIKey(for: selectedProvider, customLocalProvider: selectedCustomProvider)
+          && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+       {
+          return false
+       }
+       if selectedProvider == .custom
+          && customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+       {
+          return false
+       }
+       let configuredModel = selectedProvider == .custom && !selectedCustomProvider.supportsModelListing
+          ? customModel
+          : selectedModel
+       if configuredModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+          return false
+       }
+       return true
+    }
 
-   private func saveAndContinue() {
-      settings.aiEnhancementEnabled = true
+    private func saveAndContinue() {
+       settings.aiEnhancementEnabled = true
 
-      let endpoint = selectedProvider == .custom ? customEndpoint : selectedProvider.defaultEndpoint
-      try? settings.saveAPIEndpoint(endpoint)
-      try? settings.saveAPIKey(apiKey, for: selectedProvider)
-      if selectedProvider == .custom {
-         settings.aiModel = customModel
-      } else {
-         settings.aiModel = selectedModel
+       if selectedProvider == .custom {
+          settings.customLocalProviderType = selectedCustomProvider.rawValue
+       }
+
+       let endpoint = selectedProvider == .custom ? customEndpoint : selectedProvider.defaultEndpoint
+       try? settings.saveAPIEndpoint(endpoint)
+       try? settings.saveAPIKey(
+          apiKey,
+          for: selectedProvider,
+          customLocalProvider: selectedCustomProvider
+       )
+       if selectedProvider == .custom && !selectedCustomProvider.supportsModelListing {
+          settings.aiModel = customModel
+       } else {
+          settings.aiModel = selectedModel
       }
 
       onContinue()
    }
 }
 
-extension AIModelOption: SearchableDropdownItem {}
+private extension AIEnhancementStepView {
+   var customProviderOptions: [SelectFieldOption] {
+      CustomProviderType.allCases.map {
+         SelectFieldOption(
+            id: $0.id,
+            displayName: $0.rawValue
+         )
+      }
+   }
+
+   var customProviderSelection: Binding<String> {
+      Binding(
+         get: { selectedCustomProvider.id },
+         set: { newValue in
+            guard let provider = CustomProviderType(rawValue: newValue)
+            else {
+               return
+            }
+
+            selectedCustomProvider = provider
+         }
+      )
+   }
+}
 
 #if DEBUG
    struct AIEnhancementStepView_Previews: PreviewProvider {

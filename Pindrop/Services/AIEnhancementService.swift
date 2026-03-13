@@ -832,7 +832,7 @@ final class AIEnhancementService {
     func enhance(
         text: String,
         apiEndpoint: String,
-        apiKey: String,
+        apiKey: String?,
         model: String = "gpt-4o-mini",
         customPrompt: String = AIEnhancementService.defaultSystemPrompt
     ) async throws -> String {
@@ -847,7 +847,9 @@ final class AIEnhancementService {
         do {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            }
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
 
@@ -907,7 +909,7 @@ final class AIEnhancementService {
     func enhance(
         text: String,
         apiEndpoint: String,
-        apiKey: String,
+        apiKey: String?,
         model: String = "gpt-4o-mini",
         customPrompt: String = AIEnhancementService.defaultSystemPrompt,
         imageBase64: String?,
@@ -924,7 +926,9 @@ final class AIEnhancementService {
         do {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            }
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
 
@@ -1171,7 +1175,7 @@ final class AIEnhancementService {
     func enhanceNote(
         content: String,
         apiEndpoint: String,
-        apiKey: String,
+        apiKey: String?,
         model: String = "gpt-4o-mini",
         contentPrompt: String,
         generateMetadata: Bool = true,
@@ -1269,7 +1273,7 @@ final class AIEnhancementService {
     func generateNoteMetadata(
         content: String,
         apiEndpoint: String,
-        apiKey: String,
+        apiKey: String?,
         model: String = "gpt-4o-mini",
         existingTags: [String] = []
     ) async throws -> (title: String, tags: [String]) {
@@ -1284,7 +1288,9 @@ final class AIEnhancementService {
         do {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            }
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
             

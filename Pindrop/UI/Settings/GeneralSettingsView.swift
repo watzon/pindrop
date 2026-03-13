@@ -132,20 +132,12 @@ struct GeneralSettingsView: View {
                     .foregroundStyle(.secondary)
                 
                 HStack(spacing: 8) {
-                    Picker("Input Device", selection: $settings.selectedInputDeviceUID) {
-                        Text("System Default").tag("")
-                        
-                        if !settings.selectedInputDeviceUID.isEmpty &&
-                            !availableInputDevices.contains(where: { $0.uid == settings.selectedInputDeviceUID }) {
-                            Text("Unavailable device").tag(settings.selectedInputDeviceUID)
-                        }
-                        
-                        ForEach(availableInputDevices) { device in
-                            Text(device.displayName).tag(device.uid)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
+                    SelectField(
+                        options: audioInputOptions,
+                        selection: selectedAudioInputSelection,
+                        placeholder: "System Default"
+                    )
+                    .frame(maxWidth: 300, alignment: .leading)
                     
                     Button("Refresh") {
                         refreshInputDevices()
@@ -248,6 +240,38 @@ struct GeneralSettingsView: View {
     }
 }
 
+private extension GeneralSettingsView {
+    var audioInputOptions: [SelectFieldOption] {
+        var options = [SelectFieldOption(id: "", displayName: "System Default")]
+
+        if !settings.selectedInputDeviceUID.isEmpty,
+           !availableInputDevices.contains(where: { $0.uid == settings.selectedInputDeviceUID }) {
+            options.append(
+                SelectFieldOption(
+                    id: settings.selectedInputDeviceUID,
+                    displayName: "Unavailable device"
+                )
+            )
+        }
+
+        options += availableInputDevices.map {
+            SelectFieldOption(
+                id: $0.uid,
+                displayName: $0.displayName
+            )
+        }
+
+        return options
+    }
+
+    var selectedAudioInputSelection: Binding<String> {
+        Binding(
+            get: { settings.selectedInputDeviceUID },
+            set: { settings.selectedInputDeviceUID = $0 }
+        )
+    }
+}
+
 enum OutputOption: String, CaseIterable, Identifiable {
     case clipboard = "clipboard"
     case directInsert = "directInsert"
@@ -263,8 +287,8 @@ enum OutputOption: String, CaseIterable, Identifiable {
     
     var description: String {
         switch self {
-        case .clipboard: return "Copy text to clipboard after transcription"
-        case .directInsert: return "Insert text directly into the active app"
+        case .clipboard: return "Temporarily copy text, paste it, then restore your clipboard"
+        case .directInsert: return "Type text directly into the active app when possible"
         }
     }
     
