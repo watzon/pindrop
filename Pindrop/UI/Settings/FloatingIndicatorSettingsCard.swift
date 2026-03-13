@@ -110,8 +110,11 @@ private struct FloatingIndicatorOptionCard: View {
     }
 
     private var border: some View {
-        RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-            .strokeBorder(isSelected ? AppColors.accent.opacity(0.8) : AppColors.border.opacity(0.5), lineWidth: 1)
+        Color.clear
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+                style: isSelected ? AppColors.accent.opacity(0.8) : AppColors.border.opacity(0.5)
+            )
     }
 }
 
@@ -143,9 +146,9 @@ private struct FloatingIndicatorPreviewGlyph: View {
         }
         .frame(height: 92)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.25), lineWidth: 0.6)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: 12, style: .continuous),
+            style: Color.white.opacity(0.25)
         )
     }
 }

@@ -150,10 +150,7 @@ struct MainWindow: View {
                     .fill(AppColors.contentBackground)
             )
             .clipShape(panelShape)
-            .overlay(
-                panelShape
-                    .strokeBorder(AppColors.border.opacity(0.8), lineWidth: 1)
-            )
+            .hairlineBorder(panelShape, style: AppColors.border.opacity(0.8))
             .layoutPriority(1)
             .zIndex(1)
     }

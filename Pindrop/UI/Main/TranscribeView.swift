@@ -14,6 +14,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TranscribeView: View {
+    @Environment(\.displayScale) private var displayScale
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @Query private var mediaFolders: [MediaFolder]
@@ -37,6 +38,10 @@ struct TranscribeView: View {
 
     private var folders: [MediaFolder] {
         mediaFolders.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
     }
 
     private var selectedFolder: MediaFolder? {
@@ -320,9 +325,9 @@ struct TranscribeView: View {
                     RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                         .fill(AppColors.elevatedSurface)
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                        .stroke(AppColors.border, lineWidth: 1)
+                .hairlineStroke(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+                    style: AppColors.border
                 )
             }
         }
@@ -332,7 +337,7 @@ struct TranscribeView: View {
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.xl))
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.Radius.xl)
-                .strokeBorder(isTargeted ? AppColors.accent : AppColors.border, style: StrokeStyle(lineWidth: isTargeted ? 1.5 : 0.75, dash: [8, 6]))
+                .strokeBorder(isTargeted ? AppColors.accent : AppColors.border, style: StrokeStyle(lineWidth: hairlineWidth, dash: [8, 6]))
         )
         .dropDestination(for: URL.self) { urls, _ in
             handleImportedFiles(urls)
@@ -480,9 +485,9 @@ struct TranscribeView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                 .fill(AppColors.surfaceBackground)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .stroke(AppColors.border, lineWidth: 1)
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+            style: AppColors.border
         )
         .frame(maxWidth: 420)
     }
@@ -968,12 +973,20 @@ private struct MediaLibraryTranscriptionTile: View {
 }
 
 private struct MediaLibraryGridItemCard<Thumbnail: View>: View {
+    @Environment(\.displayScale) private var displayScale
+
     let title: String
     var badgeText: String? = nil
     var isSelected: Bool = false
     var isDropTarget: Bool = false
     @ViewBuilder let thumbnail: () -> Thumbnail
     let onOpen: () -> Void
+
+    @State private var isHovered = false
+
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
+    }
 
     var body: some View {
         Button(action: onOpen) {
@@ -994,10 +1007,20 @@ private struct MediaLibraryGridItemCard<Thumbnail: View>: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                    .stroke(borderColor, lineWidth: isDropTarget ? 1.5 : 1)
+                    .stroke(borderColor, lineWidth: hairlineWidth)
+            )
+            .shadow(
+                color: isHovered ? Color.black.opacity(0.06) : .clear,
+                radius: isHovered ? 10 : 0,
+                y: isHovered ? 4 : 0
             )
         }
         .buttonStyle(.plain)
+        .scaleEffect(isHovered ? 1.01 : 1)
+        .animation(AppTheme.Animation.fast, value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 
     @ViewBuilder
@@ -1030,11 +1053,24 @@ private struct MediaLibraryGridItemCard<Thumbnail: View>: View {
         if isDropTarget {
             return AppColors.accentBackground
         }
-        return isSelected ? AppColors.sidebarItemActive : AppColors.surfaceBackground
+
+        if isSelected {
+            return isHovered ? AppColors.sidebarItemActive.opacity(0.9) : AppColors.sidebarItemActive
+        }
+
+        return isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground
     }
 
     private var borderColor: Color {
-        isDropTarget ? AppColors.accent : AppColors.border
+        if isDropTarget {
+            return AppColors.accent
+        }
+
+        if isSelected {
+            return AppColors.accent.opacity(isHovered ? 0.5 : 0.35)
+        }
+
+        return isHovered ? AppColors.border.opacity(0.9) : AppColors.border
     }
 }
 
@@ -1325,9 +1361,9 @@ private struct MediaTranscriptionDetailView: View {
                         RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
                             .fill(Color.black.opacity(0.88))
                     )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
-                            .stroke(AppColors.border, lineWidth: 1)
+                    .hairlineStroke(
+                        RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous),
+                        style: AppColors.border
                     )
                     .onChange(of: activeSegmentID) { _, identifier in
                         guard followPlayback, let identifier else { return }

@@ -258,7 +258,81 @@ enum AppTypography {
 
 // MARK: - View Modifiers
 
+private struct HairlineBorderModifier<BorderShape: InsettableShape, BorderStyle: ShapeStyle>: ViewModifier {
+    @Environment(\.displayScale) private var displayScale
+
+    let shape: BorderShape
+    let style: BorderStyle
+
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
+    }
+
+    func body(content: Content) -> some View {
+        content.overlay(
+            shape.strokeBorder(style, lineWidth: hairlineWidth)
+        )
+    }
+}
+
+private struct HairlineDashedBorderModifier<BorderShape: InsettableShape, BorderStyle: ShapeStyle>: ViewModifier {
+    @Environment(\.displayScale) private var displayScale
+
+    let shape: BorderShape
+    let style: BorderStyle
+    let dash: [CGFloat]
+
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
+    }
+
+    func body(content: Content) -> some View {
+        content.overlay(
+            shape.strokeBorder(style, style: StrokeStyle(lineWidth: hairlineWidth, dash: dash))
+        )
+    }
+}
+
+private struct HairlineStrokeModifier<BorderShape: Shape, BorderStyle: ShapeStyle>: ViewModifier {
+    @Environment(\.displayScale) private var displayScale
+
+    let shape: BorderShape
+    let style: BorderStyle
+
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
+    }
+
+    func body(content: Content) -> some View {
+        content.overlay(
+            shape.stroke(style, lineWidth: hairlineWidth)
+        )
+    }
+}
+
 extension View {
+    func hairlineBorder<BorderShape: InsettableShape, BorderStyle: ShapeStyle>(
+        _ shape: BorderShape,
+        style: BorderStyle
+    ) -> some View {
+        modifier(HairlineBorderModifier(shape: shape, style: style))
+    }
+
+    func hairlineBorder<BorderShape: InsettableShape, BorderStyle: ShapeStyle>(
+        _ shape: BorderShape,
+        style: BorderStyle,
+        dash: [CGFloat]
+    ) -> some View {
+        modifier(HairlineDashedBorderModifier(shape: shape, style: style, dash: dash))
+    }
+
+    func hairlineStroke<BorderShape: Shape, BorderStyle: ShapeStyle>(
+        _ shape: BorderShape,
+        style: BorderStyle
+    ) -> some View {
+        modifier(HairlineStrokeModifier(shape: shape, style: style))
+    }
+
     
     /// Apply card styling with optional elevation
     func cardStyle(elevated: Bool = false) -> some View {
@@ -267,9 +341,9 @@ extension View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
                     .fill(elevated ? AppColors.elevatedSurface : AppColors.surfaceBackground)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                    .stroke(AppColors.border, lineWidth: 1)
+            .hairlineStroke(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+                style: AppColors.border
             )
     }
     
@@ -360,9 +434,9 @@ struct ThemePreviewView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
                 .fill(color)
                 .frame(width: 60, height: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
-                        .strokeBorder(AppColors.border, lineWidth: 1)
+                .hairlineBorder(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
+                    style: AppColors.border
                 )
             Text(name)
                 .font(AppTypography.tiny)

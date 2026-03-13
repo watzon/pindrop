@@ -10,24 +10,27 @@ import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
+    private static let pageSize = 50
+    private static let listVerticalPadding: CGFloat = 20
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d, yyyy"
+        return formatter
+    }()
+
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @State private var searchText = ""
     @State private var errorMessage: String?
     @State private var selectedRecord: TranscriptionRecord?
+    @State private var visibleTranscriptions: [TranscriptionRecord] = []
+    @State private var totalTranscriptionsCount = 0
+    @State private var nextFetchOffset = 0
+    @State private var isLoadingPage = false
+    @State private var hasLoadedInitialPage = false
+    @State private var hasMorePages = true
 
-    private var voiceTranscriptions: [TranscriptionRecord] {
-        transcriptions.filter(\.isVoiceTranscription)
-    }
-    
-    var filteredTranscriptions: [TranscriptionRecord] {
-        if searchText.isEmpty {
-            return voiceTranscriptions
-        } else {
-            return voiceTranscriptions.filter { record in
-                record.text.localizedStandardContains(searchText)
-            }
-        }
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     private var historyStore: HistoryStore {
@@ -37,15 +40,13 @@ struct HistoryView: View {
     /// Group transcriptions by date
     private var groupedTranscriptions: [(String, [TranscriptionRecord])] {
         let calendar = Calendar.current
-        let grouped = Dictionary(grouping: filteredTranscriptions) { record -> String in
+        let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
             if calendar.isDateInToday(record.timestamp) {
                 return "Today"
             } else if calendar.isDateInYesterday(record.timestamp) {
                 return "Yesterday"
             } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMMM d, yyyy"
-                return formatter.string(from: record.timestamp)
+                return Self.dayFormatter.string(from: record.timestamp)
             }
         }
         
@@ -68,6 +69,14 @@ struct HistoryView: View {
             contentArea
         }
         .background(AppColors.contentBackground)
+        .task(id: trimmedSearchText) {
+            await reloadTranscriptions()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
+            Task { @MainActor in
+                await refreshVisibleTranscriptions()
+            }
+        }
     }
     
     // MARK: - Header
@@ -80,7 +89,7 @@ struct HistoryView: View {
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
                     
-                    Text("\(filteredTranscriptions.count) transcriptions")
+                    Text("\(totalTranscriptionsCount) transcriptions")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -123,9 +132,9 @@ struct HistoryView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                 .fill(AppColors.surfaceBackground)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .stroke(AppColors.border, lineWidth: 1)
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+            style: AppColors.border
         )
     }
     
@@ -158,7 +167,7 @@ struct HistoryView: View {
             .padding(.vertical, AppTheme.Spacing.sm)
         }
         .menuStyle(.borderlessButton)
-        .disabled(filteredTranscriptions.isEmpty)
+        .disabled(totalTranscriptionsCount == 0)
     }
     
     // MARK: - Content
@@ -167,11 +176,25 @@ struct HistoryView: View {
     private var contentArea: some View {
         if let errorMessage = errorMessage {
             errorView(errorMessage)
-        } else if filteredTranscriptions.isEmpty {
+        } else if !hasLoadedInitialPage {
+            loadingStateView
+        } else if totalTranscriptionsCount == 0 {
             emptyStateView
         } else {
             transcriptionsList
         }
+    }
+
+    private var loadingStateView: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            ProgressView()
+                .controlSize(.large)
+
+            Text("Loading history...")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private func errorView(_ message: String) -> some View {
@@ -217,26 +240,60 @@ struct HistoryView: View {
     }
     
     private var transcriptionsList: some View {
-        ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.xxl, pinnedViews: .sectionHeaders) {
-                ForEach(groupedTranscriptions, id: \.0) { dateGroup, records in
-                    Section {
-                        VStack(spacing: AppTheme.Spacing.md) {
-                            ForEach(records) { record in
-                                HistoryTranscriptionRow(
-                                    record: record,
-                                    isSelected: selectedRecord?.id == record.id,
-                                    onTap: { selectedRecord = (selectedRecord?.id == record.id) ? nil : record }
-                                )
+        List {
+            listEdgeInsetRow
+
+            ForEach(groupedTranscriptions, id: \.0) { dateGroup, records in
+                Section {
+                    ForEach(records) { record in
+                        HistoryTranscriptionRow(
+                            record: record,
+                            isSelected: selectedRecord?.id == record.id,
+                            onTap: { selectedRecord = (selectedRecord?.id == record.id) ? nil : record }
+                        )
+                        .padding(.horizontal, AppTheme.Spacing.xxl)
+                        .padding(.bottom, AppTheme.Spacing.md)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .onAppear {
+                            Task { @MainActor in
+                                await loadNextPageIfNeeded(currentRecord: record)
                             }
                         }
-                    } header: {
-                        dateHeader(dateGroup)
                     }
+                } header: {
+                    dateHeader(dateGroup)
+                        .padding(.horizontal, AppTheme.Spacing.xxl)
+                        .padding(.top, AppTheme.Spacing.lg)
                 }
             }
-            .padding(AppTheme.Spacing.xxl)
+
+            if isLoadingPage && hasLoadedInitialPage && !visibleTranscriptions.isEmpty {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .padding(.vertical, AppTheme.Spacing.md)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+
+            listEdgeInsetRow
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(AppColors.contentBackground)
+    }
+
+    private var listEdgeInsetRow: some View {
+        Color.clear
+            .frame(height: Self.listVerticalPadding)
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
     }
     
     private func dateHeader(_ title: String) -> some View {
@@ -254,11 +311,110 @@ struct HistoryView: View {
     }
     
     // MARK: - Actions
+
+    @MainActor
+    private func reloadTranscriptions() async {
+        do {
+            try await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+
+            errorMessage = nil
+            selectedRecord = nil
+            visibleTranscriptions = []
+            totalTranscriptionsCount = 0
+            nextFetchOffset = 0
+            hasMorePages = true
+            hasLoadedInitialPage = false
+
+            totalTranscriptionsCount = try historyStore.countVoiceTranscriptions(query: trimmedSearchText)
+            hasMorePages = totalTranscriptionsCount > 0
+
+            guard totalTranscriptionsCount > 0 else {
+                hasLoadedInitialPage = true
+                isLoadingPage = false
+                return
+            }
+
+            await loadNextPage()
+            hasLoadedInitialPage = true
+        } catch is CancellationError {
+            return
+        } catch {
+            errorMessage = "Failed to load history: \(error.localizedDescription)"
+            isLoadingPage = false
+            hasLoadedInitialPage = true
+            hasMorePages = false
+        }
+    }
+
+    @MainActor
+    private func loadNextPageIfNeeded(currentRecord: TranscriptionRecord) async {
+        guard currentRecord.id == visibleTranscriptions.last?.id else { return }
+        await loadNextPage()
+    }
+
+    @MainActor
+    private func loadNextPage() async {
+        guard !isLoadingPage, hasMorePages else { return }
+
+        isLoadingPage = true
+        defer { isLoadingPage = false }
+
+        do {
+            let page = try historyStore.fetchVoiceTranscriptions(
+                limit: Self.pageSize,
+                offset: nextFetchOffset,
+                query: trimmedSearchText
+            )
+
+            visibleTranscriptions.append(contentsOf: page)
+            nextFetchOffset += page.count
+            hasMorePages = nextFetchOffset < totalTranscriptionsCount && !page.isEmpty
+        } catch {
+            errorMessage = "Failed to load history: \(error.localizedDescription)"
+            hasMorePages = false
+        }
+    }
+
+    @MainActor
+    private func refreshVisibleTranscriptions() async {
+        guard hasLoadedInitialPage else { return }
+
+        do {
+            let visibleCount = max(visibleTranscriptions.count, Self.pageSize)
+            totalTranscriptionsCount = try historyStore.countVoiceTranscriptions(query: trimmedSearchText)
+
+            guard totalTranscriptionsCount > 0 else {
+                visibleTranscriptions = []
+                nextFetchOffset = 0
+                hasMorePages = false
+                selectedRecord = nil
+                return
+            }
+
+            let refreshedRecords = try historyStore.fetchVoiceTranscriptions(
+                limit: visibleCount,
+                query: trimmedSearchText
+            )
+
+            visibleTranscriptions = refreshedRecords
+            nextFetchOffset = refreshedRecords.count
+            hasMorePages = nextFetchOffset < totalTranscriptionsCount
+
+            if let selectedRecord,
+               !refreshedRecords.contains(where: { $0.id == selectedRecord.id }) {
+                self.selectedRecord = nil
+            }
+        } catch {
+            errorMessage = "Failed to load history: \(error.localizedDescription)"
+        }
+    }
     
     private func exportToPlainText() {
         Task { @MainActor in
             do {
-                try historyStore.exportToPlainText(records: filteredTranscriptions)
+                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
+                try historyStore.exportToPlainText(records: records)
             } catch {
                 errorMessage = "Export failed: \(error.localizedDescription)"
             }
@@ -268,7 +424,8 @@ struct HistoryView: View {
     private func exportToJSON() {
         Task { @MainActor in
             do {
-                try historyStore.exportToJSON(records: filteredTranscriptions)
+                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
+                try historyStore.exportToJSON(records: records)
             } catch {
                 errorMessage = "Export failed: \(error.localizedDescription)"
             }
@@ -278,7 +435,8 @@ struct HistoryView: View {
     private func exportToCSV() {
         Task { @MainActor in
             do {
-                try historyStore.exportToCSV(records: filteredTranscriptions)
+                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
+                try historyStore.exportToCSV(records: records)
             } catch {
                 errorMessage = "Export failed: \(error.localizedDescription)"
             }
@@ -289,17 +447,38 @@ struct HistoryView: View {
 // MARK: - History Transcription Row
 
 struct HistoryTranscriptionRow: View {
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
     let record: TranscriptionRecord
     let isSelected: Bool
     let onTap: () -> Void
     
     @Environment(\.modelContext) private var modelContext
+    @State private var isHovered = false
     @State private var showingSaveSuccess = false
 
+    private var cardBackground: Color {
+        if isSelected {
+            return AppColors.accentBackground
+        }
+
+        return isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground
+    }
+
+    private var cardBorder: Color {
+        if isSelected {
+            return AppColors.accent.opacity(0.3)
+        }
+
+        return isHovered ? AppColors.border.opacity(0.9) : AppColors.border
+    }
+
     private var timeString: String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: record.timestamp)
+        Self.timeFormatter.string(from: record.timestamp)
     }
 
     private var formattedDuration: String {
@@ -349,7 +528,7 @@ struct HistoryTranscriptionRow: View {
                         }
 
                         CopyButton(text: record.text)
-                            .opacity(isSelected ? 1 : 0.6)
+                            .opacity(isSelected ? 1 : (isHovered ? 0.85 : 0.6))
                     }
 
                     // Original text (shown when expanded)
@@ -391,14 +570,19 @@ struct HistoryTranscriptionRow: View {
             .padding(AppTheme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(isSelected ? AppColors.accentBackground : AppColors.surfaceBackground)
+                    .fill(cardBackground)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .strokeBorder(isSelected ? AppColors.accent.opacity(0.3) : AppColors.border, lineWidth: 0.5)
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+                style: cardBorder
             )
         }
         .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(AppTheme.Animation.fast) {
+                isHovered = hovering
+            }
+        }
         .onTapGesture {
             withAnimation(AppTheme.Animation.fast) {
                 onTap()

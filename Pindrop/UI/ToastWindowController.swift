@@ -304,6 +304,8 @@ private struct ToastView: View {
 }
 
 private struct ToastTimerBorderView: View {
+    @Environment(\.displayScale) private var displayScale
+
     private struct TimerState {
         let duration: TimeInterval
         let startDate: Date
@@ -337,10 +339,14 @@ private struct ToastTimerBorderView: View {
 
     @State private var timerState: TimerState?
 
+    private var hairlineWidth: CGFloat {
+        1 / max(displayScale, 1)
+    }
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(AppColors.border, lineWidth: 1.5)
+                .stroke(AppColors.border, lineWidth: hairlineWidth)
 
             if hasTimer {
                 TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { context in
@@ -348,7 +354,7 @@ private struct ToastTimerBorderView: View {
                         .trim(from: 0, to: timerState?.progress(at: context.date) ?? 1)
                         .stroke(
                             timerColor,
-                            style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+                            style: StrokeStyle(lineWidth: hairlineWidth, lineCap: .round, lineJoin: .round)
                         )
                 }
             }

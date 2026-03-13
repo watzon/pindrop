@@ -248,9 +248,9 @@ struct DictionaryView: View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                     .fill(AppColors.surfaceBackground)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .strokeBorder(AppColors.border, lineWidth: 1)
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+                style: AppColors.border
             )
             
             if selectedSection == .replacements {
@@ -275,9 +275,9 @@ struct DictionaryView: View {
                     RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                         .fill(AppColors.surfaceBackground)
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                        .strokeBorder(AppColors.border, lineWidth: 1)
+                .hairlineBorder(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+                    style: AppColors.border
                 )
             }
             
@@ -465,9 +465,9 @@ struct DictionaryView: View {
                 .fill(AppColors.contentBackground)
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(AppColors.border, lineWidth: 1)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+            style: AppColors.border
         )
     }
 
@@ -532,9 +532,9 @@ struct DictionaryView: View {
                 .fill(AppColors.contentBackground)
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(AppColors.border, lineWidth: 1)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+            style: AppColors.border
         )
     }
 

@@ -825,10 +825,7 @@ struct PillIndicatorView: View {
                         )
                     )
             )
-            .overlay(
-                Capsule()
-                    .stroke(Color.white.opacity(controller.isHovered ? 0.28 : 0.18), lineWidth: 0.65)
-            )
+            .hairlineStroke(Capsule(), style: Color.white.opacity(controller.isHovered ? 0.28 : 0.18))
             .overlay {
                 if controller.isHovered {
                     PillStaticWaveformGlyph()
@@ -842,10 +839,7 @@ struct PillIndicatorView: View {
     private var expandedPillShell: some View {
         Capsule()
             .fill(Color.black.opacity(0.82))
-            .overlay(
-                Capsule()
-                    .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-            )
+            .hairlineStroke(Capsule(), style: Color.white.opacity(0.2))
             .overlay(
                 Capsule()
                     .fill(
@@ -935,9 +929,9 @@ private struct PillHoverTooltip: View {
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.black.opacity(0.92))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(Color.white.opacity(0.14), lineWidth: 0.8)
+                    .hairlineStroke(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous),
+                        style: Color.white.opacity(0.14)
                     )
                     .shadow(color: Color.black.opacity(0.42), radius: 14, y: 6)
             )
@@ -945,10 +939,7 @@ private struct PillHoverTooltip: View {
             TooltipPointer()
                 .fill(Color.black.opacity(0.9))
                 .frame(width: 12, height: 6)
-                .overlay(
-                    TooltipPointer()
-                        .stroke(Color.white.opacity(0.14), lineWidth: 0.8)
-                )
+                .hairlineStroke(TooltipPointer(), style: Color.white.opacity(0.14))
                 .offset(y: -0.5)
         }
     }

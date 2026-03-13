@@ -415,10 +415,7 @@ private struct CaretBubbleIndicatorView: View {
             ZStack {
                 Capsule()
                     .fill(Color.black.opacity(0.84))
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 0.7)
-                    )
+                    .hairlineStroke(Capsule(), style: Color.white.opacity(0.1))
                     .shadow(color: Color.black.opacity(0.18), radius: 8, y: 4)
 
                 if state.isProcessing {
@@ -449,10 +446,7 @@ private struct CaretBubbleIndicatorView: View {
                             ? Color(red: 0.94, green: 0.38, blue: 0.38)
                             : Color.black.opacity(0.84)
                     )
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(isDestructive ? 0.08 : 0.1), lineWidth: 0.7)
-                    )
+                    .hairlineStroke(Circle(), style: Color.white.opacity(isDestructive ? 0.08 : 0.1))
 
                 if let icon {
                     Image(systemName: icon)

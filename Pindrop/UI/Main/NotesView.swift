@@ -94,9 +94,9 @@ struct NotesView: View {
                     RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                         .fill(AppColors.surfaceBackground)
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                        .stroke(AppColors.border, lineWidth: 1)
+                .hairlineStroke(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+                    style: AppColors.border
                 )
                 .help("Toggle sort order")
                 
@@ -149,9 +149,9 @@ struct NotesView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                 .fill(AppColors.surfaceBackground)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .stroke(AppColors.border, lineWidth: 1)
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+            style: AppColors.border
         )
     }
     

@@ -311,7 +311,7 @@ struct TagChip: View {
         .padding(.vertical, 4)
         .background(AppColors.elevatedSurface)
         .clipShape(Capsule())
-        .overlay(Capsule().strokeBorder(AppColors.border, lineWidth: 0.5))
+        .hairlineBorder(Capsule(), style: AppColors.border)
     }
 }
 

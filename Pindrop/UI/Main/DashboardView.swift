@@ -325,9 +325,9 @@ struct KeyCapView: View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
                     .fill(AppColors.surfaceBackground)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
-                    .strokeBorder(AppColors.border, lineWidth: 1)
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
+                style: AppColors.border
             )
     }
 }
@@ -338,6 +338,8 @@ struct StatCard: View {
     let title: String
     let value: String
     let subtitle: String
+
+    @State private var isHovered = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
@@ -358,12 +360,30 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppTheme.Spacing.lg)
-        .cardStyle()
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
+                .fill(isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground)
+        )
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+            style: isHovered ? AppColors.border.opacity(0.9) : AppColors.border
+        )
+        .shadow(
+            color: isHovered ? Color.black.opacity(0.05) : .clear,
+            radius: isHovered ? 10 : 0,
+            y: isHovered ? 4 : 0
+        )
+        .animation(AppTheme.Animation.fast, value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 
 struct RecentTranscriptionRow: View {
     let record: TranscriptionRecord
+
+    @State private var isHovered = false
     
     private var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
@@ -393,9 +413,26 @@ struct RecentTranscriptionRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             CopyButton(text: record.text)
+                .opacity(isHovered ? 0.85 : 0.65)
         }
         .padding(AppTheme.Spacing.md)
-        .cardStyle()
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
+                .fill(isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground)
+        )
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+            style: isHovered ? AppColors.border.opacity(0.9) : AppColors.border
+        )
+        .shadow(
+            color: isHovered ? Color.black.opacity(0.05) : .clear,
+            radius: isHovered ? 10 : 0,
+            y: isHovered ? 4 : 0
+        )
+        .animation(AppTheme.Animation.fast, value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 

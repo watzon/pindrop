@@ -342,9 +342,9 @@ struct SettingsCard<Content: View>: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.surfaceBackground)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+            style: AppColors.border.opacity(0.5)
         )
     }
 }

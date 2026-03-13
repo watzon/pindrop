@@ -233,6 +233,45 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertEqual(limitedRecords[0].text, "Third")
         XCTAssertEqual(limitedRecords[1].text, "Second")
     }
+
+    func testFetchVoiceTranscriptionsSupportsOffsetPagination() throws {
+        try historyStore.save(text: "First voice", duration: 1.0, modelUsed: "tiny")
+        try historyStore.save(text: "Second voice", duration: 2.0, modelUsed: "base")
+        try historyStore.save(
+            text: "Media item",
+            duration: 3.0,
+            modelUsed: "small",
+            sourceKind: .webLink,
+            sourceDisplayName: "Example media",
+            managedMediaPath: "/tmp/example.mp4"
+        )
+        try historyStore.save(text: "Third voice", duration: 4.0, modelUsed: "large")
+
+        let firstPage = try historyStore.fetchVoiceTranscriptions(limit: 2)
+        let secondPage = try historyStore.fetchVoiceTranscriptions(limit: 2, offset: 2)
+
+        XCTAssertEqual(firstPage.map(\.text), ["Third voice", "Second voice"])
+        XCTAssertEqual(secondPage.map(\.text), ["First voice"])
+        XCTAssertTrue((firstPage + secondPage).allSatisfy(\.isVoiceTranscription))
+    }
+
+    func testCountVoiceTranscriptionsRespectsSearchQuery() throws {
+        try historyStore.save(text: "Alpha voice", duration: 1.0, modelUsed: "tiny")
+        try historyStore.save(text: "Beta voice", duration: 2.0, modelUsed: "base")
+        try historyStore.save(
+            text: "Alpha media",
+            duration: 3.0,
+            modelUsed: "small",
+            sourceKind: .importedFile,
+            sourceDisplayName: "alpha.mov",
+            managedMediaPath: "/tmp/alpha.mov"
+        )
+
+        XCTAssertEqual(try historyStore.countVoiceTranscriptions(), 2)
+        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "Alpha"), 1)
+        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "Beta"), 1)
+        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "media"), 0)
+    }
     
     func testSearchTranscriptions() throws {
         try historyStore.save(text: "The quick brown fox", duration: 1.0, modelUsed: "tiny")

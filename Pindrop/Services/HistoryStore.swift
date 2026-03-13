@@ -9,6 +9,10 @@ import Foundation
 import SwiftData
 import AppKit
 
+extension Notification.Name {
+    static let historyStoreDidChange = Notification.Name("com.pindrop.historyStoreDidChange")
+}
+
 @MainActor
 @Observable
 final class HistoryStore {
@@ -80,6 +84,7 @@ final class HistoryStore {
         
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
             return record
         } catch {
             throw HistoryStoreError.saveFailed(error.localizedDescription)
@@ -106,6 +111,42 @@ final class HistoryStore {
         
         do {
             return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func fetchVoiceTranscriptions(
+        limit: Int,
+        offset: Int = 0,
+        query: String = ""
+    ) throws -> [TranscriptionRecord] {
+        var descriptor = voiceTranscriptionsDescriptor(query: query)
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func fetchAllVoiceTranscriptions(query: String = "") throws -> [TranscriptionRecord] {
+        let descriptor = voiceTranscriptionsDescriptor(query: query)
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func countVoiceTranscriptions(query: String = "") throws -> Int {
+        let descriptor = voiceTranscriptionsDescriptor(query: query)
+
+        do {
+            return try modelContext.fetchCount(descriptor)
         } catch {
             throw HistoryStoreError.fetchFailed(error.localizedDescription)
         }
@@ -175,6 +216,7 @@ final class HistoryStore {
 
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.deleteFailed(error.localizedDescription)
         }
@@ -238,6 +280,7 @@ final class HistoryStore {
             records.forEach(removeManagedMedia)
             try modelContext.delete(model: TranscriptionRecord.self)
             try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.deleteFailed(error.localizedDescription)
         }
@@ -473,6 +516,25 @@ final class HistoryStore {
             throw HistoryStoreError.saveFailed("Folder name cannot be empty.")
         }
         return trimmedName
+    }
+
+    private func voiceTranscriptionsDescriptor(query: String) -> FetchDescriptor<TranscriptionRecord> {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let voiceRawValue = MediaSourceKind.voiceRecording.rawValue
+        let sortDescriptors = [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .reverse)]
+
+        if trimmedQuery.isEmpty {
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+        }
+
+        let predicate = #Predicate<TranscriptionRecord> { record in
+            (record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue)
+                && record.text.localizedStandardContains(trimmedQuery)
+        }
+        return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
     }
 
     private func sortMediaRecords(

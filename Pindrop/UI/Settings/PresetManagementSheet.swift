@@ -176,9 +176,9 @@ struct PresetManagementSheet: View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md)
                     .fill(AppColors.accent.opacity(0.1))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .strokeBorder(AppColors.accent.opacity(0.3), lineWidth: 1)
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+                style: AppColors.accent.opacity(0.3)
             )
             .foregroundStyle(AppColors.accent)
         }
@@ -207,9 +207,9 @@ struct PresetManagementSheet: View {
                     .padding(4)
                     .background(AppColors.surfaceBackground)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
-                            .strokeBorder(AppColors.border, lineWidth: 1)
+                    .hairlineBorder(
+                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
+                        style: AppColors.border
                     )
                 
                 Text("Use ${transcription} as a placeholder for the transcribed text.")
@@ -244,9 +244,9 @@ struct PresetManagementSheet: View {
         .padding(AppTheme.Spacing.lg)
         .background(AppColors.surfaceBackground)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(AppColors.border, lineWidth: 1)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+            style: AppColors.border
         )
     }
     
@@ -288,9 +288,9 @@ struct PresetManagementSheet: View {
             }
             .background(AppColors.contentBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                    .strokeBorder(AppColors.border, lineWidth: 1)
+            .hairlineBorder(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+                style: AppColors.border
             )
         }
     }
@@ -339,9 +339,9 @@ struct PresetManagementSheet: View {
                 }
                 .background(AppColors.contentBackground)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                        .strokeBorder(AppColors.border, lineWidth: 1)
+                .hairlineBorder(
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+                    style: AppColors.border
                 )
             }
         }
@@ -370,10 +370,10 @@ struct PresetManagementSheet: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.surfaceBackground.opacity(0.5))
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                .foregroundStyle(AppColors.border)
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
+            style: AppColors.border,
+            dash: [5]
         )
     }
     
@@ -625,9 +625,9 @@ struct PresetRow: View {
                     .padding(4)
                     .background(AppColors.surfaceBackground)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
-                            .strokeBorder(AppColors.border, lineWidth: 1)
+                    .hairlineBorder(
+                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
+                        style: AppColors.border
                     )
                 
                 Text("Use ${transcription} as placeholder")
