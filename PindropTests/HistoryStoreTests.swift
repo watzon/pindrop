@@ -709,6 +709,51 @@ final class HistoryStoreTests: XCTestCase {
         try? FileManager.default.removeItem(at: referenceStoreURL.deletingLastPathComponent())
     }
 
+    func testPrepareStoreLocationMigratesRecognizedLegacyStore() throws {
+        let applicationSupportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: applicationSupportURL
+        )
+
+        try createV3Store(at: legacyStoreURL)
+
+        try repairService.prepareStoreLocation()
+
+        let migratedStoreURL = repairService.storeURL()
+        XCTAssertTrue(FileManager.default.fileExists(atPath: migratedStoreURL.path))
+
+        let migratedContainer = try makeCurrentContainer(at: migratedStoreURL)
+        let migratedContext = ModelContext(migratedContainer)
+        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.text, "Legacy transcription")
+
+        try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
+    func testPrepareStoreLocationIgnoresUnrecognizedLegacyStore() throws {
+        let applicationSupportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: applicationSupportURL
+        )
+
+        try createUnrecognizedStore(at: legacyStoreURL)
+
+        try repairService.prepareStoreLocation()
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: repairService.storeURL().path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: legacyStoreURL.path))
+
+        try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
     // MARK: - Test Helpers
     
     private func exportToJSONInternal(records: [TranscriptionRecord], to url: URL) throws {
@@ -838,6 +883,28 @@ final class HistoryStoreTests: XCTestCase {
             )
         )
         try context.save()
+    }
+
+    private func createUnrecognizedStore(at storeURL: URL) throws {
+        try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        var database: OpaquePointer?
+        guard sqlite3_open_v2(storeURL.path, &database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK else {
+            let message = database.flatMap { sqlite3_errmsg($0) }.map { String(cString: $0) } ?? "Unknown SQLite error"
+            sqlite3_close(database)
+            throw NSError(domain: "HistoryStoreTests", code: 2, userInfo: [NSLocalizedDescriptionKey: message])
+        }
+
+        defer { sqlite3_close(database) }
+
+        guard let database else {
+            throw NSError(domain: "HistoryStoreTests", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to create SQLite database"])
+        }
+
+        let sql = "CREATE TABLE IF NOT EXISTS unrelated_table (id INTEGER PRIMARY KEY)"
+        guard sqlite3_exec(database, sql, nil, nil, nil) == SQLITE_OK else {
+            throw sqliteError(on: database)
+        }
     }
 
     private func makeCurrentContainer(at storeURL: URL) throws -> ModelContainer {

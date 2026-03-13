@@ -57,13 +57,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         do {
+            try storeRepairService.prepareStoreLocation()
             modelContainer = try makeModelContainer()
         } catch {
             let initialError = error
             Log.app.error("Failed to create ModelContainer: \(describe(error: initialError))")
 
             do {
-                let repairOutcome = try storeRepairService.repairIfNeeded()
+                let repairOutcome = try storeRepairService.repairIfNeeded(storeURL: storeRepairService.storeURL())
                 guard repairOutcome.repaired else {
                     showModelContainerErrorAlert(error: initialError)
                     NSApplication.shared.terminate(nil)
@@ -156,16 +157,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             coordinator?.statusBarController.showSettings()
         }
     }
-
+    
     private func makeModelContainer() throws -> ModelContainer {
-        try ModelContainer(
+        let configuration = ModelConfiguration(url: storeRepairService.storeURL())
+        return try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,
             PromptPreset.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self
+            migrationPlan: TranscriptionRecordMigrationPlan.self,
+            configurations: configuration
         )
     }
 
@@ -200,13 +203,43 @@ final class SwiftDataStoreRepairService {
     }
 
     private let fileManager: FileManager
+    private let applicationSupportRootURL: URL
 
-    init(fileManager: FileManager = .default) {
+    init(fileManager: FileManager = .default, applicationSupportRootURL: URL? = nil) {
         self.fileManager = fileManager
+        self.applicationSupportRootURL = applicationSupportRootURL
+            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+    }
+
+    func prepareStoreLocation() throws {
+        let currentStoreURL = storeURL()
+        let legacyStoreURL = legacyStoreURL()
+
+        try fileManager.createDirectory(at: currentStoreURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        guard !fileManager.fileExists(atPath: currentStoreURL.path),
+              fileManager.fileExists(atPath: legacyStoreURL.path) else {
+            return
+        }
+
+        guard try inferredStoreVersion(at: legacyStoreURL) != nil else {
+            Log.app.warning(
+                "Ignoring legacy SwiftData store at \(legacyStoreURL.path) because it does not match the Pindrop schema"
+            )
+            return
+        }
+
+        try copyStoreArtifacts(from: legacyStoreURL, to: currentStoreURL)
+        Log.app.info("Migrated SwiftData store from legacy location \(legacyStoreURL.path) to \(currentStoreURL.path)")
+    }
+
+    func storeURL() -> URL {
+        Self.defaultStoreURL(applicationSupportRootURL: applicationSupportRootURL)
     }
 
     func repairIfNeeded(storeURL: URL? = nil) throws -> RepairOutcome {
-        let targetStoreURL = storeURL ?? Self.defaultStoreURL()
+        let targetStoreURL = storeURL ?? self.storeURL()
 
         guard fileManager.fileExists(atPath: targetStoreURL.path) else {
             return RepairOutcome(repaired: false, backupDirectoryURL: nil)
@@ -246,7 +279,13 @@ final class SwiftDataStoreRepairService {
     static func defaultStoreURL(fileManager: FileManager = .default) -> URL {
         let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        return supportURL.appendingPathComponent("default.store")
+        return defaultStoreURL(applicationSupportRootURL: supportURL)
+    }
+
+    static func legacyStoreURL(fileManager: FileManager = .default) -> URL {
+        let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        return legacyStoreURL(applicationSupportRootURL: supportURL)
     }
 
     private func inferredStoreVersion(at storeURL: URL) throws -> StoreSchemaVersion? {
@@ -294,9 +333,7 @@ final class SwiftDataStoreRepairService {
     }
 
     private func backupStoreArtifacts(for storeURL: URL) throws -> URL {
-        let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let backupsRootURL = supportURL
+        let backupsRootURL = applicationSupportRootURL
             .appendingPathComponent("Pindrop", isDirectory: true)
             .appendingPathComponent("DatabaseBackups", isDirectory: true)
         let backupDirectoryURL = backupsRootURL.appendingPathComponent(Self.repairTimestampString(), isDirectory: true)
@@ -399,6 +436,30 @@ final class SwiftDataStoreRepairService {
             URL(fileURLWithPath: storeURL.path + "-shm"),
             URL(fileURLWithPath: storeURL.path + "-wal")
         ]
+    }
+
+    private func copyStoreArtifacts(from sourceStoreURL: URL, to destinationStoreURL: URL) throws {
+        try fileManager.createDirectory(at: destinationStoreURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        for sourceArtifactURL in storeArtifactURLs(for: sourceStoreURL) where fileManager.fileExists(atPath: sourceArtifactURL.path) {
+            let suffix = String(sourceArtifactURL.path.dropFirst(sourceStoreURL.path.count))
+            let destinationArtifactURL = URL(fileURLWithPath: destinationStoreURL.path + suffix)
+            try fileManager.copyItem(at: sourceArtifactURL, to: destinationArtifactURL)
+        }
+    }
+
+    private func legacyStoreURL() -> URL {
+        Self.legacyStoreURL(applicationSupportRootURL: applicationSupportRootURL)
+    }
+
+    private static func defaultStoreURL(applicationSupportRootURL: URL) -> URL {
+        applicationSupportRootURL
+            .appendingPathComponent("Pindrop", isDirectory: true)
+            .appendingPathComponent("default.store")
+    }
+
+    private static func legacyStoreURL(applicationSupportRootURL: URL) -> URL {
+        applicationSupportRootURL.appendingPathComponent("default.store")
     }
 
     private func fetchColumnNames(table: String, on database: OpaquePointer) throws -> Set<String> {
