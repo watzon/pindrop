@@ -735,6 +735,33 @@ final class HistoryStoreTests: XCTestCase {
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
+    func testPrepareStoreLocationMigratesV4LegacyStoreToCurrentSchema() throws {
+        let applicationSupportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: applicationSupportURL
+        )
+
+        try createV4Store(at: legacyStoreURL)
+
+        try repairService.prepareStoreLocation()
+
+        let migratedStoreURL = repairService.storeURL()
+        XCTAssertTrue(FileManager.default.fileExists(atPath: migratedStoreURL.path))
+
+        let migratedContainer = try makeCurrentContainer(at: migratedStoreURL)
+        let migratedContext = ModelContext(migratedContainer)
+        let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.text, "Legacy transcription")
+        XCTAssertNil(records.first?.folder)
+
+        try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
     func testPrepareStoreLocationIgnoresUnrecognizedLegacyStore() throws {
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -750,6 +777,30 @@ final class HistoryStoreTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: repairService.storeURL().path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: legacyStoreURL.path))
+
+        try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
+    func testPrepareStoreLocationRestoresLegacyStoreWhenCurrentStoreIsUnrecognized() throws {
+        let applicationSupportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: applicationSupportURL
+        )
+
+        try createV4Store(at: legacyStoreURL)
+        try createUnrecognizedStore(at: repairService.storeURL())
+
+        try repairService.prepareStoreLocation()
+
+        let restoredContainer = try makeCurrentContainer(at: repairService.storeURL())
+        let restoredContext = ModelContext(restoredContainer)
+        let records = try restoredContext.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.text, "Legacy transcription")
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
@@ -880,6 +931,37 @@ final class HistoryStoreTests: XCTestCase {
                 modelUsed: "base",
                 enhancedWith: nil,
                 diarizationSegmentsJSON: nil
+            )
+        )
+        try context.save()
+    }
+
+    private func createV4Store(at storeURL: URL) throws {
+        try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let configuration = ModelConfiguration(url: storeURL)
+        let container = try ModelContainer(
+            for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            configurations: configuration
+        )
+
+        let context = ModelContext(container)
+        context.insert(
+            TranscriptionRecordSchemaV4.TranscriptionRecord(
+                text: "Legacy transcription",
+                originalText: "Legacy transcription",
+                duration: 4.2,
+                modelUsed: "base",
+                enhancedWith: nil,
+                diarizationSegmentsJSON: nil,
+                sourceKind: .voiceRecording,
+                sourceDisplayName: nil,
+                originalSourceURL: nil,
+                managedMediaPath: nil,
+                thumbnailPath: nil
             )
         )
         try context.save()

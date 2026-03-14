@@ -146,7 +146,7 @@ just --list             # Show all available commands
 
 ```bash
 just release-notes 1.9.0  # Create draft release notes file at release-notes/v1.9.0.md
-just release 1.9.0  # Local manual release (tests, signed DMG, appcast, tag, push tag, GitHub release)
+just release 1.9.0  # Local manual release (tests, signed DMG, notarize/staple, appcast, tag, push tag, GitHub release)
 ```
 
 ### Manual Build (Alternative)

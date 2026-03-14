@@ -75,21 +75,15 @@ This will:
 - Build the release version
 - Sign the app with your Developer ID
 - Create a DMG in `dist/Pindrop.dmg`
+- Notarize the DMG with Apple
+- Staple the notarization ticket to the DMG
+- Generate `appcast.xml` from the final stapled DMG
 
-3. **Generate appcast** (for Sparkle updates):
-```bash
-just appcast dist/Pindrop.dmg
-```
-This will:
-- Download Sparkle tools if not present (to `bin/`)
-- Sign the DMG with your EdDSA private key
-- Generate `appcast.xml` with proper signatures
-
-4. **Upload the release**:
+3. **Upload the release**:
 - Upload `dist/Pindrop.dmg` to GitHub Releases
 - Upload `appcast.xml` as a GitHub Release asset (or host it at your feed URL)
 
-5. **Tag the release**:
+4. **Tag the release**:
 ```bash
 git tag -a v1.0.0 -m "Release version 1.0.0"
 git push origin v1.0.0

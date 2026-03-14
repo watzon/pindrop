@@ -225,7 +225,7 @@ release-local: clean dmg
 
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
-# Runs locally: tests -> signed DMG -> appcast -> release notes -> tag -> push tag -> gh release create
+# Runs locally: tests -> signed DMG -> notarize/staple -> appcast -> release notes -> tag -> push tag -> gh release create
 release version:
 	#!/usr/bin/env bash
 	set -euo pipefail
@@ -334,14 +334,20 @@ release version:
 	echo "📦 Building signed release DMG..."
 	just dmg
 
-	# Step 3: Update appcast
+	# Step 3: Notarize and staple the DMG before publishing or generating appcast
+	echo "📝 Notarizing release DMG..."
+	just notarize "${DMG_PATH}"
+	echo "📎 Stapling notarization ticket..."
+	just staple "${DMG_PATH}"
+
+	# Step 4: Update appcast using the final stapled DMG bytes
 	echo "📡 Generating appcast.xml..."
 	just appcast "${DMG_PATH}"
 
-	# Step 4: Validate release notes
+	# Step 5: Validate release notes
 	echo "📝 Using release notes: ${NOTES_PATH}"
 	
-	# Step 5: Create annotated tag (if needed)
+	# Step 6: Create annotated tag (if needed)
 	if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
 		echo "ℹ️  Tag already exists locally: ${TAG}"
 	else
@@ -349,7 +355,7 @@ release version:
 		git tag -a "${TAG}" -m "Release ${TAG}"
 	fi
 	
-	# Step 6: Push tag (if needed)
+	# Step 7: Push tag (if needed)
 	if git ls-remote --exit-code --tags origin "${TAG}" >/dev/null 2>&1; then
 		echo "ℹ️  Tag already exists on origin: ${TAG}"
 	else
@@ -357,7 +363,7 @@ release version:
 		git push origin "${TAG}"
 	fi
 
-	# Step 7: Create GitHub release and attach assets
+	# Step 8: Create GitHub release and attach assets
 	echo "📤 Creating GitHub release with DMG + appcast + notes..."
 	gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" \
 		--title "Pindrop ${TAG}" \

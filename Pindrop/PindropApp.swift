@@ -218,12 +218,31 @@ final class SwiftDataStoreRepairService {
 
         try fileManager.createDirectory(at: currentStoreURL.deletingLastPathComponent(), withIntermediateDirectories: true)
 
-        guard !fileManager.fileExists(atPath: currentStoreURL.path),
-              fileManager.fileExists(atPath: legacyStoreURL.path) else {
+        let currentStoreExists = fileManager.fileExists(atPath: currentStoreURL.path)
+        let legacyStoreExists = fileManager.fileExists(atPath: legacyStoreURL.path)
+
+        let currentStoreVersion = currentStoreExists ? try inferredStoreVersion(at: currentStoreURL) : nil
+        let legacyStoreVersion = legacyStoreExists ? try inferredStoreVersion(at: legacyStoreURL) : nil
+
+        if currentStoreExists {
+            guard currentStoreVersion == nil, legacyStoreVersion != nil else {
+                return
+            }
+
+            let backupDirectoryURL = try backupStoreArtifacts(for: currentStoreURL)
+            try removeStoreArtifacts(at: currentStoreURL)
+            try copyStoreArtifacts(from: legacyStoreURL, to: currentStoreURL)
+            Log.app.warning(
+                "Replaced unrecognized SwiftData store at \(currentStoreURL.path) using legacy store \(legacyStoreURL.path); backup: \(backupDirectoryURL.path)"
+            )
             return
         }
 
-        guard try inferredStoreVersion(at: legacyStoreURL) != nil else {
+        guard legacyStoreExists else {
+            return
+        }
+
+        guard legacyStoreVersion != nil else {
             Log.app.warning(
                 "Ignoring legacy SwiftData store at \(legacyStoreURL.path) because it does not match the Pindrop schema"
             )
@@ -445,6 +464,12 @@ final class SwiftDataStoreRepairService {
             let suffix = String(sourceArtifactURL.path.dropFirst(sourceStoreURL.path.count))
             let destinationArtifactURL = URL(fileURLWithPath: destinationStoreURL.path + suffix)
             try fileManager.copyItem(at: sourceArtifactURL, to: destinationArtifactURL)
+        }
+    }
+
+    private func removeStoreArtifacts(at storeURL: URL) throws {
+        for artifactURL in storeArtifactURLs(for: storeURL) where fileManager.fileExists(atPath: artifactURL.path) {
+            try fileManager.removeItem(at: artifactURL)
         }
     }
 
