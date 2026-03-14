@@ -201,11 +201,14 @@ test-unsigned:
 
 # Notarize the DMG (requires Apple Developer account)
 notarize dmg_path:
-    @echo "📝 Notarizing {{dmg_path}}..."
-    xcrun notarytool submit {{dmg_path}} \
-        --keychain-profile "notarytool-password" \
-        --wait
-    @echo "✅ Notarization complete"
+	@echo "📝 Notarizing {{dmg_path}}..."
+	@result_file=$(mktemp) && \
+	xcrun notarytool submit {{dmg_path}} \
+		--keychain-profile "notarytool-password" \
+		--wait \
+		--output-format json > "$result_file" && \
+	python3 -c 'import json, sys; result=json.load(open(sys.argv[1], encoding="utf-8")); status=result.get("status"); summary=result.get("statusSummary", "Unknown notarization failure");\nif status != "Accepted":\n print("Notarization failed: %s - %s" % (status or "unknown", summary), file=sys.stderr); sys.exit(1)' "$result_file"
+	@echo "✅ Notarization complete"
 
 # Staple notarization ticket to DMG
 staple dmg_path:
