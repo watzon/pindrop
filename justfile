@@ -207,7 +207,7 @@ notarize dmg_path:
 		--keychain-profile "notarytool-password" \
 		--wait \
 		--output-format json > "$result_file" && \
-	python3 -c 'import json, sys; result=json.load(open(sys.argv[1], encoding="utf-8")); status=result.get("status"); summary=result.get("statusSummary", "Unknown notarization failure");\nif status != "Accepted":\n print("Notarization failed: %s - %s" % (status or "unknown", summary), file=sys.stderr); sys.exit(1)' "$result_file"
+	python3 -c 'import json, sys; result=json.load(open(sys.argv[1], encoding="utf-8")); status=result.get("status"); summary=result.get("statusSummary", "Unknown notarization failure"); sys.exit(0 if status == "Accepted" else (print("Notarization failed: %s - %s" % (status or "unknown", summary), file=sys.stderr) or 1))' "$result_file"
 	@echo "✅ Notarization complete"
 
 # Staple notarization ticket to DMG
