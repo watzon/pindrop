@@ -480,7 +480,18 @@ class TranscriptionService {
             textLines.append(contentsOf: splitSegments.map { "\(speakerLabel): \($0.text)" })
         }
 
-        let mergedText = textLines.joined(separator: "\n")
+        let mergedText: String
+        if speakerLabelsByID.count <= 1 {
+            if !transcriptSegments.isEmpty {
+                Log.transcription.info("Speaker diarization detected a single speaker; omitting labels from transcript output")
+            }
+            mergedText = transcriptSegments
+                .map(\.text)
+                .joined(separator: " ")
+        } else {
+            mergedText = textLines.joined(separator: "\n")
+        }
+
         return TranscriptionOutput(
             text: mergedText,
             diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments

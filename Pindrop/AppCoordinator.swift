@@ -3352,7 +3352,6 @@ final class AppCoordinator {
             guard let self else { return }
             do {
                 try await self.modelManager.downloadFeatureModel(.diarization)
-                self.settingsStore.setFeatureEnabled(.diarization, enabled: true)
                 self.mediaTranscriptionState.setupIssue = nil
                 self.mediaTranscriptionState.libraryMessage = "Speaker diarization is ready."
             } catch {
@@ -3385,8 +3384,6 @@ final class AppCoordinator {
             mediaTranscriptionState.setSetupIssue("Download the speaker diarization model before starting media transcription.")
             return
         }
-
-        settingsStore.setFeatureEnabled(.diarization, enabled: true)
 
         let job = MediaTranscriptionJobState(
             request: request,

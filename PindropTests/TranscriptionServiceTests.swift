@@ -344,6 +344,40 @@ final class TranscriptionServiceTests: XCTestCase {
         XCTAssertEqual(mockEngine.transcribeCallCount, 2)
     }
 
+    func testTranscribeWithSingleSpeakerDiarizationOmitsSpeakerLabelsFromOutput() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["I clicked the button to install the diarization package."]
+
+        let speaker = Speaker(id: "speaker-a", label: "A", embedding: nil)
+        let diarizationResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(speaker: speaker, startTime: 0.0, endTime: 2.0, confidence: 0.95)
+            ],
+            speakers: [speaker],
+            audioDuration: 2.0
+        )
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = diarizationResult
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let output = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2.0),
+            diarizationEnabled: true
+        )
+
+        XCTAssertEqual(output.text, "I clicked the button to install the diarization package.")
+        XCTAssertEqual(output.diarizedSegments?.count, 1)
+        XCTAssertEqual(output.diarizedSegments?.map(\.speakerLabel), ["Speaker 1"])
+        XCTAssertEqual(mockDiarizer.loadModelsCallCount, 1)
+        XCTAssertEqual(mockDiarizer.diarizeCallCount, 1)
+        XCTAssertEqual(mockEngine.transcribeCallCount, 1)
+    }
+
     func testTranscribeWithDiarizationFailureFallsBackToSinglePassTranscription() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["fallback transcript"]
