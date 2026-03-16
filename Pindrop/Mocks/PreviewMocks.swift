@@ -172,7 +172,6 @@ enum PreviewContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: TranscriptionRecord.self, MediaFolder.self, WordReplacement.self, VocabularyWord.self, NoteSchema.Note.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: config
         )
         for record in records {

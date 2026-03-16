@@ -167,7 +167,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             VocabularyWord.self,
             Note.self,
             PromptPreset.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
     }
@@ -200,6 +199,17 @@ final class SwiftDataStoreRepairService {
     struct RepairOutcome {
         let repaired: Bool
         let backupDirectoryURL: URL?
+    }
+
+    private struct SchemaObjectDefinition {
+        let name: String
+        let sql: String
+    }
+
+    private struct ReferenceArtifacts {
+        let metadataBlob: Data
+        let modelCacheBlob: Data
+        let schemaDefinitions: [SchemaObjectDefinition]
     }
 
     private let fileManager: FileManager
@@ -270,16 +280,24 @@ final class SwiftDataStoreRepairService {
         }
 
         let metadataVersion = try readMetadataVersionIdentifier(at: targetStoreURL)
-        guard metadataVersion != inferredVersion.rawValue else {
+        let referenceArtifacts = try makeReferenceArtifacts(for: inferredVersion)
+        let missingSchemaDefinitions = try withDatabase(at: targetStoreURL) { database in
+            let existingObjectNames = try fetchSchemaObjectNames(on: database)
+            return referenceArtifacts.schemaDefinitions.filter { !existingObjectNames.contains($0.name) }
+        }
+
+        guard metadataVersion != inferredVersion.rawValue || !missingSchemaDefinitions.isEmpty else {
             return RepairOutcome(repaired: false, backupDirectoryURL: nil)
         }
 
         let backupDirectoryURL = try backupStoreArtifacts(for: targetStoreURL)
-        let referenceArtifacts = try makeReferenceArtifacts(for: inferredVersion)
 
         try withDatabase(at: targetStoreURL) { database in
             try execute("BEGIN IMMEDIATE TRANSACTION", on: database)
             do {
+                for schemaDefinition in missingSchemaDefinitions {
+                    try execute(schemaDefinition.sql, on: database)
+                }
                 try updateMetadata(referenceArtifacts.metadataBlob, on: database)
                 try replaceModelCache(referenceArtifacts.modelCacheBlob, on: database)
                 try execute("COMMIT TRANSACTION", on: database)
@@ -289,9 +307,16 @@ final class SwiftDataStoreRepairService {
             }
         }
 
-        Log.app.info(
-            "Repaired SwiftData store metadata from \(metadataVersion ?? "unknown") to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
-        )
+        if missingSchemaDefinitions.isEmpty {
+            Log.app.info(
+                "Repaired SwiftData store metadata from \(metadataVersion ?? "unknown") to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
+            )
+        } else {
+            let recreatedNames = missingSchemaDefinitions.map(\.name).joined(separator: ", ")
+            Log.app.info(
+                "Repaired SwiftData store by recreating missing schema objects (\(recreatedNames)) and refreshing metadata to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
+            )
+        }
         return RepairOutcome(repaired: true, backupDirectoryURL: backupDirectoryURL)
     }
 
@@ -367,7 +392,7 @@ final class SwiftDataStoreRepairService {
         return backupDirectoryURL
     }
 
-    private func makeReferenceArtifacts(for version: StoreSchemaVersion) throws -> (metadataBlob: Data, modelCacheBlob: Data) {
+    private func makeReferenceArtifacts(for version: StoreSchemaVersion) throws -> ReferenceArtifacts {
         let directoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storeURL = directoryURL.appendingPathComponent("reference.store")
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
@@ -445,7 +470,12 @@ final class SwiftDataStoreRepairService {
                 throw StoreRepairError.missingModelCache
             }
 
-            return (metadataBlob, modelCacheBlob)
+            let schemaDefinitions = try fetchSchemaDefinitions(on: database)
+            return ReferenceArtifacts(
+                metadataBlob: metadataBlob,
+                modelCacheBlob: modelCacheBlob,
+                schemaDefinitions: schemaDefinitions
+            )
         }
     }
 
@@ -528,6 +558,46 @@ final class SwiftDataStoreRepairService {
         }
 
         return sqlite3_step(statement) == SQLITE_ROW
+    }
+
+    private func fetchSchemaDefinitions(on database: OpaquePointer) throws -> [SchemaObjectDefinition] {
+        var statement: OpaquePointer?
+        let sql = """
+        SELECT name, sql
+        FROM sqlite_master
+        WHERE type IN ('table', 'index')
+          AND name NOT LIKE 'sqlite_%'
+          AND sql IS NOT NULL
+        ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name
+        """
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        var definitions: [SchemaObjectDefinition] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            guard let namePointer = sqlite3_column_text(statement, 0),
+                  let sqlPointer = sqlite3_column_text(statement, 1) else {
+                continue
+            }
+
+            definitions.append(
+                SchemaObjectDefinition(
+                    name: String(cString: namePointer),
+                    sql: String(cString: sqlPointer)
+                )
+            )
+        }
+
+        return definitions
+    }
+
+    private func fetchSchemaObjectNames(on database: OpaquePointer) throws -> Set<String> {
+        let definitions = try fetchSchemaDefinitions(on: database)
+        return Set(definitions.map(\.name))
     }
 
     private func fetchBlob(sql: String, on database: OpaquePointer) throws -> Data? {
