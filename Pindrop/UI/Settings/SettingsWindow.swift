@@ -10,7 +10,6 @@ import SwiftUI
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case hotkeys = "Hotkeys"
-    case models = "Models"
     case ai = "AI Enhancement"
     case update = "Update"
     case about = "About"
@@ -21,48 +20,117 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "gear"
         case .hotkeys: return "keyboard"
-        case .models: return "cpu"
         case .ai: return "sparkles"
         case .update: return "arrow.triangle.2.circlepath"
         case .about: return "info.circle"
         }
     }
+
+    var subtitle: String {
+        switch self {
+        case .general:
+            return "Output, audio, interface, and everyday behavior"
+        case .hotkeys:
+            return "Configure keyboard shortcuts for recording and note capture"
+        case .ai:
+            return "Providers, prompts, and vibe mode controls"
+        case .update:
+            return "Automatic updates and manual update checks"
+        case .about:
+            return "App info, acknowledgments, support, and logs"
+        }
+    }
+
+    private var searchKeywords: [String] {
+        switch self {
+        case .general:
+            return [
+                "output", "clipboard", "direct insert", "space", "microphone", "audio",
+                "input", "floating indicator", "dictionary", "launch at login", "dock",
+                "mute", "pause media", "reset"
+            ]
+        case .hotkeys:
+            return [
+                "shortcut", "toggle recording", "push to talk", "copy last transcript",
+                "note capture", "keyboard"
+            ]
+        case .ai:
+            return [
+                "provider", "api key", "endpoint", "prompt", "preset", "vibe mode",
+                "clipboard context", "ui context", "model", "enhancement"
+            ]
+        case .update:
+            return ["updates", "automatic updates", "check now", "version"]
+        case .about:
+            return ["support", "logs", "github", "license", "system info", "version"]
+        }
+    }
+
+    func matches(_ searchText: String) -> Bool {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else { return true }
+
+        let searchableText = ([rawValue, subtitle] + searchKeywords)
+            .joined(separator: " ")
+            .lowercased()
+        return searchableText.contains(query)
+    }
 }
 
 struct SettingsWindow: View {
     @ObservedObject var settings: SettingsStore
-    @State private var selectedTab: SettingsTab
-    
+
     var initialTab: SettingsTab = .general
-    
-    init(settings: SettingsStore, initialTab: SettingsTab = .general) {
-        self.settings = settings
-        self.initialTab = initialTab
-        self._selectedTab = State(initialValue: initialTab)
-    }
 
     var body: some View {
         ZStack {
             AppColors.windowBackground
                 .ignoresSafeArea()
 
-            HStack(spacing: AppTheme.Window.sidebarContentGap) {
-                SettingsSidebar(
-                    selectedTab: selectedTab,
-                    onSelect: selectTab
-                )
-                .frame(width: AppTheme.Window.settingsSidebarWidth)
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding(.top, AppTheme.Window.sidebarTopInset)
-
-                detailPanel
-            }
-            .ignoresSafeArea()
+            SettingsContainerView(settings: settings, initialTab: initialTab)
+                .padding(.horizontal, AppTheme.Spacing.xxl)
+                .padding(.top, AppTheme.Window.mainContentTopInset)
+                .padding(.bottom, AppTheme.Spacing.xxl)
         }
         .frame(
             minWidth: AppTheme.Window.settingsMinWidth,
             minHeight: AppTheme.Window.settingsMinHeight
         )
+    }
+}
+
+struct SettingsContainerView: View {
+    @ObservedObject var settings: SettingsStore
+    @State private var selectedTab: SettingsTab
+    @State private var searchText = ""
+
+    var initialTab: SettingsTab = .general
+
+    init(settings: SettingsStore, initialTab: SettingsTab = .general) {
+        self.settings = settings
+        self.initialTab = initialTab
+        self._selectedTab = State(initialValue: initialTab)
+    }
+
+    private var filteredTabs: [SettingsTab] {
+        SettingsTab.allCases.filter { $0.matches(searchText) }
+    }
+
+    var body: some View {
+        MainContentPageLayout(scrollContent: true, headerBottomPadding: AppTheme.Spacing.lg) {
+            fixedHeader
+        } content: {
+            scrollableContent
+        }
+        .onChange(of: initialTab) { _, newValue in
+            selectedTab = newValue
+        }
+        .onChange(of: searchText) { _, _ in
+            guard let firstVisibleTab = filteredTabs.first else { return }
+            if !filteredTabs.contains(selectedTab) {
+                selectedTab = firstVisibleTab
+            }
+        }
     }
 
     private func selectTab(_ tab: SettingsTab) {
@@ -70,47 +138,34 @@ struct SettingsWindow: View {
             selectedTab = tab
         }
     }
-    
-    private var detailPanel: some View {
-        let panelShape = UnevenRoundedRectangle(
-            cornerRadii: .init(
-                topLeading: AppTheme.Window.panelCornerRadius / 2,
-                bottomLeading: AppTheme.Window.panelCornerRadius / 2,
-                bottomTrailing: 0,
-                topTrailing: 0
-            ),
-            style: .continuous
-        )
-
-        return detailContent
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                panelShape
-                    .fill(AppColors.contentBackground)
-            )
-            .clipShape(panelShape)
-            .hairlineBorder(panelShape, style: AppColors.border.opacity(0.8))
-            .layoutPriority(1)
-            .zIndex(1)
-    }
 
     @ViewBuilder
-    private var detailContent: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 0) {
-                headerView(for: selectedTab)
-                    .padding(.horizontal, AppTheme.Spacing.xxl)
-                    .padding(.top, AppTheme.Window.mainContentTopInset)
-                    .padding(.bottom, AppTheme.Spacing.lg)
-                
+    private var scrollableContent: some View {
+        if filteredTabs.isEmpty {
+            emptySearchState
+        } else {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+                tabsBar
+
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                    Text(selectedTab.rawValue)
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.textPrimary)
+
+                    Text(selectedTab.subtitle)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Divider()
+                    .background(AppColors.divider)
+
                 Group {
                     switch selectedTab {
                     case .general:
                         GeneralSettingsView(settings: settings)
                     case .hotkeys:
                         HotkeysSettingsView(settings: settings)
-                    case .models:
-                        ModelsSettingsView(settings: settings)
                     case .ai:
                         AIEnhancementSettingsView(settings: settings)
                     case .update:
@@ -119,93 +174,127 @@ struct SettingsWindow: View {
                         AboutSettingsView()
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.xxl)
-                .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
     }
-    
-    private func headerView(for tab: SettingsTab) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-            Text(tab.rawValue)
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.textPrimary)
-            
-            Text(headerSubtitle(for: tab))
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
+
+    private var fixedHeader: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                Text("Settings")
+                    .font(AppTypography.largeTitle)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text("Search settings or jump between sections without leaving the main workspace.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            HStack(alignment: .center, spacing: AppTheme.Spacing.lg) {
+                searchField
+
+                if !searchText.isEmpty {
+                    Text("\(filteredTabs.count) match\(filteredTabs.count == 1 ? "" : "es")")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textTertiary)
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
-    private func headerSubtitle(for tab: SettingsTab) -> String {
-        switch tab {
-        case .general: return "Output preferences and interface options"
-        case .hotkeys: return "Configure keyboard shortcuts"
-        case .models: return "Manage Whisper transcription models"
-        case .ai: return "Configure AI-powered text enhancement"
-        case .update: return "Check for application updates"
-        case .about: return "App information and acknowledgments"
-        }
-    }
 
-}
-
-private struct SettingsSidebar: View {
-    let selectedTab: SettingsTab
-    let onSelect: (SettingsTab) -> Void
-
-    @State private var hoveredTab: SettingsTab?
-
-    var body: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                Text("Settings")
-                    .font(AppTypography.title)
-                    .foregroundStyle(AppColors.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, AppTheme.Spacing.lg)
-            .padding(.trailing, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.lg)
-
-            VStack(spacing: AppTheme.Spacing.xs) {
-                ForEach(SettingsTab.allCases) { tab in
-                    settingsTabItem(tab)
+    private var tabsBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                ForEach(filteredTabs) { tab in
+                    SettingsTabChip(
+                        tab: tab,
+                        isSelected: selectedTab == tab,
+                        action: { selectTab(tab) }
+                    )
                 }
             }
-            .padding(.leading, AppTheme.Spacing.md)
-            .padding(.trailing, AppTheme.Spacing.xs)
-
-            Spacer()
         }
     }
 
-    private func settingsTabItem(_ tab: SettingsTab) -> some View {
-        let isSelected = selectedTab == tab
-        let isHovered = hoveredTab == tab
+    private var searchField: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(AppColors.textTertiary)
 
-        return Button {
-            onSelect(tab)
-        } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            TextField("Search settings", text: $searchText)
+                .textFieldStyle(.plain)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(AppColors.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, 10)
+        .frame(maxWidth: 360)
+        .background(AppColors.surfaceBackground, in: RoundedRectangle(cornerRadius: AppTheme.Radius.md))
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+            style: AppColors.border.opacity(0.8)
+        )
+    }
+
+    private var emptySearchState: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 28, weight: .medium))
+                .foregroundStyle(AppColors.textTertiary)
+
+            VStack(spacing: AppTheme.Spacing.xs) {
+                Text("No settings found")
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text("Try searching for terms like hotkeys, microphone, updates, or vibe mode.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(AppTheme.Spacing.xxl)
+    }
+}
+
+private struct SettingsTabChip: View {
+    let tab: SettingsTab
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 Image(systemName: tab.systemIcon)
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(width: 20)
+                    .font(.system(size: 13, weight: .semibold))
 
                 Text(tab.rawValue)
-                    .font(AppTypography.body)
-
-                Spacer()
+                    .font(AppTypography.subheadline)
+                    .lineLimit(1)
             }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
             .foregroundStyle(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
-            .sidebarItemStyle(isSelected: isSelected, isHovered: isHovered)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(isSelected ? AppColors.surfaceBackground : AppColors.windowBackground.opacity(0.001))
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(isSelected ? AppColors.border.opacity(0.9) : AppColors.border.opacity(0.45), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
-        // Keep hover state local so the active settings pane is not rebuilt on every mouse move.
-        .onHover { hovering in
-            hoveredTab = hovering ? tab : nil
-        }
     }
 }
 

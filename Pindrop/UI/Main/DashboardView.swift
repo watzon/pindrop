@@ -13,15 +13,15 @@ struct DashboardView: View {
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @State private var hasDismissedHotkeyReminder: Bool
     
-    var onOpenSettings: (() -> Void)?
+    var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
     
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
     
-    init(onOpenSettings: (() -> Void)? = nil, onViewAllHistory: (() -> Void)? = nil) {
-        self.onOpenSettings = onOpenSettings
+    init(onOpenHotkeys: (() -> Void)? = nil, onViewAllHistory: (() -> Void)? = nil) {
+        self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
         let stored = Self.isPreview ? false : UserDefaults.standard.bool(forKey: "hasDismissedHotkeyReminder")
         _hasDismissedHotkeyReminder = State(initialValue: stored)
@@ -167,7 +167,7 @@ struct DashboardView: View {
             
             // Action button
             Button {
-                onOpenSettings?()
+                onOpenHotkeys?()
             } label: {
                 Text("Customize hotkey")
                     .font(AppTypography.subheadline)

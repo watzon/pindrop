@@ -388,7 +388,6 @@ final class AppCoordinator {
             audioRecorder: audioRecorder,
             settingsStore: settingsStore
         )
-        self.statusBarController.setModelContainer(modelContainer)
         self.floatingIndicatorState = FloatingIndicatorState()
         self.floatingIndicatorController = FloatingIndicatorController(state: floatingIndicatorState)
         self.pillFloatingIndicatorController = PillFloatingIndicatorController(
@@ -408,9 +407,6 @@ final class AppCoordinator {
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
-        self.mainWindowController.onOpenSettings = { [weak self] in
-            self?.statusBarController.showSettings(tab: .general)
-        }
         self.mainWindowController.configureTranscribeFeature(
             state: mediaTranscriptionState,
             modelManager: modelManager,

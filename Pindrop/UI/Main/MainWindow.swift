@@ -11,12 +11,24 @@ import AppKit
 
 // MARK: - Navigation
 
-enum MainNavItem: String, CaseIterable, Identifiable {
+enum MainNavItem: String, Identifiable {
     case home = "Home"
     case history = "History"
-    case dictionary = "Dictionary"
-    case notes = "Notes"
     case transcribe = "Transcribe"
+    case models = "Models"
+    case notes = "Notes"
+    case dictionary = "Dictionary"
+    case settings = "Settings"
+
+    static let primaryNavigationItems: [MainNavItem] = [
+        .home,
+        .history,
+        .transcribe,
+        .notes,
+        .dictionary,
+        .models,
+        .settings
+    ]
 
     var id: String { rawValue }
 
@@ -24,9 +36,20 @@ enum MainNavItem: String, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .history: return "clock.fill"
-        case .dictionary: return "text.book.closed"
-        case .notes: return "note.text"
         case .transcribe: return "waveform"
+        case .models: return "cpu"
+        case .notes: return "note.text"
+        case .dictionary: return "text.book.closed"
+        case .settings: return "gearshape"
+        }
+    }
+
+    var shortcutHint: String? {
+        switch self {
+        case .settings:
+            return "⌘,"
+        default:
+            return nil
         }
     }
 
@@ -37,6 +60,7 @@ enum MainNavItem: String, CaseIterable, Identifiable {
 
 extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
+    static let navigateToSettingsTab = Notification.Name("navigateToSettingsTab")
 }
 
 final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
@@ -82,6 +106,7 @@ final class TitlebarlessHostingController<Content: View>: NSHostingController<Co
 
 struct MainWindow: View {
     @State private var selectedNav: MainNavItem = .home
+    @State private var selectedSettingsTab: SettingsTab = .general
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
     let settingsStore: SettingsStore?
@@ -89,14 +114,17 @@ struct MainWindow: View {
     let onSubmitMediaLink: ((String) -> Void)?
     let onDownloadDiarizationModel: (() -> Void)?
 
-    var onOpenSettings: (() -> Void)?
-
     private func navigateTo(_ item: MainNavItem) {
         if item == .transcribe {
             mediaTranscriptionState?.showLibrary()
         }
 
         selectedNav = item
+    }
+
+    private func navigateToSettings(_ tab: SettingsTab) {
+        selectedSettingsTab = tab
+        selectedNav = .settings
     }
 
     var body: some View {
@@ -115,8 +143,15 @@ struct MainWindow: View {
             minHeight: AppTheme.Window.mainMinHeight
         )
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
-            if let navItem = notification.userInfo?["navItem"] as? MainNavItem {
+            if let rawValue = notification.userInfo?["navItem"] as? String,
+               let navItem = MainNavItem(rawValue: rawValue) {
                 navigateTo(navItem)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToSettingsTab)) { notification in
+            if let rawValue = notification.userInfo?["settingsTab"] as? String,
+               let tab = SettingsTab(rawValue: rawValue) {
+                navigateToSettings(tab)
             }
         }
     }
@@ -124,8 +159,7 @@ struct MainWindow: View {
     private var sidebarPanel: some View {
         return MainSidebar(
             selectedNav: selectedNav,
-            onSelect: navigateTo,
-            onOpenSettings: openSettings
+            onSelect: navigateTo
         )
         .frame(width: AppTheme.Window.sidebarWidth)
         .frame(maxHeight: .infinity, alignment: .top)
@@ -161,13 +195,12 @@ struct MainWindow: View {
     private var detailContent: some View {
         switch selectedNav {
         case .home:
-            DashboardView(onOpenSettings: openSettings, onViewAllHistory: { navigateTo(.history) })
+            DashboardView(
+                onOpenHotkeys: { navigateToSettings(.hotkeys) },
+                onViewAllHistory: { navigateTo(.history) }
+            )
         case .history:
             HistoryView()
-        case .notes:
-            NotesView()
-        case .dictionary:
-            DictionaryView()
         case .transcribe:
             if let mediaTranscriptionState,
                let modelManager,
@@ -181,8 +214,26 @@ struct MainWindow: View {
                     settingsStore: settingsStore,
                     onImportFiles: onImportMediaFiles,
                     onSubmitLink: onSubmitMediaLink,
-                    onDownloadDiarizationModel: onDownloadDiarizationModel
+                    onDownloadDiarizationModel: onDownloadDiarizationModel,
+                    onOpenModels: { navigateTo(.models) }
                 )
+            } else {
+                comingSoonView(for: selectedNav)
+            }
+        case .models:
+            if let modelManager,
+               let settingsStore {
+                ModelsSettingsView(settings: settingsStore, modelManager: modelManager)
+            } else {
+                comingSoonView(for: selectedNav)
+            }
+        case .notes:
+            NotesView()
+        case .dictionary:
+            DictionaryView()
+        case .settings:
+            if let settingsStore {
+                SettingsContainerView(settings: settingsStore, initialTab: selectedSettingsTab)
             } else {
                 comingSoonView(for: selectedNav)
             }
@@ -207,37 +258,22 @@ struct MainWindow: View {
         .background(AppColors.contentBackground)
     }
     
-    // MARK: - Actions
-    
-    private func openSettings() {
-        onOpenSettings?()
-    }
 }
 
 private struct MainSidebar: View {
     let selectedNav: MainNavItem
     let onSelect: (MainNavItem) -> Void
-    let onOpenSettings: () -> Void
 
     @State private var hoveredItem: MainNavItem?
-    @State private var isHoveringSettings = false
 
     var body: some View {
         VStack(spacing: 0) {
             appHeader
 
-            VStack(spacing: AppTheme.Spacing.xs) {
-                ForEach(MainNavItem.allCases) { item in
-                    sidebarItem(item)
-                }
-            }
-            .padding(.leading, AppTheme.Spacing.md)
-            .padding(.trailing, AppTheme.Spacing.xs)
-            .padding(.top, AppTheme.Spacing.md)
+            navigationSection(items: MainNavItem.primaryNavigationItems)
+                .padding(.top, AppTheme.Spacing.md)
 
             Spacer()
-
-            bottomSection
         }
     }
 
@@ -302,6 +338,10 @@ private struct MainSidebar: View {
                             Capsule()
                                 .fill(AppColors.border)
                         )
+                } else if let shortcutHint = item.shortcutHint {
+                    Text(shortcutHint)
+                        .font(AppTypography.monoSmall)
+                        .foregroundStyle(AppColors.textTertiary)
                 }
             }
             .foregroundStyle(
@@ -318,39 +358,16 @@ private struct MainSidebar: View {
         }
     }
 
-    private var bottomSection: some View {
+    private func navigationSection(items: [MainNavItem]) -> some View {
         VStack(spacing: AppTheme.Spacing.sm) {
-            Divider()
-                .background(AppColors.divider)
-
-            Button {
-                onOpenSettings()
-            } label: {
-                HStack(spacing: AppTheme.Spacing.md) {
-                    Image(systemName: "gear")
-                        .font(.system(size: 14, weight: .medium))
-                        .frame(width: 20)
-
-                    Text("Settings")
-                        .font(AppTypography.body)
-
-                    Spacer()
-
-                    Text("⌘,")
-                        .font(AppTypography.monoSmall)
-                        .foregroundStyle(AppColors.textTertiary)
+            VStack(spacing: AppTheme.Spacing.xs) {
+                ForEach(items) { item in
+                    sidebarItem(item)
                 }
-                .foregroundStyle(AppColors.textSecondary)
-                .sidebarItemStyle(isSelected: false, isHovered: isHoveringSettings)
-            }
-            .buttonStyle(.plain)
-            .onHover { hovering in
-                isHoveringSettings = hovering
             }
         }
         .padding(.leading, AppTheme.Spacing.md)
         .padding(.trailing, AppTheme.Spacing.xs)
-        .padding(.bottom, AppTheme.Spacing.lg)
     }
 }
 
@@ -364,7 +381,6 @@ final class MainWindowController {
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
-    var onOpenSettings: (() -> Void)?
     var onImportMediaFiles: (([URL]) -> Void)?
     var onSubmitMediaLink: ((String) -> Void)?
     var onDownloadDiarizationModel: (() -> Void)?
@@ -401,7 +417,15 @@ final class MainWindowController {
         show(navigationItem: .transcribe)
     }
 
-    private func show(navigationItem: MainNavItem?) {
+    func showModels() {
+        show(navigationItem: .models)
+    }
+
+    func showSettings(tab: SettingsTab = .general) {
+        show(navigationItem: .settings, settingsTab: tab)
+    }
+
+    private func show(navigationItem: MainNavItem?, settingsTab: SettingsTab? = nil) {
         guard let container = modelContainer else {
             Log.ui.error("ModelContainer not set - cannot show MainWindow")
             return
@@ -414,8 +438,7 @@ final class MainWindowController {
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
-                onDownloadDiarizationModel: onDownloadDiarizationModel,
-                onOpenSettings: onOpenSettings
+                onDownloadDiarizationModel: onDownloadDiarizationModel
             )
                 .modelContainer(container)
             let hostingController = TitlebarlessHostingController(rootView: mainView)
@@ -460,13 +483,22 @@ final class MainWindowController {
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
-        // Navigate to the requested item if specified
-        if let item = navigationItem {
-            NotificationCenter.default.post(
-                name: .navigateToMainNavItem,
-                object: nil,
-                userInfo: ["navItem": item]
-            )
+        if let settingsTab {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(
+                    name: .navigateToSettingsTab,
+                    object: nil,
+                    userInfo: ["settingsTab": settingsTab.rawValue]
+                )
+            }
+        } else if let item = navigationItem {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(
+                    name: .navigateToMainNavItem,
+                    object: nil,
+                    userInfo: ["navItem": item.rawValue]
+                )
+            }
         }
     }
     
@@ -494,8 +526,7 @@ final class MainWindowController {
         settingsStore: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
-        onDownloadDiarizationModel: nil,
-        onOpenSettings: nil
+        onDownloadDiarizationModel: nil
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
@@ -509,8 +540,7 @@ final class MainWindowController {
         settingsStore: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
-        onDownloadDiarizationModel: nil,
-        onOpenSettings: nil
+        onDownloadDiarizationModel: nil
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)

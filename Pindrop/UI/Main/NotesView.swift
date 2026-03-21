@@ -51,78 +51,68 @@ struct NotesView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with search and actions
-            headerSection
-            
-            // Content
-            contentArea
+        MainContentPageLayout(scrollContent: false, headerBottomPadding: AppTheme.Spacing.lg) {
+            fixedHeader
+        } content: {
+            VStack(spacing: AppTheme.Spacing.lg) {
+                searchBar
+                contentArea
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
         }
-        .background(AppColors.contentBackground)
     }
     
     // MARK: - Header
     
-    private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            HStack {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text("Notes")
-                        .font(AppTypography.largeTitle)
-                        .foregroundStyle(AppColors.textPrimary)
-                    
-                    Text("\(filteredNotes.count) notes")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
-                }
+    private var fixedHeader: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                Text("Notes")
+                    .font(AppTypography.largeTitle)
+                    .foregroundStyle(AppColors.textPrimary)
                 
-                Spacer()
-                
-                // Sort toggle button
-                Button(action: toggleSortOrder) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: sortOrder == .ascending ? "arrow.up" : "arrow.down")
-                            .font(.system(size: 12))
-                        Text("Date \(sortOrder == .ascending ? "↑" : "↓")")
-                            .font(AppTypography.subheadline)
-                    }
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.sm)
-                }
-                .buttonStyle(.borderless)
-                .background(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                        .fill(AppColors.surfaceBackground)
-                )
-                .hairlineStroke(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
-                    style: AppColors.border
-                )
-                .help("Toggle sort order")
-                
-                // New Note button
-                Button(action: createNewNote) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .semibold))
-                        Text("New Note")
-                            .font(AppTypography.subheadline)
-                    }
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.sm)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(AppColors.accent)
-                .controlSize(.regular)
+                Text("\(filteredNotes.count) notes")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
             }
             
-            // Search bar
-            searchBar
+            Spacer()
+            
+            Button(action: toggleSortOrder) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: sortOrder == .ascending ? "arrow.up" : "arrow.down")
+                        .font(.system(size: 12))
+                    Text("Date \(sortOrder == .ascending ? "↑" : "↓")")
+                        .font(AppTypography.subheadline)
+                }
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.sm)
+            }
+            .buttonStyle(.borderless)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                    .fill(AppColors.surfaceBackground)
+            )
+            .hairlineStroke(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
+                style: AppColors.border
+            )
+            .help("Toggle sort order")
+            
+            Button(action: createNewNote) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("New Note")
+                        .font(AppTypography.subheadline)
+                }
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.sm)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(AppColors.accent)
+            .controlSize(.regular)
         }
-        .padding(.horizontal, AppTheme.Spacing.xxl)
-        .padding(.bottom, AppTheme.Spacing.xxl)
-        .padding(.top, AppTheme.Window.mainContentTopInset)
-        .background(AppColors.contentBackground)
     }
     
     private var searchBar: some View {
@@ -231,8 +221,8 @@ struct NotesView: View {
                     )
                 }
             }
-            .padding(AppTheme.Spacing.xxl)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
     
     // MARK: - Actions

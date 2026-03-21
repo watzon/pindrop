@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
+    private static let topListPadding: CGFloat = 12
     private static let pageSize = 50
     private static let listVerticalPadding: CGFloat = 20
     private static let dayFormatter: DateFormatter = {
@@ -241,9 +242,16 @@ struct HistoryView: View {
     
     private var transcriptionsList: some View {
         List {
-            listEdgeInsetRow
+            listTopInsetRow
 
-            ForEach(groupedTranscriptions, id: \.0) { dateGroup, records in
+            ForEach(Array(groupedTranscriptions.enumerated()), id: \.element.0) { index, group in
+                let dateGroup = group.0
+                let records = group.1
+
+                if index > 0 {
+                    sectionSpacerRow
+                }
+
                 Section {
                     ForEach(records) { record in
                         HistoryTranscriptionRow(
@@ -265,7 +273,6 @@ struct HistoryView: View {
                 } header: {
                     dateHeader(dateGroup)
                         .padding(.horizontal, AppTheme.Spacing.xxl)
-                        .padding(.top, AppTheme.Spacing.lg)
                 }
             }
 
@@ -281,14 +288,31 @@ struct HistoryView: View {
                 .listRowBackground(Color.clear)
             }
 
-            listEdgeInsetRow
+            listBottomInsetRow
         }
         .listStyle(.plain)
+        .contentMargins(.top, 0, for: .scrollContent)
         .scrollContentBackground(.hidden)
         .background(AppColors.contentBackground)
     }
 
-    private var listEdgeInsetRow: some View {
+    private var listTopInsetRow: some View {
+        Color.clear
+            .frame(height: Self.topListPadding)
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+    }
+
+    private var sectionSpacerRow: some View {
+        Color.clear
+            .frame(height: AppTheme.Spacing.lg)
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+    }
+
+    private var listBottomInsetRow: some View {
         Color.clear
             .frame(height: Self.listVerticalPadding)
             .listRowInsets(EdgeInsets())

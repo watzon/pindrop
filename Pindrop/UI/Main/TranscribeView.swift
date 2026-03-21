@@ -25,6 +25,7 @@ struct TranscribeView: View {
     let onImportFiles: ([URL]) -> Void
     let onSubmitLink: (String) -> Void
     let onDownloadDiarizationModel: () -> Void
+    let onOpenModels: (() -> Void)?
 
     @State private var isTargeted = false
     @State private var pendingDeletionRecord: TranscriptionRecord?
@@ -184,7 +185,7 @@ struct TranscribeView: View {
     }
 
     private var libraryView: some View {
-        ScrollView {
+        MainContentPageLayout(scrollContent: true, contentTopPadding: AppTheme.Spacing.xl) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xxl) {
                 header
                 diarizationGate
@@ -210,23 +211,33 @@ struct TranscribeView: View {
                     backgroundJobCard(job)
                 }
                 dropZone
-                librarySection
             }
-            .padding(.horizontal, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.xxl)
-            .padding(.top, AppTheme.Window.mainContentTopInset)
+        } content: {
+            librarySection
         }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text("Transcribe Media")
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.textPrimary)
+        HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                Text("Transcribe Media")
+                    .font(AppTypography.largeTitle)
+                    .foregroundStyle(AppColors.textPrimary)
 
-            Text("Drop a file or paste a link to create a diarized, timestamped transcript.")
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
+                Text("Drop a file or paste a link to create a diarized, timestamped transcript.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            Spacer(minLength: AppTheme.Spacing.lg)
+
+            if let onOpenModels {
+                Button("Manage models") {
+                    onOpenModels()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
         }
     }
 

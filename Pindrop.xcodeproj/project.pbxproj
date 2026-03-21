@@ -52,6 +52,7 @@
 		C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6BA5D6DB40F25222D224E /* StatusBarController.swift */; };
 		C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */; };
 		CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049276EAC4FEBCA2F91F807E /* CopyButton.swift */; };
+		FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */; };
 		COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */; };
 		CTXADAPT01A2B3C4D5E6F /* AppContextAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */; };
 		CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */; };
@@ -155,6 +156,7 @@
 /* Begin PBXFileReference section */
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
+		FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentPageLayout.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
 		31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecord.swift; sourceTree = "<group>"; };
@@ -499,6 +501,7 @@
 		BFA9046303E3874827C62B25 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */,
 				049276EAC4FEBCA2F91F807E /* CopyButton.swift */,
 				SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */,
 				NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */,
@@ -795,6 +798,7 @@
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,
+				FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */,
 				CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */,
 				NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */,
 				NOTECARD01A2B3C4D5E6F70 /* NoteCardView.swift in Sources */,

@@ -90,15 +90,12 @@ struct DictionaryView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with section selector and import/export
+        MainContentPageLayout(scrollContent: false) {
             headerSection
-            
-            // Content
+        } content: {
             contentArea
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(AppColors.contentBackground)
         .onAppear {
             Log.app.info("DictionaryView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)
@@ -170,10 +167,6 @@ struct DictionaryView: View {
             // Add form
             addFormSection
         }
-        .padding(.horizontal, AppTheme.Spacing.xxl)
-        .padding(.bottom, AppTheme.Spacing.xxl)
-        .padding(.top, AppTheme.Window.mainContentTopInset)
-        .background(AppColors.contentBackground)
     }
     
     // MARK: - Section Selector
@@ -322,8 +315,7 @@ struct DictionaryView: View {
             emptyStateView
         } else {
             contentTable
-                .padding(.horizontal, AppTheme.Spacing.xxl)
-                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
     
@@ -464,6 +456,7 @@ struct DictionaryView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.contentBackground)
         )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
         .hairlineBorder(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
@@ -531,6 +524,7 @@ struct DictionaryView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
                 .fill(AppColors.contentBackground)
         )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
         .hairlineBorder(
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg),

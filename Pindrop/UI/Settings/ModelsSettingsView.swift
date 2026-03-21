@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ModelsSettingsView: View {
     @ObservedObject var settings: SettingsStore
-    @State private var modelManager = ModelManager()
+    let modelManager: ModelManager
     @State private var downloadingModel: String?
     @State private var switchingToModel: String?
     @State private var activeModelName: String?
@@ -41,15 +41,20 @@ struct ModelsSettingsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            currentModelCard
-            filterBar
-            availableModelsCard
-            featureModelsCard
-            
-            if let errorMessage {
-                errorBanner(message: errorMessage)
+        MainContentPageLayout(scrollContent: true, headerBottomPadding: AppTheme.Spacing.lg) {
+            header
+        } content: {
+            VStack(spacing: 20) {
+                currentModelCard
+                filterBar
+                availableModelsCard
+                featureModelsCard
+
+                if let errorMessage {
+                    errorBanner(message: errorMessage)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .task {
             await modelManager.refreshDownloadedModels()
@@ -66,6 +71,18 @@ struct ModelsSettingsView: View {
                 activeModelName = modelName
                 switchingToModel = nil
             }
+        }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("Models")
+                .font(AppTypography.largeTitle)
+                .foregroundStyle(AppColors.textPrimary)
+
+            Text("Manage local speech models, feature models, and the default engine Pindrop uses for transcription.")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
     
@@ -653,7 +670,7 @@ private extension Int {
 }
 
 #Preview {
-    ModelsSettingsView(settings: SettingsStore())
+    ModelsSettingsView(settings: SettingsStore(), modelManager: ModelManager())
         .padding()
         .frame(width: 600)
 }

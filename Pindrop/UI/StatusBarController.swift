@@ -1,11 +1,10 @@
 import Foundation
 import AppKit
 import SwiftUI
-import SwiftData
 import os.log
 
 @MainActor
-final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
+final class StatusBarController: NSObject, NSMenuDelegate {
 
     enum RecordingState {
         case idle
@@ -18,7 +17,6 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
 
     private let audioRecorder: AudioRecorder
     private let settingsStore: SettingsStore
-    private var modelContainer: ModelContainer?
     private var mainWindowController: MainWindowController?
 
     // MARK: - Menu Item References
@@ -55,8 +53,6 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
     private var currentAIModelItem: NSMenuItem?
     private let aiModelService = AIModelService()
 
-    private var settingsWindow: NSWindow?
-    private var settingsHostingController: TitlebarlessHostingController<AnyView>?
     private var welcomePopover: NSPopover?
 
     // MARK: - Callbacks
@@ -101,16 +97,17 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
         setupMenu()
     }
 
-    func setModelContainer(_ container: ModelContainer) {
-        self.modelContainer = container
-    }
-
     func setMainWindowController(_ controller: MainWindowController) {
         self.mainWindowController = controller
     }
 
     func showSettings(tab: SettingsTab = .general) {
-        openSettingsWindow(tab: tab)
+        guard let mainWindowController else {
+            Log.ui.error("MainWindowController not set - cannot show settings")
+            return
+        }
+
+        mainWindowController.showSettings(tab: tab)
     }
 
     func updateRecentTranscripts(_ transcripts: [(id: UUID, text: String, timestamp: Date)]) {
@@ -565,7 +562,7 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
         }
 
         guard let cachedModels = aiModelService.getCachedModels(for: provider), !cachedModels.isEmpty else {
-            let fetchItem = NSMenuItem(title: "Fetch models in Settings", action: nil, keyEquivalent: "")
+            let fetchItem = NSMenuItem(title: "Fetch models in Models", action: nil, keyEquivalent: "")
             fetchItem.isEnabled = false
             aiModelMenu.addItem(fetchItem)
             return
@@ -811,68 +808,7 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSWindowDelegate {
     }
 
     @objc private func openSettings() {
-        openSettingsWindow(tab: .general)
-    }
-
-    private func openSettingsWindow(tab: SettingsTab) {
-        let rootView = makeSettingsRootView(tab: tab)
-
-        if let existingWindow = settingsWindow,
-           let existingHostingController = settingsHostingController {
-            existingHostingController.rootView = rootView
-            existingWindow.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            return
-        }
-
-        let hostingController = TitlebarlessHostingController(rootView: rootView)
-
-        let window = NSWindow(
-            contentRect: NSRect(
-                x: 0,
-                y: 0,
-                width: AppTheme.Window.settingsDefaultWidth,
-                height: AppTheme.Window.settingsDefaultHeight
-            ),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        window.contentViewController = hostingController
-        window.delegate = self
-        window.title = "Pindrop Settings"
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
-        window.titlebarSeparatorStyle = .none
-        window.toolbar = nil
-        window.toolbarStyle = .unifiedCompact
-        window.isMovableByWindowBackground = true
-        window.backgroundColor = .clear
-        window.isOpaque = false
-        window.hasShadow = true
-        window.isReleasedWhenClosed = false
-        window.setContentSize(NSSize(width: AppTheme.Window.settingsDefaultWidth, height: AppTheme.Window.settingsDefaultHeight))
-        window.minSize = NSSize(width: AppTheme.Window.settingsMinWidth, height: AppTheme.Window.settingsMinHeight)
-        window.center()
-
-        settingsHostingController = hostingController
-        settingsWindow = window
-        settingsWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-    }
-
-    func windowWillClose(_ notification: Notification) {
-        guard notification.object as? NSWindow === settingsWindow else { return }
-        settingsWindow = nil
-        settingsHostingController = nil
-    }
-
-    private func makeSettingsRootView(tab: SettingsTab) -> AnyView {
-        let settingsView = SettingsWindow(settings: settingsStore, initialTab: tab)
-        if let container = modelContainer {
-            return AnyView(settingsView.modelContainer(container))
-        }
-        return AnyView(settingsView)
+        showSettings(tab: .general)
     }
 
     @objc private func quit() {
