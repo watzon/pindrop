@@ -142,13 +142,9 @@ private enum AISettingsFieldStyle {
    static let verticalPadding: CGFloat = 10
    static let dropdownSpacing: CGFloat = 6
    static let dropdownMaxHeight: CGFloat = 220
-   static let backgroundColor = Color(
-      red: 23.0 / 255.0,
-      green: 26.0 / 255.0,
-      blue: 28.0 / 255.0
-   )
-   static let borderColor = AppColors.border.opacity(0.45)
-   static let focusedBorderColor = AppColors.accent.opacity(0.55)
+   static let backgroundColor = AppColors.inputBackground
+   static let borderColor = AppColors.inputBorder
+   static let focusedBorderColor = AppColors.inputBorderFocused
 }
 
 extension View {

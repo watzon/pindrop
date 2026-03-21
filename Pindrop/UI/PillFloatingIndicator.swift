@@ -758,11 +758,11 @@ struct PillIndicatorView: View {
                     } label: {
                         ZStack {
                             Circle()
-                                .fill(Color.white.opacity(0.1))
+                                .fill(AppColors.overlayTextPrimary.opacity(0.1))
 
                             Image(systemName: "xmark")
                                 .font(.system(size: 8, weight: .bold))
-                                .foregroundStyle(Color.white.opacity(0.9))
+                                .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
                         }
                         .frame(width: 18, height: 18)
                     }
@@ -780,14 +780,14 @@ struct PillIndicatorView: View {
                     } label: {
                         ZStack {
                             Circle()
-                                .fill(Color(red: 0.94, green: 0.38, blue: 0.38))
+                                .fill(AppColors.overlayRecording)
 
                             RoundedRectangle(cornerRadius: 1.5)
-                                .fill(Color.white)
+                                .fill(AppColors.overlayTextPrimary)
                                 .frame(width: 6, height: 6)
                         }
                         .frame(width: 18, height: 18)
-                        .shadow(color: Color.red.opacity(0.25), radius: 4)
+                        .shadow(color: AppColors.overlayRecording.opacity(0.25), radius: 4)
                     }
                     .buttonStyle(.plain)
                 }
@@ -796,11 +796,11 @@ struct PillIndicatorView: View {
                 HStack(spacing: 6) {
                     ProgressView()
                         .controlSize(.mini)
-                        .tint(.white.opacity(0.95))
+                        .tint(AppColors.overlayTextPrimary.opacity(0.95))
 
                     Text("Processing")
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
                 }
             }
         }
@@ -811,13 +811,13 @@ struct PillIndicatorView: View {
 
     private var compactPillShell: some View {
         Capsule()
-            .fill(Color.black.opacity(controller.isHovered ? 0.84 : 0.68))
+            .fill(AppColors.overlaySurface.opacity(controller.isHovered ? 0.96 : 0.82))
             .overlay(
                 Capsule()
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(controller.isHovered ? 0.18 : 0.1),
+                                AppColors.overlayTextPrimary.opacity(controller.isHovered ? 0.18 : 0.1),
                                 .clear
                             ],
                             startPoint: .top,
@@ -825,32 +825,32 @@ struct PillIndicatorView: View {
                         )
                     )
             )
-            .hairlineStroke(Capsule(), style: Color.white.opacity(controller.isHovered ? 0.28 : 0.18))
+            .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(controller.isHovered ? 1 : 0.82))
             .overlay {
                 if controller.isHovered {
                     PillStaticWaveformGlyph()
                 }
             }
             .frame(width: controller.isHovered ? 86 : 40, height: controller.isHovered ? 22 : 10)
-            .shadow(color: Color.black.opacity(controller.isHovered ? 0.42 : 0.3), radius: 12, y: 6)
+            .shadow(color: AppColors.shadowColor.opacity(controller.isHovered ? 0.42 : 0.3), radius: 12, y: 6)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }
 
     private var expandedPillShell: some View {
         Capsule()
-            .fill(Color.black.opacity(0.82))
-            .hairlineStroke(Capsule(), style: Color.white.opacity(0.2))
+            .fill(AppColors.overlaySurface)
+            .hairlineStroke(Capsule(), style: AppColors.overlayLine)
             .overlay(
                 Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.2), .clear],
+                            colors: [AppColors.overlayTextPrimary.opacity(0.2), .clear],
                             startPoint: .top,
                             endPoint: .center
                         )
                     )
             )
-            .shadow(color: Color.black.opacity(0.42), radius: 14, y: 8)
+            .shadow(color: AppColors.shadowColor.opacity(0.42), radius: 14, y: 8)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }
 }
@@ -862,7 +862,7 @@ private struct PillStaticWaveformGlyph: View {
         HStack(spacing: 2) {
             ForEach(Array(barHeights.enumerated()), id: \.offset) { _, height in
                 RoundedRectangle(cornerRadius: 1)
-                    .fill(Color.white.opacity(0.78))
+                    .fill(AppColors.overlayTextPrimary.opacity(0.78))
                     .frame(width: 2, height: height)
             }
         }
@@ -900,27 +900,27 @@ private struct PillHoverTooltip: View {
                 switch promptMode {
                 case .toggle(let hotkey):
                     Text("Click or hold ")
-                        .foregroundStyle(Color.white.opacity(0.78))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
 
                     Text(hotkey)
-                        .foregroundStyle(Color(red: 0.88, green: 0.67, blue: 0.79))
+                        .foregroundStyle(AppColors.overlayTooltipAccent)
 
                     Text(" to start talking")
-                        .foregroundStyle(Color.white.opacity(0.78))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
 
                 case .pushToTalk(let hotkey):
                     Text("Click or press ")
-                        .foregroundStyle(Color.white.opacity(0.78))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
 
                     Text(hotkey)
-                        .foregroundStyle(Color(red: 0.88, green: 0.67, blue: 0.79))
+                        .foregroundStyle(AppColors.overlayTooltipAccent)
 
                     Text(" to start talking")
-                        .foregroundStyle(Color.white.opacity(0.78))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
 
                 case .noHotkey:
                     Text("Click or set a hotkey to start talking")
-                        .foregroundStyle(Color.white.opacity(0.78))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
                 }
             }
             .font(.system(size: 10, weight: .medium, design: .rounded))
@@ -928,18 +928,18 @@ private struct PillHoverTooltip: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.black.opacity(0.92))
+                    .fill(AppColors.overlaySurfaceStrong)
                     .hairlineStroke(
                         RoundedRectangle(cornerRadius: 10, style: .continuous),
-                        style: Color.white.opacity(0.14)
+                        style: AppColors.overlayLine.opacity(0.8)
                     )
-                    .shadow(color: Color.black.opacity(0.42), radius: 14, y: 6)
+                    .shadow(color: AppColors.shadowColor.opacity(0.42), radius: 14, y: 6)
             )
 
             TooltipPointer()
-                .fill(Color.black.opacity(0.9))
+                .fill(AppColors.overlaySurfaceStrong)
                 .frame(width: 12, height: 6)
-                .hairlineStroke(TooltipPointer(), style: Color.white.opacity(0.14))
+                .hairlineStroke(TooltipPointer(), style: AppColors.overlayLine.opacity(0.8))
                 .offset(y: -0.5)
         }
     }

@@ -89,7 +89,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let context = container.mainContext
         coordinator = AppCoordinator(modelContext: context, modelContainer: container)
         settingsStore = coordinator?.settingsStore
-        
+        PindropThemeController.shared.refresh()
+
         updateDockVisibility()
         setupMainMenu()
         

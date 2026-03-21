@@ -13,7 +13,7 @@ struct GeneralSettingsView: View {
     @State private var availableInputDevices: [AudioInputDevice] = []
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             outputSection
             audioInputSection
             floatingIndicatorSection
@@ -24,8 +24,12 @@ struct GeneralSettingsView: View {
     }
     
     private var outputSection: some View {
-        SettingsCard(title: "Output", icon: "doc.on.clipboard") {
-            VStack(alignment: .leading, spacing: 16) {
+        SettingsCard(
+            title: "Output",
+            icon: "doc.on.clipboard",
+            detail: "Choose how dictated text lands, then tune the final insertion behavior."
+        ) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
                 ForEach(OutputOption.allCases) { option in
                     OutputOptionRow(
                         option: option,
@@ -34,66 +38,37 @@ struct GeneralSettingsView: View {
                     )
                 }
                 
-                Divider()
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Add trailing space")
-                            .font(.body)
-                        Text("Append a space after each transcription for seamless dictation")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $settings.addTrailingSpace)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
+                SettingsDivider()
+
+                SettingsToggleRow(
+                    title: "Add trailing space",
+                    detail: "Append a space after each transcription for seamless dictation.",
+                    isOn: $settings.addTrailingSpace
+                )
             }
         }
     }
     
     private var interfaceSection: some View {
-        SettingsCard(title: "Interface", icon: "macwindow") {
-            VStack(spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Launch at Login")
-                            .font(.body)
-                        Text("Automatically start Pindrop when you log in")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $settings.launchAtLogin)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-                
-                Divider()
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Show in Dock")
-                            .font(.body)
-                        Text("Display Pindrop icon in the Dock when running")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $settings.showInDock)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-                
-                Divider()
+        SettingsCard(
+            title: "Interface",
+            icon: "macwindow",
+            detail: "Control how Pindrop appears in macOS and whether it starts with your desktop session."
+        ) {
+            VStack(spacing: AppTheme.Spacing.lg) {
+                SettingsToggleRow(
+                    title: "Launch at login",
+                    detail: "Automatically start Pindrop when you sign in.",
+                    isOn: $settings.launchAtLogin
+                )
 
+                SettingsDivider()
+
+                SettingsToggleRow(
+                    title: "Show in Dock",
+                    detail: "Display Pindrop in the Dock instead of running only as a menu bar app.",
+                    isOn: $settings.showInDock
+                )
             }
         }
     }
@@ -103,86 +78,58 @@ struct GeneralSettingsView: View {
     }
 
     private var dictionarySection: some View {
-        SettingsCard(title: "Dictionary", icon: "text.book.closed") {
-            VStack(spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Learn corrected words automatically")
-                            .font(.body)
-                        Text("Automatically add words you correct to your vocabulary")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $settings.automaticDictionaryLearningEnabled)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-            }
+        SettingsCard(
+            title: "Dictionary",
+            icon: "text.book.closed",
+            detail: "Let Pindrop quietly learn vocabulary from the corrections you make over time."
+        ) {
+            SettingsToggleRow(
+                title: "Learn corrected words automatically",
+                detail: "Add words you manually correct into your vocabulary for future transcriptions.",
+                isOn: $settings.automaticDictionaryLearningEnabled
+            )
         }
     }
 
     private var audioInputSection: some View {
-        SettingsCard(title: "Audio Input", icon: "mic") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Choose which microphone Pindrop should use for dictation. Changes apply on the next recording.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
-                HStack(spacing: 8) {
+        SettingsCard(
+            title: "Audio Input",
+            icon: "mic",
+            detail: "Choose which microphone Pindrop should use for dictation and how it behaves while recording."
+        ) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                HStack(spacing: AppTheme.Spacing.sm) {
                     SelectField(
                         options: audioInputOptions,
                         selection: selectedAudioInputSelection,
                         placeholder: "System Default"
                     )
                     .frame(maxWidth: 300, alignment: .leading)
-                    
+
                     Button("Refresh") {
                         refreshInputDevices()
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
-                    
+
                     Spacer()
                 }
 
-                Divider()
+                SettingsDivider()
 
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Pause media during transcription")
-                            .font(.body)
-                        Text("Temporarily pause active media playback while dictation is recording")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                SettingsToggleRow(
+                    title: "Pause media during transcription",
+                    detail: "Temporarily pause active media playback while dictation is recording.",
+                    isOn: $settings.pauseMediaOnRecording
+                )
 
-                    Spacer()
+                SettingsDivider()
 
-                    Toggle("", isOn: $settings.pauseMediaOnRecording)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-
-                Divider()
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Mute system audio during recording")
-                            .font(.body)
-                        Text("Temporarily mute speaker output while dictation is recording")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $settings.muteAudioDuringRecording)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
+                SettingsToggleRow(
+                    title: "Mute system audio during recording",
+                    detail: "Temporarily mute speaker output while dictation is recording.",
+                    isOn: $settings.muteAudioDuringRecording
+                )
             }
         }
         .onAppear {
@@ -204,14 +151,19 @@ struct GeneralSettingsView: View {
     }
     
     private var resetSection: some View {
-        SettingsCard(title: "Reset", icon: "arrow.counterclockwise") {
+        SettingsCard(
+            title: "Reset",
+            icon: "arrow.counterclockwise",
+            detail: "Start fresh when you want to clear preferences, onboarding state, and saved credentials."
+        ) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Reset all settings")
-                        .font(.body)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textPrimary)
                     Text("Clears preferences and restarts onboarding")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
                 }
                 
                 Spacer()
@@ -307,10 +259,10 @@ struct OutputOptionRow: View {
     
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: 12) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
+                        .stroke(isSelected ? AppColors.accent : AppColors.border.opacity(0.9), lineWidth: 2)
                         .frame(width: 20, height: 20)
                     
                     if isSelected {
@@ -321,55 +273,32 @@ struct OutputOptionRow: View {
                 }
                 
                 IconView(icon: option.icon, size: 16)
-                    .foregroundStyle(isSelected ? AppColors.accent : .secondary)
+                    .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
                     .frame(width: 24)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(option.title)
-                        .font(.body)
-                        .foregroundStyle(.primary)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textPrimary)
                     Text(option.description)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
                 }
                 
                 Spacer()
             }
-            .padding(12)
+            .padding(AppTheme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? AppColors.accent.opacity(0.1) : Color.clear)
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                    .fill(isSelected ? AppColors.accentBackground : AppColors.mutedSurface.opacity(0.4))
             )
-            .contentShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                    .strokeBorder(isSelected ? AppColors.accent.opacity(0.6) : AppColors.border.opacity(0.35), lineWidth: 1)
+            )
+            .contentShape(RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous))
         }
         .buttonStyle(.plain)
-    }
-}
-
-struct SettingsCard<Content: View>: View {
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(title, systemImage: icon)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-            
-            content
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineBorder(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-            style: AppColors.border.opacity(0.5)
-        )
     }
 }
 

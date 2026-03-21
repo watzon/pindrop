@@ -53,6 +53,9 @@
 		C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */; };
 		CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049276EAC4FEBCA2F91F807E /* CopyButton.swift */; };
 		FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */; };
+		SETTINGSCOMPBUILD01A2B3C4D5E6F /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */; };
+		THEMEMODELSBUILD01A2B3C4D5E6F /* ThemeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEMEMODELSFILE01A2B3C4D5E6F /* ThemeModels.swift */; };
+		THEMESETTINGSBUILD01A2B3C4D5E6F /* ThemeSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */; };
 		COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */; };
 		CTXADAPT01A2B3C4D5E6F /* AppContextAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */; };
 		CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */; };
@@ -270,6 +273,9 @@
 		SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiarizer.swift; sourceTree = "<group>"; };
 		SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingTranscriptionEngine.swift; sourceTree = "<group>"; };
+		SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
+		THEMEMODELSFILE01A2B3C4D5E6F /* ThemeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeModels.swift; sourceTree = "<group>"; };
+		THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSettingsView.swift; sourceTree = "<group>"; };
 		THEME001A2B3C4D5E6F71 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastService.swift; sourceTree = "<group>"; };
 		TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastServiceTests.swift; sourceTree = "<group>"; };
@@ -412,10 +418,12 @@
 		A1B2C3D4E5F6789012345678 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */,
 				PRESETMANGSHEETFILE /* PresetManagementSheet.swift */,
 				B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
 				8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
 				FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */,
+				THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */,
 				DEADBEEF0000000000000002 /* UpdateSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
@@ -559,6 +567,7 @@
 		THEMEGROUP1A2B3C4D5E6F /* Theme */ = {
 			isa = PBXGroup;
 			children = (
+				THEMEMODELSFILE01A2B3C4D5E6F /* ThemeModels.swift */,
 				THEME001A2B3C4D5E6F71 /* Theme.swift */,
 			);
 			path = Theme;
@@ -758,8 +767,10 @@
 				DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */,
 				PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 				2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */,
+				SETTINGSCOMPBUILD01A2B3C4D5E6F /* SettingsComponents.swift in Sources */,
 				0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */,
 				FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */,
+				THEMESETTINGSBUILD01A2B3C4D5E6F /* ThemeSettingsView.swift in Sources */,
 				DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */,
 				AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */,
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
@@ -790,6 +801,7 @@
 				232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */,
 				5D84F939724532CB7B75F459 /* ReadyStepView.swift in Sources */,
 				70CE9E64F744FED2830FD930 /* Icons.swift in Sources */,
+				THEMEMODELSBUILD01A2B3C4D5E6F /* ThemeModels.swift in Sources */,
 				THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */,
 				SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,

@@ -49,6 +49,9 @@ final class SettingsStore: ObservableObject {
    enum Defaults {
       static let selectedModel = "openai_whisper-base"
       static let outputMode = "clipboard"
+      static let themeMode = PindropThemeMode.system.rawValue
+      static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
+      static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let automaticDictionaryLearningEnabled = true
       static let selectedInputDeviceUID = ""
       static let aiModel = "openai/gpt-4o-mini"
@@ -133,6 +136,18 @@ final class SettingsStore: ObservableObject {
    var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
    @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
       Defaults.outputMode
+   @AppStorage(PindropThemeStorageKeys.themeMode, store: SettingsStoreRuntime.appStorageStore)
+   var themeMode: String = Defaults.themeMode {
+      didSet { notifyThemeDidChange() }
+   }
+   @AppStorage(PindropThemeStorageKeys.lightThemePresetID, store: SettingsStoreRuntime.appStorageStore)
+   var lightThemePresetID: String = Defaults.lightThemePresetID {
+      didSet { notifyThemeDidChange() }
+   }
+   @AppStorage(PindropThemeStorageKeys.darkThemePresetID, store: SettingsStoreRuntime.appStorageStore)
+   var darkThemePresetID: String = Defaults.darkThemePresetID {
+      didSet { notifyThemeDidChange() }
+   }
    @AppStorage("automaticDictionaryLearningEnabled", store: SettingsStoreRuntime.appStorageStore)
    var automaticDictionaryLearningEnabled: Bool = Defaults.automaticDictionaryLearningEnabled
    @AppStorage("selectedInputDeviceUID", store: SettingsStoreRuntime.appStorageStore)
@@ -257,6 +272,19 @@ final class SettingsStore: ObservableObject {
       }
    }
 
+   var selectedThemeMode: PindropThemeMode {
+      get { PindropThemeMode(rawValue: themeMode) ?? .system }
+      set { themeMode = newValue.rawValue }
+   }
+
+   var selectedLightThemePreset: PindropThemePreset {
+      PindropThemePresetCatalog.preset(withID: lightThemePresetID)
+   }
+
+   var selectedDarkThemePreset: PindropThemePreset {
+      PindropThemePresetCatalog.preset(withID: darkThemePresetID)
+   }
+
    var pillFloatingIndicatorOffset: CGSize {
       get {
          CGSize(
@@ -331,6 +359,7 @@ final class SettingsStore: ObservableObject {
       if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
          customLocalProviderType = customProvider.rawValue
       }
+      PindropThemeController.shared.refresh()
    }
 
    // MARK: - Keychain Methods
@@ -496,6 +525,9 @@ final class SettingsStore: ObservableObject {
 
    func resetAllSettings() {
       selectedModel = Defaults.selectedModel
+      themeMode = Defaults.themeMode
+      lightThemePresetID = Defaults.lightThemePresetID
+      darkThemePresetID = Defaults.darkThemePresetID
       toggleHotkey = Defaults.Hotkeys.toggleHotkey
       toggleHotkeyCode = Defaults.Hotkeys.toggleHotkeyCode
       toggleHotkeyModifiers = Defaults.Hotkeys.toggleHotkeyModifiers
@@ -541,6 +573,11 @@ final class SettingsStore: ObservableObject {
       apiKeys.removeAll()
 
       objectWillChange.send()
+   }
+
+   private func notifyThemeDidChange() {
+      guard !SettingsStoreRuntime.isPreview else { return }
+      PindropThemeController.shared.refresh()
    }
 
    func isModelCacheStale(for provider: AIProvider) -> Bool {

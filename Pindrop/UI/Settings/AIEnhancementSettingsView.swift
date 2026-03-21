@@ -68,7 +68,7 @@ struct AIEnhancementSettingsView: View {
    }
 
    var body: some View {
-      VStack(spacing: 20) {
+      VStack(spacing: AppTheme.Spacing.xl) {
          enableToggleCard
          providerCard
          promptsCard
@@ -154,10 +154,11 @@ struct AIEnhancementSettingsView: View {
          Toggle(isOn: $settings.aiEnhancementEnabled) {
             VStack(alignment: .leading, spacing: 2) {
                Text("Enable AI Enhancement")
-                  .font(.body)
+                  .font(AppTypography.body)
+                  .foregroundStyle(AppColors.textPrimary)
                Text("Improve transcription quality using AI")
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
+                  .font(AppTypography.caption)
+                  .foregroundStyle(AppColors.textSecondary)
             }
          }
          .toggleStyle(.switch)
@@ -238,12 +239,12 @@ struct AIEnhancementSettingsView: View {
                let preset = presets.first(where: { $0.id.uuidString == presetId })
             {
                Text(preset.isBuiltIn ? "Built-in (read-only)" : "Custom")
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
+                  .font(AppTypography.caption)
+                  .foregroundStyle(AppColors.textSecondary)
                   .padding(.horizontal, 8)
                   .padding(.vertical, 4)
-                  .background(.ultraThinMaterial, in: Capsule())
-            }
+                  .background(AppColors.mutedSurface, in: Capsule())
+             }
          }
       }
    }
@@ -256,8 +257,8 @@ struct AIEnhancementSettingsView: View {
             Text(
                "Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference."
             )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.textSecondary)
 
             Toggle(
                "Enable vibe mode (UI context)",
@@ -283,14 +284,14 @@ struct AIEnhancementSettingsView: View {
 
             HStack(spacing: 6) {
                IconView(icon: accessibilityPermissionGranted ? .check : .info, size: 12)
-                  .foregroundStyle(accessibilityPermissionGranted ? .green : .secondary)
-               Text(
-                  accessibilityPermissionGranted
-                     ? "Accessibility permission is enabled. Full UI context is available."
-                     : "Accessibility permission is not granted. Vibe mode remains non-blocking with limited context."
-               )
-               .font(.caption)
-               .foregroundStyle(.secondary)
+                  .foregroundStyle(accessibilityPermissionGranted ? AppColors.success : AppColors.textSecondary)
+                Text(
+                   accessibilityPermissionGranted
+                      ? "Accessibility permission is enabled. Full UI context is available."
+                      : "Accessibility permission is not granted. Vibe mode remains non-blocking with limited context."
+                )
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
 
                if !accessibilityPermissionGranted {
                   Spacer(minLength: 8)
@@ -303,7 +304,11 @@ struct AIEnhancementSettingsView: View {
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+               RoundedRectangle(cornerRadius: 8, style: .continuous)
+                  .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
+            )
 
             VStack(alignment: .leading, spacing: 6) {
                HStack(spacing: 6) {
@@ -315,13 +320,17 @@ struct AIEnhancementSettingsView: View {
                      .foregroundStyle(vibeRuntimeColor)
                }
 
-               Text(settings.vibeRuntimeDetail)
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
+                Text(settings.vibeRuntimeDetail)
+                   .font(AppTypography.caption)
+                   .foregroundStyle(AppColors.textSecondary)
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+               RoundedRectangle(cornerRadius: 8, style: .continuous)
+                  .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
+            )
 
             VStack(spacing: 12) {
                Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
@@ -346,15 +355,15 @@ struct AIEnhancementSettingsView: View {
    }
 
    private var vibeRuntimeColor: Color {
-      switch settings.vibeRuntimeState {
-      case .ready:
-         return .green
-      case .limited:
-         return .yellow
-      case .degraded:
-         return .orange
-      }
-   }
+       switch settings.vibeRuntimeState {
+       case .ready:
+          return AppColors.success
+       case .limited:
+          return AppColors.warning
+       case .degraded:
+          return AppColors.error
+       }
+    }
 
    private var promptTypeTabs: some View {
       HStack(spacing: 0) {
@@ -362,7 +371,7 @@ struct AIEnhancementSettingsView: View {
             promptTypeTab(type)
          }
       }
-      .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+      .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
    }
 
    private func promptTypeTab(_ type: PromptType) -> some View {
@@ -386,7 +395,7 @@ struct AIEnhancementSettingsView: View {
                : Color.clear,
             in: RoundedRectangle(cornerRadius: 8)
          )
-         .foregroundStyle(selectedPromptType == type ? AppColors.accent : .secondary)
+         .foregroundStyle(selectedPromptType == type ? AppColors.accent : AppColors.textSecondary)
       }
       .buttonStyle(.plain)
    }
@@ -402,14 +411,18 @@ struct AIEnhancementSettingsView: View {
       let isReadOnly = selectedPromptType == .transcription && isBuiltInPresetSelected
 
       VStack(alignment: .leading, spacing: 12) {
-         TextEditor(text: currentPrompt)
-            .font(.body)
-            .frame(minHeight: 120, maxHeight: 220)
-            .padding(8)
-            .scrollContentBackground(.hidden)
-            .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
-            .disabled(isReadOnly)
-            .opacity(isReadOnly ? 0.7 : 1)
+          TextEditor(text: currentPrompt)
+             .font(AppTypography.body)
+             .frame(minHeight: 120, maxHeight: 220)
+             .padding(8)
+             .scrollContentBackground(.hidden)
+             .background(AppColors.inputBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+             .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                   .strokeBorder(AppColors.inputBorder, lineWidth: 1)
+             )
+             .disabled(isReadOnly)
+             .opacity(isReadOnly ? 0.7 : 1)
 
          HStack {
             Button("Reset to Default") {
@@ -420,14 +433,14 @@ struct AIEnhancementSettingsView: View {
 
             Spacer()
 
-            Text("\(charCount) characters")
-               .font(.caption)
-               .foregroundStyle(.secondary)
+             Text("\(charCount) characters")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
          }
 
-         Text(selectedPromptType.description)
-            .font(.caption)
-            .foregroundStyle(.secondary)
+          Text(selectedPromptType.description)
+             .font(AppTypography.caption)
+             .foregroundStyle(AppColors.textSecondary)
 
          HStack {
             Button("Save Prompt") {
@@ -441,10 +454,10 @@ struct AIEnhancementSettingsView: View {
             if showingPromptSaveSuccess {
                HStack(spacing: 6) {
                   IconView(icon: .check, size: 12)
-                     .foregroundStyle(.green)
-                  Text("Saved")
-                     .font(.caption)
-                     .foregroundStyle(.green)
+                     .foregroundStyle(AppColors.success)
+                   Text("Saved")
+                     .font(AppTypography.caption)
+                     .foregroundStyle(AppColors.success)
                }
             }
          }
@@ -483,7 +496,7 @@ struct AIEnhancementSettingsView: View {
             providerTab(provider)
          }
       }
-      .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+      .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
    }
 
    private func providerTab(_ provider: AIProvider) -> some View {
@@ -507,7 +520,7 @@ struct AIEnhancementSettingsView: View {
                : Color.clear,
             in: RoundedRectangle(cornerRadius: 8)
          )
-         .foregroundStyle(selectedProvider == provider ? AppColors.accent : .secondary)
+         .foregroundStyle(selectedProvider == provider ? AppColors.accent : AppColors.textSecondary)
       }
       .buttonStyle(.plain)
    }
@@ -555,16 +568,16 @@ struct AIEnhancementSettingsView: View {
    private var comingSoonView: some View {
       VStack(spacing: 10) {
          IconView(icon: .construction, size: 28)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(AppColors.textSecondary)
 
          Text("\(selectedProvider.displayName) Coming Soon")
             .font(.headline)
 
-         Text(
-            "This provider will be available in a future update.\nTry OpenAI or use a Custom endpoint."
-         )
-         .font(.caption)
-         .foregroundStyle(.secondary)
+          Text(
+             "This provider will be available in a future update.\nTry OpenAI or use a Custom endpoint."
+          )
+          .font(AppTypography.caption)
+          .foregroundStyle(AppColors.textSecondary)
          .multilineTextAlignment(.center)
       }
       .padding(.vertical, 24)
@@ -580,11 +593,11 @@ struct AIEnhancementSettingsView: View {
 
             if isAPIKeyOptional {
                Text("Optional")
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
+                  .font(AppTypography.caption)
+                  .foregroundStyle(AppColors.textSecondary)
                   .padding(.horizontal, 8)
                   .padding(.vertical, 4)
-                  .background(.ultraThinMaterial, in: Capsule())
+                  .background(AppColors.mutedSurface, in: Capsule())
             }
          }
 
@@ -602,7 +615,7 @@ struct AIEnhancementSettingsView: View {
                showingAPIKey.toggle()
             } label: {
                IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
-                  .foregroundStyle(.secondary)
+                   .foregroundStyle(AppColors.textSecondary)
            }
            .buttonStyle(.plain)
          }
@@ -610,11 +623,11 @@ struct AIEnhancementSettingsView: View {
 
           if let apiKeyHelpText {
              Text(apiKeyHelpText)
-                .font(.caption)
-               .foregroundStyle(.secondary)
-         }
-       }
-    }
+                .font(AppTypography.caption)
+               .foregroundStyle(AppColors.textSecondary)
+          }
+        }
+     }
 
     private var customProviderPicker: some View {
        VStack(alignment: .leading, spacing: 6) {
@@ -642,8 +655,8 @@ struct AIEnhancementSettingsView: View {
             Spacer()
 
              Text(selectedCustomProvider == .custom ? "Must be OpenAI-compatible" : "OpenAI-compatible local server")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                 .font(AppTypography.caption)
+                 .foregroundStyle(AppColors.textSecondary)
           }
 
            TextField(selectedCustomProvider.endpointPlaceholder, text: $customEndpoint)
@@ -693,8 +706,8 @@ struct AIEnhancementSettingsView: View {
          }
           if availableModels.isEmpty {
              Text(emptyModelsMessage)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                 .font(AppTypography.caption)
+                 .foregroundStyle(AppColors.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .aiSettingsInputChrome()
            } else {
@@ -713,10 +726,10 @@ struct AIEnhancementSettingsView: View {
           if let modelError {
              HStack(spacing: 6) {
                 IconView(icon: .warning, size: 12)
-                   .foregroundStyle(.red)
-                Text(modelError)
-                   .font(.caption)
-                   .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.error)
+                 Text(modelError)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.error)
              }
           }
        }
@@ -757,36 +770,36 @@ struct AIEnhancementSettingsView: View {
    private var successMessage: some View {
       HStack(spacing: 6) {
          IconView(icon: .check, size: 14)
-            .foregroundStyle(.green)
+            .foregroundStyle(AppColors.success)
          Text("Credentials saved successfully")
-            .font(.caption)
-            .foregroundStyle(.green)
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.success)
       }
       .frame(maxWidth: .infinity)
       .padding(10)
-      .background(Color.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-   }
+      .background(AppColors.successBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
 
    private func errorMessageView(_ message: String) -> some View {
       HStack(spacing: 6) {
          IconView(icon: .warning, size: 14)
-            .foregroundStyle(.red)
+            .foregroundStyle(AppColors.error)
          Text(message)
-            .font(.caption)
-            .foregroundStyle(.red)
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.error)
       }
       .frame(maxWidth: .infinity)
       .padding(10)
-      .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-   }
+      .background(AppColors.errorBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
 
     private var keychainNote: some View {
        HStack(spacing: 6) {
          IconView(icon: .shield, size: 12)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(AppColors.textSecondary)
          Text("Credentials are stored securely in Keychain")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.textSecondary)
        }
     }
 

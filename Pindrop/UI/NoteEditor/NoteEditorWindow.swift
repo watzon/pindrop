@@ -16,6 +16,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private var hostingController: NSHostingController<AnyView>?
     private var modelContainer: ModelContainer?
+    private var themeCancellable: AnyCancellable?
     
     var onClose: (() -> Void)?
     var onSave: ((NoteSchema.Note) -> Void)?
@@ -81,7 +82,11 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         
         self.hostingController = hostingController
         self.window = window
-        
+        themeCancellable = PindropThemeController.shared.$revision.sink { [weak self] _ in
+            guard let self else { return }
+            PindropThemeController.shared.apply(to: self.window)
+        }
+
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -99,6 +104,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         onClose?()
         window = nil
         hostingController = nil
+        themeCancellable = nil
     }
 }
 
@@ -146,6 +152,7 @@ struct NoteEditorView: View {
             contentEditorView
         }
         .background(AppColors.windowBackground)
+        .themeRefresh()
         .onAppear {
             loadNoteData()
             if isNewNote {

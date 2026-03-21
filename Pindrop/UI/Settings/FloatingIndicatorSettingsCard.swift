@@ -28,10 +28,11 @@ struct FloatingIndicatorSettingsCard: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show floating indicator")
-                            .font(.body)
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.textPrimary)
                         Text("Shows recording state in a lightweight overlay window.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textSecondary)
                     }
 
                     Spacer()
@@ -42,8 +43,8 @@ struct FloatingIndicatorSettingsCard: View {
                 }
 
                 Text("Choose which floating indicator style appears when the overlay is enabled.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
 
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(FloatingIndicatorType.allCases) { type in
@@ -127,8 +128,8 @@ private struct FloatingIndicatorPreviewGlyph: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.black.opacity(0.04),
-                            Color.black.opacity(0.08)
+                            AppColors.accentBackground.opacity(0.65),
+                            AppColors.elevatedSurface
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -148,7 +149,7 @@ private struct FloatingIndicatorPreviewGlyph: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .hairlineBorder(
             RoundedRectangle(cornerRadius: 12, style: .continuous),
-            style: Color.white.opacity(0.25)
+            style: AppColors.border.opacity(0.6)
         )
     }
 }
@@ -162,7 +163,7 @@ private struct NotchIndicatorSelectionGlyph: View {
     var body: some View {
         ZStack(alignment: .top) {
             Rectangle()
-                .fill(Color.black.opacity(0.14))
+                .fill(AppColors.overlaySurface.opacity(0.18))
                 .frame(height: statusBarHeight)
                 .frame(maxWidth: .infinity, alignment: .top)
 
@@ -172,9 +173,9 @@ private struct NotchIndicatorSelectionGlyph: View {
                 rightSegment
             }
             .frame(width: centerWidth + (sideWidth * 2), height: indicatorHeight)
-            .background(Color.black.opacity(0.9))
+            .background(AppColors.overlaySurfaceStrong)
             .clipShape(NotchShape(cornerRadius: 12))
-            .shadow(color: Color.black.opacity(0.2), radius: 8, y: 4)
+            .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
             .offset(y: 1)
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -187,7 +188,7 @@ private struct NotchIndicatorSelectionGlyph: View {
                 .frame(width: 8, height: 8)
 
             RoundedRectangle(cornerRadius: 1.5)
-                .fill(Color.white.opacity(0.82))
+                .fill(AppColors.overlayTextPrimary.opacity(0.82))
                 .frame(width: 18, height: 3)
         }
         .padding(.horizontal, 8)
@@ -196,7 +197,7 @@ private struct NotchIndicatorSelectionGlyph: View {
 
     private var centerSegment: some View {
         Rectangle()
-            .fill(Color.black.opacity(0.9))
+            .fill(AppColors.overlaySurfaceStrong)
             .frame(width: centerWidth, height: indicatorHeight)
     }
 
@@ -204,7 +205,7 @@ private struct NotchIndicatorSelectionGlyph: View {
         HStack(alignment: .center, spacing: 2) {
             ForEach(Array([5.0, 10.0, 7.0, 12.0, 6.0].enumerated()), id: \.offset) { _, height in
                 RoundedRectangle(cornerRadius: 1)
-                    .fill(Color(red: 0.4, green: 0.85, blue: 1.0))
+                    .fill(AppColors.overlayWaveform)
                     .frame(width: 3, height: height)
             }
         }
@@ -217,39 +218,39 @@ private struct PillIndicatorSelectionGlyph: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Capsule()
-                .fill(Color.black.opacity(0.84))
+                .fill(AppColors.overlaySurface)
                 .frame(width: 124, height: 30)
-                .shadow(color: Color.black.opacity(0.18), radius: 8, y: 4)
+                .shadow(color: AppColors.shadowColor.opacity(0.16), radius: 8, y: 4)
 
             HStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .fill(Color.white.opacity(0.1))
+                        .fill(AppColors.overlayTextPrimary.opacity(0.1))
 
                     Image(systemName: "xmark")
                         .font(.system(size: 7, weight: .bold))
-                        .foregroundStyle(Color.white.opacity(0.9))
+                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
                 }
                 .frame(width: 18, height: 18)
 
                 HStack(spacing: 2) {
                     ForEach(Array([4.0, 8.0, 12.0, 8.0, 5.0].enumerated()), id: \.offset) { _, height in
                         RoundedRectangle(cornerRadius: 1)
-                            .fill(Color.white.opacity(0.86))
+                            .fill(AppColors.overlayTextPrimary.opacity(0.86))
                             .frame(width: 3, height: height)
                     }
                 }
 
                 ZStack {
                     Circle()
-                        .fill(Color(red: 0.94, green: 0.38, blue: 0.38))
+                        .fill(AppColors.overlayRecording)
 
                     RoundedRectangle(cornerRadius: 1.5)
-                        .fill(Color.white)
+                        .fill(AppColors.overlayTextPrimary)
                         .frame(width: 6, height: 6)
                 }
                 .frame(width: 18, height: 18)
-                .shadow(color: Color.red.opacity(0.25), radius: 4)
+                .shadow(color: AppColors.overlayRecording.opacity(0.25), radius: 4)
             }
             .padding(.horizontal, 9)
             .offset(y: -6)
@@ -262,37 +263,37 @@ private struct CaretBubbleIndicatorSelectionGlyph: View {
     var body: some View {
         HStack(spacing: 6) {
             Circle()
-                .fill(Color.black.opacity(0.84))
+                .fill(AppColors.overlaySurface)
                 .frame(width: 18, height: 18)
                 .overlay(
                     Image(systemName: "xmark")
                         .font(.system(size: 7, weight: .bold))
-                        .foregroundStyle(Color.white.opacity(0.92))
+                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.92))
                 )
 
             Capsule()
-                .fill(Color.black.opacity(0.84))
+                .fill(AppColors.overlaySurface)
                 .frame(width: 42, height: 28)
                 .overlay {
                     HStack(spacing: 2) {
                         ForEach(Array([4.0, 8.0, 12.0, 8.0, 5.0].enumerated()), id: \.offset) { _, height in
                             RoundedRectangle(cornerRadius: 1)
-                                .fill(Color(red: 0.4, green: 0.85, blue: 1.0))
+                                .fill(AppColors.overlayWaveform)
                                 .frame(width: 3, height: height)
                         }
                     }
                 }
-                .shadow(color: Color.black.opacity(0.18), radius: 8, y: 4)
+                .shadow(color: AppColors.shadowColor.opacity(0.16), radius: 8, y: 4)
 
             Circle()
-                .fill(Color(red: 0.94, green: 0.38, blue: 0.38))
+                .fill(AppColors.overlayRecording)
                 .frame(width: 18, height: 18)
                 .overlay(
                     RoundedRectangle(cornerRadius: 1.5)
-                        .fill(Color.white)
+                        .fill(AppColors.overlayTextPrimary)
                         .frame(width: 6, height: 6)
                 )
-                .shadow(color: Color.red.opacity(0.22), radius: 4)
+                .shadow(color: AppColors.overlayRecording.opacity(0.22), radius: 4)
         }
         .padding(.top, 6)
     }

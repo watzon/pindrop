@@ -414,14 +414,14 @@ private struct CaretBubbleIndicatorView: View {
         } label: {
             ZStack {
                 Capsule()
-                    .fill(Color.black.opacity(0.84))
-                    .hairlineStroke(Capsule(), style: Color.white.opacity(0.1))
-                    .shadow(color: Color.black.opacity(0.18), radius: 8, y: 4)
+                    .fill(AppColors.overlaySurface)
+                    .hairlineStroke(Capsule(), style: AppColors.overlayLine)
+                    .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
 
                 if state.isProcessing {
                     ProgressView()
                         .controlSize(.mini)
-                        .tint(.white.opacity(0.92))
+                        .tint(AppColors.overlayTextPrimary.opacity(0.92))
                 } else {
                     FloatingIndicatorWaveformView(
                         audioLevel: state.audioLevel,
@@ -443,23 +443,23 @@ private struct CaretBubbleIndicatorView: View {
                 Circle()
                     .fill(
                         isDestructive
-                            ? Color(red: 0.94, green: 0.38, blue: 0.38)
-                            : Color.black.opacity(0.84)
+                            ? AppColors.overlayRecording
+                            : AppColors.overlaySurface
                     )
-                    .hairlineStroke(Circle(), style: Color.white.opacity(isDestructive ? 0.08 : 0.1))
+                    .hairlineStroke(Circle(), style: AppColors.overlayLine.opacity(isDestructive ? 0.72 : 1))
 
                 if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(Color.white.opacity(0.92))
+                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.92))
                 } else {
                     RoundedRectangle(cornerRadius: 1.5)
-                        .fill(Color.white)
+                        .fill(AppColors.overlayTextPrimary)
                         .frame(width: 6, height: 6)
                 }
             }
             .frame(width: 22, height: 22)
-            .shadow(color: isDestructive ? Color.red.opacity(0.2) : Color.black.opacity(0.16), radius: 6, y: 3)
+            .shadow(color: isDestructive ? AppColors.overlayRecording.opacity(0.2) : AppColors.shadowColor.opacity(0.16), radius: 6, y: 3)
         }
         .buttonStyle(.plain)
         .allowsHitTesting(showsHoverActions)
@@ -484,7 +484,7 @@ private var caretBubbleRecordingPreview: some View {
 
     return CaretBubbleIndicatorView(controller: controller, state: state)
         .padding()
-        .background(Color.black.opacity(0.06))
+        .background(AppColors.windowBackground)
 }
 
 @MainActor
@@ -495,5 +495,5 @@ private var caretBubbleProcessingPreview: some View {
 
     return CaretBubbleIndicatorView(controller: controller, state: state)
         .padding()
-        .background(Color.black.opacity(0.06))
+        .background(AppColors.windowBackground)
 }

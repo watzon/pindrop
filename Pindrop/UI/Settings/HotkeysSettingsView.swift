@@ -28,7 +28,7 @@ struct HotkeysSettingsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             toggleHotkeyCard
             pushToTalkCard
             copyLastTranscriptCard
@@ -41,11 +41,11 @@ struct HotkeysSettingsView: View {
     }
     
     private var toggleHotkeyCard: some View {
-        SettingsCard(title: "Toggle Recording", icon: "record.circle") {
-            VStack(alignment: .leading, spacing: 12) {
+        SettingsCard(title: "Toggle Recording", icon: "record.circle", detail: "Press once to start recording, then press again to stop and transcribe.") {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 Text("Press once to start recording, press again to stop and transcribe")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 HotkeyRecorderRow(
                     hotkey: settings.toggleHotkey,
@@ -60,11 +60,11 @@ struct HotkeysSettingsView: View {
     }
     
     private var pushToTalkCard: some View {
-        SettingsCard(title: "Push-to-Talk", icon: "hand.tap") {
-            VStack(alignment: .leading, spacing: 12) {
+        SettingsCard(title: "Push-to-Talk", icon: "hand.tap", detail: "Hold the shortcut to record, then release to transcribe.") {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 Text("Hold to record, release to stop and transcribe")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 HotkeyRecorderRow(
                     hotkey: settings.pushToTalkHotkey,
@@ -79,11 +79,11 @@ struct HotkeysSettingsView: View {
     }
 
     private var copyLastTranscriptCard: some View {
-        SettingsCard(title: "Copy Last Transcript", icon: "doc.on.clipboard") {
-            VStack(alignment: .leading, spacing: 12) {
+        SettingsCard(title: "Copy Last Transcript", icon: "doc.on.clipboard", detail: "Quickly pull your latest transcript back to the clipboard.") {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 Text("Copy the most recent transcript to the clipboard")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
 
                 HotkeyRecorderRow(
                     hotkey: settings.copyLastTranscriptHotkey,
@@ -98,11 +98,11 @@ struct HotkeysSettingsView: View {
     }
     
     private var quickCapturePTTCard: some View {
-        SettingsCard(title: "Note Capture (Push-to-Talk)", icon: "hand.tap") {
-            VStack(alignment: .leading, spacing: 12) {
+        SettingsCard(title: "Note Capture (Push-to-Talk)", icon: "hand.tap", detail: "Capture directly into the note editor with a hold-to-record flow.") {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 Text("Hold to record, release to open note editor with transcription")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 HotkeyRecorderRow(
                     hotkey: settings.quickCapturePTTHotkey,
@@ -117,11 +117,11 @@ struct HotkeysSettingsView: View {
     }
 
     private var quickCaptureToggleCard: some View {
-        SettingsCard(title: "Note Capture (Toggle)", icon: "note.text") {
-            VStack(alignment: .leading, spacing: 12) {
+        SettingsCard(title: "Note Capture (Toggle)", icon: "note.text", detail: "Use a tap-to-start, tap-to-finish shortcut for note capture.") {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 Text("Press to start recording, press again to open note editor")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
                 
                 HotkeyRecorderRow(
                     hotkey: settings.quickCaptureToggleHotkey,
@@ -396,33 +396,38 @@ struct HotkeyRecorderRow: View {
     let onClear: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppTheme.Spacing.md) {
             HStack {
                 if hotkey.isEmpty {
                     Text("Not set")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.textSecondary)
                 } else {
                     Text(hotkey)
-                        .font(.system(.body, design: .monospaced))
+                        .font(AppTypography.mono)
                         .fontWeight(.medium)
+                        .foregroundStyle(AppColors.textPrimary)
                 }
             }
             .frame(minWidth: 120, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+            .background(AppColors.inputBackground, in: RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                    .strokeBorder(AppColors.inputBorder, lineWidth: 1)
+            )
 
             Button(action: onRecord) {
                 Text(isRecording ? "Press keys..." : "Record")
                     .frame(minWidth: 80)
             }
             .buttonStyle(.bordered)
-            .tint(isRecording ? .orange : nil)
+            .tint(isRecording ? AppColors.warning : nil)
 
             if isRecording {
                 Text("Press Esc to cancel")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.warning)
             }
 
             if !hotkey.isEmpty && !isRecording {
@@ -430,7 +435,7 @@ struct HotkeyRecorderRow: View {
                     IconView(icon: .circleX, size: 16)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.textSecondary)
                 .help("Clear hotkey")
             }
         }

@@ -30,7 +30,7 @@ struct FloatingIndicatorWaveformStyle {
         minimumHeight: 2,
         maximumHeight: 16,
         idleHeight: 2,
-        color: Color(red: 0.4, green: 0.85, blue: 1.0),
+        color: AppColors.overlayWaveform,
         animationInterval: 0.05
     )
 
@@ -41,7 +41,7 @@ struct FloatingIndicatorWaveformStyle {
         minimumHeight: 3,
         maximumHeight: 14,
         idleHeight: 3,
-        color: Color.white.opacity(0.95),
+        color: AppColors.overlayTextPrimary,
         animationInterval: 0.05
     )
 
@@ -52,7 +52,7 @@ struct FloatingIndicatorWaveformStyle {
         minimumHeight: 3,
         maximumHeight: 14,
         idleHeight: 3,
-        color: Color(red: 0.4, green: 0.85, blue: 1.0),
+        color: AppColors.overlayWaveform,
         animationInterval: 0.05
     )
 }

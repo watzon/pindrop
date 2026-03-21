@@ -9,6 +9,7 @@ import SwiftUI
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
+    case theme = "Theme"
     case hotkeys = "Hotkeys"
     case ai = "AI Enhancement"
     case update = "Update"
@@ -19,6 +20,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var systemIcon: String {
         switch self {
         case .general: return "gear"
+        case .theme: return "paintbrush"
         case .hotkeys: return "keyboard"
         case .ai: return "sparkles"
         case .update: return "arrow.triangle.2.circlepath"
@@ -30,6 +32,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:
             return "Output, audio, interface, and everyday behavior"
+        case .theme:
+            return "Light, dark, and curated palette presets"
         case .hotkeys:
             return "Configure keyboard shortcuts for recording and note capture"
         case .ai:
@@ -48,6 +52,10 @@ enum SettingsTab: String, CaseIterable, Identifiable {
                 "output", "clipboard", "direct insert", "space", "microphone", "audio",
                 "input", "floating indicator", "dictionary", "launch at login", "dock",
                 "mute", "pause media", "reset"
+            ]
+        case .theme:
+            return [
+                "appearance", "theme", "light", "dark", "system", "preset", "palette"
             ]
         case .hotkeys:
             return [
@@ -96,6 +104,7 @@ struct SettingsWindow: View {
             minWidth: AppTheme.Window.settingsMinWidth,
             minHeight: AppTheme.Window.settingsMinHeight
         )
+        .themeRefresh()
     }
 }
 
@@ -164,6 +173,8 @@ struct SettingsContainerView: View {
                     switch selectedTab {
                     case .general:
                         GeneralSettingsView(settings: settings)
+                    case .theme:
+                        ThemeSettingsView(settings: settings)
                     case .hotkeys:
                         HotkeysSettingsView(settings: settings)
                     case .ai:

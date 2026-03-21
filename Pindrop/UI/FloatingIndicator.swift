@@ -256,8 +256,9 @@ struct NotchIndicatorView: View {
             rightSide
         }
         .frame(maxWidth: .infinity, maxHeight: height)
-        .background(Color.black)
+        .background(AppColors.overlaySurfaceStrong)
         .clipShape(NotchShape(cornerRadius: NotchPanelMetrics.cornerRadius))
+        .themeRefresh()
     }
     
     private var leftSide: some View {
@@ -278,12 +279,12 @@ struct NotchIndicatorView: View {
     
     private var centerSection: some View {
         ZStack {
-            Color.black.opacity(0.55)
+            AppColors.overlaySurface
 
             if state.isProcessing {
                 ProgressView()
                     .controlSize(.mini)
-                    .tint(.white.opacity(0.9))
+                    .tint(AppColors.overlayTextPrimary.opacity(0.9))
             }
         }
         .frame(width: notchWidth, height: height)
@@ -307,12 +308,12 @@ struct NotchIndicatorView: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(Color.red)
+                    .fill(AppColors.overlayRecording)
                     .frame(width: 18, height: 18)
-                    .shadow(color: Color.red.opacity(0.28), radius: 4)
+                    .shadow(color: AppColors.overlayRecording.opacity(0.28), radius: 4)
                 
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(Color.white)
+                    .fill(AppColors.overlayTextPrimary)
                     .frame(width: 6, height: 6)
             }
         }
@@ -322,7 +323,7 @@ struct NotchIndicatorView: View {
     
     private var pulsingRing: some View {
         Circle()
-            .stroke(Color.red.opacity(0.5), lineWidth: 1.6)
+            .stroke(AppColors.overlayRecording.opacity(0.5), lineWidth: 1.6)
             .frame(width: 18, height: 18)
             .scaleEffect(state.isRecording ? 1.4 : 1)
             .opacity(state.isRecording ? 0 : 0.2)
@@ -337,12 +338,12 @@ struct NotchIndicatorView: View {
     private var processingIndicator: some View {
         ZStack {
             Circle()
-                .fill(Color.orange)
+                .fill(AppColors.overlayWarning)
                 .frame(width: 20, height: 20)
             
             ProgressView()
                 .scaleEffect(0.45)
-                .tint(.white)
+                .tint(AppColors.overlayTextPrimary)
         }
     }
     
@@ -350,11 +351,11 @@ struct NotchIndicatorView: View {
         HStack(spacing: 6) {
             Text(state.isProcessing ? "..." : formattedDuration)
                 .font(.system(size: 13, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
+                .foregroundStyle(AppColors.overlayTextPrimary)
             
             if state.escapePrimed {
                 Circle()
-                    .fill(Color.yellow)
+                    .fill(AppColors.overlayWarning)
                     .frame(width: 6, height: 6)
                     .transition(.scale.combined(with: .opacity))
                 }
@@ -381,7 +382,7 @@ private var notchRecordingPreview: some View {
 
     return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
-        .background(Color.gray.opacity(0.3))
+        .background(AppColors.windowBackground)
 }
 
 @MainActor
@@ -394,5 +395,5 @@ private var notchProcessingPreview: some View {
 
     return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
-        .background(Color.gray.opacity(0.3))
+        .background(AppColors.windowBackground)
 }

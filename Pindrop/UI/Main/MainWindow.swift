@@ -105,6 +105,7 @@ final class TitlebarlessHostingController<Content: View>: NSHostingController<Co
 // MARK: - Main Window View
 
 struct MainWindow: View {
+    @ObservedObject private var theme = PindropThemeController.shared
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
@@ -142,6 +143,7 @@ struct MainWindow: View {
             minWidth: AppTheme.Window.mainMinWidth,
             minHeight: AppTheme.Window.mainMinHeight
         )
+        .themeRefresh()
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
             if let rawValue = notification.userInfo?["navItem"] as? String,
                let navItem = MainNavItem(rawValue: rawValue) {
@@ -475,11 +477,12 @@ final class MainWindowController {
             )
             window.center()
             window.isReleasedWhenClosed = false
-            window.appearance = nil
+            PindropThemeController.shared.apply(to: window)
 
             self.window = window
         }
 
+        PindropThemeController.shared.apply(to: window)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 

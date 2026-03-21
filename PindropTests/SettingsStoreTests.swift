@@ -5,6 +5,7 @@
 //  Created on 2026-01-25.
 //
 
+import AppKit
 import XCTest
 @testable import Pindrop
 
@@ -35,6 +36,13 @@ final class SettingsStoreTests: XCTestCase {
     func testSaveAndLoadSettings() throws {
         settingsStore.selectedModel = "large-v3"
         XCTAssertEqual(settingsStore.selectedModel, "large-v3")
+
+        settingsStore.selectedThemeMode = .dark
+        settingsStore.lightThemePresetID = "paper"
+        settingsStore.darkThemePresetID = "signal"
+        XCTAssertEqual(settingsStore.selectedThemeMode, .dark)
+        XCTAssertEqual(settingsStore.lightThemePresetID, "paper")
+        XCTAssertEqual(settingsStore.darkThemePresetID, "signal")
         
         settingsStore.toggleHotkey = "⌘⇧A"
         XCTAssertEqual(settingsStore.toggleHotkey, "⌘⇧A")
@@ -50,12 +58,18 @@ final class SettingsStoreTests: XCTestCase {
         
         let newStore = SettingsStore()
         XCTAssertEqual(newStore.selectedModel, "large-v3")
+        XCTAssertEqual(newStore.selectedThemeMode, .dark)
+        XCTAssertEqual(newStore.lightThemePresetID, "paper")
+        XCTAssertEqual(newStore.darkThemePresetID, "signal")
         XCTAssertEqual(newStore.toggleHotkey, "⌘⇧A")
         XCTAssertEqual(newStore.pushToTalkHotkey, "⌘⇧B")
         XCTAssertEqual(newStore.outputMode, "directInsert")
         XCTAssertTrue(newStore.aiEnhancementEnabled)
         
         settingsStore.selectedModel = "base"
+        settingsStore.selectedThemeMode = .system
+        settingsStore.lightThemePresetID = SettingsStore.Defaults.lightThemePresetID
+        settingsStore.darkThemePresetID = SettingsStore.Defaults.darkThemePresetID
         settingsStore.toggleHotkey = "⌘⇧R"
         settingsStore.pushToTalkHotkey = "⌘⇧T"
         settingsStore.outputMode = "clipboard"
@@ -142,6 +156,9 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore()
         
         XCTAssertEqual(store.selectedModel, SettingsStore.Defaults.selectedModel)
+        XCTAssertEqual(store.selectedThemeMode, .system)
+        XCTAssertEqual(store.lightThemePresetID, SettingsStore.Defaults.lightThemePresetID)
+        XCTAssertEqual(store.darkThemePresetID, SettingsStore.Defaults.darkThemePresetID)
         XCTAssertEqual(store.toggleHotkey, SettingsStore.Defaults.Hotkeys.toggleHotkey)
         XCTAssertEqual(store.pushToTalkHotkey, SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
         XCTAssertEqual(store.outputMode, "clipboard")
@@ -150,6 +167,53 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.floatingIndicatorType, FloatingIndicatorType.pill.rawValue)
         XCTAssertNil(store.apiEndpoint)
         XCTAssertNil(store.apiKey)
+    }
+
+    func testThemeModeBridgesStoredValue() {
+        settingsStore.selectedThemeMode = .light
+
+        XCTAssertEqual(settingsStore.themeMode, PindropThemeMode.light.rawValue)
+        XCTAssertEqual(settingsStore.selectedThemeMode, .light)
+    }
+
+    func testThemeModeFallsBackToSystemForUnknownValue() {
+        settingsStore.themeMode = "mystery"
+
+        XCTAssertEqual(settingsStore.selectedThemeMode, .system)
+    }
+
+    func testSelectedThemePresetsResolveCatalogEntries() {
+        settingsStore.lightThemePresetID = "paper"
+        settingsStore.darkThemePresetID = "signal"
+
+        XCTAssertEqual(settingsStore.selectedLightThemePreset.id, "paper")
+        XCTAssertEqual(settingsStore.selectedDarkThemePreset.id, "signal")
+    }
+
+    func testThemePresetFallsBackToDefaultForUnknownPresetID() {
+        settingsStore.lightThemePresetID = "unknown"
+        settingsStore.darkThemePresetID = "unknown"
+
+        XCTAssertEqual(settingsStore.selectedLightThemePreset.id, PindropThemePresetCatalog.defaultPresetID)
+        XCTAssertEqual(settingsStore.selectedDarkThemePreset.id, PindropThemePresetCatalog.defaultPresetID)
+    }
+
+    func testThemeModeMapsToAppKitAppearance() {
+        XCTAssertNil(PindropThemeMode.system.appKitAppearanceName)
+        XCTAssertEqual(PindropThemeMode.light.appKitAppearanceName, .aqua)
+        XCTAssertEqual(PindropThemeMode.dark.appKitAppearanceName, .darkAqua)
+    }
+
+    func testResetAllSettingsResetsThemeSettings() {
+        settingsStore.selectedThemeMode = .dark
+        settingsStore.lightThemePresetID = "paper"
+        settingsStore.darkThemePresetID = "signal"
+
+        settingsStore.resetAllSettings()
+
+        XCTAssertEqual(settingsStore.selectedThemeMode, .system)
+        XCTAssertEqual(settingsStore.lightThemePresetID, SettingsStore.Defaults.lightThemePresetID)
+        XCTAssertEqual(settingsStore.darkThemePresetID, SettingsStore.Defaults.darkThemePresetID)
     }
 
     func testSelectedFloatingIndicatorTypeBridgesStoredValue() {

@@ -12,41 +12,36 @@ struct UpdateSettingsView: View {
     @AppStorage("automaticallyCheckForUpdates") private var automaticallyCheckForUpdates = true
     
     var body: some View {
-        VStack(spacing: 20) {
-            SettingsCard(title: "Updates", icon: "arrow.triangle.2.circlepath") {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Automatic Updates")
-                                .font(.body)
-                            Text("Automatically check for new versions")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Toggle("", isOn: $automaticallyCheckForUpdates)
-                            .toggleStyle(.switch)
-                            .labelsHidden()
-                            .onChange(of: automaticallyCheckForUpdates) { _, newValue in
-                                updateService.automaticallyChecksForUpdates = newValue
-                            }
+        VStack(spacing: AppTheme.Spacing.xl) {
+            SettingsCard(
+                title: "Updates",
+                icon: "arrow.triangle.2.circlepath",
+                detail: "Keep Pindrop current automatically, or trigger a manual check whenever you want."
+            ) {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                    SettingsToggleRow(
+                        title: "Automatic updates",
+                        detail: "Automatically check for new versions in the background.",
+                        isOn: $automaticallyCheckForUpdates
+                    )
+                    .onChange(of: automaticallyCheckForUpdates) { _, newValue in
+                        updateService.automaticallyChecksForUpdates = newValue
                     }
-                    
-                    Divider()
-                    
+
+                    SettingsDivider()
+
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Check for Updates")
-                                .font(.body)
-                            Text("Manually check for new versions now")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            Text("Check for updates")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.textPrimary)
+                            Text("Manually check for new versions now.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.textSecondary)
                         }
-                        
+
                         Spacer()
-                        
+
                         Button("Check Now") {
                             updateService.checkForUpdates()
                         }
@@ -55,7 +50,6 @@ struct UpdateSettingsView: View {
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
         .onAppear {
             updateService.automaticallyChecksForUpdates = automaticallyCheckForUpdates
         }

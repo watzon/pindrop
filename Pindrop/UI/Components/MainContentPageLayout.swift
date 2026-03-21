@@ -50,6 +50,7 @@ struct MainContentPageLayout<Header: View, Content: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(AppColors.contentBackground)
+        .themeRefresh()
     }
 
     private var contentContainer: some View {
