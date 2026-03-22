@@ -227,6 +227,7 @@ struct ModelsSettingsView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.md),
             style: AppColors.border.opacity(0.8)
         )
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var emptyModelsState: some View {
