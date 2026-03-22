@@ -9,6 +9,7 @@ import SwiftUI
 import AppKit
 
 struct AboutSettingsView: View {
+   @Environment(\.locale) private var locale
    @State private var showCopyConfirmation = false
 
    var body: some View {
@@ -20,7 +21,7 @@ struct AboutSettingsView: View {
    }
 
    private var appInfoSection: some View {
-      SettingsCard(title: "About Pindrop", icon: "mic.fill") {
+      SettingsCard(title: localized("About Pindrop", locale: locale), icon: "mic.fill") {
          VStack(spacing: AppTheme.Spacing.lg) {
             HStack(spacing: AppTheme.Spacing.xl) {
                appIcon
@@ -34,13 +35,13 @@ struct AboutSettingsView: View {
                      .font(AppTypography.title)
                      .foregroundStyle(AppColors.textPrimary)
 
-                  Text("Local speech-to-text with WhisperKit")
+                  Text(localized("Local speech-to-text with WhisperKit", locale: locale))
                      .font(AppTypography.body)
                      .foregroundStyle(AppColors.textSecondary)
 
                   Spacer()
 
-                  Text("Version \(appVersion) (\(buildNumber))")
+                  Text(String(format: localized("Version %@ (%@)", locale: locale), appVersion, buildNumber))
                      .font(AppTypography.caption)
                      .foregroundStyle(AppColors.textTertiary)
                }
@@ -51,7 +52,7 @@ struct AboutSettingsView: View {
                .background(AppColors.divider)
 
             Text(
-               "A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement."
+                localized("A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement.", locale: locale)
             )
             .font(AppTypography.bodySmall)
             .foregroundStyle(AppColors.textSecondary)
@@ -61,7 +62,7 @@ struct AboutSettingsView: View {
    }
 
    private var acknowledgmentsSection: some View {
-      SettingsCard(title: "Acknowledgments", icon: "heart.fill") {
+      SettingsCard(title: localized("Acknowledgments", locale: locale), icon: "heart.fill") {
          VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             Link(destination: URL(string: "https://github.com/argmaxinc/WhisperKit")!) {
                HStack {
@@ -109,11 +110,11 @@ struct AboutSettingsView: View {
    }
 
    private var linksSection: some View {
-      SettingsCard(title: "Support", icon: "questionmark.circle.fill") {
+      SettingsCard(title: localized("Support", locale: locale), icon: "questionmark.circle.fill") {
          VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             Link(destination: URL(string: "https://github.com/watzon/pindrop/issues")!) {
                HStack {
-                  Text("Report an Issue")
+                  Text(localized("Report an Issue", locale: locale))
                      .font(AppTypography.body)
                      .foregroundStyle(AppColors.textPrimary)
                   Spacer()
@@ -127,7 +128,7 @@ struct AboutSettingsView: View {
                .background(AppColors.divider)
 
             HStack {
-               Text("Copy System Info for Bug Report")
+               Text(localized("Copy System Info for Bug Report", locale: locale))
                   .font(AppTypography.body)
                   .foregroundStyle(AppColors.textPrimary)
                Spacer()
@@ -144,11 +145,11 @@ struct AboutSettingsView: View {
                .background(AppColors.divider)
 
             HStack {
-               Text("Open Logs in Finder")
+                Text(localized("Open Logs in Finder", locale: locale))
                   .font(AppTypography.body)
                   .foregroundStyle(AppColors.textPrimary)
                Spacer()
-               Button("Open") {
+                Button(localized("Open", locale: locale)) {
                   revealLogsInFinder()
                }
                .font(AppTypography.caption)
@@ -156,14 +157,14 @@ struct AboutSettingsView: View {
                .foregroundStyle(AppColors.textTertiary)
             }
 
-            Text("Attach logs from this folder when filing a GitHub issue.")
+             Text(localized("Attach logs from this folder when filing a GitHub issue.", locale: locale))
                .font(AppTypography.caption)
                .foregroundStyle(AppColors.textTertiary)
 
             Divider()
                .background(AppColors.divider)
 
-            Text("MIT License")
+             Text(localized("MIT License", locale: locale))
                .font(AppTypography.body)
                .foregroundStyle(AppColors.textSecondary)
                .padding(.top, AppTheme.Spacing.xs)

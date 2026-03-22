@@ -93,6 +93,10 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         self.actions = actions
     }
 
+    func reloadLocalizedStrings() {
+        contextMenu = makeContextMenu()
+    }
+
     private var layoutState: LayoutState {
         if state.isRecording {
             return .recording
@@ -192,11 +196,12 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func makeContextMenu() -> NSMenu {
-        let menu = NSMenu(title: "Pindrop Pill")
+        let locale = settingsStore.selectedAppLanguage.locale
+        let menu = NSMenu(title: localized("Pindrop Pill", locale: locale))
         menu.delegate = self
 
         let hideForOneHourItem = NSMenuItem(
-            title: "Hide this for 1 hour",
+            title: localized("Hide this for 1 hour", locale: locale),
             action: #selector(handleHideForOneHourMenuItem),
             keyEquivalent: ""
         )
@@ -204,7 +209,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(hideForOneHourItem)
 
         let reportIssueItem = NSMenuItem(
-            title: "Report an issue",
+            title: localized("Report an issue", locale: locale),
             action: #selector(handleReportIssueMenuItem),
             keyEquivalent: ""
         )
@@ -212,7 +217,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(reportIssueItem)
 
         let goToSettingsItem = NSMenuItem(
-            title: "Go to settings",
+            title: localized("Go to settings", locale: locale),
             action: #selector(handleGoToSettingsMenuItem),
             keyEquivalent: ""
         )
@@ -221,18 +226,18 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         menu.addItem(.separator())
 
-        let microphoneMenu = NSMenu(title: "Change microphone")
+        let microphoneMenu = NSMenu(title: localized("Change microphone", locale: locale))
         self.microphoneMenu = microphoneMenu
 
-        let microphoneItem = NSMenuItem(title: "Change microphone", action: nil, keyEquivalent: "")
+        let microphoneItem = NSMenuItem(title: localized("Change microphone", locale: locale), action: nil, keyEquivalent: "")
         microphoneItem.submenu = microphoneMenu
         self.microphoneItem = microphoneItem
         menu.addItem(microphoneItem)
 
-        let languageMenu = NSMenu(title: "Select language")
+        let languageMenu = NSMenu(title: localized("Select language", locale: locale))
         self.languageMenu = languageMenu
 
-        let languageItem = NSMenuItem(title: "Select language", action: nil, keyEquivalent: "")
+        let languageItem = NSMenuItem(title: localized("Select language", locale: locale), action: nil, keyEquivalent: "")
         languageItem.submenu = languageMenu
         self.languageItem = languageItem
         menu.addItem(languageItem)
@@ -240,7 +245,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(.separator())
 
         let viewHistoryItem = NSMenuItem(
-            title: "View transcript history",
+            title: localized("View transcript history", locale: locale),
             action: #selector(handleViewTranscriptHistoryMenuItem),
             keyEquivalent: ""
         )
@@ -248,7 +253,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(viewHistoryItem)
 
         let pasteLastTranscriptItem = NSMenuItem(
-            title: "Paste last transcript ⌃⌘V",
+            title: localized("Paste last transcript ⌃⌘V", locale: locale),
             action: #selector(handlePasteLastTranscriptMenuItem),
             keyEquivalent: ""
         )
@@ -274,7 +279,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         let availableDevices = actions.availableInputDevicesProvider?() ?? []
 
         let systemDefaultItem = NSMenuItem(
-            title: "System Default",
+            title: localized("System Default", locale: settingsStore.selectedAppLanguage.locale),
             action: #selector(handleSelectInputDeviceMenuItem(_:)),
             keyEquivalent: ""
         )
@@ -302,7 +307,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         if !selectedUID.isEmpty, !availableDevices.contains(where: { $0.uid == selectedUID }) {
             microphoneMenu.addItem(.separator())
 
-            let unavailableItem = NSMenuItem(title: "Unavailable device", action: nil, keyEquivalent: "")
+            let unavailableItem = NSMenuItem(title: localized("Unavailable device", locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
             unavailableItem.isEnabled = false
             unavailableItem.state = NSControl.StateValue.on
             microphoneMenu.addItem(unavailableItem)
@@ -322,7 +327,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         for language in tier1Languages {
             let item = NSMenuItem(
-                title: language.displayName,
+                title: language.displayName(locale: settingsStore.selectedAppLanguage.locale),
                 action: #selector(handleSelectLanguageMenuItem(_:)),
                 keyEquivalent: ""
             )
@@ -335,12 +340,12 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         if !tier2Languages.isEmpty {
             languageMenu.addItem(.separator())
 
-            let upcomingItem = NSMenuItem(title: "Coming Soon", action: nil, keyEquivalent: "")
+            let upcomingItem = NSMenuItem(title: localized("Coming Soon", locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
             upcomingItem.isEnabled = false
             languageMenu.addItem(upcomingItem)
 
             for language in tier2Languages {
-                let item = NSMenuItem(title: language.pickerLabel, action: nil, keyEquivalent: "")
+                let item = NSMenuItem(title: language.pickerLabel(locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
                 item.isEnabled = false
                 languageMenu.addItem(item)
             }
@@ -918,6 +923,7 @@ private struct PillStaticWaveformGlyph: View {
 }
 
 private struct PillHoverTooltip: View {
+    @Environment(\.locale) private var locale
     let toggleHotkey: String
     let pushToTalkHotkey: String
 
@@ -946,27 +952,27 @@ private struct PillHoverTooltip: View {
             HStack(spacing: 0) {
                 switch promptMode {
                 case .toggle(let hotkey):
-                    Text("Click or hold ")
+                    Text(localized("Click or hold ", locale: locale))
                         .foregroundStyle(AppColors.overlayTextSecondary)
 
                     Text(hotkey)
                         .foregroundStyle(AppColors.overlayTooltipAccent)
 
-                    Text(" to start talking")
+                    Text(localized(" to start talking", locale: locale))
                         .foregroundStyle(AppColors.overlayTextSecondary)
 
                 case .pushToTalk(let hotkey):
-                    Text("Click or press ")
+                    Text(localized("Click or press ", locale: locale))
                         .foregroundStyle(AppColors.overlayTextSecondary)
 
                     Text(hotkey)
                         .foregroundStyle(AppColors.overlayTooltipAccent)
 
-                    Text(" to start talking")
+                    Text(localized(" to start talking", locale: locale))
                         .foregroundStyle(AppColors.overlayTextSecondary)
 
                 case .noHotkey:
-                    Text("Click or set a hotkey to start talking")
+                    Text(localized("Click or set a hotkey to start talking", locale: locale))
                         .foregroundStyle(AppColors.overlayTextSecondary)
                 }
             }

@@ -11,6 +11,7 @@ import SwiftUI
 struct AIEnhancementSettingsView: View {
    @ObservedObject var settings: SettingsStore
    @Environment(\.modelContext) private var modelContext
+   @Environment(\.locale) private var locale
 
    @State private var selectedProvider: AIProvider = .openai
    @State private var selectedCustomProvider: CustomProviderType = .custom
@@ -135,28 +136,26 @@ struct AIEnhancementSettingsView: View {
                loadPresets()
             }
       }
-      .alert("Accessibility Permission Recommended", isPresented: $showAccessibilityAlert) {
-         Button("Open System Settings") {
+      .alert(localized("Accessibility Permission Recommended", locale: locale), isPresented: $showAccessibilityAlert) {
+         Button(localized("Open System Settings", locale: locale)) {
             PermissionManager().openAccessibilityPreferences()
          }
-         Button("Continue Without", role: .cancel) {}
+         Button(localized("Continue Without", locale: locale), role: .cancel) {}
       } message: {
-         Text(
-            "Vibe mode works best with Accessibility permission. Without it, Pindrop falls back to limited app metadata and transcription still works normally."
-         )
+         Text(localized("Vibe mode works best with Accessibility permission. Without it, Pindrop falls back to limited app metadata and transcription still works normally.", locale: locale))
       }
    }
 
    // MARK: - Enable Toggle Card
 
    private var enableToggleCard: some View {
-      SettingsCard(title: "Status", icon: "sparkles") {
+      SettingsCard(title: localized("Status", locale: locale), icon: "sparkles") {
          Toggle(isOn: $settings.aiEnhancementEnabled) {
             VStack(alignment: .leading, spacing: 2) {
-               Text("Enable AI Enhancement")
+               Text(localized("Enable AI Enhancement", locale: locale))
                   .font(AppTypography.body)
                   .foregroundStyle(AppColors.textPrimary)
-               Text("Improve transcription quality using AI")
+               Text(localized("Improve transcription quality using AI", locale: locale))
                   .font(AppTypography.caption)
                   .foregroundStyle(AppColors.textSecondary)
             }
@@ -168,7 +167,7 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Provider Card
 
    private var providerCard: some View {
-      SettingsCard(title: "Provider", icon: "server.rack") {
+      SettingsCard(title: localized("Provider", locale: locale), icon: "server.rack") {
          VStack(spacing: 16) {
             providerTabs
                .opacity(settings.aiEnhancementEnabled ? 1 : 0.5)
@@ -183,7 +182,7 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Prompts Card
 
    private var promptsCard: some View {
-      SettingsCard(title: "Enhancement Prompts", icon: "text.bubble") {
+      SettingsCard(title: localized("Enhancement Prompts", locale: locale), icon: "text.bubble") {
          VStack(spacing: 16) {
             if selectedPromptType == .transcription {
                presetPicker
@@ -215,7 +214,7 @@ struct AIEnhancementSettingsView: View {
 
    private var presetPicker: some View {
       VStack(alignment: .leading, spacing: 6) {
-         Text("Prompt Preset")
+         Text(localized("Prompt Preset", locale: locale))
             .font(.subheadline)
             .fontWeight(.medium)
 
@@ -223,11 +222,11 @@ struct AIEnhancementSettingsView: View {
             SelectField(
                options: promptPresetOptions,
                selection: promptPresetSelection,
-               placeholder: "Custom"
+                placeholder: localized("Custom", locale: locale)
             )
             .frame(maxWidth: 260)
 
-            Button("Manage Presets...") {
+            Button(localized("Manage Presets...", locale: locale)) {
                showPresetManagement = true
             }
             .buttonStyle(.bordered)
@@ -238,7 +237,7 @@ struct AIEnhancementSettingsView: View {
             if let presetId = settings.selectedPresetId,
                let preset = presets.first(where: { $0.id.uuidString == presetId })
             {
-               Text(preset.isBuiltIn ? "Built-in (read-only)" : "Custom")
+               Text(preset.isBuiltIn ? localized("Built-in (read-only)", locale: locale) : localized("Custom", locale: locale))
                   .font(AppTypography.caption)
                   .foregroundStyle(AppColors.textSecondary)
                   .padding(.horizontal, 8)
@@ -252,16 +251,14 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Context Card
 
    private var contextCard: some View {
-      SettingsCard(title: "Vibe Mode", icon: "wand.and.stars") {
+      SettingsCard(title: localized("Vibe Mode", locale: locale), icon: "wand.and.stars") {
          VStack(alignment: .leading, spacing: 16) {
-            Text(
-               "Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference."
-            )
+             Text(localized("Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference.", locale: locale))
             .font(AppTypography.caption)
             .foregroundStyle(AppColors.textSecondary)
 
-            Toggle(
-               "Enable vibe mode (UI context)",
+             Toggle(
+                localized("Enable vibe mode (UI context)", locale: locale),
                isOn: Binding(
                   get: { settings.enableUIContext },
                   set: { newValue in
@@ -275,8 +272,8 @@ struct AIEnhancementSettingsView: View {
             .toggleStyle(.switch)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Toggle(
-               "Enable live session updates during recording",
+             Toggle(
+                localized("Enable live session updates during recording", locale: locale),
                isOn: $settings.vibeLiveSessionEnabled
             )
             .toggleStyle(.switch)
@@ -286,16 +283,16 @@ struct AIEnhancementSettingsView: View {
                IconView(icon: accessibilityPermissionGranted ? .check : .info, size: 12)
                   .foregroundStyle(accessibilityPermissionGranted ? AppColors.success : AppColors.textSecondary)
                 Text(
-                   accessibilityPermissionGranted
-                      ? "Accessibility permission is enabled. Full UI context is available."
-                      : "Accessibility permission is not granted. Vibe mode remains non-blocking with limited context."
+                    accessibilityPermissionGranted
+                      ? localized("Accessibility permission is enabled. Full UI context is available.", locale: locale)
+                      : localized("Accessibility permission is not granted. Vibe mode remains non-blocking with limited context.", locale: locale)
                 )
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textSecondary)
 
                if !accessibilityPermissionGranted {
                   Spacer(minLength: 8)
-                  Button("Open Settings") {
+                  Button(localized("Open Settings", locale: locale)) {
                      PermissionManager().openAccessibilityPreferences()
                   }
                   .buttonStyle(.borderless)
@@ -315,7 +312,7 @@ struct AIEnhancementSettingsView: View {
                   Circle()
                      .fill(vibeRuntimeColor)
                      .frame(width: 8, height: 8)
-                  Text("Runtime: \(vibeRuntimeLabel)")
+                  Text(String(format: localized("Runtime: %@", locale: locale), vibeRuntimeLabel))
                      .font(.caption.weight(.semibold))
                      .foregroundStyle(vibeRuntimeColor)
                }
@@ -333,7 +330,7 @@ struct AIEnhancementSettingsView: View {
             )
 
             VStack(spacing: 12) {
-               Toggle("Include clipboard text", isOn: $settings.enableClipboardContext)
+               Toggle(localized("Include clipboard text", locale: locale), isOn: $settings.enableClipboardContext)
                   .toggleStyle(.switch)
                   .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -346,11 +343,11 @@ struct AIEnhancementSettingsView: View {
    private var vibeRuntimeLabel: String {
       switch settings.vibeRuntimeState {
       case .ready:
-         return "Ready"
+         return localized("Ready", locale: locale)
       case .limited:
-         return "Limited"
+         return localized("Limited", locale: locale)
       case .degraded:
-         return "Degraded"
+         return localized("Degraded", locale: locale)
       }
    }
 
@@ -382,7 +379,7 @@ struct AIEnhancementSettingsView: View {
       } label: {
          VStack(spacing: 3) {
             IconView(icon: type.icon, size: 14)
-            Text(type.rawValue)
+            Text(localized(type.rawValue, locale: locale))
                .font(.caption2)
                .fontWeight(.medium)
          }
@@ -425,7 +422,7 @@ struct AIEnhancementSettingsView: View {
              .opacity(isReadOnly ? 0.7 : 1)
 
          HStack {
-            Button("Reset to Default") {
+            Button(localized("Reset to Default", locale: locale)) {
                resetCurrentPrompt()
             }
             .buttonStyle(.bordered)
@@ -433,7 +430,7 @@ struct AIEnhancementSettingsView: View {
 
             Spacer()
 
-             Text("\(charCount) characters")
+             Text(String(format: localized("%d characters", locale: locale), charCount))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textSecondary)
          }
@@ -443,7 +440,7 @@ struct AIEnhancementSettingsView: View {
              .foregroundStyle(AppColors.textSecondary)
 
          HStack {
-            Button("Save Prompt") {
+            Button(localized("Save Prompt", locale: locale)) {
                saveCurrentPrompt()
             }
             .buttonStyle(.borderedProminent)
@@ -455,7 +452,7 @@ struct AIEnhancementSettingsView: View {
                HStack(spacing: 6) {
                   IconView(icon: .check, size: 12)
                      .foregroundStyle(AppColors.success)
-                   Text("Saved")
+                   Text(localized("Saved", locale: locale))
                      .font(AppTypography.caption)
                      .foregroundStyle(AppColors.success)
                }
@@ -475,9 +472,9 @@ struct AIEnhancementSettingsView: View {
       switch selectedPromptType {
       case .transcription:
          settings.selectedPresetId = nil  // Reset preset to Custom
-         enhancementPrompt = AIEnhancementService.defaultSystemPrompt
+         enhancementPrompt = localizedTranscriptionPrompt(AIEnhancementService.defaultSystemPrompt)
       case .notes:
-         noteEnhancementPrompt = SettingsStore.Defaults.noteEnhancementPrompt
+         noteEnhancementPrompt = localizedNotePrompt(SettingsStore.Defaults.noteEnhancementPrompt)
       }
    }
 
@@ -507,7 +504,7 @@ struct AIEnhancementSettingsView: View {
       } label: {
          VStack(spacing: 3) {
             IconView(icon: provider.icon, size: 14)
-            Text(provider.displayName)
+            Text(localized(provider.displayName, locale: locale))
                .font(.caption2)
                .fontWeight(.medium)
          }
@@ -570,7 +567,7 @@ struct AIEnhancementSettingsView: View {
          IconView(icon: .construction, size: 28)
             .foregroundStyle(AppColors.textSecondary)
 
-         Text("\(selectedProvider.displayName) Coming Soon")
+         Text(String(format: localized("%@ Coming Soon", locale: locale), localized(selectedProvider.displayName, locale: locale)))
             .font(.headline)
 
           Text(
@@ -587,12 +584,12 @@ struct AIEnhancementSettingsView: View {
    private var apiKeyField: some View {
       VStack(alignment: .leading, spacing: 6) {
          HStack(spacing: 8) {
-            Text("API Key")
+             Text(localized("API Key", locale: locale))
                .font(.subheadline)
                .fontWeight(.medium)
 
             if isAPIKeyOptional {
-               Text("Optional")
+               Text(localized("Optional", locale: locale))
                   .font(AppTypography.caption)
                   .foregroundStyle(AppColors.textSecondary)
                   .padding(.horizontal, 8)
@@ -631,14 +628,14 @@ struct AIEnhancementSettingsView: View {
 
     private var customProviderPicker: some View {
        VStack(alignment: .leading, spacing: 6) {
-          Text("Provider Type")
+          Text(localized("Provider Type", locale: locale))
              .font(.subheadline)
              .fontWeight(.medium)
 
           SelectField(
              options: customProviderOptions,
              selection: customProviderSelection,
-             placeholder: "Select a provider type"
+             placeholder: localized("Select a provider type", locale: locale)
           )
           .frame(maxWidth: 220, alignment: .leading)
        }
@@ -648,13 +645,13 @@ struct AIEnhancementSettingsView: View {
     private var customEndpointField: some View {
        VStack(alignment: .leading, spacing: 6) {
          HStack {
-            Text("API Endpoint")
+             Text(localized("API Endpoint", locale: locale))
                .font(.subheadline)
                .fontWeight(.medium)
 
             Spacer()
 
-             Text(selectedCustomProvider == .custom ? "Must be OpenAI-compatible" : "OpenAI-compatible local server")
+              Text(selectedCustomProvider == .custom ? localized("Must be OpenAI-compatible", locale: locale) : localized("OpenAI-compatible local server", locale: locale))
                  .font(AppTypography.caption)
                  .foregroundStyle(AppColors.textSecondary)
           }
@@ -667,7 +664,7 @@ struct AIEnhancementSettingsView: View {
 
    private var customModelField: some View {
       VStack(alignment: .leading, spacing: 6) {
-          Text("AI Model")
+          Text(localized("AI Model", locale: locale))
              .font(.subheadline)
              .fontWeight(.medium)
 
@@ -680,7 +677,7 @@ struct AIEnhancementSettingsView: View {
     private var modelPicker: some View {
       VStack(alignment: .leading, spacing: 6) {
          HStack {
-            Text("AI Model")
+            Text(localized("AI Model", locale: locale))
                .font(.subheadline)
                .fontWeight(.medium)
             Spacer()
@@ -688,7 +685,7 @@ struct AIEnhancementSettingsView: View {
                ProgressView()
                   .controlSize(.small)
             }
-             Button("Refresh") {
+             Button(localized("Refresh", locale: locale)) {
                 Task {
                    await refreshModels(
                       for: selectedProvider,
@@ -717,9 +714,9 @@ struct AIEnhancementSettingsView: View {
                   get: { selectedModel.isEmpty ? nil : selectedModel },
                   set: { selectedModel = $0 ?? "" }
                ),
-                placeholder: "Select a model",
-                emptyMessage: "No models found.",
-                searchPlaceholder: "Search models..."
+                 placeholder: localized("Select a model", locale: locale),
+                 emptyMessage: localized("No models found.", locale: locale),
+                 searchPlaceholder: localized("Search models...", locale: locale)
              )
              .frame(maxWidth: .infinity)
           }
@@ -739,27 +736,27 @@ struct AIEnhancementSettingsView: View {
 
    private var emptyModelsMessage: String {
       if isLoadingModels {
-         return "Loading models..."
+         return localized("Loading models...", locale: locale)
       }
-       if selectedProvider == .openai,
-          apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-       {
-          return "Enter an OpenAI API key to load models."
-       }
-       if modelError != nil {
-          return "Unable to load models. Try refresh."
-       }
-       if selectedProvider == .custom && selectedCustomProvider.supportsModelListing {
-          return "No models available. Try Refresh or enter a model ID manually."
-       }
-       return "No models available."
-    }
+        if selectedProvider == .openai,
+           apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        {
+          return localized("Enter an OpenAI API key to load models.", locale: locale)
+        }
+        if modelError != nil {
+          return localized("Unable to load models. Try refresh.", locale: locale)
+        }
+        if selectedProvider == .custom && selectedCustomProvider.supportsModelListing {
+          return localized("No models available. Try Refresh or enter a model ID manually.", locale: locale)
+        }
+        return localized("No models available.", locale: locale)
+     }
 
    private var saveButton: some View {
       HStack {
          Spacer()
 
-         Button("Save Credentials") {
+         Button(localized("Save Credentials", locale: locale)) {
             saveCredentials()
          }
          .buttonStyle(.borderedProminent)
@@ -771,7 +768,7 @@ struct AIEnhancementSettingsView: View {
       HStack(spacing: 6) {
          IconView(icon: .check, size: 14)
             .foregroundStyle(AppColors.success)
-         Text("Credentials saved successfully")
+         Text(localized("Credentials saved successfully", locale: locale))
             .font(AppTypography.caption)
             .foregroundStyle(AppColors.success)
       }
@@ -797,7 +794,7 @@ struct AIEnhancementSettingsView: View {
        HStack(spacing: 6) {
          IconView(icon: .shield, size: 12)
             .foregroundStyle(AppColors.textSecondary)
-         Text("Credentials are stored securely in Keychain")
+         Text(localized("Credentials are stored securely in Keychain", locale: locale))
             .font(AppTypography.caption)
             .foregroundStyle(AppColors.textSecondary)
        }
@@ -1029,7 +1026,7 @@ struct AIEnhancementSettingsView: View {
           customLocalProvider: selectedCustomProvider
        ) ?? ""
 
-       noteEnhancementPrompt = settings.noteEnhancementPrompt
+       noteEnhancementPrompt = localizedNotePrompt(settings.noteEnhancementPrompt)
 
        Task {
           await loadModelsIfNeeded(
@@ -1094,7 +1091,7 @@ struct AIEnhancementSettingsView: View {
             showingSaveSuccess = false
          }
       } catch {
-         errorMessage = "Failed to save: \(error.localizedDescription)"
+          errorMessage = String(format: localized("Failed to save: %@", locale: locale), error.localizedDescription)
       }
    }
 
@@ -1107,14 +1104,14 @@ struct AIEnhancementSettingsView: View {
                enhancementPrompt = preset.prompt
             } else {
                settings.selectedPresetId = nil
-               enhancementPrompt = settings.aiEnhancementPrompt
+               enhancementPrompt = localizedTranscriptionPrompt(settings.aiEnhancementPrompt)
             }
          } else {
-            enhancementPrompt = settings.aiEnhancementPrompt
+            enhancementPrompt = localizedTranscriptionPrompt(settings.aiEnhancementPrompt)
          }
       } catch {
          Log.ui.error("Failed to load presets: \(error)")
-         enhancementPrompt = settings.aiEnhancementPrompt
+         enhancementPrompt = localizedTranscriptionPrompt(settings.aiEnhancementPrompt)
       }
    }
 
@@ -1170,7 +1167,7 @@ struct AIEnhancementSettingsView: View {
 
 private extension AIEnhancementSettingsView {
    var promptPresetOptions: [SelectFieldOption] {
-      [SelectFieldOption(id: customPromptPresetId, displayName: "Custom")]
+      [SelectFieldOption(id: customPromptPresetId, displayName: localized("Custom", locale: locale))]
          + presets.map {
             SelectFieldOption(
                id: $0.id.uuidString,
@@ -1192,7 +1189,7 @@ private extension AIEnhancementSettingsView {
       CustomProviderType.allCases.map {
          SelectFieldOption(
             id: $0.id,
-            displayName: $0.rawValue
+            displayName: localized($0.rawValue, locale: locale)
          )
       }
    }
@@ -1212,6 +1209,22 @@ private extension AIEnhancementSettingsView {
    }
 
    var customPromptPresetId: String { "__custom__" }
+
+   func localizedTranscriptionPrompt(_ prompt: String) -> String {
+      if prompt == AIEnhancementService.defaultSystemPrompt {
+         return localized("You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary.", locale: locale)
+      }
+
+      return prompt
+   }
+
+   func localizedNotePrompt(_ prompt: String) -> String {
+      if prompt == SettingsStore.Defaults.noteEnhancementPrompt {
+         return localized("You are a note formatting assistant. Transform the transcribed text into a well-structured note.\n\nRules:\n- Fix grammar, punctuation, and spelling errors\n- For longer content (3+ paragraphs), add markdown formatting:\n  - Use headers (## or ###) to organize sections\n  - Use bullet points or numbered lists where appropriate\n  - Use **bold** for emphasis on key terms\n- For shorter content, keep it simple with minimal formatting\n- Preserve the original meaning and tone\n- Do not add content that wasn't in the original\n- Return only the formatted note without any commentary", locale: locale)
+      }
+
+      return prompt
+   }
 }
 
 extension AIModelService.AIModel: SearchableDropdownItem {

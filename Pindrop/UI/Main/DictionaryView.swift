@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 enum DictionarySection: String, CaseIterable {
     case replacements = "Word Replacements"
@@ -21,37 +22,41 @@ enum DictionarySection: String, CaseIterable {
         }
     }
 
-    var bannerDescription: String {
+    func title(locale: Locale) -> String {
+        localized(rawValue, locale: locale)
+    }
+
+    func bannerDescription(locale: Locale) -> String {
         switch self {
         case .replacements:
-            return "Define word replacements to automatically replace specific words or phrases"
+            return localized("Define word replacements to automatically replace specific words or phrases", locale: locale)
         case .vocabulary:
-            return "Add words to help Pindrop recognize them properly"
+            return localized("Add words to help Pindrop recognize them properly", locale: locale)
         }
     }
 
-    var tabDescription: String {
+    func tabDescription(locale: Locale) -> String {
         switch self {
         case .replacements:
-            return "Replace words and phrases"
+            return localized("Replace words and phrases", locale: locale)
         case .vocabulary:
-            return "Teach custom words"
+            return localized("Teach custom words", locale: locale)
         }
     }
 
-    var addFormPlaceholder: String {
+    func addFormPlaceholder(locale: Locale) -> String {
         switch self {
         case .replacements:
-            return "Original text (use commas for multiple)"
+            return localized("Original text (use commas for multiple)", locale: locale)
         case .vocabulary:
-            return "Enter word to add"
+            return localized("Enter word to add", locale: locale)
         }
     }
 
-    var addFormSecondaryPlaceholder: String {
+    func addFormSecondaryPlaceholder(locale: Locale) -> String {
         switch self {
         case .replacements:
-            return "Replacement text"
+            return localized("Replacement text", locale: locale)
         case .vocabulary:
             return ""
         }
@@ -60,6 +65,7 @@ enum DictionarySection: String, CaseIterable {
 
 struct DictionaryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     @State private var dictionaryStore: DictionaryStore?
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
@@ -101,8 +107,8 @@ struct DictionaryView: View {
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
         }
-        .alert("Import Error", isPresented: .constant(errorMessage != nil)) {
-            Button("OK") {
+        .alert(localized("Import Error", locale: locale), isPresented: .constant(errorMessage != nil)) {
+            Button(localized("OK", locale: locale)) {
                 errorMessage = nil
             }
         } message: {
@@ -110,16 +116,16 @@ struct DictionaryView: View {
                 Text(errorMessage)
             }
         }
-        .confirmationDialog("Import Strategy", isPresented: $showingImportStrategyDialog) {
-            Button("Add to Existing") {
+        .confirmationDialog(localized("Import Strategy", locale: locale), isPresented: $showingImportStrategyDialog) {
+            Button(localized("Add to Existing", locale: locale)) {
                 performImport(strategy: .additive)
             }
-            Button("Replace All", role: .destructive) {
+            Button(localized("Replace All", locale: locale), role: .destructive) {
                 performImport(strategy: .replace)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(localized("Cancel", locale: locale), role: .cancel) {}
         } message: {
-            Text("Choose how to import the dictionary data")
+            Text(localized("Choose how to import the dictionary data", locale: locale))
         }
     }
     
@@ -129,30 +135,29 @@ struct DictionaryView: View {
         VStack(spacing: AppTheme.Spacing.lg) {
             HStack {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text("Dictionary")
+                    Text(localized("Dictionary", locale: locale))
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
                     
-                    Text("\(totalItemCount) items")
+                    Text("\(totalItemCount) \(localized("items", locale: locale))")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
                 
                 Spacer()
                 
-                // Import/Export menu
                 Menu {
                     Button(action: handleImport) {
-                        Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                        Label(localized("Import Dictionary", locale: locale), systemImage: "square.and.arrow.down")
                     }
                     
                     Button(action: handleExport) {
-                        Label("Export Dictionary", systemImage: "square.and.arrow.up")
+                        Label(localized("Export Dictionary", locale: locale), systemImage: "square.and.arrow.up")
                     }
                 } label: {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "arrow.up.arrow.down")
-                        Text("Import/Export")
+                        Text(localized("Import/Export", locale: locale))
                     }
                     .font(AppTypography.subheadline)
                     .padding(.horizontal, AppTheme.Spacing.md)
@@ -190,14 +195,14 @@ struct DictionaryView: View {
                     Image(systemName: section.icon)
                         .font(.system(size: 16, weight: .semibold))
                     
-                    Text(section.rawValue)
+                    Text(section.title(locale: locale))
                         .font(AppTypography.subheadline)
                         .fontWeight(.semibold)
                     
                     Spacer()
                 }
                 
-                Text(section.tabDescription)
+                Text(section.tabDescription(locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                     .multilineTextAlignment(.leading)
@@ -231,7 +236,7 @@ struct DictionaryView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(AppColors.textTertiary)
                 
-                TextField(selectedSection.addFormPlaceholder, text: $primaryInput)
+                TextField(selectedSection.addFormPlaceholder(locale: locale), text: $primaryInput)
                     .textFieldStyle(.plain)
                     .font(AppTypography.body)
             }
@@ -258,7 +263,7 @@ struct DictionaryView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.textTertiary)
                     
-                    TextField(selectedSection.addFormSecondaryPlaceholder, text: $secondaryInput)
+                    TextField(selectedSection.addFormSecondaryPlaceholder(locale: locale), text: $secondaryInput)
                         .textFieldStyle(.plain)
                         .font(AppTypography.body)
                 }
@@ -279,7 +284,7 @@ struct DictionaryView: View {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "plus")
                         .font(.system(size: 12, weight: .semibold))
-                    Text("Add")
+                    Text(localized("Add", locale: locale))
                         .font(AppTypography.subheadline)
                         .fontWeight(.semibold)
                 }
@@ -334,7 +339,7 @@ struct DictionaryView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.warning)
             
-            Text("Something went wrong")
+            Text(localized("Something went wrong", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
@@ -343,7 +348,7 @@ struct DictionaryView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
             
-            Button("Dismiss") {
+            Button(localized("Dismiss", locale: locale)) {
                 self.errorMessage = nil
             }
             .buttonStyle(.borderedProminent)
@@ -357,13 +362,15 @@ struct DictionaryView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(selectedSection == .replacements ? "No Replacements" : "No Vocabulary Words")
+            Text(selectedSection == .replacements
+                 ? localized("No Replacements", locale: locale)
+                 : localized("No Vocabulary Words", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
             Text(selectedSection == .replacements
-                 ? "Add word replacements to automatically correct common transcription errors."
-                 : "Add custom words to improve transcription accuracy for specialized terms, names, or jargon.")
+                 ? localized("Add word replacements to automatically correct common transcription errors.", locale: locale)
+                 : localized("Add custom words to improve transcription accuracy for specialized terms, names, or jargon.", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -390,7 +397,7 @@ struct DictionaryView: View {
         VStack(spacing: 0) {
             // Header
             HStack(spacing: AppTheme.Spacing.md) {
-                Text("Original")
+                Text(localized("Original", locale: locale))
                     .font(AppTypography.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(AppColors.textSecondary)
@@ -401,13 +408,12 @@ struct DictionaryView: View {
                     .foregroundStyle(AppColors.textTertiary)
                     .frame(width: 20)
                 
-                Text("Replacement")
+                Text(localized("Replacement", locale: locale))
                     .font(AppTypography.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(AppColors.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // Space for actions
                 HStack(spacing: AppTheme.Spacing.sm) {
                     Color.clear.frame(width: 28, height: 28)
                     Color.clear.frame(width: 28, height: 28)
@@ -420,7 +426,6 @@ struct DictionaryView: View {
             Divider()
                 .background(AppColors.divider)
             
-            // Rows
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(replacements.sorted(by: { $0.sortOrder < $1.sortOrder })) { replacement in
@@ -464,19 +469,15 @@ struct DictionaryView: View {
         )
     }
 
-    // MARK: - Vocabulary Table
-    
     private var vocabularyTable: some View {
         VStack(spacing: 0) {
-            // Header
             HStack(spacing: AppTheme.Spacing.md) {
-                Text("Word")
+                Text(localized("Word", locale: locale))
                     .font(AppTypography.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(AppColors.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // Space for actions
                 HStack(spacing: AppTheme.Spacing.sm) {
                     Color.clear.frame(width: 28, height: 28)
                     Color.clear.frame(width: 28, height: 28)
@@ -573,7 +574,7 @@ struct DictionaryView: View {
                 loadData()
             } catch {
                 Log.app.error("Failed to add replacement: \(error.localizedDescription)")
-                errorMessage = "Failed to add replacement: \(error.localizedDescription)"
+                errorMessage = localized("Failed to add replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
             
         case .vocabulary:
@@ -592,7 +593,7 @@ struct DictionaryView: View {
                 primaryInput = ""
                 loadData()
             } catch {
-                errorMessage = "Failed to add word: \(error.localizedDescription)"
+                errorMessage = localized("Failed to add word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -623,7 +624,7 @@ struct DictionaryView: View {
             cancelEditingReplacement()
             loadData()
         } catch {
-            errorMessage = "Failed to update replacement: \(error.localizedDescription)"
+            errorMessage = localized("Failed to update replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -662,7 +663,7 @@ struct DictionaryView: View {
             cancelEditingVocabulary()
             loadData()
         } catch {
-            errorMessage = "Failed to update word: \(error.localizedDescription)"
+            errorMessage = localized("Failed to update word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -678,7 +679,7 @@ struct DictionaryView: View {
             try store.delete(replacement)
             loadData()
         } catch {
-            errorMessage = "Failed to delete replacement: \(error.localizedDescription)"
+            errorMessage = localized("Failed to delete replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -689,7 +690,7 @@ struct DictionaryView: View {
             try store.delete(word)
             loadData()
         } catch {
-            errorMessage = "Failed to delete word: \(error.localizedDescription)"
+            errorMessage = localized("Failed to delete word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -705,7 +706,7 @@ struct DictionaryView: View {
             Log.app.info("Loaded \(replacements.count) replacements and \(vocabularyWords.count) vocabulary words")
         } catch {
             Log.app.error("Failed to load dictionary data: \(error.localizedDescription)")
-            errorMessage = "Failed to load data: \(error.localizedDescription)"
+            errorMessage = localized("Failed to load data: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -718,22 +719,24 @@ struct DictionaryView: View {
             let savePanel = NSSavePanel()
             savePanel.allowedContentTypes = [.json]
             savePanel.nameFieldStringValue = "dictionary.json"
-            savePanel.title = "Export Dictionary"
-            savePanel.message = "Choose a location to save the dictionary"
+            let currentLocale = SettingsStore().selectedAppLanguage.locale
+            savePanel.title = localized("Export Dictionary", locale: currentLocale)
+            savePanel.message = localized("Choose a location to save the dictionary", locale: currentLocale)
             
             if savePanel.runModal() == .OK, let url = savePanel.url {
                 try jsonData.write(to: url)
             }
         } catch {
-            errorMessage = "Failed to export dictionary: \(error.localizedDescription)"
+            errorMessage = localized("Failed to export dictionary: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
     private func handleImport() {
         let openPanel = NSOpenPanel()
         openPanel.allowedContentTypes = [.json]
-        openPanel.title = "Import Dictionary"
-        openPanel.message = "Select a dictionary JSON file to import"
+        let currentLocale = SettingsStore().selectedAppLanguage.locale
+        openPanel.title = localized("Import Dictionary", locale: currentLocale)
+        openPanel.message = localized("Select a dictionary JSON file to import", locale: currentLocale)
         
         if openPanel.runModal() == .OK, let url = openPanel.url {
             do {
@@ -745,7 +748,7 @@ struct DictionaryView: View {
                 showingImportStrategyDialog = true
                 importDataCache = data
             } catch {
-                errorMessage = "Failed to read import file: \(error.localizedDescription)"
+                errorMessage = localized("Failed to read import file: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -758,7 +761,7 @@ struct DictionaryView: View {
             loadData()
             importDataCache = nil
         } catch {
-            errorMessage = "Failed to import dictionary: \(error.localizedDescription)"
+            errorMessage = localized("Failed to import dictionary: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
 }
@@ -792,14 +795,14 @@ struct ReplacementRow: View {
     let onCancelEdit: () -> Void
     let onDelete: () -> Void
     
+    @Environment(\.locale) private var locale
     @State private var isHovered = false
     
     var body: some View {
         HStack(spacing: AppTheme.Spacing.md) {
             if isEditing {
-                // Edit mode
                 HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField("Originals (comma-separated)", text: $editOriginals)
+                    TextField(localized("Originals (comma-separated)", locale: locale), text: $editOriginals)
                         .textFieldStyle(.roundedBorder)
                         .font(AppTypography.bodySmall)
                 }
@@ -811,7 +814,7 @@ struct ReplacementRow: View {
                     .frame(width: 20)
                 
                 HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField("Replacement", text: $editReplacement)
+                    TextField(localized("Replacement", locale: locale), text: $editReplacement)
                         .textFieldStyle(.roundedBorder)
                         .font(AppTypography.bodySmall)
                 }
@@ -914,14 +917,14 @@ struct VocabularyRow: View {
     let onCancelEdit: () -> Void
     let onDelete: () -> Void
     
+    @Environment(\.locale) private var locale
     @State private var isHovered = false
     
     var body: some View {
         HStack(spacing: AppTheme.Spacing.md) {
             if isEditing {
-                // Edit mode
                 HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField("Word", text: $editText)
+                    TextField(localized("Word", locale: locale), text: $editText)
                         .textFieldStyle(.roundedBorder)
                         .font(AppTypography.bodySmall)
                 }

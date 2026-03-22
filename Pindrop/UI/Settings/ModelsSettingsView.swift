@@ -12,6 +12,7 @@ private let modelListItemInset: CGFloat = 6
 struct ModelsSettingsView: View {
     @ObservedObject var settings: SettingsStore
     let modelManager: ModelManager
+    @Environment(\.locale) private var locale
     @State private var downloadingModel: String?
     @State private var switchingToModel: String?
     @State private var activeModelName: String?
@@ -20,13 +21,23 @@ struct ModelsSettingsView: View {
     @State private var searchText = ""
     @State private var visibleModels: [ModelManager.WhisperModel] = []
     @State private var searchTask: Task<Void, Never>?
-    
+
     enum ModelFilter: String, CaseIterable {
-        case recommended = "Recommended"
-        case local = "Local"
-        case cloud = "Cloud"
-        case comingSoon = "Coming Soon"
-        case all = "All"
+        case recommended
+        case local
+        case cloud
+        case comingSoon
+        case all
+
+        func localizedName(locale: Locale) -> String {
+            switch self {
+            case .recommended: return localized("Recommended", locale: locale)
+            case .local: return localized("Local", locale: locale)
+            case .cloud: return localized("Cloud", locale: locale)
+            case .comingSoon: return localized("Coming Soon", locale: locale)
+            case .all: return localized("All", locale: locale)
+            }
+        }
         
         func matches(_ model: ModelManager.WhisperModel) -> Bool {
             switch self {
@@ -120,11 +131,11 @@ struct ModelsSettingsView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text("Models")
+            Text(localized("Models", locale: locale))
                 .font(AppTypography.largeTitle)
                 .foregroundStyle(AppColors.textPrimary)
 
-            Text("Manage local speech models, feature models, and the default engine Pindrop uses for transcription.")
+            Text(localized("Manage local speech models, feature models, and the default engine Pindrop uses for transcription.", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
         }
@@ -177,7 +188,7 @@ struct ModelsSettingsView: View {
         HStack(spacing: 8) {
             ForEach(ModelFilter.allCases, id: \.self) { filter in
                 FilterButton(
-                    title: filter.rawValue,
+                    title: filter.localizedName(locale: locale),
                     isSelected: effectiveFilter == filter,
                     action: { selectedFilter = filter }
                 )
@@ -227,7 +238,7 @@ struct ModelsSettingsView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColors.textTertiary)
 
-            TextField("Search models", text: $searchText)
+            TextField(localized("Search models", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
 
@@ -258,7 +269,9 @@ struct ModelsSettingsView: View {
                 .font(.system(size: 20, weight: .medium))
                 .foregroundStyle(AppColors.textTertiary)
 
-            Text(trimmedSearchText.isEmpty ? "No models available" : "No models match \"\(trimmedSearchText)\"")
+            Text(trimmedSearchText.isEmpty
+                ? localized("No models available", locale: locale)
+                : localized("No models match \"%@\"", locale: locale).replacingOccurrences(of: "%@", with: trimmedSearchText))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -316,13 +329,13 @@ struct ModelsSettingsView: View {
         HStack(spacing: 12) {
             IconView(icon: .warning, size: 16)
                 .foregroundStyle(.orange)
-            
+
             Text(message)
                 .font(.caption)
-            
+
             Spacer()
-            
-            Button("Dismiss") {
+
+            Button(localized("Dismiss", locale: locale)) {
                 errorMessage = nil
             }
             .buttonStyle(.plain)
@@ -509,6 +522,8 @@ struct RatingIndicator: View {
 }
 
 struct ModelSettingsRow: View {
+    @Environment(\.locale) private var locale
+
     let model: ModelManager.WhisperModel
     let selectedLanguage: AppLanguage
     let isDefault: Bool
@@ -622,9 +637,9 @@ struct ModelSettingsRow: View {
             Text(model.displayName)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-            
+
             if isActive {
-                Text("Active")
+                Text(localized("Active", locale: locale))
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
@@ -632,9 +647,9 @@ struct ModelSettingsRow: View {
                     .background(Color.green, in: Capsule())
                     .foregroundStyle(.white)
             }
-            
+
             if isDefault {
-                Text("Default")
+                Text(localized("Default", locale: locale))
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
@@ -644,7 +659,7 @@ struct ModelSettingsRow: View {
             }
 
             if isRecommended {
-                Text("Recommended")
+                Text(localized("Recommended", locale: locale))
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
@@ -652,9 +667,9 @@ struct ModelSettingsRow: View {
                     .background(AppColors.accent.opacity(0.15), in: Capsule())
                     .foregroundStyle(AppColors.accent)
             }
-             
+
             if isComingSoon {
-                Text("Coming Soon")
+                Text(localized("Coming Soon", locale: locale))
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
@@ -662,9 +677,9 @@ struct ModelSettingsRow: View {
                     .background(Color.purple.opacity(0.2), in: Capsule())
                     .foregroundStyle(.purple)
             }
-            
+
             if !model.provider.isLocal && isAvailable {
-                Text("Cloud")
+                Text(localized("Cloud", locale: locale))
                     .font(.caption2)
                     .fontWeight(.medium)
                     .padding(.horizontal, 8)
@@ -687,18 +702,18 @@ struct ModelSettingsRow: View {
             if model.sizeInMB > 0 {
                 MetadataBadge(icon: "internaldrive", text: model.formattedSize)
             } else if !model.provider.isLocal {
-                MetadataBadge(icon: "cloud", text: "Cloud Model")
+                MetadataBadge(icon: "cloud", text: localized("Cloud Model", locale: locale))
             }
 
-            RatingIndicator(label: "Speed", rating: model.speedRating)
-            RatingIndicator(label: "Accuracy", rating: model.accuracyRating)
+            RatingIndicator(label: localized("Speed", locale: locale), rating: model.speedRating)
+            RatingIndicator(label: localized("Accuracy", locale: locale), rating: model.accuracyRating)
         }
     }
-    
+
     @ViewBuilder
     private var actionButton: some View {
         if isComingSoon {
-            Text("Coming Soon")
+            Text(localized("Coming Soon", locale: locale))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 2)
@@ -719,21 +734,21 @@ struct ModelSettingsRow: View {
                 if isActive {
                     HStack(spacing: 4) {
                         IconView(icon: .circleCheck, size: 14)
-                        Text("Active")
+                        Text(localized("Active", locale: locale))
                     }
                     .font(.caption)
                     .foregroundStyle(.green)
                 }
-                
+
                 Menu {
                     if !isDefault {
-                        Button("Set as Default", action: onSetDefault)
+                        Button(localized("Set as Default", locale: locale), action: onSetDefault)
                     }
                     if !isActive {
-                         Button("Switch to Model", action: onSwitch)
+                         Button(localized("Switch to Model", locale: locale), action: onSwitch)
                     }
                     Divider()
-                    Button("Delete Model", role: .destructive, action: onDelete)
+                    Button(localized("Delete Model", locale: locale), role: .destructive, action: onDelete)
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 14))
@@ -748,7 +763,7 @@ struct ModelSettingsRow: View {
             Button(action: onDownload) {
                 HStack(spacing: 4) {
                     IconView(icon: .download, size: 12)
-                    Text("Download")
+                    Text(localized("Download", locale: locale))
                 }
                 .font(.caption)
             }
@@ -772,6 +787,8 @@ struct ModelSettingsRow: View {
 }
 
 struct FeatureModelRow: View {
+    @Environment(\.locale) private var locale
+
     let featureType: FeatureModelType
     let isDownloaded: Bool
     let isEnabled: Bool
@@ -784,22 +801,22 @@ struct FeatureModelRow: View {
     private var showsStreamingAIWarning: Bool {
         featureType == .streaming && aiEnhancementEnabled
     }
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: featureType.iconName)
                 .font(.system(size: 20))
                 .foregroundStyle(isEnabled ? .green : .secondary)
                 .frame(width: 28, height: 28)
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
                     Text(featureType.displayName)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    
+
                     if isDownloaded && isEnabled {
-                        Text("Active")
+                        Text(localized("Active", locale: locale))
                             .font(.caption2)
                             .fontWeight(.medium)
                             .padding(.horizontal, 8)
@@ -807,7 +824,7 @@ struct FeatureModelRow: View {
                             .background(Color.green, in: Capsule())
                             .foregroundStyle(.white)
                     } else if isDownloaded {
-                        Text("Downloaded")
+                        Text(localized("Downloaded", locale: locale))
                             .font(.caption2)
                             .fontWeight(.medium)
                             .padding(.horizontal, 8)
@@ -816,7 +833,7 @@ struct FeatureModelRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 Text(featureType.description)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -827,18 +844,18 @@ struct FeatureModelRow: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.orange)
-                        Text("Streaming transcription is disabled while AI Enhancement is enabled.")
+                        Text(localized("Streaming transcription is disabled while AI Enhancement is enabled.", locale: locale))
                             .font(.caption)
                             .foregroundStyle(.orange)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                
+
                 MetadataBadge(icon: "internaldrive", text: featureType.formattedSize)
             }
-            
+
             Spacer()
-            
+
             if isDownloading {
                 VStack(alignment: .trailing, spacing: 4) {
                     ProgressView(value: downloadProgress)
@@ -858,7 +875,7 @@ struct FeatureModelRow: View {
                 Button(action: onDownload) {
                     HStack(spacing: 4) {
                         IconView(icon: .download, size: 12)
-                        Text("Download")
+                        Text(localized("Download", locale: locale))
                     }
                     .font(.caption)
                 }

@@ -26,6 +26,10 @@ enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
             return "Name Z-A"
         }
     }
+
+    func title(locale: Locale) -> String {
+        localized(title, locale: locale)
+    }
 }
 
 enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
@@ -57,6 +61,10 @@ enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
         case .failed:
             return "Failed"
         }
+    }
+
+    func title(locale: Locale) -> String {
+        localized(title, locale: locale)
     }
 }
 

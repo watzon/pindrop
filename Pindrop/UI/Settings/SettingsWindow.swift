@@ -17,6 +17,17 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    func title(locale: Locale) -> String {
+        switch self {
+        case .general: return localized("General", locale: locale)
+        case .theme: return localized("Theme", locale: locale)
+        case .hotkeys: return localized("Hotkeys", locale: locale)
+        case .ai: return localized("AI Enhancement", locale: locale)
+        case .update: return localized("Update", locale: locale)
+        case .about: return localized("About", locale: locale)
+        }
+    }
+
     var systemIcon: String {
         switch self {
         case .general: return "gear"
@@ -29,19 +40,23 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     }
 
     var subtitle: String {
+        subtitle(locale: .autoupdatingCurrent)
+    }
+
+    func subtitle(locale: Locale) -> String {
         switch self {
         case .general:
-            return "Output, audio, interface, and everyday behavior"
+            return localized("Output, audio, interface, and everyday behavior", locale: locale)
         case .theme:
-            return "Light, dark, and curated palette presets"
+            return localized("Light, dark, and curated palette presets", locale: locale)
         case .hotkeys:
-            return "Configure keyboard shortcuts for recording and note capture"
+            return localized("Configure keyboard shortcuts for recording and note capture", locale: locale)
         case .ai:
-            return "Providers, prompts, and vibe mode controls"
+            return localized("Providers, prompts, and vibe mode controls", locale: locale)
         case .update:
-            return "Automatic updates and manual update checks"
+            return localized("Automatic updates and manual update checks", locale: locale)
         case .about:
-            return "App info, acknowledgments, support, and logs"
+            return localized("App info, acknowledgments, support, and logs", locale: locale)
         }
     }
 
@@ -105,12 +120,14 @@ struct SettingsWindow: View {
             minWidth: AppTheme.Window.settingsMinWidth,
             minHeight: AppTheme.Window.settingsMinHeight
         )
+        .environment(\.locale, settings.selectedAppLanguage.locale)
         .themeRefresh()
     }
 }
 
 struct SettingsContainerView: View {
     @ObservedObject var settings: SettingsStore
+    @Environment(\.locale) private var locale
     @State private var selectedTab: SettingsTab
     @State private var searchText = ""
     @FocusState private var isSearchFieldFocused: Bool
@@ -169,11 +186,11 @@ struct SettingsContainerView: View {
                 tabsBar
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
-                    Text(selectedTab.rawValue)
+                    Text(selectedTab.title(locale: locale))
                         .font(AppTypography.headline)
                         .foregroundStyle(AppColors.textPrimary)
 
-                    Text(selectedTab.subtitle)
+                    Text(selectedTab.subtitle(locale: locale))
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -204,11 +221,11 @@ struct SettingsContainerView: View {
     private var fixedHeader: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                Text("Settings")
+                Text(localized("Settings", locale: locale))
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.textPrimary)
 
-                Text("Search settings or jump between sections without leaving the main workspace.")
+                Text(localized("Search settings or jump between sections without leaving the main workspace.", locale: locale))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -217,7 +234,7 @@ struct SettingsContainerView: View {
                 searchField
 
                 if !searchText.isEmpty {
-                    Text("\(filteredTabs.count) match\(filteredTabs.count == 1 ? "" : "es")")
+                    Text(matchCountText)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textTertiary)
                 }
@@ -245,7 +262,7 @@ struct SettingsContainerView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColors.textTertiary)
 
-            TextField("Search settings", text: $searchText)
+            TextField(localized("Search settings", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .focused($isSearchFieldFocused)
                 .accessibilityIdentifier("settings.search.field")
@@ -278,11 +295,11 @@ struct SettingsContainerView: View {
                 .foregroundStyle(AppColors.textTertiary)
 
             VStack(spacing: AppTheme.Spacing.xs) {
-                Text("No settings found")
+                Text(localized("No settings found", locale: locale))
                     .font(AppTypography.title)
                     .foregroundStyle(AppColors.textPrimary)
 
-                Text("Try searching for terms like hotkeys, microphone, updates, or vibe mode.")
+                Text(localized("Try searching for terms like hotkeys, microphone, updates, or vibe mode.", locale: locale))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
                     .multilineTextAlignment(.center)
@@ -295,6 +312,7 @@ struct SettingsContainerView: View {
 }
 
 private struct SettingsTabChip: View {
+    @Environment(\.locale) private var locale
     let tab: SettingsTab
     let isSelected: Bool
     let action: () -> Void
@@ -305,7 +323,7 @@ private struct SettingsTabChip: View {
                 Image(systemName: tab.systemIcon)
                     .font(.system(size: 13, weight: .semibold))
 
-                Text(tab.rawValue)
+                Text(tab.title(locale: locale))
                     .font(AppTypography.subheadline)
                     .lineLimit(1)
             }
@@ -323,6 +341,13 @@ private struct SettingsTabChip: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(tab.accessibilityIdentifier)
+    }
+}
+
+private extension SettingsContainerView {
+    var matchCountText: String {
+        let format = filteredTabs.count == 1 ? localized("%d match", locale: locale) : localized("%d matches", locale: locale)
+        return String(format: format, filteredTabs.count)
     }
 }
 

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct HistoryView: View {
     private static let topListPadding: CGFloat = 12
@@ -18,6 +19,8 @@ struct HistoryView: View {
         formatter.dateFormat = "MMMM d, yyyy"
         return formatter
     }()
+    
+    @Environment(\.locale) private var locale
 
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
@@ -86,11 +89,11 @@ struct HistoryView: View {
         VStack(spacing: AppTheme.Spacing.lg) {
             HStack {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text("History")
+                    Text(localized("History", locale: locale))
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
                     
-                    Text("\(totalTranscriptionsCount) transcriptions")
+                    Text("\(totalTranscriptionsCount) \(localized("transcriptions", locale: locale))")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -114,7 +117,7 @@ struct HistoryView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColors.textTertiary)
             
-            TextField("Search transcriptions...", text: $searchText)
+            TextField(localized("Search transcriptions...", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
             
@@ -144,24 +147,24 @@ struct HistoryView: View {
             Button {
                 exportToPlainText()
             } label: {
-                Label("Export as Plain Text", systemImage: "doc.text")
+                Label(localized("Export as Plain Text", locale: locale), systemImage: "doc.text")
             }
             
             Button {
                 exportToJSON()
             } label: {
-                Label("Export as JSON", systemImage: "curlybraces")
+                Label(localized("Export as JSON", locale: locale), systemImage: "curlybraces")
             }
             
             Button {
                 exportToCSV()
             } label: {
-                Label("Export as CSV", systemImage: "tablecells")
+                Label(localized("Export as CSV", locale: locale), systemImage: "tablecells")
             }
         } label: {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "square.and.arrow.up")
-                Text("Export")
+                Text(localized("Export", locale: locale))
             }
             .font(AppTypography.subheadline)
             .padding(.horizontal, AppTheme.Spacing.md)
@@ -191,7 +194,7 @@ struct HistoryView: View {
             ProgressView()
                 .controlSize(.large)
 
-            Text("Loading history...")
+            Text(localized("Loading history...", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
         }
@@ -204,7 +207,7 @@ struct HistoryView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.warning)
             
-            Text("Something went wrong")
+            Text(localized("Something went wrong", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
@@ -213,7 +216,7 @@ struct HistoryView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
             
-            Button("Dismiss") {
+            Button(localized("Dismiss", locale: locale)) {
                 self.errorMessage = nil
             }
             .buttonStyle(.borderedProminent)
@@ -227,13 +230,15 @@ struct HistoryView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(searchText.isEmpty ? "No transcriptions yet" : "No results found")
+            Text(searchText.isEmpty
+                 ? localized("No transcriptions yet", locale: locale)
+                 : localized("No results found", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
             Text(searchText.isEmpty
-                 ? "Start recording to see your transcriptions here"
-                 : "Try a different search term")
+                 ? localized("Start recording to see your transcriptions here", locale: locale)
+                 : localized("Try a different search term", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
         }
@@ -364,7 +369,7 @@ struct HistoryView: View {
         } catch is CancellationError {
             return
         } catch {
-            errorMessage = "Failed to load history: \(error.localizedDescription)"
+            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             isLoadingPage = false
             hasLoadedInitialPage = true
             hasMorePages = false
@@ -395,7 +400,7 @@ struct HistoryView: View {
             nextFetchOffset += page.count
             hasMorePages = nextFetchOffset < totalTranscriptionsCount && !page.isEmpty
         } catch {
-            errorMessage = "Failed to load history: \(error.localizedDescription)"
+            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             hasMorePages = false
         }
     }
@@ -430,7 +435,7 @@ struct HistoryView: View {
                 self.selectedRecord = nil
             }
         } catch {
-            errorMessage = "Failed to load history: \(error.localizedDescription)"
+            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
     
@@ -440,7 +445,7 @@ struct HistoryView: View {
                 let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
                 try historyStore.exportToPlainText(records: records)
             } catch {
-                errorMessage = "Export failed: \(error.localizedDescription)"
+                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -451,7 +456,7 @@ struct HistoryView: View {
                 let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
                 try historyStore.exportToJSON(records: records)
             } catch {
-                errorMessage = "Export failed: \(error.localizedDescription)"
+                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -462,7 +467,7 @@ struct HistoryView: View {
                 let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
                 try historyStore.exportToCSV(records: records)
             } catch {
-                errorMessage = "Export failed: \(error.localizedDescription)"
+                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -482,6 +487,7 @@ struct HistoryTranscriptionRow: View {
     var onTap: () -> Void = {}
     
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
 
@@ -539,7 +545,7 @@ struct HistoryTranscriptionRow: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                             if hasOriginalText {
-                                Text("Enhanced")
+                                Text(localized("Enhanced", locale: locale))
                                     .font(AppTypography.tiny)
                                     .fontWeight(.medium)
                                     .foregroundStyle(AppColors.accent)
@@ -563,7 +569,7 @@ struct HistoryTranscriptionRow: View {
 
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                                    Text("Original")
+                                    Text(localized("Original", locale: locale))
                                         .font(AppTypography.tiny)
                                         .fontWeight(.medium)
                                         .foregroundStyle(AppColors.textSecondary)
@@ -586,7 +592,7 @@ struct HistoryTranscriptionRow: View {
                         metadataItem(icon: "cpu", text: record.modelUsed)
 
                         if let enhancedWith = record.enhancedWith {
-                            metadataItem(icon: "sparkles", text: "via \(enhancedWith)")
+                            metadataItem(icon: "sparkles", text: localized("via %@", locale: locale).replacingOccurrences(of: "%@", with: enhancedWith))
                         }
                     }
                 }
@@ -617,7 +623,7 @@ struct HistoryTranscriptionRow: View {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(record.text, forType: .string)
             } label: {
-                Label("Copy Enhanced", systemImage: "doc.on.doc")
+                Label(localized("Copy Enhanced", locale: locale), systemImage: "doc.on.doc")
             }
 
             if let originalText = record.originalText {
@@ -625,7 +631,7 @@ struct HistoryTranscriptionRow: View {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(originalText, forType: .string)
                 } label: {
-                    Label("Copy Original", systemImage: "doc.on.doc")
+                    Label(localized("Copy Original", locale: locale), systemImage: "doc.on.doc")
                 }
             }
             
@@ -634,7 +640,7 @@ struct HistoryTranscriptionRow: View {
             Button {
                 saveAsNote()
             } label: {
-                Label("Save as Note", systemImage: "note.text")
+                Label(localized("Save as Note", locale: locale), systemImage: "note.text")
             }
         }
         .overlay(
@@ -662,7 +668,7 @@ struct HistoryTranscriptionRow: View {
             HStack(spacing: AppTheme.Spacing.sm) {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.white)
-                Text("Saved as Note")
+                Text(localized("Saved as Note", locale: locale))
                     .font(AppTypography.subheadline)
                     .foregroundStyle(.white)
             }

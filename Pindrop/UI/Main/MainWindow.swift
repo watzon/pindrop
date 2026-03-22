@@ -32,6 +32,10 @@ enum MainNavItem: String, Identifiable {
 
     var id: String { rawValue }
 
+    func title(locale: Locale) -> String {
+        localized(rawValue, locale: locale)
+    }
+
     var icon: String {
         switch self {
         case .home: return "house.fill"
@@ -106,11 +110,11 @@ final class TitlebarlessHostingController<Content: View>: NSHostingController<Co
 
 struct MainWindow: View {
     @ObservedObject private var theme = PindropThemeController.shared
+    @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
-    let settingsStore: SettingsStore?
     let onImportMediaFiles: (([URL]) -> Void)?
     let onSubmitMediaLink: ((String) -> Void)?
     let onDownloadDiarizationModel: (() -> Void)?
@@ -143,6 +147,7 @@ struct MainWindow: View {
             minWidth: AppTheme.Window.mainMinWidth,
             minHeight: AppTheme.Window.mainMinHeight
         )
+        .environment(\.locale, settingsStore.selectedAppLanguage.locale)
         .themeRefresh()
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
             if let rawValue = notification.userInfo?["navItem"] as? String,
@@ -206,7 +211,6 @@ struct MainWindow: View {
         case .transcribe:
             if let mediaTranscriptionState,
                let modelManager,
-               let settingsStore,
                let onImportMediaFiles,
                let onSubmitMediaLink,
                let onDownloadDiarizationModel {
@@ -223,8 +227,7 @@ struct MainWindow: View {
                 comingSoonView(for: selectedNav)
             }
         case .models:
-            if let modelManager,
-               let settingsStore {
+            if let modelManager {
                 ModelsSettingsView(settings: settingsStore, modelManager: modelManager)
             } else {
                 comingSoonView(for: selectedNav)
@@ -234,11 +237,7 @@ struct MainWindow: View {
         case .dictionary:
             DictionaryView()
         case .settings:
-            if let settingsStore {
-                SettingsContainerView(settings: settingsStore, initialTab: selectedSettingsTab)
-            } else {
-                comingSoonView(for: selectedNav)
-            }
+            SettingsContainerView(settings: settingsStore, initialTab: selectedSettingsTab)
         }
     }
     
@@ -248,7 +247,7 @@ struct MainWindow: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(item.rawValue)
+            Text(item.title(locale: settingsStore.selectedAppLanguage.locale))
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.textPrimary)
             
@@ -263,6 +262,7 @@ struct MainWindow: View {
 }
 
 private struct MainSidebar: View {
+    @Environment(\.locale) private var locale
     let selectedNav: MainNavItem
     let onSelect: (MainNavItem) -> Void
 
@@ -325,13 +325,13 @@ private struct MainSidebar: View {
                     .font(.system(size: 14, weight: .medium))
                     .frame(width: 20)
 
-                Text(item.rawValue)
+                Text(item.title(locale: locale))
                     .font(AppTypography.body)
 
                 Spacer()
 
                 if item.isComingSoon {
-                    Text("Soon")
+                    Text(localized("Soon", locale: locale))
                         .font(AppTypography.tiny)
                         .foregroundStyle(AppColors.textTertiary)
                         .padding(.horizontal, 6)
@@ -432,12 +432,16 @@ final class MainWindowController {
             Log.ui.error("ModelContainer not set - cannot show MainWindow")
             return
         }
+        guard let settingsStore else {
+            Log.ui.error("SettingsStore not set - cannot show MainWindow")
+            return
+        }
 
         if window == nil {
             let mainView = MainWindow(
+                settingsStore: settingsStore,
                 mediaTranscriptionState: mediaTranscriptionState,
                 modelManager: modelManager,
-                settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
                 onDownloadDiarizationModel: onDownloadDiarizationModel
@@ -524,9 +528,9 @@ final class MainWindowController {
 
 #Preview("Main Window - Light") {
     MainWindow(
+        settingsStore: SettingsStore(),
         mediaTranscriptionState: nil,
         modelManager: nil,
-        settingsStore: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
         onDownloadDiarizationModel: nil
@@ -538,9 +542,9 @@ final class MainWindowController {
 
 #Preview("Main Window - Dark") {
     MainWindow(
+        settingsStore: SettingsStore(),
         mediaTranscriptionState: nil,
         modelManager: nil,
-        settingsStore: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
         onDownloadDiarizationModel: nil

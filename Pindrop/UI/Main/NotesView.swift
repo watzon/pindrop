@@ -7,9 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct NotesView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     
     @Query(sort: \NoteSchema.Note.updatedAt, order: .reverse) private var notes: [NoteSchema.Note]
     
@@ -67,11 +69,11 @@ struct NotesView: View {
     private var fixedHeader: some View {
         HStack {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                Text("Notes")
+                Text(localized("Notes", locale: locale))
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("\(filteredNotes.count) notes")
+                Text("\(filteredNotes.count) \(localized("notes", locale: locale))")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -82,7 +84,7 @@ struct NotesView: View {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: sortOrder == .ascending ? "arrow.up" : "arrow.down")
                         .font(.system(size: 12))
-                    Text("Date \(sortOrder == .ascending ? "↑" : "↓")")
+                    Text("\(localized("Date", locale: locale)) \(sortOrder == .ascending ? "↑" : "↓")")
                         .font(AppTypography.subheadline)
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
@@ -97,13 +99,13 @@ struct NotesView: View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
                 style: AppColors.border
             )
-            .help("Toggle sort order")
+            .help(localized("Toggle sort order", locale: locale))
             
             Button(action: createNewNote) {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "plus")
                         .font(.system(size: 12, weight: .semibold))
-                    Text("New Note")
+                    Text(localized("New Note", locale: locale))
                         .font(AppTypography.subheadline)
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
@@ -120,7 +122,7 @@ struct NotesView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColors.textTertiary)
             
-            TextField("Search notes...", text: $searchText)
+            TextField(localized("Search notes...", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
             
@@ -164,7 +166,7 @@ struct NotesView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.warning)
             
-            Text("Something went wrong")
+            Text(localized("Something went wrong", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
@@ -173,7 +175,7 @@ struct NotesView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
             
-            Button("Dismiss") {
+            Button(localized("Dismiss", locale: locale)) {
                 self.errorMessage = nil
             }
             .buttonStyle(.borderedProminent)
@@ -187,18 +189,20 @@ struct NotesView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(searchText.isEmpty ? "No notes yet" : "No results found")
+            Text(searchText.isEmpty
+                 ? localized("No notes yet", locale: locale)
+                 : localized("No results found", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
             Text(searchText.isEmpty
-                 ? "Create your first note to get started"
-                 : "Try a different search term")
+                 ? localized("Create your first note to get started", locale: locale)
+                 : localized("Try a different search term", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
             
             if searchText.isEmpty {
-                Button("Create New Note") {
+                Button(localized("Create New Note", locale: locale)) {
                     createNewNote()
                 }
                 .buttonStyle(.borderedProminent)
@@ -269,7 +273,7 @@ struct NotesView: View {
                 selectedNote = nil
             }
         } catch {
-            errorMessage = "Failed to delete note: \(error.localizedDescription)"
+            errorMessage = localized("Failed to delete note: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
 }

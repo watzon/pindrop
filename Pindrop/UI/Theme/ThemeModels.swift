@@ -29,13 +29,17 @@ enum PindropThemeMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var title: String {
+        title(locale: .autoupdatingCurrent)
+    }
+
+    func title(locale: Locale) -> String {
         switch self {
         case .system:
-            return "System"
+            return localized("System", locale: locale)
         case .light:
-            return "Light"
+            return localized("Light", locale: locale)
         case .dark:
-            return "Dark"
+            return localized("Dark", locale: locale)
         }
     }
 

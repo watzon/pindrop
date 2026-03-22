@@ -7,6 +7,7 @@
 
 import AppKit
 import SwiftUI
+import Foundation
 
 public protocol SearchableDropdownItem: Identifiable {
    var displayName: String { get }
@@ -33,6 +34,7 @@ public struct SelectField: View {
    let options: [SelectFieldOption]
    let placeholder: String
    @Binding var selection: String
+   @Environment(\.locale) private var locale
    @State private var isOpen = false
    @State private var hoveredOptionID: String?
 
@@ -44,6 +46,10 @@ public struct SelectField: View {
       self.options = options
       self._selection = selection
       self.placeholder = placeholder
+   }
+
+   private var localizedPlaceholder: String {
+      localized(placeholder, locale: locale)
    }
 
    public var body: some View {
@@ -86,7 +92,7 @@ public struct SelectField: View {
    }
 
    private var selectedLabel: String {
-      options.first(where: { $0.id == selection })?.displayName ?? placeholder
+      options.first(where: { $0.id == selection })?.displayName ?? localizedPlaceholder
    }
 
    private var dropdown: some View {
@@ -197,31 +203,40 @@ extension View {
 }
 
 public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.ID == String {
-   let items: [Item]
-   let placeholder: String
-   let emptyMessage: String
-   let searchPlaceholder: String
-   @Binding var selection: Item.ID?
+    let items: [Item]
+    let placeholder: String
+    let emptyMessage: String
+    let searchPlaceholder: String
+    @Binding var selection: Item.ID?
 
-   @FocusState private var isFieldFocused: Bool
-   @State private var query = ""
-   @State private var isOpen = false
-   @State private var closeTask: Task<Void, Never>?
-   @State private var hoveredItemID: Item.ID?
+    @Environment(\.locale) private var locale
+    @FocusState private var isFieldFocused: Bool
+    @State private var query = ""
+    @State private var isOpen = false
+    @State private var closeTask: Task<Void, Never>?
+    @State private var hoveredItemID: Item.ID?
 
-   public init(
-      items: [Item],
-      selection: Binding<Item.ID?>,
-      placeholder: String = "Select an item",
-      emptyMessage: String = "No items found.",
-      searchPlaceholder: String = "Search..."
-   ) {
-      self.items = items
-      self._selection = selection
-      self.placeholder = placeholder
-      self.emptyMessage = emptyMessage
-      self.searchPlaceholder = searchPlaceholder
-   }
+    public init(
+       items: [Item],
+       selection: Binding<Item.ID?>,
+       placeholder: String = "Select an item",
+       emptyMessage: String = "No items found.",
+       searchPlaceholder: String = "Search..."
+    ) {
+       self.items = items
+       self._selection = selection
+       self.placeholder = placeholder
+       self.emptyMessage = emptyMessage
+       self.searchPlaceholder = searchPlaceholder
+    }
+
+    private var localizedEmptyMessage: String {
+        localized(emptyMessage, locale: locale)
+    }
+
+    private var localizedSearchPlaceholder: String {
+        localized(searchPlaceholder, locale: locale)
+    }
 
    public var body: some View {
       field
@@ -261,11 +276,11 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
 
    private var field: some View {
       HStack(spacing: 8) {
-         TextField(
-            query.isEmpty ? placeholder : searchPlaceholder,
-            text: $query,
-            prompt: Text(placeholder).foregroundStyle(AppColors.textSecondary)
-         )
+          TextField(
+             query.isEmpty ? placeholder : localizedSearchPlaceholder,
+             text: $query,
+             prompt: Text(placeholder).foregroundStyle(AppColors.textSecondary)
+          )
          .textFieldStyle(.plain)
          .focused($isFieldFocused)
          .onTapGesture {
@@ -297,10 +312,10 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
 
    private var dropdown: some View {
       VStack(spacing: 0) {
-         if filteredItems.isEmpty {
-            Text(emptyMessage)
-               .font(.body)
-               .foregroundStyle(AppColors.textSecondary)
+          if filteredItems.isEmpty {
+             Text(localizedEmptyMessage)
+                .font(.body)
+                .foregroundStyle(AppColors.textSecondary)
                .frame(
                   maxWidth: .infinity,
                   minHeight: AISettingsFieldStyle.minHeight,

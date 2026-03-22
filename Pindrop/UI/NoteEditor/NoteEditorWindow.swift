@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import AppKit
 import Combine
+import Foundation
 
 @MainActor
 final class NoteEditorWindowController: NSObject, NSWindowDelegate {
@@ -65,7 +66,8 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         let hostingController = NSHostingController(rootView: AnyView(contentView))
         
         let window = NSWindow(contentViewController: hostingController)
-        window.title = isNewNote ? "New Note" : (note?.title ?? "Note")
+        let locale = SettingsStore().selectedAppLanguage.locale
+        window.title = isNewNote ? localized("New Note", locale: locale) : (note?.title ?? localized("Note", locale: locale))
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.titleVisibility = .visible
         window.titlebarAppearsTransparent = false
@@ -123,6 +125,7 @@ struct NoteEditorView: View {
     @State private var newTag: String = ""
     @State private var currentNote: NoteSchema.Note?
     
+    @Environment(\.locale) private var locale
     @FocusState private var titleFieldFocused: Bool
     @FocusState private var contentFieldFocused: Bool
     
@@ -174,7 +177,7 @@ struct NoteEditorView: View {
     private var headerView: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             HStack(spacing: AppTheme.Spacing.md) {
-                TextField("Note Title", text: $title)
+                TextField(localized("Note Title", locale: locale), text: $title)
                     .font(AppTypography.title)
                     .foregroundStyle(AppColors.textPrimary)
                     .textFieldStyle(.plain)
@@ -191,7 +194,7 @@ struct NoteEditorView: View {
                         .foregroundStyle(isPinned ? AppColors.accent : AppColors.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help(isPinned ? "Unpin from screen" : "Pin to screen (always on top)")
+                .help(isPinned ? localized("Unpin from screen", locale: locale) : localized("Pin to screen (always on top)", locale: locale))
             }
             
             tagsRow
@@ -213,7 +216,7 @@ struct NoteEditorView: View {
                         TagChip(tag: tag, onRemove: { removeTag(tag) })
                     }
                     
-                    TextField("Add tag...", text: $newTag)
+                    TextField(localized("Add tag...", locale: locale), text: $newTag)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
                         .textFieldStyle(.plain)

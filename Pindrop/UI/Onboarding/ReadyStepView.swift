@@ -12,36 +12,37 @@ struct ReadyStepView: View {
     var modelManager: ModelManager
     let selectedModelName: String
     let onComplete: () -> Void
-    
+
+    @Environment(\.locale) private var locale
     @State private var showConfetti = false
-    
+
     private var selectedModel: ModelManager.WhisperModel? {
         modelManager.availableModels.first { $0.name == selectedModelName }
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
-            
+
             successIcon
-            
+
             VStack(spacing: 8) {
-                Text("You're All Set!")
+                Text(localized("You're All Set!", locale: locale))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                
-                Text("Pindrop is ready to use.\nClick the menu bar icon to get started.")
+
+                Text(localized("Pindrop is ready to use.\nClick the menu bar icon to get started.", locale: locale))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
-            
+
             summarySection
-            
+
             Spacer()
-            
+
             Button(action: onComplete) {
                 HStack {
-                    Text("Start Using Pindrop")
+                    Text(localized("Start Using Pindrop", locale: locale))
                     IconView(icon: .arrowRight, size: 16)
                 }
                 .font(.headline)
@@ -49,7 +50,7 @@ struct ReadyStepView: View {
                 .padding(.vertical, 14)
             }
             .buttonStyle(.borderedProminent)
-            
+
             Spacer()
         }
         .padding(40)
@@ -59,7 +60,7 @@ struct ReadyStepView: View {
             }
         }
     }
-    
+
     private var successIcon: some View {
         ZStack {
             Circle()
@@ -71,7 +72,7 @@ struct ReadyStepView: View {
                     )
                 )
                 .frame(width: 100, height: 100)
-            
+
             IconView(icon: .check, size: 48)
                 .foregroundStyle(.white)
         }
@@ -80,28 +81,28 @@ struct ReadyStepView: View {
         .scaleEffect(showConfetti ? 1.0 : 0.5)
         .opacity(showConfetti ? 1.0 : 0)
     }
-    
+
     private var summarySection: some View {
         VStack(spacing: 12) {
-            summaryRow(icon: .cpu, label: "Model", value: selectedModel?.displayName ?? "Base")
-            summaryRow(icon: .keyboard, label: "Toggle", value: settings.toggleHotkey.isEmpty ? "Not set" : settings.toggleHotkey)
-            summaryRow(icon: .sparkles, label: "AI Enhancement", value: settings.aiEnhancementEnabled ? "Enabled" : "Disabled")
+            summaryRow(icon: .cpu, label: localized("Model", locale: locale), value: selectedModel?.displayName ?? localized("Base", locale: locale))
+            summaryRow(icon: .keyboard, label: localized("Toggle", locale: locale), value: settings.toggleHotkey.isEmpty ? localized("Not set", locale: locale) : settings.toggleHotkey)
+            summaryRow(icon: .sparkles, label: localized("AI Enhancement", locale: locale), value: settings.aiEnhancementEnabled ? localized("Enabled", locale: locale) : localized("Disabled", locale: locale))
         }
         .padding(20)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
     }
-    
+
     private func summaryRow(icon: Icon, label: String, value: String) -> some View {
         HStack {
             IconView(icon: icon, size: 16)
                 .foregroundStyle(AppColors.accent)
                 .frame(width: 24)
-            
+
             Text(label)
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
+
             Text(value)
                 .fontWeight(.medium)
         }

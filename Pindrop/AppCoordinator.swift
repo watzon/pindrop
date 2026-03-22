@@ -3273,6 +3273,8 @@ final class AppCoordinator {
 
     private func handleSelectLanguage(_ language: AppLanguage) {
         settingsStore.selectedAppLanguage = language
+        statusBarController.reloadLocalizedStrings()
+        pillFloatingIndicatorController.reloadLocalizedStrings()
         Log.ui.info("Selected app language: \(language.rawValue)")
     }
 

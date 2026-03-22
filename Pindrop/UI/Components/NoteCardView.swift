@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct NoteCardView: View {
     let note: NoteSchema.Note
@@ -14,6 +15,7 @@ struct NoteCardView: View {
     let onOpen: () -> Void
     let onDelete: () -> Void
     
+    @Environment(\.locale) private var locale
     @State private var isHovered = false
     
     var body: some View {
@@ -97,13 +99,13 @@ struct NoteCardView: View {
         }
         .contextMenu {
             Button(action: onOpen) {
-                Label("Open", systemImage: "arrow.up.right.square")
+                Label(localized("Open", locale: locale), systemImage: "arrow.up.right.square")
             }
             
             Divider()
             
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label(localized("Delete", locale: locale), systemImage: "trash")
             }
         }
     }

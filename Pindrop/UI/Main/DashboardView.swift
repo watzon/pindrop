@@ -10,6 +10,7 @@ import SwiftData
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @State private var hasDismissedHotkeyReminder: Bool
     
@@ -86,7 +87,7 @@ struct DashboardView: View {
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("Ready to transcribe")
+                Text(localized("Ready to transcribe", locale: locale))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -95,9 +96,9 @@ struct DashboardView: View {
             
             // Quick stats badges
             HStack(spacing: AppTheme.Spacing.lg) {
-                statBadge(icon: "waveform", value: "\(totalSessions)", label: "sessions")
-                statBadge(icon: "text.word.spacing", value: formatNumber(totalWords), label: "words")
-                statBadge(icon: "gauge.with.needle", value: String(format: "%.0f", averageWPM), label: "WPM")
+                statBadge(icon: "waveform", value: "\(totalSessions)", label: localized("sessions", locale: locale))
+                statBadge(icon: "text.word.spacing", value: formatNumber(totalWords), label: localized("words", locale: locale))
+                statBadge(icon: "gauge.with.needle", value: String(format: "%.0f", averageWPM), label: localized("WPM", locale: locale))
             }
         }
     }
@@ -105,10 +106,10 @@ struct DashboardView: View {
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "Good morning"
-        case 12..<17: return "Good afternoon"
-        case 17..<22: return "Good evening"
-        default: return "Good night"
+        case 5..<12: return localized("Good morning", locale: locale)
+        case 12..<17: return localized("Good afternoon", locale: locale)
+        case 17..<22: return localized("Good evening", locale: locale)
+        default: return localized("Good night", locale: locale)
         }
     }
     
@@ -145,7 +146,7 @@ struct DashboardView: View {
                         KeyCapView(text: "Space")
                     }
                     
-                    Text("to dictate and let Pindrop transcribe for you")
+                    Text(localized("to dictate and let Pindrop transcribe for you", locale: locale))
                         .font(AppTypography.headline)
                         .foregroundStyle(AppColors.textPrimary)
                 }
@@ -164,11 +165,11 @@ struct DashboardView: View {
                         .foregroundStyle(AppColors.textTertiary)
                 }
                 .buttonStyle(.plain)
-                .help("Dismiss")
+                .help(localized("Dismiss", locale: locale))
             }
             
             // Description
-            Text("Press and hold to dictate in any app. Pindrop will transcribe your speech and insert the text where your cursor is.")
+            Text(localized("Press and hold to dictate in any app. Pindrop will transcribe your speech and insert the text where your cursor is.", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
                 .lineLimit(2)
@@ -177,7 +178,7 @@ struct DashboardView: View {
             Button {
                 onOpenHotkeys?()
             } label: {
-                Text("Customize hotkey")
+                Text(localized("Customize hotkey", locale: locale))
                     .font(AppTypography.subheadline)
             }
             .buttonStyle(.borderedProminent)
@@ -193,7 +194,7 @@ struct DashboardView: View {
     
     private var statsSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-            Text("Your Stats")
+            Text(localized("Your Stats", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
@@ -206,33 +207,33 @@ struct DashboardView: View {
                 StatCard(
                     icon: "mic.fill",
                     iconColor: AppColors.recording,
-                    title: "Sessions",
+                    title: localized("Sessions", locale: locale),
                     value: "\(totalSessions)",
-                    subtitle: "recordings"
+                    subtitle: localized("recordings", locale: locale)
                 )
                 
                 StatCard(
                     icon: "text.word.spacing",
                     iconColor: AppColors.accent,
-                    title: "Words",
+                    title: localized("Words", locale: locale),
                     value: formatNumber(totalWords),
-                    subtitle: "transcribed"
+                    subtitle: localized("transcribed", locale: locale)
                 )
                 
                 StatCard(
                     icon: "clock.fill",
                     iconColor: AppColors.processing,
-                    title: "Time Saved",
+                    title: localized("Time Saved", locale: locale),
                     value: formatTimeSaved(totalWords),
-                    subtitle: "vs typing"
+                    subtitle: localized("vs typing", locale: locale)
                 )
                 
                 StatCard(
                     icon: "gauge.with.needle",
                     iconColor: .green,
-                    title: "Avg Speed",
+                    title: localized("Avg Speed", locale: locale),
                     value: String(format: "%.0f", averageWPM),
-                    subtitle: "words/min"
+                    subtitle: localized("words/min", locale: locale)
                 )
             }
         }
@@ -243,14 +244,14 @@ struct DashboardView: View {
     private var recentSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             HStack {
-                Text("Recent Transcriptions")
+                Text(localized("Recent Transcriptions", locale: locale))
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.textPrimary)
                 
                 Spacer()
                 
                 if !transcriptions.isEmpty {
-                    Button("View all") {
+                    Button(localized("View all", locale: locale)) {
                         onViewAllHistory?()
                     }
                     .font(AppTypography.caption)
@@ -273,11 +274,11 @@ struct DashboardView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text("No transcriptions yet")
+            Text(localized("No transcriptions yet", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
             
-            Text("Use the hotkey to start your first recording")
+            Text(localized("Use the hotkey to start your first recording", locale: locale))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textTertiary)
         }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FloatingIndicatorSettingsCard: View {
     @ObservedObject var settings: SettingsStore
+    @Environment(\.locale) private var locale
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -23,14 +24,14 @@ struct FloatingIndicatorSettingsCard: View {
     }
 
     var body: some View {
-        SettingsCard(title: "Floating Indicator", icon: "waveform.path.ecg") {
+        SettingsCard(title: localized("Floating Indicator", locale: locale), icon: "waveform.path.ecg") {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Show floating indicator")
+                        Text(localized("Show floating indicator", locale: locale))
                             .font(AppTypography.body)
                             .foregroundStyle(AppColors.textPrimary)
-                        Text("Shows recording state in a lightweight overlay window.")
+                        Text(localized("Shows recording state in a lightweight overlay window.", locale: locale))
                             .font(AppTypography.caption)
                             .foregroundStyle(AppColors.textSecondary)
                     }
@@ -42,7 +43,7 @@ struct FloatingIndicatorSettingsCard: View {
                         .labelsHidden()
                 }
 
-                Text("Choose which floating indicator style appears when the overlay is enabled.")
+                Text(localized("Choose which floating indicator style appears when the overlay is enabled.", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
 
@@ -64,6 +65,7 @@ struct FloatingIndicatorSettingsCard: View {
 }
 
 private struct FloatingIndicatorOptionCard: View {
+    @Environment(\.locale) private var locale
     let type: FloatingIndicatorType
     let isSelected: Bool
     let isEnabled: Bool
@@ -101,8 +103,8 @@ private struct FloatingIndicatorOptionCard: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(type.displayName) floating indicator")
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint(isEnabled ? "Select this floating indicator style." : "Enable the floating indicator to choose a style.")
+        .accessibilityValue(isSelected ? localized("Selected", locale: locale) : localized("Not selected", locale: locale))
+        .accessibilityHint(isEnabled ? localized("Select this floating indicator style.", locale: locale) : localized("Enable the floating indicator to choose a style.", locale: locale))
     }
 
     private var background: some View {

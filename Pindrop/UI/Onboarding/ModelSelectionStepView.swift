@@ -11,11 +11,13 @@ struct ModelSelectionStepView: View {
     var modelManager: ModelManager
     @Binding var selectedModelName: String
     let onContinue: () -> Void
-    
+
+    @Environment(\.locale) private var locale
+
     var body: some View {
         VStack(spacing: 24) {
             headerSection
-            
+
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(modelManager.availableModels.filter { $0.availability == .available }) { model in
@@ -30,29 +32,31 @@ struct ModelSelectionStepView: View {
                 }
                 .padding(.horizontal, 40)
             }
-            
+
             continueButton
         }
         .padding(.vertical, 24)
     }
-    
+
     private var headerSection: some View {
         VStack(spacing: 8) {
-            Text("Choose a Model")
+            Text(localized("Choose a Model", locale: locale))
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-            
-            Text("Smaller models are faster but less accurate.\nStart with Base for the best balance.")
+
+            Text(localized("Smaller models are faster but less accurate.\nStart with Base for the best balance.", locale: locale))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 40)
     }
-    
+
     private var continueButton: some View {
         Button(action: onContinue) {
             HStack {
-                Text(modelManager.isModelDownloaded(selectedModelName) ? "Continue" : "Download & Continue")
+                Text(modelManager.isModelDownloaded(selectedModelName)
+                    ? localized("Continue", locale: locale)
+                    : localized("Download & Continue", locale: locale))
                 if !modelManager.isModelDownloaded(selectedModelName) {
                     IconView(icon: .download, size: 16)
                 }
@@ -67,24 +71,26 @@ struct ModelSelectionStepView: View {
 }
 
 struct ModelCard: View {
+    @Environment(\.locale) private var locale
+
     let model: ModelManager.WhisperModel
     let isSelected: Bool
     let isDownloaded: Bool
     let isRecommended: Bool
     let onSelect: () -> Void
-    
+
     var body: some View {
         Button(action: onSelect) {
             HStack(spacing: 16) {
                 selectionIndicator
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
                         Text(model.displayName)
                             .font(.headline)
-                        
+
                         if isRecommended {
-                            Text("Recommended")
+                            Text(localized("Recommended", locale: locale))
                                 .font(.caption)
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 8)
@@ -93,13 +99,13 @@ struct ModelCard: View {
                                 .foregroundStyle(AppColors.accent)
                                 .clipShape(.capsule)
                         }
-                        
+
                         if isDownloaded {
                             IconView(icon: .circleCheck, size: 14)
                                 .foregroundStyle(.green)
                         }
                     }
-                    
+
                     HStack(spacing: 16) {
                         HStack(spacing: 4) {
                             IconView(icon: .hardDrive, size: 12)
@@ -117,7 +123,7 @@ struct ModelCard: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
             }
             .padding(16)
@@ -138,13 +144,13 @@ struct ModelCard: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     private var selectionIndicator: some View {
         ZStack {
             Circle()
                 .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
                 .frame(width: 22, height: 22)
-            
+
             if isSelected {
                 Circle()
                     .fill(AppColors.accent)
@@ -152,31 +158,31 @@ struct ModelCard: View {
             }
         }
     }
-    
+
     private func formatSize(_ mb: Int) -> String {
         if mb >= 1000 {
             return String(format: "%.1f GB", Double(mb) / 1000.0)
         }
         return "\(mb) MB"
     }
-    
+
     private func speedLabel(for sizeMB: Int) -> String {
         switch sizeMB {
-        case 0..<100: return "Very Fast"
-        case 100..<300: return "Fast"
-        case 300..<600: return "Medium"
-        case 600..<1500: return "Slower"
-        default: return "Slowest"
+        case 0..<100: return localized("Very Fast", locale: locale)
+        case 100..<300: return localized("Fast", locale: locale)
+        case 300..<600: return localized("Medium", locale: locale)
+        case 600..<1500: return localized("Slower", locale: locale)
+        default: return localized("Slowest", locale: locale)
         }
     }
-    
+
     private func accuracyLabel(for sizeMB: Int) -> String {
         switch sizeMB {
-        case 0..<100: return "Good"
-        case 100..<300: return "Better"
-        case 300..<600: return "Great"
-        case 600..<1500: return "Excellent"
-        default: return "Best"
+        case 0..<100: return localized("Good", locale: locale)
+        case 100..<300: return localized("Better", locale: locale)
+        case 300..<600: return localized("Great", locale: locale)
+        case 600..<1500: return localized("Excellent", locale: locale)
+        default: return localized("Best", locale: locale)
         }
     }
 }

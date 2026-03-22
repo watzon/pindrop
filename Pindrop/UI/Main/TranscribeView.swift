@@ -8,6 +8,7 @@
 import AVFoundation
 import AVKit
 import AppKit
+import Foundation
 import Observation
 import SwiftData
 import SwiftUI
@@ -15,6 +16,7 @@ import UniformTypeIdentifiers
 
 struct TranscribeView: View {
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.locale) private var locale
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @Query private var mediaFolders: [MediaFolder]
@@ -75,11 +77,17 @@ struct TranscribeView: View {
 
     private var totalLibraryCountText: String {
         if let selectedFolder {
-            return "\(visibleMediaRecords.count) items in \(selectedFolder.name)"
+            return localized("%d items in %@", locale: locale)
+                .replacingOccurrences(of: "%d", with: "\(visibleMediaRecords.count)")
+                .replacingOccurrences(of: "%@", with: selectedFolder.name)
         }
 
-        let folderCountLabel = visibleFolders.count == 1 ? "1 folder" : "\(visibleFolders.count) folders"
-        let transcriptCountLabel = visibleMediaRecords.count == 1 ? "1 transcription" : "\(visibleMediaRecords.count) transcriptions"
+        let folderCountLabel = visibleFolders.count == 1
+            ? localized("1 folder", locale: locale)
+            : localized("%d folders", locale: locale).replacingOccurrences(of: "%d", with: "\(visibleFolders.count)")
+        let transcriptCountLabel = visibleMediaRecords.count == 1
+            ? localized("1 transcription", locale: locale)
+            : localized("%d transcriptions", locale: locale).replacingOccurrences(of: "%d", with: "\(visibleMediaRecords.count)")
         return "\(folderCountLabel) • \(transcriptCountLabel)"
     }
 
@@ -111,7 +119,7 @@ struct TranscribeView: View {
             prefillClipboardLinkIfNeeded()
         }
         .confirmationDialog(
-            "Delete transcription?",
+            localized("Delete transcription?", locale: locale),
             isPresented: Binding(
                 get: { pendingDeletionRecord != nil },
                 set: { isPresented in
@@ -122,17 +130,17 @@ struct TranscribeView: View {
             ),
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
+            Button(localized("Delete", locale: locale), role: .destructive) {
                 confirmDeletePendingRecord()
             }
-            Button("Cancel", role: .cancel) {
+            Button(localized("Cancel", locale: locale), role: .cancel) {
                 pendingDeletionRecord = nil
             }
         } message: {
-            Text("This will permanently remove the transcript and its managed media file.")
+            Text(localized("This will permanently remove the transcript and its managed media file.", locale: locale))
         }
         .confirmationDialog(
-            "Delete folder?",
+            localized("Delete folder?", locale: locale),
             isPresented: Binding(
                 get: { pendingDeletionFolder != nil },
                 set: { isPresented in
@@ -143,17 +151,17 @@ struct TranscribeView: View {
             ),
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
+            Button(localized("Delete", locale: locale), role: .destructive) {
                 confirmDeletePendingFolder()
             }
-            Button("Cancel", role: .cancel) {
+            Button(localized("Cancel", locale: locale), role: .cancel) {
                 pendingDeletionFolder = nil
             }
         } message: {
-            Text("Transcriptions in this folder will be kept and moved back to the library.")
+            Text(localized("Transcriptions in this folder will be kept and moved back to the library.", locale: locale))
         }
         .alert(
-            "Unable to update media library",
+            localized("Unable to update media library", locale: locale),
             isPresented: Binding(
                 get: { errorMessage != nil },
                 set: { isPresented in
@@ -163,7 +171,7 @@ struct TranscribeView: View {
                 }
             ),
             actions: {
-                Button("OK", role: .cancel) {
+                Button(localized("OK", locale: locale), role: .cancel) {
                     errorMessage = nil
                 }
             },
@@ -220,11 +228,11 @@ struct TranscribeView: View {
     private var header: some View {
         HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                Text("Transcribe Media")
+                Text(localized("Transcribe Media", locale: locale))
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.textPrimary)
 
-                Text("Drop a file or paste a link to create a diarized, timestamped transcript.")
+                Text(localized("Drop a file or paste a link to create a diarized, timestamped transcript.", locale: locale))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -232,7 +240,7 @@ struct TranscribeView: View {
             Spacer(minLength: AppTheme.Spacing.lg)
 
             if let onOpenModels {
-                Button("Manage models") {
+                Button(localized("Manage models", locale: locale)) {
                     onOpenModels()
                 }
                 .buttonStyle(.bordered)
@@ -252,11 +260,11 @@ struct TranscribeView: View {
                         .foregroundStyle(AppColors.accent)
 
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                        Text("Speaker diarization is required")
+                        Text(localized("Speaker diarization is required", locale: locale))
                             .font(AppTypography.headline)
                             .foregroundStyle(AppColors.textPrimary)
 
-                        Text("Download the diarization model before starting media transcription.")
+                        Text(localized("Download the diarization model before starting media transcription.", locale: locale))
                             .font(AppTypography.body)
                             .foregroundStyle(AppColors.textSecondary)
                     }
@@ -267,7 +275,7 @@ struct TranscribeView: View {
                         ProgressView(value: modelManager.featureDownloadProgress)
                             .frame(width: 120)
                     } else {
-                        Button("Download model") {
+                        Button(localized("Download model", locale: locale)) {
                             onDownloadDiarizationModel()
                         }
                         .buttonStyle(.borderedProminent)
@@ -275,7 +283,7 @@ struct TranscribeView: View {
                 }
 
                 if modelManager.currentDownloadingFeature == .diarization {
-                    Text("\(Int(modelManager.featureDownloadProgress * 100))% complete")
+                    Text(localized("%complete", locale: locale).replacingOccurrences(of: "%complete", with: "\(Int(modelManager.featureDownloadProgress * 100))% complete"))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -292,23 +300,23 @@ struct TranscribeView: View {
                     .font(.system(size: 34))
                     .foregroundStyle(isTargeted ? AppColors.accent : AppColors.textTertiary)
 
-                Text("Drop audio or video here")
+                Text(localized("Drop audio or video here", locale: locale))
                     .font(AppTypography.title)
                     .foregroundStyle(AppColors.textPrimary)
 
-                Text("Supports local media files and web links resolved with yt-dlp.")
+                Text(localized("Supports local media files and web links resolved with yt-dlp.", locale: locale))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
                     .multilineTextAlignment(.center)
             }
 
             HStack(spacing: AppTheme.Spacing.md) {
-                Button("Choose file") {
+                Button(localized("Choose file", locale: locale)) {
                     importFilesViaOpenPanel()
                 }
                 .buttonStyle(.borderedProminent)
 
-                Text("or")
+                Text(localized("or", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textTertiary)
 
@@ -316,14 +324,14 @@ struct TranscribeView: View {
                     Image(systemName: "link")
                         .foregroundStyle(AppColors.textTertiary)
 
-                    TextField("Paste a video or audio link", text: $featureState.draftLink)
+                    TextField(localized("Paste a video or audio link", locale: locale), text: $featureState.draftLink)
                         .textFieldStyle(.plain)
                         .font(AppTypography.body)
                         .onChange(of: featureState.draftLink) { _, _ in
                             featureState.hasUserEditedDraftLink = true
                         }
 
-                    Button("Transcribe") {
+                    Button(localized("Transcribe", locale: locale)) {
                         submitCurrentLink()
                     }
                     .buttonStyle(.borderless)
@@ -367,12 +375,12 @@ struct TranscribeView: View {
                             Button {
                                 featureState.clearSelectedFolder()
                             } label: {
-                                Label("Back", systemImage: "chevron.left")
+                                Label(localized("Back", locale: locale), systemImage: "chevron.left")
                             }
                             .buttonStyle(.borderless)
                         }
 
-                        Text("Media Library")
+                        Text(localized("Media Library", locale: locale))
                             .font(AppTypography.headline)
                             .foregroundStyle(AppColors.textPrimary)
                     }
@@ -449,14 +457,14 @@ struct TranscribeView: View {
                         featureState.librarySortMode = sortMode
                     } label: {
                         if featureState.librarySortMode == sortMode {
-                            Label(sortMode.title, systemImage: "checkmark")
+                            Label(sortMode.title(locale: locale), systemImage: "checkmark")
                         } else {
-                            Text(sortMode.title)
+                            Text(sortMode.title(locale: locale))
                         }
                     }
                 }
             } label: {
-                Label(featureState.librarySortMode.title, systemImage: "arrow.up.arrow.down")
+                Label(featureState.librarySortMode.title(locale: locale), systemImage: "arrow.up.arrow.down")
                     .font(AppTypography.subheadline)
                     .padding(.horizontal, AppTheme.Spacing.md)
                     .padding(.vertical, AppTheme.Spacing.sm)
@@ -466,7 +474,7 @@ struct TranscribeView: View {
             Button {
                 folderSheetMode = .create
             } label: {
-                Label("New Folder", systemImage: "folder.badge.plus")
+                Label(localized("New Folder", locale: locale), systemImage: "folder.badge.plus")
             }
             .buttonStyle(.borderedProminent)
         }
@@ -477,7 +485,7 @@ struct TranscribeView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(AppColors.textTertiary)
 
-            TextField("Search media transcripts...", text: $featureState.librarySearchText)
+            TextField(localized("Search media transcripts...", locale: locale), text: $featureState.librarySearchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
 
@@ -507,7 +515,7 @@ struct TranscribeView: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             HStack {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text("Transcription in progress")
+                    Text(localized("Transcription in progress", locale: locale))
                         .font(AppTypography.headline)
                         .foregroundStyle(AppColors.textPrimary)
 
@@ -518,7 +526,7 @@ struct TranscribeView: View {
 
                 Spacer()
 
-                Button("Open progress") {
+                Button(localized("Open progress", locale: locale)) {
                     featureState.route = .processing(job.id)
                 }
                 .buttonStyle(.bordered)
@@ -540,7 +548,7 @@ struct TranscribeView: View {
                     Button {
                         featureState.exitProcessingView()
                     } label: {
-                        Label("Back to library", systemImage: "chevron.left")
+                        Label(localized("Back to library", locale: locale), systemImage: "chevron.left")
                     }
                     .buttonStyle(.borderless)
 
@@ -563,7 +571,7 @@ struct TranscribeView: View {
                     }
 
                     VStack(spacing: AppTheme.Spacing.sm) {
-                        Text(job.stage.title)
+                        Text(job.stage.title(locale: locale))
                             .font(AppTypography.title)
                             .foregroundStyle(AppColors.textPrimary)
                             .multilineTextAlignment(.center)
@@ -589,7 +597,7 @@ struct TranscribeView: View {
 
                 if let errorMessage = job.errorMessage {
                     MessageCardView(
-                        title: "Unable to finish transcription",
+                        title: localized("Unable to finish transcription", locale: locale),
                         message: errorMessage,
                         icon: "xmark.octagon.fill",
                         tint: AppColors.error
@@ -628,9 +636,9 @@ struct TranscribeView: View {
             )
         } else {
             VStack(spacing: AppTheme.Spacing.lg) {
-                Text("This transcription could not be found.")
+                Text(localized("This transcription could not be found.", locale: locale))
                     .font(AppTypography.headline)
-                Button("Back to library") {
+                Button(localized("Back to library", locale: locale)) {
                     featureState.showLibrary()
                 }
                 .buttonStyle(.borderedProminent)
@@ -640,8 +648,9 @@ struct TranscribeView: View {
 
     private func importFilesViaOpenPanel() {
         let panel = NSOpenPanel()
-        panel.title = "Import media"
-        panel.message = "Choose an audio or video file to transcribe"
+        let currentLocale = SettingsStore().selectedAppLanguage.locale
+        panel.title = localized("Import media", locale: currentLocale)
+        panel.message = localized("Choose an audio or video file to transcribe", locale: currentLocale)
         panel.allowsMultipleSelection = true
         panel.allowedContentTypes = [.audio, .movie, .video]
 
@@ -701,28 +710,30 @@ struct TranscribeView: View {
 
     private var emptyLibraryTitle: String {
         if let selectedFolder {
-            return trimmedSearchText.isEmpty ? "No items in \(selectedFolder.name)" : "No results found"
+            return trimmedSearchText.isEmpty
+                ? localized("No items in %@", locale: locale).replacingOccurrences(of: "%@", with: selectedFolder.name)
+                : localized("No results found", locale: locale)
         }
 
         if trimmedSearchText.isEmpty {
-            return "No media transcriptions yet"
+            return localized("No media transcriptions yet", locale: locale)
         }
 
-        return "No results found"
+        return localized("No results found", locale: locale)
     }
 
     private var emptyLibraryMessage: String {
         if selectedFolder != nil {
             return trimmedSearchText.isEmpty
-                ? "Import or transcribe media while this folder is selected to save items here."
-                : "Try a different search term in this folder."
+                ? localized("Import or transcribe media while this folder is selected to save items here.", locale: locale)
+                : localized("Try a different search term in this folder.", locale: locale)
         }
 
         if trimmedSearchText.isEmpty {
-            return "Imported files and web links will appear here once processing completes."
+            return localized("Imported files and web links will appear here once processing completes.", locale: locale)
         }
 
-        return "Try a different search term."
+        return localized("Try a different search term.", locale: locale)
     }
 
     private func sort(records: [TranscriptionRecord]) -> [TranscriptionRecord] {
@@ -800,12 +811,12 @@ private enum FolderSheetMode: Identifiable {
         }
     }
 
-    var title: String {
+    func title(locale: Locale) -> String {
         switch self {
         case .create:
-            return "New Folder"
+            return localized("New Folder", locale: locale)
         case .rename:
-            return "Rename Folder"
+            return localized("Rename Folder", locale: locale)
         }
     }
 
@@ -818,18 +829,19 @@ private enum FolderSheetMode: Identifiable {
         }
     }
 
-    var saveButtonTitle: String {
+    func saveButtonTitle(locale: Locale) -> String {
         switch self {
         case .create:
-            return "Create"
+            return localized("Create", locale: locale)
         case .rename:
-            return "Save"
+            return localized("Save", locale: locale)
         }
     }
 }
 
 private struct FolderEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
 
     let mode: FolderSheetMode
     let onSave: (String) throws -> Void
@@ -845,11 +857,11 @@ private struct FolderEditorSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-            Text(mode.title)
+            Text(mode.title(locale: locale))
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.textPrimary)
 
-            TextField("Folder name", text: $name)
+            TextField(localized("Folder name", locale: locale), text: $name)
                 .textFieldStyle(.roundedBorder)
 
             if let errorMessage {
@@ -861,12 +873,12 @@ private struct FolderEditorSheet: View {
             HStack {
                 Spacer()
 
-                Button("Cancel") {
+                Button(localized("Cancel", locale: locale)) {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
 
-                Button(mode.saveButtonTitle) {
+                Button(mode.saveButtonTitle(locale: locale)) {
                     save()
                 }
                 .buttonStyle(.borderedProminent)
@@ -887,6 +899,8 @@ private struct FolderEditorSheet: View {
 }
 
 private struct MediaFolderTile: View {
+    @Environment(\.locale) private var locale
+
     let folder: MediaFolder
     let itemCount: Int
     let onOpen: () -> Void
@@ -910,11 +924,11 @@ private struct MediaFolderTile: View {
         )
         .contextMenu {
             Button(action: onRename) {
-                Label("Rename Folder", systemImage: "pencil")
+                Label(localized("Rename Folder", locale: locale), systemImage: "pencil")
             }
 
             Button(role: .destructive, action: onDelete) {
-                Label("Delete Folder", systemImage: "trash")
+                Label(localized("Delete Folder", locale: locale), systemImage: "trash")
             }
         }
         .dropDestination(for: String.self) { items, _ in
@@ -931,6 +945,8 @@ private struct MediaFolderTile: View {
 }
 
 private struct MediaLibraryTranscriptionTile: View {
+    @Environment(\.locale) private var locale
+
     let record: TranscriptionRecord
     let isSelected: Bool
     let onOpen: () -> Void
@@ -952,12 +968,12 @@ private struct MediaLibraryTranscriptionTile: View {
         .draggable(record.id.uuidString)
         .contextMenu {
             Button(action: onCopy) {
-                Label("Copy Transcript", systemImage: "doc.on.doc")
+                Label(localized("Copy Transcript", locale: locale), systemImage: "doc.on.doc")
             }
 
-            Menu("Move to Folder") {
+            Menu(localized("Move to Folder", locale: locale)) {
                 if availableFolders.isEmpty {
-                    Button("No folders yet") {}
+                    Button(localized("No folders yet", locale: locale)) {}
                         .disabled(true)
                 } else {
                     ForEach(availableFolders) { folder in
@@ -970,14 +986,14 @@ private struct MediaLibraryTranscriptionTile: View {
 
             if record.folder != nil {
                 Button(action: onRemoveFromFolder) {
-                    Label("Remove from Folder", systemImage: "folder.badge.minus")
+                    Label(localized("Remove from Folder", locale: locale), systemImage: "folder.badge.minus")
                 }
             }
 
             Divider()
 
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label(localized("Delete", locale: locale), systemImage: "trash")
             }
         }
     }

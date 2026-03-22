@@ -54,6 +54,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private var modelContainer: ModelContainer?
     private let storeRepairService = SwiftDataStoreRepairService()
+
+    private var currentLocale: Locale {
+        settingsStore?.selectedAppLanguage.locale ?? .autoupdatingCurrent
+    }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
@@ -125,29 +129,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenuItem = NSMenuItem()
         appMenuItem.submenu = appMenu
         
-        appMenu.addItem(NSMenuItem(title: "About Pindrop", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
+        appMenu.addItem(NSMenuItem(title: localized("About Pindrop", locale: currentLocale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
         appMenu.addItem(NSMenuItem.separator())
         
-        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings(_:)), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: localized("Settings…", locale: currentLocale), action: #selector(openSettings(_:)), keyEquivalent: ",")
         appMenu.addItem(settingsItem)
-        
+
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(NSMenuItem(title: "Quit Pindrop", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        appMenu.addItem(NSMenuItem(title: localized("Quit Pindrop", locale: currentLocale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         
         mainMenu.addItem(appMenuItem)
         
         // Edit menu (required for Command-V paste to work in TextFields)
-        let editMenu = NSMenu(title: "Edit")
+        let editMenu = NSMenu(title: localized("Edit", locale: currentLocale))
         let editMenuItem = NSMenuItem()
         editMenuItem.submenu = editMenu
         
-        editMenu.addItem(NSMenuItem(title: "Undo", action: Selector(("undo:")), keyEquivalent: "z"))
-        editMenu.addItem(NSMenuItem(title: "Redo", action: Selector(("redo:")), keyEquivalent: "Z"))
+        editMenu.addItem(NSMenuItem(title: localized("Undo", locale: currentLocale), action: Selector(("undo:")), keyEquivalent: "z"))
+        editMenu.addItem(NSMenuItem(title: localized("Redo", locale: currentLocale), action: Selector(("redo:")), keyEquivalent: "Z"))
         editMenu.addItem(NSMenuItem.separator())
-        editMenu.addItem(NSMenuItem(title: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
-        editMenu.addItem(NSMenuItem(title: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
-        editMenu.addItem(NSMenuItem(title: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
-        editMenu.addItem(NSMenuItem(title: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+        editMenu.addItem(NSMenuItem(title: localized("Cut", locale: currentLocale), action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
+        editMenu.addItem(NSMenuItem(title: localized("Copy", locale: currentLocale), action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
+        editMenu.addItem(NSMenuItem(title: localized("Paste", locale: currentLocale), action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
+        editMenu.addItem(NSMenuItem(title: localized("Select All", locale: currentLocale), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
         
         mainMenu.addItem(editMenuItem)
         
@@ -156,6 +160,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc private func settingsDidChange() {
         updateDockVisibility()
+        setupMainMenu()
     }
     
     private func updateDockVisibility() {
@@ -191,10 +196,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func showModelContainerErrorAlert(error: Error) {
         let alert = NSAlert()
-        alert.messageText = "Database Error"
-        alert.informativeText = "Failed to initialize the database: \(error.localizedDescription)\n\nThe app will now quit. Please try restarting or contact support if the problem persists."
+        alert.messageText = localized("Database Error", locale: currentLocale)
+        let format = localized("Failed to initialize the database: %@\n\nThe app will now quit. Please try restarting or contact support if the problem persists.", locale: currentLocale)
+        alert.informativeText = String(format: format, error.localizedDescription)
         alert.alertStyle = .critical
-        alert.addButton(withTitle: "Quit")
+        alert.addButton(withTitle: localized("Quit", locale: currentLocale))
         alert.runModal()
     }
 }

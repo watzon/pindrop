@@ -94,6 +94,7 @@ struct SettingsDivider: View {
 }
 
 struct SettingsToggleRow: View {
+    @Environment(\.locale) private var locale
     let title: String
     let detail: String
     @Binding var isOn: Bool
@@ -129,7 +130,7 @@ struct SettingsToggleRow: View {
             Toggle(title, isOn: $isOn)
                 .toggleStyle(.switch)
                 .labelsHidden()
-                .accessibilityValue(isOn ? "On" : "Off")
+                .accessibilityValue(isOn ? localized("On", locale: locale) : localized("Off", locale: locale))
                 .accessibilityIdentifier(accessibilityIdentifier ?? "")
         }
     }

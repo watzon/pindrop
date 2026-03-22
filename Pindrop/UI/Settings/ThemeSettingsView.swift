@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ThemeSettingsView: View {
     @ObservedObject var settings: SettingsStore
+    @Environment(\.locale) private var locale
 
     private let columns = [
         GridItem(.flexible(), spacing: AppTheme.Spacing.md),
@@ -34,14 +35,14 @@ struct ThemeSettingsView: View {
 
     private var modeCard: some View {
         SettingsCard(
-            title: "Theme",
+            title: localized("Theme", locale: locale),
             icon: "paintbrush.pointed",
-            detail: "Choose how Pindrop follows system appearance, then mix curated light and dark palettes."
+            detail: localized("Choose how Pindrop follows system appearance, then mix curated light and dark palettes.", locale: locale)
         ) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-                Picker("Theme mode", selection: modeBinding) {
+                Picker(localized("Theme mode", locale: locale), selection: modeBinding) {
                     ForEach(PindropThemeMode.allCases) { mode in
-                        Label(mode.title, systemImage: mode.symbolName)
+                        Label(mode.title(locale: locale), systemImage: mode.symbolName)
                             .tag(mode)
                     }
                 }
@@ -50,14 +51,14 @@ struct ThemeSettingsView: View {
 
                 HStack(spacing: AppTheme.Spacing.md) {
                     ThemePreviewPane(
-                        title: "Light Preview",
+                        title: localized("Light Preview", locale: locale),
                         preset: settings.selectedLightThemePreset,
                         variant: .light,
                         isActive: modeBinding.wrappedValue != .dark
                     )
 
                     ThemePreviewPane(
-                        title: "Dark Preview",
+                        title: localized("Dark Preview", locale: locale),
                         preset: settings.selectedDarkThemePreset,
                         variant: .dark,
                         isActive: modeBinding.wrappedValue != .light
@@ -66,7 +67,7 @@ struct ThemeSettingsView: View {
 
                 SettingsInfoBanner(
                     icon: "sparkles",
-                    text: "Theme changes apply live across the workspace, settings, note editor, and floating indicators.",
+                    text: localized("Theme changes apply live across the workspace, settings, note editor, and floating indicators.", locale: locale),
                     tint: AppColors.accent,
                     background: AppColors.accentBackground
                 )
@@ -78,11 +79,11 @@ struct ThemeSettingsView: View {
         let isLight = variant == .light
 
         return SettingsCard(
-            title: isLight ? "Light Theme" : "Dark Theme",
+            title: isLight ? localized("Light Theme", locale: locale) : localized("Dark Theme", locale: locale),
             icon: isLight ? "sun.max" : "moon.stars",
             detail: isLight
-                ? "Choose the daytime shell used in light mode."
-                : "Choose the low-glare shell used in dark mode."
+                ? localized("Choose the daytime shell used in light mode.", locale: locale)
+                : localized("Choose the low-glare shell used in dark mode.", locale: locale)
         ) {
             LazyVGrid(columns: columns, alignment: .leading, spacing: AppTheme.Spacing.md) {
                 ForEach(PindropThemePresetCatalog.presets) { preset in

@@ -80,5 +80,6 @@ private struct SettingsFixtureRootView: View {
 
     var body: some View {
         SettingsWindow(settings: settings, initialTab: initialTab)
+            .environment(\.locale, settings.selectedAppLanguage.locale)
     }
 }

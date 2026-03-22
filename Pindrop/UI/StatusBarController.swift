@@ -113,6 +113,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         mainWindowController.showSettings(tab: tab)
     }
 
+    func reloadLocalizedStrings() {
+        setupMenu()
+        updateRecentTranscriptsMenu()
+        updateDynamicItems()
+    }
+
     func updateRecentTranscripts(_ transcripts: [(id: UUID, text: String, timestamp: Date)]) {
         self.recentTranscripts = Array(transcripts.prefix(5))
         updateRecentTranscriptsMenu()
@@ -120,11 +126,18 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func updateSelectedModel(_ modelName: String) {
         if let currentModel = switchableModels.first(where: { $0.name == modelName }) {
-            currentModelItem?.title = "Current: \(currentModel.displayName)"
+            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModel.displayName)
         } else {
-            currentModelItem?.title = "Current: \(modelName.replacingOccurrences(of: "openai_whisper-", with: ""))"
+            currentModelItem?.title = String(
+                format: localized("Current: %@", locale: locale),
+                modelName.replacingOccurrences(of: "openai_whisper-", with: "")
+            )
         }
         refreshModelMenuItems()
+    }
+
+    private var locale: Locale {
+        settingsStore.selectedAppLanguage.locale
     }
 
     // MARK: - Setup
@@ -165,19 +178,19 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.delegate = self
 
         // === RECORDING SECTION ===
-        let recordingHeader = createHeaderItem("Recording")
+        let recordingHeader = createHeaderItem(localized("Recording", locale: locale))
         menu.addItem(recordingHeader)
 
-        recordingStatusItem = NSMenuItem(title: "● Ready", action: nil, keyEquivalent: "")
+        recordingStatusItem = NSMenuItem(title: localized("● Ready", locale: locale), action: nil, keyEquivalent: "")
         recordingStatusItem?.isEnabled = false
         recordingStatusItem?.attributedTitle = NSAttributedString(
-            string: "● Ready",
+            string: localized("● Ready", locale: locale),
             attributes: [.foregroundColor: NSColor.secondaryLabelColor]
         )
         menu.addItem(recordingStatusItem!)
 
         toggleRecordingItem = NSMenuItem(
-            title: "Start Recording",
+            title: localized("Start Recording", locale: locale),
             action: #selector(toggleRecording),
             keyEquivalent: "r"
         )
@@ -186,7 +199,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(toggleRecordingItem!)
 
         clearAudioBufferItem = NSMenuItem(
-            title: "Clear Audio Buffer",
+            title: localized("Clear Audio Buffer", locale: locale),
             action: #selector(clearAudioBuffer),
             keyEquivalent: "x"
         )
@@ -196,7 +209,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(clearAudioBufferItem!)
 
         cancelOperationItem = NSMenuItem(
-            title: "Cancel Operation",
+            title: localized("Cancel Operation", locale: locale),
             action: #selector(cancelOperation),
             keyEquivalent: ""
         )
@@ -208,12 +221,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // === TRANSCRIPTS SECTION ===
-        let transcriptsHeader = createHeaderItem("Transcripts")
+        let transcriptsHeader = createHeaderItem(localized("Transcripts", locale: locale))
         menu.addItem(transcriptsHeader)
 
         transcriptsMenu = NSMenu()
         copyLastTranscriptItem = NSMenuItem(
-            title: "Copy Last Transcript",
+            title: localized("Copy Last Transcript", locale: locale),
             action: #selector(copyLastTranscript),
             keyEquivalent: "c"
         )
@@ -221,7 +234,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         transcriptsMenu?.addItem(copyLastTranscriptItem!)
 
         pasteLastTranscriptItem = NSMenuItem(
-            title: "Paste Last Transcript",
+            title: localized("Paste Last Transcript", locale: locale),
             action: #selector(pasteLastTranscript),
             keyEquivalent: ""
         )
@@ -229,7 +242,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         transcriptsMenu?.addItem(pasteLastTranscriptItem!)
 
         exportLastTranscriptItem = NSMenuItem(
-            title: "Export Last Transcript...",
+            title: localized("Export Last Transcript...", locale: locale),
             action: #selector(exportLastTranscript),
             keyEquivalent: "e"
         )
@@ -238,11 +251,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         transcriptsMenu?.addItem(NSMenuItem.separator())
 
-        recentTranscriptsSeparator = NSMenuItem(title: "Recent", action: nil, keyEquivalent: "")
+        recentTranscriptsSeparator = NSMenuItem(title: localized("Recent", locale: locale), action: nil, keyEquivalent: "")
         recentTranscriptsSeparator?.isEnabled = false
         transcriptsMenu?.addItem(recentTranscriptsSeparator!)
 
-        let recentMenuItem = NSMenuItem(title: "Recent Transcripts", action: nil, keyEquivalent: "")
+        let recentMenuItem = NSMenuItem(title: localized("Recent Transcripts", locale: locale), action: nil, keyEquivalent: "")
         recentMenuItem.submenu = transcriptsMenu
         recentMenuItem.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
         menu.addItem(recentMenuItem)
@@ -250,11 +263,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // === OUTPUT SECTION ===
-        let outputHeader = createHeaderItem("Output")
+        let outputHeader = createHeaderItem(localized("Output", locale: locale))
         menu.addItem(outputHeader)
 
         outputModeItem = NSMenuItem(
-            title: "Mode: Clipboard",
+            title: String(format: localized("Mode: %@", locale: locale), localized("Clipboard", locale: locale)),
             action: #selector(toggleOutputMode),
             keyEquivalent: "o"
         )
@@ -263,7 +276,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(outputModeItem!)
 
         aiEnhancementItem = NSMenuItem(
-            title: "AI Enhancement: Off",
+            title: String(format: localized("AI Enhancement: %@", locale: locale), localized("Off", locale: locale)),
             action: #selector(toggleAIEnhancement),
             keyEquivalent: "a"
         )
@@ -282,7 +295,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         customItem.state = settingsStore.selectedPresetId == nil ? .on : .off
         promptPresetMenu?.addItem(customItem)
 
-        promptPresetMenuItem = NSMenuItem(title: "Prompt Preset", action: nil, keyEquivalent: "")
+        promptPresetMenuItem = NSMenuItem(title: localized("Prompt Preset", locale: locale), action: nil, keyEquivalent: "")
         promptPresetMenuItem?.submenu = promptPresetMenu
         promptPresetMenuItem?.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
         menu.addItem(promptPresetMenuItem!)
@@ -303,7 +316,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(showAppItem)
 
         openHistoryItem = NSMenuItem(
-            title: "Open History",
+            title: localized("Open History", locale: locale),
             action: #selector(openHistory),
             keyEquivalent: "h"
         )
@@ -312,22 +325,22 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(openHistoryItem!)
 
         let settingsItem = NSMenuItem(
-            title: "Settings...",
+            title: localized("Settings...", locale: locale),
             action: #selector(openSettings),
             keyEquivalent: ","
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
-        inputDeviceMenu = NSMenu(title: "Change Microphone")
-        inputDeviceMenuItem = NSMenuItem(title: "Change Microphone", action: nil, keyEquivalent: "")
+        inputDeviceMenu = NSMenu(title: localized("Change Microphone", locale: locale))
+        inputDeviceMenuItem = NSMenuItem(title: localized("Change Microphone", locale: locale), action: nil, keyEquivalent: "")
         inputDeviceMenuItem?.submenu = inputDeviceMenu
         inputDeviceMenuItem?.image = NSImage(systemSymbolName: "mic", accessibilityDescription: nil)
         if let inputDeviceMenuItem {
             menu.addItem(inputDeviceMenuItem)
         }
 
-        languageMenu = NSMenu(title: "Select Language")
-        languageMenuItem = NSMenuItem(title: "Select Language", action: nil, keyEquivalent: "")
+        languageMenu = NSMenu(title: localized("Select Language", locale: locale))
+        languageMenuItem = NSMenuItem(title: localized("Select Language", locale: locale), action: nil, keyEquivalent: "")
         languageMenuItem?.submenu = languageMenu
         languageMenuItem?.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: nil)
         if let languageMenuItem {
@@ -338,7 +351,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         toggleFloatingIndicatorItem = NSMenuItem(
-            title: "Floating Indicator: Off",
+            title: String(format: localized("Floating Indicator: %@", locale: locale), localized("Off", locale: locale)),
             action: #selector(toggleFloatingIndicator),
             keyEquivalent: "f"
         )
@@ -347,7 +360,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(toggleFloatingIndicatorItem!)
 
         launchAtLoginItem = NSMenuItem(
-            title: "Launch at Login: Off",
+            title: String(format: localized("Launch at Login: %@", locale: locale), localized("Off", locale: locale)),
             action: #selector(toggleLaunchAtLogin),
             keyEquivalent: "l"
         )
@@ -358,12 +371,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // === MODEL SECTION ===
-        let modelHeader = createHeaderItem("Model")
+        let modelHeader = createHeaderItem(localized("Model", locale: locale))
         menu.addItem(modelHeader)
 
         modelMenu = NSMenu()
         currentModelItem = NSMenuItem(
-            title: "Current: \(settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: ""))",
+            title: String(format: localized("Current: %@", locale: locale), settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")),
             action: nil,
             keyEquivalent: ""
         )
@@ -373,14 +386,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         modelMenu?.addItem(NSMenuItem.separator())
         refreshModelMenuItems()
 
-        let modelMenuItem = NSMenuItem(title: "Select Voice Model", action: nil, keyEquivalent: "")
+        let modelMenuItem = NSMenuItem(title: localized("Select Voice Model", locale: locale), action: nil, keyEquivalent: "")
         modelMenuItem.submenu = modelMenu
         modelMenuItem.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
         menu.addItem(modelMenuItem)
 
         aiModelMenu = NSMenu()
         currentAIModelItem = NSMenuItem(
-            title: "Current: \(settingsStore.aiModel)",
+            title: String(format: localized("Current: %@", locale: locale), settingsStore.aiModel),
             action: nil,
             keyEquivalent: ""
         )
@@ -390,7 +403,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         aiModelMenu?.addItem(NSMenuItem.separator())
         refreshAIModelMenuItems()
 
-        let aiModelMenuItem = NSMenuItem(title: "Select AI Model", action: nil, keyEquivalent: "")
+        let aiModelMenuItem = NSMenuItem(title: localized("Select AI Model", locale: locale), action: nil, keyEquivalent: "")
         aiModelMenuItem.submenu = aiModelMenu
         aiModelMenuItem.image = NSImage(systemSymbolName: "bolt", accessibilityDescription: nil)
         menu.addItem(aiModelMenuItem)
@@ -398,7 +411,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         reportIssueItem = NSMenuItem(
-            title: "Report an Issue",
+            title: localized("Report an Issue", locale: locale),
             action: #selector(reportIssue),
             keyEquivalent: ""
         )
@@ -410,7 +423,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
 
         checkForUpdatesItem = NSMenuItem(
-            title: "Check for Updates...",
+            title: localized("Check for Updates...", locale: locale),
             action: #selector(checkForUpdates),
             keyEquivalent: "u"
         )
@@ -421,7 +434,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit Pindrop",
+            title: localized("Quit Pindrop", locale: locale),
             action: #selector(quit),
             keyEquivalent: "q"
         )
@@ -483,30 +496,32 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func updateDynamicItems() {
         // Update output mode
-        let outputModeText = settingsStore.outputMode == "clipboard" ? "Clipboard" : "Direct Insert"
-        outputModeItem?.title = "Mode: \(outputModeText)"
+        let outputModeText = settingsStore.outputMode == "clipboard"
+            ? localized("Clipboard", locale: locale)
+            : localized("Direct Insert", locale: locale)
+        outputModeItem?.title = String(format: localized("Mode: %@", locale: locale), outputModeText)
 
         // Update AI enhancement
-        let aiText = settingsStore.aiEnhancementEnabled ? "On" : "Off"
-        aiEnhancementItem?.title = "AI Enhancement: \(aiText)"
+        let aiText = settingsStore.aiEnhancementEnabled ? localized("On", locale: locale) : localized("Off", locale: locale)
+        aiEnhancementItem?.title = String(format: localized("AI Enhancement: %@", locale: locale), aiText)
 
         // Update prompt preset checkmarks
         updatePromptPresetCheckmarks()
 
         // Update floating indicator
-        let indicatorText = settingsStore.floatingIndicatorEnabled ? "On" : "Off"
-        toggleFloatingIndicatorItem?.title = "Floating Indicator: \(indicatorText)"
+        let indicatorText = settingsStore.floatingIndicatorEnabled ? localized("On", locale: locale) : localized("Off", locale: locale)
+        toggleFloatingIndicatorItem?.title = String(format: localized("Floating Indicator: %@", locale: locale), indicatorText)
 
         // Update launch at login
-        let launchAtLoginText = settingsStore.launchAtLogin ? "On" : "Off"
-        launchAtLoginItem?.title = "Launch at Login: \(launchAtLoginText)"
+        let launchAtLoginText = settingsStore.launchAtLogin ? localized("On", locale: locale) : localized("Off", locale: locale)
+        launchAtLoginItem?.title = String(format: localized("Launch at Login: %@", locale: locale), launchAtLoginText)
 
         // Update model
         if let currentModel = switchableModels.first(where: { $0.name == settingsStore.selectedModel }) {
-            currentModelItem?.title = "Current: \(currentModel.displayName)"
+            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModel.displayName)
         } else {
             let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
-            currentModelItem?.title = "Current: \(modelShortName)"
+            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), modelShortName)
         }
         refreshModelMenuItems()
 
@@ -524,7 +539,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
 
         if switchableModels.isEmpty {
-            let emptyItem = NSMenuItem(title: "No downloaded models", action: nil, keyEquivalent: "")
+            let emptyItem = NSMenuItem(title: localized("No downloaded models", locale: locale), action: nil, keyEquivalent: "")
             emptyItem.isEnabled = false
             modelMenu.addItem(emptyItem)
             return
@@ -554,17 +569,17 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         let provider = settingsStore.currentAIProvider
 
         // Update current model display
-        currentAIModelItem?.title = "Current: \(settingsStore.aiModel)"
+        currentAIModelItem?.title = String(format: localized("Current: %@", locale: locale), settingsStore.aiModel)
 
         guard provider == .openai || provider == .openrouter else {
-            let noModelsItem = NSMenuItem(title: "No models available", action: nil, keyEquivalent: "")
+            let noModelsItem = NSMenuItem(title: localized("No models available", locale: locale), action: nil, keyEquivalent: "")
             noModelsItem.isEnabled = false
             aiModelMenu.addItem(noModelsItem)
             return
         }
 
         guard let cachedModels = aiModelService.getCachedModels(for: provider), !cachedModels.isEmpty else {
-            let fetchItem = NSMenuItem(title: "Fetch models in Models", action: nil, keyEquivalent: "")
+            let fetchItem = NSMenuItem(title: localized("Fetch models in Models", locale: locale), action: nil, keyEquivalent: "")
             fetchItem.isEnabled = false
             aiModelMenu.addItem(fetchItem)
             return
@@ -592,7 +607,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         let availableDevices = AudioDeviceManager.inputDevices()
 
         let systemDefaultItem = NSMenuItem(
-            title: "System Default",
+            title: localized("System Default", locale: locale),
             action: #selector(selectInputDevice(_:)),
             keyEquivalent: ""
         )
@@ -620,7 +635,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         if !selectedUID.isEmpty && !availableDevices.contains(where: { $0.uid == selectedUID }) {
             inputDeviceMenu.addItem(.separator())
 
-            let unavailableItem = NSMenuItem(title: "Unavailable device", action: nil, keyEquivalent: "")
+            let unavailableItem = NSMenuItem(title: localized("Unavailable device", locale: locale), action: nil, keyEquivalent: "")
             unavailableItem.isEnabled = false
             unavailableItem.state = NSControl.StateValue.on
             inputDeviceMenu.addItem(unavailableItem)
@@ -638,7 +653,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         for language in tier1Languages {
             let item = NSMenuItem(
-                title: language.displayName,
+                title: language.displayName(locale: locale),
                 action: #selector(selectLanguage(_:)),
                 keyEquivalent: ""
             )
@@ -651,12 +666,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         if !tier2Languages.isEmpty {
             languageMenu.addItem(.separator())
 
-            let upcomingItem = NSMenuItem(title: "Coming Soon", action: nil, keyEquivalent: "")
+            let upcomingItem = NSMenuItem(title: localized("Coming Soon", locale: locale), action: nil, keyEquivalent: "")
             upcomingItem.isEnabled = false
             languageMenu.addItem(upcomingItem)
 
             for language in tier2Languages {
-                let item = NSMenuItem(title: language.pickerLabel, action: nil, keyEquivalent: "")
+                let item = NSMenuItem(title: language.pickerLabel(locale: locale), action: nil, keyEquivalent: "")
                 item.isEnabled = false
                 languageMenu.addItem(item)
             }
@@ -670,7 +685,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         // "Custom" item (no preset selected)
         let customItem = NSMenuItem(
-            title: "Custom",
+            title: localized("Custom", locale: locale),
             action: #selector(selectPromptPreset(_:)),
             keyEquivalent: ""
         )
@@ -714,30 +729,30 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         switch currentState {
         case .recording:
             recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: "🔴 Recording",
+                string: localized("🔴 Recording", locale: locale),
                 attributes: [.foregroundColor: NSColor.systemRed]
             )
-            toggleRecordingItem?.title = "Stop Recording"
+            toggleRecordingItem?.title = localized("Stop Recording", locale: locale)
             toggleRecordingItem?.isEnabled = true
             clearAudioBufferItem?.isEnabled = true
             cancelOperationItem?.isEnabled = true
             checkForUpdatesItem?.isEnabled = false
         case .processing:
             recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: "⏳ Processing",
+                string: localized("⏳ Processing", locale: locale),
                 attributes: [.foregroundColor: NSColor.systemBlue]
             )
-            toggleRecordingItem?.title = "Processing..."
+            toggleRecordingItem?.title = localized("Processing...", locale: locale)
             toggleRecordingItem?.isEnabled = false
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = true
             checkForUpdatesItem?.isEnabled = false
         case .idle:
             recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: "● Ready",
+                string: localized("● Ready", locale: locale),
                 attributes: [.foregroundColor: NSColor.secondaryLabelColor]
             )
-            toggleRecordingItem?.title = "Start Recording"
+            toggleRecordingItem?.title = localized("Start Recording", locale: locale)
             toggleRecordingItem?.isEnabled = true
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = false
@@ -980,7 +995,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             let popover = NSPopover()
             popover.contentViewController = NSHostingController(rootView: WelcomePopoverView {
                 self.welcomePopover?.performClose(nil)
-            })
+            }
+            .environment(\.locale, locale))
             popover.behavior = .transient
             popover.animates = true
             welcomePopover = popover
@@ -991,6 +1007,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 }
 
 struct WelcomePopoverView: View {
+    @Environment(\.locale) private var locale
     let onDismiss: () -> Void
 
     var body: some View {
@@ -999,30 +1016,30 @@ struct WelcomePopoverView: View {
                 IconView(icon: .hand, size: 24)
                     .foregroundStyle(.yellow)
 
-                Text("You're all set!")
+                Text(localized("You're all set!", locale: locale))
                     .font(.headline)
             }
 
-            Text("Click this icon anytime to:")
+            Text(localized("Click this icon anytime to:", locale: locale))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 6) {
-                popoverItem(icon: .record, text: "Start/stop recording")
-                popoverItem(icon: .settings, text: "Open settings")
-                popoverItem(icon: .clock, text: "View transcription history")
+                popoverItem(icon: .record, text: localized("Start/stop recording", locale: locale))
+                popoverItem(icon: .settings, text: localized("Open settings", locale: locale))
+                popoverItem(icon: .clock, text: localized("View transcription history", locale: locale))
             }
 
             Divider()
 
             HStack {
-                Text("Or just use your hotkey!")
+                Text(localized("Or just use your hotkey!", locale: locale))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                Button("Got it") {
+                Button(localized("Got it", locale: locale)) {
                     onDismiss()
                 }
                 .buttonStyle(.borderedProminent)

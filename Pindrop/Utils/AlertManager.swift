@@ -14,11 +14,16 @@ final class AlertManager {
     static let shared = AlertManager()
     
     private init() {}
+
+    private var locale: Locale {
+        let rawValue = UserDefaults.standard.string(forKey: "selectedLanguage") ?? AppLanguage.automatic.rawValue
+        return AppLanguage(rawValue: rawValue)?.locale ?? .autoupdatingCurrent
+    }
     
     func showAccessibilityPermissionAlert() {
         let alert = NSAlert()
-        alert.messageText = "Accessibility Permission Required"
-        alert.informativeText = """
+        alert.messageText = localized("Accessibility Permission Required", locale: locale)
+        alert.informativeText = localized("""
             Pindrop needs Accessibility permission to insert text at your cursor.
             
             To grant permission:
@@ -28,11 +33,11 @@ final class AlertManager {
             4. Restart Pindrop after granting permission
             
             Without this permission, text will only be copied to your clipboard.
-            """
+            """, locale: locale)
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Open System Settings")
-        alert.addButton(withTitle: "Show App in Finder")
-        alert.addButton(withTitle: "Use Clipboard Only")
+        alert.addButton(withTitle: localized("Open System Settings", locale: locale))
+        alert.addButton(withTitle: localized("Show App in Finder", locale: locale))
+        alert.addButton(withTitle: localized("Use Clipboard Only", locale: locale))
         
         let response = alert.runModal()
         
@@ -51,11 +56,11 @@ final class AlertManager {
     
     func showMicrophonePermissionAlert() {
         let alert = NSAlert()
-        alert.messageText = "Microphone Permission Required"
-        alert.informativeText = "Pindrop needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings."
+        alert.messageText = localized("Microphone Permission Required", locale: locale)
+        alert.informativeText = localized("Pindrop needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings.", locale: locale)
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Open System Settings")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: localized("Open System Settings", locale: locale))
+        alert.addButton(withTitle: localized("Cancel", locale: locale))
         
         let response = alert.runModal()
         
@@ -66,19 +71,19 @@ final class AlertManager {
     
     func showModelNotLoadedAlert() {
         let alert = NSAlert()
-        alert.messageText = "No Model Loaded"
-        alert.informativeText = "Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model."
+        alert.messageText = localized("No Model Loaded", locale: locale)
+        alert.informativeText = localized("Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model.", locale: locale)
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Open Settings")
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("Open Settings", locale: locale))
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         _ = alert.runModal()
     }
     
     func showModelTimeoutAlert() {
         let alert = NSAlert()
-        alert.messageText = "Model Loading Timed Out"
-        alert.informativeText = """
+        alert.messageText = localized("Model Loading Timed Out", locale: locale)
+        alert.informativeText = localized("""
             The model failed to load within 60 seconds. This usually means the model files are corrupted or incompatible.
             
             To fix this:
@@ -87,42 +92,42 @@ final class AlertManager {
             3. Re-download the model
             
             If the problem persists, try a smaller model (Tiny or Base).
-            """
+            """, locale: locale)
         alert.alertStyle = .critical
-        alert.addButton(withTitle: "Open Settings")
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("Open Settings", locale: locale))
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         _ = alert.runModal()
     }
     
     func showModelLoadErrorAlert(error: Error) {
         let alert = NSAlert()
-        alert.messageText = "Model Loading Failed"
-        alert.informativeText = "Failed to switch model: \(error.localizedDescription)"
+        alert.messageText = localized("Model Loading Failed", locale: locale)
+        alert.informativeText = String(format: localized("Failed to switch model: %@", locale: locale), error.localizedDescription)
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         _ = alert.runModal()
     }
     
     func showTranscriptionErrorAlert(message: String) {
         let alert = NSAlert()
-        alert.messageText = "Transcription Failed"
+        alert.messageText = localized("Transcription Failed", locale: locale)
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         alert.runModal()
     }
     
     func showAIEnhancementErrorAlert(error: Error) {
         let alert = NSAlert()
-        alert.messageText = "AI Enhancement Failed"
+        alert.messageText = localized("AI Enhancement Failed", locale: locale)
         
         let errorDescription = error.localizedDescription
         
         if errorDescription.contains("401") || errorDescription.contains("unauthorized") {
-            alert.informativeText = """
+            alert.informativeText = localized("""
                 Your API key appears to be invalid or expired.
                 
                 To fix this:
@@ -131,9 +136,9 @@ final class AlertManager {
                 3. Check that your API endpoint is correct
                 
                 The transcription was saved without enhancement.
-                """
+                """, locale: locale)
         } else if errorDescription.contains("429") || errorDescription.contains("rate limit") {
-            alert.informativeText = """
+            alert.informativeText = localized("""
                 You've exceeded your API rate limit or quota.
                 
                 To fix this:
@@ -142,9 +147,9 @@ final class AlertManager {
                 3. Consider upgrading your API plan
                 
                 The transcription was saved without enhancement.
-                """
+                """, locale: locale)
         } else if errorDescription.contains("network") || errorDescription.contains("connection") {
-            alert.informativeText = """
+            alert.informativeText = localized("""
                 Unable to connect to the AI enhancement service.
                 
                 Please check:
@@ -153,21 +158,17 @@ final class AlertManager {
                 3. The service is not experiencing an outage
                 
                 The transcription was saved without enhancement.
-                """
+                """, locale: locale)
         } else {
-            alert.informativeText = """
-                An error occurred while enhancing your transcription:
-                
-                \(errorDescription)
-                
-                The original transcription was saved without enhancement.
-                You can try enabling AI enhancement again in Settings.
-                """
+            alert.informativeText = String(
+                format: localized("An error occurred while enhancing your transcription:\n\n%@\n\nThe original transcription was saved without enhancement.\nYou can try enabling AI enhancement again in Settings.", locale: locale),
+                errorDescription
+            )
         }
         
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Open Settings")
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("Open Settings", locale: locale))
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         _ = alert.runModal()
     }
@@ -177,17 +178,22 @@ final class AlertManager {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("OK", locale: locale))
         
         alert.runModal()
     }
 
     func showHotkeyConflictAlert(hotkey: String, firstAction: String, secondAction: String) {
         let alert = NSAlert()
-        alert.messageText = "Hotkey Conflict"
-        alert.informativeText = "\(hotkey) is assigned to both \(firstAction) and \(secondAction). Only the first action will be active. Update your hotkeys in Settings to resolve this conflict."
+        alert.messageText = localized("Hotkey Conflict", locale: locale)
+        alert.informativeText = String(
+            format: localized("%@ is assigned to both %@ and %@. Only the first action will be active. Update your hotkeys in Settings to resolve this conflict.", locale: locale),
+            hotkey,
+            firstAction,
+            secondAction
+        )
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: localized("OK", locale: locale))
 
         alert.runModal()
     }

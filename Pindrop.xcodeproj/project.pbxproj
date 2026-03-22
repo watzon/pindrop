@@ -13,6 +13,7 @@
 		068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */; };
 		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
+		1A2B3C4D5E6F708192A3B4C5 /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
 		299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */; };
 		2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */; };
@@ -27,6 +28,8 @@
 		6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0729D0116F8418084311F4C /* HistoryStoreTests.swift */; };
 		6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */; };
 		6EA189DAD2FC954E2AA5B6B3 /* AIEnhancementStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */; };
+		6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */; };
+		6EA189DAD2FC954E2AA5B6B6 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */; };
 		70CE9E64F744FED2830FD930 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DC71BCB19DB51FA606C373 /* Icons.swift */; };
 		735CDA1E1288B02683BE5ED6 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */; };
 		751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = a2189a034cf447e08e86f24b /* PermissionManager.swift */; };
@@ -169,6 +172,7 @@
 /* Begin PBXFileReference section */
 		009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskScheduler.swift; path = TaskScheduler.swift; sourceTree = "<group>"; };
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
@@ -180,6 +184,8 @@
 		562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelSelectionStepView.swift; sourceTree = "<group>"; };
 		643AABFF228E4861A399A74F /* ModelsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsSettingsView.swift; sourceTree = "<group>"; };
 		68A6BA5D6DB40F25222D224E /* StatusBarController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		6f62938483ec4a11ad5636be /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsView.swift; sourceTree = "<group>"; };
 		86FB8BA663AAD1BE56BE198A /* AppCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -489,8 +495,10 @@
 				8B28B59A0FB34CF9A0080275 /* Info.plist */,
 				BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */,
 				01E366552FAA4505B9775ACB /* PindropApp.swift */,
+				1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */,
 				509539AB0B5D433489196E46 /* Assets.xcassets */,
 				APPICON01A2B3C4D5E6F71 /* Pindrop.icon */,
+				LOCALIZATIONGRP01A2B3C4D5E6F /* Localization */,
 				81f50d309b6a44df90efbd5f /* Services */,
 				855E92B9E1094A4A99FE07FF /* Preview Content */,
 				38268D286F644C93A216D0F4 /* Models */,
@@ -502,6 +510,15 @@
 				A9B6FA1DDE42D518F7806484 /* AppTestMode.swift */,
 			);
 			path = Pindrop;
+			sourceTree = "<group>";
+		};
+		LOCALIZATIONGRP01A2B3C4D5E6F /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */,
+				6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */,
+			);
+			path = Localization;
 			sourceTree = "<group>";
 		};
 		AA285F0FC951498CA7AEFEDE /* PindropTests */ = {
@@ -742,6 +759,10 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				de,
+				es,
+				fr,
+				"zh-Hans",
 				Base,
 			);
 			mainGroup = 2AE7116BC5A64F50B5790CC7;
@@ -778,8 +799,10 @@
 		C9D46B9D12B748D9BBCFE2A3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				6EA189DAD2FC954E2AA5B6B6 /* InfoPlist.xcstrings in Resources */,
 				440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */,
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
+				6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */,
 				APPICON02A2B3C4D5E6F70 /* Pindrop.icon in Resources */,
 			);
 		};
@@ -825,6 +848,7 @@
 			isa = PBXSourcesBuildPhase;
 			files = (
 				PRESETMANGSHEETBUILD /* PresetManagementSheet.swift in Sources */,
+				1A2B3C4D5E6F708192A3B4C5 /* AppLocalization.swift in Sources */,
 				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
 				A9D8C7B6E5F40123456789AB /* AudioDeviceManager.swift in Sources */,

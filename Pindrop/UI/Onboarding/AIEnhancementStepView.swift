@@ -156,242 +156,243 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
 }
 
 struct AIEnhancementStepView: View {
-   @ObservedObject var settings: SettingsStore
-   let onContinue: () -> Void
-   let onSkip: () -> Void
-   let onPreferredContentSizeChange: (CGSize) -> Void
+    @ObservedObject var settings: SettingsStore
+    let onContinue: () -> Void
+    let onSkip: () -> Void
+    let onPreferredContentSizeChange: (CGSize) -> Void
 
-   @State private var selectedProvider: AIProvider = .openai
-   @State private var selectedCustomProvider: CustomProviderType = .custom
-   @State private var apiKey = ""
-   @State private var customEndpoint = ""
-   @State private var selectedModel = "gpt-4o-mini"
-   @State private var customModel = ""
-   @State private var showingAPIKey = false
-   @State private var availableModels: [AIModelService.AIModel] = []
-   @State private var isLoadingModels = false
-   @State private var modelError: String?
-   @State private var modelService = AIModelService()
-   @State private var endpointRefreshTask: Task<Void, Never>?
+    @Environment(\.locale) private var locale
+    @State private var selectedProvider: AIProvider = .openai
+    @State private var selectedCustomProvider: CustomProviderType = .custom
+    @State private var apiKey = ""
+    @State private var customEndpoint = ""
+    @State private var selectedModel = "gpt-4o-mini"
+    @State private var customModel = ""
+    @State private var showingAPIKey = false
+    @State private var availableModels: [AIModelService.AIModel] = []
+    @State private var isLoadingModels = false
+    @State private var modelError: String?
+    @State private var modelService = AIModelService()
+    @State private var endpointRefreshTask: Task<Void, Never>?
 
-   private static func preferredContentSize(for provider: AIProvider) -> CGSize {
-       switch provider {
-       case .openrouter, .openai:
-          return CGSize(width: 800, height: 820)
-       case .custom:
-          return CGSize(width: 800, height: 900)
-       default:
-          return CGSize(width: 800, height: 720)
+    private static func preferredContentSize(for provider: AIProvider) -> CGSize {
+        switch provider {
+        case .openrouter, .openai:
+           return CGSize(width: 800, height: 820)
+        case .custom:
+           return CGSize(width: 800, height: 900)
+        default:
+           return CGSize(width: 800, height: 720)
+        }
+    }
+    private var preferredContentSize: CGSize {
+       Self.preferredContentSize(for: selectedProvider)
+    }
+
+    var body: some View {
+       VStack(spacing: 20) {
+          headerSection
+
+          providerTabs
+
+          providerConfigSection
+             .frame(maxHeight: .infinity)
+
+          actionButtons
        }
-   }
-   private var preferredContentSize: CGSize {
-      Self.preferredContentSize(for: selectedProvider)
-   }
+       .padding(.horizontal, 40)
+        .padding(.top, 16)
+        .padding(.bottom, 24)
+        .onAppear {
+           loadSavedConfiguration()
+           onPreferredContentSizeChange(preferredContentSize)
+        }
+        .onChange(of: selectedProvider) { oldValue, newValue in
+           if newValue == .custom {
+              applyCustomEndpointDefault(forceReset: oldValue != .custom)
+           }
 
-   var body: some View {
-      VStack(spacing: 20) {
-         headerSection
+           apiKey = settings.loadAPIKey(for: newValue, customLocalProvider: selectedCustomProvider) ?? ""
+           onPreferredContentSizeChange(preferredContentSize)
+           Task {
+              await loadModelsIfNeeded(
+                 for: newValue,
+                 customLocalProvider: selectedCustomProvider,
+                 forceRefresh: newValue == .custom
+              )
+           }
+        }
+        .onChange(of: apiKey) { _, newValue in
+           guard selectedProvider == .openai else { return }
+           guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+           Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
+        }
+        .onChange(of: selectedCustomProvider) { oldValue, newValue in
+           applyCustomEndpointDefault(previousCustomProvider: oldValue)
 
-         providerTabs
+           apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
 
-         providerConfigSection
-            .frame(maxHeight: .infinity)
+           if newValue == .custom {
+              if customModel.isEmpty {
+                 customModel = selectedModel
+              }
+              availableModels = []
+              modelError = nil
+           }
 
-         actionButtons
-      }
-      .padding(.horizontal, 40)
-       .padding(.top, 16)
-       .padding(.bottom, 24)
-       .onAppear {
-          loadSavedConfiguration()
-          onPreferredContentSizeChange(preferredContentSize)
-       }
-       .onChange(of: selectedProvider) { oldValue, newValue in
-          if newValue == .custom {
-             applyCustomEndpointDefault(forceReset: oldValue != .custom)
-          }
-
-          apiKey = settings.loadAPIKey(for: newValue, customLocalProvider: selectedCustomProvider) ?? ""
-          onPreferredContentSizeChange(preferredContentSize)
-          Task {
-             await loadModelsIfNeeded(
-                for: newValue,
-                customLocalProvider: selectedCustomProvider,
-                forceRefresh: newValue == .custom
-             )
-          }
-       }
-       .onChange(of: apiKey) { _, newValue in
-          guard selectedProvider == .openai else { return }
-          guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-          Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
-       }
-       .onChange(of: selectedCustomProvider) { oldValue, newValue in
-          applyCustomEndpointDefault(previousCustomProvider: oldValue)
-
-          apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
-
-          if newValue == .custom {
-             if customModel.isEmpty {
-                customModel = selectedModel
-             }
-             availableModels = []
-             modelError = nil
-          }
-
-          Task {
-             await loadModelsIfNeeded(
-                for: .custom,
-                customLocalProvider: newValue,
-                forceRefresh: true
-             )
-          }
-       }
-       .onChange(of: customEndpoint) { _, newValue in
-          guard selectedProvider == .custom, selectedCustomProvider.supportsModelListing else { return }
-          scheduleEndpointRefresh(for: newValue)
-       }
+           Task {
+              await loadModelsIfNeeded(
+                 for: .custom,
+                 customLocalProvider: newValue,
+                 forceRefresh: true
+              )
+           }
+        }
+        .onChange(of: customEndpoint) { _, newValue in
+           guard selectedProvider == .custom, selectedCustomProvider.supportsModelListing else { return }
+           scheduleEndpointRefresh(for: newValue)
+        }
 
     }
 
-   private var headerSection: some View {
-      VStack(spacing: 6) {
-         IconView(icon: .sparkles, size: 36)
-            .foregroundStyle(AppColors.accent)
+    private var headerSection: some View {
+       VStack(spacing: 6) {
+          IconView(icon: .sparkles, size: 36)
+             .foregroundStyle(AppColors.accent)
 
-         Text("AI Enhancement")
-            .font(.system(size: 24, weight: .bold, design: .rounded))
+          Text(localized("AI Enhancement", locale: locale))
+             .font(.system(size: 24, weight: .bold, design: .rounded))
 
-         Text("Optionally clean up transcriptions with AI")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-      }
-   }
+          Text(localized("Optionally clean up transcriptions with AI", locale: locale))
+             .font(.subheadline)
+             .foregroundStyle(.secondary)
+       }
+    }
 
-   private var providerTabs: some View {
-      HStack(spacing: 0) {
-         ForEach(AIProvider.allCases) { provider in
-            providerTab(provider)
-         }
-      }
-      .frame(height: 56)
-      .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
-   }
-
-   private func providerTab(_ provider: AIProvider) -> some View {
-      Button {
-         withAnimation(.spring(duration: 0.3)) {
-            selectedProvider = provider
-         }
-      } label: {
-         VStack(spacing: 4) {
-            IconView(icon: provider.icon, size: 18)
-            Text(provider.displayName)
-               .font(.caption)
-               .fontWeight(.medium)
-         }
-         .frame(maxWidth: .infinity)
-         .padding(.vertical, 12)
-         .contentShape(Rectangle())
-         .background(
-            selectedProvider == provider
-               ? AppColors.accent.opacity(0.2)
-               : Color.clear
-         )
-         .foregroundStyle(selectedProvider == provider ? AppColors.accent : .secondary)
-      }
-      .buttonStyle(.plain)
-   }
-
-   @ViewBuilder
-   private var providerConfigSection: some View {
-      VStack(spacing: 16) {
-         if !selectedProvider.isImplemented {
-            comingSoonView
-         } else {
-            if selectedProvider == .custom {
-               customProviderPicker
-            }
-
-            apiKeyField
-
-            if selectedProvider == .openrouter || selectedProvider == .openai {
-               modelPicker
-            }
-
-            if selectedProvider == .custom {
-               if selectedCustomProvider.supportsModelListing {
-                  modelPicker
-                } else {
-                  customModelField
-                }
-                customEndpointField
-            }
-
-            Spacer()
-
-            featureList
-         }
-      }
-      .padding(20)
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
-   }
-
-   private var comingSoonView: some View {
-      VStack(spacing: 12) {
-         Spacer()
-
-         IconView(icon: .construction, size: 40)
-            .foregroundStyle(.secondary)
-
-          Text("\(selectedProvider.displayName) Support Coming Soon")
-            .font(.headline)
-
-         Text(
-            "This provider will be available in a future update.\nFor now, try OpenAI or use a Custom endpoint."
-         )
-         .font(.subheadline)
-         .foregroundStyle(.secondary)
-         .multilineTextAlignment(.center)
-
-         Spacer()
-      }
-   }
-
-    private var apiKeyField: some View {
-       VStack(alignment: .leading, spacing: 8) {
-          HStack(spacing: 8) {
-             Text("API Key")
-                .font(.subheadline)
-                .fontWeight(.medium)
-
-             if isAPIKeyOptional {
-                Text("Optional")
-                   .font(.caption)
-                   .foregroundStyle(.secondary)
-                   .padding(.horizontal, 8)
-                   .padding(.vertical, 4)
-                   .background(.ultraThinMaterial, in: Capsule())
-             }
+    private var providerTabs: some View {
+       HStack(spacing: 0) {
+          ForEach(AIProvider.allCases) { provider in
+             providerTab(provider)
           }
+       }
+       .frame(height: 56)
+       .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+    }
 
-          HStack {
-             Group {
-                if showingAPIKey {
-                  TextField(currentAPIKeyPlaceholder, text: $apiKey)
-                } else {
-                  SecureField(currentAPIKeyPlaceholder, text: $apiKey)
-                }
+    private func providerTab(_ provider: AIProvider) -> some View {
+       Button {
+          withAnimation(.spring(duration: 0.3)) {
+             selectedProvider = provider
+          }
+       } label: {
+          VStack(spacing: 4) {
+             IconView(icon: provider.icon, size: 18)
+             Text(provider.displayName)
+                .font(.caption)
+                .fontWeight(.medium)
+          }
+          .frame(maxWidth: .infinity)
+          .padding(.vertical, 12)
+          .contentShape(Rectangle())
+          .background(
+             selectedProvider == provider
+                ? AppColors.accent.opacity(0.2)
+                : Color.clear
+          )
+          .foregroundStyle(selectedProvider == provider ? AppColors.accent : .secondary)
+       }
+       .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var providerConfigSection: some View {
+       VStack(spacing: 16) {
+          if !selectedProvider.isImplemented {
+             comingSoonView
+          } else {
+             if selectedProvider == .custom {
+                customProviderPicker
              }
-             .textFieldStyle(.plain)
 
-            Button {
-               showingAPIKey.toggle()
-            } label: {
-               IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
-                  .foregroundStyle(.secondary)
-            }
+             apiKeyField
+
+             if selectedProvider == .openrouter || selectedProvider == .openai {
+                modelPicker
+             }
+
+             if selectedProvider == .custom {
+                if selectedCustomProvider.supportsModelListing {
+                   modelPicker
+                 } else {
+                   customModelField
+                 }
+                 customEndpointField
+             }
+
+             Spacer()
+
+             featureList
+          }
+       }
+       .padding(20)
+       .frame(maxWidth: .infinity, maxHeight: .infinity)
+       .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
+    }
+
+    private var comingSoonView: some View {
+       VStack(spacing: 12) {
+          Spacer()
+
+          IconView(icon: .construction, size: 40)
+             .foregroundStyle(.secondary)
+
+          Text(localized("%@ Support Coming Soon", locale: locale).replacingOccurrences(of: "%@", with: selectedProvider.displayName))
+             .font(.headline)
+
+          Text(
+             localized("This provider will be available in a future update.\nFor now, try OpenAI or use a Custom endpoint.", locale: locale)
+          )
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+          .multilineTextAlignment(.center)
+
+          Spacer()
+       }
+    }
+
+     private var apiKeyField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+           HStack(spacing: 8) {
+              Text(localized("API Key", locale: locale))
+                 .font(.subheadline)
+                 .fontWeight(.medium)
+
+              if isAPIKeyOptional {
+                 Text(localized("Optional", locale: locale))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial, in: Capsule())
+              }
+           }
+
+           HStack {
+              Group {
+                 if showingAPIKey {
+                   TextField(currentAPIKeyPlaceholder, text: $apiKey)
+                 } else {
+                   SecureField(currentAPIKeyPlaceholder, text: $apiKey)
+                 }
+              }
+              .textFieldStyle(.plain)
+
+             Button {
+                showingAPIKey.toggle()
+             } label: {
+                IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
+                   .foregroundStyle(.secondary)
+             }
              .buttonStyle(.plain)
            }
            .aiSettingsInputChrome()
@@ -401,94 +402,96 @@ struct AIEnhancementStepView: View {
                  .font(.caption)
                 .foregroundStyle(.secondary)
           }
-       }
-    }
-
-    private var customProviderPicker: some View {
-       VStack(alignment: .leading, spacing: 8) {
-          Text("Provider Type")
-             .font(.subheadline)
-             .fontWeight(.medium)
-
-          SelectField(
-             options: customProviderOptions,
-             selection: customProviderSelection,
-             placeholder: "Select a provider type"
-          )
-          .frame(maxWidth: 220, alignment: .leading)
-       }
-       .frame(maxWidth: .infinity, alignment: .leading)
+        }
      }
 
-    private var customEndpointField: some View {
-       VStack(alignment: .leading, spacing: 8) {
-         HStack {
-            Text("API Endpoint")
-               .font(.subheadline)
-               .fontWeight(.medium)
+     private var customProviderPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+           Text(localized("Provider Type", locale: locale))
+              .font(.subheadline)
+              .fontWeight(.medium)
 
-            Spacer()
+           SelectField(
+              options: customProviderOptions,
+              selection: customProviderSelection,
+              placeholder: localized("Select a provider type", locale: locale)
+           )
+           .frame(maxWidth: 220, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
 
-             Text(selectedCustomProvider == .custom ? "Must be OpenAI-compatible" : "OpenAI-compatible local server")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+     private var customEndpointField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+             Text(localized("API Endpoint", locale: locale))
+                .font(.subheadline)
+                .fontWeight(.medium)
+
+             Spacer()
+
+              Text(selectedCustomProvider == .custom
+                 ? localized("Must be OpenAI-compatible", locale: locale)
+                 : localized("OpenAI-compatible local server", locale: locale))
+                 .font(.caption)
+                 .foregroundStyle(.secondary)
           }
 
            TextField(selectedCustomProvider.endpointPlaceholder, text: $customEndpoint)
               .textFieldStyle(.plain)
               .aiSettingsInputChrome()
-       }
-    }
-
-   private var customModelField: some View {
-      VStack(alignment: .leading, spacing: 8) {
-          Text("AI Model")
-             .font(.subheadline)
-             .fontWeight(.medium)
-
-           TextField(selectedCustomProvider.modelPlaceholder, text: $customModel)
-              .textFieldStyle(.plain)
-              .aiSettingsInputChrome()
         }
      }
 
-    private var modelPicker: some View {
+    private var customModelField: some View {
        VStack(alignment: .leading, spacing: 8) {
-         HStack {
-            Text("AI Model")
-               .font(.subheadline)
-               .fontWeight(.medium)
-            Spacer()
+           Text(localized("AI Model", locale: locale))
+              .font(.subheadline)
+              .fontWeight(.medium)
 
-            if isLoadingModels {
-               ProgressView()
-                  .controlSize(.small)
-            }
+            TextField(selectedCustomProvider.modelPlaceholder, text: $customModel)
+               .textFieldStyle(.plain)
+               .aiSettingsInputChrome()
+        }
+      }
 
-            Button("Refresh") {
-                Task {
-                   await loadModelsIfNeeded(
-                      for: selectedProvider,
-                      customLocalProvider: selectedCustomProvider,
-                      forceRefresh: true
-                   )
-                }
+     private var modelPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+             Text(localized("AI Model", locale: locale))
+                .font(.subheadline)
+                .fontWeight(.medium)
+             Spacer()
+
+             if isLoadingModels {
+                ProgressView()
+                   .controlSize(.small)
              }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(
-               isLoadingModels
-                  || (selectedProvider == .openai
-                     && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            )
-         }
 
-          if availableModels.isEmpty {
-             Text(emptyModelsMessage)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .aiSettingsInputChrome()
+             Button(localized("Refresh", locale: locale)) {
+                 Task {
+                    await loadModelsIfNeeded(
+                       for: selectedProvider,
+                       customLocalProvider: selectedCustomProvider,
+                       forceRefresh: true
+                    )
+                 }
+              }
+             .buttonStyle(.bordered)
+             .controlSize(.small)
+             .disabled(
+                isLoadingModels
+                   || (selectedProvider == .openai
+                      && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+             )
+          }
+
+           if availableModels.isEmpty {
+              Text(emptyModelsMessage)
+                 .font(.caption)
+                 .foregroundStyle(.secondary)
+                 .frame(maxWidth: .infinity, alignment: .leading)
+                 .aiSettingsInputChrome()
            } else {
               SearchableDropdown(
                  items: availableModels,
@@ -496,43 +499,43 @@ struct AIEnhancementStepView: View {
                   get: { selectedModel.isEmpty ? nil : selectedModel },
                   set: { selectedModel = $0 ?? "" }
                ),
-                placeholder: "Select a model",
-                emptyMessage: "No models found.",
-                searchPlaceholder: "Search models..."
+                placeholder: localized("Select a model", locale: locale),
+                emptyMessage: localized("No models found.", locale: locale),
+                searchPlaceholder: localized("Search models...", locale: locale)
              )
              .frame(maxWidth: .infinity)
-          }
+           }
 
-          if let modelError {
-             HStack(spacing: 6) {
-                IconView(icon: .warning, size: 12)
-                   .foregroundStyle(.red)
-                Text(modelError)
-                   .font(.caption)
-                   .foregroundStyle(.red)
-             }
-          }
-       }
-       .zIndex(10)
+           if let modelError {
+              HStack(spacing: 6) {
+                 IconView(icon: .warning, size: 12)
+                    .foregroundStyle(.red)
+                 Text(modelError)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+              }
+           }
+        }
+        .zIndex(10)
     }
 
 
    private var emptyModelsMessage: String {
       if isLoadingModels {
-         return "Loading models..."
+         return localized("Loading models...", locale: locale)
       }
        if selectedProvider == .openai,
           apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
        {
-          return "Enter an OpenAI API key to load models."
+          return localized("Enter an OpenAI API key to load models.", locale: locale)
        }
        if modelError != nil {
-          return "Unable to load models. Try refresh."
+          return localized("Unable to load models. Try refresh.", locale: locale)
        }
        if selectedProvider == .custom && selectedCustomProvider.supportsModelListing {
-          return "No models available. Try Refresh or enter a model ID manually."
+          return localized("No models available. Try Refresh or enter a model ID manually.", locale: locale)
        }
-       return "No models available."
+       return localized("No models available.", locale: locale)
     }
 
     private var isAPIKeyOptional: Bool {
@@ -550,9 +553,9 @@ struct AIEnhancementStepView: View {
        case .custom:
           return nil
        case .ollama:
-          return "Ollama usually does not require authentication for local requests."
+          return localized("Ollama usually does not require authentication for local requests.", locale: locale)
        case .lmStudio:
-          return "LM Studio only needs a token if local server authentication is enabled."
+          return localized("LM Studio only needs a token if local server authentication is enabled.", locale: locale)
        }
     }
 
@@ -703,13 +706,13 @@ struct AIEnhancementStepView: View {
           )
           availableModels = models
           updateSelectedModelIfNeeded(for: provider, models: models)
-        } catch {
-           if provider == .custom && resolvedCustomProvider.supportsModelListing {
-              availableModels = []
-           }
-           Log.aiEnhancement.error("Failed to fetch \(provider.rawValue) models: \(error)")
-           modelError = error.localizedDescription
-        }
+       } catch {
+          if provider == .custom && resolvedCustomProvider.supportsModelListing {
+             availableModels = []
+          }
+          Log.aiEnhancement.error("Failed to fetch \(provider.rawValue) models: \(error)")
+          modelError = error.localizedDescription
+       }
     }
 
     private func updateSelectedModelIfNeeded(
@@ -740,14 +743,14 @@ struct AIEnhancementStepView: View {
 
    private var featureList: some View {
       VStack(alignment: .leading, spacing: 8) {
-         Text("AI Enhancement will:")
+         Text(localized("AI Enhancement will:", locale: locale))
             .font(.subheadline)
             .fontWeight(.medium)
 
-         featureItem("Fix punctuation and capitalization")
-         featureItem("Correct grammar mistakes")
-         featureItem("Clean up filler words")
-         featureItem("Format text appropriately")
+         featureItem(localized("Fix punctuation and capitalization", locale: locale))
+         featureItem(localized("Correct grammar mistakes", locale: locale))
+         featureItem(localized("Clean up filler words", locale: locale))
+         featureItem(localized("Format text appropriately", locale: locale))
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(16)
@@ -767,11 +770,11 @@ struct AIEnhancementStepView: View {
 
    private var actionButtons: some View {
       HStack(spacing: 16) {
-         Button("Skip for Now", action: onSkip)
+         Button(localized("Skip for Now", locale: locale), action: onSkip)
             .buttonStyle(.bordered)
 
          Button(action: saveAndContinue) {
-            Text("Save & Continue")
+            Text(localized("Save & Continue", locale: locale))
                .font(.headline)
                .frame(maxWidth: 180)
                .padding(.vertical, 12)

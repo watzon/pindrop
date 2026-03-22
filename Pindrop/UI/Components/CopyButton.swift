@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Foundation
 
 struct CopyButton: View {
     let text: String
@@ -8,6 +9,18 @@ struct CopyButton: View {
     var showBackground: Bool = false
     
     @State private var isCopied = false
+    
+    private var currentLocale: Locale {
+        SettingsStore().selectedAppLanguage.locale
+    }
+    
+    private var copiedText: String {
+        localized("Copied!", locale: currentLocale)
+    }
+    
+    private var copyTooltip: String {
+        localized("Copy to clipboard", locale: currentLocale)
+    }
     
     var body: some View {
         Button {
@@ -20,7 +33,7 @@ struct CopyButton: View {
                     .contentTransition(.symbolEffect(.replace))
                 
                 if let label {
-                    Text(isCopied ? "Copied!" : label)
+                    Text(isCopied ? copiedText : label)
                         .font(.caption)
                         .foregroundStyle(isCopied ? .green : AppColors.textTertiary)
                         .contentTransition(.numericText())
@@ -37,7 +50,7 @@ struct CopyButton: View {
             .animation(.easeInOut(duration: 0.2), value: isCopied)
         }
         .buttonStyle(.plain)
-        .help(isCopied ? "Copied!" : "Copy to clipboard")
+        .help(isCopied ? copiedText : copyTooltip)
     }
     
     private func copyToClipboard() {
@@ -65,6 +78,18 @@ struct CopyButtonWithCallback: View {
     
     @State private var isCopied = false
     
+    private var currentLocale: Locale {
+        SettingsStore().selectedAppLanguage.locale
+    }
+    
+    private var copiedText: String {
+        localized("Copied!", locale: currentLocale)
+    }
+    
+    private var copyTooltip: String {
+        localized("Copy to clipboard", locale: currentLocale)
+    }
+    
     var body: some View {
         Button {
             performCopy()
@@ -76,7 +101,7 @@ struct CopyButtonWithCallback: View {
                     .contentTransition(.symbolEffect(.replace))
                 
                 if let label {
-                    Text(isCopied ? "Copied!" : label)
+                    Text(isCopied ? copiedText : label)
                         .font(.caption)
                         .foregroundStyle(isCopied ? .green : AppColors.textTertiary)
                         .contentTransition(.numericText())
@@ -93,7 +118,7 @@ struct CopyButtonWithCallback: View {
             .animation(.easeInOut(duration: 0.2), value: isCopied)
         }
         .buttonStyle(.plain)
-        .help(isCopied ? "Copied!" : "Copy to clipboard")
+        .help(isCopied ? copiedText : copyTooltip)
     }
     
     private func performCopy() {

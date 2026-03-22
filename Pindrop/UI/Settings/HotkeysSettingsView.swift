@@ -11,6 +11,7 @@ import Carbon
 
 struct HotkeysSettingsView: View {
     @ObservedObject var settings: SettingsStore
+    @Environment(\.locale) private var locale
     @State private var isRecordingToggle = false
     @State private var isRecordingPushToTalk = false
     @State private var isRecordingCopyLastTranscript = false
@@ -41,9 +42,9 @@ struct HotkeysSettingsView: View {
     }
     
     private var toggleHotkeyCard: some View {
-        SettingsCard(title: "Toggle Recording", icon: "record.circle", detail: "Press once to start recording, then press again to stop and transcribe.") {
+        SettingsCard(title: localized("Toggle Recording", locale: locale), icon: "record.circle", detail: localized("Press once to start recording, then press again to stop and transcribe.", locale: locale)) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text("Press once to start recording, press again to stop and transcribe")
+                Text(localized("Press once to start recording, press again to stop and transcribe", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                 
@@ -60,9 +61,9 @@ struct HotkeysSettingsView: View {
     }
     
     private var pushToTalkCard: some View {
-        SettingsCard(title: "Push-to-Talk", icon: "hand.tap", detail: "Hold the shortcut to record, then release to transcribe.") {
+        SettingsCard(title: localized("Push-to-Talk", locale: locale), icon: "hand.tap", detail: localized("Hold the shortcut to record, then release to transcribe.", locale: locale)) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text("Hold to record, release to stop and transcribe")
+                Text(localized("Hold to record, release to stop and transcribe", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                 
@@ -79,9 +80,9 @@ struct HotkeysSettingsView: View {
     }
 
     private var copyLastTranscriptCard: some View {
-        SettingsCard(title: "Copy Last Transcript", icon: "doc.on.clipboard", detail: "Quickly pull your latest transcript back to the clipboard.") {
+        SettingsCard(title: localized("Copy Last Transcript", locale: locale), icon: "doc.on.clipboard", detail: localized("Quickly pull your latest transcript back to the clipboard.", locale: locale)) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text("Copy the most recent transcript to the clipboard")
+                Text(localized("Copy the most recent transcript to the clipboard", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
 
@@ -98,9 +99,9 @@ struct HotkeysSettingsView: View {
     }
     
     private var quickCapturePTTCard: some View {
-        SettingsCard(title: "Note Capture (Push-to-Talk)", icon: "hand.tap", detail: "Capture directly into the note editor with a hold-to-record flow.") {
+        SettingsCard(title: localized("Note Capture (Push-to-Talk)", locale: locale), icon: "hand.tap", detail: localized("Capture directly into the note editor with a hold-to-record flow.", locale: locale)) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text("Hold to record, release to open note editor with transcription")
+                Text(localized("Hold to record, release to open note editor with transcription", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                 
@@ -117,9 +118,9 @@ struct HotkeysSettingsView: View {
     }
 
     private var quickCaptureToggleCard: some View {
-        SettingsCard(title: "Note Capture (Toggle)", icon: "note.text", detail: "Use a tap-to-start, tap-to-finish shortcut for note capture.") {
+        SettingsCard(title: localized("Note Capture (Toggle)", locale: locale), icon: "note.text", detail: localized("Use a tap-to-start, tap-to-finish shortcut for note capture.", locale: locale)) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text("Press to start recording, press again to open note editor")
+                Text(localized("Press to start recording, press again to open note editor", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                 

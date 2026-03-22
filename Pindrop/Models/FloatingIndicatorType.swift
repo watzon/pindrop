@@ -15,24 +15,32 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var displayName: String {
+        displayName(locale: .autoupdatingCurrent)
+    }
+
+    func displayName(locale: Locale) -> String {
         switch self {
         case .notch:
-            return "Notch"
+            return localized("Notch", locale: locale)
         case .pill:
-            return "Pill"
+            return localized("Pill", locale: locale)
         case .bubble:
-            return "Bubble"
+            return localized("Bubble", locale: locale)
         }
     }
 
     var description: String {
+        description(locale: .autoupdatingCurrent)
+    }
+
+    func description(locale: Locale) -> String {
         switch self {
         case .notch:
-            return "Shows in the menu bar/notch area"
+            return localized("Shows in the menu bar/notch area", locale: locale)
         case .pill:
-            return "Shows as a pill at the bottom of the screen"
+            return localized("Shows as a pill at the bottom of the screen", locale: locale)
         case .bubble:
-            return "Shows beside the focused text field/caret"
+            return localized("Shows beside the focused text field/caret", locale: locale)
         }
     }
 }

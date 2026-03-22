@@ -11,7 +11,7 @@ import AppKit
 @MainActor
 final class OnboardingWindowController {
     private var window: NSWindow?
-    private var hostingController: NSHostingController<OnboardingWindow>?
+    private var hostingController: NSHostingController<AnyView>?
     
     func showOnboarding(
         settings: SettingsStore,
@@ -38,8 +38,9 @@ final class OnboardingWindowController {
                 self?.ensureWindowCanFitContentSize(size)
             }
         )
+        .environment(\.locale, settings.selectedAppLanguage.locale)
         
-        let hosting = NSHostingController(rootView: onboardingView)
+        let hosting = NSHostingController(rootView: AnyView(onboardingView))
         hostingController = hosting
         
         let window = NSWindow(contentViewController: hosting)

@@ -42,37 +42,46 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
    public var id: String { rawValue }
 
-   var displayName: String {
-      switch self {
-      case .automatic:
-         return "Automatic (Follow System)"
-      case .english:
-         return "English"
-      case .simplifiedChinese:
-         return "Simplified Chinese"
-      case .spanish:
-         return "Spanish"
-      case .french:
-         return "French"
-      case .german:
-         return "German"
-      case .japanese:
-         return "Japanese"
-      case .portugueseBrazil:
-         return "Portuguese (Brazil)"
-      case .italian:
-         return "Italian"
-      case .dutch:
-         return "Dutch"
-      case .korean:
-         return "Korean"
-      }
-   }
+    var displayName: String {
+       displayName(locale: .autoupdatingCurrent)
+    }
 
-   var pickerLabel: String {
-      guard !isSelectable else { return displayName }
-      return "\(displayName) (Coming Soon)"
-   }
+    var pickerLabel: String {
+       pickerLabel(locale: .autoupdatingCurrent)
+    }
+
+    func displayName(locale: Locale) -> String {
+       switch self {
+       case .automatic:
+          return localized("Automatic (Follow System)", locale: locale)
+       case .english:
+          return localized("English", locale: locale)
+       case .simplifiedChinese:
+          return localized("Simplified Chinese", locale: locale)
+       case .spanish:
+          return localized("Spanish", locale: locale)
+       case .french:
+          return localized("French", locale: locale)
+       case .german:
+          return localized("German", locale: locale)
+       case .japanese:
+          return localized("Japanese", locale: locale)
+       case .portugueseBrazil:
+          return localized("Portuguese (Brazil)", locale: locale)
+       case .italian:
+          return localized("Italian", locale: locale)
+       case .dutch:
+          return localized("Dutch", locale: locale)
+       case .korean:
+          return localized("Korean", locale: locale)
+       }
+    }
+
+    func pickerLabel(locale: Locale) -> String {
+       let displayName = displayName(locale: locale)
+       guard !isSelectable else { return displayName }
+       return String(format: localized("%@ (Coming Soon)", locale: locale), displayName)
+    }
 
    var isSelectable: Bool {
       switch self {
@@ -85,6 +94,33 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
    var isEnglish: Bool {
       self == .english
+   }
+
+   var locale: Locale {
+      switch self {
+      case .automatic:
+         return .autoupdatingCurrent
+      case .english:
+         return Locale(identifier: "en")
+      case .simplifiedChinese:
+         return Locale(identifier: "zh-Hans")
+      case .spanish:
+         return Locale(identifier: "es")
+      case .french:
+         return Locale(identifier: "fr")
+      case .german:
+         return Locale(identifier: "de")
+      case .japanese:
+         return Locale(identifier: "ja")
+      case .portugueseBrazil:
+         return Locale(identifier: "pt-BR")
+      case .italian:
+         return Locale(identifier: "it")
+      case .dutch:
+         return Locale(identifier: "nl")
+      case .korean:
+         return Locale(identifier: "ko")
+      }
    }
 
    var whisperLanguageCode: String? {

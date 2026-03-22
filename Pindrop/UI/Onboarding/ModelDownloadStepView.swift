@@ -13,28 +13,29 @@ struct ModelDownloadStepView: View {
     let modelName: String
     let onComplete: () -> Void
     let onCancel: () -> Void
-    
+
+    @Environment(\.locale) private var locale
     @State private var downloadError: String?
     @State private var hasStarted = false
-    
+
     private var selectedModel: ModelManager.WhisperModel? {
         modelManager.availableModels.first { $0.name == modelName }
     }
-    
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
-            
+
             progressIndicator
-            
+
             statusText
-            
+
             if downloadError != nil {
                 errorView
             }
-            
+
             Spacer()
-            
+
             actionButtons
         }
         .padding(40)
@@ -42,13 +43,13 @@ struct ModelDownloadStepView: View {
             await startDownload()
         }
     }
-    
+
     private var progressIndicator: some View {
         ZStack {
             Circle()
                 .stroke(Color.secondary.opacity(0.2), lineWidth: 8)
                 .frame(width: 120, height: 120)
-            
+
             Circle()
                 .trim(from: 0, to: modelManager.downloadProgress)
                 .stroke(
@@ -58,7 +59,7 @@ struct ModelDownloadStepView: View {
                 .frame(width: 120, height: 120)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.3), value: modelManager.downloadProgress)
-            
+
             VStack(spacing: 4) {
                 if modelManager.isDownloading {
                     Text("\(Int(modelManager.downloadProgress * 100))%")
@@ -76,46 +77,49 @@ struct ModelDownloadStepView: View {
         .background(.ultraThinMaterial, in: .circle)
         .padding(20)
     }
-    
+
     private var statusText: some View {
         VStack(spacing: 8) {
             Text(statusTitle)
                 .font(.system(size: 20, weight: .semibold, design: .rounded))
-            
+
             Text(statusSubtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
     }
-    
+
     private var statusTitle: String {
         if downloadError != nil {
-            return "Download Failed"
+            return localized("Download Failed", locale: locale)
         } else if modelManager.isDownloading {
             if modelManager.downloadProgress > 0.8 {
-                return "Preparing Model..."
+                return localized("Preparing Model...", locale: locale)
             }
-            return "Downloading \(selectedModel?.displayName ?? "Model")..."
+            return localized("Downloading %@...", locale: locale)
+                .replacingOccurrences(of: "%@", with: selectedModel?.displayName ?? localized("Model", locale: locale))
         } else {
-            return "Download Complete!"
+            return localized("Download Complete!", locale: locale)
         }
     }
-    
+
     private var statusSubtitle: String {
         if downloadError != nil {
-            return "Please check your internet connection and try again."
+            return localized("Please check your internet connection and try again.", locale: locale)
         } else if modelManager.isDownloading {
             if let model = selectedModel {
                 let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
-                return "\(downloadedMB) / \(model.sizeInMB) MB"
+                return localized("%d / %d MB", locale: locale)
+                    .replacingOccurrences(of: "%d", with: "\(downloadedMB)")
+                    .replacingOccurrences(of: " / %d", with: " / \(model.sizeInMB)").replacingOccurrences(of: "%d", with: "\(model.sizeInMB)")
             }
-            return "Please wait..."
+            return localized("Please wait...", locale: locale)
         } else {
-            return "Your model is ready to use."
+            return localized("Your model is ready to use.", locale: locale)
         }
     }
-    
+
     @ViewBuilder
     private var errorView: some View {
         if let error = downloadError {
@@ -127,28 +131,28 @@ struct ModelDownloadStepView: View {
                 .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
         }
     }
-    
+
     private var actionButtons: some View {
         HStack(spacing: 16) {
             if modelManager.isDownloading {
-                Button("Cancel") {
+                Button(localized("Cancel", locale: locale)) {
                     onCancel()
                 }
                 .buttonStyle(.bordered)
             } else if downloadError != nil {
-                Button("Go Back") {
+                Button(localized("Go Back", locale: locale)) {
                     onCancel()
                 }
                 .buttonStyle(.bordered)
-                
-                Button("Retry") {
+
+                Button(localized("Retry", locale: locale)) {
                     downloadError = nil
                     Task { await startDownload() }
                 }
                 .buttonStyle(.borderedProminent)
             } else {
                 Button(action: onComplete) {
-                    Text("Continue")
+                    Text(localized("Continue", locale: locale))
                         .font(.headline)
                         .frame(maxWidth: 200)
                         .padding(.vertical, 12)
@@ -157,7 +161,7 @@ struct ModelDownloadStepView: View {
             }
         }
     }
-    
+
     private func startDownload() async {
         guard !hasStarted else { return }
         hasStarted = true

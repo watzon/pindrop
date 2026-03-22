@@ -11,18 +11,19 @@ import SwiftData
 struct PresetManagementSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.locale) private var locale
+
     @State private var store: PromptPresetStore?
     @State private var presets: [PromptPreset] = []
-    
+
     @State private var isCreating = false
     @State private var newName = ""
     @State private var newPrompt = ""
-    
+
     @State private var editingPresetID: UUID?
     @State private var editName = ""
     @State private var editPrompt = ""
-    
+
     @State private var errorMessage: String?
     @State private var presetToDelete: PromptPreset?
     @State private var showDeleteConfirmation = false
@@ -30,32 +31,32 @@ struct PresetManagementSheet: View {
     @State private var importDataCache: Data?
 
     @State private var hoveredRowID: UUID?
-    
+
     private var builtInPresets: [PromptPreset] {
         presets.filter { $0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
     }
-    
+
     private var customPresets: [PromptPreset] {
         presets.filter { !$0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             header
-            
+
             ScrollView {
                 VStack(spacing: AppTheme.Spacing.xl) {
-                    
+
                     if isCreating {
                         createForm
                     } else {
                         createButton
                     }
-                    
+
                     if !builtInPresets.isEmpty {
                         builtInSection
                     }
-                    
+
                     customSection
                 }
                 .padding(AppTheme.Spacing.xl)
@@ -67,46 +68,46 @@ struct PresetManagementSheet: View {
             store = PromptPresetStore(modelContext: modelContext)
             loadData()
         }
-        .alert("Error", isPresented: Binding(
+        .alert(localized("Error", locale: locale), isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )) {
-            Button("OK") { errorMessage = nil }
+            Button(localized("OK", locale: locale)) { errorMessage = nil }
         } message: {
             if let errorMessage { Text(errorMessage) }
         }
-        .confirmationDialog("Delete Preset?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
+        .confirmationDialog(localized("Delete Preset?", locale: locale), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+            Button(localized("Delete", locale: locale), role: .destructive) {
                 if let preset = presetToDelete {
                     deletePreset(preset)
                 }
             }
-            Button("Cancel", role: .cancel) {
+            Button(localized("Cancel", locale: locale), role: .cancel) {
                 presetToDelete = nil
             }
         } message: {
             if let preset = presetToDelete {
-                Text("Are you sure you want to delete '\(preset.name)'? This action cannot be undone.")
+                Text(localized("Are you sure you want to delete '%@'? This action cannot be undone.", locale: locale).replacingOccurrences(of: "%@", with: preset.name))
             }
         }
-        .confirmationDialog("Import Strategy", isPresented: $showingImportStrategyDialog) {
-            Button("Add to Existing") {
+        .confirmationDialog(localized("Import Strategy", locale: locale), isPresented: $showingImportStrategyDialog) {
+            Button(localized("Add to Existing", locale: locale)) {
                 performImport(strategy: .additive)
             }
-            Button("Replace All", role: .destructive) {
+            Button(localized("Replace All", locale: locale), role: .destructive) {
                 performImport(strategy: .replace)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(localized("Cancel", locale: locale), role: .cancel) {}
         } message: {
-            Text("Choose how to import the preset data")
+            Text(localized("Choose how to import the preset data", locale: locale))
         }
     }
-    
+
     // MARK: - Header
-    
+
     private var header: some View {
         HStack {
-            Text("Manage Presets")
+            Text(localized("Manage Presets", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
 
@@ -119,7 +120,7 @@ struct PresetManagementSheet: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(AppColors.textSecondary)
-                .help("Import Presets")
+                .help(localized("Import Presets", locale: locale))
 
                 Button(action: handleExport) {
                     Image(systemName: "square.and.arrow.up")
@@ -127,7 +128,7 @@ struct PresetManagementSheet: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(AppColors.textSecondary)
-                .help("Export Presets")
+                .help(localized("Export Presets", locale: locale))
             }
 
             Button {
@@ -151,9 +152,9 @@ struct PresetManagementSheet: View {
             alignment: .bottom
         )
     }
-    
+
     // MARK: - Create Section
-    
+
     private var createButton: some View {
         Button {
             withAnimation(AppTheme.Animation.fast) {
@@ -165,8 +166,8 @@ struct PresetManagementSheet: View {
             HStack(spacing: AppTheme.Spacing.sm) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 16))
-                
-                Text("Create New Preset")
+
+                Text(localized("Create New Preset", locale: locale))
                     .font(AppTypography.subheadline)
                     .fontWeight(.semibold)
             }
@@ -184,24 +185,24 @@ struct PresetManagementSheet: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     private var createForm: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            Text("New Preset")
+            Text(localized("New Preset", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
-            TextField("Preset Name", text: $newName)
+
+            TextField(localized("Preset Name", locale: locale), text: $newName)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
                 .aiSettingsInputChrome()
-            
+
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                Text("Prompt")
+                Text(localized("Prompt", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
-                
+
                 TextEditor(text: $newPrompt)
                     .font(AppTypography.body)
                     .frame(height: 100)
@@ -212,24 +213,24 @@ struct PresetManagementSheet: View {
                         RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
                         style: AppColors.border
                     )
-                
-                Text("Use ${transcription} as a placeholder for the transcribed text.")
+
+                Text(localized("Use ${transcription} as a placeholder for the transcribed text.", locale: locale))
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.textTertiary)
             }
-            
+
             HStack(spacing: AppTheme.Spacing.md) {
-                Button("Cancel") {
+                Button(localized("Cancel", locale: locale)) {
                     withAnimation(AppTheme.Animation.fast) {
                         isCreating = false
                     }
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(AppColors.textSecondary)
-                
+
                 Spacer()
-                
-                Button("Create") {
+
+                Button(localized("Create", locale: locale)) {
                     saveNewPreset()
                 }
                 .buttonStyle(.plain)
@@ -250,21 +251,21 @@ struct PresetManagementSheet: View {
             style: AppColors.border
         )
     }
-    
+
     // MARK: - Built-in Section
-    
+
     private var builtInSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("Built-in Presets")
+            Text(localized("Built-in Presets", locale: locale))
                 .font(AppTypography.subheadline)
                 .foregroundStyle(AppColors.textSecondary)
                 .padding(.horizontal, AppTheme.Spacing.xs)
-            
+
             VStack(spacing: 0) {
                 ForEach(builtInPresets) { preset in
                     PresetRow(
                         preset: preset,
-                        isEditing: false, // Built-ins can't be edited
+                        isEditing: false,
                         editName: .constant(""),
                         editPrompt: .constant(""),
                         onStartEdit: {},
@@ -281,7 +282,7 @@ struct PresetManagementSheet: View {
                             hoveredRowID = isHovered ? preset.id : nil
                         }
                     }
-                    
+
                     if preset.id != builtInPresets.last?.id {
                         Divider().background(AppColors.divider)
                     }
@@ -295,16 +296,16 @@ struct PresetManagementSheet: View {
             )
         }
     }
-    
+
     // MARK: - Custom Section
-    
+
     private var customSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("Custom Presets")
+            Text(localized("Custom Presets", locale: locale))
                 .font(AppTypography.subheadline)
                 .foregroundStyle(AppColors.textSecondary)
                 .padding(.horizontal, AppTheme.Spacing.xs)
-            
+
             if customPresets.isEmpty {
                 emptyCustomState
             } else {
@@ -332,7 +333,7 @@ struct PresetManagementSheet: View {
                                 hoveredRowID = isHovered ? preset.id : nil
                             }
                         }
-                        
+
                         if preset.id != customPresets.last?.id {
                             Divider().background(AppColors.divider)
                         }
@@ -347,19 +348,19 @@ struct PresetManagementSheet: View {
             }
         }
     }
-    
+
     private var emptyCustomState: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: "text.quote")
                 .font(.system(size: 32))
                 .foregroundStyle(AppColors.textTertiary)
-            
-            Text("No Custom Presets")
+
+            Text(localized("No Custom Presets", locale: locale))
                 .font(AppTypography.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(AppColors.textSecondary)
-            
-            Text("Create your own presets or duplicate built-in ones to customize them.")
+
+            Text(localized("Create your own presets or duplicate built-in ones to customize them.", locale: locale))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textTertiary)
                 .multilineTextAlignment(.center)
@@ -377,9 +378,9 @@ struct PresetManagementSheet: View {
             dash: [5]
         )
     }
-    
+
     // MARK: - Actions
-    
+
     private func loadData() {
         guard let store = store else { return }
         do {
@@ -388,17 +389,17 @@ struct PresetManagementSheet: View {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     private func saveNewPreset() {
         guard let store = store else { return }
-        
+
         let preset = PromptPreset(
             name: newName,
             prompt: newPrompt,
             isBuiltIn: false,
             sortOrder: presets.count
         )
-        
+
         do {
             try store.add(preset)
             loadData()
@@ -409,19 +410,19 @@ struct PresetManagementSheet: View {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     private func startEditing(_ preset: PromptPreset) {
         editingPresetID = preset.id
         editName = preset.name
         editPrompt = preset.prompt
     }
-    
+
     private func saveEdit(_ preset: PromptPreset) {
         guard let store = store else { return }
-        
+
         preset.name = editName
         preset.prompt = editPrompt
-        
+
         do {
             try store.update(preset)
             loadData()
@@ -430,16 +431,16 @@ struct PresetManagementSheet: View {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     private func cancelEditing() {
         editingPresetID = nil
         editName = ""
         editPrompt = ""
     }
-    
+
     private func deletePreset(_ preset: PromptPreset) {
         guard let store = store else { return }
-        
+
         do {
             try store.delete(preset)
             loadData()
@@ -447,7 +448,7 @@ struct PresetManagementSheet: View {
             errorMessage = error.localizedDescription
         }
     }
-    
+
     private func duplicatePreset(_ preset: PromptPreset) {
         guard let store = store else { return }
 
@@ -470,22 +471,24 @@ struct PresetManagementSheet: View {
             let savePanel = NSSavePanel()
             savePanel.allowedContentTypes = [.json]
             savePanel.nameFieldStringValue = "presets.json"
-            savePanel.title = "Export Presets"
-            savePanel.message = "Choose a location to save the presets"
+            let currentLocale = SettingsStore().selectedAppLanguage.locale
+            savePanel.title = localized("Export Presets", locale: currentLocale)
+            savePanel.message = localized("Choose a location to save the presets", locale: currentLocale)
 
             if savePanel.runModal() == .OK, let url = savePanel.url {
                 try jsonData.write(to: url)
             }
         } catch {
-            errorMessage = "Failed to export presets: \(error.localizedDescription)"
+            errorMessage = localized("Failed to export presets: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
 
     private func handleImport() {
         let openPanel = NSOpenPanel()
+        let currentLocale = SettingsStore().selectedAppLanguage.locale
         openPanel.allowedContentTypes = [.json]
-        openPanel.title = "Import Presets"
-        openPanel.message = "Select a presets JSON file to import"
+        openPanel.title = localized("Import Presets", locale: currentLocale)
+        openPanel.message = localized("Select a presets JSON file to import", locale: currentLocale)
 
         if openPanel.runModal() == .OK, let url = openPanel.url {
             do {
@@ -493,7 +496,7 @@ struct PresetManagementSheet: View {
                 showingImportStrategyDialog = true
                 importDataCache = data
             } catch {
-                errorMessage = "Failed to read import file: \(error.localizedDescription)"
+                errorMessage = localized("Failed to read import file: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
         }
     }
@@ -506,7 +509,7 @@ struct PresetManagementSheet: View {
             loadData()
             importDataCache = nil
         } catch {
-            errorMessage = "Failed to import presets: \(error.localizedDescription)"
+            errorMessage = localized("Failed to import presets: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
 }
@@ -514,6 +517,8 @@ struct PresetManagementSheet: View {
 // MARK: - Preset Row
 
 struct PresetRow: View {
+    @Environment(\.locale) private var locale
+
     let preset: PromptPreset
     let isEditing: Bool
     @Binding var editName: String
@@ -523,9 +528,9 @@ struct PresetRow: View {
     let onCancelEdit: () -> Void
     let onDelete: () -> Void
     let onDuplicate: () -> Void
-    
+
     @State private var isHovered = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if isEditing {
@@ -541,10 +546,9 @@ struct PresetRow: View {
             }
         }
     }
-    
+
     private var displayView: some View {
         HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
-            // Icon
             Image(systemName: preset.isBuiltIn ? "lock.fill" : "person.fill")
                 .font(.system(size: 14))
                 .foregroundStyle(preset.isBuiltIn ? AppColors.textTertiary : AppColors.accent)
@@ -553,22 +557,21 @@ struct PresetRow: View {
                     Circle()
                         .fill(preset.isBuiltIn ? AppColors.surfaceBackground : AppColors.accent.opacity(0.1))
                 )
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(preset.name)
                     .font(AppTypography.body)
                     .fontWeight(.medium)
                     .foregroundStyle(AppColors.textPrimary)
-                
+
                 Text(preset.prompt)
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
                     .lineLimit(2)
             }
-            
+
             Spacer()
-            
-            // Actions
+
             HStack(spacing: AppTheme.Spacing.xs) {
                 if !preset.isBuiltIn {
                     Button(action: onStartEdit) {
@@ -581,9 +584,9 @@ struct PresetRow: View {
                     .background(isHovered ? AppColors.elevatedSurface : Color.clear)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
                     .opacity(isHovered ? 1 : 0)
-                    .help("Edit Preset")
+                    .help(localized("Edit Preset", locale: locale))
                 }
-                
+
                 Button(action: onDuplicate) {
                     Image(systemName: "doc.on.doc")
                         .font(.system(size: 12))
@@ -594,8 +597,8 @@ struct PresetRow: View {
                 .background(isHovered ? AppColors.elevatedSurface : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
                 .opacity(isHovered ? 1 : 0)
-                .help("Duplicate Preset")
-                
+                .help(localized("Duplicate Preset", locale: locale))
+
                 if !preset.isBuiltIn {
                     Button(action: onDelete) {
                         Image(systemName: "trash")
@@ -607,19 +610,19 @@ struct PresetRow: View {
                     .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
                     .opacity(isHovered ? 1 : 0)
-                    .help("Delete Preset")
+                    .help(localized("Delete Preset", locale: locale))
                 }
             }
         }
     }
-    
+
     private var editingView: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            TextField("Preset Name", text: $editName)
+            TextField(localized("Preset Name", locale: locale), text: $editName)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
                 .aiSettingsInputChrome()
-            
+
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 TextEditor(text: $editPrompt)
                     .font(AppTypography.body)
@@ -631,25 +634,25 @@ struct PresetRow: View {
                         RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
                         style: AppColors.border
                     )
-                
-                Text("Use ${transcription} as placeholder")
+
+                Text(localized("Use ${transcription} as placeholder", locale: locale))
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.textTertiary)
             }
-            
+
             HStack {
                 Spacer()
-                
+
                 Button(action: onCancelEdit) {
-                    Text("Cancel")
+                    Text(localized("Cancel", locale: locale))
                         .font(AppTypography.caption)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(AppColors.textSecondary)
                 .padding(.horizontal, 8)
-                
+
                 Button(action: onSaveEdit) {
-                    Text("Save")
+                    Text(localized("Save", locale: locale))
                         .font(AppTypography.caption)
                         .fontWeight(.semibold)
                 }
