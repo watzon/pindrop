@@ -866,6 +866,42 @@ struct HistoryStoreTests {
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
+    @Test func prepareStoreLocationAllowsFreshStoreCreationWhenLegacyStoreIsUnrecognized() throws {
+        try requireSQLiteSupport()
+        let applicationSupportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: applicationSupportURL
+        )
+
+        try createUnrecognizedStore(at: legacyStoreURL)
+        try repairService.prepareStoreLocation()
+
+        let currentStoreURL = repairService.storeURL()
+        let container = try makeCurrentContainer(at: currentStoreURL)
+        let context = ModelContext(container)
+        context.insert(
+            TranscriptionRecord(
+                text: "Fresh transcription",
+                duration: 1.0,
+                modelUsed: "base"
+            )
+        )
+        try context.save()
+
+        let records = try context.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        #expect(currentStoreURL.path.contains("/Pindrop/default.store"))
+        #expect(FileManager.default.fileExists(atPath: currentStoreURL.path))
+        #expect(FileManager.default.fileExists(atPath: legacyStoreURL.path))
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Fresh transcription")
+
+        try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
     @Test func prepareStoreLocationRestoresLegacyStoreWhenCurrentStoreIsUnrecognized() throws {
         try requireSQLiteSupport()
         let applicationSupportURL = FileManager.default.temporaryDirectory
