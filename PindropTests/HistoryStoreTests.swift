@@ -21,7 +21,6 @@ final class HistoryStoreTests: XCTestCase {
         modelContainer = try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         modelContext = ModelContext(modelContainer)
@@ -69,7 +68,6 @@ final class HistoryStoreTests: XCTestCase {
             VocabularyWord.self,
             Note.self,
             PromptPreset.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
         let migratedContext = ModelContext(migratedContainer)
@@ -120,7 +118,6 @@ final class HistoryStoreTests: XCTestCase {
             VocabularyWord.self,
             Note.self,
             PromptPreset.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
         let migratedContext = ModelContext(migratedContainer)
@@ -709,6 +706,44 @@ final class HistoryStoreTests: XCTestCase {
         try? FileManager.default.removeItem(at: referenceStoreURL.deletingLastPathComponent())
     }
 
+    func testRepairServiceRecreatesMissingPromptPresetTableWhenMetadataVersionMatches() throws {
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("missing-prompt-preset.store")
+        let repairService = SwiftDataStoreRepairService()
+
+        let seedContainer = try makeCurrentContainer(at: storeURL)
+        let seedContext = ModelContext(seedContainer)
+        seedContext.insert(
+            TranscriptionRecord(
+                text: "Existing transcription",
+                duration: 2.5,
+                modelUsed: "base"
+            )
+        )
+        try seedContext.save()
+
+        try withDatabase(at: storeURL) { database in
+            try execute("DROP TABLE ZPROMPTPRESET", on: database)
+        }
+
+        XCTAssertFalse(try tableExists(named: "ZPROMPTPRESET", at: storeURL))
+
+        let repairOutcome = try repairService.repairIfNeeded(storeURL: storeURL)
+        XCTAssertTrue(repairOutcome.repaired)
+        XCTAssertNotNil(repairOutcome.backupDirectoryURL)
+        XCTAssertTrue(try tableExists(named: "ZPROMPTPRESET", at: storeURL))
+
+        let repairedContainer = try makeCurrentContainer(at: storeURL)
+        let repairedContext = ModelContext(repairedContainer)
+        let records = try repairedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.text, "Existing transcription")
+
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
     func testPrepareStoreLocationMigratesRecognizedLegacyStore() throws {
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -760,6 +795,18 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertNil(records.first?.folder)
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
+    }
+
+    func testCurrentContainerMigratesLegacyStoreWithoutPromptPresetModel() throws {
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("legacy-no-prompt-preset.store")
+
+        try createV4StoreWithoutPromptPreset(at: storeURL)
+
+        XCTAssertNoThrow(try makeCurrentContainer(at: storeURL))
+
+        try? FileManager.default.removeItem(at: directoryURL)
     }
 
     func testPrepareStoreLocationIgnoresUnrecognizedLegacyStore() throws {
@@ -967,6 +1014,36 @@ final class HistoryStoreTests: XCTestCase {
         try context.save()
     }
 
+    private func createV4StoreWithoutPromptPreset(at storeURL: URL) throws {
+        try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let configuration = ModelConfiguration(url: storeURL)
+        let container = try ModelContainer(
+            for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            configurations: configuration
+        )
+
+        let context = ModelContext(container)
+        context.insert(
+            TranscriptionRecordSchemaV4.TranscriptionRecord(
+                text: "Legacy transcription",
+                originalText: "Legacy transcription",
+                duration: 4.2,
+                modelUsed: "base",
+                enhancedWith: nil,
+                diarizationSegmentsJSON: nil,
+                sourceKind: .voiceRecording,
+                sourceDisplayName: nil,
+                originalSourceURL: nil,
+                managedMediaPath: nil,
+                thumbnailPath: nil
+            )
+        )
+        try context.save()
+    }
+
     private func createUnrecognizedStore(at storeURL: URL) throws {
         try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
 
@@ -998,7 +1075,6 @@ final class HistoryStoreTests: XCTestCase {
             VocabularyWord.self,
             Note.self,
             PromptPreset.self,
-            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
     }
@@ -1080,6 +1156,30 @@ final class HistoryStoreTests: XCTestCase {
 
         guard sqlite3_step(statement) == SQLITE_DONE else {
             throw sqliteError(on: database)
+        }
+    }
+
+    private func tableExists(named table: String, at storeURL: URL) throws -> Bool {
+        try withDatabase(at: storeURL) { database in
+            var statement: OpaquePointer?
+            let sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1"
+            guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+                throw sqliteError(on: database)
+            }
+
+            defer { sqlite3_finalize(statement) }
+
+            guard sqlite3_bind_text(
+                statement,
+                1,
+                (table as NSString).utf8String,
+                -1,
+                unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+            ) == SQLITE_OK else {
+                throw sqliteError(on: database)
+            }
+
+            return sqlite3_step(statement) == SQLITE_ROW
         }
     }
 
