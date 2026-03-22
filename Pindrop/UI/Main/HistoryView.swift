@@ -478,8 +478,8 @@ struct HistoryTranscriptionRow: View {
     }()
 
     let record: TranscriptionRecord
-    let isSelected: Bool
-    let onTap: () -> Void
+    var isSelected: Bool = false
+    var onTap: () -> Void = {}
     
     @Environment(\.modelContext) private var modelContext
     @State private var isHovered = false

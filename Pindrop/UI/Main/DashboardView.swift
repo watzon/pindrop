@@ -46,27 +46,35 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxl) {
-                // Welcome header
-                welcomeHeader
-                
-                // Hotkey reminder card (only shown if not dismissed)
-                if !hasDismissedHotkeyReminder {
-                    hotkeyReminderCard
+        VStack(spacing: 0) {
+            headerSection
+                .padding(.horizontal, AppTheme.Spacing.xxl)
+                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.top, AppTheme.Window.mainContentTopInset)
+                .background(AppColors.contentBackground)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxl) {
+                    recentSection
                 }
-                
-                // Stats grid
-                statsSection
-                
-                // Recent transcriptions
-                recentSection
+                .padding(.horizontal, AppTheme.Spacing.xxl)
+                .padding(.bottom, AppTheme.Spacing.xxl)
             }
-            .padding(.horizontal, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.xxl)
-            .padding(.top, AppTheme.Window.mainContentTopInset)
+            .background(AppColors.contentBackground)
         }
         .background(AppColors.contentBackground)
+    }
+
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.xxl) {
+            welcomeHeader
+
+            if !hasDismissedHotkeyReminder {
+                hotkeyReminderCard
+            }
+
+            statsSection
+        }
     }
     
     // MARK: - Welcome Header
@@ -280,8 +288,8 @@ struct DashboardView: View {
     
     private var recentTranscriptionsList: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            ForEach(Array(transcriptions.prefix(3))) { record in
-                RecentTranscriptionRow(record: record)
+            ForEach(Array(transcriptions.prefix(5))) { record in
+                HistoryTranscriptionRow(record: record)
             }
         }
     }
