@@ -13,17 +13,17 @@ import os.log
 @MainActor
 @Observable
 class ModelManager {
-    static let recommendedModelNames = [
+    nonisolated static let recommendedModelNames = [
         "openai_whisper-base.en",
         "openai_whisper-small.en",
         "openai_whisper-medium",
         "openai_whisper-large-v3_turbo"
     ]
 
-    static let recommendedModelNameSet: Set<String> = Set(recommendedModelNames)
+    nonisolated static let recommendedModelNameSet: Set<String> = Set(recommendedModelNames)
 
     
-    enum ModelProvider: String, CaseIterable {
+    enum ModelProvider: String, CaseIterable, Sendable {
         case whisperKit = "WhisperKit"
         case parakeet = "Parakeet"
         case openAI = "OpenAI"
@@ -48,18 +48,18 @@ class ModelManager {
         }
     }
     
-    enum ModelLanguage: String {
+    enum ModelLanguage: String, Sendable {
         case english = "English-only"
         case multilingual = "Multilingual"
     }
     
-    enum ModelAvailability: Equatable {
+    enum ModelAvailability: Equatable, Sendable {
         case available
         case comingSoon
         case requiresSetup
     }
     
-    struct WhisperModel: Identifiable, Equatable {
+    struct WhisperModel: Identifiable, Equatable, Sendable {
         let id: String
         let name: String
         let displayName: String

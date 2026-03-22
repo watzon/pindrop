@@ -16,6 +16,8 @@ struct ModelsSettingsView: View {
     @State private var errorMessage: String?
     @State private var selectedFilter: ModelFilter = .recommended
     @State private var searchText = ""
+    @State private var visibleModels: [ModelManager.WhisperModel] = []
+    @State private var searchTask: Task<Void, Never>?
     
     enum ModelFilter: String, CaseIterable {
         case recommended = "Recommended"
@@ -57,14 +59,6 @@ struct ModelsSettingsView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var visibleModels: [ModelManager.WhisperModel] {
-        guard !trimmedSearchText.isEmpty else { return filteredModels }
-
-        return filteredModels.filter { model in
-            model.matchesSearch(trimmedSearchText)
-        }
-    }
-    
     var body: some View {
         MainContentPageLayout(scrollContent: true, headerBottomPadding: AppTheme.Spacing.lg) {
             header
@@ -85,18 +79,29 @@ struct ModelsSettingsView: View {
         .task {
             await modelManager.refreshDownloadedModels()
             await modelManager.refreshDownloadedFeatureModels()
+            updateVisibleModels(immediately: true)
         }
         .onAppear {
             if activeModelName == nil {
                 activeModelName = settings.selectedModel
             }
             NotificationCenter.default.post(name: .requestActiveModel, object: nil)
+            updateVisibleModels(immediately: true)
+        }
+        .onChange(of: selectedFilter) { _, _ in
+            updateVisibleModels(immediately: trimmedSearchText.isEmpty)
+        }
+        .onChange(of: searchText) { _, _ in
+            updateVisibleModels(immediately: trimmedSearchText.isEmpty)
         }
         .onReceive(NotificationCenter.default.publisher(for: .modelActiveChanged)) { notification in
             if let modelName = notification.userInfo?["modelName"] as? String {
                 activeModelName = modelName
                 switchingToModel = nil
             }
+        }
+        .onDisappear {
+            searchTask?.cancel()
         }
     }
 
@@ -169,7 +174,7 @@ struct ModelsSettingsView: View {
     
     private var availableModelsCard: some View {
         SettingsCard(title: "Available Models", icon: "square.stack.3d.up") {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 if visibleModels.isEmpty {
                     emptyModelsState
                         .padding(14)
@@ -348,6 +353,26 @@ struct ModelsSettingsView: View {
             } catch {
                 errorMessage = "Failed to delete \(model.displayName): \(error.localizedDescription)"
             }
+        }
+    }
+
+    private func updateVisibleModels(immediately: Bool = false) {
+        searchTask?.cancel()
+
+        let models = filteredModels
+        let query = trimmedSearchText
+
+        searchTask = Task {
+            if !immediately && !query.isEmpty {
+                try? await Task.sleep(for: .milliseconds(120))
+            }
+
+            let filtered = await Task.detached(priority: .userInitiated) {
+                filterModels(models, matching: query)
+            }.value
+
+            guard !Task.isCancelled else { return }
+            visibleModels = filtered
         }
     }
 }
@@ -765,6 +790,14 @@ private extension ModelManager.WhisperModel {
             || provider.rawValue.localizedLowercase.contains(localizedQuery)
             || language.rawValue.localizedLowercase.contains(localizedQuery)
     }
+}
+
+private func filterModels(
+    _ models: [ModelManager.WhisperModel],
+    matching query: String
+) -> [ModelManager.WhisperModel] {
+    guard !query.isEmpty else { return models }
+    return models.filter { $0.matchesSearch(query) }
 }
 
 #Preview {
