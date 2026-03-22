@@ -15,6 +15,7 @@ struct ModelsSettingsView: View {
     @State private var activeModelName: String?
     @State private var errorMessage: String?
     @State private var selectedFilter: ModelFilter = .recommended
+    @State private var searchText = ""
     
     enum ModelFilter: String, CaseIterable {
         case recommended = "Recommended"
@@ -45,6 +46,18 @@ struct ModelsSettingsView: View {
             return modelManager.recommendedModels
         case .all, .local, .cloud, .comingSoon:
             return modelManager.availableModels.filter { selectedFilter.matches($0) }
+        }
+    }
+
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var visibleModels: [ModelManager.WhisperModel] {
+        guard !trimmedSearchText.isEmpty else { return filteredModels }
+
+        return filteredModels.filter { model in
+            model.matchesSearch(trimmedSearchText)
         }
     }
     
@@ -152,29 +165,81 @@ struct ModelsSettingsView: View {
     private var availableModelsCard: some View {
         SettingsCard(title: "Available Models", icon: "square.stack.3d.up") {
             VStack(spacing: 0) {
-                ForEach(Array(filteredModels.enumerated()), id: \.element.id) { index, model in
-                    ModelSettingsRow(
-                        model: model,
-                        isDefault: settings.selectedModel == model.name,
-                        isActive: activeModelName == model.name,
-                        isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
-                        isDownloaded: modelManager.isModelDownloaded(model.name),
-                        isDownloading: downloadingModel == model.name,
-                        isSwitching: switchingToModel == model.name,
-                        downloadProgress: modelManager.downloadProgress,
-                        onSwitch: { switchModel(model) },
-                        onSetDefault: { settings.selectedModel = model.name },
-                        onDownload: { downloadModel(model) },
-                        onDelete: { deleteModel(model) }
-                    )
-                    
-                    if index < filteredModels.count - 1 {
-                        Divider()
-                            .padding(.horizontal, 12)
+                modelSearchField
+                    .padding(.horizontal, 14)
+                    .padding(.top, 14)
+                    .padding(.bottom, visibleModels.isEmpty ? 0 : 14)
+
+                if visibleModels.isEmpty {
+                    emptyModelsState
+                        .padding(14)
+                } else {
+                    ForEach(Array(visibleModels.enumerated()), id: \.element.id) { index, model in
+                        ModelSettingsRow(
+                            model: model,
+                            isDefault: settings.selectedModel == model.name,
+                            isActive: activeModelName == model.name,
+                            isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
+                            isDownloaded: modelManager.isModelDownloaded(model.name),
+                            isDownloading: downloadingModel == model.name,
+                            isSwitching: switchingToModel == model.name,
+                            downloadProgress: modelManager.downloadProgress,
+                            onSwitch: { switchModel(model) },
+                            onSetDefault: { settings.selectedModel = model.name },
+                            onDownload: { downloadModel(model) },
+                            onDelete: { deleteModel(model) }
+                        )
+
+                        if index < visibleModels.count - 1 {
+                            Divider()
+                                .padding(.horizontal, 12)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private var modelSearchField: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(AppColors.textTertiary)
+
+            TextField("Search models", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(AppTypography.body)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(AppColors.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, 10)
+        .background(AppColors.surfaceBackground, in: RoundedRectangle(cornerRadius: AppTheme.Radius.md))
+        .hairlineBorder(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md),
+            style: AppColors.border.opacity(0.8)
+        )
+    }
+
+    private var emptyModelsState: some View {
+        VStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(AppColors.textTertiary)
+
+            Text(trimmedSearchText.isEmpty ? "No models available" : "No models match \"\(trimmedSearchText)\"")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     private var featureModelsCard: some View {
@@ -686,6 +751,17 @@ struct FeatureModelRow: View {
 private extension Int {
     func clamped(to range: ClosedRange<Int>) -> Int {
         return Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
+    }
+}
+
+private extension ModelManager.WhisperModel {
+    func matchesSearch(_ query: String) -> Bool {
+        let localizedQuery = query.localizedLowercase
+        return displayName.localizedLowercase.contains(localizedQuery)
+            || name.localizedLowercase.contains(localizedQuery)
+            || description.localizedLowercase.contains(localizedQuery)
+            || provider.rawValue.localizedLowercase.contains(localizedQuery)
+            || language.rawValue.localizedLowercase.contains(localizedQuery)
     }
 }
 
