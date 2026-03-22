@@ -12,8 +12,6 @@ struct ModelSelectionStepView: View {
     @Binding var selectedModelName: String
     let onContinue: () -> Void
     
-    private let recommendedModels = ["openai_whisper-tiny.en", "openai_whisper-base.en", "openai_whisper-small.en"]
-    
     var body: some View {
         VStack(spacing: 24) {
             headerSection
@@ -25,7 +23,7 @@ struct ModelSelectionStepView: View {
                             model: model,
                             isSelected: selectedModelName == model.name,
                             isDownloaded: modelManager.isModelDownloaded(model.name),
-                            isRecommended: model.name == "openai_whisper-base.en",
+                            isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
                             onSelect: { selectedModelName = model.name }
                         )
                     }

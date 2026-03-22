@@ -13,6 +13,15 @@ import os.log
 @MainActor
 @Observable
 class ModelManager {
+    static let recommendedModelNames = [
+        "openai_whisper-base.en",
+        "openai_whisper-small.en",
+        "openai_whisper-medium",
+        "openai_whisper-large-v3_turbo"
+    ]
+
+    static let recommendedModelNameSet: Set<String> = Set(recommendedModelNames)
+
     
     enum ModelProvider: String, CaseIterable {
         case whisperKit = "WhisperKit"
@@ -432,6 +441,20 @@ class ModelManager {
             availability: .comingSoon
         )
     ]
+
+    var recommendedModels: [WhisperModel] {
+        let recommendationRanks = Dictionary(
+            uniqueKeysWithValues: Self.recommendedModelNames.enumerated().map { index, name in
+                (name, index)
+            }
+        )
+
+        return availableModels
+            .filter { Self.recommendedModelNameSet.contains($0.name) }
+            .sorted {
+                recommendationRanks[$0.name, default: .max] < recommendationRanks[$1.name, default: .max]
+            }
+    }
     
     private(set) var downloadProgress: Double = 0.0
     private(set) var isDownloading: Bool = false

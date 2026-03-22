@@ -32,7 +32,16 @@ final class ModelManagerTests: XCTestCase {
         XCTAssertTrue(models.contains { $0.name == "openai_whisper-small" }, "Should include small model")
         XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3" }, "Should include large-v3 model")
         XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3_turbo" }, "Should include turbo model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-medium" }, "Should include medium model")
+        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v2" }, "Should include large-v2 model")
+        XCTAssertTrue(models.contains { $0.name == "distil-whisper_distil-large-v3" }, "Should include distil large-v3 model")
         XCTAssertTrue(models.contains { $0.name == "parakeet-tdt-0.6b-v2" }, "Should include parakeet model")
+    }
+
+    func testRecommendedModelsUseCuratedOrder() {
+        let recommendedModelNames = modelManager.recommendedModels.map(\.name)
+
+        XCTAssertEqual(recommendedModelNames, ModelManager.recommendedModelNames)
     }
     
     func testModelSizes() {

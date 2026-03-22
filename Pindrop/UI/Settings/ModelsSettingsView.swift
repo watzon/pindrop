@@ -14,16 +14,19 @@ struct ModelsSettingsView: View {
     @State private var switchingToModel: String?
     @State private var activeModelName: String?
     @State private var errorMessage: String?
-    @State private var selectedFilter: ModelFilter = .all
+    @State private var selectedFilter: ModelFilter = .recommended
     
     enum ModelFilter: String, CaseIterable {
-        case all = "All"
+        case recommended = "Recommended"
         case local = "Local"
         case cloud = "Cloud"
         case comingSoon = "Coming Soon"
+        case all = "All"
         
         func matches(_ model: ModelManager.WhisperModel) -> Bool {
             switch self {
+            case .recommended:
+                return ModelManager.recommendedModelNameSet.contains(model.name)
             case .all:
                 return true
             case .local:
@@ -37,7 +40,12 @@ struct ModelsSettingsView: View {
     }
     
     private var filteredModels: [ModelManager.WhisperModel] {
-        modelManager.availableModels.filter { selectedFilter.matches($0) }
+        switch selectedFilter {
+        case .recommended:
+            return modelManager.recommendedModels
+        case .all, .local, .cloud, .comingSoon:
+            return modelManager.availableModels.filter { selectedFilter.matches($0) }
+        }
     }
     
     var body: some View {
@@ -149,6 +157,7 @@ struct ModelsSettingsView: View {
                         model: model,
                         isDefault: settings.selectedModel == model.name,
                         isActive: activeModelName == model.name,
+                        isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
                         isDownloaded: modelManager.isModelDownloaded(model.name),
                         isDownloading: downloadingModel == model.name,
                         isSwitching: switchingToModel == model.name,
@@ -357,6 +366,7 @@ struct ModelSettingsRow: View {
     let model: ModelManager.WhisperModel
     let isDefault: Bool
     let isActive: Bool
+    let isRecommended: Bool
     let isDownloaded: Bool
     let isDownloading: Bool
     let isSwitching: Bool
@@ -445,7 +455,17 @@ struct ModelSettingsRow: View {
                     .background(AppColors.accent.opacity(isActive ? 0.2 : 1.0), in: Capsule())
                     .foregroundStyle(isActive ? AppColors.accent : .white)
             }
-            
+
+            if isRecommended {
+                Text("Recommended")
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(AppColors.accent.opacity(0.15), in: Capsule())
+                    .foregroundStyle(AppColors.accent)
+            }
+             
             if isComingSoon {
                 Text("Coming Soon")
                     .font(.caption2)
