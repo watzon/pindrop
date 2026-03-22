@@ -20,10 +20,12 @@ public extension SearchableDropdownItem {
 public struct SelectFieldOption: Identifiable, Hashable {
    public let id: String
    public let displayName: String
+   public let isEnabled: Bool
 
-   public init(id: String, displayName: String) {
+   public init(id: String, displayName: String, isEnabled: Bool = true) {
       self.id = id
       self.displayName = displayName
+      self.isEnabled = isEnabled
    }
 }
 
@@ -32,6 +34,7 @@ public struct SelectField: View {
    let placeholder: String
    @Binding var selection: String
    @State private var isOpen = false
+   @State private var hoveredOptionID: String?
 
    public init(
       options: [SelectFieldOption],
@@ -90,13 +93,14 @@ public struct SelectField: View {
       VStack(spacing: 0) {
          ForEach(options) { option in
             Button {
+               guard option.isEnabled else { return }
                selection = option.id
                isOpen = false
             } label: {
                HStack(spacing: 0) {
                   Text(option.displayName)
                      .font(.body)
-                     .foregroundStyle(AppColors.textPrimary)
+                     .foregroundStyle(option.isEnabled ? AppColors.textPrimary : AppColors.textSecondary)
 
                   Spacer(minLength: 0)
 
@@ -110,13 +114,19 @@ public struct SelectField: View {
                   maxWidth: .infinity,
                   minHeight: AISettingsFieldStyle.minHeight,
                   alignment: .leading
-               )
-               .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
-               .contentShape(Rectangle())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .buttonStyle(.plain)
-         }
+                )
+                .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
+                .background(rowBackground(isHovered: hoveredOptionID == option.id, isSelected: option.id == selection))
+                .contentShape(Rectangle())
+             }
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .buttonStyle(.plain)
+             .disabled(!option.isEnabled)
+             .opacity(option.isEnabled ? 1.0 : 0.55)
+             .onHover { isHovered in
+                hoveredOptionID = isHovered ? option.id : nil
+             }
+          }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(
@@ -132,6 +142,18 @@ public struct SelectField: View {
 
    private var dropdownHeight: CGFloat {
       CGFloat(max(options.count, 1)) * AISettingsFieldStyle.minHeight
+   }
+
+   @ViewBuilder
+   private func rowBackground(isHovered: Bool, isSelected: Bool) -> some View {
+      if isHovered || isSelected {
+         RoundedRectangle(cornerRadius: 6)
+            .fill(isSelected ? AppColors.accent.opacity(0.18) : AppColors.surfaceBackground)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+      } else {
+         Color.clear
+      }
    }
 }
 
@@ -185,6 +207,7 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
    @State private var query = ""
    @State private var isOpen = false
    @State private var closeTask: Task<Void, Never>?
+   @State private var hoveredItemID: Item.ID?
 
    public init(
       items: [Item],
@@ -320,19 +343,23 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
 
                   Spacer(minLength: 0)
                }
-               .frame(
-                  maxWidth: .infinity,
-                  minHeight: AISettingsFieldStyle.minHeight,
-                  alignment: .leading
-               )
-               .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
-               .contentShape(Rectangle())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .buttonStyle(.plain)
-         }
-      }
-   }
+                .frame(
+                   maxWidth: .infinity,
+                   minHeight: AISettingsFieldStyle.minHeight,
+                   alignment: .leading
+                )
+                .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
+                .background(rowBackground(isHovered: hoveredItemID == item.id, isSelected: selection == item.id))
+                .contentShape(Rectangle())
+             }
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .buttonStyle(.plain)
+             .onHover { isHovered in
+                hoveredItemID = isHovered ? item.id : nil
+             }
+          }
+       }
+    }
 
    private var filteredItems: [Item] {
       let normalizedQuery = normalizedFilterQuery
@@ -429,10 +456,22 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
       query = selectedItem?.displayName ?? ""
    }
 
-   private func exactMatch(_ query: String, item: Item) -> Bool {
-      item.displayName.compare(query, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-         || item.id.compare(query, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-   }
+    private func exactMatch(_ query: String, item: Item) -> Bool {
+       item.displayName.compare(query, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+          || item.id.compare(query, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+    }
+
+    @ViewBuilder
+    private func rowBackground(isHovered: Bool, isSelected: Bool) -> some View {
+       if isHovered || isSelected {
+          RoundedRectangle(cornerRadius: 6)
+             .fill(isSelected ? AppColors.accent.opacity(0.18) : AppColors.surfaceBackground)
+             .padding(.horizontal, 4)
+             .padding(.vertical, 2)
+       } else {
+          Color.clear
+       }
+    }
 }
 
 private struct FloatingDropdownPresenter: NSViewRepresentable {

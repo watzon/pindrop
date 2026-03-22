@@ -51,7 +51,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             return [
                 "output", "clipboard", "direct insert", "space", "microphone", "audio",
                 "input", "floating indicator", "dictionary", "launch at login", "dock",
-                "mute", "pause media", "reset"
+                "mute", "pause media", "reset", "language", "locale", "transcription language",
+                "interface language"
             ]
         case .theme:
             return [

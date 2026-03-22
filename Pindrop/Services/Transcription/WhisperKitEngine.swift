@@ -110,7 +110,7 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
     }
     
     /// Transcribe audio data to text
-    public func transcribe(audioData: Data) async throws -> String {
+    public func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
         guard state == .ready else {
             throw EngineError.modelNotLoaded
         }
@@ -134,8 +134,15 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             guard let whisperKit = whisperKit else {
                 throw EngineError.modelNotLoaded
             }
+
+            var decodeOptions = DecodingOptions(
+                task: .transcribe,
+                language: options.language.whisperLanguageCode
+            )
+            decodeOptions.detectLanguage = options.language == .automatic
+            decodeOptions.usePrefillPrompt = true
             
-            let results = try await whisperKit.transcribe(audioArray: samples)
+            let results = try await whisperKit.transcribe(audioArray: samples, decodeOptions: decodeOptions)
             guard let result = results.first else {
                 throw EngineError.transcriptionFailed("No transcription result")
             }

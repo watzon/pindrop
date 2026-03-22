@@ -15,11 +15,27 @@ struct GeneralSettingsView: View {
     var body: some View {
         VStack(spacing: AppTheme.Spacing.xl) {
             outputSection
+            languageSection
             audioInputSection
             floatingIndicatorSection
             dictionarySection
             interfaceSection
             resetSection
+        }
+    }
+
+    private var languageSection: some View {
+        SettingsCard(
+            title: "Language",
+            icon: "globe",
+            detail: "Use one preference for transcription today and the app interface once localization ships."
+        ) {
+            SelectField(
+                options: languageOptions,
+                selection: selectedLanguageSelection,
+                placeholder: AppLanguage.automatic.displayName
+            )
+            .frame(maxWidth: 320, alignment: .leading)
         }
     }
     
@@ -229,10 +245,27 @@ private extension GeneralSettingsView {
         return options
     }
 
+    var languageOptions: [SelectFieldOption] {
+        AppLanguage.allCases.map {
+            SelectFieldOption(
+                id: $0.rawValue,
+                displayName: $0.pickerLabel,
+                isEnabled: $0.isSelectable
+            )
+        }
+    }
+
     var selectedAudioInputSelection: Binding<String> {
         Binding(
             get: { settings.selectedInputDeviceUID },
             set: { settings.selectedInputDeviceUID = $0 }
+        )
+    }
+
+    var selectedLanguageSelection: Binding<String> {
+        Binding(
+            get: { settings.selectedAppLanguage.rawValue },
+            set: { settings.selectedAppLanguage = AppLanguage(rawValue: $0) ?? .automatic }
         )
     }
 }

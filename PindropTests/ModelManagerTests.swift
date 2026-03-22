@@ -30,7 +30,12 @@ struct ModelManagerTests {
 
     @Test func recommendedModelsUseCuratedOrder() {
         let recommendedModelNames = modelManager.recommendedModels.map(\.name)
-        #expect(recommendedModelNames == ModelManager.recommendedModelNames)
+        #expect(recommendedModelNames == ModelManager.englishRecommendedModelNames)
+    }
+
+    @Test func multilingualRecommendationsPreferWhisperMultilingualModels() {
+        let recommendedModelNames = modelManager.recommendedModels(for: .simplifiedChinese).map(\.name)
+        #expect(recommendedModelNames == ModelManager.multilingualRecommendedModelNames)
     }
 
     @Test func modelSizes() {
@@ -78,6 +83,23 @@ struct ModelManagerTests {
     @Test func containsParakeetModels() {
         let hasParakeetModel = modelManager.availableModels.contains { $0.provider == .parakeet }
         #expect(hasParakeetModel)
+    }
+
+    @Test func englishOnlyModelsWarnForNonEnglishSelection() throws {
+        let model = try #require(modelManager.availableModels.first { $0.name == "openai_whisper-base.en" })
+        #expect(model.supports(language: .english) == true)
+        #expect(model.supports(language: .simplifiedChinese) == false)
+
+        let badge = model.languageBadgePresentation(for: .simplifiedChinese)
+        #expect(badge.text == "English-only")
+        #expect(badge.tone == .caution)
+    }
+
+    @Test func parakeetV3SupportsEuropeanLanguagesButNotChinese() throws {
+        let model = try #require(modelManager.availableModels.first { $0.name == "parakeet-tdt-0.6b-v3" })
+        #expect(model.supports(language: .spanish) == true)
+        #expect(model.supports(language: .portugueseBrazil) == true)
+        #expect(model.supports(language: .simplifiedChinese) == false)
     }
 
     @Test func deleteNonexistentModelThrowsModelNotFound() async {

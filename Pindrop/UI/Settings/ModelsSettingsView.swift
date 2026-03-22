@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+private let modelListItemInset: CGFloat = 6
+
 struct ModelsSettingsView: View {
     @ObservedObject var settings: SettingsStore
     let modelManager: ModelManager
@@ -45,10 +47,18 @@ struct ModelsSettingsView: View {
     private var filteredModels: [ModelManager.WhisperModel] {
         switch effectiveFilter {
         case .recommended:
-            return modelManager.recommendedModels
+            return recommendedModels
         case .all, .local, .cloud, .comingSoon:
             return modelManager.availableModels.filter { effectiveFilter.matches($0) }
         }
+    }
+
+    private var recommendedModels: [ModelManager.WhisperModel] {
+        modelManager.recommendedModels(for: settings.selectedAppLanguage)
+    }
+
+    private var recommendedModelNameSet: Set<String> {
+        Set(recommendedModels.map(\.name))
     }
 
     private var effectiveFilter: ModelFilter {
@@ -94,6 +104,9 @@ struct ModelsSettingsView: View {
         .onChange(of: searchText) { _, _ in
             updateVisibleModels(immediately: trimmedSearchText.isEmpty)
         }
+        .onChange(of: settings.selectedLanguage) { _, _ in
+            updateVisibleModels(immediately: true)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .modelActiveChanged)) { notification in
             if let modelName = notification.userInfo?["modelName"] as? String {
                 activeModelName = modelName
@@ -120,36 +133,38 @@ struct ModelsSettingsView: View {
     private var currentModelCard: some View {
         SettingsCard(title: "Default Model", icon: "checkmark.circle") {
             if let currentModel = modelManager.availableModels.first(where: { $0.name == settings.selectedModel }) {
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(currentModel.displayName)
-                            .font(.headline)
-                        
-                        HStack(spacing: 16) {
-                            MetadataBadge(
-                                icon: currentModel.language == .english ? "textformat" : "globe",
-                                text: currentModel.language.rawValue
-                            )
-                            
-                            if currentModel.sizeInMB > 0 {
-                                MetadataBadge(icon: "internaldrive", text: currentModel.formattedSize)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(currentModel.displayName)
+                                .font(.headline)
+
+                            HStack(spacing: 16) {
+                                MetadataBadge(
+                                    presentation: currentModel.languageBadgePresentation(for: settings.selectedAppLanguage)
+                                )
+
+                                if currentModel.sizeInMB > 0 {
+                                    MetadataBadge(icon: "internaldrive", text: currentModel.formattedSize)
+                                }
+
+                                RatingIndicator(label: "Speed", rating: currentModel.speedRating)
+                                RatingIndicator(label: "Accuracy", rating: currentModel.accuracyRating)
                             }
-                            
-                            RatingIndicator(label: "Speed", rating: currentModel.speedRating)
-                            RatingIndicator(label: "Accuracy", rating: currentModel.accuracyRating)
+                        }
+
+                        Spacer()
+
+                        if modelManager.isModelDownloaded(currentModel.name) {
+                            HStack(spacing: 4) {
+                                IconView(icon: .circleCheck, size: 14)
+                                Text("Ready")
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.green)
                         }
                     }
-                    
-                    Spacer()
-                    
-                    if modelManager.isModelDownloaded(currentModel.name) {
-                        HStack(spacing: 4) {
-                            IconView(icon: .circleCheck, size: 14)
-                            Text("Ready")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                    }
+
                 }
             } else {
                 Text("No model selected")
@@ -182,9 +197,10 @@ struct ModelsSettingsView: View {
                     ForEach(Array(visibleModels.enumerated()), id: \.element.id) { index, model in
                         ModelSettingsRow(
                             model: model,
+                            selectedLanguage: settings.selectedAppLanguage,
                             isDefault: settings.selectedModel == model.name,
                             isActive: activeModelName == model.name,
-                            isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
+                            isRecommended: recommendedModelNameSet.contains(model.name),
                             isDownloaded: modelManager.isModelDownloaded(model.name),
                             isDownloading: downloadingModel == model.name,
                             isSwitching: switchingToModel == model.name,
@@ -194,10 +210,11 @@ struct ModelsSettingsView: View {
                             onDownload: { downloadModel(model) },
                             onDelete: { deleteModel(model) }
                         )
+                        .padding(.horizontal, modelListItemInset)
 
                         if index < visibleModels.count - 1 {
                             Divider()
-                                .padding(.horizontal, 12)
+                                .padding(.horizontal, modelListItemInset)
                         }
                     }
                 }
@@ -263,10 +280,11 @@ struct ModelsSettingsView: View {
                         onToggle: { enabled in toggleFeature(featureType, enabled: enabled) },
                         onDownload: { downloadFeatureModel(featureType) }
                     )
+                    .padding(.horizontal, modelListItemInset)
                     
                     if index < FeatureModelType.allCases.count - 1 {
                         Divider()
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, modelListItemInset)
                     }
                 }
             }
@@ -404,15 +422,51 @@ struct FilterButton: View {
 struct MetadataBadge: View {
     let icon: String
     let text: String
+    let tone: ModelManager.LanguageSupport.BadgeTone
+
+    init(icon: String, text: String, tone: ModelManager.LanguageSupport.BadgeTone = .normal) {
+        self.icon = icon
+        self.text = text
+        self.tone = tone
+    }
+
+    init(presentation: ModelManager.LanguageSupport.BadgePresentation) {
+        self.icon = presentation.iconName
+        self.text = presentation.text
+        self.tone = presentation.tone
+    }
     
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption2)
             Text(text)
-                .font(.caption)
+                .font(.caption.weight(tone == .caution ? .semibold : .regular))
         }
-        .foregroundStyle(.secondary)
+        .foregroundStyle(foregroundColor)
+        .padding(.horizontal, tone == .caution ? 8 : 0)
+        .padding(.vertical, tone == .caution ? 4 : 0)
+        .background(backgroundView)
+    }
+
+    private var foregroundColor: Color {
+        switch tone {
+        case .normal:
+            return .secondary
+        case .caution:
+            return AppColors.warning
+        }
+    }
+
+    @ViewBuilder
+    private var backgroundView: some View {
+        switch tone {
+        case .normal:
+            Color.clear
+        case .caution:
+            Capsule()
+                .fill(AppColors.warningBackground)
+        }
     }
 }
 
@@ -456,6 +510,7 @@ struct RatingIndicator: View {
 
 struct ModelSettingsRow: View {
     let model: ModelManager.WhisperModel
+    let selectedLanguage: AppLanguage
     let isDefault: Bool
     let isActive: Bool
     let isRecommended: Bool
@@ -467,6 +522,7 @@ struct ModelSettingsRow: View {
     let onSetDefault: () -> Void
     let onDownload: () -> Void
     let onDelete: () -> Void
+    @State private var isHovered = false
     
     private var isComingSoon: Bool {
         model.availability == .comingSoon
@@ -474,6 +530,14 @@ struct ModelSettingsRow: View {
     
     private var isAvailable: Bool {
         model.availability == .available
+    }
+
+    private var showsHoverAffordance: Bool {
+        isAvailable && !isComingSoon && !isSwitching
+    }
+
+    private var isRowInteractive: Bool {
+        isDownloaded && !isComingSoon && !isSwitching && !isActive
     }
     
     var body: some View {
@@ -497,29 +561,60 @@ struct ModelSettingsRow: View {
             actionButton
         }
         .padding(14)
-        .background(backgroundStyle)
+        .background(
+            Rectangle()
+                .fill(backgroundStyle)
+        )
         .opacity(isComingSoon ? 0.7 : 1.0)
         .contentShape(Rectangle())
+        .animation(.easeOut(duration: 0.12), value: isHovered)
         .onTapGesture {
-            if isDownloaded && !isComingSoon && !isSwitching && !isActive {
+            if isRowInteractive {
                 onSwitch()
             }
+        }
+        .onHover { hovering in
+            isHovered = hovering && showsHoverAffordance
         }
     }
     
     private var selectionIndicator: some View {
         ZStack {
             Circle()
-                .stroke(isActive ? Color.green : Color.secondary.opacity(0.3), lineWidth: 2)
+                .stroke(selectionRingColor, lineWidth: 2)
                 .frame(width: 20, height: 20)
-            
+
             if isActive {
                 Circle()
                     .fill(Color.green)
                     .frame(width: 12, height: 12)
+            } else if isHovered {
+                Circle()
+                    .fill(selectionDotColor)
+                    .frame(width: 8, height: 8)
             }
         }
         .padding(.top, 2)
+    }
+
+    private var selectionRingColor: Color {
+        if isActive {
+            return .green
+        }
+
+        if isHovered {
+            return AppColors.accent.opacity(0.7)
+        }
+
+        return Color.secondary.opacity(0.3)
+    }
+
+    private var selectionDotColor: Color {
+        if isHovered {
+            return AppColors.accent.opacity(0.32)
+        }
+
+        return Color.secondary.opacity(0.14)
     }
     
     private var headerRow: some View {
@@ -587,10 +682,7 @@ struct ModelSettingsRow: View {
                 text: model.provider.rawValue
             )
 
-            MetadataBadge(
-                icon: model.language == .english ? "textformat" : "globe",
-                text: model.language.rawValue
-            )
+            MetadataBadge(presentation: model.languageBadgePresentation(for: selectedLanguage))
 
             if model.sizeInMB > 0 {
                 MetadataBadge(icon: "internaldrive", text: model.formattedSize)
@@ -668,6 +760,9 @@ struct ModelSettingsRow: View {
     private var backgroundStyle: some ShapeStyle {
         if isActive {
             return AnyShapeStyle(Color.green.opacity(0.08))
+        }
+        if isHovered {
+            return AnyShapeStyle(AppColors.accent.opacity(0.07))
         }
         if isDefault {
             return AnyShapeStyle(AppColors.accent.opacity(0.05))

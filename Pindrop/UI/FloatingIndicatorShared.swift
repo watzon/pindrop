@@ -145,8 +145,10 @@ struct FloatingIndicatorActions {
     var onViewTranscriptHistory: (() -> Void)?
     var onPasteLastTranscript: (() async -> Void)?
     var onSelectInputDeviceUID: ((String) -> Void)?
+    var onSelectLanguage: ((AppLanguage) -> Void)?
     var availableInputDevicesProvider: (() -> [(uid: String, displayName: String)])?
     var selectedInputDeviceUIDProvider: (() -> String)?
+    var selectedLanguageProvider: (() -> AppLanguage)?
     var anchorProvider: (() -> CGRect?)?
 }
 

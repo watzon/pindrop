@@ -61,6 +61,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private var contextMenu: NSMenu?
     private var microphoneMenu: NSMenu?
     private var microphoneItem: NSMenuItem?
+    private var languageMenu: NSMenu?
+    private var languageItem: NSMenuItem?
 
     @Published var isHovered: Bool = false
     @Published var isHoverTooltipVisible: Bool = false
@@ -228,13 +230,11 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(microphoneItem)
 
         let languageMenu = NSMenu(title: "Select language")
-        let englishItem = NSMenuItem(title: "English (v1)", action: nil, keyEquivalent: "")
-        englishItem.state = NSControl.StateValue.on
-        englishItem.isEnabled = false
-        languageMenu.addItem(englishItem)
+        self.languageMenu = languageMenu
 
         let languageItem = NSMenuItem(title: "Select language", action: nil, keyEquivalent: "")
         languageItem.submenu = languageMenu
+        self.languageItem = languageItem
         menu.addItem(languageItem)
 
         menu.addItem(.separator())
@@ -262,6 +262,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func refreshContextMenuState() {
         refreshMicrophoneMenuItems()
+        refreshLanguageMenuItems()
     }
 
     private func refreshMicrophoneMenuItems() {
@@ -310,6 +311,44 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         microphoneItem?.isEnabled = true
     }
 
+    private func refreshLanguageMenuItems() {
+        guard let languageMenu = languageMenu else { return }
+
+        languageMenu.removeAllItems()
+
+        let selectedLanguage = actions.selectedLanguageProvider?() ?? .automatic
+        let tier1Languages = AppLanguage.allCases.filter(\.isSelectable)
+        let tier2Languages = AppLanguage.allCases.filter { !$0.isSelectable }
+
+        for language in tier1Languages {
+            let item = NSMenuItem(
+                title: language.displayName,
+                action: #selector(handleSelectLanguageMenuItem(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = language.rawValue
+            item.state = selectedLanguage == language ? .on : .off
+            languageMenu.addItem(item)
+        }
+
+        if !tier2Languages.isEmpty {
+            languageMenu.addItem(.separator())
+
+            let upcomingItem = NSMenuItem(title: "Coming Soon", action: nil, keyEquivalent: "")
+            upcomingItem.isEnabled = false
+            languageMenu.addItem(upcomingItem)
+
+            for language in tier2Languages {
+                let item = NSMenuItem(title: language.pickerLabel, action: nil, keyEquivalent: "")
+                item.isEnabled = false
+                languageMenu.addItem(item)
+            }
+        }
+
+        languageItem?.isEnabled = true
+    }
+
     @objc
     private func handleHideForOneHourMenuItem() {
         actions.onHideForOneHour?()
@@ -341,6 +380,14 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func handleSelectInputDeviceMenuItem(_ sender: NSMenuItem) {
         guard let uid = sender.representedObject as? String else { return }
         actions.onSelectInputDeviceUID?(uid)
+    }
+
+    @objc
+    private func handleSelectLanguageMenuItem(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let language = AppLanguage(rawValue: rawValue) else { return }
+        actions.onSelectLanguage?(language)
+        refreshLanguageMenuItems()
     }
 
     private func evaluateHoverIntent() {

@@ -39,6 +39,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var reportIssueItem: NSMenuItem?
     private var inputDeviceMenuItem: NSMenuItem?
     private var inputDeviceMenu: NSMenu?
+    private var languageMenuItem: NSMenuItem?
+    private var languageMenu: NSMenu?
 
     private var toggleFloatingIndicatorItem: NSMenuItem?
     private var launchAtLoginItem: NSMenuItem?
@@ -72,6 +74,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onOpenHistory: (() -> Void)?
     var onReportIssue: (() -> Void)?
     var onSelectInputDeviceUID: ((String) -> Void)?
+    var onSelectLanguage: ((AppLanguage) -> Void)?
     var onSelectModel: ((String) -> Void)?
     var onSelectAIModel: ((String) -> Void)?
     var onCheckForUpdates: (() -> Void)?
@@ -323,16 +326,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             menu.addItem(inputDeviceMenuItem)
         }
 
-        let languageMenu = NSMenu(title: "Select Language")
-        let englishLanguageItem = NSMenuItem(title: "English (v1)", action: nil, keyEquivalent: "")
-        englishLanguageItem.state = NSControl.StateValue.on
-        englishLanguageItem.isEnabled = false
-        languageMenu.addItem(englishLanguageItem)
-
-        let languageMenuItem = NSMenuItem(title: "Select Language", action: nil, keyEquivalent: "")
-        languageMenuItem.submenu = languageMenu
-        languageMenuItem.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: nil)
-        menu.addItem(languageMenuItem)
+        languageMenu = NSMenu(title: "Select Language")
+        languageMenuItem = NSMenuItem(title: "Select Language", action: nil, keyEquivalent: "")
+        languageMenuItem?.submenu = languageMenu
+        languageMenuItem?.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: nil)
+        if let languageMenuItem {
+            menu.addItem(languageMenuItem)
+        }
+        refreshLanguageMenuItems()
 
         menu.addItem(NSMenuItem.separator())
 
@@ -511,6 +512,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
 
         refreshInputDeviceMenu()
+        refreshLanguageMenuItems()
         refreshAIModelMenuItems()
     }
 
@@ -622,6 +624,42 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             unavailableItem.isEnabled = false
             unavailableItem.state = NSControl.StateValue.on
             inputDeviceMenu.addItem(unavailableItem)
+        }
+    }
+
+    private func refreshLanguageMenuItems() {
+        guard let languageMenu = languageMenu else { return }
+
+        languageMenu.removeAllItems()
+
+        let selectedLanguage = settingsStore.selectedAppLanguage
+        let tier1Languages = AppLanguage.allCases.filter(\.isSelectable)
+        let tier2Languages = AppLanguage.allCases.filter { !$0.isSelectable }
+
+        for language in tier1Languages {
+            let item = NSMenuItem(
+                title: language.displayName,
+                action: #selector(selectLanguage(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = language.rawValue
+            item.state = selectedLanguage == language ? .on : .off
+            languageMenu.addItem(item)
+        }
+
+        if !tier2Languages.isEmpty {
+            languageMenu.addItem(.separator())
+
+            let upcomingItem = NSMenuItem(title: "Coming Soon", action: nil, keyEquivalent: "")
+            upcomingItem.isEnabled = false
+            languageMenu.addItem(upcomingItem)
+
+            for language in tier2Languages {
+                let item = NSMenuItem(title: language.pickerLabel, action: nil, keyEquivalent: "")
+                item.isEnabled = false
+                languageMenu.addItem(item)
+            }
         }
     }
 
@@ -789,6 +827,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func selectInputDevice(_ sender: NSMenuItem) {
         guard let uid = sender.representedObject as? String else { return }
         onSelectInputDeviceUID?(uid)
+    }
+
+    @objc private func selectLanguage(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let language = AppLanguage(rawValue: rawValue) else { return }
+        settingsStore.selectedAppLanguage = language
+        onSelectLanguage?(language)
+        refreshLanguageMenuItems()
     }
 
     @objc private func selectModel(_ sender: NSMenuItem) {

@@ -48,6 +48,9 @@ struct SettingsStoreTests {
         settingsStore.outputMode = "directInsert"
         #expect(settingsStore.outputMode == "directInsert")
 
+        settingsStore.selectedAppLanguage = .simplifiedChinese
+        #expect(settingsStore.selectedAppLanguage == .simplifiedChinese)
+
         settingsStore.aiEnhancementEnabled = true
         #expect(settingsStore.aiEnhancementEnabled)
 
@@ -59,6 +62,7 @@ struct SettingsStoreTests {
         #expect(newStore.toggleHotkey == "⌘⇧A")
         #expect(newStore.pushToTalkHotkey == "⌘⇧B")
         #expect(newStore.outputMode == "directInsert")
+        #expect(newStore.selectedAppLanguage == .simplifiedChinese)
         #expect(newStore.aiEnhancementEnabled)
 
         settingsStore.selectedModel = "base"
@@ -160,6 +164,7 @@ struct SettingsStoreTests {
         #expect(store.toggleHotkey == SettingsStore.Defaults.Hotkeys.toggleHotkey)
         #expect(store.pushToTalkHotkey == SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
         #expect(store.outputMode == "clipboard")
+        #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
         #expect(store.floatingIndicatorEnabled)
         #expect(store.floatingIndicatorType == FloatingIndicatorType.pill.rawValue)
@@ -175,6 +180,16 @@ struct SettingsStoreTests {
 
         #expect(settingsStore.themeMode == PindropThemeMode.light.rawValue)
         #expect(settingsStore.selectedThemeMode == .light)
+    }
+
+    @Test func testSelectedAppLanguageBridgesStoredValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.selectedAppLanguage = .german
+
+        #expect(settingsStore.selectedLanguage == AppLanguage.german.rawValue)
+        #expect(settingsStore.selectedAppLanguage == .german)
     }
 
     @Test func testThemeModeFallsBackToSystemForUnknownValue() {

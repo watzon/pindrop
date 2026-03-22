@@ -88,6 +88,7 @@ final class MockTranscriptionEngine: TranscriptionEngine {
     private(set) var state: TranscriptionEngineState = .unloaded
     var shouldFailLoad = false
     var mockTranscriptionResult = "Mock transcription result"
+    private(set) var lastOptions: TranscriptionOptions?
 
     func loadModel(path: String) async throws {
         if shouldFailLoad {
@@ -105,11 +106,12 @@ final class MockTranscriptionEngine: TranscriptionEngine {
         state = .ready
     }
 
-    func transcribe(audioData: Data) async throws -> String {
+    func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
         guard state == .ready else {
             throw MockError.modelNotLoaded
         }
 
+        lastOptions = options
         state = .transcribing
         try await Task.sleep(nanoseconds: 10_000_000)
         state = .ready

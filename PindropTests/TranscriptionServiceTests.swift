@@ -296,6 +296,26 @@ struct TranscriptionServiceTests {
         #expect(mockDiarizer.diarizeCallCount == 0)
     }
 
+    @Test func transcribeForwardsLanguageOptionsToEngine() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["ni hao"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let options = TranscriptionOptions(language: .simplifiedChinese)
+        _ = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2.0),
+            diarizationEnabled: false,
+            options: options
+        )
+
+        #expect(mockEngine.receivedOptions == [options])
+    }
+
     @Test func transcribeWithDiarizationEnabledReturnsSpeakerLabeledOutput() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team", "We should ship this today"]
@@ -669,6 +689,7 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     var transcribeResponses: [String] = []
     var transcribeError: Error?
     private(set) var transcribeCallCount = 0
+    private(set) var receivedOptions: [TranscriptionOptions] = []
 
     func loadModel(path: String) async throws {
         state = .ready
@@ -678,11 +699,12 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
         state = .ready
     }
 
-    func transcribe(audioData: Data) async throws -> String {
+    func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
         if let transcribeError {
             throw transcribeError
         }
 
+        receivedOptions.append(options)
         transcribeCallCount += 1
         if transcribeResponses.isEmpty {
             return ""

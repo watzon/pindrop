@@ -13,14 +13,22 @@ import os.log
 @MainActor
 @Observable
 class ModelManager {
-    nonisolated static let recommendedModelNames = [
+    nonisolated static let englishRecommendedModelNames = [
         "openai_whisper-base.en",
         "openai_whisper-small.en",
         "openai_whisper-medium",
         "openai_whisper-large-v3_turbo"
     ]
 
-    nonisolated static let recommendedModelNameSet: Set<String> = Set(recommendedModelNames)
+    nonisolated static let multilingualRecommendedModelNames = [
+        "openai_whisper-base",
+        "openai_whisper-small",
+        "openai_whisper-medium",
+        "openai_whisper-large-v3_turbo"
+    ]
+
+    nonisolated static let recommendedModelNames = englishRecommendedModelNames
+    nonisolated static let recommendedModelNameSet: Set<String> = Set(englishRecommendedModelNames)
 
     
     enum ModelProvider: String, CaseIterable, Sendable {
@@ -52,6 +60,69 @@ class ModelManager {
         case english = "English-only"
         case multilingual = "Multilingual"
     }
+
+    enum LanguageSupport: Sendable {
+        case englishOnly
+        case fullMultilingual
+        case parakeetV3European
+
+        enum BadgeTone: Sendable {
+            case normal
+            case caution
+        }
+
+        struct BadgePresentation: Sendable {
+            let iconName: String
+            let text: String
+            let tone: BadgeTone
+        }
+
+        func supports(_ language: AppLanguage) -> Bool {
+            guard language != .automatic else { return true }
+
+            switch self {
+            case .englishOnly:
+                return language.isEnglish
+            case .fullMultilingual:
+                return true
+            case .parakeetV3European:
+                switch language {
+                case .automatic, .english, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch:
+                    return true
+                case .simplifiedChinese, .japanese, .korean:
+                    return false
+                }
+            }
+        }
+
+        var badgeText: String {
+            switch self {
+            case .englishOnly:
+                return "English-only"
+            case .fullMultilingual:
+                return "Multilingual"
+            case .parakeetV3European:
+                return "European multilingual"
+            }
+        }
+
+        var badgeIconName: String {
+            switch self {
+            case .englishOnly:
+                return "textformat"
+            case .fullMultilingual, .parakeetV3European:
+                return "globe"
+            }
+        }
+
+        func badgePresentation(for language: AppLanguage) -> BadgePresentation {
+            BadgePresentation(
+                iconName: badgeIconName,
+                text: badgeText,
+                tone: supports(language) ? .normal : .caution
+            )
+        }
+    }
     
     enum ModelAvailability: Equatable, Sendable {
         case available
@@ -68,6 +139,7 @@ class ModelManager {
         let speedRating: Double
         let accuracyRating: Double
         let language: ModelLanguage
+        let languageSupport: LanguageSupport
         let provider: ModelProvider
         let availability: ModelAvailability
         
@@ -79,6 +151,7 @@ class ModelManager {
             speedRating: Double = 5.0,
             accuracyRating: Double = 5.0,
             language: ModelLanguage = .multilingual,
+            languageSupport: LanguageSupport? = nil,
             provider: ModelProvider = .whisperKit,
             availability: ModelAvailability = .available
         ) {
@@ -90,6 +163,7 @@ class ModelManager {
             self.speedRating = speedRating
             self.accuracyRating = accuracyRating
             self.language = language
+            self.languageSupport = languageSupport ?? (language == .english ? .englishOnly : .fullMultilingual)
             self.provider = provider
             self.availability = availability
         }
@@ -100,6 +174,14 @@ class ModelManager {
             } else {
                 return "\(sizeInMB) MB"
             }
+        }
+
+        func supports(language: AppLanguage) -> Bool {
+            languageSupport.supports(language)
+        }
+
+        func languageBadgePresentation(for language: AppLanguage) -> LanguageSupport.BadgePresentation {
+            languageSupport.badgePresentation(for: language)
         }
     }
     
@@ -391,6 +473,7 @@ class ModelManager {
             speedRating: 8.0,
             accuracyRating: 9.9,
             language: .multilingual,
+            languageSupport: .parakeetV3European,
             provider: .parakeet,
             availability: .available
         ),
@@ -442,18 +525,31 @@ class ModelManager {
         )
     ]
 
-    var recommendedModels: [WhisperModel] {
+    func recommendedModels(for language: AppLanguage) -> [WhisperModel] {
+        let recommendedModelNames: [String]
+        switch language {
+        case .english:
+            recommendedModelNames = Self.englishRecommendedModelNames
+        case .automatic, .simplifiedChinese, .spanish, .french, .german, .japanese, .portugueseBrazil, .italian, .dutch, .korean:
+            recommendedModelNames = Self.multilingualRecommendedModelNames
+        }
+
         let recommendationRanks = Dictionary(
-            uniqueKeysWithValues: Self.recommendedModelNames.enumerated().map { index, name in
+            uniqueKeysWithValues: recommendedModelNames.enumerated().map { index, name in
                 (name, index)
             }
         )
 
         return availableModels
-            .filter { Self.recommendedModelNameSet.contains($0.name) }
+            .filter { recommendedModelNames.contains($0.name) }
+            .filter { $0.supports(language: language) }
             .sorted {
                 recommendationRanks[$0.name, default: .max] < recommendationRanks[$1.name, default: .max]
             }
+    }
+
+    var recommendedModels: [WhisperModel] {
+        recommendedModels(for: .english)
     }
     
     private(set) var downloadProgress: Double = 0.0

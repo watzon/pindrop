@@ -479,6 +479,10 @@ final class AppCoordinator {
             self?.handleSelectInputDeviceUID(uid)
         }
 
+        self.statusBarController.onSelectLanguage = { [weak self] language in
+            self?.handleSelectLanguage(language)
+        }
+
         self.statusBarController.onShowApp = { [weak self] in
             self?.handleShowApp()
         }
@@ -537,11 +541,17 @@ final class AppCoordinator {
             onSelectInputDeviceUID: { [weak self] uid in
                 self?.handleSelectInputDeviceUID(uid)
             },
+            onSelectLanguage: { [weak self] language in
+                self?.handleSelectLanguage(language)
+            },
             availableInputDevicesProvider: {
                 AudioDeviceManager.inputDevices().map { (uid: $0.uid, displayName: $0.displayName) }
             },
             selectedInputDeviceUIDProvider: { [weak self] in
                 self?.settingsStore.selectedInputDeviceUID ?? ""
+            },
+            selectedLanguageProvider: { [weak self] in
+                self?.settingsStore.selectedAppLanguage ?? .automatic
             },
             anchorProvider: { [weak self] in
                 self?.contextEngineService.captureFocusedElementAnchorRect()
@@ -1803,7 +1813,8 @@ final class AppCoordinator {
         do {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
-                diarizationEnabled: diarizationEnabled
+                diarizationEnabled: diarizationEnabled,
+                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -2405,7 +2416,8 @@ final class AppCoordinator {
         do {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
-                diarizationEnabled: diarizationEnabled
+                diarizationEnabled: diarizationEnabled,
+                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -3258,6 +3270,11 @@ final class AppCoordinator {
         }
     }
 
+    private func handleSelectLanguage(_ language: AppLanguage) {
+        settingsStore.selectedAppLanguage = language
+        Log.ui.info("Selected app language: \(language.rawValue)")
+    }
+
     // MARK: - Copy Last Transcript
 
     private func handleCopyLastTranscript() async {
@@ -3444,7 +3461,8 @@ final class AppCoordinator {
 
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
-                diarizationEnabled: true
+                diarizationEnabled: true,
+                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 

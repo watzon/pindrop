@@ -83,7 +83,7 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         }
     }
     
-    public func transcribe(audioData: Data) async throws -> String {
+    public func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
         guard state == .ready else {
             throw EngineError.modelNotLoaded
         }

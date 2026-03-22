@@ -194,10 +194,26 @@ class TranscriptionService {
     }
 
     func transcribe(audioData: Data) async throws -> String {
-        try await transcribe(audioData: audioData, diarizationEnabled: false).text
+        try await transcribe(audioData: audioData, options: TranscriptionOptions())
+    }
+
+    func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
+        try await transcribe(audioData: audioData, diarizationEnabled: false, options: options).text
     }
 
     func transcribe(audioData: Data, diarizationEnabled: Bool) async throws -> TranscriptionOutput {
+        try await transcribe(
+            audioData: audioData,
+            diarizationEnabled: diarizationEnabled,
+            options: TranscriptionOptions()
+        )
+    }
+
+    func transcribe(
+        audioData: Data,
+        diarizationEnabled: Bool,
+        options: TranscriptionOptions
+    ) async throws -> TranscriptionOutput {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
 
         guard let engine else {
@@ -228,7 +244,8 @@ class TranscriptionService {
                 audioData: audioData,
                 samples: samples,
                 sampleRate: Self.sampleRate,
-                diarizationEnabled: diarizationEnabled
+                diarizationEnabled: diarizationEnabled,
+                options: options
             )
 
             let elapsed = Date().timeIntervalSince(startTime)
@@ -383,10 +400,11 @@ class TranscriptionService {
         audioData: Data,
         samples: [Float],
         sampleRate: Int,
-        diarizationEnabled: Bool
+        diarizationEnabled: Bool,
+        options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         guard diarizationEnabled else {
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData)
+            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
         }
 
         Log.transcription.info("Speaker diarization enabled for current transcription")
@@ -402,14 +420,15 @@ class TranscriptionService {
 
             guard !normalizedSegments.isEmpty else {
                 Log.transcription.warning("Speaker diarization returned no usable segments. Falling back to plain transcript.")
-                return try await transcribeWithoutDiarization(engine: engine, audioData: audioData)
+                return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
             }
 
             let output = try await transcribeBySpeakerSegments(
                 engine: engine,
                 samples: samples,
                 sampleRate: sampleRate,
-                segments: normalizedSegments
+                segments: normalizedSegments,
+                options: options
             )
 
             if let diarizedSegments = output.diarizedSegments, !diarizedSegments.isEmpty {
@@ -418,18 +437,19 @@ class TranscriptionService {
             }
 
             Log.transcription.warning("Speaker diarization produced no transcript text. Falling back to plain transcript.")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData)
+            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
         } catch {
             Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(error.localizedDescription)")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData)
+            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
         }
     }
 
     private func transcribeWithoutDiarization(
         engine: any TranscriptionEngine,
-        audioData: Data
+        audioData: Data,
+        options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
-        let text = try await engine.transcribe(audioData: audioData)
+        let text = try await engine.transcribe(audioData: audioData, options: options)
         return TranscriptionOutput(text: text, diarizedSegments: nil)
     }
 
@@ -437,7 +457,8 @@ class TranscriptionService {
         engine: any TranscriptionEngine,
         samples: [Float],
         sampleRate: Int,
-        segments: [SpeakerSegment]
+        segments: [SpeakerSegment],
+        options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         var speakerLabelsByID: [String: String] = [:]
         var transcriptSegments: [DiarizedTranscriptSegment] = []
@@ -453,7 +474,7 @@ class TranscriptionService {
                 continue
             }
 
-            let segmentText = try await engine.transcribe(audioData: segmentData)
+            let segmentText = try await engine.transcribe(audioData: segmentData, options: options)
             let trimmed = segmentText.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { continue }
 

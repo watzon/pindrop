@@ -7,6 +7,14 @@
 
 import Foundation
 
+public struct TranscriptionOptions: Sendable, Equatable {
+    public let language: AppLanguage
+
+    public init(language: AppLanguage = .automatic) {
+        self.language = language
+    }
+}
+
 /// Represents the current state of a transcription engine
 public enum TranscriptionEngineState: Equatable {
     case unloaded
@@ -36,10 +44,15 @@ public protocol TranscriptionEngine: AnyObject {
     /// Transcribe audio data to text
     /// - Parameter audioData: Raw audio data (expected format: 16kHz mono PCM Float32)
     /// - Returns: Transcribed text
-    func transcribe(audioData: Data) async throws -> String
+    func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String
     
     /// Unload the model and free resources
     func unloadModel() async
 }
 
+public extension TranscriptionEngine {
+    func transcribe(audioData: Data) async throws -> String {
+        try await transcribe(audioData: audioData, options: TranscriptionOptions())
+    }
+}
 

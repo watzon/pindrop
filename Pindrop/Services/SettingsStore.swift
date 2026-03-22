@@ -27,6 +27,95 @@ private enum SettingsStoreRuntime {
    }()
 }
 
+public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
+   case automatic = "auto"
+   case english = "en"
+   case simplifiedChinese = "zh-Hans"
+   case spanish = "es"
+   case french = "fr"
+   case german = "de"
+   case japanese = "ja"
+   case portugueseBrazil = "pt-BR"
+   case italian = "it"
+   case dutch = "nl"
+   case korean = "ko"
+
+   public var id: String { rawValue }
+
+   var displayName: String {
+      switch self {
+      case .automatic:
+         return "Automatic (Follow System)"
+      case .english:
+         return "English"
+      case .simplifiedChinese:
+         return "Simplified Chinese"
+      case .spanish:
+         return "Spanish"
+      case .french:
+         return "French"
+      case .german:
+         return "German"
+      case .japanese:
+         return "Japanese"
+      case .portugueseBrazil:
+         return "Portuguese (Brazil)"
+      case .italian:
+         return "Italian"
+      case .dutch:
+         return "Dutch"
+      case .korean:
+         return "Korean"
+      }
+   }
+
+   var pickerLabel: String {
+      guard !isSelectable else { return displayName }
+      return "\(displayName) (Coming Soon)"
+   }
+
+   var isSelectable: Bool {
+      switch self {
+      case .automatic, .english, .simplifiedChinese, .spanish, .french, .german:
+         return true
+      case .japanese, .portugueseBrazil, .italian, .dutch, .korean:
+         return false
+      }
+   }
+
+   var isEnglish: Bool {
+      self == .english
+   }
+
+   var whisperLanguageCode: String? {
+      switch self {
+      case .automatic:
+         return nil
+      case .english:
+         return "en"
+      case .simplifiedChinese:
+         return "zh"
+      case .spanish:
+         return "es"
+      case .french:
+         return "fr"
+      case .german:
+         return "de"
+      case .japanese:
+         return "ja"
+      case .portugueseBrazil:
+         return "pt"
+      case .italian:
+         return "it"
+      case .dutch:
+         return "nl"
+      case .korean:
+         return "ko"
+      }
+   }
+
+}
+
 @MainActor
 final class SettingsStore: ObservableObject {
 
@@ -47,8 +136,9 @@ final class SettingsStore: ObservableObject {
 
    enum Defaults {
       static let selectedModel = "openai_whisper-base"
-      static let outputMode = "clipboard"
-      static let themeMode = PindropThemeMode.system.rawValue
+       static let outputMode = "clipboard"
+       static let selectedLanguage = AppLanguage.automatic.rawValue
+       static let themeMode = PindropThemeMode.system.rawValue
       static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let automaticDictionaryLearningEnabled = true
@@ -133,10 +223,12 @@ final class SettingsStore: ObservableObject {
    var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
    @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
-   @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
-      Defaults.outputMode
-   @AppStorage(PindropThemeStorageKeys.themeMode, store: SettingsStoreRuntime.appStorageStore)
-   var themeMode: String = Defaults.themeMode {
+    @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
+       Defaults.outputMode
+    @AppStorage("selectedLanguage", store: SettingsStoreRuntime.appStorageStore)
+    var selectedLanguage: String = Defaults.selectedLanguage
+    @AppStorage(PindropThemeStorageKeys.themeMode, store: SettingsStoreRuntime.appStorageStore)
+    var themeMode: String = Defaults.themeMode {
       didSet { notifyThemeDidChange() }
    }
    @AppStorage(PindropThemeStorageKeys.lightThemePresetID, store: SettingsStoreRuntime.appStorageStore)
@@ -271,10 +363,15 @@ final class SettingsStore: ObservableObject {
       }
    }
 
-   var selectedThemeMode: PindropThemeMode {
-      get { PindropThemeMode(rawValue: themeMode) ?? .system }
-      set { themeMode = newValue.rawValue }
-   }
+    var selectedThemeMode: PindropThemeMode {
+       get { PindropThemeMode(rawValue: themeMode) ?? .system }
+       set { themeMode = newValue.rawValue }
+    }
+
+    var selectedAppLanguage: AppLanguage {
+       get { AppLanguage(rawValue: selectedLanguage) ?? .automatic }
+       set { selectedLanguage = newValue.rawValue }
+    }
 
    var selectedLightThemePreset: PindropThemePreset {
       PindropThemePresetCatalog.preset(withID: lightThemePresetID)
@@ -543,6 +640,7 @@ final class SettingsStore: ObservableObject {
       quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
       quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
       outputMode = Defaults.outputMode
+      selectedLanguage = Defaults.selectedLanguage
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID
       aiEnhancementEnabled = false
       aiProvider = AIProvider.openai.rawValue
