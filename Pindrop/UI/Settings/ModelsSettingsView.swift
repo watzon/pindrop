@@ -41,12 +41,16 @@ struct ModelsSettingsView: View {
     }
     
     private var filteredModels: [ModelManager.WhisperModel] {
-        switch selectedFilter {
+        switch effectiveFilter {
         case .recommended:
             return modelManager.recommendedModels
         case .all, .local, .cloud, .comingSoon:
-            return modelManager.availableModels.filter { selectedFilter.matches($0) }
+            return modelManager.availableModels.filter { effectiveFilter.matches($0) }
         }
+    }
+
+    private var effectiveFilter: ModelFilter {
+        trimmedSearchText.isEmpty ? selectedFilter : .all
     }
 
     private var trimmedSearchText: String {
@@ -68,6 +72,7 @@ struct ModelsSettingsView: View {
             VStack(spacing: 20) {
                 currentModelCard
                 filterBar
+                modelSearchField
                 availableModelsCard
                 featureModelsCard
 
@@ -153,7 +158,7 @@ struct ModelsSettingsView: View {
             ForEach(ModelFilter.allCases, id: \.self) { filter in
                 FilterButton(
                     title: filter.rawValue,
-                    isSelected: selectedFilter == filter,
+                    isSelected: effectiveFilter == filter,
                     action: { selectedFilter = filter }
                 )
             }
@@ -165,11 +170,6 @@ struct ModelsSettingsView: View {
     private var availableModelsCard: some View {
         SettingsCard(title: "Available Models", icon: "square.stack.3d.up") {
             VStack(spacing: 0) {
-                modelSearchField
-                    .padding(.horizontal, 14)
-                    .padding(.top, 14)
-                    .padding(.bottom, visibleModels.isEmpty ? 0 : 14)
-
                 if visibleModels.isEmpty {
                     emptyModelsState
                         .padding(14)
@@ -221,6 +221,7 @@ struct ModelsSettingsView: View {
         }
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, 10)
+        .frame(maxWidth: 360, alignment: .leading)
         .background(AppColors.surfaceBackground, in: RoundedRectangle(cornerRadius: AppTheme.Radius.md))
         .hairlineBorder(
             RoundedRectangle(cornerRadius: AppTheme.Radius.md),
