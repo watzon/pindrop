@@ -75,7 +75,8 @@ final class NotesStore {
                         apiEndpoint: endpoint,
                         apiKey: apiKey,
                         model: settings.aiModel,
-                        existingTags: existingTags
+                        existingTags: existingTags,
+                        provider: settings.currentAIProvider
                     )
                     
                     // Use generated title if no explicit title provided

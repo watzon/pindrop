@@ -40,7 +40,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
       switch self {
       case .openai: return "https://api.openai.com/v1/chat/completions"
       case .google: return "https://generativelanguage.googleapis.com/v1beta"
-      case .anthropic: return "https://api.anthropic.com/v1"
+      case .anthropic: return "https://api.anthropic.com/v1/messages"
       case .openrouter: return "https://openrouter.ai/api/v1/chat/completions"
       case .custom: return ""
       }
@@ -58,7 +58,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
 
    var isImplemented: Bool {
       switch self {
-      case .openai, .openrouter, .custom: return true
+      case .openai, .openrouter, .custom, .anthropic: return true
       default: return false
       }
    }
@@ -315,7 +315,7 @@ struct AIEnhancementStepView: View {
 
             apiKeyField
 
-            if selectedProvider == .openrouter || selectedProvider == .openai {
+            if selectedProvider == .openrouter || selectedProvider == .openai || selectedProvider == .anthropic {
                modelPicker
             }
 
@@ -629,6 +629,12 @@ struct AIEnhancementStepView: View {
     ) async {
        let resolvedCustomProvider = customLocalProvider ?? selectedCustomProvider
        let shouldUseCachedModels = !(provider == .custom && resolvedCustomProvider.supportsModelListing)
+       if provider == .anthropic {
+          availableModels = Self.anthropicModels
+          updateSelectedModelIfNeeded(for: provider, models: availableModels)
+          return
+       }
+
        let supportsModelListing = provider == .openrouter || provider == .openai
           || (provider == .custom && resolvedCustomProvider.supportsModelListing)
        guard supportsModelListing else {
@@ -727,12 +733,23 @@ struct AIEnhancementStepView: View {
        }
     }
 
+    private static let anthropicModels: [AIModelService.AIModel] = [
+       AIModelService.AIModel(id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5", provider: .anthropic,
+                              description: "Fast and affordable", contextLength: 200_000),
+       AIModelService.AIModel(id: "claude-sonnet-4-6-20250514", name: "Claude Sonnet 4.6", provider: .anthropic,
+                              description: "Balanced performance", contextLength: 200_000),
+       AIModelService.AIModel(id: "claude-opus-4-6-20250514", name: "Claude Opus 4.6", provider: .anthropic,
+                              description: "Most capable", contextLength: 200_000),
+    ]
+
     private func defaultModelIdentifier(for provider: AIProvider) -> String {
        switch provider {
        case .openrouter:
           return "openai/gpt-4o-mini"
        case .openai:
           return "gpt-4o-mini"
+       case .anthropic:
+          return "claude-haiku-4-5-20251001"
        default:
           return selectedModel
        }

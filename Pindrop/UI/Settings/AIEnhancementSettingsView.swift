@@ -537,7 +537,7 @@ struct AIEnhancementSettingsView: View {
 
             apiKeyField
 
-             if selectedProvider == .openrouter || selectedProvider == .openai {
+             if selectedProvider == .openrouter || selectedProvider == .openai || selectedProvider == .anthropic {
                modelPicker
              }
 
@@ -871,6 +871,12 @@ struct AIEnhancementSettingsView: View {
        customLocalProvider: CustomProviderType? = nil,
        forceRefresh: Bool = false
     ) async {
+       if provider == .anthropic {
+          availableModels = Self.anthropicModels
+          updateSelectedModelIfNeeded(for: provider, models: availableModels)
+          return
+       }
+
        let resolvedCustomProvider = customLocalProvider ?? selectedCustomProvider
        let shouldUseCachedModels = !(provider == .custom && resolvedCustomProvider.supportsModelListing)
        let supportsModelListing = provider == .openrouter || provider == .openai
@@ -970,12 +976,23 @@ struct AIEnhancementSettingsView: View {
       }
    }
 
+   private static let anthropicModels: [AIModelService.AIModel] = [
+      AIModelService.AIModel(id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5", provider: .anthropic,
+                             description: "Fast and affordable", contextLength: 200_000),
+      AIModelService.AIModel(id: "claude-sonnet-4-6-20250514", name: "Claude Sonnet 4.6", provider: .anthropic,
+                             description: "Balanced performance", contextLength: 200_000),
+      AIModelService.AIModel(id: "claude-opus-4-6-20250514", name: "Claude Opus 4.6", provider: .anthropic,
+                             description: "Most capable", contextLength: 200_000),
+   ]
+
    private func defaultModelIdentifier(for provider: AIProvider) -> String {
       switch provider {
       case .openrouter:
          return "openai/gpt-4o-mini"
       case .openai:
          return "gpt-4o-mini"
+      case .anthropic:
+         return "claude-haiku-4-5-20251001"
       default:
          return "gpt-4o-mini"
       }
@@ -995,7 +1012,7 @@ struct AIEnhancementSettingsView: View {
           let configuredModel = selectedCustomProvider.supportsModelListing ? selectedModel : customModel
           if configuredModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
        }
-       if (selectedProvider == .openrouter || selectedProvider == .openai)
+       if (selectedProvider == .openrouter || selectedProvider == .openai || selectedProvider == .anthropic)
           && selectedModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
        {
           return false
