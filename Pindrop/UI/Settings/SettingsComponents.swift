@@ -97,6 +97,19 @@ struct SettingsToggleRow: View {
     let title: String
     let detail: String
     @Binding var isOn: Bool
+    let accessibilityIdentifier: String?
+
+    init(
+        title: String,
+        detail: String,
+        isOn: Binding<Bool>,
+        accessibilityIdentifier: String? = nil
+    ) {
+        self.title = title
+        self.detail = detail
+        self._isOn = isOn
+        self.accessibilityIdentifier = accessibilityIdentifier
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
@@ -116,6 +129,8 @@ struct SettingsToggleRow: View {
             Toggle(title, isOn: $isOn)
                 .toggleStyle(.switch)
                 .labelsHidden()
+                .accessibilityValue(isOn ? "On" : "Off")
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
         }
     }
 }

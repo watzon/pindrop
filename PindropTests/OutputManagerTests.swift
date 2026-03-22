@@ -5,9 +5,10 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
 import AppKit
 import ApplicationServices
+import Foundation
+import Testing
 @testable import Pindrop
 
 final class MockClipboard: ClipboardProtocol {
@@ -16,14 +17,14 @@ final class MockClipboard: ClipboardProtocol {
     var restoreCount = 0
     var lastRestoredSnapshot: ClipboardSnapshot?
     var changeCount = 0
-    
+
     func copyToClipboard(_ text: String) -> Bool {
         copiedText = text
         clipboardContent = text
         changeCount += 1
         return true
     }
-    
+
     func captureSnapshot() -> ClipboardSnapshot {
         guard let clipboardContent else {
             return ClipboardSnapshot(items: [], changeCount: changeCount)
@@ -33,13 +34,8 @@ final class MockClipboard: ClipboardProtocol {
         return ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.string.rawValue: data]], changeCount: changeCount)
     }
 
-    func currentChangeCount() -> Int {
-        changeCount
-    }
-
-    func currentStringContent() -> String? {
-        clipboardContent
-    }
+    func currentChangeCount() -> Int { changeCount }
+    func currentStringContent() -> String? { clipboardContent }
 
     func restoreSnapshot(_ snapshot: ClipboardSnapshot) -> Bool {
         restoreCount += 1
@@ -64,11 +60,11 @@ final class MockKeySimulation: KeySimulationProtocol {
     var keyEvents: [(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool)] = []
     var pasteSimulated = false
     var simulatePasteCallCount = 0
-    
+
     func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
         keyEvents.append((keyCode, flags, keyDown))
     }
-    
+
     func simulatePaste() async throws {
         pasteSimulated = true
         simulatePasteCallCount += 1
@@ -76,280 +72,267 @@ final class MockKeySimulation: KeySimulationProtocol {
 }
 
 @MainActor
-final class OutputManagerTests: XCTestCase {
-    
-    var outputManager: OutputManager!
-    var mockClipboard: MockClipboard!
-    var mockKeySimulation: MockKeySimulation!
-    
-    override func setUp() async throws {
-        mockClipboard = MockClipboard()
-        mockKeySimulation = MockKeySimulation()
-        outputManager = OutputManager(
+@Suite
+struct OutputManagerTests {
+    private func makeSUT(
+        outputMode: OutputMode = .clipboard,
+        accessibilityPermissionChecker: @escaping () -> Bool = { true }
+    ) -> (outputManager: OutputManager, mockClipboard: MockClipboard, mockKeySimulation: MockKeySimulation) {
+        let mockClipboard = MockClipboard()
+        let mockKeySimulation = MockKeySimulation()
+        let outputManager = OutputManager(
+            outputMode: outputMode,
             clipboard: mockClipboard,
             keySimulation: mockKeySimulation,
-            accessibilityPermissionChecker: { true },
+            accessibilityPermissionChecker: accessibilityPermissionChecker,
             frontmostApplicationProvider: { nil }
         )
+        return (outputManager, mockClipboard, mockKeySimulation)
     }
-    
-    override func tearDown() async throws {
-        outputManager = nil
-        mockClipboard = nil
-        mockKeySimulation = nil
+
+    @Test func initialOutputModeIsClipboard() {
+        let fixture = makeSUT()
+        #expect(fixture.outputManager.outputMode == .clipboard)
     }
-    
-    func testInitialOutputModeIsClipboard() {
-        XCTAssertEqual(outputManager.outputMode, .clipboard)
+
+    @Test func setOutputMode() {
+        let fixture = makeSUT()
+        fixture.outputManager.setOutputMode(.directInsert)
+        #expect(fixture.outputManager.outputMode == .directInsert)
+
+        fixture.outputManager.setOutputMode(.clipboard)
+        #expect(fixture.outputManager.outputMode == .clipboard)
     }
-    
-    func testSetOutputMode() {
-        outputManager.setOutputMode(.directInsert)
-        XCTAssertEqual(outputManager.outputMode, .directInsert)
-        
-        outputManager.setOutputMode(.clipboard)
-        XCTAssertEqual(outputManager.outputMode, .clipboard)
-    }
-    
-    func testCopyToClipboard() throws {
+
+    @Test func copyToClipboard() throws {
+        let fixture = makeSUT()
         let testText = "Hello from Pindrop!"
-        
-        try outputManager.copyToClipboard(testText)
-        
-        XCTAssertEqual(mockClipboard.copiedText, testText)
-        XCTAssertEqual(mockClipboard.clipboardContent, testText)
-    }
-    
-    func testCopyToClipboardReplacesExistingContent() throws {
-        let firstText = "First text"
-        let secondText = "Second text"
-        
-        try outputManager.copyToClipboard(firstText)
-        XCTAssertEqual(mockClipboard.copiedText, firstText)
-        
-        try outputManager.copyToClipboard(secondText)
-        XCTAssertEqual(mockClipboard.copiedText, secondText)
-    }
-    
-    func testOutputWithClipboardMode() async throws {
-        outputManager.setOutputMode(.clipboard)
-        let testText = "Clipboard mode test"
-        let previousContent = "Previous clipboard content"
 
-        mockClipboard.clipboardContent = previousContent
+        try fixture.outputManager.copyToClipboard(testText)
 
-        try await outputManager.output(testText)
-
-        XCTAssertEqual(mockClipboard.copiedText, previousContent)
-        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.restoreCount, 1)
+        #expect(fixture.mockClipboard.copiedText == testText)
+        #expect(fixture.mockClipboard.clipboardContent == testText)
     }
 
-    func testBeginAndUpdateStreamingInsertionTypesInitialText() async throws {
-        outputManager.setOutputMode(.directInsert)
-        outputManager.beginStreamingInsertion()
+    @Test func copyToClipboardReplacesExistingContent() throws {
+        let fixture = makeSUT()
 
-        try await outputManager.updateStreamingInsertion(with: "hello")
+        try fixture.outputManager.copyToClipboard("First text")
+        #expect(fixture.mockClipboard.copiedText == "First text")
 
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, 10)
-        XCTAssertFalse(mockKeySimulation.pasteSimulated)
+        try fixture.outputManager.copyToClipboard("Second text")
+        #expect(fixture.mockClipboard.copiedText == "Second text")
     }
 
-    func testStreamingUpdateBackspacesChangedSuffixOnly() async throws {
-        outputManager.setOutputMode(.directInsert)
-        outputManager.beginStreamingInsertion()
+    @Test func outputWithClipboardMode() async throws {
+        let fixture = makeSUT()
+        fixture.outputManager.setOutputMode(.clipboard)
+        fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
-        try await outputManager.updateStreamingInsertion(with: "hello")
-        mockKeySimulation.keyEvents.removeAll()
+        try await fixture.outputManager.output("Clipboard mode test")
 
-        try await outputManager.updateStreamingInsertion(with: "help")
-
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, 6)
-        XCTAssertEqual(mockKeySimulation.keyEvents[0].keyCode, 51)
-        XCTAssertEqual(mockKeySimulation.keyEvents[1].keyCode, 51)
-        XCTAssertEqual(mockKeySimulation.keyEvents[2].keyCode, 51)
-        XCTAssertEqual(mockKeySimulation.keyEvents[3].keyCode, 51)
-        XCTAssertEqual(mockKeySimulation.keyEvents[4].keyCode, 35)
-        XCTAssertEqual(mockKeySimulation.keyEvents[5].keyCode, 35)
+        #expect(fixture.mockClipboard.copiedText == "Previous clipboard content")
+        #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockClipboard.restoreCount == 1)
     }
 
-    func testFinishStreamingInsertionAppendsTrailingSpaceWhenRequested() async throws {
-        outputManager.setOutputMode(.directInsert)
-        outputManager.beginStreamingInsertion()
+    @Test func beginAndUpdateStreamingInsertionTypesInitialText() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.outputManager.beginStreamingInsertion()
 
-        try await outputManager.updateStreamingInsertion(with: "hello")
-        mockKeySimulation.keyEvents.removeAll()
+        try await fixture.outputManager.updateStreamingInsertion(with: "hello")
 
-        try await outputManager.finishStreamingInsertion(finalText: "hello", appendTrailingSpace: true)
-
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, 2)
-        XCTAssertEqual(mockKeySimulation.keyEvents[0].keyCode, 49)
-        XCTAssertEqual(mockKeySimulation.keyEvents[1].keyCode, 49)
+        #expect(fixture.mockKeySimulation.keyEvents.count == 10)
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
     }
 
-    func testCancelStreamingInsertionPreservesTypedTextWhenRequested() async throws {
-        outputManager.setOutputMode(.directInsert)
-        outputManager.beginStreamingInsertion()
+    @Test func streamingUpdateBackspacesChangedSuffixOnly() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.outputManager.beginStreamingInsertion()
 
-        try await outputManager.updateStreamingInsertion(with: "keep me")
-        let eventCountBeforeCancel = mockKeySimulation.keyEvents.count
+        try await fixture.outputManager.updateStreamingInsertion(with: "hello")
+        fixture.mockKeySimulation.keyEvents.removeAll()
 
-        await outputManager.cancelStreamingInsertion(removeInsertedText: false)
+        try await fixture.outputManager.updateStreamingInsertion(with: "help")
 
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, eventCountBeforeCancel)
+        #expect(fixture.mockKeySimulation.keyEvents.count == 6)
+        #expect(fixture.mockKeySimulation.keyEvents[0].keyCode == 51)
+        #expect(fixture.mockKeySimulation.keyEvents[1].keyCode == 51)
+        #expect(fixture.mockKeySimulation.keyEvents[2].keyCode == 51)
+        #expect(fixture.mockKeySimulation.keyEvents[3].keyCode == 51)
+        #expect(fixture.mockKeySimulation.keyEvents[4].keyCode == 35)
+        #expect(fixture.mockKeySimulation.keyEvents[5].keyCode == 35)
+    }
+
+    @Test func finishStreamingInsertionAppendsTrailingSpaceWhenRequested() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.outputManager.beginStreamingInsertion()
+
+        try await fixture.outputManager.updateStreamingInsertion(with: "hello")
+        fixture.mockKeySimulation.keyEvents.removeAll()
+
+        try await fixture.outputManager.finishStreamingInsertion(finalText: "hello", appendTrailingSpace: true)
+
+        #expect(fixture.mockKeySimulation.keyEvents.count == 2)
+        #expect(fixture.mockKeySimulation.keyEvents[0].keyCode == 49)
+        #expect(fixture.mockKeySimulation.keyEvents[1].keyCode == 49)
+    }
+
+    @Test func cancelStreamingInsertionPreservesTypedTextWhenRequested() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.outputManager.beginStreamingInsertion()
+
+        try await fixture.outputManager.updateStreamingInsertion(with: "keep me")
+        let eventCountBeforeCancel = fixture.mockKeySimulation.keyEvents.count
+
+        await fixture.outputManager.cancelStreamingInsertion(removeInsertedText: false)
+
+        #expect(fixture.mockKeySimulation.keyEvents.count == eventCountBeforeCancel)
 
         do {
-            try await outputManager.updateStreamingInsertion(with: "new text")
-            XCTFail("Expected streaming insertion to be inactive after cancel")
+            try await fixture.outputManager.updateStreamingInsertion(with: "new text")
+            Issue.record("Expected streaming insertion to be inactive after cancel")
         } catch OutputManagerError.textInsertionFailed {
-            XCTAssertTrue(true)
+            #expect(Bool(true))
         } catch {
-            XCTFail("Unexpected error: \(error)")
+            Issue.record("Unexpected error: \(error.localizedDescription)")
         }
     }
-    
-    func testOutputWithEmptyTextThrowsError() async {
-        outputManager.setOutputMode(.clipboard)
-        
+
+    @Test func outputWithEmptyTextThrowsError() async {
+        let fixture = makeSUT()
+        fixture.outputManager.setOutputMode(.clipboard)
+
         do {
-            try await outputManager.output("")
-            XCTFail("Expected error for empty text")
+            try await fixture.outputManager.output("")
+            Issue.record("Expected error for empty text")
         } catch OutputManagerError.emptyText {
-            XCTAssertNil(mockClipboard.copiedText)
+            #expect(fixture.mockClipboard.copiedText == nil)
         } catch {
-            XCTFail("Unexpected error: \(error)")
+            Issue.record("Unexpected error: \(error.localizedDescription)")
         }
     }
-    
-    func testCheckAccessibilityPermission() {
-        let hasPermission = outputManager.checkAccessibilityPermission()
-        XCTAssertNotNil(hasPermission)
-    }
-    
-    func testDirectInsertRestoresClipboard() async throws {
-        outputManager.setOutputMode(.directInsert)
-        let testText = "Direct insert test"
-        let previousContent = "Previous clipboard content"
-        
-        mockClipboard.clipboardContent = previousContent
 
-        try await outputManager.output(testText)
-
-        XCTAssertFalse(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.restoreCount, 0)
-        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
+    @Test func checkAccessibilityPermission() {
+        let fixture = makeSUT()
+        let hasPermission = fixture.outputManager.checkAccessibilityPermission()
+        #expect(hasPermission == true || hasPermission == false)
     }
 
-    func testDirectInsertFallsBackToClipboardPasteForUnsupportedText() async throws {
-        outputManager.setOutputMode(.directInsert)
-        let previousContent = "Previous clipboard content"
+    @Test func directInsertRestoresClipboard() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
-        mockClipboard.clipboardContent = previousContent
+        try await fixture.outputManager.output("Direct insert test")
 
-        try await outputManager.output("hello 😀")
-
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.restoreCount, 1)
-        XCTAssertEqual(mockClipboard.copiedText, previousContent)
-        XCTAssertEqual(mockClipboard.clipboardContent, previousContent)
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+        #expect(fixture.mockClipboard.restoreCount == 0)
+        #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
     }
 
-    func testClipboardModeFallsBackToCopyWithoutAccessibility() async throws {
-        outputManager.setOutputMode(.clipboard)
+    @Test func directInsertFallsBackToClipboardPasteForUnsupportedText() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
-        outputManager = OutputManager(
-            outputMode: .clipboard,
-            clipboard: mockClipboard,
-            keySimulation: mockKeySimulation,
-            accessibilityPermissionChecker: { false },
-            frontmostApplicationProvider: { nil }
-        )
+        try await fixture.outputManager.output("hello 😀")
 
-        let testText = "Clipboard test"
-        try await outputManager.output(testText)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockClipboard.restoreCount == 1)
+        #expect(fixture.mockClipboard.copiedText == "Previous clipboard content")
+        #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
+    }
 
-        XCTAssertEqual(mockClipboard.copiedText, testText)
-        XCTAssertEqual(mockClipboard.clipboardContent, testText)
-        XCTAssertFalse(mockKeySimulation.pasteSimulated)
-        XCTAssertEqual(mockClipboard.restoreCount, 0)
+    @Test func clipboardModeFallsBackToCopyWithoutAccessibility() async throws {
+        let fixture = makeSUT(outputMode: .clipboard, accessibilityPermissionChecker: { false })
+
+        try await fixture.outputManager.output("Clipboard test")
+
+        #expect(fixture.mockClipboard.copiedText == "Clipboard test")
+        #expect(fixture.mockClipboard.clipboardContent == "Clipboard test")
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+        #expect(fixture.mockClipboard.restoreCount == 0)
     }
-    
-    func testGetKeyCodeForBasicCharacters() {
-        let aKeyCode = outputManager.getKeyCodeForCharacter("a")
-        XCTAssertNotNil(aKeyCode)
-        XCTAssertEqual(aKeyCode?.0, 0)
-        XCTAssertTrue(aKeyCode?.1.isEmpty ?? false)
-        
-        let AKeyCode = outputManager.getKeyCodeForCharacter("A")
-        XCTAssertNotNil(AKeyCode)
-        XCTAssertEqual(AKeyCode?.0, 0)
-        XCTAssertTrue(AKeyCode?.1.contains(.maskShift) ?? false)
-        
-        let oneKeyCode = outputManager.getKeyCodeForCharacter("1")
-        XCTAssertNotNil(oneKeyCode)
-        XCTAssertEqual(oneKeyCode?.0, 18)
-        
-        let spaceKeyCode = outputManager.getKeyCodeForCharacter(" ")
-        XCTAssertNotNil(spaceKeyCode)
-        XCTAssertEqual(spaceKeyCode?.0, 49)
+
+    @Test func getKeyCodeForBasicCharacters() {
+        let fixture = makeSUT()
+        let aKeyCode = fixture.outputManager.getKeyCodeForCharacter("a")
+        #expect(aKeyCode != nil)
+        #expect(aKeyCode?.0 == 0)
+        #expect(aKeyCode?.1.isEmpty == true)
+
+        let uppercaseAKeyCode = fixture.outputManager.getKeyCodeForCharacter("A")
+        #expect(uppercaseAKeyCode != nil)
+        #expect(uppercaseAKeyCode?.0 == 0)
+        #expect(uppercaseAKeyCode?.1.contains(.maskShift) == true)
+
+        let oneKeyCode = fixture.outputManager.getKeyCodeForCharacter("1")
+        #expect(oneKeyCode != nil)
+        #expect(oneKeyCode?.0 == 18)
+
+        let spaceKeyCode = fixture.outputManager.getKeyCodeForCharacter(" ")
+        #expect(spaceKeyCode != nil)
+        #expect(spaceKeyCode?.0 == 49)
     }
-    
-    func testGetKeyCodeForSpecialCharacters() {
-        let periodKeyCode = outputManager.getKeyCodeForCharacter(".")
-        XCTAssertNotNil(periodKeyCode)
-        
-        let commaKeyCode = outputManager.getKeyCodeForCharacter(",")
-        XCTAssertNotNil(commaKeyCode)
-        
-        let exclamationKeyCode = outputManager.getKeyCodeForCharacter("!")
-        XCTAssertNotNil(exclamationKeyCode)
-        XCTAssertTrue(exclamationKeyCode?.1.contains(.maskShift) ?? false)
+
+    @Test func getKeyCodeForSpecialCharacters() {
+        let fixture = makeSUT()
+        let periodKeyCode = fixture.outputManager.getKeyCodeForCharacter(".")
+        #expect(periodKeyCode != nil)
+
+        let commaKeyCode = fixture.outputManager.getKeyCodeForCharacter(",")
+        #expect(commaKeyCode != nil)
+
+        let exclamationKeyCode = fixture.outputManager.getKeyCodeForCharacter("!")
+        #expect(exclamationKeyCode != nil)
+        #expect(exclamationKeyCode?.1.contains(.maskShift) == true)
     }
-    
-    func testGetKeyCodeForUnsupportedCharacter() {
-        let emojiKeyCode = outputManager.getKeyCodeForCharacter("😀")
-        XCTAssertNil(emojiKeyCode)
+
+    @Test func getKeyCodeForUnsupportedCharacter() {
+        let fixture = makeSUT()
+        #expect(fixture.outputManager.getKeyCodeForCharacter("😀") == nil)
     }
-    
-    func testErrorDescriptions() {
-        XCTAssertNotNil(OutputManagerError.accessibilityPermissionDenied.errorDescription)
-        XCTAssertNotNil(OutputManagerError.emptyText.errorDescription)
-        XCTAssertNotNil(OutputManagerError.clipboardWriteFailed.errorDescription)
-        XCTAssertNotNil(OutputManagerError.textInsertionFailed.errorDescription)
+
+    @Test func errorDescriptions() {
+        #expect(OutputManagerError.accessibilityPermissionDenied.errorDescription != nil)
+        #expect(OutputManagerError.emptyText.errorDescription != nil)
+        #expect(OutputManagerError.clipboardWriteFailed.errorDescription != nil)
+        #expect(OutputManagerError.textInsertionFailed.errorDescription != nil)
     }
-    
-    func testMockClipboardTracksOperations() {
-        XCTAssertNil(mockClipboard.copiedText)
-        XCTAssertNil(mockClipboard.clipboardContent)
-        XCTAssertEqual(mockClipboard.restoreCount, 0)
+
+    @Test func mockClipboardTracksOperations() {
+        let mockClipboard = MockClipboard()
+        #expect(mockClipboard.copiedText == nil)
+        #expect(mockClipboard.clipboardContent == nil)
+        #expect(mockClipboard.restoreCount == 0)
 
         let success = mockClipboard.copyToClipboard("test")
-        XCTAssertTrue(success)
-        XCTAssertEqual(mockClipboard.copiedText, "test")
-        XCTAssertEqual(mockClipboard.clipboardContent, "test")
+        #expect(success)
+        #expect(mockClipboard.copiedText == "test")
+        #expect(mockClipboard.clipboardContent == "test")
 
         let snapshot = mockClipboard.captureSnapshot()
         mockClipboard.clipboardContent = nil
         mockClipboard.copiedText = nil
 
-        XCTAssertTrue(mockClipboard.restoreSnapshot(snapshot))
-        XCTAssertEqual(mockClipboard.restoreCount, 1)
-        XCTAssertEqual(mockClipboard.clipboardContent, "test")
+        #expect(mockClipboard.restoreSnapshot(snapshot))
+        #expect(mockClipboard.restoreCount == 1)
+        #expect(mockClipboard.clipboardContent == "test")
     }
-    
-    func testMockKeySimulationTracksEvents() async throws {
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, 0)
-        XCTAssertFalse(mockKeySimulation.pasteSimulated)
-        
+
+    @Test func mockKeySimulationTracksEvents() async throws {
+        let mockKeySimulation = MockKeySimulation()
+        #expect(mockKeySimulation.keyEvents.count == 0)
+        #expect(mockKeySimulation.pasteSimulated == false)
+
         try mockKeySimulation.postKeyEvent(keyCode: 0, flags: [], keyDown: true)
         try mockKeySimulation.postKeyEvent(keyCode: 0, flags: [], keyDown: false)
-        
-        XCTAssertEqual(mockKeySimulation.keyEvents.count, 2)
-        XCTAssertTrue(mockKeySimulation.keyEvents[0].keyDown)
-        XCTAssertFalse(mockKeySimulation.keyEvents[1].keyDown)
-        
+
+        #expect(mockKeySimulation.keyEvents.count == 2)
+        #expect(mockKeySimulation.keyEvents[0].keyDown)
+        #expect(mockKeySimulation.keyEvents[1].keyDown == false)
+
         try await mockKeySimulation.simulatePaste()
-        XCTAssertTrue(mockKeySimulation.pasteSimulated)
+        #expect(mockKeySimulation.pasteSimulated)
     }
 }

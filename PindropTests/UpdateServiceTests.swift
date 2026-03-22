@@ -1,179 +1,136 @@
 //
-// UpdateServiceTests.swift
-// PindropTests
+//  UpdateServiceTests.swift
+//  PindropTests
 //
-// Created on 2026-02-02.
+//  Created on 2026-03-21.
 //
 
-import XCTest
+import Foundation
 import SwiftData
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class UpdateServiceTests: XCTestCase {
+private final class MockUpdateController: UpdateControlling {
+    var automaticallyChecksForUpdates = false
+    var canCheckForUpdates = true
+    var lastUpdateCheckDate: Date?
+    private(set) var checkForUpdatesCallCount = 0
+    private(set) var backgroundCheckCallCount = 0
 
-    var sut: UpdateService!
-
-    override func setUp() async throws {
-        sut = UpdateService()
+    func checkForUpdates() {
+        checkForUpdatesCallCount += 1
     }
 
-    override func tearDown() async throws {
-        sut = nil
+    func checkForUpdatesInBackground() {
+        backgroundCheckCallCount += 1
+    }
+}
+
+@MainActor
+@Suite(.serialized)
+struct UpdateServiceTests {
+    @Test func startsIdle() {
+        let service = UpdateService(updateController: MockUpdateController(), timeoutScheduler: ManualTaskScheduler())
+
+        #expect(service.state == .idle)
+        #expect(service.error == nil)
     }
 
-    // MARK: - Initial State Tests
+    @Test func defersUpdateWhileRecording() {
+        let service = UpdateService(updateController: MockUpdateController(), timeoutScheduler: ManualTaskScheduler())
 
-    func testInitialState() async throws {
-        XCTAssertEqual(sut.state, .idle, "Initial state should be idle")
-        XCTAssertNil(sut.error, "Initial error should be nil")
+        #expect(service.shouldDeferUpdate(isRecording: true))
+        #expect(service.shouldDeferUpdate(isRecording: false) == false)
     }
 
-    // MARK: - Defer Update Tests
+    @Test func exposesControllerBackedProperties() {
+        let controller = MockUpdateController()
+        controller.automaticallyChecksForUpdates = false
+        controller.lastUpdateCheckDate = Date(timeIntervalSince1970: 321)
+        let service = UpdateService(updateController: controller, timeoutScheduler: ManualTaskScheduler())
 
-    func testShouldDeferUpdateWhenRecording() async throws {
-        let shouldDefer = sut.shouldDeferUpdate(isRecording: true)
-        XCTAssertTrue(shouldDefer, "Should defer update when recording is in progress")
+        #expect(service.automaticallyChecksForUpdates == false)
+        service.automaticallyChecksForUpdates = true
+        #expect(controller.automaticallyChecksForUpdates)
+        #expect(service.canCheckForUpdates)
+        #expect(service.lastUpdateCheckDate == controller.lastUpdateCheckDate)
     }
 
-    func testShouldNotDeferUpdateWhenNotRecording() async throws {
-        let shouldDefer = sut.shouldDeferUpdate(isRecording: false)
-        XCTAssertFalse(shouldDefer, "Should not defer update when not recording")
-    }
-
-    // MARK: - Property Tests
-
-    func testAutomaticallyChecksForUpdatesProperty() async throws {
-        // Property should be accessible (may be false if Sparkle not fully configured)
-        _ = sut.automaticallyChecksForUpdates
-
-        // Should be able to set it
-        let originalValue = sut.automaticallyChecksForUpdates
-        sut.automaticallyChecksForUpdates = !originalValue
-
-        // Note: In test environment, Sparkle may not be fully initialized
-        // so we just verify the property access works
-        XCTAssertTrue(true, "Property access should not crash")
-    }
-
-    func testCanCheckForUpdates() async throws {
-        // Property should be accessible
-        _ = sut.canCheckForUpdates
-
-        // Note: In test environment, Sparkle may not be fully initialized
-        // so we just verify the property access works
-        XCTAssertTrue(true, "Property access should not crash")
-    }
-
-    func testLastUpdateCheckDate() async throws {
-        // Property should be accessible (may be nil initially)
-        _ = sut.lastUpdateCheckDate
-
-        // Note: In test environment, Sparkle may not be fully initialized
-        // so we just verify the property access works
-        XCTAssertTrue(true, "Property access should not crash")
-    }
-
-    // MARK: - State Transition Tests
-
-    func testStateTransitionsToChecking() async throws {
-        // Initial state
-        XCTAssertEqual(sut.state, .idle)
-
-        // Trigger update check
-        sut.checkForUpdates()
-
-        // Give a moment for state to update
-        try await Task.sleep(nanoseconds: 50_000_000)
-
-        // State can be:
-        // - .checking: if Sparkle is initialized and can check
-        // - .error: if updaterController is nil
-        // - .idle: if canCheckForUpdates is false (check not allowed)
-        XCTAssertTrue(
-            sut.state == .checking || sut.state == .error || sut.state == .idle,
-            "State should be checking, error, or idle after checkForUpdates, but was \(String(describing: sut.state))"
+    @Test func checkForUpdatesTransitionsToCheckingAndBackToIdleOnTimeout() {
+        let controller = MockUpdateController()
+        let scheduler = ManualTaskScheduler(now: Date(timeIntervalSince1970: 500))
+        let service = UpdateService(
+            updateController: controller,
+            timeoutScheduler: scheduler,
+            checkTimeout: 3.0
         )
+
+        service.checkForUpdates()
+
+        #expect(service.state == .checking)
+        #expect(controller.checkForUpdatesCallCount == 1)
+
+        scheduler.advance(by: 2.9)
+        #expect(service.state == .checking)
+
+        scheduler.advance(by: 0.11)
+        #expect(service.state == .idle)
     }
 
-    func testStateReturnsToIdleAfterCheckTimeout() async throws {
-        // Trigger update check
-        sut.checkForUpdates()
+    @Test func checkForUpdatesRecordsTypedErrorWithoutController() throws {
+        let service = UpdateService(updateController: nil, timeoutScheduler: ManualTaskScheduler())
 
-        // Wait for the timeout (3 seconds + buffer)
-        try await Task.sleep(nanoseconds: 4_000_000_000)
+        service.checkForUpdates()
 
-        // State should return to idle or be error
-        XCTAssertTrue(
-            sut.state == .idle || sut.state == .error,
-            "State should return to idle or be error after timeout"
-        )
+        #expect(service.state == .error)
+        let error = try #require(service.error as? UpdateService.UpdateError)
+        if case .updaterNotInitialized = error {
+            #expect(Bool(true))
+        } else {
+            Issue.record("Expected updaterNotInitialized but received \(error.localizedDescription)")
+        }
     }
 
-    // MARK: - Error Tests
+    @Test func checkForUpdatesDoesNothingWhenControllerCannotCheck() {
+        let controller = MockUpdateController()
+        controller.canCheckForUpdates = false
+        let service = UpdateService(updateController: controller, timeoutScheduler: ManualTaskScheduler())
 
-    func testUpdateErrorDescriptions() {
+        service.checkForUpdates()
+
+        #expect(service.state == .idle)
+        #expect(controller.checkForUpdatesCallCount == 0)
+    }
+
+    @Test func backgroundCheckUsesControllerWithoutSleep() {
+        let controller = MockUpdateController()
+        let service = UpdateService(updateController: controller, timeoutScheduler: ManualTaskScheduler())
+
+        service.checkForUpdatesInBackground()
+
+        #expect(controller.backgroundCheckCallCount == 1)
+    }
+
+    @Test func updateErrorsProvideDescriptions() {
         let errors: [UpdateService.UpdateError] = [
             .updaterNotInitialized,
-            .checkFailed("test message"),
-            .updateInProgress
+            .checkFailed("network timeout"),
+            .updateInProgress,
         ]
 
-        for error in errors {
-            XCTAssertNotNil(error.errorDescription, "\(error) should have error description")
-            XCTAssertFalse(error.errorDescription?.isEmpty ?? true, "\(error) description should not be empty")
-        }
+        #expect(errors[0].errorDescription == "Update service not initialized")
+        #expect(errors[1].errorDescription == "Update check failed: network timeout")
+        #expect(errors[2].errorDescription == "An update is already in progress")
     }
 
-    func testUpdaterNotInitializedErrorDescription() {
-        let error = UpdateService.UpdateError.updaterNotInitialized
-        XCTAssertEqual(error.errorDescription, "Update service not initialized")
-    }
-
-    func testCheckFailedErrorDescription() {
-        let error = UpdateService.UpdateError.checkFailed("network timeout")
-        XCTAssertEqual(error.errorDescription, "Update check failed: network timeout")
-    }
-
-    func testUpdateInProgressErrorDescription() {
-        let error = UpdateService.UpdateError.updateInProgress
-        XCTAssertEqual(error.errorDescription, "An update is already in progress")
-    }
-
-    // MARK: - Background Check Tests
-
-    func testCheckForUpdatesInBackgroundDoesNotCrash() async throws {
-        // This should not crash even in test environment
-        sut.checkForUpdatesInBackground()
-
-        // Give it a moment
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        XCTAssertTrue(true, "Background check should not crash")
-    }
-
-    // MARK: - Error State Tests
-
-    func testErrorIsSetOnFailedCheck() async throws {
-        // Initial error should be nil
-        XCTAssertNil(sut.error)
-
-        // Trigger check (may fail in test environment)
-        sut.checkForUpdates()
-
-        // If state is error, error should be set
-        if sut.state == .error {
-            XCTAssertNotNil(sut.error, "Error should be set when state is error")
-        }
-    }
-
-    func testAppCoordinatorWiresStatusBarCheckForUpdatesAction() async throws {
+    @Test func appCoordinatorWiresCheckForUpdatesAction() throws {
         let schema = Schema([
             TranscriptionRecord.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,
-            PromptPreset.self
+            PromptPreset.self,
         ])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         let modelContainer = try ModelContainer(for: schema, configurations: [configuration])
@@ -183,10 +140,7 @@ final class UpdateServiceTests: XCTestCase {
             modelContainer: modelContainer
         )
 
-        XCTAssertNotNil(
-            coordinator.statusBarController.onCheckForUpdates,
-            "Status bar update menu item should be wired to coordinator handler"
-        )
+        #expect(coordinator.statusBarController.onCheckForUpdates != nil)
 
         coordinator.cleanup()
     }

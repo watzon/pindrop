@@ -1,0 +1,33 @@
+{
+  "configurations": [
+    {
+      "id": "B9F7F11A-1D8E-4A69-8A11-CC5D54CB4E44",
+      "name": "Default",
+      "options": {
+      }
+    }
+  ],
+  "defaultOptions": {
+    "environmentVariableEntries": [
+      {
+        "key": "PINDROP_TEST_MODE",
+        "value": "1"
+      },
+      {
+        "key": "PINDROP_UI_TEST_MODE",
+        "value": "1"
+      }
+    ]
+  },
+  "testTargets": [
+    {
+      "parallelizable": false,
+      "target": {
+        "containerPath": "container:Pindrop.xcodeproj",
+        "identifier": "FC0C118B38DA417DC13A03C9",
+        "name": "PindropUITests"
+      }
+    }
+  ],
+  "version": 1
+}

@@ -6,66 +6,61 @@
 //
 
 import AppKit
-import XCTest
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class SettingsStoreTests: XCTestCase {
-    
-    var settingsStore: SettingsStore!
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        settingsStore = SettingsStore()
+@Suite
+struct SettingsStoreTests {
+    private func makeSettingsStore() -> SettingsStore {
+        let settingsStore = SettingsStore()
+        cleanup(settingsStore)
+        return settingsStore
+    }
+
+    private func cleanup(_ settingsStore: SettingsStore) {
         settingsStore.resetAllSettings()
-        
         try? settingsStore.deleteAPIEndpoint()
         try? settingsStore.deleteAPIKey()
         settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
     }
-    
-    override func tearDown() async throws {
-        try? settingsStore.deleteAPIEndpoint()
-        settingsStore.resetAllSettings()
-        try? settingsStore.deleteAPIKey()
-        settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
-        settingsStore = nil
-        try await super.tearDown()
-    }
-    
-    func testSaveAndLoadSettings() throws {
+
+    @Test func testSaveAndLoadSettings() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.selectedModel = "large-v3"
-        XCTAssertEqual(settingsStore.selectedModel, "large-v3")
+        #expect(settingsStore.selectedModel == "large-v3")
 
         settingsStore.selectedThemeMode = .dark
         settingsStore.lightThemePresetID = "paper"
         settingsStore.darkThemePresetID = "signal"
-        XCTAssertEqual(settingsStore.selectedThemeMode, .dark)
-        XCTAssertEqual(settingsStore.lightThemePresetID, "paper")
-        XCTAssertEqual(settingsStore.darkThemePresetID, "signal")
-        
+        #expect(settingsStore.selectedThemeMode == .dark)
+        #expect(settingsStore.lightThemePresetID == "paper")
+        #expect(settingsStore.darkThemePresetID == "signal")
+
         settingsStore.toggleHotkey = "⌘⇧A"
-        XCTAssertEqual(settingsStore.toggleHotkey, "⌘⇧A")
-        
+        #expect(settingsStore.toggleHotkey == "⌘⇧A")
+
         settingsStore.pushToTalkHotkey = "⌘⇧B"
-        XCTAssertEqual(settingsStore.pushToTalkHotkey, "⌘⇧B")
-        
+        #expect(settingsStore.pushToTalkHotkey == "⌘⇧B")
+
         settingsStore.outputMode = "directInsert"
-        XCTAssertEqual(settingsStore.outputMode, "directInsert")
-        
+        #expect(settingsStore.outputMode == "directInsert")
+
         settingsStore.aiEnhancementEnabled = true
-        XCTAssertTrue(settingsStore.aiEnhancementEnabled)
-        
+        #expect(settingsStore.aiEnhancementEnabled)
+
         let newStore = SettingsStore()
-        XCTAssertEqual(newStore.selectedModel, "large-v3")
-        XCTAssertEqual(newStore.selectedThemeMode, .dark)
-        XCTAssertEqual(newStore.lightThemePresetID, "paper")
-        XCTAssertEqual(newStore.darkThemePresetID, "signal")
-        XCTAssertEqual(newStore.toggleHotkey, "⌘⇧A")
-        XCTAssertEqual(newStore.pushToTalkHotkey, "⌘⇧B")
-        XCTAssertEqual(newStore.outputMode, "directInsert")
-        XCTAssertTrue(newStore.aiEnhancementEnabled)
-        
+        #expect(newStore.selectedModel == "large-v3")
+        #expect(newStore.selectedThemeMode == .dark)
+        #expect(newStore.lightThemePresetID == "paper")
+        #expect(newStore.darkThemePresetID == "signal")
+        #expect(newStore.toggleHotkey == "⌘⇧A")
+        #expect(newStore.pushToTalkHotkey == "⌘⇧B")
+        #expect(newStore.outputMode == "directInsert")
+        #expect(newStore.aiEnhancementEnabled)
+
         settingsStore.selectedModel = "base"
         settingsStore.selectedThemeMode = .system
         settingsStore.lightThemePresetID = SettingsStore.Defaults.lightThemePresetID
@@ -75,206 +70,246 @@ final class SettingsStoreTests: XCTestCase {
         settingsStore.outputMode = "clipboard"
         settingsStore.aiEnhancementEnabled = false
     }
-    
-    func testKeychainStorage() throws {
+
+    @Test func testKeychainStorage() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         let testEndpoint = "https://api.openai.com/v1/chat/completions"
         let testKey = "sk-test-key-12345"
-        
+
         try settingsStore.saveAPIEndpoint(testEndpoint)
-        XCTAssertEqual(settingsStore.apiEndpoint, testEndpoint)
-        
+        #expect(settingsStore.apiEndpoint == testEndpoint)
+
         try settingsStore.saveAPIKey(testKey)
-        XCTAssertEqual(settingsStore.apiKey, testKey)
-        
+        #expect(settingsStore.apiKey == testKey)
+
         let newStore = SettingsStore()
-        XCTAssertEqual(newStore.apiEndpoint, testEndpoint)
-        XCTAssertEqual(newStore.apiKey, testKey)
-        
+        #expect(newStore.apiEndpoint == testEndpoint)
+        #expect(newStore.apiKey == testKey)
+
         try settingsStore.deleteAPIEndpoint()
-        XCTAssertNil(settingsStore.apiEndpoint)
-        
+        #expect(settingsStore.apiEndpoint == nil)
+
         try settingsStore.deleteAPIKey()
-        XCTAssertNil(settingsStore.apiKey)
-        
+        #expect(settingsStore.apiKey == nil)
+
         let emptyStore = SettingsStore()
-        XCTAssertNil(emptyStore.apiEndpoint)
-        XCTAssertNil(emptyStore.apiKey)
-    }
-    
-    func testKeychainPersistence() throws {
-        let endpoint1 = "https://api.example.com/v1"
-        let key1 = "key-12345"
-        
-        try settingsStore.saveAPIEndpoint(endpoint1)
-        try settingsStore.saveAPIKey(key1)
-        
-        let endpoint2 = "https://api.different.com/v2"
-        let key2 = "key-67890"
-        
-        try settingsStore.saveAPIEndpoint(endpoint2)
-        try settingsStore.saveAPIKey(key2)
-        
-        XCTAssertEqual(settingsStore.apiEndpoint, endpoint2)
-        XCTAssertEqual(settingsStore.apiKey, key2)
-        
-        let newStore = SettingsStore()
-        XCTAssertEqual(newStore.apiEndpoint, endpoint2)
-        XCTAssertEqual(newStore.apiKey, key2)
+        #expect(emptyStore.apiEndpoint == nil)
+        #expect(emptyStore.apiKey == nil)
     }
 
-    func testCustomLocalProviderIsInferredFromOllamaEndpoint() throws {
+    @Test func testKeychainPersistence() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        try settingsStore.saveAPIEndpoint("https://api.example.com/v1")
+        try settingsStore.saveAPIKey("key-12345")
+        try settingsStore.saveAPIEndpoint("https://api.different.com/v2")
+        try settingsStore.saveAPIKey("key-67890")
+
+        #expect(settingsStore.apiEndpoint == "https://api.different.com/v2")
+        #expect(settingsStore.apiKey == "key-67890")
+
+        let newStore = SettingsStore()
+        #expect(newStore.apiEndpoint == "https://api.different.com/v2")
+        #expect(newStore.apiKey == "key-67890")
+    }
+
+    @Test func testCustomLocalProviderIsInferredFromOllamaEndpoint() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         try settingsStore.saveAPIEndpoint("http://localhost:11434/v1/chat/completions")
 
-        XCTAssertEqual(settingsStore.currentAIProvider, .custom)
-        XCTAssertEqual(settingsStore.currentCustomLocalProvider, .ollama)
-        XCTAssertFalse(settingsStore.requiresAPIKey(for: .custom))
+        #expect(settingsStore.currentAIProvider == .custom)
+        #expect(settingsStore.currentCustomLocalProvider == .ollama)
+        #expect(!settingsStore.requiresAPIKey(for: .custom))
     }
 
-    func testCustomProviderAPIKeysAreScopedBySubtype() throws {
+    @Test func testCustomProviderAPIKeysAreScopedBySubtype() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         try settingsStore.saveAPIKey("custom-key", for: .custom, customLocalProvider: .custom)
         try settingsStore.saveAPIKey("lmstudio-key", for: .custom, customLocalProvider: .lmStudio)
 
-        XCTAssertEqual(
-            settingsStore.loadAPIKey(for: .custom, customLocalProvider: .custom),
-            "custom-key"
-        )
-        XCTAssertEqual(
-            settingsStore.loadAPIKey(for: .custom, customLocalProvider: .lmStudio),
-            "lmstudio-key"
-        )
-        XCTAssertNil(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .ollama))
+        #expect(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .custom) == "custom-key")
+        #expect(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .lmStudio) == "lmstudio-key")
+        #expect(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .ollama) == nil)
     }
 
-    func testSavingBlankAPIKeyDeletesStoredValue() throws {
+    @Test func testSavingBlankAPIKeyDeletesStoredValue() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         try settingsStore.saveAPIKey("temporary-key", for: .openai)
         try settingsStore.saveAPIKey("   ", for: .openai)
 
-        XCTAssertNil(settingsStore.loadAPIKey(for: .openai))
-    }
-     
-    func testDefaultValues() {
-        let store = SettingsStore()
-        
-        XCTAssertEqual(store.selectedModel, SettingsStore.Defaults.selectedModel)
-        XCTAssertEqual(store.selectedThemeMode, .system)
-        XCTAssertEqual(store.lightThemePresetID, SettingsStore.Defaults.lightThemePresetID)
-        XCTAssertEqual(store.darkThemePresetID, SettingsStore.Defaults.darkThemePresetID)
-        XCTAssertEqual(store.toggleHotkey, SettingsStore.Defaults.Hotkeys.toggleHotkey)
-        XCTAssertEqual(store.pushToTalkHotkey, SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
-        XCTAssertEqual(store.outputMode, "clipboard")
-        XCTAssertFalse(store.aiEnhancementEnabled)
-        XCTAssertTrue(store.floatingIndicatorEnabled)
-        XCTAssertEqual(store.floatingIndicatorType, FloatingIndicatorType.pill.rawValue)
-        XCTAssertNil(store.apiEndpoint)
-        XCTAssertNil(store.apiKey)
+        #expect(settingsStore.loadAPIKey(for: .openai) == nil)
     }
 
-    func testThemeModeBridgesStoredValue() {
+    @Test func testDefaultValues() {
+        let store = makeSettingsStore()
+        defer { cleanup(store) }
+
+        #expect(store.selectedModel == SettingsStore.Defaults.selectedModel)
+        #expect(store.selectedThemeMode == .system)
+        #expect(store.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
+        #expect(store.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
+        #expect(store.toggleHotkey == SettingsStore.Defaults.Hotkeys.toggleHotkey)
+        #expect(store.pushToTalkHotkey == SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
+        #expect(store.outputMode == "clipboard")
+        #expect(!store.aiEnhancementEnabled)
+        #expect(store.floatingIndicatorEnabled)
+        #expect(store.floatingIndicatorType == FloatingIndicatorType.pill.rawValue)
+        #expect(store.apiEndpoint == nil)
+        #expect(store.apiKey == nil)
+    }
+
+    @Test func testThemeModeBridgesStoredValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.selectedThemeMode = .light
 
-        XCTAssertEqual(settingsStore.themeMode, PindropThemeMode.light.rawValue)
-        XCTAssertEqual(settingsStore.selectedThemeMode, .light)
+        #expect(settingsStore.themeMode == PindropThemeMode.light.rawValue)
+        #expect(settingsStore.selectedThemeMode == .light)
     }
 
-    func testThemeModeFallsBackToSystemForUnknownValue() {
+    @Test func testThemeModeFallsBackToSystemForUnknownValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.themeMode = "mystery"
 
-        XCTAssertEqual(settingsStore.selectedThemeMode, .system)
+        #expect(settingsStore.selectedThemeMode == .system)
     }
 
-    func testSelectedThemePresetsResolveCatalogEntries() {
+    @Test func testSelectedThemePresetsResolveCatalogEntries() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.lightThemePresetID = "paper"
         settingsStore.darkThemePresetID = "signal"
 
-        XCTAssertEqual(settingsStore.selectedLightThemePreset.id, "paper")
-        XCTAssertEqual(settingsStore.selectedDarkThemePreset.id, "signal")
+        #expect(settingsStore.selectedLightThemePreset.id == "paper")
+        #expect(settingsStore.selectedDarkThemePreset.id == "signal")
     }
 
-    func testThemePresetFallsBackToDefaultForUnknownPresetID() {
+    @Test func testThemePresetFallsBackToDefaultForUnknownPresetID() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.lightThemePresetID = "unknown"
         settingsStore.darkThemePresetID = "unknown"
 
-        XCTAssertEqual(settingsStore.selectedLightThemePreset.id, PindropThemePresetCatalog.defaultPresetID)
-        XCTAssertEqual(settingsStore.selectedDarkThemePreset.id, PindropThemePresetCatalog.defaultPresetID)
+        #expect(settingsStore.selectedLightThemePreset.id == PindropThemePresetCatalog.defaultPresetID)
+        #expect(settingsStore.selectedDarkThemePreset.id == PindropThemePresetCatalog.defaultPresetID)
     }
 
-    func testThemeModeMapsToAppKitAppearance() {
-        XCTAssertNil(PindropThemeMode.system.appKitAppearanceName)
-        XCTAssertEqual(PindropThemeMode.light.appKitAppearanceName, .aqua)
-        XCTAssertEqual(PindropThemeMode.dark.appKitAppearanceName, .darkAqua)
+    @Test func testThemeModeMapsToAppKitAppearance() {
+        #expect(PindropThemeMode.system.appKitAppearanceName == nil)
+        #expect(PindropThemeMode.light.appKitAppearanceName == .aqua)
+        #expect(PindropThemeMode.dark.appKitAppearanceName == .darkAqua)
     }
 
-    func testResetAllSettingsResetsThemeSettings() {
+    @Test func testResetAllSettingsResetsThemeSettings() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.selectedThemeMode = .dark
         settingsStore.lightThemePresetID = "paper"
         settingsStore.darkThemePresetID = "signal"
 
         settingsStore.resetAllSettings()
 
-        XCTAssertEqual(settingsStore.selectedThemeMode, .system)
-        XCTAssertEqual(settingsStore.lightThemePresetID, SettingsStore.Defaults.lightThemePresetID)
-        XCTAssertEqual(settingsStore.darkThemePresetID, SettingsStore.Defaults.darkThemePresetID)
+        #expect(settingsStore.selectedThemeMode == .system)
+        #expect(settingsStore.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
+        #expect(settingsStore.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
     }
 
-    func testSelectedFloatingIndicatorTypeBridgesStoredValue() {
+    @Test func testSelectedFloatingIndicatorTypeBridgesStoredValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.selectedFloatingIndicatorType = .notch
 
-        XCTAssertEqual(settingsStore.floatingIndicatorType, FloatingIndicatorType.notch.rawValue)
-        XCTAssertEqual(settingsStore.selectedFloatingIndicatorType, .notch)
+        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.notch.rawValue)
+        #expect(settingsStore.selectedFloatingIndicatorType == .notch)
     }
 
-    func testSelectedFloatingIndicatorTypeFallsBackToPillForUnknownValue() {
+    @Test func testSelectedFloatingIndicatorTypeFallsBackToPillForUnknownValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.floatingIndicatorType = "unknown"
 
-        XCTAssertEqual(settingsStore.selectedFloatingIndicatorType, .pill)
+        #expect(settingsStore.selectedFloatingIndicatorType == .pill)
     }
 
-    func testPillFloatingIndicatorOffsetBridgesStoredValue() {
+    @Test func testPillFloatingIndicatorOffsetBridgesStoredValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.pillFloatingIndicatorOffset = CGSize(width: 42, height: -18)
 
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffsetX, 42)
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffsetY, -18)
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.width, 42)
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.height, -18)
+        #expect(settingsStore.pillFloatingIndicatorOffsetX == 42)
+        #expect(settingsStore.pillFloatingIndicatorOffsetY == -18)
+        #expect(settingsStore.pillFloatingIndicatorOffset.width == 42)
+        #expect(settingsStore.pillFloatingIndicatorOffset.height == -18)
     }
 
-    func testSwitchingAwayFromPillResetsStoredPillOffset() {
+    @Test func testSwitchingAwayFromPillResetsStoredPillOffset() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.selectedFloatingIndicatorType = .pill
         settingsStore.pillFloatingIndicatorOffset = CGSize(width: 36, height: 12)
 
         settingsStore.selectedFloatingIndicatorType = .bubble
 
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.width, 0)
-        XCTAssertEqual(settingsStore.pillFloatingIndicatorOffset.height, 0)
+        #expect(settingsStore.pillFloatingIndicatorOffset.width == 0)
+        #expect(settingsStore.pillFloatingIndicatorOffset.height == 0)
     }
 
-    func testVibeDefaultsAndRuntimeState() {
-        let store = SettingsStore()
+    @Test func testVibeDefaultsAndRuntimeState() {
+        let store = makeSettingsStore()
+        defer { cleanup(store) }
 
-        XCTAssertTrue(store.vibeLiveSessionEnabled)
-        XCTAssertEqual(store.vibeRuntimeState, .degraded)
-        XCTAssertEqual(store.vibeRuntimeDetail, "Vibe mode is disabled.")
+        #expect(store.vibeLiveSessionEnabled)
+        #expect(store.vibeRuntimeState == .degraded)
+        #expect(store.vibeRuntimeDetail == "Vibe mode is disabled.")
     }
 
-    func testUpdateVibeRuntimeState() {
+    @Test func testUpdateVibeRuntimeState() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.updateVibeRuntimeState(.ready, detail: "Live session context active in Cursor.")
 
-        XCTAssertEqual(settingsStore.vibeRuntimeState, .ready)
-        XCTAssertEqual(settingsStore.vibeRuntimeDetail, "Live session context active in Cursor.")
+        #expect(settingsStore.vibeRuntimeState == .ready)
+        #expect(settingsStore.vibeRuntimeDetail == "Live session context active in Cursor.")
     }
 
-    func testResetAllSettingsResetsVibeRuntimeState() {
+    @Test func testResetAllSettingsResetsVibeRuntimeState() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.vibeLiveSessionEnabled = false
         settingsStore.updateVibeRuntimeState(.ready, detail: "Live session context active in Cursor.")
 
         settingsStore.resetAllSettings()
 
-        XCTAssertTrue(settingsStore.vibeLiveSessionEnabled)
-        XCTAssertEqual(settingsStore.vibeRuntimeState, .degraded)
-        XCTAssertEqual(settingsStore.vibeRuntimeDetail, "Vibe mode is disabled.")
+        #expect(settingsStore.vibeLiveSessionEnabled)
+        #expect(settingsStore.vibeRuntimeState == .degraded)
+        #expect(settingsStore.vibeRuntimeDetail == "Vibe mode is disabled.")
     }
 
-    func testResolveMentionFormattingUsesTerminalProviderDefaultTemplate() {
+    @Test func testResolveMentionFormattingUsesTerminalProviderDefaultTemplate() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         let resolved = settingsStore.resolveMentionFormatting(
             editorBundleIdentifier: "com.microsoft.VSCode",
             terminalProviderIdentifier: "codex",
@@ -282,11 +317,14 @@ final class SettingsStoreTests: XCTestCase {
             adapterDefaultPrefix: "@"
         )
 
-        XCTAssertEqual(resolved.mentionTemplate, "[@{path}]({path})")
-        XCTAssertEqual(resolved.mentionPrefix, "@")
+        #expect(resolved.mentionTemplate == "[@{path}]({path})")
+        #expect(resolved.mentionPrefix == "@")
     }
 
-    func testResolveMentionFormattingPrefersProviderOverrideOverEditorOverride() {
+    @Test func testResolveMentionFormattingPrefersProviderOverrideOverEditorOverride() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.setMentionTemplateOverride("/{path}", for: "provider:codex")
         settingsStore.setMentionTemplateOverride("@{path}", for: "editor:com.microsoft.vscode")
 
@@ -297,38 +335,44 @@ final class SettingsStoreTests: XCTestCase {
             adapterDefaultPrefix: "#"
         )
 
-        XCTAssertEqual(resolved.mentionTemplate, "/{path}")
-        XCTAssertEqual(resolved.mentionPrefix, "/")
+        #expect(resolved.mentionTemplate == "/{path}")
+        #expect(resolved.mentionPrefix == "/")
     }
 
-    func testSetMentionTemplateOverrideRejectsInvalidTemplate() {
+    @Test func testSetMentionTemplateOverrideRejectsInvalidTemplate() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
         settingsStore.setMentionTemplateOverride("not-a-template", for: "provider:codex")
-        XCTAssertNil(settingsStore.mentionTemplateOverride(for: "provider:codex"))
+        #expect(settingsStore.mentionTemplateOverride(for: "provider:codex") == nil)
     }
 
+    @Test func testKeychainErrorHandling() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
 
-    
-    func testKeychainErrorHandling() throws {
-        XCTAssertNoThrow(try settingsStore.deleteAPIEndpoint())
-        XCTAssertNoThrow(try settingsStore.deleteAPIKey())
-        
-        XCTAssertNoThrow(try settingsStore.deleteAPIEndpoint())
-        XCTAssertNoThrow(try settingsStore.deleteAPIKey())
-    }
-    
-    func testObservableUpdates() throws {
-        let expectation = XCTestExpectation(description: "Settings update")
-        
-        Task {
-            settingsStore.selectedModel = "tiny"
-            XCTAssertEqual(settingsStore.selectedModel, "tiny")
-            
-            try settingsStore.saveAPIEndpoint("https://test.com")
-            XCTAssertEqual(settingsStore.apiEndpoint, "https://test.com")
-            
-            expectation.fulfill()
+        do {
+            try settingsStore.deleteAPIEndpoint()
+            try settingsStore.deleteAPIKey()
+            try settingsStore.deleteAPIEndpoint()
+            try settingsStore.deleteAPIKey()
+        } catch {
+            Issue.record("Unexpected error: \(error)")
         }
-        
-        wait(for: [expectation], timeout: 1.0)
+    }
+
+    @Test func testObservableUpdates() async throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        let task = Task { @MainActor in
+            settingsStore.selectedModel = "tiny"
+            #expect(settingsStore.selectedModel == "tiny")
+
+            try settingsStore.saveAPIEndpoint("https://test.com")
+            #expect(settingsStore.apiEndpoint == "https://test.com")
+        }
+
+        try await task.value
     }
 }

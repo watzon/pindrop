@@ -43,8 +43,16 @@ struct GeneralSettingsView: View {
                 SettingsToggleRow(
                     title: "Add trailing space",
                     detail: "Append a space after each transcription for seamless dictation.",
-                    isOn: $settings.addTrailingSpace
+                    isOn: $settings.addTrailingSpace,
+                    accessibilityIdentifier: "settings.toggle.addTrailingSpace"
                 )
+
+                if AppTestMode.isRunningUITests {
+                    Text(settings.addTrailingSpace ? "On" : "Off")
+                        .font(AppTypography.tiny)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .accessibilityIdentifier("settings.toggle.addTrailingSpace.state")
+                }
             }
         }
     }
@@ -59,7 +67,8 @@ struct GeneralSettingsView: View {
                 SettingsToggleRow(
                     title: "Launch at login",
                     detail: "Automatically start Pindrop when you sign in.",
-                    isOn: $settings.launchAtLogin
+                    isOn: $settings.launchAtLogin,
+                    accessibilityIdentifier: "settings.toggle.launchAtLogin"
                 )
 
                 SettingsDivider()
@@ -67,7 +76,8 @@ struct GeneralSettingsView: View {
                 SettingsToggleRow(
                     title: "Show in Dock",
                     detail: "Display Pindrop in the Dock instead of running only as a menu bar app.",
-                    isOn: $settings.showInDock
+                    isOn: $settings.showInDock,
+                    accessibilityIdentifier: "settings.toggle.showInDock"
                 )
             }
         }
@@ -86,7 +96,8 @@ struct GeneralSettingsView: View {
             SettingsToggleRow(
                 title: "Learn corrected words automatically",
                 detail: "Add words you manually correct into your vocabulary for future transcriptions.",
-                isOn: $settings.automaticDictionaryLearningEnabled
+                isOn: $settings.automaticDictionaryLearningEnabled,
+                accessibilityIdentifier: "settings.toggle.automaticDictionaryLearningEnabled"
             )
         }
     }
@@ -120,7 +131,8 @@ struct GeneralSettingsView: View {
                 SettingsToggleRow(
                     title: "Pause media during transcription",
                     detail: "Temporarily pause active media playback while dictation is recording.",
-                    isOn: $settings.pauseMediaOnRecording
+                    isOn: $settings.pauseMediaOnRecording,
+                    accessibilityIdentifier: "settings.toggle.pauseMediaOnRecording"
                 )
 
                 SettingsDivider()
@@ -128,7 +140,8 @@ struct GeneralSettingsView: View {
                 SettingsToggleRow(
                     title: "Mute system audio during recording",
                     detail: "Temporarily mute speaker output while dictation is recording.",
-                    isOn: $settings.muteAudioDuringRecording
+                    isOn: $settings.muteAudioDuringRecording,
+                    accessibilityIdentifier: "settings.toggle.muteAudioDuringRecording"
                 )
             }
         }

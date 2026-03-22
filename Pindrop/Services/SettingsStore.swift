@@ -14,15 +14,14 @@ private enum SettingsStoreRuntime {
    static let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
 
    static let isRunningTests: Bool = {
-      ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
-         || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+      AppTestMode.isRunningAnyTests
    }()
 
    static let appStorageStore: UserDefaults? = {
       guard isRunningTests else { return nil }
 
       let suiteName =
-         ProcessInfo.processInfo.environment["PINDROP_TEST_USER_DEFAULTS_SUITE"]
+         ProcessInfo.processInfo.environment[AppTestMode.testUserDefaultsSuiteKey]
          ?? "tech.watzon.pindrop.settings.tests.\(ProcessInfo.processInfo.processIdentifier)"
       return UserDefaults(suiteName: suiteName)
    }()

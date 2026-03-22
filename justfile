@@ -113,8 +113,18 @@ test-integration:
         -destination 'platform=macOS'
     @echo "✅ Integration tests complete"
 
-# Run unit + integration suites
-test-all: test test-integration
+# Run UI tests
+test-ui:
+    @echo "🧪 Running UI tests..."
+    xcodebuild test \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -testPlan UI \
+        -destination 'platform=macOS'
+    @echo "✅ UI tests complete"
+
+# Run unit + integration + UI suites
+test-all: test test-integration test-ui
     @echo "✅ All test suites complete"
 
 # Run tests with coverage

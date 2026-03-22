@@ -20,7 +20,7 @@ extension URLSession: URLSessionProtocol {}
 @Observable
 final class AIEnhancementService {
 
-    static let defaultSystemPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
+    nonisolated static let defaultSystemPrompt = "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
 
     struct LiveSessionContext: Sendable, Equatable {
         static let maxFileTagCandidates = 8

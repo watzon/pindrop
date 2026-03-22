@@ -112,6 +112,7 @@ struct SettingsContainerView: View {
     @ObservedObject var settings: SettingsStore
     @State private var selectedTab: SettingsTab
     @State private var searchText = ""
+    @FocusState private var isSearchFieldFocused: Bool
 
     var initialTab: SettingsTab = .general
 
@@ -119,6 +120,11 @@ struct SettingsContainerView: View {
         self.settings = settings
         self.initialTab = initialTab
         self._selectedTab = State(initialValue: initialTab)
+        self._searchText = State(
+            initialValue: AppTestMode.isRunningUITests
+                ? (AppTestMode.environment[AppTestMode.uiTestSettingsSearchTextKey] ?? "")
+                : ""
+        )
     }
 
     private var filteredTabs: [SettingsTab] {
@@ -138,6 +144,11 @@ struct SettingsContainerView: View {
             guard let firstVisibleTab = filteredTabs.first else { return }
             if !filteredTabs.contains(selectedTab) {
                 selectedTab = firstVisibleTab
+            }
+        }
+        .onAppear {
+            if AppTestMode.isRunningUITests {
+                isSearchFieldFocused = true
             }
         }
     }
@@ -235,6 +246,8 @@ struct SettingsContainerView: View {
 
             TextField("Search settings", text: $searchText)
                 .textFieldStyle(.plain)
+                .focused($isSearchFieldFocused)
+                .accessibilityIdentifier("settings.search.field")
 
             if !searchText.isEmpty {
                 Button {
@@ -244,6 +257,7 @@ struct SettingsContainerView: View {
                         .foregroundStyle(AppColors.textTertiary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.search.clear")
             }
         }
         .padding(.horizontal, AppTheme.Spacing.md)
@@ -275,6 +289,7 @@ struct SettingsContainerView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(AppTheme.Spacing.xxl)
+        .accessibilityIdentifier("settings.search.emptyState")
     }
 }
 
@@ -306,6 +321,16 @@ private struct SettingsTabChip: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(tab.accessibilityIdentifier)
+    }
+}
+
+private extension SettingsTab {
+    var accessibilityIdentifier: String {
+        let slug = rawValue
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "-")
+        return "settings.tab.\(slug)"
     }
 }
 

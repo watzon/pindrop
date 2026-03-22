@@ -5,24 +5,13 @@
 //  Created on 2026-02-09.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class MentionFormatterTests: XCTestCase {
-
-    var sut: MentionFormatter!
-
-    override func setUp() async throws {
-        sut = MentionFormatter()
-    }
-
-    override func tearDown() async throws {
-        sut = nil
-    }
-
-    // MARK: - Helpers
-
+@Suite
+struct MentionFormatterTests {
     private func makeIndexedFile(
         absolutePath: String = "/workspace/Pindrop/Services/AppCoordinator.swift",
         relativePath: String = "Pindrop/Services/AppCoordinator.swift",
@@ -46,84 +35,57 @@ final class MentionFormatterTests: XCTestCase {
         )
     }
 
-    private func makeCandidate(
-        relativePath: String = "Pindrop/Services/AppCoordinator.swift",
-        score: Double = 0.9
-    ) -> PathCandidate {
-        let file = makeIndexedFile(
-            absolutePath: "/workspace/\(relativePath)",
-            relativePath: relativePath
-        )
+    private func makeCandidate(relativePath: String = "Pindrop/Services/AppCoordinator.swift", score: Double = 0.9) -> PathCandidate {
+        let file = makeIndexedFile(absolutePath: "/workspace/\(relativePath)", relativePath: relativePath)
         return PathCandidate(file: file, score: score)
     }
 
-    private var cursorCapabilities: AppAdapterCapabilities {
-        CursorAdapter().capabilities
-    }
+    private var sut: MentionFormatter { MentionFormatter() }
+    private var cursorCapabilities: AppAdapterCapabilities { CursorAdapter().capabilities }
+    private var vscodeCapabilities: AppAdapterCapabilities { VSCodeAdapter().capabilities }
+    private var zedCapabilities: AppAdapterCapabilities { ZedAdapter().capabilities }
+    private var codexCapabilities: AppAdapterCapabilities { CodexAdapter().capabilities }
+    private var fallbackCapabilities: AppAdapterCapabilities { FallbackAdapter().capabilities }
 
-    private var vscodeCapabilities: AppAdapterCapabilities {
-        VSCodeAdapter().capabilities
-    }
-
-    private var zedCapabilities: AppAdapterCapabilities {
-        ZedAdapter().capabilities
-    }
-
-    private var codexCapabilities: AppAdapterCapabilities {
-        CodexAdapter().capabilities
-    }
-
-    private var fallbackCapabilities: AppAdapterCapabilities {
-        FallbackAdapter().capabilities
-    }
-
-    // MARK: - Resolved Mention Formatting
-
-    func testFormatsResolvedMentionForSupportedApp() {
-        let candidate = makeCandidate(score: 0.9)
+    @Test func formatsResolvedMentionForSupportedApp() {
         let result = sut.formatMention(
             originalText: "app coordinator",
-            resolution: .resolved(candidate),
+            resolution: .resolved(makeCandidate(score: 0.9)),
             capabilities: cursorCapabilities
         )
 
         guard case .formatted(let text, let path, let confidence) = result else {
-            XCTFail("Expected .formatted, got \(result)")
+            Issue.record("Expected .formatted, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "@Pindrop/Services/AppCoordinator.swift")
-        XCTAssertEqual(path, "Pindrop/Services/AppCoordinator.swift")
-        XCTAssertEqual(confidence, 0.9)
+        #expect(text == "@Pindrop/Services/AppCoordinator.swift")
+        #expect(path == "Pindrop/Services/AppCoordinator.swift")
+        #expect(confidence == 0.9)
     }
 
-    // MARK: - Low Confidence Gating
-
-    func testSkipsRewriteWhenConfidenceLow() {
-        let candidate = makeCandidate(score: 0.2)
+    @Test func skipsRewriteWhenConfidenceLow() {
         let result = sut.formatMention(
             originalText: "maybe this file",
-            resolution: .resolved(candidate),
+            resolution: .resolved(makeCandidate(score: 0.2)),
             capabilities: cursorCapabilities
         )
 
         guard case .preserved(let text, let reason) = result else {
-            XCTFail("Expected .preserved, got \(result)")
+            Issue.record("Expected .preserved, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "maybe this file")
+        #expect(text == "maybe this file")
         guard case .lowConfidence(let score, let threshold) = reason else {
-            XCTFail("Expected .lowConfidence, got \(reason)")
+            Issue.record("Expected .lowConfidence, got \(reason)")
             return
         }
-        XCTAssertEqual(score, 0.2)
-        XCTAssertEqual(threshold, 0.5)
+        #expect(score == 0.2)
+        #expect(threshold == 0.5)
     }
 
-    // MARK: - Unresolved Mention
-
-    func testPreservesUnresolvedMention() {
+    @Test func preservesUnresolvedMention() {
         let result = sut.formatMention(
             originalText: "nonexistent file",
             resolution: .unresolved(query: "nonexistent file"),
@@ -131,17 +93,15 @@ final class MentionFormatterTests: XCTestCase {
         )
 
         guard case .preserved(let text, let reason) = result else {
-            XCTFail("Expected .preserved, got \(result)")
+            Issue.record("Expected .preserved, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "nonexistent file")
-        XCTAssertEqual(reason, .unresolved)
+        #expect(text == "nonexistent file")
+        #expect(reason == .unresolved)
     }
 
-    // MARK: - Ambiguous Mention in Strict Mode
-
-    func testPreservesAmbiguousMentionInStrictMode() {
+    @Test func preservesAmbiguousMentionInStrictMode() {
         let candidates = [
             makeCandidate(relativePath: "src/Button.swift", score: 0.8),
             makeCandidate(relativePath: "lib/Button.swift", score: 0.75),
@@ -153,17 +113,15 @@ final class MentionFormatterTests: XCTestCase {
         )
 
         guard case .preserved(let text, let reason) = result else {
-            XCTFail("Expected .preserved, got \(result)")
+            Issue.record("Expected .preserved, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "button")
-        XCTAssertEqual(reason, .ambiguousInStrictMode(candidateCount: 2))
+        #expect(text == "button")
+        #expect(reason == .ambiguousInStrictMode(candidateCount: 2))
     }
 
-    // MARK: - Ambiguous Mention in Permissive Mode
-
-    func testFormatsAmbiguousMentionInPermissiveMode() {
+    @Test func formatsAmbiguousMentionInPermissiveMode() {
         let permissiveSut = MentionFormatter(config: .permissive)
         let candidates = [
             makeCandidate(relativePath: "src/Button.swift", score: 0.8),
@@ -176,18 +134,16 @@ final class MentionFormatterTests: XCTestCase {
         )
 
         guard case .formatted(let text, let path, let confidence) = result else {
-            XCTFail("Expected .formatted, got \(result)")
+            Issue.record("Expected .formatted, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "@src/Button.swift")
-        XCTAssertEqual(path, "src/Button.swift")
-        XCTAssertEqual(confidence, 0.8)
+        #expect(text == "@src/Button.swift")
+        #expect(path == "src/Button.swift")
+        #expect(confidence == 0.8)
     }
 
-    // MARK: - Idempotency
-
-    func testIdempotentForAlreadyFormattedMention() {
+    @Test func idempotentForAlreadyFormattedMention() {
         let result = sut.formatMention(
             originalText: "@Pindrop/Services/AppCoordinator.swift",
             resolution: .resolved(makeCandidate(score: 0.9)),
@@ -195,86 +151,70 @@ final class MentionFormatterTests: XCTestCase {
         )
 
         guard case .preserved(let text, let reason) = result else {
-            XCTFail("Expected .preserved, got \(result)")
+            Issue.record("Expected .preserved, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "@Pindrop/Services/AppCoordinator.swift")
-        XCTAssertEqual(reason, .alreadyFormatted)
+        #expect(text == "@Pindrop/Services/AppCoordinator.swift")
+        #expect(reason == .alreadyFormatted)
     }
 
-    // MARK: - Unsupported Adapter
-
-    func testPreservesMentionForUnsupportedAdapter() {
-        let candidate = makeCandidate(score: 0.9)
+    @Test func preservesMentionForUnsupportedAdapter() {
         let result = sut.formatMention(
             originalText: "app coordinator",
-            resolution: .resolved(candidate),
+            resolution: .resolved(makeCandidate(score: 0.9)),
             capabilities: fallbackCapabilities
         )
 
         guard case .preserved(let text, let reason) = result else {
-            XCTFail("Expected .preserved, got \(result)")
+            Issue.record("Expected .preserved, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "app coordinator")
+        #expect(text == "app coordinator")
         guard case .unsupportedByAdapter(let appName) = reason else {
-            XCTFail("Expected .unsupportedByAdapter, got \(reason)")
+            Issue.record("Expected .unsupportedByAdapter, got \(reason)")
             return
         }
-        XCTAssertEqual(appName, "Unknown App")
+        #expect(appName == "Unknown App")
     }
 
-    // MARK: - Different Prefix Per App
-
-    func testDifferentPrefixPerApp() {
+    @Test func differentPrefixPerApp() {
         let candidate = makeCandidate(score: 0.9)
 
-        let vscodeResult = sut.formatMention(
-            originalText: "app coordinator",
-            resolution: .resolved(candidate),
-            capabilities: vscodeCapabilities
-        )
+        let vscodeResult = sut.formatMention(originalText: "app coordinator", resolution: .resolved(candidate), capabilities: vscodeCapabilities)
         guard case .formatted(let vscodeText, _, _) = vscodeResult else {
-            XCTFail("Expected .formatted for VSCode, got \(vscodeResult)")
+            Issue.record("Expected .formatted for VSCode, got \(vscodeResult)")
             return
         }
-        XCTAssertEqual(vscodeText, "@Pindrop/Services/AppCoordinator.swift")
+        #expect(vscodeText == "@Pindrop/Services/AppCoordinator.swift")
 
-        let zedResult = sut.formatMention(
-            originalText: "app coordinator",
-            resolution: .resolved(candidate),
-            capabilities: zedCapabilities
-        )
+        let zedResult = sut.formatMention(originalText: "app coordinator", resolution: .resolved(candidate), capabilities: zedCapabilities)
         guard case .formatted(let zedText, _, _) = zedResult else {
-            XCTFail("Expected .formatted for Zed, got \(zedResult)")
+            Issue.record("Expected .formatted for Zed, got \(zedResult)")
             return
         }
-        XCTAssertEqual(zedText, "/Pindrop/Services/AppCoordinator.swift")
+        #expect(zedText == "/Pindrop/Services/AppCoordinator.swift")
     }
 
-    func testCodexFormatsResolvedMentionAsMarkdownLink() {
-        let candidate = makeCandidate(relativePath: "README.md", score: 0.9)
+    @Test func codexFormatsResolvedMentionAsMarkdownLink() {
         let result = sut.formatMention(
             originalText: "readme",
-            resolution: .resolved(candidate),
+            resolution: .resolved(makeCandidate(relativePath: "README.md", score: 0.9)),
             capabilities: codexCapabilities
         )
 
         guard case .formatted(let text, let path, let confidence) = result else {
-            XCTFail("Expected .formatted, got \(result)")
+            Issue.record("Expected .formatted, got \(result)")
             return
         }
 
-        XCTAssertEqual(text, "[@README.md](README.md)")
-        XCTAssertEqual(path, "README.md")
-        XCTAssertEqual(confidence, 0.9)
+        #expect(text == "[@README.md](README.md)")
+        #expect(path == "README.md")
+        #expect(confidence == 0.9)
     }
 
-    // MARK: - Batch Format Report
-
-    func testBatchFormatReport() {
+    @Test func batchFormatReport() {
         let mentions: [(originalText: String, resolution: PathResolutionResult)] = [
             ("app coordinator", .resolved(makeCandidate(score: 0.9))),
             ("nonexistent", .unresolved(query: "nonexistent")),
@@ -283,12 +223,12 @@ final class MentionFormatterTests: XCTestCase {
 
         let report = sut.formatMentions(mentions, capabilities: cursorCapabilities)
 
-        XCTAssertEqual(report.mentionResults.count, 3)
-        XCTAssertEqual(report.formattedMentions.count, 1)
-        XCTAssertEqual(report.preservedMentions.count, 2)
-        XCTAssertTrue(report.hasPreservedMentions)
-        XCTAssertTrue(report.formattedText.contains("@Pindrop/Services/AppCoordinator.swift"))
-        XCTAssertTrue(report.formattedText.contains("nonexistent"))
-        XCTAssertTrue(report.formattedText.contains("low confidence"))
+        #expect(report.mentionResults.count == 3)
+        #expect(report.formattedMentions.count == 1)
+        #expect(report.preservedMentions.count == 2)
+        #expect(report.hasPreservedMentions)
+        #expect(report.formattedText.contains("@Pindrop/Services/AppCoordinator.swift"))
+        #expect(report.formattedText.contains("nonexistent"))
+        #expect(report.formattedText.contains("low confidence"))
     }
 }

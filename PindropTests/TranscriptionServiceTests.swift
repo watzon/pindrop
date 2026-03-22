@@ -6,25 +6,23 @@
 //
 
 import AVFoundation
-import XCTest
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class TranscriptionServiceTests: XCTestCase {
+@Suite(.serialized)
+struct TranscriptionServiceTests {
     
-    func testInitialState() async throws {
+    @Test func initialState() async throws {
         let service = TranscriptionService()
         
-        XCTAssertEqual(service.state, .unloaded, "Initial state should be unloaded")
-        XCTAssertNil(service.error, "Initial error should be nil")
+        #expect(service.state == .unloaded, "Initial state should be unloaded")
+        #expect(service.error == nil, "Initial error should be nil")
     }
     
-    func testModelLoadingStates() async throws {
+    @Test func modelLoadingStates() async throws {
         let service = TranscriptionService()
-        
-        // Track state changes
-        var stateChanges: [TranscriptionService.State] = []
-        
+
         // Start loading model
         Task {
             do {
@@ -38,25 +36,25 @@ final class TranscriptionServiceTests: XCTestCase {
         try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
         
         // State should have changed from unloaded
-        XCTAssertNotEqual(service.state, .unloaded, "State should change from unloaded when loading starts")
+        #expect(service.state != .unloaded, "State should change from unloaded when loading starts")
     }
     
-    func testModelLoadingError() async throws {
+    @Test func modelLoadingError() async throws {
         let service = TranscriptionService()
         
         do {
             // Try to load with invalid model path
             try await service.loadModel(modelPath: "/invalid/path/to/model")
-            XCTFail("Should throw error for invalid model path")
+            Issue.record("Should throw error for invalid model path")
         } catch {
-            XCTAssertEqual(service.state, .error, "State should be error after failed load")
-            XCTAssertNotNil(service.error, "Error should be set after failed load")
+            #expect(service.state == .error, "State should be error after failed load")
+            #expect(service.error != nil, "Error should be set after failed load")
         }
     }
     
     // MARK: - Transcription Tests
     
-    func testTranscribeWithoutLoadedModel() async throws {
+    @Test func transcribeWithoutLoadedModel() async throws {
         let service = TranscriptionService()
         
         // Create dummy audio data (16kHz mono PCM)
@@ -69,16 +67,14 @@ final class TranscriptionServiceTests: XCTestCase {
         
         do {
             _ = try await service.transcribe(audioData: audioData)
-            XCTFail("Should throw error when model not loaded")
+            Issue.record("Should throw error when model not loaded")
         } catch TranscriptionService.TranscriptionError.modelNotLoaded {
-            // Expected error
-            XCTAssertTrue(true)
         } catch {
-            XCTFail("Unexpected error: \(error)")
+            Issue.record("Unexpected error: \(error)")
         }
     }
     
-    func testTranscribeWithEmptyAudioData() async throws {
+    @Test func transcribeWithEmptyAudioData() async throws {
         let service = TranscriptionService()
         
         // Try to load model first (will fail in test environment, but that's ok)
@@ -92,15 +88,11 @@ final class TranscriptionServiceTests: XCTestCase {
         
         do {
             _ = try await service.transcribe(audioData: emptyData)
-            XCTFail("Should throw error for empty audio data")
+            Issue.record("Should throw error for empty audio data")
         } catch TranscriptionService.TranscriptionError.invalidAudioData {
-            // Expected error
-            XCTAssertTrue(true)
         } catch TranscriptionService.TranscriptionError.modelNotLoaded {
-            // Also acceptable since model loading failed
-            XCTAssertTrue(true)
         } catch {
-            XCTFail("Unexpected error: \(error)")
+            Issue.record("Unexpected error: \(error)")
         }
     }
     
@@ -108,10 +100,10 @@ final class TranscriptionServiceTests: XCTestCase {
     
     // MARK: - State Management Tests
     
-    func testStateTransitions() async throws {
+    @Test func stateTransitions() async throws {
         let service = TranscriptionService()
         
-        XCTAssertEqual(service.state, .unloaded)
+        #expect(service.state == .unloaded)
         
         // Attempt to load model (will fail in test environment)
         Task {
@@ -126,10 +118,10 @@ final class TranscriptionServiceTests: XCTestCase {
         try await Task.sleep(nanoseconds: 100_000_000)
         
         // State should have changed
-        XCTAssertNotEqual(service.state, .unloaded)
+        #expect(service.state != .unloaded)
     }
     
-    func testConcurrentTranscriptionPrevention() async throws {
+    @Test func concurrentTranscriptionPrevention() async throws {
         let service = TranscriptionService()
         
         // Create dummy audio data
@@ -140,26 +132,26 @@ final class TranscriptionServiceTests: XCTestCase {
             audioData.append(Data(bytes: &sample, count: MemoryLayout<Int16>.size))
         }
         
+        let testAudioData = audioData
+
         // Try to transcribe twice concurrently
-        async let result1 = service.transcribe(audioData: audioData)
-        async let result2 = service.transcribe(audioData: audioData)
+        async let result1 = service.transcribe(audioData: testAudioData)
+        async let result2 = service.transcribe(audioData: testAudioData)
         
         do {
             _ = try await result1
             _ = try await result2
-            XCTFail("Should not allow concurrent transcriptions")
+            Issue.record("Should not allow concurrent transcriptions")
         } catch {
-            // Expected - either modelNotLoaded or transcriptionInProgress
-            XCTAssertTrue(true)
         }
     }
     
     // MARK: - Engine Switching Integration Tests
     
-    func testEngineSwitchCallsUnloadForDifferentProvider() async throws {
+    @Test func engineSwitchCallsUnloadForDifferentProvider() async throws {
         // Given: Service starts in unloaded state
         let service = TranscriptionService()
-        XCTAssertEqual(service.state, .unloaded)
+        #expect(service.state == .unloaded)
         
         // When: Attempt to load a model (fails in test env but exercises switching path)
         do {
@@ -178,11 +170,11 @@ final class TranscriptionServiceTests: XCTestCase {
         }
         
         // Then: Both load attempts should have been made (state changed from unloaded)
-        XCTAssertEqual(stateAfterFirstLoad, .error, "First load should result in error for invalid path")
-        XCTAssertEqual(service.state, .error, "Second load should also result in error")
+        #expect(stateAfterFirstLoad == .error, "First load should result in error for invalid path")
+        #expect(service.state == .error, "Second load should also result in error")
     }
     
-    func testEngineSwitchPreservesUnloadedStateOnCleanup() async throws {
+    @Test func engineSwitchPreservesUnloadedStateOnCleanup() async throws {
         let service = TranscriptionService()
         
         // Given: Attempt failed loads (exercises switching logic)
@@ -198,12 +190,12 @@ final class TranscriptionServiceTests: XCTestCase {
         await service.unloadModel()
         
         // Then: Should be back to clean unloaded state
-        XCTAssertEqual(service.state, .unloaded)
-        XCTAssertNil(service.error)
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
     }
     
-    func testCannotSwitchEngineDuringTranscription() async throws {
-        let service = TranscriptionService()
+    @Test func cannotSwitchEngineDuringTranscription() async throws {
+        _ = TranscriptionService()
         
         // Create dummy audio data
         let sampleCount = 16000 * 5 // 5 seconds of audio
@@ -217,12 +209,12 @@ final class TranscriptionServiceTests: XCTestCase {
         // without a real model, we test the error case directly
         // by verifying the error type exists and has correct description
         let error = TranscriptionService.TranscriptionError.engineSwitchDuringTranscription
-        XCTAssertNotNil(error.errorDescription)
-        XCTAssertTrue(error.errorDescription?.contains("Cannot switch") ?? false,
-                      "Error should mention cannot switch during transcription")
+        #expect(error.errorDescription != nil)
+        #expect(error.errorDescription?.contains("Cannot switch") ?? false,
+                "Error should mention cannot switch during transcription")
     }
     
-    func testUnloadModelReleasesEngineReference() async throws {
+    @Test func unloadModelReleasesEngineReference() async throws {
         let service = TranscriptionService()
         
         // Given: Attempt to load an engine
@@ -236,11 +228,11 @@ final class TranscriptionServiceTests: XCTestCase {
         await service.unloadModel()
         
         // Then: State should be unloaded and error cleared
-        XCTAssertEqual(service.state, .unloaded, "State should be unloaded after unloadModel")
-        XCTAssertNil(service.error, "Error should be nil after unloadModel")
+        #expect(service.state == .unloaded, "State should be unloaded after unloadModel")
+        #expect(service.error == nil, "Error should be nil after unloadModel")
     }
     
-    func testUnloadModelAfterSwitchingEngines() async throws {
+    @Test func unloadModelAfterSwitchingEngines() async throws {
         let service = TranscriptionService()
         
         // Given: Load and switch engines (both will fail in test env)
@@ -256,11 +248,11 @@ final class TranscriptionServiceTests: XCTestCase {
         await service.unloadModel()
         
         // Then: Should cleanly return to unloaded state
-        XCTAssertEqual(service.state, .unloaded, "State should be unloaded")
-        XCTAssertNil(service.error, "Error should be cleared")
+        #expect(service.state == .unloaded, "State should be unloaded")
+        #expect(service.error == nil, "Error should be cleared")
     }
     
-    func testReloadSameEngineAfterUnload() async throws {
+    @Test func reloadSameEngineAfterUnload() async throws {
         let service = TranscriptionService()
         
         // Given: Load then unload WhisperKit
@@ -269,7 +261,7 @@ final class TranscriptionServiceTests: XCTestCase {
         } catch {}
         
         await service.unloadModel()
-        XCTAssertEqual(service.state, .unloaded)
+        #expect(service.state == .unloaded)
         
         // When: Load same engine again
         do {
@@ -277,12 +269,12 @@ final class TranscriptionServiceTests: XCTestCase {
         } catch {}
         
         // Then: Should attempt to load (state transitions from unloaded)
-        XCTAssertNotEqual(service.state, .unloaded, "State should change when reloading engine")
+        #expect(service.state != .unloaded, "State should change when reloading engine")
     }
 
     // MARK: - Speaker Diarization Tests
 
-    func testTranscribeWithDiarizationDisabledReturnsPlainTranscript() async throws {
+    @Test func transcribeWithDiarizationDisabledReturnsPlainTranscript() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["plain transcript"]
         let mockDiarizer = MockSpeakerDiarizer()
@@ -297,14 +289,14 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: false
         )
 
-        XCTAssertEqual(output.text, "plain transcript")
-        XCTAssertNil(output.diarizedSegments)
-        XCTAssertEqual(mockEngine.transcribeCallCount, 1)
-        XCTAssertEqual(mockDiarizer.loadModelsCallCount, 0)
-        XCTAssertEqual(mockDiarizer.diarizeCallCount, 0)
+        #expect(output.text == "plain transcript")
+        #expect(output.diarizedSegments == nil)
+        #expect(mockEngine.transcribeCallCount == 1)
+        #expect(mockDiarizer.loadModelsCallCount == 0)
+        #expect(mockDiarizer.diarizeCallCount == 0)
     }
 
-    func testTranscribeWithDiarizationEnabledReturnsSpeakerLabeledOutput() async throws {
+    @Test func transcribeWithDiarizationEnabledReturnsSpeakerLabeledOutput() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team", "We should ship this today"]
 
@@ -332,19 +324,16 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: true
         )
 
-        XCTAssertEqual(
-            output.text,
-            "Speaker 1: Hello team\nSpeaker 2: We should ship this today"
-        )
-        XCTAssertEqual(output.diarizedSegments?.count, 2)
-        XCTAssertEqual(output.diarizedSegments?.map(\.speakerLabel), ["Speaker 1", "Speaker 2"])
-        XCTAssertEqual(output.diarizedSegments?.map(\.speakerId), ["speaker-a", "speaker-b"])
-        XCTAssertEqual(mockDiarizer.loadModelsCallCount, 1)
-        XCTAssertEqual(mockDiarizer.diarizeCallCount, 1)
-        XCTAssertEqual(mockEngine.transcribeCallCount, 2)
+        #expect(output.text == "Speaker 1: Hello team\nSpeaker 2: We should ship this today")
+        #expect(output.diarizedSegments?.count == 2)
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Speaker 1", "Speaker 2"])
+        #expect(output.diarizedSegments?.map(\.speakerId) == ["speaker-a", "speaker-b"])
+        #expect(mockDiarizer.loadModelsCallCount == 1)
+        #expect(mockDiarizer.diarizeCallCount == 1)
+        #expect(mockEngine.transcribeCallCount == 2)
     }
 
-    func testTranscribeWithSingleSpeakerDiarizationOmitsSpeakerLabelsFromOutput() async throws {
+    @Test func transcribeWithSingleSpeakerDiarizationOmitsSpeakerLabelsFromOutput() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["I clicked the button to install the diarization package."]
 
@@ -370,15 +359,15 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: true
         )
 
-        XCTAssertEqual(output.text, "I clicked the button to install the diarization package.")
-        XCTAssertEqual(output.diarizedSegments?.count, 1)
-        XCTAssertEqual(output.diarizedSegments?.map(\.speakerLabel), ["Speaker 1"])
-        XCTAssertEqual(mockDiarizer.loadModelsCallCount, 1)
-        XCTAssertEqual(mockDiarizer.diarizeCallCount, 1)
-        XCTAssertEqual(mockEngine.transcribeCallCount, 1)
+        #expect(output.text == "I clicked the button to install the diarization package.")
+        #expect(output.diarizedSegments?.count == 1)
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Speaker 1"])
+        #expect(mockDiarizer.loadModelsCallCount == 1)
+        #expect(mockDiarizer.diarizeCallCount == 1)
+        #expect(mockEngine.transcribeCallCount == 1)
     }
 
-    func testTranscribeWithDiarizationFailureFallsBackToSinglePassTranscription() async throws {
+    @Test func transcribeWithDiarizationFailureFallsBackToSinglePassTranscription() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["fallback transcript"]
         let mockDiarizer = MockSpeakerDiarizer()
@@ -395,13 +384,13 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: true
         )
 
-        XCTAssertEqual(output.text, "fallback transcript")
-        XCTAssertNil(output.diarizedSegments)
-        XCTAssertEqual(mockDiarizer.diarizeCallCount, 1)
-        XCTAssertEqual(mockEngine.transcribeCallCount, 1)
+        #expect(output.text == "fallback transcript")
+        #expect(output.diarizedSegments == nil)
+        #expect(mockDiarizer.diarizeCallCount == 1)
+        #expect(mockEngine.transcribeCallCount == 1)
     }
 
-    func testTranscribeWithDiarizationNormalizesAndMergesSegments() async throws {
+    @Test func transcribeWithDiarizationNormalizesAndMergesSegments() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Merged speaker text", "Second speaker text"]
 
@@ -435,26 +424,20 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: true
         )
 
-        XCTAssertEqual(
-            output.text,
-            "Speaker 1: Merged speaker text\nSpeaker 2: Second speaker text"
-        )
-        XCTAssertEqual(mockEngine.transcribeCallCount, 2)
+        #expect(output.text == "Speaker 1: Merged speaker text\nSpeaker 2: Second speaker text")
+        #expect(mockEngine.transcribeCallCount == 2)
 
-        guard let diarizedSegments = output.diarizedSegments else {
-            XCTFail("Expected diarized segments")
-            return
-        }
+        let diarizedSegments = try #require(output.diarizedSegments, "Expected diarized segments")
 
-        XCTAssertEqual(diarizedSegments.count, 2)
-        XCTAssertEqual(diarizedSegments[0].speakerId, "speaker-a")
-        XCTAssertEqual(diarizedSegments[0].startTime, 0.0, accuracy: 0.0001)
-        XCTAssertEqual(diarizedSegments[0].endTime, 2.4, accuracy: 0.0001)
-        XCTAssertEqual(diarizedSegments[1].speakerId, "speaker-c")
-        XCTAssertEqual(diarizedSegments.map(\.speakerLabel), ["Speaker 1", "Speaker 2"])
+        #expect(diarizedSegments.count == 2)
+        #expect(diarizedSegments[0].speakerId == "speaker-a")
+        #expect(abs(diarizedSegments[0].startTime - 0.0) < 0.0001)
+        #expect(abs(diarizedSegments[0].endTime - 2.4) < 0.0001)
+        #expect(diarizedSegments[1].speakerId == "speaker-c")
+        #expect(diarizedSegments.map(\.speakerLabel) == ["Speaker 1", "Speaker 2"])
     }
 
-    func testTranscribeWithDiarizationSplitsLongSegmentsIntoSmallerTimedChunks() async throws {
+    @Test func transcribeWithDiarizationSplitsLongSegmentsIntoSmallerTimedChunks() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = [
             """
@@ -485,21 +468,16 @@ final class TranscriptionServiceTests: XCTestCase {
             diarizationEnabled: true
         )
 
-        guard let diarizedSegments = output.diarizedSegments else {
-            XCTFail("Expected diarized segments")
-            return
-        }
+        let diarizedSegments = try #require(output.diarizedSegments, "Expected diarized segments")
 
-        guard let firstSegment = diarizedSegments.first,
-              let lastSegment = diarizedSegments.last else {
-            return XCTFail("Expected diarized segments to contain entries")
-        }
+        let firstSegment = try #require(diarizedSegments.first, "Expected diarized segments to contain entries")
+        let lastSegment = try #require(diarizedSegments.last, "Expected diarized segments to contain entries")
 
-        XCTAssertGreaterThan(diarizedSegments.count, 1)
-        XCTAssertEqual(Set(diarizedSegments.map(\.speakerId)), ["speaker-a"])
-        XCTAssertEqual(firstSegment.startTime, 0.0, accuracy: 0.0001)
-        XCTAssertEqual(lastSegment.endTime, 48.0, accuracy: 0.0001)
-        XCTAssertTrue(
+        #expect(diarizedSegments.count > 1)
+        #expect(Set(diarizedSegments.map(\.speakerId)) == ["speaker-a"])
+        #expect(abs(firstSegment.startTime - 0.0) < 0.0001)
+        #expect(abs(lastSegment.endTime - 48.0) < 0.0001)
+        #expect(
             diarizedSegments.dropFirst().allSatisfy { $0.startTime >= 0 && $0.endTime > $0.startTime },
             "Split segments should preserve increasing timestamp windows"
         )
@@ -507,28 +485,28 @@ final class TranscriptionServiceTests: XCTestCase {
 
     // MARK: - Streaming Tests
 
-    func testStreamingLifecycleTransitions() async throws {
+    @Test func streamingLifecycleTransitions() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
 
         try await service.prepareStreamingEngine()
-        XCTAssertEqual(service.state, .ready)
-        XCTAssertEqual(mockStreamingEngine.state, .ready)
+        #expect(service.state == .ready)
+        #expect(mockStreamingEngine.state == .ready)
 
         try await service.startStreaming()
-        XCTAssertEqual(service.state, .transcribing)
-        XCTAssertEqual(mockStreamingEngine.state, .streaming)
+        #expect(service.state == .transcribing)
+        #expect(mockStreamingEngine.state == .streaming)
 
         try await service.processStreamingAudioBuffer(makeStreamingBuffer())
-        XCTAssertEqual(mockStreamingEngine.processedBufferCount, 1)
+        #expect(mockStreamingEngine.processedBufferCount == 1)
 
         let finalText = try await service.stopStreaming()
-        XCTAssertEqual(finalText, mockStreamingEngine.stopResult)
-        XCTAssertEqual(service.state, .ready)
-        XCTAssertEqual(mockStreamingEngine.state, .ready)
+        #expect(finalText == mockStreamingEngine.stopResult)
+        #expect(service.state == .ready)
+        #expect(mockStreamingEngine.state == .ready)
     }
 
-    func testStreamingCallbacksForwardPartialAndFinalUtterance() async throws {
+    @Test func streamingCallbacksForwardPartialAndFinalUtterance() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
         let collector = StreamingCallbackCollector()
@@ -549,33 +527,38 @@ final class TranscriptionServiceTests: XCTestCase {
 
         mockStreamingEngine.emitPartial("hello wor")
         mockStreamingEngine.emitFinalUtterance("hello world")
-        try await Task.sleep(nanoseconds: 50_000_000)
 
-        let snapshot = await collector.snapshot()
-        XCTAssertEqual(snapshot.partials, ["hello wor"])
-        XCTAssertEqual(snapshot.finals, ["hello world"])
+        var snapshot = await collector.snapshot()
+        for _ in 0..<20 where snapshot.partials != ["hello wor"] || snapshot.finals != ["hello world"] {
+            await Task.yield()
+            try? await Task.sleep(nanoseconds: 10_000_000)
+            snapshot = await collector.snapshot()
+        }
+
+        #expect(snapshot.partials == ["hello wor"])
+        #expect(snapshot.finals == ["hello world"])
     }
 
-    func testPrepareStreamingEngineThrowsModelNotAvailableWhenLoadFails() async throws {
+    @Test func prepareStreamingEngineThrowsModelNotAvailableWhenLoadFails() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         mockStreamingEngine.loadError = MockStreamingTranscriptionEngine.MockError.modelMissing
         let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
 
         do {
             try await service.prepareStreamingEngine()
-            XCTFail("Expected prepareStreamingEngine to throw")
+            Issue.record("Expected prepareStreamingEngine to throw")
         } catch let error as TranscriptionService.TranscriptionError {
             guard case .streamingModelNotAvailable = error else {
-                XCTFail("Expected streamingModelNotAvailable, got \(error)")
+                Issue.record("Expected streamingModelNotAvailable, got \(error)")
                 return
             }
-            XCTAssertEqual(service.state, .error)
+            #expect(service.state == .error)
         } catch {
-            XCTFail("Unexpected error: \(error)")
+            Issue.record("Unexpected error: \(error)")
         }
     }
 
-    func testUnloadModelClearsStreamingEngine() async throws {
+    @Test func unloadModelClearsStreamingEngine() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
 
@@ -585,12 +568,12 @@ final class TranscriptionServiceTests: XCTestCase {
 
         await service.unloadModel()
 
-        XCTAssertEqual(service.state, .unloaded)
-        XCTAssertNil(service.error)
-        XCTAssertEqual(mockStreamingEngine.unloadCallCount, 1)
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
+        #expect(mockStreamingEngine.unloadCallCount == 1)
     }
 
-    func testCancelStreamingReturnsServiceToReadyState() async throws {
+    @Test func cancelStreamingReturnsServiceToReadyState() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
 
@@ -599,17 +582,17 @@ final class TranscriptionServiceTests: XCTestCase {
 
         await service.cancelStreaming()
 
-        XCTAssertEqual(service.state, .ready)
-        XCTAssertEqual(mockStreamingEngine.resetCallCount, 1)
+        #expect(service.state == .ready)
+        #expect(mockStreamingEngine.resetCallCount == 1)
     }
     
     // MARK: - Error Propagation Tests
     
-    func testEngineErrorPropagatesToTranscriptionError() async throws {
+    @Test func engineErrorPropagatesToTranscriptionError() async throws {
         let service = TranscriptionService()
         
         // Given: Service without loaded model
-        XCTAssertEqual(service.state, .unloaded)
+        #expect(service.state == .unloaded)
         
         // Create valid-sized audio data
         let sampleCount = 16000
@@ -622,16 +605,14 @@ final class TranscriptionServiceTests: XCTestCase {
         // When/Then: Transcribe should throw modelNotLoaded
         do {
             _ = try await service.transcribe(audioData: audioData)
-            XCTFail("Should throw error when model not loaded")
+            Issue.record("Should throw error when model not loaded")
         } catch TranscriptionService.TranscriptionError.modelNotLoaded {
-            // Expected error
-            XCTAssertTrue(true)
         } catch {
-            XCTFail("Unexpected error type: \(error)")
+            Issue.record("Unexpected error type: \(error)")
         }
     }
     
-    func testTranscriptionErrorDescriptions() {
+    @Test func transcriptionErrorDescriptions() {
         // Test all error descriptions are properly defined
         let errors: [TranscriptionService.TranscriptionError] = [
             .modelNotLoaded,
@@ -642,23 +623,21 @@ final class TranscriptionServiceTests: XCTestCase {
         ]
         
         for error in errors {
-            XCTAssertNotNil(error.errorDescription, "\(error) should have error description")
-            XCTAssertFalse(error.errorDescription?.isEmpty ?? true, "\(error) description should not be empty")
+            #expect(error.errorDescription != nil, "\(error) should have error description")
+            #expect((error.errorDescription?.isEmpty ?? true) == false, "\(error) description should not be empty")
         }
     }
     
-    func testInvalidProviderHandling() async throws {
-        let service = TranscriptionService()
-        
+    @Test func invalidProviderHandling() async throws {
         // This tests that non-local providers throw appropriate errors
         // The implementation should reject cloud-only providers
         // Currently WhisperKit and Parakeet are the only local providers
         
         // Verify error type exists for this case
         let error = TranscriptionService.TranscriptionError.modelLoadFailed("Provider not supported locally")
-        XCTAssertNotNil(error.errorDescription)
-        XCTAssertTrue(error.errorDescription?.contains("not supported") ?? false,
-                      "Error should indicate provider not supported")
+        #expect(error.errorDescription != nil)
+        #expect(error.errorDescription?.contains("not supported") ?? false,
+                "Error should indicate provider not supported")
     }
 
     private func makeStreamingBuffer(frameCount: AVAudioFrameCount = 320) throws -> AVAudioPCMBuffer {

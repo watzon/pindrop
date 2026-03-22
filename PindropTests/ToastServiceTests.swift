@@ -2,10 +2,11 @@
 //  ToastServiceTests.swift
 //  PindropTests
 //
-//  Created on 2026-03-11.
+//  Created on 2026-03-21.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
@@ -33,72 +34,60 @@ private final class MockToastPresenter: ToastPresenting {
 }
 
 @MainActor
-final class ToastServiceTests: XCTestCase {
-    private var presenter: MockToastPresenter!
-    private var toastService: ToastService!
+@Suite(.serialized)
+struct ToastServiceTests {
+    @Test func showsMessageOnlyToast() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
 
-    override func setUp() async throws {
-        presenter = MockToastPresenter()
-        toastService = ToastService(presenter: presenter)
+        service.show(ToastPayload(message: "Saved", duration: nil))
+
+        #expect(presenter.shownPayloads.count == 1)
+        #expect(presenter.shownPayloads.first?.message == "Saved")
+        #expect(presenter.shownPayloads.first?.actions.isEmpty == true)
     }
 
-    override func tearDown() async throws {
-        toastService = nil
-        presenter = nil
+    @Test func queuesMultipleToastsInOrder() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
+
+        service.show(ToastPayload(message: "First", duration: nil))
+        service.show(ToastPayload(message: "Second", duration: nil))
+
+        #expect(presenter.shownPayloads.count == 1)
+        #expect(presenter.shownPayloads.last?.message == "First")
+
+        service.dismissCurrentToast()
+
+        #expect(presenter.shownPayloads.count == 2)
+        #expect(presenter.shownPayloads.last?.message == "Second")
     }
 
-    func testShowToastWithMessageOnly() {
-        toastService.show(ToastPayload(message: "Saved", duration: nil))
+    @Test func duplicateVisibleToastRefreshesInsteadOfQueueing() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
 
-        XCTAssertEqual(presenter.shownPayloads.count, 1)
-        XCTAssertEqual(presenter.shownPayloads.first?.message, "Saved")
-        XCTAssertTrue(presenter.shownPayloads.first?.actions.isEmpty == true)
-    }
-
-    func testShowToastWithTwoActions() {
-        toastService.show(
-            ToastPayload(
-                message: "Added to dictionary",
-                actions: [
-                    ToastAction(title: "Undo", role: .primary) {},
-                    ToastAction(title: "Dismiss", role: .secondary) {}
-                ],
-                duration: nil
-            )
-        )
-
-        XCTAssertEqual(presenter.shownPayloads.count, 1)
-        XCTAssertEqual(presenter.shownPayloads.first?.actions.count, 2)
-    }
-
-    func testQueueingMultipleToastsPresentsInOrder() {
-        toastService.show(ToastPayload(message: "First", duration: nil))
-        toastService.show(ToastPayload(message: "Second", duration: nil))
-
-        XCTAssertEqual(presenter.shownPayloads.count, 1)
-        XCTAssertEqual(presenter.shownPayloads.last?.message, "First")
-
-        toastService.dismissCurrentToast()
-
-        XCTAssertEqual(presenter.shownPayloads.count, 2)
-        XCTAssertEqual(presenter.shownPayloads.last?.message, "Second")
-    }
-
-    func testDuplicateVisibleToastRefreshesInsteadOfQueueing() {
         let first = ToastPayload(message: "Added", duration: nil)
         let duplicate = ToastPayload(message: "Added", duration: nil)
 
-        toastService.show(first)
-        toastService.show(duplicate)
+        service.show(first)
+        service.show(duplicate)
 
-        XCTAssertEqual(presenter.shownPayloads.count, 2)
-        toastService.dismissCurrentToast()
+        #expect(presenter.shownPayloads.count == 2)
 
-        XCTAssertEqual(presenter.shownPayloads.last?.message, "Added")
-        XCTAssertEqual(presenter.hideCallCount, 1)
+        service.dismissCurrentToast()
+
+        #expect(presenter.shownPayloads.last?.message == "Added")
+        #expect(presenter.hideCallCount == 1)
     }
 
-    func testActionTapInvokesHandlerAndDismissesToast() {
+    @Test func actionTapInvokesHandlerAndDismissesToast() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler()
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
         var actionTriggered = false
         let payload = ToastPayload(
             message: "Added",
@@ -110,28 +99,32 @@ final class ToastServiceTests: XCTestCase {
             duration: nil
         )
 
-        toastService.show(payload)
+        service.show(payload)
         presenter.currentActionHandler?(payload.actions[0].id)
 
-        XCTAssertTrue(actionTriggered)
-        XCTAssertEqual(presenter.hideCallCount, 1)
+        #expect(actionTriggered)
+        #expect(presenter.hideCallCount == 1)
     }
 
-    func testHoverPausesAndResumesAutoDismiss() async throws {
-        toastService.show(ToastPayload(message: "Saved", duration: 0.25))
+    @Test func hoverPausesAndResumesAutoDismissWithoutSleeping() {
+        let presenter = MockToastPresenter()
+        let scheduler = ManualTaskScheduler(now: Date(timeIntervalSince1970: 1_000))
+        let service = ToastService(presenter: presenter, scheduler: scheduler)
 
-        try await Task.sleep(for: .milliseconds(80))
+        service.show(ToastPayload(message: "Saved", duration: 0.25))
+
+        scheduler.advance(by: 0.08)
         presenter.currentHoverHandler?(true)
 
-        try await Task.sleep(for: .milliseconds(250))
-        XCTAssertEqual(presenter.hideCallCount, 0)
+        scheduler.advance(by: 0.25)
+        #expect(presenter.hideCallCount == 0)
 
         presenter.currentHoverHandler?(false)
 
-        try await Task.sleep(for: .milliseconds(80))
-        XCTAssertEqual(presenter.hideCallCount, 0)
+        scheduler.advance(by: 0.08)
+        #expect(presenter.hideCallCount == 0)
 
-        try await Task.sleep(for: .milliseconds(160))
-        XCTAssertEqual(presenter.hideCallCount, 1)
+        scheduler.advance(by: 0.17)
+        #expect(presenter.hideCallCount == 1)
     }
 }

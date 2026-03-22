@@ -5,8 +5,8 @@
 //  Created on 2026-01-29.
 //
 
-import XCTest
 import ServiceManagement
+import Testing
 @testable import Pindrop
 
 private enum MockLaunchAtLoginFailure: Error {
@@ -38,122 +38,118 @@ final class MockLaunchAtLoginService: LaunchAtLoginServiceProtocol {
 }
 
 @MainActor
-final class LaunchAtLoginManagerTests: XCTestCase {
-    
-    var sut: LaunchAtLoginManager!
-    var mockService: MockLaunchAtLoginService!
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        mockService = MockLaunchAtLoginService()
-        sut = LaunchAtLoginManager(service: mockService)
-    }
-    
-    override func tearDownWithError() throws {
-        sut = nil
-        mockService = nil
-        try super.tearDownWithError()
-    }
-    
-    // MARK: - Initialization Tests
-    
-    func testInitialization() throws {
-        XCTAssertNotNil(sut, "LaunchAtLoginManager should initialize successfully")
-    }
-    
-    func testIsEnabledReflectsServiceStatus() throws {
-        mockService.status = .enabled
-        XCTAssertTrue(sut.isEnabled)
-
-        mockService.status = .notRegistered
-        XCTAssertFalse(sut.isEnabled)
-    }
-    
-    // MARK: - Enable/Disable Tests
-    
-    func testSetEnabledTrueRegistersService() throws {
-        try sut.setEnabled(true)
-
-        XCTAssertEqual(mockService.registerCallCount, 1)
-        XCTAssertEqual(mockService.unregisterCallCount, 0)
-        XCTAssertTrue(sut.isEnabled)
-    }
-    
-    func testSetEnabledFalseUnregistersService() throws {
-        mockService.status = .enabled
-
-        try sut.setEnabled(false)
-
-        XCTAssertEqual(mockService.unregisterCallCount, 1)
-        XCTAssertEqual(mockService.registerCallCount, 0)
-        XCTAssertFalse(sut.isEnabled)
-    }
-    
-    func testToggleState() throws {
-        XCTAssertFalse(sut.isEnabled)
-
-        try sut.setEnabled(true)
-        XCTAssertTrue(sut.isEnabled)
-
-        try sut.setEnabled(false)
-        XCTAssertFalse(sut.isEnabled)
+@Suite
+struct LaunchAtLoginManagerTests {
+    private func makeSUT() -> (sut: LaunchAtLoginManager, service: MockLaunchAtLoginService) {
+        let service = MockLaunchAtLoginService()
+        return (LaunchAtLoginManager(service: service), service)
     }
 
-    func testSetEnabledTrueWrapsRegistrationFailure() throws {
-        mockService.registerError = MockLaunchAtLoginFailure.failed
+    @Test func initialization() {
+        let sut = makeSUT().sut
+        #expect(sut != nil)
+    }
 
-        XCTAssertThrowsError(try sut.setEnabled(true)) { error in
-            guard case LaunchAtLoginManager.LaunchAtLoginError.registrationFailed = error else {
-                XCTFail("Expected registrationFailed error")
+    @Test func isEnabledReflectsServiceStatus() {
+        let fixture = makeSUT()
+        fixture.service.status = .enabled
+        #expect(fixture.sut.isEnabled)
+
+        fixture.service.status = .notRegistered
+        #expect(fixture.sut.isEnabled == false)
+    }
+
+    @Test func setEnabledTrueRegistersService() throws {
+        let fixture = makeSUT()
+        try fixture.sut.setEnabled(true)
+
+        #expect(fixture.service.registerCallCount == 1)
+        #expect(fixture.service.unregisterCallCount == 0)
+        #expect(fixture.sut.isEnabled)
+    }
+
+    @Test func setEnabledFalseUnregistersService() throws {
+        let fixture = makeSUT()
+        fixture.service.status = .enabled
+
+        try fixture.sut.setEnabled(false)
+
+        #expect(fixture.service.unregisterCallCount == 1)
+        #expect(fixture.service.registerCallCount == 0)
+        #expect(fixture.sut.isEnabled == false)
+    }
+
+    @Test func toggleState() throws {
+        let fixture = makeSUT()
+        #expect(fixture.sut.isEnabled == false)
+
+        try fixture.sut.setEnabled(true)
+        #expect(fixture.sut.isEnabled)
+
+        try fixture.sut.setEnabled(false)
+        #expect(fixture.sut.isEnabled == false)
+    }
+
+    @Test func setEnabledTrueWrapsRegistrationFailure() {
+        let fixture = makeSUT()
+        fixture.service.registerError = MockLaunchAtLoginFailure.failed
+
+        do {
+            try fixture.sut.setEnabled(true)
+            Issue.record("Expected registrationFailed error")
+        } catch let error as LaunchAtLoginManager.LaunchAtLoginError {
+            guard case .registrationFailed = error else {
+                Issue.record("Expected registrationFailed error")
                 return
             }
+        } catch {
+            Issue.record("Expected LaunchAtLoginError, got \(error.localizedDescription)")
         }
     }
 
-    func testSetEnabledFalseWrapsUnregistrationFailure() throws {
-        mockService.status = .enabled
-        mockService.unregisterError = MockLaunchAtLoginFailure.failed
+    @Test func setEnabledFalseWrapsUnregistrationFailure() {
+        let fixture = makeSUT()
+        fixture.service.status = .enabled
+        fixture.service.unregisterError = MockLaunchAtLoginFailure.failed
 
-        XCTAssertThrowsError(try sut.setEnabled(false)) { error in
-            guard case LaunchAtLoginManager.LaunchAtLoginError.unregistrationFailed = error else {
-                XCTFail("Expected unregistrationFailed error")
+        do {
+            try fixture.sut.setEnabled(false)
+            Issue.record("Expected unregistrationFailed error")
+        } catch let error as LaunchAtLoginManager.LaunchAtLoginError {
+            guard case .unregistrationFailed = error else {
+                Issue.record("Expected unregistrationFailed error")
                 return
             }
+        } catch {
+            Issue.record("Expected LaunchAtLoginError, got \(error.localizedDescription)")
         }
     }
-    
-    // MARK: - Error Tests
-    
-    func testErrorDescriptions() throws {
-        // Given: Error instances
+
+    @Test func errorDescriptions() {
         let registrationError = LaunchAtLoginManager.LaunchAtLoginError.registrationFailed(NSError(domain: "test", code: 1))
         let unregistrationError = LaunchAtLoginManager.LaunchAtLoginError.unregistrationFailed(NSError(domain: "test", code: 2))
-        
-        // Then: Error descriptions should be present
-        XCTAssertNotNil(registrationError.errorDescription)
-        XCTAssertNotNil(unregistrationError.errorDescription)
-        XCTAssertTrue(registrationError.errorDescription?.contains("enable") ?? false)
-        XCTAssertTrue(unregistrationError.errorDescription?.contains("disable") ?? false)
-    }
-    
-    func testErrorConformsToLocalizedError() throws {
-        // Given: An error
-        let error = LaunchAtLoginManager.LaunchAtLoginError.registrationFailed(NSError(domain: "test", code: 1))
-        
-        // Then: It should conform to LocalizedError
-        XCTAssertTrue(error is LocalizedError)
-        XCTAssertNotNil((error as LocalizedError).errorDescription)
-    }
-    
-    // MARK: - State Consistency Tests
 
-    func testStateConsistencyAfterMultipleToggles() throws {
+        #expect(registrationError.errorDescription != nil)
+        #expect(unregistrationError.errorDescription != nil)
+        #expect(registrationError.errorDescription?.contains("enable") == true)
+        #expect(unregistrationError.errorDescription?.contains("disable") == true)
+    }
+
+    @Test func errorConformsToLocalizedError() {
+        let error = LaunchAtLoginManager.LaunchAtLoginError.registrationFailed(NSError(domain: "test", code: 1))
+        #expect(error is LocalizedError)
+        #expect((error as LocalizedError).errorDescription != nil)
+    }
+
+    @Test func stateConsistencyAfterMultipleToggles() throws {
+        let fixture = makeSUT()
+
         for i in 0..<3 {
-            try sut.setEnabled(i.isMultiple(of: 2))
+            try fixture.sut.setEnabled(i.isMultiple(of: 2))
         }
 
-        XCTAssertTrue(sut.isEnabled)
-        XCTAssertEqual(mockService.registerCallCount, 2)
-        XCTAssertEqual(mockService.unregisterCallCount, 1)
+        #expect(fixture.sut.isEnabled)
+        #expect(fixture.service.registerCallCount == 2)
+        #expect(fixture.service.unregisterCallCount == 1)
     }
 }

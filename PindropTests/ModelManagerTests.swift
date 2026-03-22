@@ -5,142 +5,114 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class ModelManagerTests: XCTestCase {
-    
-    var modelManager: ModelManager!
-    
-    override func setUp() async throws {
-        modelManager = ModelManager()
-    }
-    
-    override func tearDown() async throws {
-        modelManager = nil
-    }
-    
-    // MARK: - Model Listing Tests
-    
-    func testListAvailableModels() {
+@Suite
+struct ModelManagerTests {
+    let modelManager = ModelManager()
+
+    @Test func listAvailableModels() {
         let models = modelManager.availableModels
-        
-        XCTAssertFalse(models.isEmpty, "Should have available models")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-tiny" }, "Should include tiny model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-base" }, "Should include base model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-small" }, "Should include small model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3" }, "Should include large-v3 model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v3_turbo" }, "Should include turbo model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-medium" }, "Should include medium model")
-        XCTAssertTrue(models.contains { $0.name == "openai_whisper-large-v2" }, "Should include large-v2 model")
-        XCTAssertTrue(models.contains { $0.name == "distil-whisper_distil-large-v3" }, "Should include distil large-v3 model")
-        XCTAssertTrue(models.contains { $0.name == "parakeet-tdt-0.6b-v2" }, "Should include parakeet model")
+
+        #expect(!models.isEmpty)
+        #expect(models.contains { $0.name == "openai_whisper-tiny" })
+        #expect(models.contains { $0.name == "openai_whisper-base" })
+        #expect(models.contains { $0.name == "openai_whisper-small" })
+        #expect(models.contains { $0.name == "openai_whisper-large-v3" })
+        #expect(models.contains { $0.name == "openai_whisper-large-v3_turbo" })
+        #expect(models.contains { $0.name == "openai_whisper-medium" })
+        #expect(models.contains { $0.name == "openai_whisper-large-v2" })
+        #expect(models.contains { $0.name == "distil-whisper_distil-large-v3" })
+        #expect(models.contains { $0.name == "parakeet-tdt-0.6b-v2" })
     }
 
-    func testRecommendedModelsUseCuratedOrder() {
+    @Test func recommendedModelsUseCuratedOrder() {
         let recommendedModelNames = modelManager.recommendedModels.map(\.name)
-
-        XCTAssertEqual(recommendedModelNames, ModelManager.recommendedModelNames)
+        #expect(recommendedModelNames == ModelManager.recommendedModelNames)
     }
-    
-    func testModelSizes() {
+
+    @Test func modelSizes() {
         let models = modelManager.availableModels
-        
+
         for model in models where model.provider.isLocal {
-            XCTAssertGreaterThan(model.sizeInMB, 0, "Model \(model.name) should have size > 0")
+            #expect(model.sizeInMB > 0)
         }
-        
-        // Verify size ordering (tiny < base < small < medium < large)
+
         let tiny = models.first { $0.name == "openai_whisper-tiny" }
         let base = models.first { $0.name == "openai_whisper-base" }
         let small = models.first { $0.name == "openai_whisper-small" }
-        
-        XCTAssertNotNil(tiny)
-        XCTAssertNotNil(base)
-        XCTAssertNotNil(small)
-        
-        if let tiny = tiny, let base = base, let small = small {
-            XCTAssertLessThan(tiny.sizeInMB, base.sizeInMB)
-            XCTAssertLessThan(base.sizeInMB, small.sizeInMB)
+
+        #expect(tiny != nil)
+        #expect(base != nil)
+        #expect(small != nil)
+
+        if let tiny, let base, let small {
+            #expect(tiny.sizeInMB < base.sizeInMB)
+            #expect(base.sizeInMB < small.sizeInMB)
         }
     }
-    
-    // MARK: - Downloaded Models Tests
-    
-    func testCheckDownloadedModels() async {
+
+    @Test func checkDownloadedModels() async {
         let downloadedModels = await modelManager.getDownloadedModels()
-
-        // Should return an array (may be empty or contain models)
-        XCTAssertNotNil(downloadedModels, "Should return non-nil array")
+        #expect(downloadedModels != nil)
     }
 
-    func testIsModelDownloaded() async {
+    @Test func isModelDownloaded() {
         let isDownloaded = modelManager.isModelDownloaded("openai_whisper-tiny")
-
-        // Should return a valid boolean
-        XCTAssertTrue(isDownloaded == true || isDownloaded == false, "Should return valid boolean")
+        #expect(isDownloaded == true || isDownloaded == false)
     }
-    
-    func testModelLookup() {
+
+    @Test func modelLookup() {
         let model = modelManager.availableModels.first { $0.name == "openai_whisper-tiny" }
-
-        XCTAssertNotNil(model, "Should return model for valid identifier")
-        XCTAssertEqual(model?.provider, .whisperKit)
+        #expect(model != nil)
+        #expect(model?.provider == .whisperKit)
     }
 
-    func testInvalidModelLookup() {
+    @Test func invalidModelLookup() {
         let model = modelManager.availableModels.first { $0.name == "nonexistent-model" }
-
-        XCTAssertNil(model, "Should return nil for invalid model")
+        #expect(model == nil)
     }
 
-    func testContainsParakeetModels() {
+    @Test func containsParakeetModels() {
         let hasParakeetModel = modelManager.availableModels.contains { $0.provider == .parakeet }
-
-        XCTAssertTrue(hasParakeetModel, "Should include at least one Parakeet model")
+        #expect(hasParakeetModel)
     }
 
-    func testDeleteNonexistentModelThrowsModelNotFound() async {
+    @Test func deleteNonexistentModelThrowsModelNotFound() async {
         do {
             try await modelManager.deleteModel(named: "nonexistent-model")
-            XCTFail("Should throw modelNotFound for nonexistent model")
+            Issue.record("Expected modelNotFound for nonexistent model")
         } catch let error as ModelManager.ModelError {
             guard case .modelNotFound(let modelName) = error else {
-                XCTFail("Expected modelNotFound error")
+                Issue.record("Expected modelNotFound error")
                 return
             }
-            XCTAssertEqual(modelName, "nonexistent-model")
+            #expect(modelName == "nonexistent-model")
         } catch {
-            XCTFail("Expected ModelError, got \(error)")
+            Issue.record("Expected ModelError, got \(error.localizedDescription)")
         }
     }
-    
-    // MARK: - Download Progress Tests
-    
-    func testDownloadProgressInitialState() {
-        XCTAssertEqual(modelManager.downloadProgress, 0.0, "Initial download progress should be 0")
-        XCTAssertFalse(modelManager.isDownloading, "Should not be downloading initially")
-        XCTAssertNil(modelManager.currentDownloadModel, "No model should be downloading initially")
+
+    @Test func downloadProgressInitialState() {
+        #expect(modelManager.downloadProgress == 0.0)
+        #expect(modelManager.isDownloading == false)
+        #expect(modelManager.currentDownloadModel == nil)
     }
-    
-    // MARK: - Error Handling Tests
-    
-    func testDownloadNonexistentModel() async {
+
+    @Test func downloadNonexistentModel() async {
         do {
             try await modelManager.downloadModel(named: "nonexistent-model")
-            XCTFail("Should throw error for nonexistent model")
+            Issue.record("Expected error for nonexistent model")
         } catch {
-            // Expected error
-            XCTAssertTrue(error is ModelManager.ModelError, "Should throw ModelError")
+            #expect(error is ModelManager.ModelError)
         }
     }
-    
-    // MARK: - Feature Models Tests
-    
-    func testFeatureModelRepoFolderNamesMatchDownloaderCacheLayout() {
-        XCTAssertEqual(FeatureModelType.vad.repoFolderName, "silero-vad-coreml")
-        XCTAssertEqual(FeatureModelType.diarization.repoFolderName, "speaker-diarization-coreml")
-        XCTAssertEqual(FeatureModelType.streaming.repoFolderName, "parakeet-eou-streaming/160ms")
+
+    @Test func featureModelRepoFolderNamesMatchDownloaderCacheLayout() {
+        #expect(FeatureModelType.vad.repoFolderName == "silero-vad-coreml")
+        #expect(FeatureModelType.diarization.repoFolderName == "speaker-diarization-coreml")
+        #expect(FeatureModelType.streaming.repoFolderName == "parakeet-eou-streaming/160ms")
     }
 }

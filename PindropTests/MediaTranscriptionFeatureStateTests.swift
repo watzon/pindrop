@@ -5,22 +5,24 @@
 //  Created on 2026-03-07.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class MediaTranscriptionFeatureStateTests: XCTestCase {
-    func testClipboardPrefillDoesNotOverwriteUserEditedDraft() {
+@Suite
+struct MediaTranscriptionFeatureStateTests {
+    @Test func clipboardPrefillDoesNotOverwriteUserEditedDraft() {
         let sut = MediaTranscriptionFeatureState()
         sut.draftLink = "https://user-entered.example"
         sut.hasUserEditedDraftLink = true
 
         sut.updateDraftLinkFromClipboard("https://clipboard.example")
 
-        XCTAssertEqual(sut.draftLink, "https://user-entered.example")
+        #expect(sut.draftLink == "https://user-entered.example")
     }
 
-    func testCompleteCurrentJobNavigatesToDetailWhenRequested() {
+    @Test func completeCurrentJobNavigatesToDetailWhenRequested() {
         let sut = MediaTranscriptionFeatureState()
         let recordID = UUID()
         let job = MediaTranscriptionJobState(
@@ -34,14 +36,14 @@ final class MediaTranscriptionFeatureStateTests: XCTestCase {
         sut.beginJob(job)
         sut.completeCurrentJob(with: recordID, shouldNavigateToDetail: true)
 
-        XCTAssertEqual(sut.route, .detail(recordID))
-        XCTAssertEqual(sut.selectedRecordID, recordID)
-        XCTAssertEqual(sut.currentJob?.stage, .completed)
-        XCTAssertEqual(sut.currentJob?.progress, 1.0)
-        XCTAssertEqual(sut.currentJob?.detail, "Saved transcription")
+        #expect(sut.route == .detail(recordID))
+        #expect(sut.selectedRecordID == recordID)
+        #expect(sut.currentJob?.stage == .completed)
+        #expect(sut.currentJob?.progress == 1.0)
+        #expect(sut.currentJob?.detail == "Saved transcription")
     }
 
-    func testCompleteCurrentJobReturnsToLibraryWhenProcessingViewExited() {
+    @Test func completeCurrentJobReturnsToLibraryWhenProcessingViewExited() {
         let sut = MediaTranscriptionFeatureState()
         let recordID = UUID()
         let job = MediaTranscriptionJobState(
@@ -55,12 +57,12 @@ final class MediaTranscriptionFeatureStateTests: XCTestCase {
         sut.exitProcessingView()
         sut.completeCurrentJob(with: recordID, shouldNavigateToDetail: false)
 
-        XCTAssertEqual(sut.route, .library)
-        XCTAssertEqual(sut.selectedRecordID, recordID)
-        XCTAssertEqual(sut.libraryMessage, "Transcription finished.")
+        #expect(sut.route == .library)
+        #expect(sut.selectedRecordID == recordID)
+        #expect(sut.libraryMessage == "Transcription finished.")
     }
 
-    func testSelectedFolderPersistsAcrossRouteChanges() {
+    @Test func selectedFolderPersistsAcrossRouteChanges() {
         let sut = MediaTranscriptionFeatureState()
         let folderID = UUID()
         let recordID = UUID()
@@ -69,21 +71,21 @@ final class MediaTranscriptionFeatureStateTests: XCTestCase {
         sut.selectRecord(recordID)
         sut.showLibrary()
 
-        XCTAssertEqual(sut.selectedFolderID, folderID)
-        XCTAssertEqual(sut.route, .library)
+        #expect(sut.selectedFolderID == folderID)
+        #expect(sut.route == .library)
     }
 
-    func testDeletingSelectedFolderClearsFolderSelection() {
+    @Test func deletingSelectedFolderClearsFolderSelection() {
         let sut = MediaTranscriptionFeatureState()
         let folderID = UUID()
 
         sut.selectFolder(folderID)
         sut.handleDeletedFolder(folderID)
 
-        XCTAssertNil(sut.selectedFolderID)
+        #expect(sut.selectedFolderID == nil)
     }
 
-    func testLibrarySearchAndSortStateRemainMutableDuringJobLifecycle() {
+    @Test func librarySearchAndSortStateRemainMutableDuringJobLifecycle() {
         let sut = MediaTranscriptionFeatureState()
         let folderID = UUID()
 
@@ -93,8 +95,8 @@ final class MediaTranscriptionFeatureStateTests: XCTestCase {
         sut.beginJob(MediaTranscriptionJobState(request: .link("https://example.com"), destinationFolderID: folderID))
         sut.completeCurrentJob(with: UUID(), shouldNavigateToDetail: false)
 
-        XCTAssertEqual(sut.librarySearchText, "roadmap")
-        XCTAssertEqual(sut.librarySortMode, .nameAscending)
-        XCTAssertEqual(sut.selectedFolderID, folderID)
+        #expect(sut.librarySearchText == "roadmap")
+        #expect(sut.librarySortMode == .nameAscending)
+        #expect(sut.selectedFolderID == folderID)
     }
 }

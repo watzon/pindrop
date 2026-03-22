@@ -22,7 +22,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Pindrop.xcodeproj",
         "identifier" : "34DFA0DE5A5849FB8E573465",

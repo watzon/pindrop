@@ -5,184 +5,205 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
 import AVFoundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class AudioRecorderTests: XCTestCase {
-    
-    var sut: AudioRecorder!
-    var mockPermission: MockPermissionProvider!
-    var mockBackend: MockAudioCaptureBackend!
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        mockPermission = MockPermissionProvider()
-        mockBackend = MockAudioCaptureBackend()
-        sut = try AudioRecorder(permissionManager: mockPermission, captureBackend: mockBackend)
-    }
-    
-    override func tearDownWithError() throws {
-        sut = nil
-        mockPermission = nil
-        mockBackend = nil
-        try super.tearDownWithError()
-    }
-    
-    // MARK: - Initialization
-    
-    func testAudioRecorderInitialization() throws {
-        XCTAssertNotNil(sut)
-        XCTAssertFalse(sut.isRecording)
-    }
-    
-    // MARK: - Recording
-    
-    func testStartRecordingRequestsPermission() async throws {
-        mockPermission.grantPermission = true
-        try await sut.startRecording()
-        XCTAssertEqual(mockPermission.requestPermissionCallCount, 1)
-    }
-    
-    func testStartRecordingSetsIsRecordingFlag() async throws {
-        mockPermission.grantPermission = true
-        XCTAssertFalse(sut.isRecording)
-        try await sut.startRecording()
-        XCTAssertTrue(sut.isRecording)
-        XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
+@Suite
+struct AudioRecorderTests {
+    private typealias Fixture = (
+        sut: AudioRecorder,
+        mockPermission: MockPermissionProvider,
+        mockBackend: MockAudioCaptureBackend
+    )
+
+    private func makeFixture() throws -> Fixture {
+        let mockPermission = MockPermissionProvider()
+        let mockBackend = MockAudioCaptureBackend()
+        let sut = try AudioRecorder(permissionManager: mockPermission, captureBackend: mockBackend)
+        return (sut, mockPermission, mockBackend)
     }
 
-    func testStartRecordingForwardsAudioBufferCallback() async throws {
-        mockPermission.grantPermission = true
-        let expectation = expectation(description: "Audio buffer callback invoked")
-        let sampleBuffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
+    @Test func audioRecorderInitialization() throws {
+        let fixture = try makeFixture()
+        #expect(fixture.sut.isRecording == false)
+    }
 
-        sut.onAudioBuffer = { buffer in
-            XCTAssertEqual(buffer.frameLength, sampleBuffer.frameLength)
-            expectation.fulfill()
+    @Test func startRecordingRequestsPermission() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        try await fixture.sut.startRecording()
+
+        #expect(fixture.mockPermission.requestPermissionCallCount == 1)
+    }
+
+    @Test func startRecordingSetsIsRecordingFlag() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        #expect(fixture.sut.isRecording == false)
+
+        try await fixture.sut.startRecording()
+
+        #expect(fixture.sut.isRecording)
+        #expect(fixture.mockBackend.startCaptureCallCount == 1)
+    }
+
+    @Test func startRecordingForwardsAudioBufferCallback() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        let sampleBuffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: fixture.mockBackend.targetFormat),
+            "Expected synthesized sample buffer"
+        )
+        var receivedFrameLength: AVAudioFrameCount?
+
+        fixture.sut.onAudioBuffer = { buffer in
+            receivedFrameLength = buffer.frameLength
         }
 
-        try await sut.startRecording()
-        mockBackend.capturedOnBuffer?(sampleBuffer)
+        try await fixture.sut.startRecording()
+        fixture.mockBackend.capturedOnBuffer?(sampleBuffer)
+        await Task.yield()
+        await Task.yield()
 
-        await fulfillment(of: [expectation], timeout: 1.0)
+        #expect(receivedFrameLength == sampleBuffer.frameLength)
     }
 
-    func testConcurrentStartRecordingOnlyRequestsPermissionOnce() async throws {
-        mockPermission.grantPermission = true
-        mockPermission.delayNanoseconds = 50_000_000
+    @Test func concurrentStartRecordingOnlyRequestsPermissionOnce() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        fixture.mockPermission.delayNanoseconds = 50_000_000
 
-        async let firstStartResult = sut.startRecording()
-        async let secondStartResult = sut.startRecording()
+        async let firstStartResult = fixture.sut.startRecording()
+        async let secondStartResult = fixture.sut.startRecording()
 
         let firstResult = try await firstStartResult
         let secondResult = try await secondStartResult
 
         let successfulStarts = [firstResult, secondResult].filter { $0 }.count
-        XCTAssertEqual(successfulStarts, 1, "Exactly one concurrent start should succeed")
-        XCTAssertEqual(mockPermission.requestPermissionCallCount, 1)
-        XCTAssertEqual(mockBackend.startCaptureCallCount, 1)
-        XCTAssertTrue(sut.isRecording)
+        #expect(successfulStarts == 1)
+        #expect(fixture.mockPermission.requestPermissionCallCount == 1)
+        #expect(fixture.mockBackend.startCaptureCallCount == 1)
+        #expect(fixture.sut.isRecording)
     }
-    
-    func testStopRecordingReturnsAudioData() async throws {
-        mockPermission.grantPermission = true
-        let buffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
-        mockBackend.simulatedBuffers = [buffer]
-        
-        try await sut.startRecording()
-        let audioData = try await sut.stopRecording()
-        
-        XCTAssertGreaterThan(audioData.count, 0)
-        XCTAssertFalse(sut.isRecording)
-        XCTAssertEqual(mockBackend.stopCaptureCallCount, 1)
+
+    @Test func stopRecordingReturnsAudioData() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        let buffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: fixture.mockBackend.targetFormat),
+            "Expected synthesized audio buffer"
+        )
+        fixture.mockBackend.simulatedBuffers = [buffer]
+
+        try await fixture.sut.startRecording()
+        let audioData = try await fixture.sut.stopRecording()
+
+        #expect(audioData.count > 0)
+        #expect(fixture.sut.isRecording == false)
+        #expect(fixture.mockBackend.stopCaptureCallCount == 1)
     }
-    
-    func testStopRecordingWithoutStartingThrowsError() async throws {
+
+    @Test func stopRecordingWithoutStartingThrowsError() async throws {
+        let fixture = try makeFixture()
+
         do {
-            _ = try await sut.stopRecording()
-            XCTFail("Should have thrown notRecording error")
+            _ = try await fixture.sut.stopRecording()
+            Issue.record("Should have thrown notRecording error")
         } catch AudioRecorderError.notRecording {
-            // Expected
+        } catch {
+            Issue.record("Unexpected error: \(error.localizedDescription)")
         }
     }
-    
-    // MARK: - Audio Format
-    
-    func testAudioFormatConfiguration() throws {
-        let format = sut.targetFormat
-        XCTAssertEqual(format.sampleRate, 16000.0)
-        XCTAssertEqual(format.channelCount, 1)
-        XCTAssertEqual(format.commonFormat, .pcmFormatFloat32)
+
+    @Test func audioFormatConfiguration() throws {
+        let fixture = try makeFixture()
+        let format = fixture.sut.targetFormat
+
+        #expect(format.sampleRate == 16000.0)
+        #expect(format.channelCount == 1)
+        #expect(format.commonFormat == .pcmFormatFloat32)
     }
-    
-    // MARK: - Multiple Sessions
-    
-    func testMultipleRecordingSessions() async throws {
-        mockPermission.grantPermission = true
-        let buffer = MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat)!
-        mockBackend.simulatedBuffers = [buffer]
-        
-        // First session
-        try await sut.startRecording()
-        let firstData = try await sut.stopRecording()
-        XCTAssertGreaterThan(firstData.count, 0)
-        
-        mockBackend.simulatedBuffers = [buffer]
-        
-        // Second session
-        try await sut.startRecording()
-        let secondData = try await sut.stopRecording()
-        XCTAssertGreaterThan(secondData.count, 0)
-        
-        XCTAssertEqual(mockBackend.startCaptureCallCount, 2)
-        XCTAssertEqual(mockBackend.stopCaptureCallCount, 2)
+
+    @Test func multipleRecordingSessions() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        let buffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: fixture.mockBackend.targetFormat),
+            "Expected synthesized audio buffer"
+        )
+        fixture.mockBackend.simulatedBuffers = [buffer]
+
+        try await fixture.sut.startRecording()
+        let firstData = try await fixture.sut.stopRecording()
+        #expect(firstData.count > 0)
+
+        fixture.mockBackend.simulatedBuffers = [buffer]
+
+        try await fixture.sut.startRecording()
+        let secondData = try await fixture.sut.stopRecording()
+        #expect(secondData.count > 0)
+
+        #expect(fixture.mockBackend.startCaptureCallCount == 2)
+        #expect(fixture.mockBackend.stopCaptureCallCount == 2)
     }
-    
-    // MARK: - Error Handling
-    
-    func testStartRecordingThrowsWhenPermissionDenied() async throws {
-        mockPermission.grantPermission = false
+
+    @Test func startRecordingThrowsWhenPermissionDenied() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = false
+
         do {
-            try await sut.startRecording()
-            XCTFail("Should have thrown permissionDenied")
+            try await fixture.sut.startRecording()
+            Issue.record("Should have thrown permissionDenied")
         } catch AudioRecorderError.permissionDenied {
-            // Expected
+        } catch {
+            Issue.record("Unexpected error: \(error.localizedDescription)")
         }
-        XCTAssertFalse(sut.isRecording)
-        XCTAssertEqual(mockBackend.startCaptureCallCount, 0, "Backend should not start when permission denied")
+
+        #expect(fixture.sut.isRecording == false)
+        #expect(fixture.mockBackend.startCaptureCallCount == 0)
     }
-    
-    func testStartRecordingThrowsWhenBackendFails() async throws {
-        mockPermission.grantPermission = true
-        mockBackend.shouldThrowOnStart = AudioRecorderError.engineStartFailed("Mock engine failure")
-        
+
+    @Test func startRecordingThrowsWhenBackendFails() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        fixture.mockBackend.shouldThrowOnStart = AudioRecorderError.engineStartFailed("Mock engine failure")
+
         do {
-            try await sut.startRecording()
-            XCTFail("Should have thrown engineStartFailed")
+            try await fixture.sut.startRecording()
+            Issue.record("Should have thrown engineStartFailed")
         } catch AudioRecorderError.engineStartFailed {
-            // Expected
+        } catch {
+            Issue.record("Unexpected error: \(error.localizedDescription)")
         }
-        XCTAssertFalse(sut.isRecording)
+
+        #expect(fixture.sut.isRecording == false)
     }
-    
-    func testCancelRecording() async throws {
-        mockPermission.grantPermission = true
-        try await sut.startRecording()
-        XCTAssertTrue(sut.isRecording)
-        
-        sut.cancelRecording()
-        XCTAssertFalse(sut.isRecording)
-        XCTAssertEqual(mockBackend.cancelCaptureCallCount, 1)
+
+    @Test func cancelRecording() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        try await fixture.sut.startRecording()
+        #expect(fixture.sut.isRecording)
+
+        fixture.sut.cancelRecording()
+
+        #expect(fixture.sut.isRecording == false)
+        #expect(fixture.mockBackend.cancelCaptureCallCount == 1)
     }
-    
-    func testResetAudioEngine() async throws {
-        mockPermission.grantPermission = true
-        try await sut.startRecording()
-        
-        sut.resetAudioEngine()
-        XCTAssertFalse(sut.isRecording)
-        XCTAssertEqual(mockBackend.resetCallCount, 1)
+
+    @Test func resetAudioEngine() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        try await fixture.sut.startRecording()
+        fixture.sut.resetAudioEngine()
+
+        #expect(fixture.sut.isRecording == false)
+        #expect(fixture.mockBackend.resetCallCount == 1)
     }
 }

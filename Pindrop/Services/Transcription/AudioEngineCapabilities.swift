@@ -49,6 +49,7 @@ public struct AudioEngineCapabilities: OptionSet, Sendable {
 }
 
 /// Protocol for engines that can report their capabilities
+@MainActor
 public protocol CapabilityReporting {
     /// The capabilities this engine supports
     static var capabilities: AudioEngineCapabilities { get }

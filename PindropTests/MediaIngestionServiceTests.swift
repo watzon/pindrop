@@ -5,31 +5,31 @@
 //  Created on 2026-03-07.
 //
 
-import XCTest
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class MediaIngestionServiceTests: XCTestCase {
+@Suite
+struct MediaIngestionServiceTests {
     private let fakeYTDLPPath = "/tmp/pindrop-test-yt-dlp"
     private let fakeFFmpegPath = "/tmp/pindrop-test-ffmpeg"
-
-    func testImportLocalFileCopiesIntoManagedLibrary() async throws {
+    @Test func testImportLocalFileCopiesIntoManagedLibrary() async throws {
         let sourceURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("mp3")
         try Data("audio-data".utf8).write(to: sourceURL)
 
         let library = ManagedMediaLibrary()
         let asset = try await library.importLocalFile(at: sourceURL, jobID: UUID())
 
-        XCTAssertEqual(asset.sourceKind, .importedFile)
-        XCTAssertEqual(asset.displayName, sourceURL.lastPathComponent)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: asset.mediaURL.path))
-        XCTAssertEqual(try Data(contentsOf: asset.mediaURL), Data("audio-data".utf8))
+        #expect(asset.sourceKind == .importedFile)
+        #expect(asset.displayName == sourceURL.lastPathComponent)
+        #expect(FileManager.default.fileExists(atPath: asset.mediaURL.path))
+        #expect(try Data(contentsOf: asset.mediaURL) == Data("audio-data".utf8))
 
         try? FileManager.default.removeItem(at: sourceURL)
         try? FileManager.default.removeItem(at: asset.directoryURL)
     }
-
-    func testIngestFileDelegatesToMediaLibrary() async throws {
+    @Test func testIngestFileDelegatesToMediaLibrary() async throws {
         let expectedAsset = ManagedMediaAsset(
             directoryURL: URL(fileURLWithPath: "/tmp/job"),
             mediaURL: URL(fileURLWithPath: "/tmp/job/media.mp4"),
@@ -52,11 +52,10 @@ final class MediaIngestionServiceTests: XCTestCase {
             progressHandler: { _, _ in }
         )
 
-        XCTAssertEqual(asset, expectedAsset)
-        XCTAssertEqual(library.importedSourceURL, fileURL)
+        #expect(asset == expectedAsset)
+        #expect(library.importedSourceURL == fileURL)
     }
-
-    func testIngestLinkThrowsWhenRequiredToolingIsMissing() async throws {
+    @Test func testIngestLinkThrowsWhenRequiredToolingIsMissing() async throws {
         let processRunner = MockProcessRunner()
         processRunner.responses = [
             .which(tool: "yt-dlp", result: ProcessExecutionResult(terminationStatus: 0, standardOutput: "\(fakeYTDLPPath)\n", standardError: "")),
@@ -70,21 +69,22 @@ final class MediaIngestionServiceTests: XCTestCase {
             toolPathResolver: { _ in nil }
         )
 
-        await XCTAssertThrowsErrorAsync(
-            try await sut.ingest(
+        do {
+            _ = try await sut.ingest(
                 request: .link("https://example.com/video"),
                 jobID: UUID(),
                 progressHandler: { _, _ in }
             )
-        ) { error in
-            guard case MediaIngestionError.toolingUnavailable(let message) = error else {
-                return XCTFail("Expected toolingUnavailable error, got \(error)")
+            Issue.record("Expected toolingUnavailable error")
+        } catch {
+            if case MediaIngestionError.toolingUnavailable(let message) = error {
+                #expect(message == "To transcribe web links, install ffmpeg.")
+            } else {
+                Issue.record("Expected toolingUnavailable error, got \(error)")
             }
-            XCTAssertEqual(message, "To transcribe web links, install ffmpeg.")
         }
     }
-
-    func testIngestLinkDownloadsMediaAndReportsProgress() async throws {
+    @Test func testIngestLinkDownloadsMediaAndReportsProgress() async throws {
         let jobID = UUID()
         let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(jobID.uuidString, isDirectory: true)
         let finalizedAsset = ManagedMediaAsset(
@@ -136,16 +136,15 @@ final class MediaIngestionServiceTests: XCTestCase {
             }
         )
 
-        XCTAssertEqual(asset, finalizedAsset)
-        XCTAssertEqual(library.makeJobDirectoryCallCount, 1)
-        XCTAssertEqual(library.finalizeDirectoryURL, directoryURL)
-        XCTAssertEqual(library.finalizeSourceURL, "https://example.com/video")
-        XCTAssertEqual(library.finalizeSuggestedTitle, "Example title")
-        XCTAssertTrue(reportedProgress.contains(where: { $0.1 == "Preparing download" }))
-        XCTAssertTrue(reportedProgress.contains(where: { ($0.0 ?? 0) == 0.42 && $0.1 == "Downloading media" }))
+        #expect(asset == finalizedAsset)
+        #expect(library.makeJobDirectoryCallCount == 1)
+        #expect(library.finalizeDirectoryURL == directoryURL)
+        #expect(library.finalizeSourceURL == "https://example.com/video")
+        #expect(library.finalizeSuggestedTitle == "Example title")
+        #expect(reportedProgress.contains(where: { $0.1 == "Preparing download" }))
+        #expect(reportedProgress.contains(where: { ($0.0 ?? 0) == 0.42 && $0.1 == "Downloading media" }))
     }
-
-    func testIngestYouTubeLinkRetriesWithCompatibilityFallbackAfter403() async throws {
+    @Test func testIngestYouTubeLinkRetriesWithCompatibilityFallbackAfter403() async throws {
         let jobID = UUID()
         let youtubeURL = "https://www.youtube.com/watch?v=abc123"
         let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(jobID.uuidString, isDirectory: true)
@@ -208,9 +207,9 @@ final class MediaIngestionServiceTests: XCTestCase {
             progressHandler: { _, _ in }
         )
 
-        XCTAssertEqual(asset, finalizedAsset)
-        XCTAssertEqual(library.finalizeSourceURL, youtubeURL)
-        XCTAssertEqual(library.finalizeSuggestedTitle, "Example video")
+        #expect(asset == finalizedAsset)
+        #expect(library.finalizeSourceURL == youtubeURL)
+        #expect(library.finalizeSuggestedTitle == "Example video")
     }
 }
 
@@ -286,7 +285,7 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         guard let responseIndex = responses.firstIndex(where: { response in
             matches(response: response, executableURL: executableURL, arguments: arguments)
         }) else {
-            XCTFail("Unexpected process invocation: \(executableURL.path) \(arguments.joined(separator: " "))")
+            Issue.record("Unexpected process invocation: \(executableURL.path) \(arguments.joined(separator: " "))")
             return ProcessExecutionResult(terminationStatus: 1, standardOutput: "", standardError: "Unexpected process call")
         }
 
@@ -294,26 +293,26 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
 
         switch response {
         case .which(let tool, let result):
-            XCTAssertEqual(executableURL.path, "/usr/bin/which")
-            XCTAssertEqual(arguments, [tool])
-            XCTAssertNotNil(environment?["PATH"])
+            #expect(executableURL.path == "/usr/bin/which")
+            #expect(arguments == [tool])
+            #expect(environment?["PATH"] != nil)
             return result
 
         case .metadata(let url, let result):
-            XCTAssertEqual(executableURL.path, expectedYTDLPPath)
-            XCTAssertEqual(arguments, [
+            #expect(executableURL.path == expectedYTDLPPath)
+            #expect(arguments == [
                 "--dump-single-json",
                 "--no-playlist",
                 "--ffmpeg-location", URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path,
                 url
             ])
-            XCTAssertTrue(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
+            #expect(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
             return result
 
         case .download(let url, let strategy, let result, let emittedLines):
-            XCTAssertEqual(executableURL.path, expectedYTDLPPath)
-            XCTAssertEqual(arguments, expectedDownloadArguments(for: url, strategy: strategy))
-            XCTAssertTrue(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
+            #expect(executableURL.path == expectedYTDLPPath)
+            #expect(arguments == expectedDownloadArguments(for: url, strategy: strategy))
+            #expect(environment?["PATH"]?.contains(URL(fileURLWithPath: expectedFFmpegPath).deletingLastPathComponent().path) == true)
             emittedLines.forEach { lineHandler?($0) }
             return result
         }
@@ -368,19 +367,5 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
                 url
             ]
         }
-    }
-}
-
-private func XCTAssertThrowsErrorAsync<T>(
-    _ expression: @autoclosure () async throws -> T,
-    _ errorHandler: (Error) -> Void,
-    file: StaticString = #filePath,
-    line: UInt = #line
-) async {
-    do {
-        _ = try await expression()
-        XCTFail("Expected expression to throw", file: file, line: line)
-    } catch {
-        errorHandler(error)
     }
 }

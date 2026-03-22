@@ -5,35 +5,16 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
 import AVFoundation
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class PermissionManagerTests: XCTestCase {
-    
-    var permissionManager: PermissionManager!
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        try requireIntegrationTestsEnabled()
-        permissionManager = PermissionManager()
-    }
-    
-    override func tearDown() async throws {
-        permissionManager = nil
-        try await super.tearDown()
-    }
-
-    private func requireIntegrationTestsEnabled() throws {
-        let runIntegrationTests = ProcessInfo.processInfo.environment[
-            "PINDROP_RUN_INTEGRATION_TESTS"
-        ] == "1"
-
-        try XCTSkipUnless(
-            runIntegrationTests,
-            "PermissionManager integration tests are disabled by default. Run `just test-integration` to execute them."
-        )
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["PINDROP_RUN_INTEGRATION_TESTS"] == "1", "PermissionManager integration tests are disabled by default. Run `just test-integration` to execute them."))
+struct PermissionManagerTests {
+    private func makePermissionManager() -> PermissionManager {
+        return PermissionManager()
     }
 
     private func expectedSystemPermissionStatus() -> AVAuthorizationStatus {
@@ -65,239 +46,170 @@ final class PermissionManagerTests: XCTestCase {
 
         return .notDetermined
     }
-    
-    // MARK: - Permission Status Tests
-    
-    func testCheckPermissionStatus() async throws {
-        // Test that we can check permission status without crashing
-        let status = await permissionManager.checkPermissionStatus()
-        
-        // Status should be one of the valid AVAuthorizationStatus values
-        XCTAssertTrue(
-            status == .notDetermined ||
-            status == .restricted ||
-            status == .denied ||
-            status == .authorized,
-            "Permission status should be a valid AVAuthorizationStatus"
-        )
+
+    private func isValidAuthorizationStatus(_ status: AVAuthorizationStatus) -> Bool {
+        status == .notDetermined ||
+        status == .restricted ||
+        status == .denied ||
+        status == .authorized
     }
-    
-    func testPermissionStatusReflectsSystemState() async throws {
-        // Get current system permission status
+
+    @Test func checkPermissionStatus() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.checkPermissionStatus()
+
+        #expect(isValidAuthorizationStatus(status))
+    }
+
+    @Test func permissionStatusReflectsSystemState() async throws {
+        let permissionManager = makePermissionManager()
         let systemStatus = expectedSystemPermissionStatus()
-        let managerStatus = await permissionManager.checkPermissionStatus()
-        
-        // Manager should return same status as system
-        XCTAssertEqual(
-            managerStatus,
-            systemStatus,
-            "PermissionManager status should match system status"
-        )
+        let managerStatus = permissionManager.checkPermissionStatus()
+
+        #expect(managerStatus == systemStatus)
     }
 
-    func testMicrophoneAuthorizationSnapshotMatchesPermissionState() async throws {
-        let snapshot = await permissionManager.microphoneAuthorizationSnapshot()
-        let managerStatus = await permissionManager.checkPermissionStatus()
+    @Test func microphoneAuthorizationSnapshotMatchesPermissionState() async throws {
+        let permissionManager = makePermissionManager()
+        let snapshot = permissionManager.microphoneAuthorizationSnapshot()
+        let managerStatus = permissionManager.checkPermissionStatus()
 
-        XCTAssertEqual(snapshot.resolvedStatus, managerStatus)
-        XCTAssertFalse(snapshot.audioApplicationStatus.isEmpty)
-        XCTAssertFalse(snapshot.captureDeviceStatus.isEmpty)
-        XCTAssertFalse(snapshot.hasRequestedThisLaunch)
-        XCTAssertNil(snapshot.cachedDecision)
+        #expect(snapshot.resolvedStatus == managerStatus)
+        #expect(!snapshot.audioApplicationStatus.isEmpty)
+        #expect(!snapshot.captureDeviceStatus.isEmpty)
+        #expect(!snapshot.hasRequestedThisLaunch)
+        #expect(snapshot.cachedDecision == nil)
     }
-    
-    // MARK: - Permission Request Tests
-    
-    func testRequestPermission() async throws {
-        // Note: This test will show permission dialog on first run
-        // Subsequent runs will use cached permission state
-        
+
+    @Test func requestPermission() async throws {
+        let permissionManager = makePermissionManager()
         let granted = await permissionManager.requestPermission()
-        
-        // Result should be boolean
-        XCTAssertTrue(granted == true || granted == false, "Request should return boolean")
-        
-        // After request, status should remain a valid authorization state
-        let status = await permissionManager.checkPermissionStatus()
-        XCTAssertTrue(
-            status == .notDetermined ||
-            status == .restricted ||
-            status == .denied ||
-            status == .authorized,
-            "Status should be a valid AVAuthorizationStatus after requesting permission"
-        )
+
+        #expect(granted == true || granted == false)
+
+        let status = permissionManager.checkPermissionStatus()
+        #expect(isValidAuthorizationStatus(status))
     }
-    
-    func testRequestPermissionUpdatesStatus() async throws {
-        let statusBefore = await permissionManager.checkPermissionStatus()
-        
+
+    @Test func requestPermissionUpdatesStatus() async throws {
+        let permissionManager = makePermissionManager()
+        let statusBefore = permissionManager.checkPermissionStatus()
+
         _ = await permissionManager.requestPermission()
-        
-        let statusAfter = await permissionManager.checkPermissionStatus()
 
-        XCTAssertTrue(
-            statusAfter == .notDetermined ||
-            statusAfter == .restricted ||
-            statusAfter == .denied ||
-            statusAfter == .authorized,
-            "Status after request should remain valid"
-        )
+        let statusAfter = permissionManager.checkPermissionStatus()
+        #expect(isValidAuthorizationStatus(statusAfter))
+        #expect(isValidAuthorizationStatus(statusBefore))
+    }
 
-        XCTAssertTrue(
-            statusBefore == .notDetermined ||
-            statusBefore == .restricted ||
-            statusBefore == .denied ||
-            statusBefore == .authorized,
-            "Status before request should remain valid"
-        )
+    @Test func permissionStatusIsObservable() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.permissionStatus
+
+        #expect(isValidAuthorizationStatus(status))
     }
-    
-    // MARK: - Observable State Tests
-    
-    func testPermissionStatusIsObservable() async throws {
-        // Test that permissionStatus property exists and is readable
-        let status = await permissionManager.permissionStatus
-        
-        XCTAssertTrue(
-            status == .notDetermined ||
-            status == .restricted ||
-            status == .denied ||
-            status == .authorized,
-            "Observable permissionStatus should be valid"
-        )
-    }
-    
-    func testRefreshPermissionStatusUpdatesObservableState() async throws {
-        // Refresh status
+
+    @Test func refreshPermissionStatusUpdatesObservableState() async throws {
+        let permissionManager = makePermissionManager()
         await permissionManager.refreshPermissionStatus()
-        
-        let refreshedStatus = await permissionManager.permissionStatus
-        
-        // Status should match system status after refresh
+
+        let refreshedStatus = permissionManager.permissionStatus
         let systemStatus = expectedSystemPermissionStatus()
-        XCTAssertEqual(
-            refreshedStatus,
-            systemStatus,
-            "Refreshed status should match system status"
-        )
+
+        #expect(refreshedStatus == systemStatus)
     }
-    
-    // MARK: - Convenience Property Tests
-    
-    func testIsAuthorizedProperty() async throws {
-        let status = await permissionManager.checkPermissionStatus()
-        let isAuthorized = await permissionManager.isAuthorized
-        
-        XCTAssertEqual(
-            isAuthorized,
-            status == .authorized,
-            "isAuthorized should be true only when status is .authorized"
-        )
+
+    @Test func isAuthorizedProperty() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.checkPermissionStatus()
+        let isAuthorized = permissionManager.isAuthorized
+
+        #expect(isAuthorized == (status == .authorized))
     }
-    
-    func testIsDeniedProperty() async throws {
-        let status = await permissionManager.checkPermissionStatus()
-        let isDenied = await permissionManager.isDenied
-        
-        XCTAssertEqual(
-            isDenied,
-            status == .denied || status == .restricted,
-            "isDenied should be true when status is .denied or .restricted"
-        )
+
+    @Test func isDeniedProperty() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.checkPermissionStatus()
+        let isDenied = permissionManager.isDenied
+
+        #expect(isDenied == (status == .denied || status == .restricted))
     }
-    
-    // MARK: - Error Handling Tests
-    
-    func testHandlesRestrictedPermission() async throws {
-        // This test documents behavior when permission is restricted
-        // (e.g., parental controls, MDM policies)
-        
-        let status = await permissionManager.checkPermissionStatus()
-        
+
+    @Test func handlesRestrictedPermission() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.checkPermissionStatus()
+
         if status == .restricted {
             let granted = await permissionManager.requestPermission()
-            XCTAssertFalse(granted, "Request should return false when restricted")
+            #expect(granted == false)
         }
     }
-    
-    func testHandlesDeniedPermission() async throws {
-        // This test documents behavior when permission is denied
-        
-        let status = await permissionManager.checkPermissionStatus()
-        
+
+    @Test func handlesDeniedPermission() async throws {
+        let permissionManager = makePermissionManager()
+        let status = permissionManager.checkPermissionStatus()
+
         if status == .denied {
             let granted = await permissionManager.requestPermission()
-            XCTAssertFalse(granted, "Request should return false when denied")
+            #expect(granted == false)
         }
     }
-    
-    // MARK: - Accessibility Permission Tests
-    
-    func testAccessibilityPermissionCheck() async throws {
-        let isGranted = await permissionManager.checkAccessibilityPermission()
-        
-        XCTAssertTrue(isGranted == true || isGranted == false, "Accessibility check should return boolean")
-        
-        let observableState = await permissionManager.accessibilityPermissionGranted
-        XCTAssertEqual(
-            observableState,
-            isGranted,
-            "Observable state should match check result"
-        )
+
+    @Test func accessibilityPermissionCheck() async throws {
+        let permissionManager = makePermissionManager()
+        let isGranted = permissionManager.checkAccessibilityPermission()
+
+        #expect(isGranted == true || isGranted == false)
+
+        let observableState = permissionManager.accessibilityPermissionGranted
+        #expect(observableState == isGranted)
     }
-    
-    func testAccessibilityPermissionIsObservable() async throws {
-        let state = await permissionManager.accessibilityPermissionGranted
-        
-        XCTAssertTrue(state == true || state == false, "Observable accessibilityPermissionGranted should be boolean")
+
+    @Test func accessibilityPermissionIsObservable() async throws {
+        let permissionManager = makePermissionManager()
+        let state = permissionManager.accessibilityPermissionGranted
+
+        #expect(state == true || state == false)
     }
-    
-    func testIsAccessibilityAuthorizedProperty() async throws {
-        let isGranted = await permissionManager.checkAccessibilityPermission()
-        let isAuthorized = await permissionManager.isAccessibilityAuthorized
-        
-        XCTAssertEqual(
-            isAuthorized,
-            isGranted,
-            "isAccessibilityAuthorized should match checkAccessibilityPermission result"
-        )
+
+    @Test func isAccessibilityAuthorizedProperty() async throws {
+        let permissionManager = makePermissionManager()
+        let isGranted = permissionManager.checkAccessibilityPermission()
+        let isAuthorized = permissionManager.isAccessibilityAuthorized
+
+        #expect(isAuthorized == isGranted)
     }
-    
-    func testRequestAccessibilityPermissionWithoutPrompt() async throws {
-        let isGranted = await permissionManager.requestAccessibilityPermission(showPrompt: false)
-        
-        XCTAssertTrue(isGranted == true || isGranted == false, "Request should return boolean")
-        
-        let observableState = await permissionManager.accessibilityPermissionGranted
-        XCTAssertEqual(
-            observableState,
-            isGranted,
-            "Observable state should be updated after request"
-        )
+
+    @Test func requestAccessibilityPermissionWithoutPrompt() async throws {
+        let permissionManager = makePermissionManager()
+        let isGranted = permissionManager.requestAccessibilityPermission(showPrompt: false)
+
+        #expect(isGranted == true || isGranted == false)
+
+        let observableState = permissionManager.accessibilityPermissionGranted
+        #expect(observableState == isGranted)
     }
-    
-    func testRequestAccessibilityPermissionWithPrompt() async throws {
-        let isGranted = await permissionManager.requestAccessibilityPermission(showPrompt: true)
-        
-        XCTAssertTrue(isGranted == true || isGranted == false, "Request should return boolean")
-        
-        let observableState = await permissionManager.accessibilityPermissionGranted
-        XCTAssertEqual(
-            observableState,
-            isGranted,
-            "Observable state should be updated after request with prompt"
-        )
+
+    @Test func requestAccessibilityPermissionWithPrompt() async throws {
+        let permissionManager = makePermissionManager()
+        let isGranted = permissionManager.requestAccessibilityPermission(showPrompt: true)
+
+        #expect(isGranted == true || isGranted == false)
+
+        let observableState = permissionManager.accessibilityPermissionGranted
+        #expect(observableState == isGranted)
     }
-    
-    func testRefreshAccessibilityPermissionStatus() async throws {
-        await permissionManager.refreshAccessibilityPermissionStatus()
-        
-        let refreshedState = await permissionManager.accessibilityPermissionGranted
-        
-        XCTAssertTrue(refreshedState == true || refreshedState == false, "Refreshed state should be boolean")
+
+    @Test func refreshAccessibilityPermissionStatus() async throws {
+        let permissionManager = makePermissionManager()
+        permissionManager.refreshAccessibilityPermissionStatus()
+
+        let refreshedState = permissionManager.accessibilityPermissionGranted
+        #expect(refreshedState == true || refreshedState == false)
     }
-    
-    func testOpenAccessibilityPreferences() async throws {
-        await permissionManager.openAccessibilityPreferences()
+
+    @Test func openAccessibilityPreferences() async throws {
+        let permissionManager = makePermissionManager()
+        permissionManager.openAccessibilityPreferences()
     }
 }

@@ -588,12 +588,14 @@ final class AppCoordinator {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            guard let self = self, let activeModel = self.activeModelName else { return }
-            NotificationCenter.default.post(
-                name: .modelActiveChanged,
-                object: nil,
-                userInfo: ["modelName": activeModel]
-            )
+            Task { @MainActor [weak self] in
+                guard let self, let activeModel = self.activeModelName else { return }
+                NotificationCenter.default.post(
+                    name: .modelActiveChanged,
+                    object: nil,
+                    userInfo: ["modelName": activeModel]
+                )
+            }
         }
     }
     
@@ -2531,7 +2533,7 @@ final class AppCoordinator {
                    let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
                     basePrompt = selectedPreset.prompt
                 } else {
-                    basePrompt = settingsStore.aiEnhancementPrompt ?? AIEnhancementService.defaultSystemPrompt
+                    basePrompt = settingsStore.aiEnhancementPrompt
                 }
 
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)

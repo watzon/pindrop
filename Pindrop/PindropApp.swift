@@ -21,9 +21,13 @@ struct PindropApp: App {
     
     var body: some Scene {
         WindowGroup(id: "placeholder") {
-            EmptyView()
+            if AppUITestFixture.isEnabled {
+                AppUITestFixture.rootView()
+            } else {
+                EmptyView()
+            }
         }
-        .defaultSize(width: 0, height: 0)
+        .defaultSize(width: AppUITestFixture.isEnabled ? 1240 : 0, height: AppUITestFixture.isEnabled ? 920 : 0)
         .windowResizability(.contentSize)
     }
 }
@@ -34,8 +38,11 @@ extension AppDelegate {
     }
 
     static var isRunningTests: Bool {
-        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
-            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        AppTestMode.isRunningUnitTests
+    }
+
+    static var isRunningUITests: Bool {
+        AppTestMode.isRunningUITests
     }
 }
 
@@ -51,6 +58,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
         Log.bootstrap()
+        guard !Self.isRunningUITests else {
+            AppUITestFixture.configureApplication()
+            Log.app.debug("Detected UI test environment, launching fixture surface")
+            return
+        }
         guard !Self.isRunningTests else {
             Log.app.debug("Detected XCTest environment, skipping app startup flow")
             return

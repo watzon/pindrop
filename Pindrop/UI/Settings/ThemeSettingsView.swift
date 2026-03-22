@@ -46,6 +46,7 @@ struct ThemeSettingsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityIdentifier("settings.theme.mode")
 
                 HStack(spacing: AppTheme.Spacing.md) {
                     ThemePreviewPane(
@@ -253,6 +254,7 @@ private struct ThemePresetTile: View {
             .scaleEffect(isSelected ? 1.01 : 1)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("settings.theme.\(variant.rawValue).preset.\(preset.id)")
     }
 }
 

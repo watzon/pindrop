@@ -5,9 +5,9 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
 import Carbon
 import CoreGraphics
+import Testing
 @testable import Pindrop
 
 // MARK: - Mock Hotkey Registration
@@ -18,14 +18,14 @@ final class MockHotkeyRegistration: HotkeyRegistrationProtocol {
     var shouldSucceed = true
     var registerCallCount = 0
     var unregisterCallCount = 0
-    
+
     func registerHotkey(id: UInt32, keyCode: UInt32, modifiers: UInt32) -> Bool {
         registerCallCount += 1
         guard shouldSucceed else { return false }
         registeredHotkeys.append((id, keyCode, modifiers))
         return true
     }
-    
+
     func unregisterHotkey(id: UInt32) -> Bool {
         unregisterCallCount += 1
         guard shouldSucceed else { return false }
@@ -33,7 +33,7 @@ final class MockHotkeyRegistration: HotkeyRegistrationProtocol {
         registeredHotkeys.removeAll { $0.id == id }
         return true
     }
-    
+
     func reset() {
         registeredHotkeys.removeAll()
         unregisteredIds.removeAll()
@@ -43,57 +43,58 @@ final class MockHotkeyRegistration: HotkeyRegistrationProtocol {
     }
 }
 
-// MARK: - HotkeyManager Tests
+@Suite(.serialized)
+struct HotkeyManagerTests {
+    private typealias Fixture = (hotkeyManager: HotkeyManager, mockRegistration: MockHotkeyRegistration)
 
-final class HotkeyManagerTests: XCTestCase {
-    
-    var hotkeyManager: HotkeyManager!
-    var mockRegistration: MockHotkeyRegistration!
-    
-    override func setUp() {
-        super.setUp()
-        mockRegistration = MockHotkeyRegistration()
-        hotkeyManager = HotkeyManager(registration: mockRegistration)
+    private func makeFixture() -> Fixture {
+        let mockRegistration = MockHotkeyRegistration()
+        let hotkeyManager = HotkeyManager(registration: mockRegistration)
+        return (hotkeyManager, mockRegistration)
     }
-    
-    override func tearDown() {
-        hotkeyManager = nil
-        mockRegistration = nil
-        super.tearDown()
+
+    private func waitUntil(_ condition: @escaping @autoclosure () -> Bool) async {
+        for _ in 0..<20 {
+            if condition() {
+                return
+            }
+            await Task.yield()
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
-    
-    // MARK: - Registration Tests
-    
-    func testRegisterHotkey() {
+
+    @Test func registerHotkey() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        
-        let result = hotkeyManager.registerHotkey(
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        XCTAssertTrue(result, "Hotkey registration should succeed")
-        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should be registered")
-        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should call registration once")
-        XCTAssertEqual(mockRegistration.registeredHotkeys.count, 1, "Should have one registered hotkey")
-        XCTAssertEqual(mockRegistration.registeredHotkeys[0].keyCode, 49, "Should register correct keyCode")
-        XCTAssertEqual(mockRegistration.registeredHotkeys[0].modifiers, UInt32(optionKey), "Should register correct modifiers")
+
+        #expect(result)
+        #expect(fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
+        #expect(fixture.mockRegistration.registerCallCount == 1)
+        #expect(fixture.mockRegistration.registeredHotkeys.count == 1)
+        #expect(fixture.mockRegistration.registeredHotkeys[0].keyCode == 49)
+        #expect(fixture.mockRegistration.registeredHotkeys[0].modifiers == UInt32(optionKey))
     }
-    
-    func testRegisterMultipleHotkeys() {
+
+    @Test func registerMultipleHotkeys() {
+        let fixture = makeFixture()
         let callback1: () -> Void = {}
         let callback2: () -> Void = {}
-        
-        let result1 = hotkeyManager.registerHotkey(
+
+        let result1 = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback1
         )
-        
-        let result2 = hotkeyManager.registerHotkey(
+
+        let result2 = fixture.hotkeyManager.registerHotkey(
             keyCode: 50,
             modifiers: [.command, .shift],
             identifier: "pushToTalk",
@@ -101,133 +102,139 @@ final class HotkeyManagerTests: XCTestCase {
             onKeyDown: callback2,
             onKeyUp: callback2
         )
-        
-        XCTAssertTrue(result1, "First hotkey should register")
-        XCTAssertTrue(result2, "Second hotkey should register")
-        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
-        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
+
+        #expect(result1)
+        #expect(result2)
+        #expect(fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
+        #expect(fixture.hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
     }
-    
-    func testRegisterDuplicateIdentifier() {
+
+    @Test func registerDuplicateIdentifier() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(
+
+        _ = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        let result = hotkeyManager.registerHotkey(
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 50,
             modifiers: [.command],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        XCTAssertFalse(result, "Duplicate identifier registration should fail")
-        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should only attempt registration once")
+
+        #expect(!result)
+        #expect(fixture.mockRegistration.registerCallCount == 1)
     }
-    
-    func testRegisterHotkeyFailure() {
-        mockRegistration.shouldSucceed = false
+
+    @Test func registerHotkeyFailure() {
+        let fixture = makeFixture()
+        fixture.mockRegistration.shouldSucceed = false
         let callback: () -> Void = {}
-        
-        let result = hotkeyManager.registerHotkey(
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        XCTAssertFalse(result, "Registration should fail when mock returns false")
-        XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should not be registered")
-        XCTAssertEqual(mockRegistration.registerCallCount, 1, "Should attempt registration")
+
+        #expect(!result)
+        #expect(!fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
+        #expect(fixture.mockRegistration.registerCallCount == 1)
     }
-    
-    func testUnregisterHotkeyFailure() {
+
+    @Test func unregisterHotkeyFailure() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(
+
+        _ = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        mockRegistration.shouldSucceed = false
-        let result = hotkeyManager.unregisterHotkey(identifier: "toggle")
-        
-        XCTAssertFalse(result, "Unregistration should fail when mock returns false")
-        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should still be registered")
+
+        fixture.mockRegistration.shouldSucceed = false
+        let result = fixture.hotkeyManager.unregisterHotkey(identifier: "toggle")
+
+        #expect(!result)
+        #expect(fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
     }
-    
-    // MARK: - Unregistration Tests
-    
-    func testUnregisterHotkey() {
+
+    @Test func unregisterHotkey() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(
+
+        _ = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        let result = hotkeyManager.unregisterHotkey(identifier: "toggle")
-        
-        XCTAssertTrue(result, "Hotkey unregistration should succeed")
-        XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"), "Hotkey should no longer be registered")
-        XCTAssertEqual(mockRegistration.unregisterCallCount, 1, "Should call unregister once")
-        XCTAssertEqual(mockRegistration.unregisteredIds.count, 1, "Should have one unregistered ID")
+
+        let result = fixture.hotkeyManager.unregisterHotkey(identifier: "toggle")
+
+        #expect(result)
+        #expect(!fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
+        #expect(fixture.mockRegistration.unregisterCallCount == 1)
+        #expect(fixture.mockRegistration.unregisteredIds.count == 1)
     }
-    
-    func testUnregisterNonexistentHotkey() {
-        let result = hotkeyManager.unregisterHotkey(identifier: "nonexistent")
-        
-        XCTAssertFalse(result, "Unregistering nonexistent hotkey should return false")
-        XCTAssertEqual(mockRegistration.unregisterCallCount, 0, "Should not call unregister for nonexistent hotkey")
+
+    @Test func unregisterNonexistentHotkey() {
+        let fixture = makeFixture()
+        let result = fixture.hotkeyManager.unregisterHotkey(identifier: "nonexistent")
+
+        #expect(!result)
+        #expect(fixture.mockRegistration.unregisterCallCount == 0)
     }
-    
-    func testUnregisterAll() {
+
+    @Test func unregisterAll() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(keyCode: 49, modifiers: [.option], identifier: "toggle", onKeyDown: callback)
-        _ = hotkeyManager.registerHotkey(keyCode: 50, modifiers: [.command], identifier: "pushToTalk", onKeyDown: callback)
-        
-        hotkeyManager.unregisterAll()
-        
-        XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
-        XCTAssertFalse(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
-        XCTAssertEqual(mockRegistration.unregisterCallCount, 2, "Should unregister both hotkeys")
-        XCTAssertEqual(mockRegistration.unregisteredIds.count, 2, "Should have two unregistered IDs")
+
+        _ = fixture.hotkeyManager.registerHotkey(keyCode: 49, modifiers: [.option], identifier: "toggle", onKeyDown: callback)
+        _ = fixture.hotkeyManager.registerHotkey(keyCode: 50, modifiers: [.command], identifier: "pushToTalk", onKeyDown: callback)
+
+        fixture.hotkeyManager.unregisterAll()
+
+        #expect(!fixture.hotkeyManager.isHotkeyRegistered(identifier: "toggle"))
+        #expect(!fixture.hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
+        #expect(fixture.mockRegistration.unregisterCallCount == 2)
+        #expect(fixture.mockRegistration.unregisteredIds.count == 2)
     }
-    
-    // MARK: - Configuration Tests
-    
-    func testGetHotkeyConfiguration() {
+
+    @Test func getHotkeyConfiguration() {
+        let fixture = makeFixture()
         let callback: () -> Void = {}
-        _ = hotkeyManager.registerHotkey(
+
+        _ = fixture.hotkeyManager.registerHotkey(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             onKeyDown: callback
         )
-        
-        let config = hotkeyManager.getHotkeyConfiguration(identifier: "toggle")
-        
-        XCTAssertNotNil(config, "Configuration should exist")
-        XCTAssertEqual(config?.keyCode, 49)
-        XCTAssertEqual(config?.modifiers, [.option])
-        XCTAssertEqual(config?.identifier, "toggle")
+
+        let config = fixture.hotkeyManager.getHotkeyConfiguration(identifier: "toggle")
+
+        #expect(config != nil)
+        #expect(config?.keyCode == 49)
+        #expect(config?.modifiers == [.option])
+        #expect(config?.identifier == "toggle")
     }
-    
-    func testGetNonexistentConfiguration() {
-        let config = hotkeyManager.getHotkeyConfiguration(identifier: "nonexistent")
-        
-        XCTAssertNil(config, "Configuration for nonexistent hotkey should be nil")
+
+    @Test func getNonexistentConfiguration() {
+        let fixture = makeFixture()
+        let config = fixture.hotkeyManager.getHotkeyConfiguration(identifier: "nonexistent")
+        #expect(config == nil)
     }
-    
-    // MARK: - Modifier Conversion Tests
-    
-    func testModifierFlagsConversion() {
-        // Test that our modifier flags convert correctly to Carbon modifiers
+
+    @Test func modifierFlagsConversion() {
+        let fixture = makeFixture()
         let testCases: [(HotkeyManager.ModifierFlags, UInt32)] = [
             ([.command], UInt32(cmdKey)),
             ([.option], UInt32(optionKey)),
@@ -236,127 +243,110 @@ final class HotkeyManagerTests: XCTestCase {
             ([.command, .option], UInt32(cmdKey | optionKey)),
             ([.command, .shift, .option], UInt32(cmdKey | shiftKey | optionKey))
         ]
-        
+
         for (flags, expected) in testCases {
-            let carbonFlags = hotkeyManager.convertToCarbonModifiers(flags)
-            XCTAssertEqual(carbonFlags, expected, "Modifier conversion failed for \(flags)")
+            let carbonFlags = fixture.hotkeyManager.convertToCarbonModifiers(flags)
+            #expect(carbonFlags == expected, "Modifier conversion failed for \(flags)")
         }
     }
-    
-    // MARK: - Push-to-Talk Tests
-    
-    func testPushToTalkKeyDown() {
+
+    @Test func pushToTalkKeyDown() {
+        let fixture = makeFixture()
         var keyDownCalled = false
         var keyUpCalled = false
-        
-        let onKeyDown: () -> Void = {
-            keyDownCalled = true
-        }
-        
-        let onKeyUp: () -> Void = {
-            keyUpCalled = true
-        }
-        
-        let result = hotkeyManager.registerHotkey(
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 50,
             modifiers: [.command],
             identifier: "pushToTalk",
             mode: .pushToTalk,
-            onKeyDown: onKeyDown,
-            onKeyUp: onKeyUp
+            onKeyDown: { keyDownCalled = true },
+            onKeyUp: { keyUpCalled = true }
         )
-        
-        XCTAssertTrue(result, "Push-to-talk hotkey registration should succeed")
-        XCTAssertTrue(hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
-        
-        let config = hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
-        XCTAssertNotNil(config)
-        XCTAssertEqual(config?.mode, .pushToTalk)
-        XCTAssertNotNil(config?.onKeyDown)
-        XCTAssertNotNil(config?.onKeyUp)
+
+        #expect(result)
+        #expect(fixture.hotkeyManager.isHotkeyRegistered(identifier: "pushToTalk"))
+
+        let config = fixture.hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
+        #expect(config != nil)
+        #expect(config?.mode == .pushToTalk)
+        #expect(config?.onKeyDown != nil)
+        #expect(config?.onKeyUp != nil)
+        #expect(!keyDownCalled)
+        #expect(!keyUpCalled)
     }
-    
-    func testPushToTalkKeyUp() {
+
+    @Test func pushToTalkKeyUp() {
+        let fixture = makeFixture()
         var keyDownCount = 0
         var keyUpCount = 0
-        
-        let onKeyDown: () -> Void = {
-            keyDownCount += 1
-        }
-        
-        let onKeyUp: () -> Void = {
-            keyUpCount += 1
-        }
-        
-        let result = hotkeyManager.registerHotkey(
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 50,
             modifiers: [.command],
             identifier: "pushToTalk",
             mode: .pushToTalk,
-            onKeyDown: onKeyDown,
-            onKeyUp: onKeyUp
+            onKeyDown: { keyDownCount += 1 },
+            onKeyUp: { keyUpCount += 1 }
         )
-        
-        XCTAssertTrue(result, "Push-to-talk hotkey registration should succeed")
-        
-        let config = hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
-        XCTAssertNotNil(config)
-        XCTAssertEqual(config?.mode, .pushToTalk)
+
+        #expect(result)
+
+        let config = fixture.hotkeyManager.getHotkeyConfiguration(identifier: "pushToTalk")
+        #expect(config != nil)
+        #expect(config?.mode == .pushToTalk)
+        #expect(keyDownCount == 0)
+        #expect(keyUpCount == 0)
     }
-    
-    func testToggleModeBackwardCompatibility() {
+
+    @Test func toggleModeBackwardCompatibility() {
         var callbackInvoked = false
-        
+
         let callback: () -> Void = {
             callbackInvoked = true
         }
-        
+
         let config = HotkeyManager.HotkeyConfiguration(
             keyCode: 49,
             modifiers: [.option],
             identifier: "toggle",
             callback: callback
         )
-        
-        XCTAssertEqual(config.mode, .toggle)
-        XCTAssertNotNil(config.onKeyDown)
-        XCTAssertNil(config.onKeyUp)
+
+        #expect(config.mode == .toggle)
+        #expect(config.onKeyDown != nil)
+        #expect(config.onKeyUp == nil)
+        #expect(!callbackInvoked)
     }
-    
-    func testPushToTalkModeConfiguration() {
+
+    @Test func pushToTalkModeConfiguration() {
         var keyDownCalled = false
         var keyUpCalled = false
-        
-        let onKeyDown: () -> Void = {
-            keyDownCalled = true
-        }
-        
-        let onKeyUp: () -> Void = {
-            keyUpCalled = true
-        }
-        
+
         let config = HotkeyManager.HotkeyConfiguration(
             keyCode: 50,
             modifiers: [.command],
             identifier: "pushToTalk",
             mode: .pushToTalk,
-            onKeyDown: onKeyDown,
-            onKeyUp: onKeyUp
+            onKeyDown: { keyDownCalled = true },
+            onKeyUp: { keyUpCalled = true }
         )
-        
-        XCTAssertEqual(config.mode, .pushToTalk)
-        XCTAssertNotNil(config.onKeyDown)
-        XCTAssertNotNil(config.onKeyUp)
-        
+
+        #expect(config.mode == .pushToTalk)
+        #expect(config.onKeyDown != nil)
+        #expect(config.onKeyUp != nil)
+
         config.onKeyDown?()
-        XCTAssertTrue(keyDownCalled)
-        
+        #expect(keyDownCalled)
+
         config.onKeyUp?()
-        XCTAssertTrue(keyUpCalled)
+        #expect(keyUpCalled)
     }
 
-    func testRegisterModifierOnlyHotkeySkipsCarbonRegistration() {
-        let result = hotkeyManager.registerHotkey(
+    @Test func registerModifierOnlyHotkeySkipsCarbonRegistration() {
+        let fixture = makeFixture()
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 54,
             modifiers: [.command],
             identifier: "rightCommand",
@@ -365,12 +355,14 @@ final class HotkeyManagerTests: XCTestCase {
             onKeyUp: nil
         )
 
-        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
-        XCTAssertEqual(mockRegistration.registerCallCount, 0, "Modifier-only hotkey should not use Carbon registration")
+        #expect(result)
+        #expect(fixture.mockRegistration.registerCallCount == 0)
     }
 
-    func testRegisterFnModifierOnlyHotkeySkipsCarbonRegistration() {
-        let result = hotkeyManager.registerHotkey(
+    @Test func registerFnModifierOnlyHotkeySkipsCarbonRegistration() {
+        let fixture = makeFixture()
+
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: UInt32(kVK_Function),
             modifiers: [.function],
             identifier: "fnOnly",
@@ -379,185 +371,169 @@ final class HotkeyManagerTests: XCTestCase {
             onKeyUp: nil
         )
 
-        XCTAssertTrue(result, "Fn-only hotkey registration should succeed")
-        XCTAssertEqual(mockRegistration.registerCallCount, 0, "Fn-only hotkey should not use Carbon registration")
+        #expect(result)
+        #expect(fixture.mockRegistration.registerCallCount == 0)
     }
 
-    func testModifierOnlyPushToTalkKeyDownAndUp() {
-        let keyDownExpectation = expectation(description: "Modifier key down")
-        let keyUpExpectation = expectation(description: "Modifier key up")
+    @Test func modifierOnlyPushToTalkKeyDownAndUp() async throws {
+        let fixture = makeFixture()
+        var keyDownCount = 0
+        var keyUpCount = 0
 
-        let result = hotkeyManager.registerHotkey(
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 54,
             modifiers: [.command],
             identifier: "rightCommandPTT",
             mode: .pushToTalk,
-            onKeyDown: { keyDownExpectation.fulfill() },
-            onKeyUp: { keyUpExpectation.fulfill() }
+            onKeyDown: { keyDownCount += 1 },
+            onKeyUp: { keyUpCount += 1 }
         )
 
-        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+        #expect(result)
 
-        let source = CGEventSource(stateID: .hidSystemState)
-        guard let keyDownEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: 54,
-            keyDown: true
-        ) else {
-            XCTFail("Failed to create keyDown CGEvent")
-            return
-        }
+        let source = try #require(CGEventSource(stateID: .hidSystemState), "Failed to create CGEventSource")
+        let keyDownEvent = try #require(
+            CGEvent(keyboardEventSource: source, virtualKey: 54, keyDown: true),
+            "Failed to create keyDown CGEvent"
+        )
         keyDownEvent.flags = .maskCommand
+        fixture.hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
 
-        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
-        wait(for: [keyDownExpectation], timeout: 1.0)
-
-        guard let keyUpEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: 54,
-            keyDown: false
-        ) else {
-            XCTFail("Failed to create keyUp CGEvent")
-            return
-        }
+        let keyUpEvent = try #require(
+            CGEvent(keyboardEventSource: source, virtualKey: 54, keyDown: false),
+            "Failed to create keyUp CGEvent"
+        )
         keyUpEvent.flags = []
+        fixture.hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+        await waitUntil(keyDownCount == 1 && keyUpCount == 1)
 
-        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
-        wait(for: [keyUpExpectation], timeout: 1.0)
+        #expect(keyDownCount == 1)
+        #expect(keyUpCount == 1)
     }
 
-    func testFnOnlyPushToTalkKeyDownAndUp() {
-        let keyDownExpectation = expectation(description: "Fn key down")
-        let keyUpExpectation = expectation(description: "Fn key up")
+    @Test func fnOnlyPushToTalkKeyDownAndUp() async throws {
+        let fixture = makeFixture()
+        var keyDownCount = 0
+        var keyUpCount = 0
 
-        let result = hotkeyManager.registerHotkey(
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: UInt32(kVK_Function),
             modifiers: [.function],
             identifier: "fnPTT",
             mode: .pushToTalk,
-            onKeyDown: { keyDownExpectation.fulfill() },
-            onKeyUp: { keyUpExpectation.fulfill() }
+            onKeyDown: { keyDownCount += 1 },
+            onKeyUp: { keyUpCount += 1 }
         )
 
-        XCTAssertTrue(result, "Fn-only hotkey registration should succeed")
+        #expect(result)
 
-        let source = CGEventSource(stateID: .hidSystemState)
-        guard let keyDownEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: CGKeyCode(kVK_Function),
-            keyDown: true
-        ) else {
-            XCTFail("Failed to create Fn keyDown CGEvent")
-            return
-        }
+        let source = try #require(CGEventSource(stateID: .hidSystemState), "Failed to create CGEventSource")
+        let keyDownEvent = try #require(
+            CGEvent(
+                keyboardEventSource: source,
+                virtualKey: CGKeyCode(kVK_Function),
+                keyDown: true
+            ),
+            "Failed to create Fn keyDown CGEvent"
+        )
         keyDownEvent.flags = .maskSecondaryFn
+        fixture.hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
 
-        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
-        wait(for: [keyDownExpectation], timeout: 1.0)
-
-        guard let keyUpEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: CGKeyCode(kVK_Function),
-            keyDown: false
-        ) else {
-            XCTFail("Failed to create Fn keyUp CGEvent")
-            return
-        }
+        let keyUpEvent = try #require(
+            CGEvent(
+                keyboardEventSource: source,
+                virtualKey: CGKeyCode(kVK_Function),
+                keyDown: false
+            ),
+            "Failed to create Fn keyUp CGEvent"
+        )
         keyUpEvent.flags = []
+        fixture.hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+        await waitUntil(keyDownCount == 1 && keyUpCount == 1)
 
-        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
-        wait(for: [keyUpExpectation], timeout: 1.0)
+        #expect(keyDownCount == 1)
+        #expect(keyUpCount == 1)
     }
 
-    func testSuppressedDispatchSkipsModifierOnlyCallbacks() {
-        let unexpectedKeyDown = expectation(description: "Modifier key down should be suppressed")
-        unexpectedKeyDown.isInverted = true
-        let unexpectedKeyUp = expectation(description: "Modifier key up should be suppressed")
-        unexpectedKeyUp.isInverted = true
+    @Test func suppressedDispatchSkipsModifierOnlyCallbacks() async throws {
+        let fixture = makeFixture()
 
-        let result = hotkeyManager.registerHotkey(
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 54,
             modifiers: [.command],
             identifier: "suppressedModifierPTT",
             mode: .pushToTalk,
-            onKeyDown: { unexpectedKeyDown.fulfill() },
-            onKeyUp: { unexpectedKeyUp.fulfill() }
+            onKeyDown: nil,
+            onKeyUp: nil
         )
 
-        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
-        hotkeyManager.setEventDispatchSuppressed(true)
+        #expect(result)
+        fixture.hotkeyManager.setEventDispatchSuppressed(true)
 
-        let source = CGEventSource(stateID: .hidSystemState)
-        guard let keyDownEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: 54,
-            keyDown: true
-        ), let keyUpEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: 54,
-            keyDown: false
-        ) else {
-            XCTFail("Failed to create modifier CGEvents")
-            return
+        let source = try #require(CGEventSource(stateID: .hidSystemState), "Failed to create CGEventSource")
+
+        await confirmation("Modifier key down should be suppressed", expectedCount: 0) { unexpectedKeyDown in
+            await confirmation("Modifier key up should be suppressed", expectedCount: 0) { unexpectedKeyUp in
+                _ = fixture.hotkeyManager.unregisterHotkey(identifier: "suppressedModifierPTT")
+                _ = fixture.hotkeyManager.registerHotkey(
+                    keyCode: 54,
+                    modifiers: [.command],
+                    identifier: "suppressedModifierPTT",
+                    mode: .pushToTalk,
+                    onKeyDown: { unexpectedKeyDown() },
+                    onKeyUp: { unexpectedKeyUp() }
+                )
+
+                guard let keyDownEvent = CGEvent(keyboardEventSource: source, virtualKey: 54, keyDown: true),
+                      let keyUpEvent = CGEvent(keyboardEventSource: source, virtualKey: 54, keyDown: false) else {
+                    Issue.record("Failed to create modifier CGEvents")
+                    return
+                }
+                keyDownEvent.flags = .maskCommand
+                keyUpEvent.flags = []
+                fixture.hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+                fixture.hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
+            }
         }
-
-        keyDownEvent.flags = .maskCommand
-        keyUpEvent.flags = []
-
-        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
-        hotkeyManager.handleModifierFlagsChanged(event: keyUpEvent)
-
-        wait(for: [unexpectedKeyDown, unexpectedKeyUp], timeout: 0.2)
     }
 
-    func testSuppressingDispatchReleasesPressedPushToTalkHotkey() {
-        let keyDownExpectation = expectation(description: "Modifier key down")
-        let keyUpExpectation = expectation(description: "Suppression should release pressed push-to-talk")
+    @Test func suppressingDispatchReleasesPressedPushToTalkHotkey() async throws {
+        let fixture = makeFixture()
+        var keyDownCount = 0
+        var keyUpCount = 0
 
-        let result = hotkeyManager.registerHotkey(
+        let result = fixture.hotkeyManager.registerHotkey(
             keyCode: 54,
             modifiers: [.command],
             identifier: "suppressionReleasePTT",
             mode: .pushToTalk,
-            onKeyDown: { keyDownExpectation.fulfill() },
-            onKeyUp: { keyUpExpectation.fulfill() }
+            onKeyDown: { keyDownCount += 1 },
+            onKeyUp: { keyUpCount += 1 }
         )
 
-        XCTAssertTrue(result, "Modifier-only hotkey registration should succeed")
+        #expect(result)
 
-        let source = CGEventSource(stateID: .hidSystemState)
-        guard let keyDownEvent = CGEvent(
-            keyboardEventSource: source,
-            virtualKey: 54,
-            keyDown: true
-        ) else {
-            XCTFail("Failed to create keyDown CGEvent")
-            return
-        }
-
+        let source = try #require(CGEventSource(stateID: .hidSystemState), "Failed to create CGEventSource")
+        let keyDownEvent = try #require(
+            CGEvent(keyboardEventSource: source, virtualKey: 54, keyDown: true),
+            "Failed to create keyDown CGEvent"
+        )
         keyDownEvent.flags = .maskCommand
+        fixture.hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
+        await waitUntil(keyDownCount == 1)
+        fixture.hotkeyManager.setEventDispatchSuppressed(true)
+        await waitUntil(keyUpCount == 1)
 
-        hotkeyManager.handleModifierFlagsChanged(event: keyDownEvent)
-        wait(for: [keyDownExpectation], timeout: 1.0)
-
-        hotkeyManager.setEventDispatchSuppressed(true)
-        wait(for: [keyUpExpectation], timeout: 1.0)
+        #expect(keyDownCount == 1)
+        #expect(keyUpCount == 1)
     }
 
-    // MARK: - AppCoordinator Hotkey Registration Policy
-
-    func testHotkeyRegistrationStateRequiresOnboardingCompletion() {
-        XCTAssertFalse(
-            HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: false),
-            "Hotkeys should not register before onboarding completes"
-        )
-        XCTAssertTrue(
-            HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: true),
-            "Hotkeys should register after onboarding completes"
-        )
+    @Test func hotkeyRegistrationStateRequiresOnboardingCompletion() {
+        #expect(!HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: false))
+        #expect(HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: true))
     }
 
-    func testHotkeyRegistrationStateRegistersUniqueCombinations() {
+    @Test func hotkeyRegistrationStateRegistersUniqueCombinations() {
         var state = HotkeyRegistrationState()
 
         let firstConflict = state.register(
@@ -571,12 +547,12 @@ final class HotkeyManagerTests: XCTestCase {
             modifiers: UInt32(cmdKey)
         )
 
-        XCTAssertNil(firstConflict)
-        XCTAssertNil(secondConflict)
-        XCTAssertEqual(state.registeredIdentifiersByCombination.count, 2)
+        #expect(firstConflict == nil)
+        #expect(secondConflict == nil)
+        #expect(state.registeredIdentifiersByCombination.count == 2)
     }
 
-    func testHotkeyRegistrationStateDetectsCombinationConflicts() {
+    @Test func hotkeyRegistrationStateDetectsCombinationConflicts() {
         var state = HotkeyRegistrationState()
         _ = state.register(
             identifier: "push-to-talk",
@@ -590,13 +566,13 @@ final class HotkeyManagerTests: XCTestCase {
             modifiers: UInt32(cmdKey)
         )
 
-        XCTAssertEqual(conflict?.existingIdentifier, "push-to-talk")
-        XCTAssertEqual(conflict?.incomingIdentifier, "toggle-recording")
-        XCTAssertEqual(conflict?.combination, HotkeyRegistrationState.Combination(keyCode: 54, modifiers: UInt32(cmdKey)))
-        XCTAssertEqual(state.registeredIdentifiersByCombination.count, 1)
+        #expect(conflict?.existingIdentifier == "push-to-talk")
+        #expect(conflict?.incomingIdentifier == "toggle-recording")
+        #expect(conflict?.combination == HotkeyRegistrationState.Combination(keyCode: 54, modifiers: UInt32(cmdKey)))
+        #expect(state.registeredIdentifiersByCombination.count == 1)
     }
 
-    func testHotkeyConflictKeyIsStableAcrossIdentifierOrder() {
+    @Test func hotkeyConflictKeyIsStableAcrossIdentifierOrder() {
         let combination = HotkeyRegistrationState.Combination(
             keyCode: 54,
             modifiers: UInt32(cmdKey)
@@ -612,7 +588,7 @@ final class HotkeyManagerTests: XCTestCase {
             combination: combination
         )
 
-        XCTAssertEqual(first.conflictKey, second.conflictKey)
-        XCTAssertEqual(first.conflictKey, "push-to-talk|toggle-recording|54|256")
+        #expect(first.conflictKey == second.conflictKey)
+        #expect(first.conflictKey == "push-to-talk|toggle-recording|54|256")
     }
 }

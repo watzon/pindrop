@@ -5,35 +5,41 @@
 //  Created on 2026-01-25.
 //
 
-import XCTest
+import Foundation
 import SQLite3
 import SwiftData
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class HistoryStoreTests: XCTestCase {
-    
-    var modelContainer: ModelContainer!
-    var modelContext: ModelContext!
-    var historyStore: HistoryStore!
-    
-    override func setUp() async throws {
-        modelContainer = try ModelContainer(
+@Suite(.serialized, .enabled(if: sqlite3_libversion_number() > 0, "SQLite is unavailable in this environment"))
+struct HistoryStoreTests {
+    private struct Fixture {
+        let modelContainer: ModelContainer
+        let modelContext: ModelContext
+        let historyStore: HistoryStore
+    }
+
+    private func makeFixture() throws -> Fixture {
+        let modelContainer = try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
-        modelContext = ModelContext(modelContainer)
-        historyStore = HistoryStore(modelContext: modelContext)
-    }
-    
-    override func tearDown() async throws {
-        modelContainer = nil
-        modelContext = nil
-        historyStore = nil
+        let modelContext = ModelContext(modelContainer)
+        let historyStore = HistoryStore(modelContext: modelContext)
+        return Fixture(
+            modelContainer: modelContainer,
+            modelContext: modelContext,
+            historyStore: historyStore
+        )
     }
 
-    func testDiskBackedMigrationFromV3PreservesExistingTranscriptions() throws {
+    private func requireSQLiteSupport() throws {
+    }
+
+    @Test func diskBackedMigrationFromV3PreservesExistingTranscriptions() throws {
+        try requireSQLiteSupport()
         let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         let storeURL = directoryURL.appendingPathComponent("migration.store")
@@ -73,15 +79,16 @@ final class HistoryStoreTests: XCTestCase {
         let migratedContext = ModelContext(migratedContainer)
         let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Legacy transcription")
-        XCTAssertEqual(records.first?.resolvedSourceKind, .voiceRecording)
-        XCTAssertNil(records.first?.managedMediaPath)
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
+        #expect(records.first?.resolvedSourceKind == .voiceRecording)
+        #expect(records.first?.managedMediaPath == nil)
 
         try? FileManager.default.removeItem(at: directoryURL)
     }
 
-    func testDiskBackedMigrationFromV4LeavesExistingTranscriptionsUnfiled() throws {
+    @Test func diskBackedMigrationFromV4LeavesExistingTranscriptionsUnfiled() throws {
+        try requireSQLiteSupport()
         let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         let storeURL = directoryURL.appendingPathComponent("migration-v4.store")
@@ -123,58 +130,65 @@ final class HistoryStoreTests: XCTestCase {
         let migratedContext = ModelContext(migratedContainer)
         let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Folderless legacy transcription")
-        XCTAssertNil(records.first?.folder)
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Folderless legacy transcription")
+        #expect(records.first?.folder == nil)
 
         try? FileManager.default.removeItem(at: directoryURL)
     }
     
-    func testSaveTranscription() throws {
-        try historyStore.save(
+    @Test func saveTranscription() throws {
+        let fixture = try makeFixture()
+
+        try fixture.historyStore.save(
             text: "Hello, world!",
             duration: 5.0,
             modelUsed: "tiny"
         )
         
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Hello, world!")
-        XCTAssertEqual(records.first?.duration, 5.0)
-        XCTAssertEqual(records.first?.modelUsed, "tiny")
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Hello, world!")
+        #expect(records.first?.duration == 5.0)
+        #expect(records.first?.modelUsed == "tiny")
     }
 
-    func testSaveAndFetchPreservesDiarizationSegmentsJSON() throws {
+    @Test func saveAndFetchPreservesDiarizationSegmentsJSON() throws {
+        let fixture = try makeFixture()
         let diarizationJSON = """
         [{"speakerId":"speaker-a","speakerLabel":"Speaker 1","startTime":0,"endTime":1.4,"confidence":0.9,"text":"hello"}]
         """
 
-        try historyStore.save(
+        try fixture.historyStore.save(
             text: "Speaker 1: hello",
             duration: 1.4,
             modelUsed: "tiny",
             diarizationSegmentsJSON: diarizationJSON
         )
 
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.diarizationSegmentsJSON, diarizationJSON)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 1)
+        #expect(records.first?.diarizationSegmentsJSON == diarizationJSON)
     }
 
-    func testSaveWithoutDiarizationMetadataDefaultsToNil() throws {
-        try historyStore.save(
+    @Test func saveWithoutDiarizationMetadataDefaultsToNil() throws {
+        let fixture = try makeFixture()
+
+        try fixture.historyStore.save(
             text: "No diarization metadata",
             duration: 2.0,
             modelUsed: "base"
         )
 
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 1)
-        XCTAssertNil(records.first?.diarizationSegmentsJSON)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 1)
+        #expect(records.first?.diarizationSegmentsJSON == nil)
     }
 
-    func testSaveMediaTranscriptionPersistsMediaMetadata() throws {
-        let record = try historyStore.save(
+    @Test func saveMediaTranscriptionPersistsMediaMetadata() throws {
+        let fixture = try makeFixture()
+
+        let record = try fixture.historyStore.save(
             text: "Transcript",
             duration: 12.5,
             modelUsed: "base",
@@ -185,20 +199,21 @@ final class HistoryStoreTests: XCTestCase {
             thumbnailPath: "/tmp/example-video.png"
         )
 
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.id, record.id)
-        XCTAssertEqual(records.first?.resolvedSourceKind, .webLink)
-        XCTAssertEqual(records.first?.sourceDisplayName, "Example Video")
-        XCTAssertEqual(records.first?.originalSourceURL, "https://example.com/watch?v=123")
-        XCTAssertEqual(records.first?.managedMediaPath, "/tmp/example-video.mp4")
-        XCTAssertEqual(records.first?.thumbnailPath, "/tmp/example-video.png")
-        XCTAssertTrue(records.first?.isMediaTranscription == true)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 1)
+        #expect(records.first?.id == record.id)
+        #expect(records.first?.resolvedSourceKind == .webLink)
+        #expect(records.first?.sourceDisplayName == "Example Video")
+        #expect(records.first?.originalSourceURL == "https://example.com/watch?v=123")
+        #expect(records.first?.managedMediaPath == "/tmp/example-video.mp4")
+        #expect(records.first?.thumbnailPath == "/tmp/example-video.png")
+        #expect(records.first?.isMediaTranscription == true)
     }
 
-    func testSaveMediaTranscriptionPersistsSelectedFolder() throws {
-        let folder = try historyStore.createFolder(named: "Interviews")
-        let record = try historyStore.save(
+    @Test func saveMediaTranscriptionPersistsSelectedFolder() throws {
+        let fixture = try makeFixture()
+        let folder = try fixture.historyStore.createFolder(named: "Interviews")
+        let record = try fixture.historyStore.save(
             text: "Transcript",
             duration: 12.5,
             modelUsed: "base",
@@ -209,32 +224,34 @@ final class HistoryStoreTests: XCTestCase {
             folderID: folder.id
         )
 
-        XCTAssertEqual(record.folder?.id, folder.id)
-        let fetchedRecords = try historyStore.fetchAll()
-        XCTAssertEqual(fetchedRecords.first?.folder?.name, "Interviews")
+        #expect(record.folder?.id == folder.id)
+        let fetchedRecords = try fixture.historyStore.fetchAll()
+        #expect(fetchedRecords.first?.folder?.name == "Interviews")
     }
     
-    func testFetchTranscriptions() throws {
-        try historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
-        try historyStore.save(text: "Third", duration: 3.0, modelUsed: "small")
+    @Test func fetchTranscriptions() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(text: "Third", duration: 3.0, modelUsed: "small")
         
-        let allRecords = try historyStore.fetchAll()
-        XCTAssertEqual(allRecords.count, 3)
-        XCTAssertEqual(allRecords[0].text, "Third")
-        XCTAssertEqual(allRecords[1].text, "Second")
-        XCTAssertEqual(allRecords[2].text, "First")
+        let allRecords = try fixture.historyStore.fetchAll()
+        #expect(allRecords.count == 3)
+        #expect(allRecords[0].text == "Third")
+        #expect(allRecords[1].text == "Second")
+        #expect(allRecords[2].text == "First")
         
-        let limitedRecords = try historyStore.fetch(limit: 2)
-        XCTAssertEqual(limitedRecords.count, 2)
-        XCTAssertEqual(limitedRecords[0].text, "Third")
-        XCTAssertEqual(limitedRecords[1].text, "Second")
+        let limitedRecords = try fixture.historyStore.fetch(limit: 2)
+        #expect(limitedRecords.count == 2)
+        #expect(limitedRecords[0].text == "Third")
+        #expect(limitedRecords[1].text == "Second")
     }
 
-    func testFetchVoiceTranscriptionsSupportsOffsetPagination() throws {
-        try historyStore.save(text: "First voice", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "Second voice", duration: 2.0, modelUsed: "base")
-        try historyStore.save(
+    @Test func fetchVoiceTranscriptionsSupportsOffsetPagination() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "First voice", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Second voice", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(
             text: "Media item",
             duration: 3.0,
             modelUsed: "small",
@@ -242,20 +259,21 @@ final class HistoryStoreTests: XCTestCase {
             sourceDisplayName: "Example media",
             managedMediaPath: "/tmp/example.mp4"
         )
-        try historyStore.save(text: "Third voice", duration: 4.0, modelUsed: "large")
+        try fixture.historyStore.save(text: "Third voice", duration: 4.0, modelUsed: "large")
 
-        let firstPage = try historyStore.fetchVoiceTranscriptions(limit: 2)
-        let secondPage = try historyStore.fetchVoiceTranscriptions(limit: 2, offset: 2)
+        let firstPage = try fixture.historyStore.fetchVoiceTranscriptions(limit: 2)
+        let secondPage = try fixture.historyStore.fetchVoiceTranscriptions(limit: 2, offset: 2)
 
-        XCTAssertEqual(firstPage.map(\.text), ["Third voice", "Second voice"])
-        XCTAssertEqual(secondPage.map(\.text), ["First voice"])
-        XCTAssertTrue((firstPage + secondPage).allSatisfy(\.isVoiceTranscription))
+        #expect(firstPage.map(\.text) == ["Third voice", "Second voice"])
+        #expect(secondPage.map(\.text) == ["First voice"])
+        #expect((firstPage + secondPage).allSatisfy { $0.isVoiceTranscription })
     }
 
-    func testCountVoiceTranscriptionsRespectsSearchQuery() throws {
-        try historyStore.save(text: "Alpha voice", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "Beta voice", duration: 2.0, modelUsed: "base")
-        try historyStore.save(
+    @Test func countVoiceTranscriptionsRespectsSearchQuery() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "Alpha voice", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Beta voice", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(
             text: "Alpha media",
             duration: 3.0,
             modelUsed: "small",
@@ -264,31 +282,33 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/alpha.mov"
         )
 
-        XCTAssertEqual(try historyStore.countVoiceTranscriptions(), 2)
-        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "Alpha"), 1)
-        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "Beta"), 1)
-        XCTAssertEqual(try historyStore.countVoiceTranscriptions(query: "media"), 0)
+        #expect(try fixture.historyStore.countVoiceTranscriptions() == 2)
+        #expect(try fixture.historyStore.countVoiceTranscriptions(query: "Alpha") == 1)
+        #expect(try fixture.historyStore.countVoiceTranscriptions(query: "Beta") == 1)
+        #expect(try fixture.historyStore.countVoiceTranscriptions(query: "media") == 0)
     }
     
-    func testSearchTranscriptions() throws {
-        try historyStore.save(text: "The quick brown fox", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "jumps over the lazy dog", duration: 2.0, modelUsed: "base")
-        try historyStore.save(text: "Hello world", duration: 3.0, modelUsed: "small")
+    @Test func searchTranscriptions() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "The quick brown fox", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "jumps over the lazy dog", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(text: "Hello world", duration: 3.0, modelUsed: "small")
         
-        let results = try historyStore.search(query: "quick")
-        XCTAssertEqual(results.count, 1)
-        XCTAssertEqual(results.first?.text, "The quick brown fox")
+        let results = try fixture.historyStore.search(query: "quick")
+        #expect(results.count == 1)
+        #expect(results.first?.text == "The quick brown fox")
         
-        let multipleResults = try historyStore.search(query: "the")
-        XCTAssertEqual(multipleResults.count, 2)
+        let multipleResults = try fixture.historyStore.search(query: "the")
+        #expect(multipleResults.count == 2)
         
-        let noResults = try historyStore.search(query: "nonexistent")
-        XCTAssertEqual(noResults.count, 0)
+        let noResults = try fixture.historyStore.search(query: "nonexistent")
+        #expect(noResults.count == 0)
     }
 
-    func testFetchMediaRecordsOnlyReturnsMediaBackedTranscriptions() throws {
-        try historyStore.save(text: "Voice", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(
+    @Test func fetchMediaRecordsOnlyReturnsMediaBackedTranscriptions() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "Voice", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(
             text: "Linked media",
             duration: 2.0,
             modelUsed: "base",
@@ -297,7 +317,7 @@ final class HistoryStoreTests: XCTestCase {
             originalSourceURL: "https://example.com/video",
             managedMediaPath: "/tmp/linked.mp4"
         )
-        try historyStore.save(
+        try fixture.historyStore.save(
             text: "Imported file",
             duration: 3.0,
             modelUsed: "small",
@@ -306,15 +326,16 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/clip.mov"
         )
 
-        let records = try historyStore.fetchMediaRecords()
-        XCTAssertEqual(records.count, 2)
-        XCTAssertTrue(records.allSatisfy(\.isMediaTranscription))
-        XCTAssertEqual(records.map(\.resolvedSourceKind), [.importedFile, .webLink])
+        let records = try fixture.historyStore.fetchMediaRecords()
+        #expect(records.count == 2)
+        #expect(records.allSatisfy { $0.isMediaTranscription })
+        #expect(records.map(\.resolvedSourceKind) == [.importedFile, .webLink])
     }
 
-    func testVoiceAndMediaClassificationMatchesSourceKind() throws {
-        try historyStore.save(text: "Voice", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(
+    @Test func voiceAndMediaClassificationMatchesSourceKind() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "Voice", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(
             text: "Linked media",
             duration: 2.0,
             modelUsed: "base",
@@ -323,7 +344,7 @@ final class HistoryStoreTests: XCTestCase {
             originalSourceURL: "https://example.com/video",
             managedMediaPath: "/tmp/linked.mp4"
         )
-        try historyStore.save(
+        try fixture.historyStore.save(
             text: "Imported file",
             duration: 3.0,
             modelUsed: "small",
@@ -332,48 +353,51 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/clip.mov"
         )
 
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 3)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 3)
 
         let recordsByText = Dictionary(uniqueKeysWithValues: records.map { ($0.text, $0) })
-        XCTAssertTrue(recordsByText["Voice"]?.isVoiceTranscription == true)
-        XCTAssertTrue(recordsByText["Voice"]?.isMediaTranscription == false)
-        XCTAssertTrue(recordsByText["Linked media"]?.isVoiceTranscription == false)
-        XCTAssertTrue(recordsByText["Linked media"]?.isMediaTranscription == true)
-        XCTAssertTrue(recordsByText["Imported file"]?.isVoiceTranscription == false)
-        XCTAssertTrue(recordsByText["Imported file"]?.isMediaTranscription == true)
+        #expect(recordsByText["Voice"]?.isVoiceTranscription == true)
+        #expect(recordsByText["Voice"]?.isMediaTranscription == false)
+        #expect(recordsByText["Linked media"]?.isVoiceTranscription == false)
+        #expect(recordsByText["Linked media"]?.isMediaTranscription == true)
+        #expect(recordsByText["Imported file"]?.isVoiceTranscription == false)
+        #expect(recordsByText["Imported file"]?.isMediaTranscription == true)
     }
     
-    func testDeleteTranscription() throws {
-        try historyStore.save(text: "To be deleted", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "To be kept", duration: 2.0, modelUsed: "base")
+    @Test func deleteTranscription() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "To be deleted", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "To be kept", duration: 2.0, modelUsed: "base")
         
-        var records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 2)
+        var records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 2)
         
-        let recordToDelete = records.first { $0.text == "To be deleted" }!
-        try historyStore.delete(recordToDelete)
+        let recordToDelete = try #require(records.first { $0.text == "To be deleted" })
+        try fixture.historyStore.delete(recordToDelete)
         
-        records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "To be kept")
+        records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 1)
+        #expect(records.first?.text == "To be kept")
     }
     
-    func testDeleteAll() throws {
-        try historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
-        try historyStore.save(text: "Third", duration: 3.0, modelUsed: "small")
+    @Test func deleteAll() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(text: "Third", duration: 3.0, modelUsed: "small")
         
-        var records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 3)
+        var records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 3)
         
-        try historyStore.deleteAll()
+        try fixture.historyStore.deleteAll()
         
-        records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 0)
+        records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 0)
     }
 
-    func testDeleteRemovesManagedMediaAssets() throws {
+    @Test func deleteRemovesManagedMediaAssets() throws {
+        let fixture = try makeFixture()
         let tempDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
 
@@ -382,7 +406,7 @@ final class HistoryStoreTests: XCTestCase {
         try Data("media".utf8).write(to: mediaURL)
         try Data("thumb".utf8).write(to: thumbnailURL)
 
-        let record = try historyStore.save(
+        let record = try fixture.historyStore.save(
             text: "Media",
             duration: 8.0,
             modelUsed: "base",
@@ -392,81 +416,88 @@ final class HistoryStoreTests: XCTestCase {
             thumbnailPath: thumbnailURL.path
         )
 
-        XCTAssertTrue(FileManager.default.fileExists(atPath: mediaURL.path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: thumbnailURL.path))
+        #expect(FileManager.default.fileExists(atPath: mediaURL.path))
+        #expect(FileManager.default.fileExists(atPath: thumbnailURL.path))
 
-        try historyStore.delete(record)
+        try fixture.historyStore.delete(record)
 
-        XCTAssertFalse(FileManager.default.fileExists(atPath: mediaURL.path))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: thumbnailURL.path))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: tempDirectory.path))
+        #expect(FileManager.default.fileExists(atPath: mediaURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: thumbnailURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: tempDirectory.path) == false)
     }
     
-    func testTimestampOrdering() async throws {
-        try historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
+    @Test func timestampOrdering() async throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
         
         try await Task.sleep(nanoseconds: 100_000_000)
         
-        try historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
+        try fixture.historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
         
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 2)
-        XCTAssertEqual(records[0].text, "Second")
-        XCTAssertEqual(records[1].text, "First")
-        XCTAssertGreaterThan(records[0].timestamp, records[1].timestamp)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 2)
+        #expect(records[0].text == "Second")
+        #expect(records[1].text == "First")
+        #expect(records[0].timestamp > records[1].timestamp)
     }
     
-    func testUniqueIDs() throws {
-        try historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
-        try historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
+    @Test func uniqueIDs() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "First", duration: 1.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Second", duration: 2.0, modelUsed: "base")
         
-        let records = try historyStore.fetchAll()
-        XCTAssertEqual(records.count, 2)
-        XCTAssertNotEqual(records[0].id, records[1].id)
+        let records = try fixture.historyStore.fetchAll()
+        #expect(records.count == 2)
+        #expect(records[0].id != records[1].id)
     }
     
-    func testCaseInsensitiveSearch() throws {
-        try historyStore.save(text: "Hello World", duration: 1.0, modelUsed: "tiny")
+    @Test func caseInsensitiveSearch() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "Hello World", duration: 1.0, modelUsed: "tiny")
         
-        let lowerResults = try historyStore.search(query: "hello")
-        XCTAssertEqual(lowerResults.count, 1)
+        let lowerResults = try fixture.historyStore.search(query: "hello")
+        #expect(lowerResults.count == 1)
         
-        let upperResults = try historyStore.search(query: "WORLD")
-        XCTAssertEqual(upperResults.count, 1)
+        let upperResults = try fixture.historyStore.search(query: "WORLD")
+        #expect(upperResults.count == 1)
         
-        let mixedResults = try historyStore.search(query: "HeLLo WoRLd")
-        XCTAssertEqual(mixedResults.count, 1)
+        let mixedResults = try fixture.historyStore.search(query: "HeLLo WoRLd")
+        #expect(mixedResults.count == 1)
     }
 
-    func testCreateRenameAndFetchFolders() throws {
-        let folder = try historyStore.createFolder(named: " Interviews ")
-        XCTAssertEqual(folder.name, "Interviews")
+    @Test func createRenameAndFetchFolders() throws {
+        let fixture = try makeFixture()
+        let folder = try fixture.historyStore.createFolder(named: " Interviews ")
+        #expect(folder.name == "Interviews")
 
-        try historyStore.renameFolder(folder, to: "Customer Interviews")
+        try fixture.historyStore.renameFolder(folder, to: "Customer Interviews")
 
-        let folders = try historyStore.fetchFolders()
-        XCTAssertEqual(folders.map(\.name), ["Customer Interviews"])
+        let folders = try fixture.historyStore.fetchFolders()
+        #expect(folders.map(\.name) == ["Customer Interviews"])
     }
 
-    func testCreateFolderRejectsDuplicateNamesCaseInsensitively() throws {
-        _ = try historyStore.createFolder(named: "Interviews")
+    @Test func createFolderRejectsDuplicateNamesCaseInsensitively() throws {
+        let fixture = try makeFixture()
+        _ = try fixture.historyStore.createFolder(named: "Interviews")
 
-        XCTAssertThrowsError(try historyStore.createFolder(named: "interviews")) { error in
-            guard let historyError = error as? HistoryStore.HistoryStoreError else {
-                return XCTFail("Expected HistoryStoreError")
-            }
-
+        do {
+            _ = try fixture.historyStore.createFolder(named: "interviews")
+            Issue.record("Expected duplicate-name HistoryStoreError")
+        } catch let historyError as HistoryStore.HistoryStoreError {
             if case .saveFailed(let message) = historyError {
-                XCTAssertTrue(message.contains("already exists"))
+                #expect(message.contains("already exists"))
             } else {
-                XCTFail("Expected saveFailed duplicate-name error")
+                Issue.record("Expected saveFailed duplicate-name error, got \(historyError)")
             }
+        } catch {
+            Issue.record("Expected HistoryStoreError, got \(error)")
         }
     }
 
-    func testDeleteFolderUnassignsTranscriptionsInsteadOfDeletingThem() throws {
-        let folder = try historyStore.createFolder(named: "Interviews")
-        let record = try historyStore.save(
+    @Test func deleteFolderUnassignsTranscriptionsInsteadOfDeletingThem() throws {
+        let fixture = try makeFixture()
+        let folder = try fixture.historyStore.createFolder(named: "Interviews")
+        let record = try fixture.historyStore.save(
             text: "Transcript",
             duration: 5.0,
             modelUsed: "base",
@@ -476,20 +507,21 @@ final class HistoryStoreTests: XCTestCase {
             folderID: folder.id
         )
 
-        try historyStore.deleteFolder(folder)
+        try fixture.historyStore.deleteFolder(folder)
 
-        let folders = try historyStore.fetchFolders()
-        let records = try historyStore.fetchAll()
+        let folders = try fixture.historyStore.fetchFolders()
+        let records = try fixture.historyStore.fetchAll()
 
-        XCTAssertTrue(folders.isEmpty)
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.id, record.id)
-        XCTAssertNil(records.first?.folder)
+        #expect(folders.isEmpty)
+        #expect(records.count == 1)
+        #expect(records.first?.id == record.id)
+        #expect(records.first?.folder == nil)
     }
 
-    func testAssignAndRemoveTranscriptionFolder() throws {
-        let folder = try historyStore.createFolder(named: "Research")
-        let record = try historyStore.save(
+    @Test func assignAndRemoveTranscriptionFolder() throws {
+        let fixture = try makeFixture()
+        let folder = try fixture.historyStore.createFolder(named: "Research")
+        let record = try fixture.historyStore.save(
             text: "Transcript",
             duration: 5.0,
             modelUsed: "base",
@@ -498,16 +530,17 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/research.mp4"
         )
 
-        try historyStore.assign(record: record, to: folder)
-        XCTAssertEqual(record.folder?.id, folder.id)
+        try fixture.historyStore.assign(record: record, to: folder)
+        #expect(record.folder?.id == folder.id)
 
-        try historyStore.removeFromFolder(record: record)
-        XCTAssertNil(record.folder)
+        try fixture.historyStore.removeFromFolder(record: record)
+        #expect(record.folder == nil)
     }
 
-    func testFetchMediaLibrarySearchesTranscriptAndMetadata() throws {
-        let folder = try historyStore.createFolder(named: "Research")
-        try historyStore.save(
+    @Test func fetchMediaLibrarySearchesTranscriptAndMetadata() throws {
+        let fixture = try makeFixture()
+        let folder = try fixture.historyStore.createFolder(named: "Research")
+        try fixture.historyStore.save(
             text: "The product team discussed roadmap risks.",
             originalText: "roadmap risks",
             duration: 5.0,
@@ -518,7 +551,7 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/research.mp4",
             folderID: folder.id
         )
-        try historyStore.save(
+        try fixture.historyStore.save(
             text: "Another transcript",
             duration: 2.0,
             modelUsed: "base",
@@ -527,15 +560,16 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/design.mov"
         )
 
-        XCTAssertEqual(try historyStore.fetchMediaLibrary(query: "roadmap").count, 1)
-        XCTAssertEqual(try historyStore.fetchMediaLibrary(query: "Quarterly").count, 1)
-        XCTAssertEqual(try historyStore.fetchMediaLibrary(query: "example.com/research").count, 1)
-        XCTAssertEqual(try historyStore.fetchMediaLibrary(folderID: folder.id, query: "roadmap").count, 1)
-        XCTAssertTrue(try historyStore.fetchMediaLibrary(folderID: folder.id, query: "Design").isEmpty)
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "roadmap").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Quarterly").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "example.com/research").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(folderID: folder.id, query: "roadmap").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(folderID: folder.id, query: "Design").isEmpty)
     }
 
-    func testFetchMediaLibrarySortsByNameAndDate() throws {
-        try historyStore.save(
+    @Test func fetchMediaLibrarySortsByNameAndDate() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(
             text: "Zulu",
             duration: 1.0,
             modelUsed: "base",
@@ -543,7 +577,7 @@ final class HistoryStoreTests: XCTestCase {
             sourceDisplayName: "Zulu Call",
             managedMediaPath: "/tmp/zulu.mp4"
         )
-        try historyStore.save(
+        try fixture.historyStore.save(
             text: "Alpha",
             duration: 1.0,
             modelUsed: "base",
@@ -552,40 +586,36 @@ final class HistoryStoreTests: XCTestCase {
             managedMediaPath: "/tmp/alpha.mp4"
         )
 
-        let newest = try historyStore.fetchMediaLibrary(sort: .newest)
-        let oldest = try historyStore.fetchMediaLibrary(sort: .oldest)
-        let ascending = try historyStore.fetchMediaLibrary(sort: .nameAscending)
-        let descending = try historyStore.fetchMediaLibrary(sort: .nameDescending)
+        let newest = try fixture.historyStore.fetchMediaLibrary(sort: .newest)
+        let oldest = try fixture.historyStore.fetchMediaLibrary(sort: .oldest)
+        let ascending = try fixture.historyStore.fetchMediaLibrary(sort: .nameAscending)
+        let descending = try fixture.historyStore.fetchMediaLibrary(sort: .nameDescending)
 
-        XCTAssertEqual(newest.first?.sourceDisplayName, "Alpha Call")
-        XCTAssertEqual(oldest.first?.sourceDisplayName, "Zulu Call")
-        XCTAssertEqual(ascending.map(\.sourceDisplayName), ["Alpha Call", "Zulu Call"])
-        XCTAssertEqual(descending.map(\.sourceDisplayName), ["Zulu Call", "Alpha Call"])
+        #expect(newest.first?.sourceDisplayName == "Alpha Call")
+        #expect(oldest.first?.sourceDisplayName == "Zulu Call")
+        #expect(ascending.map(\.sourceDisplayName) == ["Alpha Call", "Zulu Call"])
+        #expect(descending.map(\.sourceDisplayName) == ["Zulu Call", "Alpha Call"])
     }
     
     // MARK: - Export Tests
     
-    func testExportToJSON() throws {
-        // Create test records
-        try historyStore.save(text: "First transcription", duration: 5.0, modelUsed: "tiny")
-        try historyStore.save(text: "Second transcription", duration: 10.0, modelUsed: "base")
+    @Test func exportToJSON() throws {
+        let fixture = try makeFixture()
+
+        try fixture.historyStore.save(text: "First transcription", duration: 5.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Second transcription", duration: 10.0, modelUsed: "base")
         
-        let records = try historyStore.fetchAll()
+        let records = try fixture.historyStore.fetchAll()
         
-        // Create temporary file URL for testing
         let tempDir = FileManager.default.temporaryDirectory
         let testURL = tempDir.appendingPathComponent("test_export.json")
         
-        // Clean up any existing file
         try? FileManager.default.removeItem(at: testURL)
         
-        // Export using internal method (bypassing NSSavePanel for testing)
         _ = try exportToJSONInternal(records: records, to: testURL)
         
-        // Verify file was created
-        XCTAssertTrue(FileManager.default.fileExists(atPath: testURL.path))
+        #expect(FileManager.default.fileExists(atPath: testURL.path))
         
-        // Read and verify JSON content
         let jsonData = try Data(contentsOf: testURL)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -606,76 +636,70 @@ final class HistoryStoreTests: XCTestCase {
         
         let exportData = try decoder.decode(ExportData.self, from: jsonData)
         
-        XCTAssertEqual(exportData.totalRecords, 2)
-        XCTAssertEqual(exportData.records.count, 2)
-        XCTAssertEqual(exportData.records[0].text, "Second transcription")
-        XCTAssertEqual(exportData.records[0].duration, 10.0)
-        XCTAssertEqual(exportData.records[0].modelUsed, "base")
-        XCTAssertEqual(exportData.records[1].text, "First transcription")
-        XCTAssertEqual(exportData.records[1].duration, 5.0)
-        XCTAssertEqual(exportData.records[1].modelUsed, "tiny")
+        #expect(exportData.totalRecords == 2)
+        #expect(exportData.records.count == 2)
+        #expect(exportData.records[0].text == "Second transcription")
+        #expect(exportData.records[0].duration == 10.0)
+        #expect(exportData.records[0].modelUsed == "base")
+        #expect(exportData.records[1].text == "First transcription")
+        #expect(exportData.records[1].duration == 5.0)
+        #expect(exportData.records[1].modelUsed == "tiny")
         
-        // Clean up
         try? FileManager.default.removeItem(at: testURL)
     }
     
-    func testExportToCSV() throws {
-        // Create test records
-        try historyStore.save(text: "First transcription", duration: 5.0, modelUsed: "tiny")
-        try historyStore.save(text: "Text with \"quotes\" and, commas", duration: 10.0, modelUsed: "base")
+    @Test func exportToCSV() throws {
+        let fixture = try makeFixture()
+
+        try fixture.historyStore.save(text: "First transcription", duration: 5.0, modelUsed: "tiny")
+        try fixture.historyStore.save(text: "Text with \"quotes\" and, commas", duration: 10.0, modelUsed: "base")
         
-        let records = try historyStore.fetchAll()
+        let records = try fixture.historyStore.fetchAll()
         
-        // Create temporary file URL for testing
         let tempDir = FileManager.default.temporaryDirectory
         let testURL = tempDir.appendingPathComponent("test_export.csv")
         
-        // Clean up any existing file
         try? FileManager.default.removeItem(at: testURL)
         
-        // Export using internal method (bypassing NSSavePanel for testing)
         try exportToCSVInternal(records: records, to: testURL)
         
-        // Verify file was created
-        XCTAssertTrue(FileManager.default.fileExists(atPath: testURL.path))
+        #expect(FileManager.default.fileExists(atPath: testURL.path))
         
-        // Read and verify CSV content
         let csvContent = try String(contentsOf: testURL, encoding: .utf8)
         let lines = csvContent.components(separatedBy: "\n").filter { !$0.isEmpty }
         
-        XCTAssertEqual(lines.count, 3)
-        XCTAssertTrue(lines[0].starts(with: "ID,Timestamp,Duration,Model,Text"))
-        XCTAssertTrue(lines[1].contains("\"Text with \"\"quotes\"\" and, commas\""))
-        XCTAssertTrue(lines[1].contains("10.00"))
-        XCTAssertTrue(lines[1].contains("base"))
-        XCTAssertTrue(lines[2].contains("\"First transcription\""))
-        XCTAssertTrue(lines[2].contains("5.00"))
-        XCTAssertTrue(lines[2].contains("tiny"))
+        #expect(lines.count == 3)
+        #expect(lines[0].starts(with: "ID,Timestamp,Duration,Model,Text"))
+        #expect(lines[1].contains("\"Text with \"\"quotes\"\" and, commas\""))
+        #expect(lines[1].contains("10.00"))
+        #expect(lines[1].contains("base"))
+        #expect(lines[2].contains("\"First transcription\""))
+        #expect(lines[2].contains("5.00"))
+        #expect(lines[2].contains("tiny"))
         
-        // Clean up
         try? FileManager.default.removeItem(at: testURL)
     }
     
-    func testExportEmptyRecords() throws {
-        // Attempt to export with no records
+    @Test func exportEmptyRecords() throws {
         let tempDir = FileManager.default.temporaryDirectory
         let testURL = tempDir.appendingPathComponent("test_empty.json")
         
-        XCTAssertThrowsError(try exportToJSONInternal(records: [], to: testURL)) { error in
-            guard let historyError = error as? HistoryStore.HistoryStoreError else {
-                XCTFail("Expected HistoryStoreError")
-                return
-            }
-            
+        do {
+            try exportToJSONInternal(records: [], to: testURL)
+            Issue.record("Expected exportFailed HistoryStoreError")
+        } catch let historyError as HistoryStore.HistoryStoreError {
             if case .exportFailed(let message) = historyError {
-                XCTAssertEqual(message, "No records to export")
+                #expect(message == "No records to export")
             } else {
-                XCTFail("Expected exportFailed error")
+                Issue.record("Expected exportFailed error, got \(historyError)")
             }
+        } catch {
+            Issue.record("Expected HistoryStoreError, got \(error)")
         }
     }
 
-    func testRepairServiceRepairsStoreWithV3TablesAndV1Metadata() throws {
+    @Test func repairServiceRepairsStoreWithV3TablesAndV1Metadata() throws {
+        try requireSQLiteSupport()
         let brokenStoreURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
             .appendingPathComponent("broken.store")
@@ -688,25 +712,31 @@ final class HistoryStoreTests: XCTestCase {
         try createV1Store(at: referenceStoreURL)
         try overwriteMetadataAndModelCache(at: brokenStoreURL, using: referenceStoreURL)
 
-        XCTAssertThrowsError(try makeCurrentContainer(at: brokenStoreURL))
+        do {
+            _ = try makeCurrentContainer(at: brokenStoreURL)
+            Issue.record("Expected legacy container creation to fail before repair")
+        } catch {
+            #expect(Bool(true))
+        }
 
         let repairOutcome = try repairService.repairIfNeeded(storeURL: brokenStoreURL)
-        XCTAssertTrue(repairOutcome.repaired)
-        XCTAssertNotNil(repairOutcome.backupDirectoryURL)
+        #expect(repairOutcome.repaired)
+        #expect(repairOutcome.backupDirectoryURL != nil)
 
         let repairedContainer = try makeCurrentContainer(at: brokenStoreURL)
         let repairedContext = ModelContext(repairedContainer)
         let records = try repairedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Legacy transcription")
-        XCTAssertEqual(records.first?.resolvedSourceKind, .voiceRecording)
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
+        #expect(records.first?.resolvedSourceKind == .voiceRecording)
 
         try? FileManager.default.removeItem(at: brokenStoreURL.deletingLastPathComponent())
         try? FileManager.default.removeItem(at: referenceStoreURL.deletingLastPathComponent())
     }
 
-    func testRepairServiceRecreatesMissingPromptPresetTableWhenMetadataVersionMatches() throws {
+    @Test func repairServiceRecreatesMissingPromptPresetTableWhenMetadataVersionMatches() throws {
+        try requireSQLiteSupport()
         let directoryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storeURL = directoryURL.appendingPathComponent("missing-prompt-preset.store")
@@ -727,24 +757,25 @@ final class HistoryStoreTests: XCTestCase {
             try execute("DROP TABLE ZPROMPTPRESET", on: database)
         }
 
-        XCTAssertFalse(try tableExists(named: "ZPROMPTPRESET", at: storeURL))
+        #expect(try tableExists(named: "ZPROMPTPRESET", at: storeURL) == false)
 
         let repairOutcome = try repairService.repairIfNeeded(storeURL: storeURL)
-        XCTAssertTrue(repairOutcome.repaired)
-        XCTAssertNotNil(repairOutcome.backupDirectoryURL)
-        XCTAssertTrue(try tableExists(named: "ZPROMPTPRESET", at: storeURL))
+        #expect(repairOutcome.repaired)
+        #expect(repairOutcome.backupDirectoryURL != nil)
+        #expect(try tableExists(named: "ZPROMPTPRESET", at: storeURL))
 
         let repairedContainer = try makeCurrentContainer(at: storeURL)
         let repairedContext = ModelContext(repairedContainer)
         let records = try repairedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Existing transcription")
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Existing transcription")
 
         try? FileManager.default.removeItem(at: directoryURL)
     }
 
-    func testPrepareStoreLocationMigratesRecognizedLegacyStore() throws {
+    @Test func prepareStoreLocationMigratesRecognizedLegacyStore() throws {
+        try requireSQLiteSupport()
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
@@ -758,19 +789,20 @@ final class HistoryStoreTests: XCTestCase {
         try repairService.prepareStoreLocation()
 
         let migratedStoreURL = repairService.storeURL()
-        XCTAssertTrue(FileManager.default.fileExists(atPath: migratedStoreURL.path))
+        #expect(FileManager.default.fileExists(atPath: migratedStoreURL.path))
 
         let migratedContainer = try makeCurrentContainer(at: migratedStoreURL)
         let migratedContext = ModelContext(migratedContainer)
         let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Legacy transcription")
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
-    func testPrepareStoreLocationMigratesV4LegacyStoreToCurrentSchema() throws {
+    @Test func prepareStoreLocationMigratesV4LegacyStoreToCurrentSchema() throws {
+        try requireSQLiteSupport()
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
@@ -784,32 +816,38 @@ final class HistoryStoreTests: XCTestCase {
         try repairService.prepareStoreLocation()
 
         let migratedStoreURL = repairService.storeURL()
-        XCTAssertTrue(FileManager.default.fileExists(atPath: migratedStoreURL.path))
+        #expect(FileManager.default.fileExists(atPath: migratedStoreURL.path))
 
         let migratedContainer = try makeCurrentContainer(at: migratedStoreURL)
         let migratedContext = ModelContext(migratedContainer)
         let records = try migratedContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Legacy transcription")
-        XCTAssertNil(records.first?.folder)
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
+        #expect(records.first?.folder == nil)
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
-    func testCurrentContainerMigratesLegacyStoreWithoutPromptPresetModel() throws {
+    @Test func currentContainerMigratesLegacyStoreWithoutPromptPresetModel() throws {
+        try requireSQLiteSupport()
         let directoryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storeURL = directoryURL.appendingPathComponent("legacy-no-prompt-preset.store")
 
         try createV4StoreWithoutPromptPreset(at: storeURL)
 
-        XCTAssertNoThrow(try makeCurrentContainer(at: storeURL))
+        do {
+            _ = try makeCurrentContainer(at: storeURL)
+        } catch {
+            Issue.record("Expected current container migration to succeed, got \(error)")
+        }
 
         try? FileManager.default.removeItem(at: directoryURL)
     }
 
-    func testPrepareStoreLocationIgnoresUnrecognizedLegacyStore() throws {
+    @Test func prepareStoreLocationIgnoresUnrecognizedLegacyStore() throws {
+        try requireSQLiteSupport()
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
@@ -822,13 +860,14 @@ final class HistoryStoreTests: XCTestCase {
 
         try repairService.prepareStoreLocation()
 
-        XCTAssertFalse(FileManager.default.fileExists(atPath: repairService.storeURL().path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: legacyStoreURL.path))
+        #expect(FileManager.default.fileExists(atPath: repairService.storeURL().path) == false)
+        #expect(FileManager.default.fileExists(atPath: legacyStoreURL.path))
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
-    func testPrepareStoreLocationRestoresLegacyStoreWhenCurrentStoreIsUnrecognized() throws {
+    @Test func prepareStoreLocationRestoresLegacyStoreWhenCurrentStoreIsUnrecognized() throws {
+        try requireSQLiteSupport()
         let applicationSupportURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let legacyStoreURL = applicationSupportURL.appendingPathComponent("default.store")
@@ -846,8 +885,8 @@ final class HistoryStoreTests: XCTestCase {
         let restoredContext = ModelContext(restoredContainer)
         let records = try restoredContext.fetch(FetchDescriptor<TranscriptionRecord>())
 
-        XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first?.text, "Legacy transcription")
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
 
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
@@ -936,112 +975,124 @@ final class HistoryStoreTests: XCTestCase {
 
     private func createV1Store(at storeURL: URL) throws {
         try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        let configuration = ModelConfiguration(url: storeURL)
-        let container = try ModelContainer(
-            for: TranscriptionRecordSchemaV1.TranscriptionRecordV1.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            PromptPreset.self,
-            configurations: configuration
-        )
-
-        let context = ModelContext(container)
-        context.insert(
-            TranscriptionRecordSchemaV1.TranscriptionRecordV1(
-                text: "Original transcription",
-                duration: 2.0,
-                modelUsed: "tiny"
+        try autoreleasepool {
+            let configuration = ModelConfiguration(url: storeURL)
+            let container = try ModelContainer(
+                for: TranscriptionRecordSchemaV1.TranscriptionRecordV1.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
             )
-        )
-        try context.save()
+
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecordSchemaV1.TranscriptionRecordV1(
+                    text: "Original transcription",
+                    duration: 2.0,
+                    modelUsed: "tiny"
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
     }
 
     private func createV3Store(at storeURL: URL) throws {
         try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        let configuration = ModelConfiguration(url: storeURL)
-        let container = try ModelContainer(
-            for: TranscriptionRecordSchemaV3.TranscriptionRecord.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            PromptPreset.self,
-            configurations: configuration
-        )
-
-        let context = ModelContext(container)
-        context.insert(
-            TranscriptionRecordSchemaV3.TranscriptionRecord(
-                text: "Legacy transcription",
-                originalText: "Legacy transcription",
-                duration: 4.2,
-                modelUsed: "base",
-                enhancedWith: nil,
-                diarizationSegmentsJSON: nil
+        try autoreleasepool {
+            let configuration = ModelConfiguration(url: storeURL)
+            let container = try ModelContainer(
+                for: TranscriptionRecordSchemaV3.TranscriptionRecord.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
             )
-        )
-        try context.save()
+
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecordSchemaV3.TranscriptionRecord(
+                    text: "Legacy transcription",
+                    originalText: "Legacy transcription",
+                    duration: 4.2,
+                    modelUsed: "base",
+                    enhancedWith: nil,
+                    diarizationSegmentsJSON: nil
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
     }
 
     private func createV4Store(at storeURL: URL) throws {
         try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        let configuration = ModelConfiguration(url: storeURL)
-        let container = try ModelContainer(
-            for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            PromptPreset.self,
-            configurations: configuration
-        )
-
-        let context = ModelContext(container)
-        context.insert(
-            TranscriptionRecordSchemaV4.TranscriptionRecord(
-                text: "Legacy transcription",
-                originalText: "Legacy transcription",
-                duration: 4.2,
-                modelUsed: "base",
-                enhancedWith: nil,
-                diarizationSegmentsJSON: nil,
-                sourceKind: .voiceRecording,
-                sourceDisplayName: nil,
-                originalSourceURL: nil,
-                managedMediaPath: nil,
-                thumbnailPath: nil
+        try autoreleasepool {
+            let configuration = ModelConfiguration(url: storeURL)
+            let container = try ModelContainer(
+                for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
             )
-        )
-        try context.save()
+
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecordSchemaV4.TranscriptionRecord(
+                    text: "Legacy transcription",
+                    originalText: "Legacy transcription",
+                    duration: 4.2,
+                    modelUsed: "base",
+                    enhancedWith: nil,
+                    diarizationSegmentsJSON: nil,
+                    sourceKind: .voiceRecording,
+                    sourceDisplayName: nil,
+                    originalSourceURL: nil,
+                    managedMediaPath: nil,
+                    thumbnailPath: nil
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
     }
 
     private func createV4StoreWithoutPromptPreset(at storeURL: URL) throws {
         try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        let configuration = ModelConfiguration(url: storeURL)
-        let container = try ModelContainer(
-            for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            configurations: configuration
-        )
-
-        let context = ModelContext(container)
-        context.insert(
-            TranscriptionRecordSchemaV4.TranscriptionRecord(
-                text: "Legacy transcription",
-                originalText: "Legacy transcription",
-                duration: 4.2,
-                modelUsed: "base",
-                enhancedWith: nil,
-                diarizationSegmentsJSON: nil,
-                sourceKind: .voiceRecording,
-                sourceDisplayName: nil,
-                originalSourceURL: nil,
-                managedMediaPath: nil,
-                thumbnailPath: nil
+        try autoreleasepool {
+            let configuration = ModelConfiguration(url: storeURL)
+            let container = try ModelContainer(
+                for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                configurations: configuration
             )
-        )
-        try context.save()
+
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecordSchemaV4.TranscriptionRecord(
+                    text: "Legacy transcription",
+                    originalText: "Legacy transcription",
+                    duration: 4.2,
+                    modelUsed: "base",
+                    enhancedWith: nil,
+                    diarizationSegmentsJSON: nil,
+                    sourceKind: .voiceRecording,
+                    sourceDisplayName: nil,
+                    originalSourceURL: nil,
+                    managedMediaPath: nil,
+                    thumbnailPath: nil
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
     }
 
     private func createUnrecognizedStore(at storeURL: URL) throws {
@@ -1203,7 +1254,29 @@ final class HistoryStoreTests: XCTestCase {
             throw sqliteError(on: nil)
         }
 
+        sqlite3_busy_timeout(database, 5_000)
+
         return try work(database)
+    }
+
+    private func flushSQLiteStore(at storeURL: URL) throws {
+        var lastError: Error?
+
+        for _ in 0..<5 {
+            do {
+                try withDatabase(at: storeURL) { database in
+                    try execute("PRAGMA wal_checkpoint(TRUNCATE)", on: database)
+                }
+                return
+            } catch {
+                lastError = error
+                Thread.sleep(forTimeInterval: 0.05)
+            }
+        }
+
+        if let lastError {
+            throw lastError
+        }
     }
 
     private func sqliteError(on database: OpaquePointer?) -> NSError {

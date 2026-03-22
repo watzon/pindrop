@@ -5,47 +5,30 @@
 //  Created on 2026-01-27.
 //
 
-import XCTest
+import Foundation
 import SwiftData
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class DictionaryModelsTests: XCTestCase {
-    
-    var modelContainer: ModelContainer!
-    var modelContext: ModelContext!
-    
-    override func setUp() async throws {
-        let schema = Schema([
-            WordReplacement.self,
-            VocabularyWord.self
-        ])
+@Suite(.serialized)
+struct DictionaryModelsTests {
+    private func makeModelContext() throws -> ModelContext {
+        let schema = Schema([WordReplacement.self, VocabularyWord.self])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        modelContainer = try ModelContainer(for: schema, configurations: [configuration])
-        modelContext = ModelContext(modelContainer)
+        let modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+        return ModelContext(modelContainer)
     }
-    
-    override func tearDown() async throws {
-        modelContainer = nil
-        modelContext = nil
+
+    @Test func wordReplacementInitialization() {
+        let replacement = WordReplacement(originals: ["teh", "teh"], replacement: "the")
+
+        #expect(replacement.originals == ["teh", "teh"])
+        #expect(replacement.replacement == "the")
+        #expect(replacement.sortOrder == 0)
     }
-    
-    // MARK: - WordReplacement Tests
-    
-    func testWordReplacementInitialization() throws {
-        let replacement = WordReplacement(
-            originals: ["teh", "teh"],
-            replacement: "the"
-        )
-        
-        XCTAssertNotNil(replacement.id)
-        XCTAssertEqual(replacement.originals, ["teh", "teh"])
-        XCTAssertEqual(replacement.replacement, "the")
-        XCTAssertNotNil(replacement.createdAt)
-        XCTAssertEqual(replacement.sortOrder, 0)
-    }
-    
-    func testWordReplacementWithCustomValues() throws {
+
+    @Test func wordReplacementWithCustomValues() {
         let customDate = Date().addingTimeInterval(-3600)
         let customID = UUID()
         let replacement = WordReplacement(
@@ -55,131 +38,102 @@ final class DictionaryModelsTests: XCTestCase {
             createdAt: customDate,
             sortOrder: 5
         )
-        
-        XCTAssertEqual(replacement.id, customID)
-        XCTAssertEqual(replacement.originals, ["adn", "becuase"])
-        XCTAssertEqual(replacement.replacement, "and")
-        XCTAssertEqual(replacement.createdAt, customDate)
-        XCTAssertEqual(replacement.sortOrder, 5)
+
+        #expect(replacement.id == customID)
+        #expect(replacement.originals == ["adn", "becuase"])
+        #expect(replacement.replacement == "and")
+        #expect(replacement.createdAt == customDate)
+        #expect(replacement.sortOrder == 5)
     }
-    
-    func testWordReplacementPersists() throws {
-        let replacement = WordReplacement(
-            originals: ["teh"],
-            replacement: "the",
-            sortOrder: 1
-        )
+
+    @Test func wordReplacementPersists() throws {
+        let modelContext = try makeModelContext()
+        let replacement = WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 1)
         modelContext.insert(replacement)
         try modelContext.save()
-        
-        let descriptor = FetchDescriptor<WordReplacement>()
-        let savedReplacements = try modelContext.fetch(descriptor)
-        
-        XCTAssertEqual(savedReplacements.count, 1)
-        XCTAssertEqual(savedReplacements.first?.originals, ["teh"])
-        XCTAssertEqual(savedReplacements.first?.replacement, "the")
-        XCTAssertEqual(savedReplacements.first?.sortOrder, 1)
+
+        let savedReplacements = try modelContext.fetch(FetchDescriptor<WordReplacement>())
+        #expect(savedReplacements.count == 1)
+        #expect(savedReplacements.first?.originals == ["teh"])
+        #expect(savedReplacements.first?.replacement == "the")
+        #expect(savedReplacements.first?.sortOrder == 1)
     }
-    
-    func testWordReplacementUniqueIDs() throws {
+
+    @Test func wordReplacementUniqueIDs() throws {
+        let modelContext = try makeModelContext()
         let replacement1 = WordReplacement(originals: ["teh"], replacement: "the")
         let replacement2 = WordReplacement(originals: ["adn"], replacement: "and")
-        
+
         modelContext.insert(replacement1)
         modelContext.insert(replacement2)
         try modelContext.save()
-        
-        XCTAssertNotEqual(replacement1.id, replacement2.id)
+
+        #expect(replacement1.id != replacement2.id)
     }
-    
-    func testWordReplacementEmptyOriginals() throws {
-        let replacement = WordReplacement(
-            originals: [],
-            replacement: "test"
-        )
-        
-        XCTAssertTrue(replacement.originals.isEmpty)
-        XCTAssertEqual(replacement.replacement, "test")
+
+    @Test func wordReplacementEmptyOriginals() {
+        let replacement = WordReplacement(originals: [], replacement: "test")
+        #expect(replacement.originals.isEmpty)
+        #expect(replacement.replacement == "test")
     }
-    
-    func testWordReplacementMultipleOriginals() throws {
+
+    @Test func wordReplacementMultipleOriginals() {
         let originals = ["teh", "teh", "teh"]
-        let replacement = WordReplacement(
-            originals: originals,
-            replacement: "the"
-        )
-        
-        XCTAssertEqual(replacement.originals.count, 3)
-        XCTAssertEqual(replacement.originals, ["teh", "teh", "teh"])
+        let replacement = WordReplacement(originals: originals, replacement: "the")
+        #expect(replacement.originals.count == 3)
+        #expect(replacement.originals == originals)
     }
-    
-    // MARK: - VocabularyWord Tests
-    
-    func testVocabularyWordInitialization() throws {
+
+    @Test func vocabularyWordInitialization() {
         let word = VocabularyWord(word: "perspicacious")
-        
-        XCTAssertNotNil(word.id)
-        XCTAssertEqual(word.word, "perspicacious")
-        XCTAssertNotNil(word.createdAt)
+        #expect(word.word == "perspicacious")
     }
-    
-    func testVocabularyWordWithCustomValues() throws {
+
+    @Test func vocabularyWordWithCustomValues() {
         let customDate = Date().addingTimeInterval(-7200)
         let customID = UUID()
-        let word = VocabularyWord(
-            id: customID,
-            word: "sesquipedalian",
-            createdAt: customDate
-        )
-        
-        XCTAssertEqual(word.id, customID)
-        XCTAssertEqual(word.word, "sesquipedalian")
-        XCTAssertEqual(word.createdAt, customDate)
+        let word = VocabularyWord(id: customID, word: "sesquipedalian", createdAt: customDate)
+
+        #expect(word.id == customID)
+        #expect(word.word == "sesquipedalian")
+        #expect(word.createdAt == customDate)
     }
-    
-    func testVocabularyWordPersists() throws {
+
+    @Test func vocabularyWordPersists() throws {
+        let modelContext = try makeModelContext()
         let word = VocabularyWord(word: "ephemeral")
         modelContext.insert(word)
         try modelContext.save()
-        
-        let descriptor = FetchDescriptor<VocabularyWord>()
-        let savedWords = try modelContext.fetch(descriptor)
-        
-        XCTAssertEqual(savedWords.count, 1)
-        XCTAssertEqual(savedWords.first?.word, "ephemeral")
+
+        let savedWords = try modelContext.fetch(FetchDescriptor<VocabularyWord>())
+        #expect(savedWords.count == 1)
+        #expect(savedWords.first?.word == "ephemeral")
     }
-    
-    func testVocabularyWordUniqueIDs() throws {
+
+    @Test func vocabularyWordUniqueIDs() throws {
+        let modelContext = try makeModelContext()
         let word1 = VocabularyWord(word: "hello")
         let word2 = VocabularyWord(word: "world")
-        
+
         modelContext.insert(word1)
         modelContext.insert(word2)
         try modelContext.save()
-        
-        XCTAssertNotEqual(word1.id, word2.id)
+
+        #expect(word1.id != word2.id)
     }
-    
-    func testVocabularyWordEmptyWord() throws {
+
+    @Test func vocabularyWordEmptyWord() {
         let word = VocabularyWord(word: "")
-        
-        XCTAssertEqual(word.word, "")
-        XCTAssertNotNil(word.id)
-        XCTAssertNotNil(word.createdAt)
+        #expect(word.word == "")
     }
-    
-    // MARK: - Schema Tests
-    
-    func testSchemaContainsBothModels() throws {
-        let schema = Schema([
-            WordReplacement.self,
-            VocabularyWord.self
-        ])
-        
-        let descriptor = FetchDescriptor<WordReplacement>()
-        let replacementDescriptor = FetchDescriptor<VocabularyWord>()
-        
-        XCTAssertNoThrow(try modelContext.fetch(descriptor))
-        XCTAssertNoThrow(try modelContext.fetch(replacementDescriptor))
+
+    @Test func schemaContainsBothModels() throws {
+        let modelContext = try makeModelContext()
+        #expect(throws: Never.self) {
+            _ = try modelContext.fetch(FetchDescriptor<WordReplacement>())
+        }
+        #expect(throws: Never.self) {
+            _ = try modelContext.fetch(FetchDescriptor<VocabularyWord>())
+        }
     }
 }

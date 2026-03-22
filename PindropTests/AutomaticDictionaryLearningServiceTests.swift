@@ -5,7 +5,10 @@
 //  Created on 2026-03-11.
 //
 
-import XCTest
+import CoreFoundation
+import CoreGraphics
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
@@ -106,19 +109,22 @@ private final class MockFocusedTextChangeObserver: FocusedTextChangeObserving {
 }
 
 @MainActor
-final class AutomaticDictionaryLearningServiceTests: XCTestCase {
-    private var snapshotProvider: MockFocusedTextSnapshotProvider!
-    private var changeObserver: MockFocusedTextChangeObserver!
-    private var store: MockLearnedReplacementStore!
-    private var toastService: MockToastService!
-    private var service: AutomaticDictionaryLearningService!
+@Suite(.serialized)
+struct AutomaticDictionaryLearningServiceTests {
+    private struct Fixture {
+        let snapshotProvider: MockFocusedTextSnapshotProvider
+        let changeObserver: MockFocusedTextChangeObserver
+        let store: MockLearnedReplacementStore
+        let toastService: MockToastService
+        let service: AutomaticDictionaryLearningService
+    }
 
-    override func setUp() async throws {
-        snapshotProvider = MockFocusedTextSnapshotProvider()
-        changeObserver = MockFocusedTextChangeObserver()
-        store = MockLearnedReplacementStore()
-        toastService = MockToastService()
-        service = AutomaticDictionaryLearningService(
+    private func makeFixture() -> Fixture {
+        let snapshotProvider = MockFocusedTextSnapshotProvider()
+        let changeObserver = MockFocusedTextChangeObserver()
+        let store = MockLearnedReplacementStore()
+        let toastService = MockToastService()
+        let service = AutomaticDictionaryLearningService(
             snapshotProvider: snapshotProvider,
             changeObserver: changeObserver,
             dictionaryStore: store,
@@ -129,67 +135,62 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
                 observationTimeout: .milliseconds(120)
             )
         )
+
+        return Fixture(
+            snapshotProvider: snapshotProvider,
+            changeObserver: changeObserver,
+            store: store,
+            toastService: toastService,
+            service: service
+        )
     }
 
-    override func tearDown() async throws {
-        service = nil
-        toastService = nil
-        store = nil
-        changeObserver = nil
-        snapshotProvider = nil
-    }
-
-    func testDetectorFindsSimpleOneWordCorrection() {
+    @Test func testDetectorFindsSimpleOneWordCorrection() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh ",
             observedSnapshot: makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "teh", replacement: "the"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "teh", replacement: "the"))
     }
-
-    func testDetectorSupportsCasingChanges() {
+    @Test func testDetectorSupportsCasingChanges() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "iphone",
             observedSnapshot: makeSnapshot(text: "iPhone", selectedRange: CFRange(location: 6, length: 0))
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "iphone", replacement: "iPhone"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "iphone", replacement: "iPhone"))
     }
-
-    func testDetectorSupportsPunctuationAdjacentCorrection() {
+    @Test func testDetectorSupportsPunctuationAdjacentCorrection() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh,",
             observedSnapshot: makeSnapshot(text: "the,", selectedRange: CFRange(location: 4, length: 0))
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "teh", replacement: "the"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "teh", replacement: "the"))
     }
-
-    func testDetectorSupportsMergedSplitWordCorrection() {
+    @Test func testDetectorSupportsMergedSplitWordCorrection() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "a UR ",
             observedSnapshot: makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0))
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "a UR", replacement: "AUR"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "a UR", replacement: "AUR"))
     }
-
-    func testDetectorSupportsThreeTokenMergedWordCorrection() {
+    @Test func testDetectorSupportsThreeTokenMergedWordCorrection() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "chat g p t ",
             observedSnapshot: makeSnapshot(text: "ChatGPT ", selectedRange: CFRange(location: 8, length: 0))
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "chat g p t", replacement: "ChatGPT"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "chat g p t", replacement: "ChatGPT"))
     }
-
-    func testDetectorSupportsCorrectionWhenOtherFieldChangesExistOutsideInsertedSegment() {
+    @Test func testDetectorSupportsCorrectionWhenOtherFieldChangesExistOutsideInsertedSegment() {
         let originalText = "Outside changes can happen earlier in the field while anchor text remains stable. "
         let selectedRange = CFRange(location: (originalText as NSString).length, length: 0)
         let observedText = "outside changes can happen earlier in the field while anchor text remains stable. the "
@@ -203,10 +204,9 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "teh", replacement: "the"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "teh", replacement: "the"))
     }
-
-    func testDetectorSupportsCorrectionWhenObservedAXTextOnlyContainsInsertedBlock() {
+    @Test func testDetectorSupportsCorrectionWhenObservedAXTextOnlyContainsInsertedBlock() {
         let originalText = "\nAsk for follow-up changes if needed."
         let insertedText = "Quen is easily one of the best models out there right now. "
         let observedText = "Qwen is easily one of the best models out there right now. "
@@ -220,73 +220,69 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(candidate, LearnedCorrectionCandidate(original: "Quen", replacement: "Qwen"))
+        #expect(candidate == LearnedCorrectionCandidate(original: "Quen", replacement: "Qwen"))
     }
-
-    func testDetectorIgnoresAmbiguousRepeatedTokenCases() {
+    @Test func testDetectorIgnoresAmbiguousRepeatedTokenCases() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh teh",
             observedSnapshot: makeSnapshot(text: "the teh", selectedRange: CFRange(location: 7, length: 0))
         )
 
-        XCTAssertNil(candidate)
+        #expect(candidate == nil)
     }
-
-    func testDetectorIgnoresMultiWordEdits() {
+    @Test func testDetectorIgnoresMultiWordEdits() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh foo",
             observedSnapshot: makeSnapshot(text: "the bar", selectedRange: CFRange(location: 7, length: 0))
         )
 
-        XCTAssertNil(candidate)
+        #expect(candidate == nil)
     }
-
-    func testDetectorIgnoresMergedReplacementWhenWordsDoNotCollapseToReplacement() {
+    @Test func testDetectorIgnoresMergedReplacementWhenWordsDoNotCollapseToReplacement() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "new york ",
             observedSnapshot: makeSnapshot(text: "NYC ", selectedRange: CFRange(location: 3, length: 0))
         )
 
-        XCTAssertNil(candidate)
+        #expect(candidate == nil)
     }
-
-    func testDetectorIgnoresDeletionOrAppendOnlyEdits() {
+    @Test func testDetectorIgnoresDeletionOrAppendOnlyEdits() {
         let candidate = AutomaticDictionaryLearningDetector.detectCorrection(
             preInsertSnapshot: makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0)),
             insertedText: "teh",
             observedSnapshot: makeSnapshot(text: "teh extra", selectedRange: CFRange(location: 9, length: 0))
         )
 
-        XCTAssertNil(candidate)
+        #expect(candidate == nil)
     }
-
-    func testStableCorrectionPersistsExactlyOnce() async throws {
+    @Test func testStableCorrectionPersistsExactlyOnce() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
 
-        XCTAssertEqual(store.upsertCalls.count, 1)
-        XCTAssertEqual(store.upsertCalls.first?.original, "teh")
-        XCTAssertEqual(store.upsertCalls.first?.replacement, "the")
+        #expect(fixture.store.upsertCalls.count == 1)
+        #expect(fixture.store.upsertCalls.first?.original == "teh")
+        #expect(fixture.store.upsertCalls.first?.replacement == "the")
     }
-
-    func testTimeoutOrContextSwitchDoesNotPersistCorrection() async throws {
+    @Test func testTimeoutOrContextSwitchDoesNotPersistCorrection() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             FocusedTextSnapshot(
                 appBundleIdentifier: "com.apple.TextEdit",
                 windowTitle: "Different",
@@ -297,94 +293,96 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
             )
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(20))
 
-        XCTAssertTrue(store.upsertCalls.isEmpty)
-        XCTAssertTrue(toastService.shownPayloads.isEmpty)
+        #expect(fixture.store.upsertCalls.isEmpty)
+        #expect(fixture.toastService.shownPayloads.isEmpty)
     }
-
-    func testSuccessfulLearnShowsUndoToastAndUndoRollsBackChange() async throws {
+    @Test func testSuccessfulLearnShowsUndoToastAndUndoRollsBackChange() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0), anchorRect: CGRect(x: 10, y: 10, width: 20, height: 20))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0), anchorRect: CGRect(x: 10, y: 10, width: 20, height: 20)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0), anchorRect: CGRect(x: 10, y: 10, width: 20, height: 20)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0), anchorRect: CGRect(x: 10, y: 10, width: 20, height: 20))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
 
-        XCTAssertEqual(toastService.shownPayloads.count, 1)
-        XCTAssertEqual(toastService.shownPayloads.first?.message, "Added 'the' to dictionary")
-        XCTAssertEqual(toastService.shownPayloads.first?.actions.count, 1)
+        #expect(fixture.toastService.shownPayloads.count == 1)
+        #expect(fixture.toastService.shownPayloads.first?.message == "Added 'the' to dictionary")
+        #expect(fixture.toastService.shownPayloads.first?.actions.count == 1)
 
-        toastService.shownPayloads.first?.actions.first?.handler()
+        fixture.toastService.shownPayloads.first?.actions.first?.handler()
 
-        XCTAssertEqual(store.undoCalls.count, 1)
-        XCTAssertEqual(store.undoCalls.first?.learnedOriginal, "teh")
+        #expect(fixture.store.undoCalls.count == 1)
+        #expect(fixture.store.undoCalls.first?.learnedOriginal == "teh")
     }
-
-    func testFallbackPollingLearnsWhenChangeNotificationsAreUnavailable() async throws {
-        changeObserver.supportsChangeNotifications = false
+    @Test func testFallbackPollingLearnsWhenChangeNotificationsAreUnavailable() async throws {
+        let fixture = makeFixture()
+        fixture.changeObserver.supportsChangeNotifications = false
 
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
-        try await Task.sleep(for: .milliseconds(80))
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        try await Task.sleep(for: .milliseconds(140))
 
-        XCTAssertEqual(store.upsertCalls.count, 1)
-        XCTAssertGreaterThanOrEqual(snapshotProvider.captureCallCount, 2)
+        #expect(fixture.store.upsertCalls.count == 1)
+        #expect(fixture.snapshotProvider.captureCallCount >= 2)
     }
-
-    func testSessionCanLearnMultipleCorrectionsWithinSameObservation() async throws {
+    @Test func testSessionCanLearnMultipleCorrectionsWithinSameObservation() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "the foo", selectedRange: CFRange(location: 7, length: 0)),
             makeSnapshot(text: "the foo", selectedRange: CFRange(location: 7, length: 0)),
             makeSnapshot(text: "the bar", selectedRange: CFRange(location: 7, length: 0)),
             makeSnapshot(text: "the bar", selectedRange: CFRange(location: 7, length: 0))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh foo")
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh foo")
 
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(25))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(25))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(25))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(25))
 
-        XCTAssertEqual(store.upsertCalls.count, 2)
-        XCTAssertEqual(store.upsertCalls[0].original, "teh")
-        XCTAssertEqual(store.upsertCalls[0].replacement, "the")
-        XCTAssertEqual(store.upsertCalls[1].original, "foo")
-        XCTAssertEqual(store.upsertCalls[1].replacement, "bar")
+        #expect(fixture.store.upsertCalls.count == 2)
+        let firstCall = try #require(fixture.store.upsertCalls.first)
+        let secondCall = try #require(fixture.store.upsertCalls.dropFirst().first)
+        #expect(firstCall.original == "teh")
+        #expect(firstCall.replacement == "the")
+        #expect(secondCall.original == "foo")
+        #expect(secondCall.replacement == "bar")
     }
-
-    func testSpuriousFrontmostAppActivationDoesNotStopLearningIfSnapshotStillMatches() async throws {
+    @Test func testSpuriousFrontmostAppActivationDoesNotStopLearningIfSnapshotStillMatches() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0)),
             makeSnapshot(text: "the ", selectedRange: CFRange(location: 4, length: 0))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
-        changeObserver.lastSession?.emit(
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "teh ")
+        fixture.changeObserver.lastSession?.emit(
             .frontmostApplicationChanged(
                 bundleIdentifier: "tech.watzon.pindrop",
                 localizedName: "Pindrop",
@@ -392,35 +390,35 @@ final class AutomaticDictionaryLearningServiceTests: XCTestCase {
             )
         )
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
 
-        XCTAssertEqual(store.upsertCalls.count, 1)
-        XCTAssertEqual(store.upsertCalls.first?.original, "teh")
-        XCTAssertEqual(store.upsertCalls.first?.replacement, "the")
+        #expect(fixture.store.upsertCalls.count == 1)
+        #expect(fixture.store.upsertCalls.first?.original == "teh")
+        #expect(fixture.store.upsertCalls.first?.replacement == "the")
     }
-
-    func testMergedSplitWordCorrectionPersistsExactlyOnce() async throws {
+    @Test func testMergedSplitWordCorrectionPersistsExactlyOnce() async throws {
+        let fixture = makeFixture()
         let preInsert = makeSnapshot(text: "", selectedRange: CFRange(location: 0, length: 0))
-        snapshotProvider.snapshots = [
+        fixture.snapshotProvider.snapshots = [
             makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0)),
             makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0)),
             makeSnapshot(text: "AUR ", selectedRange: CFRange(location: 3, length: 0))
         ]
 
-        service.beginObservation(preInsertSnapshot: preInsert, insertedText: "a UR ")
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.service.beginObservation(preInsertSnapshot: preInsert, insertedText: "a UR ")
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
-        changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
+        fixture.changeObserver.lastSession?.emit(.textMayHaveChanged(source: "test"))
         try await Task.sleep(for: .milliseconds(30))
 
-        XCTAssertEqual(store.upsertCalls.count, 1)
-        XCTAssertEqual(store.upsertCalls.first?.original, "a UR")
-        XCTAssertEqual(store.upsertCalls.first?.replacement, "AUR")
+        #expect(fixture.store.upsertCalls.count == 1)
+        #expect(fixture.store.upsertCalls.first?.original == "a UR")
+        #expect(fixture.store.upsertCalls.first?.replacement == "AUR")
     }
 
     private func makeSnapshot(

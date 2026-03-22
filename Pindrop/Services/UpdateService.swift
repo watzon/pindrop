@@ -7,18 +7,55 @@
 
 import Foundation
 import Sparkle
-import os.log
+
+@MainActor
+protocol UpdateControlling: AnyObject {
+    var automaticallyChecksForUpdates: Bool { get set }
+    var canCheckForUpdates: Bool { get }
+    var lastUpdateCheckDate: Date? { get }
+    func checkForUpdates()
+    func checkForUpdatesInBackground()
+}
+
+@MainActor
+final class SparkleUpdateController: UpdateControlling {
+    private let controller: SPUStandardUpdaterController
+
+    init() {
+        controller = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
+
+    var automaticallyChecksForUpdates: Bool {
+        get { controller.updater.automaticallyChecksForUpdates }
+        set { controller.updater.automaticallyChecksForUpdates = newValue }
+    }
+
+    var canCheckForUpdates: Bool {
+        controller.updater.canCheckForUpdates
+    }
+
+    var lastUpdateCheckDate: Date? {
+        controller.updater.lastUpdateCheckDate
+    }
+
+    func checkForUpdates() {
+        controller.checkForUpdates(nil)
+    }
+
+    func checkForUpdatesInBackground() {
+        controller.updater.checkForUpdatesInBackground()
+    }
+}
 
 /// Service for managing OTA updates via Sparkle framework.
 /// Wraps SPUStandardUpdaterController for programmatic update control.
 @MainActor
 @Observable
 class UpdateService: NSObject {
-
-    private static var isRunningTests: Bool {
-        ProcessInfo.processInfo.environment["PINDROP_TEST_MODE"] == "1"
-            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-    }
     
     // MARK: - Types
     
@@ -51,47 +88,55 @@ class UpdateService: NSObject {
     private(set) var state: State = .idle
     private(set) var error: Error?
     
-    /// The Sparkle updater controller that manages update checks and UI
-    private var updaterController: SPUStandardUpdaterController?
+    private let timeoutScheduler: TaskScheduling
+    private let checkTimeout: TimeInterval
+    private var resetStateTask: ScheduledTask?
+    private var updateController: UpdateControlling?
     
     /// Whether Sparkle is configured to automatically check for updates
     var automaticallyChecksForUpdates: Bool {
         get {
-            updaterController?.updater.automaticallyChecksForUpdates ?? false
+            updateController?.automaticallyChecksForUpdates ?? false
         }
         set {
-            updaterController?.updater.automaticallyChecksForUpdates = newValue
+            updateController?.automaticallyChecksForUpdates = newValue
             Log.app.info("Automatic update checks \(newValue ? "enabled" : "disabled")")
         }
     }
     
     /// Whether an update check can currently be performed
     var canCheckForUpdates: Bool {
-        updaterController?.updater.canCheckForUpdates ?? false
+        updateController?.canCheckForUpdates ?? false
     }
     
     /// The last time an update check was performed
     var lastUpdateCheckDate: Date? {
-        updaterController?.updater.lastUpdateCheckDate
+        updateController?.lastUpdateCheckDate
     }
     
     // MARK: - Initialization
     
-    override init() {
+    init(
+        updateController: UpdateControlling? = nil,
+        timeoutScheduler: TaskScheduling = DefaultTaskScheduler(),
+        checkTimeout: TimeInterval = 3.0
+    ) {
+        self.timeoutScheduler = timeoutScheduler
+        self.checkTimeout = checkTimeout
         super.init()
 
-        if Self.isRunningTests {
-            updaterController = nil
+        self.updateController = updateController ?? Self.makeDefaultController()
+
+        if self.updateController == nil {
             Log.app.debug("UpdateService initialized in test mode (Sparkle disabled)")
         } else {
-            updaterController = SPUStandardUpdaterController(
-                startingUpdater: true,
-                updaterDelegate: nil,
-                userDriverDelegate: nil
-            )
-
             Log.app.info("UpdateService initialized with Sparkle")
         }
+    }
+
+    private static func makeDefaultController() -> UpdateControlling? {
+        guard !AppTestMode.isRunningAnyTests else { return nil }
+        return SparkleUpdateController()
     }
     
     // MARK: - Public Methods
@@ -112,25 +157,27 @@ class UpdateService: NSObject {
     /// Manually trigger an update check.
     /// This will show Sparkle's standard update UI if an update is available.
     func checkForUpdates() {
-        guard let controller = updaterController else {
+        guard let controller = updateController else {
             Log.app.error("Cannot check for updates: updater not initialized")
             error = UpdateError.updaterNotInitialized
             state = .error
             return
         }
         
-        guard controller.updater.canCheckForUpdates else {
+        guard controller.canCheckForUpdates else {
             Log.app.warning("Cannot check for updates: check already in progress or not allowed")
             return
         }
         
         Log.app.info("Checking for updates...")
+        error = nil
         state = .checking
+        resetStateTask?.cancel()
         
-        controller.checkForUpdates(nil)
-        
-        Task {
-            try? await Task.sleep(for: .seconds(3))
+        controller.checkForUpdates()
+
+        resetStateTask = timeoutScheduler.schedule(after: checkTimeout) { [weak self] in
+            guard let self else { return }
             if state == .checking {
                 state = .idle
             }
@@ -139,17 +186,17 @@ class UpdateService: NSObject {
     
     /// Check for updates in background without showing UI unless an update is found.
     func checkForUpdatesInBackground() {
-        guard let controller = updaterController else {
+        guard let controller = updateController else {
             Log.app.error("Cannot check for updates: updater not initialized")
             return
         }
         
-        guard controller.updater.canCheckForUpdates else {
+        guard controller.canCheckForUpdates else {
             Log.app.debug("Background update check skipped: not allowed at this time")
             return
         }
         
         Log.app.info("Checking for updates in background...")
-        controller.updater.checkForUpdatesInBackground()
+        controller.checkForUpdatesInBackground()
     }
 }

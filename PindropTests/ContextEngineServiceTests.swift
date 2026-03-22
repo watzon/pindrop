@@ -6,34 +6,24 @@
 //
 
 import ApplicationServices
-import XCTest
+import Foundation
+import Testing
 
 @testable import Pindrop
 
 // MARK: - Mock AX Provider
 
-/// Mock implementation of AXProviderProtocol for testing.
-/// All behavior is configurable — no real AX calls are made.
 final class MockAXProvider: AXProviderProtocol, @unchecked Sendable {
-
-    // MARK: - Configurable State
-
     var isTrusted: Bool = true
     var frontmostAppElement: AXUIElement?
     var frontmostPID: pid_t?
 
-    /// Map of (attribute, element-hash) → String value.
-    /// Uses the element's CFHash as the key component.
     private var stringAttributes: [String: String] = [:]
-
-    /// Map of (attribute, element-hash) → AXUIElement value.
     private var elementAttributes: [String: AXUIElement] = [:]
     private var pointAttributes: [String: CGPoint] = [:]
     private var sizeAttributes: [String: CGSize] = [:]
     private var rangeAttributes: [String: CFRange] = [:]
     private var rectForRangeAttributes: [String: CGRect] = [:]
-
-    // MARK: - Protocol Implementation
 
     func isProcessTrusted() -> Bool {
         isTrusted
@@ -44,180 +34,128 @@ final class MockAXProvider: AXProviderProtocol, @unchecked Sendable {
     }
 
     func stringAttribute(_ attribute: String, of element: AXUIElement) -> String? {
-        let key = "\(attribute):\(CFHash(element))"
-        return stringAttributes[key]
+        stringAttributes["\(attribute):\(CFHash(element))"]
     }
 
     func elementAttribute(_ attribute: String, of element: AXUIElement) -> AXUIElement? {
-        let key = "\(attribute):\(CFHash(element))"
-        return elementAttributes[key]
+        elementAttributes["\(attribute):\(CFHash(element))"]
     }
 
     func pointAttribute(_ attribute: String, of element: AXUIElement) -> CGPoint? {
-        let key = "\(attribute):\(CFHash(element))"
-        return pointAttributes[key]
+        pointAttributes["\(attribute):\(CFHash(element))"]
     }
 
     func sizeAttribute(_ attribute: String, of element: AXUIElement) -> CGSize? {
-        let key = "\(attribute):\(CFHash(element))"
-        return sizeAttributes[key]
+        sizeAttributes["\(attribute):\(CFHash(element))"]
     }
 
     func rangeAttribute(_ attribute: String, of element: AXUIElement) -> CFRange? {
-        let key = "\(attribute):\(CFHash(element))"
-        return rangeAttributes[key]
+        rangeAttributes["\(attribute):\(CFHash(element))"]
     }
 
     func rectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement) -> CGRect? {
-        let key = "\(attribute):\(range.location):\(range.length):\(CFHash(element))"
-        return rectForRangeAttributes[key]
+        rectForRangeAttributes["\(attribute):\(range.location):\(range.length):\(CFHash(element))"]
     }
 
     func frontmostAppPID() -> pid_t? {
         frontmostPID
     }
 
-    // MARK: - Test Helpers
-
-    /// Register a string attribute return value for a specific element.
     func setStringAttribute(_ attribute: String, of element: AXUIElement, value: String) {
-        let key = "\(attribute):\(CFHash(element))"
-        stringAttributes[key] = value
+        stringAttributes["\(attribute):\(CFHash(element))"] = value
     }
 
-    /// Register an element attribute return value for a specific element.
     func setElementAttribute(_ attribute: String, of element: AXUIElement, value: AXUIElement) {
-        let key = "\(attribute):\(CFHash(element))"
-        elementAttributes[key] = value
+        elementAttributes["\(attribute):\(CFHash(element))"] = value
     }
 
     func setPointAttribute(_ attribute: String, of element: AXUIElement, value: CGPoint) {
-        let key = "\(attribute):\(CFHash(element))"
-        pointAttributes[key] = value
+        pointAttributes["\(attribute):\(CFHash(element))"] = value
     }
 
     func setSizeAttribute(_ attribute: String, of element: AXUIElement, value: CGSize) {
-        let key = "\(attribute):\(CFHash(element))"
-        sizeAttributes[key] = value
+        sizeAttributes["\(attribute):\(CFHash(element))"] = value
     }
 
     func setRangeAttribute(_ attribute: String, of element: AXUIElement, value: CFRange) {
-        let key = "\(attribute):\(CFHash(element))"
-        rangeAttributes[key] = value
+        rangeAttributes["\(attribute):\(CFHash(element))"] = value
     }
 
     func setRectForRangeAttribute(_ attribute: String, range: CFRange, of element: AXUIElement, value: CGRect) {
-        let key = "\(attribute):\(range.location):\(range.length):\(CFHash(element))"
-        rectForRangeAttributes[key] = value
+        rectForRangeAttributes["\(attribute):\(range.location):\(range.length):\(CFHash(element))"] = value
     }
 }
 
-// MARK: - Tests
-
 @MainActor
-final class ContextEngineServiceTests: XCTestCase {
-
-    var sut: ContextEngineService!
-    var mockAXProvider: MockAXProvider!
-
-    // Synthetic AXUIElements for testing (created via AXUIElementCreateApplication with fake PIDs)
-    var fakeAppElement: AXUIElement!
-    var fakeFocusedWindow: AXUIElement!
-    var fakeFocusedElement: AXUIElement!
-
-    override func setUp() async throws {
-        mockAXProvider = MockAXProvider()
-
-        // Create synthetic AXUIElements using different fake PIDs
-        fakeAppElement = AXUIElementCreateApplication(99990)
-        fakeFocusedWindow = AXUIElementCreateApplication(99991)
-        fakeFocusedElement = AXUIElementCreateApplication(99992)
+@Suite
+struct ContextEngineServiceTests {
+    private func makeSUT() -> (
+        sut: ContextEngineService,
+        mockAXProvider: MockAXProvider,
+        fakeAppElement: AXUIElement,
+        fakeFocusedWindow: AXUIElement,
+        fakeFocusedElement: AXUIElement
+    ) {
+        let mockAXProvider = MockAXProvider()
+        let fakeAppElement = AXUIElementCreateApplication(99990)
+        let fakeFocusedWindow = AXUIElementCreateApplication(99991)
+        let fakeFocusedElement = AXUIElementCreateApplication(99992)
 
         mockAXProvider.frontmostAppElement = fakeAppElement
         mockAXProvider.frontmostPID = 99990
 
-        sut = ContextEngineService(axProvider: mockAXProvider)
-    }
-
-    override func tearDown() async throws {
-        sut = nil
-        mockAXProvider = nil
-        fakeAppElement = nil
-        fakeFocusedWindow = nil
-        fakeFocusedElement = nil
-    }
-
-    // MARK: - Required Verification Tests
-
-    /// Verifies that when AX is trusted and data is available, the service returns
-    /// a populated AppContextInfo with focused element metadata and no warnings.
-    func testCaptureWithTrustedAXReturnsFocusedMetadata() {
-        // Configure: AX trusted, app element returns window, window has title,
-        // focused element has role + value + selected text
-        mockAXProvider.isTrusted = true
-
-        // App title
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "TestApp")
-
-        // Focused window
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeFocusedWindow, value: "Untitled Document")
-
-        // Focused UI element
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fakeFocusedElement, value: "AXTextArea")
-        mockAXProvider.setStringAttribute(
-            kAXValueAttribute, of: fakeFocusedElement, value: "Hello World")
-        mockAXProvider.setStringAttribute(
-            kAXSelectedTextAttribute, of: fakeFocusedElement, value: "World")
-
-        // Act
-        let result = sut.captureAppContext()
-
-        // Assert: we get back an AppContextInfo with our data
-        XCTAssertNotNil(result.appContext, "AppContext should not be nil when AX is trusted")
-        XCTAssertTrue(result.warnings.isEmpty, "No warnings expected for fully trusted capture")
-
-        let ctx = result.appContext!
-        XCTAssertEqual(ctx.windowTitle, "Untitled Document")
-        XCTAssertEqual(ctx.focusedElementRole, "AXTextArea")
-        XCTAssertEqual(ctx.focusedElementValue, "Hello World")
-        XCTAssertEqual(ctx.selectedText, "World")
-    }
-
-    /// Verifies that when AX permission is denied, the service returns a partial
-    /// snapshot with appropriate warnings instead of blocking or throwing.
-    func testCaptureWhenAXDeniedReturnsNonBlockingPartialSnapshot() {
-        // Configure: AX NOT trusted
-        mockAXProvider.isTrusted = false
-
-        // Act
-        let result = sut.captureAppContext()
-
-        // Assert: warnings include permission denied + partial capture
-        XCTAssertTrue(
-            result.warnings.contains(.accessibilityPermissionDenied),
-            "Should include accessibilityPermissionDenied warning"
+        return (
+            ContextEngineService(axProvider: mockAXProvider),
+            mockAXProvider,
+            fakeAppElement,
+            fakeFocusedWindow,
+            fakeFocusedElement
         )
-
-        // The method should NOT throw or block
-        // App context may be nil (no NSWorkspace.frontmostApplication in test) or partial
-        // Either way, we should not crash and should have warnings
-        XCTAssertFalse(result.warnings.isEmpty, "Should have at least one warning")
     }
 
-    func testCaptureSnapshotIncludesClipboardText() {
-        mockAXProvider.isTrusted = false
+    @Test func captureWithTrustedAXReturnsFocusedMetadata() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "TestApp")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeFocusedWindow, value: "Untitled Document")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fixture.fakeFocusedElement, value: "AXTextArea")
+        fixture.mockAXProvider.setStringAttribute(kAXValueAttribute, of: fixture.fakeFocusedElement, value: "Hello World")
+        fixture.mockAXProvider.setStringAttribute(kAXSelectedTextAttribute, of: fixture.fakeFocusedElement, value: "World")
 
-        let snapshot = sut.captureSnapshot(clipboardText: "clipboard context")
+        let result = fixture.sut.captureAppContext()
+        let ctx = try #require(result.appContext)
 
-        XCTAssertEqual(snapshot.clipboardText, "clipboard context")
-        XCTAssertTrue(snapshot.warnings.contains(.accessibilityPermissionDenied))
+        #expect(result.warnings.isEmpty)
+        #expect(ctx.windowTitle == "Untitled Document")
+        #expect(ctx.focusedElementRole == "AXTextArea")
+        #expect(ctx.focusedElementValue == "Hello World")
+        #expect(ctx.selectedText == "World")
     }
 
-    func testDeriveRuntimeStateReadyForDetailedCodeContext() {
+    @Test func captureWhenAXDeniedReturnsNonBlockingPartialSnapshot() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = false
+
+        let result = fixture.sut.captureAppContext()
+
+        #expect(result.warnings.contains(.accessibilityPermissionDenied))
+        #expect(result.warnings.isEmpty == false)
+    }
+
+    @Test func captureSnapshotIncludesClipboardText() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = false
+
+        let snapshot = fixture.sut.captureSnapshot(clipboardText: "clipboard context")
+
+        #expect(snapshot.clipboardText == "clipboard context")
+        #expect(snapshot.warnings.contains(.accessibilityPermissionDenied))
+    }
+
+    @Test func deriveRuntimeStateReadyForDetailedCodeContext() {
+        let fixture = makeSUT()
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -234,15 +172,16 @@ final class ContextEngineServiceTests: XCTestCase {
             warnings: []
         )
 
-        let runtimeState = sut.deriveRuntimeState(
+        let runtimeState = fixture.sut.deriveRuntimeState(
             for: snapshot,
             adapterCapabilities: CursorAdapter().capabilities
         )
 
-        XCTAssertEqual(runtimeState, .ready)
+        #expect(runtimeState == .ready)
     }
 
-    func testDeriveRuntimeStateLimitedWhenPermissionDeniedButClipboardPresent() {
+    @Test func deriveRuntimeStateLimitedWhenPermissionDeniedButClipboardPresent() {
+        let fixture = makeSUT()
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: nil,
@@ -250,125 +189,87 @@ final class ContextEngineServiceTests: XCTestCase {
             warnings: [.accessibilityPermissionDenied]
         )
 
-        let runtimeState = sut.deriveRuntimeState(
-            for: snapshot,
-            adapterCapabilities: nil
-        )
-
-        XCTAssertEqual(runtimeState, .limited)
+        let runtimeState = fixture.sut.deriveRuntimeState(for: snapshot, adapterCapabilities: nil)
+        #expect(runtimeState == .limited)
     }
 
-    func testCaptureFocusedTextSnapshotReturnsTextRangeAndAnchorRect() {
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute,
-            of: fakeAppElement,
-            value: fakeFocusedElement
-        )
-        mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fakeFocusedElement, value: "AXTextArea")
-        mockAXProvider.setStringAttribute(kAXValueAttribute, of: fakeFocusedElement, value: "hello world")
-        mockAXProvider.setRangeAttribute(
-            kAXSelectedTextRangeAttribute,
-            of: fakeFocusedElement,
-            value: CFRange(location: 6, length: 5)
-        )
-        mockAXProvider.setRectForRangeAttribute(
+    @Test func captureFocusedTextSnapshotReturnsTextRangeAndAnchorRect() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fixture.fakeFocusedElement, value: "AXTextArea")
+        fixture.mockAXProvider.setStringAttribute(kAXValueAttribute, of: fixture.fakeFocusedElement, value: "hello world")
+        fixture.mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fixture.fakeFocusedElement, value: CFRange(location: 6, length: 5))
+        fixture.mockAXProvider.setRectForRangeAttribute(
             kAXBoundsForRangeParameterizedAttribute,
             range: CFRange(location: 6, length: 5),
-            of: fakeFocusedElement,
+            of: fixture.fakeFocusedElement,
             value: CGRect(x: 100, y: 200, width: 50, height: 20)
         )
 
-        let snapshot = sut.captureFocusedTextSnapshot()
-
-        XCTAssertNotNil(snapshot)
-        XCTAssertEqual(snapshot?.text, "hello world")
-        XCTAssertEqual(snapshot?.selectedRange.location, 6)
-        XCTAssertEqual(snapshot?.selectedRange.length, 5)
-        XCTAssertEqual(snapshot?.anchorRect, CGRect(x: 100, y: 200, width: 50, height: 20))
+        let snapshot = try #require(fixture.sut.captureFocusedTextSnapshot())
+        #expect(snapshot.text == "hello world")
+        #expect(snapshot.selectedRange.location == 6)
+        #expect(snapshot.selectedRange.length == 5)
+        #expect(snapshot.anchorRect == CGRect(x: 100, y: 200, width: 50, height: 20))
     }
 
-    func testCaptureFocusedElementAnchorRectPrefersSelectedRangeBounds() {
+    @Test func captureFocusedElementAnchorRectPrefersSelectedRangeBounds() {
+        let fixture = makeSUT()
         let range = CFRange(location: 12, length: 0)
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fakeFocusedElement, value: range)
-        mockAXProvider.setRectForRangeAttribute(
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fixture.fakeFocusedElement, value: range)
+        fixture.mockAXProvider.setRectForRangeAttribute(
             kAXBoundsForRangeParameterizedAttribute,
             range: range,
-            of: fakeFocusedElement,
+            of: fixture.fakeFocusedElement,
             value: CGRect(x: 320, y: 480, width: 2, height: 18)
         )
 
-        let rect = sut.captureFocusedElementAnchorRect()
-
-        XCTAssertEqual(rect, CGRect(x: 320, y: 480, width: 2, height: 18))
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        #expect(rect == CGRect(x: 320, y: 480, width: 2, height: 18))
     }
 
-    func testCaptureFocusedElementAnchorRectFallsBackToFocusedElementFrame() {
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fakeFocusedElement, value: CGPoint(x: 200, y: 300))
-        mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fakeFocusedElement, value: CGSize(width: 420, height: 36))
+    @Test func captureFocusedElementAnchorRectFallsBackToFocusedElementFrame() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedElement, value: CGPoint(x: 200, y: 300))
+        fixture.mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedElement, value: CGSize(width: 420, height: 36))
 
-        let rect = sut.captureFocusedElementAnchorRect()
-
-        XCTAssertEqual(rect, CGRect(x: 200, y: 300, width: 420, height: 36))
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        #expect(rect == CGRect(x: 200, y: 300, width: 420, height: 36))
     }
 
+    @Test func secureFieldRoleSkipsValueCapture() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Login")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fixture.fakeFocusedElement, value: "AXSecureTextField")
+        fixture.mockAXProvider.setStringAttribute(kAXValueAttribute, of: fixture.fakeFocusedElement, value: "SuperSecret123")
+        fixture.mockAXProvider.setStringAttribute(kAXSelectedTextAttribute, of: fixture.fakeFocusedElement, value: "Secret")
 
-    // MARK: - Secure Field Tests
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
 
-    /// Verifies that secure text fields (AXSecureTextField role) have their values skipped.
-    func testSecureFieldRoleSkipsValueCapture() {
-        mockAXProvider.isTrusted = true
-
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Login")
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        mockAXProvider.setStringAttribute(
-            kAXRoleAttribute, of: fakeFocusedElement, value: "AXSecureTextField")
-        mockAXProvider.setStringAttribute(
-            kAXValueAttribute, of: fakeFocusedElement, value: "SuperSecret123")
-        mockAXProvider.setStringAttribute(
-            kAXSelectedTextAttribute, of: fakeFocusedElement, value: "Secret")
-
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(result.appContext?.focusedElementRole, "AXSecureTextField")
-        XCTAssertNil(
-            result.appContext?.focusedElementValue,
-            "Secure field value must NOT be captured")
-        XCTAssertNil(
-            result.appContext?.selectedText,
-            "Selected text in secure field must NOT be captured")
+        #expect(appContext.focusedElementRole == "AXSecureTextField")
+        #expect(appContext.focusedElementValue == nil)
+        #expect(appContext.selectedText == nil)
     }
 
-    /// Verifies that secure text fields identified by subrole also have values skipped.
-    func testSecureFieldSubroleSkipsValueCapture() {
-        mockAXProvider.isTrusted = true
+    @Test func secureFieldSubroleSkipsValueCapture() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Login")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setStringAttribute(kAXRoleAttribute, of: fixture.fakeFocusedElement, value: "AXTextField")
+        fixture.mockAXProvider.setStringAttribute(kAXSubroleAttribute, of: fixture.fakeFocusedElement, value: "AXSecureTextField")
+        fixture.mockAXProvider.setStringAttribute(kAXValueAttribute, of: fixture.fakeFocusedElement, value: "password123")
 
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Login")
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        mockAXProvider.setStringAttribute(
-            kAXRoleAttribute, of: fakeFocusedElement, value: "AXTextField")
-        mockAXProvider.setStringAttribute(
-            kAXSubroleAttribute, of: fakeFocusedElement, value: "AXSecureTextField")
-        mockAXProvider.setStringAttribute(
-            kAXValueAttribute, of: fakeFocusedElement, value: "password123")
-
-        let result = sut.captureAppContext()
-
-        XCTAssertNil(
-            result.appContext?.focusedElementValue,
-            "Secure subrole field value must NOT be captured")
+        let result = fixture.sut.captureAppContext()
+        #expect(result.appContext?.focusedElementValue == nil)
     }
 
-    // MARK: - Sanitization Tests
-
-    /// Verifies that text values are truncated when they exceed max length.
-    func testSanitizeAndTruncateLongText() {
+    @Test func sanitizeAndTruncateLongText() throws {
         let longText = String(repeating: "a", count: 3000)
         let result = ContextEngineService.sanitizeAndTruncate(
             longText,
@@ -376,257 +277,178 @@ final class ContextEngineServiceTests: XCTestCase {
             fieldName: "test"
         )
 
-        XCTAssertNotNil(result)
-        // maxAXFieldLength (2048) + "…[truncated]" (12 chars)
-        XCTAssertEqual(result!.count, ContextEngineService.maxAXFieldLength + "…[truncated]".count)
-        XCTAssertTrue(result!.hasSuffix("…[truncated]"))
+        let truncated = try #require(result)
+        #expect(truncated.count == ContextEngineService.maxAXFieldLength + "...[truncated]".count || truncated.count == ContextEngineService.maxAXFieldLength + "…[truncated]".count)
+        #expect(truncated.hasSuffix("…[truncated]"))
     }
 
-    /// Verifies that whitespace-only strings become nil.
-    func testSanitizeAndTruncateWhitespaceReturnsNil() {
-        let result = ContextEngineService.sanitizeAndTruncate(
-            "   \n\t  ",
-            maxLength: 100,
-            fieldName: "test"
-        )
-        XCTAssertNil(result, "Whitespace-only strings should return nil")
+    @Test func sanitizeAndTruncateWhitespaceReturnsNil() {
+        let result = ContextEngineService.sanitizeAndTruncate("   \n\t  ", maxLength: 100, fieldName: "test")
+        #expect(result == nil)
     }
 
-    /// Verifies that nil input returns nil.
-    func testSanitizeAndTruncateNilReturnsNil() {
+    @Test func sanitizeAndTruncateNilReturnsNil() {
         let result = ContextEngineService.sanitizeAndTruncate(nil, maxLength: 100, fieldName: "test")
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
-    /// Verifies that short text passes through with trimming only.
-    func testSanitizeAndTruncateShortTextPassesThrough() {
-        let result = ContextEngineService.sanitizeAndTruncate(
-            "  hello  ", maxLength: 100, fieldName: "test")
-        XCTAssertEqual(result, "hello")
+    @Test func sanitizeAndTruncateShortTextPassesThrough() {
+        let result = ContextEngineService.sanitizeAndTruncate("  hello  ", maxLength: 100, fieldName: "test")
+        #expect(result == "hello")
     }
 
-    // MARK: - Home Path Redaction Tests
-
-    func testRedactHomePath() {
+    @Test func redactHomePath() {
         let home = NSHomeDirectory()
         let path = "\(home)/Projects/myfile.swift"
         let result = ContextEngineService.redactHomePath(path)
-        XCTAssertEqual(result, "~/Projects/myfile.swift")
+        #expect(result == "~/Projects/myfile.swift")
     }
 
-    func testRedactHomePathPreservesNonHomePaths() {
+    @Test func redactHomePathPreservesNonHomePaths() {
         let result = ContextEngineService.redactHomePath("/usr/local/bin/tool")
-        XCTAssertEqual(result, "/usr/local/bin/tool")
+        #expect(result == "/usr/local/bin/tool")
     }
 
-    func testRedactHomePathHandlesNil() {
+    @Test func redactHomePathHandlesNil() {
         let result = ContextEngineService.redactHomePath(nil)
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
-    func testRedactHomePathHandlesFileURL() {
+    @Test func redactHomePathHandlesFileURL() {
         let home = NSHomeDirectory()
         let fileURL = "file://\(home)/Documents/test.txt"
         let result = ContextEngineService.redactHomePath(fileURL)
-        XCTAssertEqual(result, "~/Documents/test.txt")
+        #expect(result == "~/Documents/test.txt")
     }
 
-    // MARK: - URL Param Redaction Tests
-
-    func testRedactSensitiveURLParams() {
+    @Test func redactSensitiveURLParams() throws {
         let url = "https://example.com/page?token=abc123&query=hello&api_key=secret"
-        let result = ContextEngineService.redactSensitiveURLParams(url)
+        let result = try #require(ContextEngineService.redactSensitiveURLParams(url))
 
-        XCTAssertNotNil(result)
-        XCTAssertTrue(result!.contains("token=REDACTED"))
-        XCTAssertTrue(result!.contains("query=hello"))
-        XCTAssertTrue(result!.contains("api_key=REDACTED"))
+        #expect(result.contains("token=REDACTED"))
+        #expect(result.contains("query=hello"))
+        #expect(result.contains("api_key=REDACTED"))
     }
 
-    func testRedactSensitiveURLParamsPreservesCleanURLs() {
+    @Test func redactSensitiveURLParamsPreservesCleanURLs() {
         let url = "https://example.com/page?search=swift&page=1"
         let result = ContextEngineService.redactSensitiveURLParams(url)
-        XCTAssertEqual(result, url)
+        #expect(result == url)
     }
 
-    func testRedactSensitiveURLParamsHandlesNil() {
+    @Test func redactSensitiveURLParamsHandlesNil() {
         let result = ContextEngineService.redactSensitiveURLParams(nil)
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
-    // MARK: - AX Data Unavailable Test
+    @Test func captureWithTrustedButNoAppElement() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.frontmostAppElement = nil
 
-    /// Verifies behavior when AX is trusted but no frontmost app element is available.
-    func testCaptureWithTrustedButNoAppElement() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.frontmostAppElement = nil
-
-        let result = sut.captureAppContext()
-
-        XCTAssertTrue(
-            result.warnings.contains(.accessibilityDataUnavailable),
-            "Should warn when AX element is unavailable"
-        )
+        let result = fixture.sut.captureAppContext()
+        #expect(result.warnings.contains(.accessibilityDataUnavailable))
     }
 
-    // MARK: - No Focused Element Test
+    @Test func captureWithNoFocusedElement() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Finder")
 
-    /// Verifies that when there's no focused element, role/value/selectedText are nil.
-    func testCaptureWithNoFocusedElement() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Finder")
-        // No focused element set
-
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertNil(result.appContext?.focusedElementRole)
-        XCTAssertNil(result.appContext?.focusedElementValue)
-        XCTAssertNil(result.appContext?.selectedText)
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.focusedElementRole == nil)
+        #expect(appContext.focusedElementValue == nil)
+        #expect(appContext.selectedText == nil)
     }
 
-    // MARK: - Document Path Test
-
-    func testCaptureDocumentPath() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Xcode")
-
-        // Set focused window with document attribute
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+    @Test func captureDocumentPath() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Xcode")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
         let home = NSHomeDirectory()
-        mockAXProvider.setStringAttribute(
-            kAXDocumentAttribute, of: fakeFocusedWindow, value: "\(home)/Projects/test.swift")
+        fixture.mockAXProvider.setStringAttribute(kAXDocumentAttribute, of: fixture.fakeFocusedWindow, value: "\(home)/Projects/test.swift")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Projects/test.swift",
-            "Document path should have home directory redacted"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Projects/test.swift")
     }
-    
-    func testCaptureDocumentPathFallsBackToFocusedElement() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Antigravity")
 
-        // No document on window or app, but focused element has one
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-        mockAXProvider.setElementAttribute(
-            kAXFocusedUIElementAttribute, of: fakeAppElement, value: fakeFocusedElement)
-        
+    @Test func captureDocumentPathFallsBackToFocusedElement() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Antigravity")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
         let home = NSHomeDirectory()
-        mockAXProvider.setStringAttribute(
-            kAXDocumentAttribute, of: fakeFocusedElement, value: "\(home)/Documents/note.txt")
+        fixture.mockAXProvider.setStringAttribute(kAXDocumentAttribute, of: fixture.fakeFocusedElement, value: "\(home)/Documents/note.txt")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Documents/note.txt",
-            "Should fall back to focused element document attribute"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Documents/note.txt")
     }
-    
-    func testCaptureDocumentPathHandlesFileURL() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
-        
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-        
+
+    @Test func captureDocumentPathHandlesFileURL() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "VSCode")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
         let home = NSHomeDirectory()
-        let fileURL = "file://\(home)/Code/main.swift"
-        mockAXProvider.setStringAttribute(
-            kAXDocumentAttribute, of: fakeFocusedWindow, value: fileURL)
+        fixture.mockAXProvider.setStringAttribute(kAXDocumentAttribute, of: fixture.fakeFocusedWindow, value: "file://\(home)/Code/main.swift")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Code/main.swift",
-            "Should handle file:// URLs and redact home"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Code/main.swift")
     }
 
-    func testCaptureDocumentPathFallsBackToRepresentedFilenameAttribute() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
-
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-
+    @Test func captureDocumentPathFallsBackToRepresentedFilenameAttribute() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "VSCode")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
         let home = NSHomeDirectory()
-        mockAXProvider.setStringAttribute(
-            "AXRepresentedFilename", of: fakeFocusedWindow, value: "\(home)/Code/README.md")
+        fixture.mockAXProvider.setStringAttribute("AXRepresentedFilename", of: fixture.fakeFocusedWindow, value: "\(home)/Code/README.md")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Code/README.md",
-            "Should capture document path from AXRepresentedFilename when AXDocument is unavailable"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Code/README.md")
     }
 
-    func testCaptureDocumentPathAcceptsFileURLFromAXURLAttribute() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "VSCode")
-
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-
+    @Test func captureDocumentPathAcceptsFileURLFromAXURLAttribute() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "VSCode")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
         let home = NSHomeDirectory()
-        let fileURL = "file://\(home)/Code/main.swift"
-        mockAXProvider.setStringAttribute(
-            kAXURLAttribute, of: fakeFocusedWindow, value: fileURL)
+        fixture.mockAXProvider.setStringAttribute(kAXURLAttribute, of: fixture.fakeFocusedWindow, value: "file://\(home)/Code/main.swift")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Code/main.swift",
-            "Should capture file:// path from AXURL when AXDocument is unavailable"
-        )
-    }
-    
-    func testCaptureDocumentPathRejectsNonFileURLs() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Browser")
-        
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
-        
-        mockAXProvider.setStringAttribute(
-            kAXDocumentAttribute, of: fakeFocusedWindow, value: "https://github.com/user/repo")
-
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertNil(
-            result.appContext?.documentPath,
-            "Non-file URLs (http, https, etc.) should be rejected"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Code/main.swift")
     }
 
-    func testCaptureDocumentPathAcceptsTildePath() {
-        mockAXProvider.isTrusted = true
-        mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fakeAppElement, value: "Ghostty")
+    @Test func captureDocumentPathRejectsNonFileURLs() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Browser")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setStringAttribute(kAXDocumentAttribute, of: fixture.fakeFocusedWindow, value: "https://github.com/user/repo")
 
-        mockAXProvider.setElementAttribute(
-            kAXFocusedWindowAttribute, of: fakeAppElement, value: fakeFocusedWindow)
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == nil)
+    }
 
-        mockAXProvider.setStringAttribute(
-            kAXDocumentAttribute, of: fakeFocusedWindow, value: "~/Projects/personal/pindrop/")
+    @Test func captureDocumentPathAcceptsTildePath() throws {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.isTrusted = true
+        fixture.mockAXProvider.setStringAttribute(kAXTitleAttribute, of: fixture.fakeAppElement, value: "Ghostty")
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setStringAttribute(kAXDocumentAttribute, of: fixture.fakeFocusedWindow, value: "~/Projects/personal/pindrop/")
 
-        let result = sut.captureAppContext()
-
-        XCTAssertNotNil(result.appContext)
-        XCTAssertEqual(
-            result.appContext?.documentPath, "~/Projects/personal/pindrop/",
-            "Tilde-based home paths should be accepted as valid document paths"
-        )
+        let result = fixture.sut.captureAppContext()
+        let appContext = try #require(result.appContext)
+        #expect(appContext.documentPath == "~/Projects/personal/pindrop/")
     }
 }

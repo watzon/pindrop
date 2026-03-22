@@ -5,33 +5,23 @@
 //  Created on 2026-01-25.
 //
 
-// XCTest may not be available to the language server in this editor environment.
-#if canImport(XCTest)
-import XCTest
-#endif
+import Foundation
+import Testing
 @testable import Pindrop
 
 @MainActor
-final class AIEnhancementServiceTests: XCTestCase {
-    
-    var service: AIEnhancementService!
-    var mockSession: MockURLSession!
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        mockSession = MockURLSession()
-        service = AIEnhancementService(session: mockSession)
-    }
-    
-    override func tearDown() async throws {
-        service = nil
-        mockSession = nil
-        try await super.tearDown()
+@Suite
+struct AIEnhancementServiceTests {
+    private func makeSUT() -> (service: AIEnhancementService, mockSession: MockURLSession) {
+        let mockSession = MockURLSession()
+        let service = AIEnhancementService(session: mockSession)
+        return (service, mockSession)
     }
     
     // MARK: - Test Enhancement with Mock API
-    
-    func testEnhanceTextWithMockAPI() async throws {
+    @Test func testEnhanceTextWithMockAPI() async throws {
+        let (service, mockSession) = makeSUT()
+
         // Given
         let inputText = "this is test text with bad grammar and no punctuation"
         let expectedEnhancedText = "This is test text with bad grammar and no punctuation."
@@ -75,20 +65,15 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
         
         // Then
-        XCTAssertEqual(result, expectedEnhancedText)
-        XCTAssertNotNil(mockSession.lastRequest)
-        XCTAssertEqual(mockSession.lastRequest?.httpMethod, "POST")
-        XCTAssertEqual(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization"),
-            "Bearer test-api-key"
-        )
-        XCTAssertEqual(
-            mockSession.lastRequest?.value(forHTTPHeaderField: "Content-Type"),
-            "application/json"
-        )
+        #expect(result == expectedEnhancedText)
+        #expect(mockSession.lastRequest != nil)
+        #expect(mockSession.lastRequest?.httpMethod == "POST")
+        #expect(mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer test-api-key")
+        #expect(mockSession.lastRequest?.value(forHTTPHeaderField: "Content-Type") == "application/json")
     }
+    @Test func testEnhanceWithoutAPIKeyOmitsAuthorizationHeader() async throws {
+        let (service, mockSession) = makeSUT()
 
-    func testEnhanceWithoutAPIKeyOmitsAuthorizationHeader() async throws {
         mockSession.mockData = """
         {
             "choices": [{
@@ -111,12 +96,13 @@ final class AIEnhancementServiceTests: XCTestCase {
             apiKey: nil
         )
 
-        XCTAssertNil(mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization"))
+        #expect(mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == nil)
     }
     
     // MARK: - Test Fallback on API Error
-    
-    func testThrowsOnAPIError() async throws {
+    @Test func testThrowsOnAPIError() async throws {
+        let (service, mockSession) = makeSUT()
+
         mockSession.mockError = URLError(.notConnectedToInternet)
         
         do {
@@ -125,13 +111,14 @@ final class AIEnhancementServiceTests: XCTestCase {
                 apiEndpoint: "https://api.openai.com/v1/chat/completions",
                 apiKey: "test-api-key"
             )
-            XCTFail("Expected error to be thrown")
+            Issue.record("Expected error to be thrown")
         } catch {
-            XCTAssertTrue(error is AIEnhancementService.EnhancementError)
+            #expect(error is AIEnhancementService.EnhancementError)
         }
     }
-    
-    func testThrowsOnHTTPError() async throws {
+    @Test func testThrowsOnHTTPError() async throws {
+        let (service, mockSession) = makeSUT()
+
         mockSession.mockData = "Error".data(using: .utf8)
         mockSession.mockResponse = HTTPURLResponse(
             url: URL(string: "https://api.openai.com/v1/chat/completions")!,
@@ -146,17 +133,18 @@ final class AIEnhancementServiceTests: XCTestCase {
                 apiEndpoint: "https://api.openai.com/v1/chat/completions",
                 apiKey: "test-api-key"
             )
-            XCTFail("Expected error to be thrown")
+            Issue.record("Expected error to be thrown")
         } catch let error as AIEnhancementService.EnhancementError {
             if case .apiError(let message) = error {
-                XCTAssertEqual(message, "HTTP 500")
+                #expect(message == "HTTP 500")
             } else {
-                XCTFail("Wrong error type")
+                Issue.record("Wrong error type")
             }
         }
     }
-    
-    func testThrowsOnInvalidJSON() async throws {
+    @Test func testThrowsOnInvalidJSON() async throws {
+        let (service, mockSession) = makeSUT()
+
         mockSession.mockData = "Invalid JSON".data(using: .utf8)
         mockSession.mockResponse = HTTPURLResponse(
             url: URL(string: "https://api.openai.com/v1/chat/completions")!,
@@ -171,15 +159,16 @@ final class AIEnhancementServiceTests: XCTestCase {
                 apiEndpoint: "https://api.openai.com/v1/chat/completions",
                 apiKey: "test-api-key"
             )
-            XCTFail("Expected error to be thrown")
+            Issue.record("Expected error to be thrown")
         } catch {
-            XCTAssertTrue(error is AIEnhancementService.EnhancementError)
+            #expect(error is AIEnhancementService.EnhancementError)
         }
     }
     
     // MARK: - Test Request Body
-    
-    func testRequestBodyFormat() async throws {
+    @Test func testRequestBodyFormat() async throws {
+        let (service, mockSession) = makeSUT()
+
         // Given
         let inputText = "test text"
         
@@ -207,34 +196,35 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
         
         // Then - verify request body structure
-        XCTAssertNotNil(mockSession.lastRequest?.httpBody)
+        #expect(mockSession.lastRequest?.httpBody != nil)
         
         if let bodyData = mockSession.lastRequest?.httpBody,
            let bodyJSON = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any] {
             
             // Current service default model is gpt-4o-mini; validate against that
-            XCTAssertEqual(bodyJSON["model"] as? String, "gpt-4o-mini")
-            XCTAssertNotNil(bodyJSON["messages"] as? [[String: Any]])
+            #expect(bodyJSON["model"] as? String == "gpt-4o-mini")
+            #expect(bodyJSON["messages"] as? [[String: Any]] != nil)
             
             if let messages = bodyJSON["messages"] as? [[String: Any]] {
-                XCTAssertEqual(messages.count, 2)
+                #expect(messages.count == 2)
                 
                 // System message
-                XCTAssertEqual(messages[0]["role"] as? String, "system")
-                XCTAssertTrue((messages[0]["content"] as? String)?.contains("grammar") ?? false)
+                #expect(messages[0]["role"] as? String == "system")
+                #expect((messages[0]["content"] as? String)?.contains("grammar") ?? false)
                 
                 // User message
-                XCTAssertEqual(messages[1]["role"] as? String, "user")
-                XCTAssertEqual(messages[1]["content"] as? String, inputText)
+                #expect(messages[1]["role"] as? String == "user")
+                #expect(messages[1]["content"] as? String == inputText)
             }
         } else {
-            XCTFail("Failed to parse request body")
+            Issue.record("Failed to parse request body")
         }
     }
     
 // MARK: - Test Empty Text
+    @Test func testEnhanceEmptyText() async throws {
+        let (service, mockSession) = makeSUT()
 
-    func testEnhanceEmptyText() async throws {
         // Given
         let inputText = ""
 
@@ -246,13 +236,12 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
 
         // Then - should return empty text without making API call
-        XCTAssertEqual(result, "")
-        XCTAssertNil(mockSession.lastRequest)
+        #expect(result == "")
+        #expect(mockSession.lastRequest == nil)
     }
 
     // MARK: - Test Message Building
-
-    func testBuildMessagesTextOnly() {
+    @Test func testBuildMessagesTextOnly() {
         // Given
         let systemPrompt = "You are helpful"
         let userContent = "Hello"
@@ -265,22 +254,21 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(messages.count, 2)
+        #expect(messages.count == 2)
 
         // System message
-        XCTAssertEqual(messages[0]["role"] as? String, "system")
+        #expect(messages[0]["role"] as? String == "system")
         let systemContent = messages[0]["content"] as? String
-        XCTAssertNotNil(systemContent)
-        XCTAssertTrue(systemContent!.contains("<enhancement_request>"))
-        XCTAssertTrue(systemContent!.contains("<instructions>"))
-        XCTAssertTrue(systemContent!.contains(systemPrompt))
+        #expect(systemContent != nil)
+        #expect(systemContent!.contains("<enhancement_request>"))
+        #expect(systemContent!.contains("<instructions>"))
+        #expect(systemContent!.contains(systemPrompt))
 
         // User message - text only format
-        XCTAssertEqual(messages[1]["role"] as? String, "user")
-        XCTAssertEqual(messages[1]["content"] as? String, userContent)
+        #expect(messages[1]["role"] as? String == "user")
+        #expect(messages[1]["content"] as? String == userContent)
     }
-
-    func testBuildMessagesWithImage() {
+    @Test func testBuildMessagesWithImage() {
         // Given
         let systemPrompt = "You are helpful"
         let userContent = "Describe this"
@@ -294,48 +282,46 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(messages.count, 2)
+        #expect(messages.count == 2)
 
         // System message
-        XCTAssertEqual(messages[0]["role"] as? String, "system")
+        #expect(messages[0]["role"] as? String == "system")
         let systemContent = messages[0]["content"] as? String
-        XCTAssertNotNil(systemContent)
-        XCTAssertTrue(systemContent!.contains("<enhancement_request>"))
-        XCTAssertTrue(systemContent!.contains(systemPrompt))
+        #expect(systemContent != nil)
+        #expect(systemContent!.contains("<enhancement_request>"))
+        #expect(systemContent!.contains(systemPrompt))
 
         // User message - vision format with content array
-        XCTAssertEqual(messages[1]["role"] as? String, "user")
+        #expect(messages[1]["role"] as? String == "user")
 
         let content = messages[1]["content"] as? [[String: Any]]
-        XCTAssertNotNil(content)
-        XCTAssertEqual(content?.count, 2)
+        #expect(content != nil)
+        #expect(content?.count == 2)
 
         // Text part
-        XCTAssertEqual(content?[0]["type"] as? String, "text")
-        XCTAssertEqual(content?[0]["text"] as? String, userContent)
+        #expect(content?[0]["type"] as? String == "text")
+        #expect(content?[0]["text"] as? String == userContent)
 
         // Image part
-        XCTAssertEqual(content?[1]["type"] as? String, "image_url")
+        #expect(content?[1]["type"] as? String == "image_url")
 
         let imageUrl = content?[1]["image_url"] as? [String: String]
-        XCTAssertNotNil(imageUrl)
-        XCTAssertEqual(imageUrl?["url"], "data:image/png;base64,\(imageBase64)")
+        #expect(imageUrl != nil)
+        #expect(imageUrl?["url"] == "data:image/png;base64,\(imageBase64)")
     }
 
     // MARK: - Test Context Metadata
-
-    func testContextMetadataImageDescription() {
+    @Test func testContextMetadataImageDescription() {
         let clipboardOnly = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: true
         )
-        XCTAssertEqual(clipboardOnly.imageDescription, "clipboard image")
+        #expect(clipboardOnly.imageDescription == "clipboard image")
 
         let none = AIEnhancementService.ContextMetadata.none
-        XCTAssertNil(none.imageDescription)
+        #expect(none.imageDescription == nil)
     }
-
-    func testBuildContextAwareSystemPromptNoContext() {
+    @Test func testBuildContextAwareSystemPromptNoContext() {
         let basePrompt = "Enhance this text"
         let context = AIEnhancementService.ContextMetadata.none
 
@@ -344,14 +330,13 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<enhancement_request>"))
-        XCTAssertTrue(result.contains("<instructions>"))
-        XCTAssertTrue(result.contains(basePrompt))
-        XCTAssertTrue(result.contains("<supplementary_context>"))
-        XCTAssertTrue(result.contains("<available>false</available>"))
+        #expect(result.contains("<enhancement_request>"))
+        #expect(result.contains("<instructions>"))
+        #expect(result.contains(basePrompt))
+        #expect(result.contains("<supplementary_context>"))
+        #expect(result.contains("<available>false</available>"))
     }
-
-    func testBuildContextAwareSystemPromptWithClipboardText() {
+    @Test func testBuildContextAwareSystemPromptWithClipboardText() {
         let basePrompt = "Enhance this text"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
@@ -365,15 +350,14 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<supplementary_context>"))
-        XCTAssertTrue(result.contains("<available>true</available>"))
-        XCTAssertTrue(result.contains("<type>clipboard_text</type>"))
-        XCTAssertTrue(result.contains("<clipboard_text>"))
-        XCTAssertTrue(result.contains("README section"))
-        XCTAssertTrue(result.contains(basePrompt))
+        #expect(result.contains("<supplementary_context>"))
+        #expect(result.contains("<available>true</available>"))
+        #expect(result.contains("<type>clipboard_text</type>"))
+        #expect(result.contains("<clipboard_text>"))
+        #expect(result.contains("README section"))
+        #expect(result.contains(basePrompt))
     }
-
-    func testBuildContextAwareSystemPromptRemovesTranscriptionPlaceholder() {
+    @Test func testBuildContextAwareSystemPromptRemovesTranscriptionPlaceholder() {
         let basePrompt = "Clean this text: ${transcription}"
 
         let result = AIEnhancementService.buildContextAwareSystemPrompt(
@@ -381,22 +365,20 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: .none
         )
 
-        XCTAssertTrue(result.contains("Clean this text:"))
-        XCTAssertFalse(result.contains("${transcription}"))
-        XCTAssertFalse(result.contains("&lt;transcription/&gt;"))
+        #expect(result.contains("Clean this text:"))
+        #expect(!(result.contains("${transcription}")))
+        #expect(!(result.contains("&lt;transcription/&gt;")))
     }
-
-    func testBuildContextAwareSystemPromptIncludesAssistantModeGuardrails() {
+    @Test func testBuildContextAwareSystemPromptIncludesAssistantModeGuardrails() {
         let result = AIEnhancementService.buildContextAwareSystemPrompt(
             basePrompt: "Clean this text",
             context: .none
         )
 
-        XCTAssertTrue(result.contains("<interpretation_rule>"))
-        XCTAssertTrue(result.contains("Never ask the user for additional text or clarification"))
+        #expect(result.contains("<interpretation_rule>"))
+        #expect(result.contains("Never ask the user for additional text or clarification"))
     }
-
-    func testBuildContextAwareSystemPromptWithClipboardImage() {
+    @Test func testBuildContextAwareSystemPromptWithClipboardImage() {
         let basePrompt = "Enhance this text"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
@@ -408,13 +390,12 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<supplementary_context>"))
-        XCTAssertTrue(result.contains("<type>clipboard_image</type>"))
-        XCTAssertTrue(result.contains("clipboard_text,clipboard_image"))
-        XCTAssertTrue(result.contains(basePrompt))
+        #expect(result.contains("<supplementary_context>"))
+        #expect(result.contains("<type>clipboard_image</type>"))
+        #expect(result.contains("clipboard_text,clipboard_image"))
+        #expect(result.contains(basePrompt))
     }
-
-    func testBuildMessagesWithContext() {
+    @Test func testBuildMessagesWithContext() {
         let systemPrompt = "You are helpful"
         let userContent = "Hello"
         let context = AIEnhancementService.ContextMetadata(
@@ -431,21 +412,20 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertEqual(messages.count, 2)
+        #expect(messages.count == 2)
 
         let systemContent = messages[0]["content"] as? String
-        XCTAssertNotNil(systemContent)
-        XCTAssertTrue(systemContent!.contains("<supplementary_context>"))
-        XCTAssertTrue(systemContent!.contains("<type>clipboard_text</type>"))
-        XCTAssertTrue(systemContent!.contains("<clipboard_text>"))
-        XCTAssertTrue(systemContent!.contains("clipboard snippet"))
-        XCTAssertTrue(systemContent!.contains(systemPrompt))
+        #expect(systemContent != nil)
+        #expect(systemContent!.contains("<supplementary_context>"))
+        #expect(systemContent!.contains("<type>clipboard_text</type>"))
+        #expect(systemContent!.contains("<clipboard_text>"))
+        #expect(systemContent!.contains("clipboard snippet"))
+        #expect(systemContent!.contains(systemPrompt))
 
-        XCTAssertEqual(messages[1]["role"] as? String, "user")
-        XCTAssertEqual(messages[1]["content"] as? String, userContent)
+        #expect(messages[1]["role"] as? String == "user")
+        #expect(messages[1]["content"] as? String == userContent)
     }
-
-    func testBuildMessagesContextLivesInSystemPromptUserHasOnlyTranscription() {
+    @Test func testBuildMessagesContextLivesInSystemPromptUserHasOnlyTranscription() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.dt.Xcode",
             appName: "Xcode",
@@ -481,20 +461,19 @@ final class AIEnhancementServiceTests: XCTestCase {
         )
 
         let systemContent = messages[0]["content"] as? String
-        XCTAssertNotNil(systemContent)
-        XCTAssertTrue(systemContent!.contains("<context_payload>"))
-        XCTAssertTrue(systemContent!.contains("<clipboard_text>"))
-        XCTAssertTrue(systemContent!.contains("public struct Editor {}"))
-        XCTAssertTrue(systemContent!.contains("<app_context>"))
-        XCTAssertTrue(systemContent!.contains("<app_adapter>"))
-        XCTAssertTrue(systemContent!.contains("<routing_signal>"))
-        XCTAssertTrue(systemContent!.contains("<workspace_file_tree>"))
+        #expect(systemContent != nil)
+        #expect(systemContent!.contains("<context_payload>"))
+        #expect(systemContent!.contains("<clipboard_text>"))
+        #expect(systemContent!.contains("public struct Editor {}"))
+        #expect(systemContent!.contains("<app_context>"))
+        #expect(systemContent!.contains("<app_adapter>"))
+        #expect(systemContent!.contains("<routing_signal>"))
+        #expect(systemContent!.contains("<workspace_file_tree>"))
 
-        XCTAssertEqual(messages[1]["role"] as? String, "user")
-        XCTAssertEqual(messages[1]["content"] as? String, "this is the spoken message")
+        #expect(messages[1]["role"] as? String == "user")
+        #expect(messages[1]["content"] as? String == "this is the spoken message")
     }
-
-    func testRedactedPayloadLogLinesRedactsImageAndChunks() {
+    @Test func testRedactedPayloadLogLinesRedactsImageAndChunks() {
         // Given
         let longBase64 = String(repeating: "A", count: 3000)
         let payload: [String: Any] = [
@@ -512,21 +491,20 @@ final class AIEnhancementServiceTests: XCTestCase {
         let lines = AIEnhancementService.redactedPayloadLogLines(for: payload, redactImageBase64: true)
 
         // Then
-        XCTAssertGreaterThan(lines.count, 1, "Expected payload to be chunked into multiple log lines")
+        #expect(lines.count > 1, "Expected payload to be chunked into multiple log lines")
         let combined = lines.joined()
-        XCTAssertTrue(combined.contains("REDACTED_BASE64"), "Expected base64 to be redacted")
+        #expect(combined.contains("REDACTED_BASE64"), "Expected base64 to be redacted")
         // Expect size marker to equal length of original base64
         if let range = combined.range(of: "size=") {
             let after = combined[range.upperBound...]
             // read digits
             let digits = after.prefix { $0.isNumber }
-            XCTAssertEqual(String(digits), "\(longBase64.count)")
+            #expect(String(digits) == "\(longBase64.count)")
         } else {
-            XCTFail("Size marker not found")
+            Issue.record("Size marker not found")
         }
     }
-
-    func testBuildTranscriptionEnhancementInputIncludesXMLBlocks() {
+    @Test func testBuildTranscriptionEnhancementInputIncludesXMLBlocks() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
             hasClipboardImage: true
@@ -538,29 +516,27 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<enhancement_input>"))
-        XCTAssertTrue(payload.contains("<transcription>"))
-        XCTAssertTrue(payload.contains("hello world"))
-        XCTAssertTrue(payload.contains("<clipboard_text>"))
-        XCTAssertTrue(payload.contains("clipboard reference"))
-        XCTAssertTrue(payload.contains("<image_context>"))
-        XCTAssertTrue(payload.contains("clipboard image"))
+        #expect(payload.contains("<enhancement_input>"))
+        #expect(payload.contains("<transcription>"))
+        #expect(payload.contains("hello world"))
+        #expect(payload.contains("<clipboard_text>"))
+        #expect(payload.contains("clipboard reference"))
+        #expect(payload.contains("<image_context>"))
+        #expect(payload.contains("clipboard image"))
     }
-
-    func testBuildTranscriptionEnhancementInputEscapesXML() {
+    @Test func testBuildTranscriptionEnhancementInputEscapesXML() {
         let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
             transcription: "Use <tag> & symbols \"now\"",
             clipboardText: "value with 'quotes'",
             context: .none
         )
 
-        XCTAssertTrue(payload.contains("Use &lt;tag&gt; &amp; symbols &quot;now&quot;"))
-        XCTAssertTrue(payload.contains("value with &apos;quotes&apos;"))
+        #expect(payload.contains("Use &lt;tag&gt; &amp; symbols &quot;now&quot;"))
+        #expect(payload.contains("value with &apos;quotes&apos;"))
     }
 
     // MARK: - Test UI Context Sources
-
-    func testContextMetadataUISourceFlags() {
+    @Test func testContextMetadataUISourceFlags() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.Safari",
             appName: "Safari",
@@ -577,41 +553,38 @@ final class AIEnhancementServiceTests: XCTestCase {
             appContext: appContext
         )
 
-        XCTAssertTrue(meta.hasAppMetadata)
-        XCTAssertTrue(meta.hasWindowTitle)
-        XCTAssertTrue(meta.hasSelectedText)
-        XCTAssertFalse(meta.hasDocumentPath)
-        XCTAssertTrue(meta.hasBrowserURL)
-        XCTAssertTrue(meta.hasAnyContext)
+        #expect(meta.hasAppMetadata)
+        #expect(meta.hasWindowTitle)
+        #expect(meta.hasSelectedText)
+        #expect(!(meta.hasDocumentPath))
+        #expect(meta.hasBrowserURL)
+        #expect(meta.hasAnyContext)
     }
-
-    func testContextMetadataUISourceFlagsNilAppContext() {
+    @Test func testContextMetadataUISourceFlagsNilAppContext() {
         let meta = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
             appContext: nil
         )
 
-        XCTAssertFalse(meta.hasAppMetadata)
-        XCTAssertFalse(meta.hasWindowTitle)
-        XCTAssertFalse(meta.hasSelectedText)
-        XCTAssertFalse(meta.hasDocumentPath)
-        XCTAssertFalse(meta.hasBrowserURL)
+        #expect(!(meta.hasAppMetadata))
+        #expect(!(meta.hasWindowTitle))
+        #expect(!(meta.hasSelectedText))
+        #expect(!(meta.hasDocumentPath))
+        #expect(!(meta.hasBrowserURL))
     }
-
-    func testContextMetadataBackwardCompatInitHasNilAppContext() {
+    @Test func testContextMetadataBackwardCompatInitHasNilAppContext() {
         let meta = AIEnhancementService.ContextMetadata(
             hasClipboardText: true,
             hasClipboardImage: false
         )
 
-        XCTAssertTrue(meta.hasClipboardText)
-        XCTAssertFalse(meta.hasAppMetadata)
-        XCTAssertFalse(meta.hasVocabularyWords)
-        XCTAssertFalse(meta.hasReplacementCorrections)
+        #expect(meta.hasClipboardText)
+        #expect(!(meta.hasAppMetadata))
+        #expect(!(meta.hasVocabularyWords))
+        #expect(!(meta.hasReplacementCorrections))
     }
-
-    func testBuildContextAwareSystemPromptWithVocabularyContext() {
+    @Test func testBuildContextAwareSystemPromptWithVocabularyContext() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             clipboardText: nil,
@@ -625,15 +598,14 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<type>custom_vocabulary</type>"))
-        XCTAssertTrue(result.contains("<vocabulary_context>"))
-        XCTAssertTrue(result.contains("<word>Butterbase</word>"))
-        XCTAssertTrue(result.contains("<word>OpenCode</word>"))
-        XCTAssertTrue(result.contains("Use only to improve spelling/casing"))
-        XCTAssertTrue(result.contains("custom_vocabulary"))
+        #expect(result.contains("<type>custom_vocabulary</type>"))
+        #expect(result.contains("<vocabulary_context>"))
+        #expect(result.contains("<word>Butterbase</word>"))
+        #expect(result.contains("<word>OpenCode</word>"))
+        #expect(result.contains("Use only to improve spelling/casing"))
+        #expect(result.contains("custom_vocabulary"))
     }
-
-    func testBuildContextAwareSystemPromptWithAppliedReplacementsContext() {
+    @Test func testBuildContextAwareSystemPromptWithAppliedReplacementsContext() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             clipboardText: nil,
@@ -651,16 +623,15 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<type>applied_replacements</type>"))
-        XCTAssertTrue(result.contains("<applied_replacements>"))
-        XCTAssertTrue(result.contains("<from>hashline</from>"))
-        XCTAssertTrue(result.contains("<to>hash line</to>"))
-        XCTAssertTrue(result.contains("<from>omipy</from>"))
-        XCTAssertTrue(result.contains("<to>Omipy</to>"))
-        XCTAssertTrue(result.contains("custom_vocabulary,applied_replacements"))
+        #expect(result.contains("<type>applied_replacements</type>"))
+        #expect(result.contains("<applied_replacements>"))
+        #expect(result.contains("<from>hashline</from>"))
+        #expect(result.contains("<to>hash line</to>"))
+        #expect(result.contains("<from>omipy</from>"))
+        #expect(result.contains("<to>Omipy</to>"))
+        #expect(result.contains("custom_vocabulary,applied_replacements"))
     }
-
-    func testBuildContextAwareSystemPromptWithUIContextSources() {
+    @Test func testBuildContextAwareSystemPromptWithUIContextSources() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.Safari",
             appName: "Safari",
@@ -682,16 +653,15 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<available>true</available>"))
-        XCTAssertTrue(result.contains("<type>app_metadata</type>"))
-        XCTAssertTrue(result.contains("<type>window_title</type>"))
-        XCTAssertTrue(result.contains("<type>selected_text</type>"))
-        XCTAssertTrue(result.contains("<type>browser_url</type>"))
-        XCTAssertFalse(result.contains("<type>document_path</type>"))
-        XCTAssertTrue(result.contains("app_metadata,window_title,selected_text,document_path,browser_url"))
+        #expect(result.contains("<available>true</available>"))
+        #expect(result.contains("<type>app_metadata</type>"))
+        #expect(result.contains("<type>window_title</type>"))
+        #expect(result.contains("<type>selected_text</type>"))
+        #expect(result.contains("<type>browser_url</type>"))
+        #expect(!(result.contains("<type>document_path</type>")))
+        #expect(result.contains("app_metadata,window_title,selected_text,document_path,browser_url"))
     }
-
-    func testBuildContextAwareSystemPromptWithAdapterAndRoutingSources() {
+    @Test func testBuildContextAwareSystemPromptWithAdapterAndRoutingSources() {
         let capabilities = CursorAdapter().capabilities
         let routingSignal = PromptRoutingSignal(
             appBundleIdentifier: "com.todesktop.230313mzl4w4u92",
@@ -714,12 +684,11 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<type>app_adapter</type>"))
-        XCTAssertTrue(result.contains("<type>routing_signal</type>"))
-        XCTAssertTrue(result.contains("app_adapter,routing_signal"))
+        #expect(result.contains("<type>app_adapter</type>"))
+        #expect(result.contains("<type>routing_signal</type>"))
+        #expect(result.contains("app_adapter,routing_signal"))
     }
-
-    func testBuildTranscriptionEnhancementInputWithAppContext() {
+    @Test func testBuildTranscriptionEnhancementInputWithAppContext() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.dt.Xcode",
             appName: "Xcode",
@@ -742,26 +711,24 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<app_context>"))
-        XCTAssertTrue(payload.contains("<app_name>Xcode</app_name>"))
-        XCTAssertTrue(payload.contains("<bundle_id>com.apple.dt.Xcode</bundle_id>"))
-        XCTAssertTrue(payload.contains("<window_title>My&lt;Project&gt;.swift</window_title>"))
-        XCTAssertTrue(payload.contains("<selected_text>let x = 1 &amp; 2</selected_text>"))
-        XCTAssertTrue(payload.contains("<document_path>/Users/dev/My&lt;Project&gt;.swift</document_path>"))
-        XCTAssertFalse(payload.contains("<browser_url>"))
+        #expect(payload.contains("<app_context>"))
+        #expect(payload.contains("<app_name>Xcode</app_name>"))
+        #expect(payload.contains("<bundle_id>com.apple.dt.Xcode</bundle_id>"))
+        #expect(payload.contains("<window_title>My&lt;Project&gt;.swift</window_title>"))
+        #expect(payload.contains("<selected_text>let x = 1 &amp; 2</selected_text>"))
+        #expect(payload.contains("<document_path>/Users/dev/My&lt;Project&gt;.swift</document_path>"))
+        #expect(!(payload.contains("<browser_url>")))
     }
-
-    func testBuildTranscriptionEnhancementInputNoAppContext() {
+    @Test func testBuildTranscriptionEnhancementInputNoAppContext() {
         let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
             transcription: "hello",
             clipboardText: nil,
             context: .none
         )
 
-        XCTAssertFalse(payload.contains("<app_context>"))
+        #expect(!(payload.contains("<app_context>")))
     }
-
-    func testBuildTranscriptionEnhancementInputWithAdapterAndRoutingMetadata() {
+    @Test func testBuildTranscriptionEnhancementInputWithAdapterAndRoutingMetadata() {
         let capabilities = VSCodeAdapter().capabilities
         let routingSignal = PromptRoutingSignal(
             appBundleIdentifier: "com.microsoft.vscode",
@@ -785,18 +752,17 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<app_adapter>"))
-        XCTAssertTrue(payload.contains("<display_name>Visual Studio Code</display_name>"))
-        XCTAssertTrue(payload.contains("<mention_prefix>@</mention_prefix>"))
-        XCTAssertTrue(payload.contains("<mention_template>"))
-        XCTAssertTrue(payload.contains("<supports_file_mentions>true</supports_file_mentions>"))
-        XCTAssertTrue(payload.contains("<routing_signal>"))
-        XCTAssertTrue(payload.contains("<is_code_editor_context>true</is_code_editor_context>"))
+        #expect(payload.contains("<app_adapter>"))
+        #expect(payload.contains("<display_name>Visual Studio Code</display_name>"))
+        #expect(payload.contains("<mention_prefix>@</mention_prefix>"))
+        #expect(payload.contains("<mention_template>"))
+        #expect(payload.contains("<supports_file_mentions>true</supports_file_mentions>"))
+        #expect(payload.contains("<routing_signal>"))
+        #expect(payload.contains("<is_code_editor_context>true</is_code_editor_context>"))
     }
 
     // MARK: - Test Empty Value Sanitization
-
-    func testEmptyWindowTitleNotEmitted() {
+    @Test func testEmptyWindowTitleNotEmitted() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.example.app",
             appName: "TestApp",
@@ -819,12 +785,11 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<app_name>TestApp</app_name>"))
-        XCTAssertFalse(payload.contains("<window_title>"))
-        XCTAssertFalse(context.hasWindowTitle)
+        #expect(payload.contains("<app_name>TestApp</app_name>"))
+        #expect(!(payload.contains("<window_title>")))
+        #expect(!(context.hasWindowTitle))
     }
-
-    func testWhitespaceOnlyFieldsNotEmitted() {
+    @Test func testWhitespaceOnlyFieldsNotEmitted() {
         let appContext = AppContextInfo(
             bundleIdentifier: "  ",
             appName: "TestApp",
@@ -847,19 +812,18 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<app_name>TestApp</app_name>"))
-        XCTAssertFalse(payload.contains("<bundle_id>"))
-        XCTAssertFalse(payload.contains("<window_title>"))
-        XCTAssertFalse(payload.contains("<selected_text>"))
-        XCTAssertFalse(payload.contains("<document_path>"))
-        XCTAssertFalse(payload.contains("<browser_url>"))
-        XCTAssertFalse(context.hasWindowTitle)
-        XCTAssertFalse(context.hasDocumentPath)
-        XCTAssertFalse(context.hasBrowserURL)
-        XCTAssertFalse(context.hasSelectedText)
+        #expect(payload.contains("<app_name>TestApp</app_name>"))
+        #expect(!(payload.contains("<bundle_id>")))
+        #expect(!(payload.contains("<window_title>")))
+        #expect(!(payload.contains("<selected_text>")))
+        #expect(!(payload.contains("<document_path>")))
+        #expect(!(payload.contains("<browser_url>")))
+        #expect(!(context.hasWindowTitle))
+        #expect(!(context.hasDocumentPath))
+        #expect(!(context.hasBrowserURL))
+        #expect(!(context.hasSelectedText))
     }
-
-    func testRoutingSignalEmptyFieldsNotEmitted() {
+    @Test func testRoutingSignalEmptyFieldsNotEmitted() {
         let routingSignal = PromptRoutingSignal(
             appBundleIdentifier: "",
             appName: "  ",
@@ -882,16 +846,15 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<routing_signal>"))
-        XCTAssertFalse(payload.contains("<app_bundle_identifier>"))
-        XCTAssertFalse(payload.contains("<app_name>"))
-        XCTAssertFalse(payload.contains("<workspace_path>"))
-        XCTAssertFalse(payload.contains("<browser_domain>"))
-        XCTAssertFalse(payload.contains("<terminal_provider_identifier>"))
-        XCTAssertTrue(payload.contains("<is_code_editor_context>false</is_code_editor_context>"))
+        #expect(payload.contains("<routing_signal>"))
+        #expect(!(payload.contains("<app_bundle_identifier>")))
+        #expect(!(payload.contains("<app_name>")))
+        #expect(!(payload.contains("<workspace_path>")))
+        #expect(!(payload.contains("<browser_domain>")))
+        #expect(!(payload.contains("<terminal_provider_identifier>")))
+        #expect(payload.contains("<is_code_editor_context>false</is_code_editor_context>"))
     }
-
-    func testRoutingSignalIncludesTerminalProviderIdentifierWhenPresent() {
+    @Test func testRoutingSignalIncludesTerminalProviderIdentifierWhenPresent() {
         let routingSignal = PromptRoutingSignal(
             appBundleIdentifier: "com.mitchellh.ghostty",
             appName: "ghostty",
@@ -915,10 +878,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<terminal_provider_identifier>codex</terminal_provider_identifier>"))
+        #expect(payload.contains("<terminal_provider_identifier>codex</terminal_provider_identifier>"))
     }
-
-    func testContextAwareSystemPromptOmitsEmptyFieldSources() {
+    @Test func testContextAwareSystemPromptOmitsEmptyFieldSources() {
         let appContext = AppContextInfo(
             bundleIdentifier: nil,
             appName: "TestApp",
@@ -940,27 +902,25 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<type>app_metadata</type>"))
-        XCTAssertFalse(result.contains("<type>window_title</type>"))
-        XCTAssertFalse(result.contains("<type>selected_text</type>"))
-        XCTAssertFalse(result.contains("<type>document_path</type>"))
-        XCTAssertFalse(result.contains("<type>browser_url</type>"))
+        #expect(result.contains("<type>app_metadata</type>"))
+        #expect(!(result.contains("<type>window_title</type>")))
+        #expect(!(result.contains("<type>selected_text</type>")))
+        #expect(!(result.contains("<type>document_path</type>")))
+        #expect(!(result.contains("<type>browser_url</type>")))
     }
-
-    func testEmptyClipboardTextNotEmittedInEnhancementInput() {
+    @Test func testEmptyClipboardTextNotEmittedInEnhancementInput() {
         let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
             transcription: "hello",
             clipboardText: "   ",
             context: .none
         )
 
-        XCTAssertFalse(payload.contains("<clipboard_text>"))
-        XCTAssertTrue(payload.contains("<transcription>"))
+        #expect(!(payload.contains("<clipboard_text>")))
+        #expect(payload.contains("<transcription>"))
     }
 
     // MARK: - Test Workspace File Tree Context
-
-    func testHasWorkspaceFileTreeNil() {
+    @Test func testHasWorkspaceFileTreeNil() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -969,10 +929,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             routingSignal: nil,
             workspaceFileTree: nil
         )
-        XCTAssertFalse(context.hasWorkspaceFileTree)
+        #expect(!(context.hasWorkspaceFileTree))
     }
-
-    func testHasWorkspaceFileTreeEmpty() {
+    @Test func testHasWorkspaceFileTreeEmpty() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -981,10 +940,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             routingSignal: nil,
             workspaceFileTree: ""
         )
-        XCTAssertFalse(context.hasWorkspaceFileTree)
+        #expect(!(context.hasWorkspaceFileTree))
     }
-
-    func testHasWorkspaceFileTreeWhitespaceOnly() {
+    @Test func testHasWorkspaceFileTreeWhitespaceOnly() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -993,10 +951,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             routingSignal: nil,
             workspaceFileTree: "  \n\t  "
         )
-        XCTAssertFalse(context.hasWorkspaceFileTree)
+        #expect(!(context.hasWorkspaceFileTree))
     }
-
-    func testHasWorkspaceFileTreeValid() {
+    @Test func testHasWorkspaceFileTreeValid() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -1005,11 +962,10 @@ final class AIEnhancementServiceTests: XCTestCase {
             routingSignal: nil,
             workspaceFileTree: "total_files: 5\n---\nsrc/main.swift"
         )
-        XCTAssertTrue(context.hasWorkspaceFileTree)
-        XCTAssertTrue(context.hasAnyContext)
+        #expect(context.hasWorkspaceFileTree)
+        #expect(context.hasAnyContext)
     }
-
-    func testBuildContextAwareSystemPromptIncludesWorkspaceFileTreeSource() {
+    @Test func testBuildContextAwareSystemPromptIncludesWorkspaceFileTreeSource() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -1024,12 +980,11 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<available>true</available>"))
-        XCTAssertTrue(result.contains("<type>workspace_file_tree</type>"))
-        XCTAssertTrue(result.contains("<usage>reference_only</usage>"))
+        #expect(result.contains("<available>true</available>"))
+        #expect(result.contains("<type>workspace_file_tree</type>"))
+        #expect(result.contains("<usage>reference_only</usage>"))
     }
-
-    func testBuildContextAwareSystemPromptOmitsWorkspaceFileTreeSourceWhenNil() {
+    @Test func testBuildContextAwareSystemPromptOmitsWorkspaceFileTreeSourceWhenNil() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -1044,10 +999,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertFalse(result.contains("<type>workspace_file_tree</type>"))
+        #expect(!(result.contains("<type>workspace_file_tree</type>")))
     }
-
-    func testBuildTranscriptionEnhancementInputIncludesWorkspaceFileTreeBlock() {
+    @Test func testBuildTranscriptionEnhancementInputIncludesWorkspaceFileTreeBlock() {
         let treeSummary = "total_files: 2\n---\nsrc/App.swift\nsrc/Service.swift"
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
@@ -1064,22 +1018,20 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<workspace_file_tree>"))
-        XCTAssertTrue(payload.contains("total_files: 2"))
-        XCTAssertTrue(payload.contains("src/App.swift"))
+        #expect(payload.contains("<workspace_file_tree>"))
+        #expect(payload.contains("total_files: 2"))
+        #expect(payload.contains("src/App.swift"))
     }
-
-    func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenNil() {
+    @Test func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenNil() {
         let payload = AIEnhancementService.buildTranscriptionEnhancementInput(
             transcription: "hello world",
             clipboardText: nil,
             context: .none
         )
 
-        XCTAssertFalse(payload.contains("<workspace_file_tree>"))
+        #expect(!(payload.contains("<workspace_file_tree>")))
     }
-
-    func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenEmpty() {
+    @Test func testBuildTranscriptionEnhancementInputOmitsWorkspaceFileTreeBlockWhenEmpty() {
         let context = AIEnhancementService.ContextMetadata(
             hasClipboardText: false,
             hasClipboardImage: false,
@@ -1095,10 +1047,9 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertFalse(payload.contains("<workspace_file_tree>"))
+        #expect(!(payload.contains("<workspace_file_tree>")))
     }
-
-    func testContextMetadataLiveSessionFlags() {
+    @Test func testContextMetadataLiveSessionFlags() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.todesktop.230313mzl4w4u92",
             appName: "Cursor",
@@ -1153,11 +1104,10 @@ final class AIEnhancementServiceTests: XCTestCase {
             liveSessionContext: liveContext
         )
 
-        XCTAssertTrue(metadata.hasLiveSessionContext)
-        XCTAssertTrue(metadata.hasAnyContext)
+        #expect(metadata.hasLiveSessionContext)
+        #expect(metadata.hasAnyContext)
     }
-
-    func testBuildContextAwareSystemPromptIncludesLiveSessionContextSource() {
+    @Test func testBuildContextAwareSystemPromptIncludesLiveSessionContextSource() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -1215,12 +1165,11 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(result.contains("<type>live_session_context</type>"))
-        XCTAssertTrue(result.contains("<live_session_context>"))
-        XCTAssertTrue(result.contains("<runtime_state>ready</runtime_state>"))
+        #expect(result.contains("<type>live_session_context</type>"))
+        #expect(result.contains("<live_session_context>"))
+        #expect(result.contains("<runtime_state>ready</runtime_state>"))
     }
-
-    func testBuildTranscriptionEnhancementInputIncludesLiveSessionContextBlock() {
+    @Test func testBuildTranscriptionEnhancementInputIncludesLiveSessionContextBlock() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -1277,15 +1226,14 @@ final class AIEnhancementServiceTests: XCTestCase {
             context: context
         )
 
-        XCTAssertTrue(payload.contains("<live_session_context>"))
-        XCTAssertTrue(payload.contains("<runtime_state>limited</runtime_state>"))
-        XCTAssertTrue(payload.contains("<recent_transitions>"))
+        #expect(payload.contains("<live_session_context>"))
+        #expect(payload.contains("<runtime_state>limited</runtime_state>"))
+        #expect(payload.contains("<recent_transitions>"))
     }
 
 
     // MARK: - Test Double-Wrap Prevention
-
-    func testBuildMessagesDoesNotDoubleWrapEnhancementRequest() {
+    @Test func testBuildMessagesDoesNotDoubleWrapEnhancementRequest() {
         let basePrompt = "You are a text enhancement assistant."
         let messages = AIEnhancementService.buildMessages(
             systemPrompt: basePrompt,
@@ -1299,11 +1247,10 @@ final class AIEnhancementServiceTests: XCTestCase {
         let openCount = systemContent.components(separatedBy: "<enhancement_request>").count - 1
         let closeCount = systemContent.components(separatedBy: "</enhancement_request>").count - 1
 
-        XCTAssertEqual(openCount, 1, "Expected exactly one <enhancement_request> open tag, got \(openCount)")
-        XCTAssertEqual(closeCount, 1, "Expected exactly one </enhancement_request> close tag, got \(closeCount)")
+        #expect(openCount == 1, "Expected exactly one <enhancement_request> open tag, got \(openCount)")
+        #expect(closeCount == 1, "Expected exactly one </enhancement_request> close tag, got \(closeCount)")
     }
-
-    func testBuildMessagesWithAlreadyWrappedPromptStillSingleWraps() {
+    @Test func testBuildMessagesWithAlreadyWrappedPromptStillSingleWraps() {
         // Inner XML tags get escaped by buildContextAwareSystemPrompt, so only one raw wrapper should exist
         let alreadyWrapped = "<enhancement_request><instructions>Do stuff</instructions></enhancement_request>"
         let messages = AIEnhancementService.buildMessages(
@@ -1316,61 +1263,58 @@ final class AIEnhancementServiceTests: XCTestCase {
         let systemContent = messages[0]["content"] as! String
 
         let rawOpenCount = systemContent.components(separatedBy: "<enhancement_request>").count - 1
-        XCTAssertEqual(rawOpenCount, 1, "Inner <enhancement_request> should be escaped, only one raw open tag expected")
+        #expect(rawOpenCount == 1, "Inner <enhancement_request> should be escaped, only one raw open tag expected")
     }
 
     // MARK: - Test Model Capabilities
-
-    func testKnownVisionModels() {
+    @Test func testKnownVisionModels() {
         // OpenAI vision models
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gpt-4o"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gpt-4o-mini"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gpt-4-vision-preview"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gpt-4-turbo"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gpt-4o"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gpt-4o-mini"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gpt-4-vision-preview"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gpt-4-turbo"))
 
         // Anthropic Claude 3 vision models
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "claude-3-opus"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "claude-3-sonnet"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "claude-3-haiku"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "claude-3.5-sonnet"))
+        #expect(ModelCapabilities.supportsVision(modelId: "claude-3-opus"))
+        #expect(ModelCapabilities.supportsVision(modelId: "claude-3-sonnet"))
+        #expect(ModelCapabilities.supportsVision(modelId: "claude-3-haiku"))
+        #expect(ModelCapabilities.supportsVision(modelId: "claude-3.5-sonnet"))
 
         // Google Gemini vision models
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gemini-pro-vision"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gemini-1.5-pro"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gemini-1.5-flash"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "gemini-2.0-flash"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gemini-pro-vision"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gemini-1.5-pro"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gemini-1.5-flash"))
+        #expect(ModelCapabilities.supportsVision(modelId: "gemini-2.0-flash"))
     }
-
-    func testNonVisionModels() {
+    @Test func testNonVisionModels() {
         // OpenAI non-vision models
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "gpt-3.5-turbo"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "gpt-4"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "gpt-4-0613"))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "gpt-3.5-turbo")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "gpt-4")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "gpt-4-0613")))
 
         // Anthropic non-vision models
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "claude-2"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "claude-2.1"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "claude-instant"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "claude-instant-1.2"))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "claude-2")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "claude-2.1")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "claude-instant")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "claude-instant-1.2")))
 
         // Unknown models
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "unknown-model"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "some-random-model"))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "unknown-model")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "some-random-model")))
     }
-
-    func testOpenRouterPrefixedModels() {
+    @Test func testOpenRouterPrefixedModels() {
         // OpenRouter vision models
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "openai/gpt-4o"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "openai/gpt-4o-mini"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3-opus"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3-sonnet"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3.5-sonnet"))
-        XCTAssertTrue(ModelCapabilities.supportsVision(modelId: "google/gemini-1.5-pro"))
+        #expect(ModelCapabilities.supportsVision(modelId: "openai/gpt-4o"))
+        #expect(ModelCapabilities.supportsVision(modelId: "openai/gpt-4o-mini"))
+        #expect(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3-opus"))
+        #expect(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3-sonnet"))
+        #expect(ModelCapabilities.supportsVision(modelId: "anthropic/claude-3.5-sonnet"))
+        #expect(ModelCapabilities.supportsVision(modelId: "google/gemini-1.5-pro"))
 
         // OpenRouter non-vision models
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "openai/gpt-3.5-turbo"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "openai/gpt-4"))
-        XCTAssertFalse(ModelCapabilities.supportsVision(modelId: "anthropic/claude-2"))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "openai/gpt-3.5-turbo")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "openai/gpt-4")))
+        #expect(!(ModelCapabilities.supportsVision(modelId: "anthropic/claude-2")))
     }
 }
 

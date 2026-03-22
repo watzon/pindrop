@@ -5,21 +5,21 @@
 //  Created on 2026-02-09.
 //
 
-import XCTest
+import Foundation
+import Testing
+
 @testable import Pindrop
 
-// MARK: - Tests
-
 @MainActor
-final class MentionRewriteServiceTests: XCTestCase {
-
-    var sut: MentionRewriteService!
-    var mockFS: MockFileSystemProvider!
-    var cursorCapabilities: AppAdapterCapabilities!
-    var fallbackCapabilities: AppAdapterCapabilities!
-
-    override func setUp() async throws {
-        mockFS = MockFileSystemProvider()
+@Suite
+struct MentionRewriteServiceTests {
+    private func makeSUT() -> (
+        sut: MentionRewriteService,
+        mockFS: MockFileSystemProvider,
+        cursorCapabilities: AppAdapterCapabilities,
+        fallbackCapabilities: AppAdapterCapabilities
+    ) {
+        var mockFS = MockFileSystemProvider()
         mockFS.directories = ["/workspace"]
         mockFS.filesByRoot = [
             "/workspace": [
@@ -35,84 +35,79 @@ final class MentionRewriteServiceTests: XCTestCase {
             ]
         ]
 
-        sut = MentionRewriteService(fileSystem: mockFS)
-
-        cursorCapabilities = CursorAdapter().capabilities
-        fallbackCapabilities = AppAdapterCapabilities.none
+        return (
+            MentionRewriteService(fileSystem: mockFS),
+            mockFS,
+            CursorAdapter().capabilities,
+            AppAdapterCapabilities.none
+        )
     }
 
-    override func tearDown() async throws {
-        sut = nil
-        mockFS = nil
-        cursorCapabilities = nil
-        fallbackCapabilities = nil
-    }
+    @Test func rewriteOccursWhenAdapterSupportsMentionsAndWorkspaceAvailable() async {
+        let fixture = makeSUT()
 
-    // MARK: - Rewrite Happens When Conditions Met
-
-    func testRewriteOccursWhenAdapterSupportsMentionsAndWorkspaceAvailable() async {
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite, "Should rewrite when adapter supports mentions and workspace has files")
-        XCTAssertGreaterThan(result.rewrittenCount, 0)
-        XCTAssertTrue(result.text.contains("@"), "Cursor adapter should use @ prefix")
+        #expect(result.didRewrite)
+        #expect(result.rewrittenCount > 0)
+        #expect(result.text.contains("@"))
     }
 
-    // MARK: - No Rewrite When Adapter Doesn't Support Mentions
+    @Test func noRewriteWhenAdapterDoesNotSupportMentions() async {
+        let fixture = makeSUT()
 
-    func testNoRewriteWhenAdapterDoesNotSupportMentions() async {
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: fallbackCapabilities,
+            capabilities: fixture.fallbackCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertFalse(result.didRewrite)
-        XCTAssertEqual(result.rewrittenCount, 0)
-        XCTAssertEqual(result.text, "check the AppCoordinator.swift file")
+        #expect(result.didRewrite == false)
+        #expect(result.rewrittenCount == 0)
+        #expect(result.text == "check the AppCoordinator.swift file")
     }
 
-    // MARK: - No Rewrite When No Workspace Roots
+    @Test func noRewriteWhenNoWorkspaceRootsAvailable() async {
+        let fixture = makeSUT()
 
-    func testNoRewriteWhenNoWorkspaceRootsAvailable() async {
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: []
         )
 
-        XCTAssertFalse(result.didRewrite)
-        XCTAssertEqual(result.rewrittenCount, 0)
-        XCTAssertEqual(result.text, "check the AppCoordinator.swift file")
+        #expect(result.didRewrite == false)
+        #expect(result.rewrittenCount == 0)
+        #expect(result.text == "check the AppCoordinator.swift file")
     }
 
-    func testDeriveWorkspaceInsightsReturnsNoneWhenNoRoots() async {
-        let insights = await sut.deriveWorkspaceInsights(workspaceRoots: [], activeDocumentPath: nil)
+    @Test func deriveWorkspaceInsightsReturnsNoneWhenNoRoots() async {
+        let fixture = makeSUT()
+        let insights = await fixture.sut.deriveWorkspaceInsights(workspaceRoots: [], activeDocumentPath: nil)
 
-        XCTAssertEqual(insights, .none)
+        #expect(insights == .none)
     }
 
-    func testDeriveWorkspaceInsightsIncludesActiveDocumentAndTags() async {
-        let insights = await sut.deriveWorkspaceInsights(
+    @Test func deriveWorkspaceInsightsIncludesActiveDocumentAndTags() async {
+        let fixture = makeSUT()
+
+        let insights = await fixture.sut.deriveWorkspaceInsights(
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "/workspace/Pindrop/Services/AppCoordinator.swift"
         )
 
-        XCTAssertEqual(insights.activeDocumentRelativePath, "Pindrop/Services/AppCoordinator.swift")
-        XCTAssertEqual(insights.activeDocumentConfidence, 1.0)
-        XCTAssertGreaterThan(insights.workspaceConfidence, 0)
-        XCTAssertFalse(insights.fileTagCandidates.isEmpty)
-        XCTAssertEqual(insights.fileTagCandidates.first, "Pindrop/Services/AppCoordinator.swift")
+        #expect(insights.activeDocumentRelativePath == "Pindrop/Services/AppCoordinator.swift")
+        #expect(insights.activeDocumentConfidence == 1.0)
+        #expect(insights.workspaceConfidence > 0)
+        #expect(insights.fileTagCandidates.isEmpty == false)
+        #expect(insights.fileTagCandidates.first == "Pindrop/Services/AppCoordinator.swift")
     }
 
-
-    // MARK: - No Rewrite When Workspace Index Is Empty
-
-    func testNoRewriteWhenWorkspaceIndexIsEmpty() async {
+    @Test func noRewriteWhenWorkspaceIndexIsEmpty() async {
         var emptyFS = MockFileSystemProvider()
         emptyFS.directories = ["/empty"]
         emptyFS.filesByRoot = ["/empty": []]
@@ -121,19 +116,16 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let result = await emptySut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: cursorCapabilities,
+            capabilities: makeSUT().cursorCapabilities,
             workspaceRoots: ["/empty"]
         )
 
-        XCTAssertFalse(result.didRewrite)
-        XCTAssertEqual(result.rewrittenCount, 0)
-        XCTAssertEqual(result.text, "check the AppCoordinator.swift file")
+        #expect(result.didRewrite == false)
+        #expect(result.rewrittenCount == 0)
+        #expect(result.text == "check the AppCoordinator.swift file")
     }
 
-    // MARK: - Graceful Fallback on Index Build Failure
-
-    func testGracefulFallbackWhenIndexBuildFails() async {
-        // Use a mock FS with no valid directories so buildIndex throws
+    @Test func gracefulFallbackWhenIndexBuildFails() async {
         var badFS = MockFileSystemProvider()
         badFS.directories = []
         badFS.filesByRoot = [:]
@@ -142,109 +134,89 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let result = await badSut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: cursorCapabilities,
+            capabilities: makeSUT().cursorCapabilities,
             workspaceRoots: ["/nonexistent"]
         )
 
-        XCTAssertFalse(result.didRewrite)
-        XCTAssertEqual(result.rewrittenCount, 0)
-        XCTAssertEqual(result.text, "check the AppCoordinator.swift file")
+        #expect(result.didRewrite == false)
+        #expect(result.rewrittenCount == 0)
+        #expect(result.text == "check the AppCoordinator.swift file")
     }
 
-    // MARK: - Multiple Mentions Processed
+    @Test func multipleMentionsAreAllProcessed() async {
+        let fixture = makeSUT()
 
-    func testMultipleMentionsAreAllProcessed() async {
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "look at AppCoordinator.swift and AudioRecorder.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        // Both files exist in the index — both should be rewritten or at least attempted
-        XCTAssertGreaterThanOrEqual(result.rewrittenCount + result.preservedCount, 2,
-            "Both mentions should be detected as candidates")
+        #expect(result.rewrittenCount + result.preservedCount >= 2)
     }
 
-    // MARK: - No Candidates Found Returns Original Text
-
-    func testNoCandidatesReturnsOriginalText() async {
+    @Test func noCandidatesReturnsOriginalText() async {
+        let fixture = makeSUT()
         let text = "this text has no file mentions whatsoever"
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: text,
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertFalse(result.didRewrite)
-        XCTAssertEqual(result.text, text)
+        #expect(result.didRewrite == false)
+        #expect(result.text == text)
     }
 
-    // MARK: - Dot Pattern Extraction
-
-    func testDotPatternExtractsCandidates() async {
-        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+    @Test func dotPatternExtractsCandidates() async {
+        let fixture = makeSUT()
+        let index = WorkspaceFileIndexService(fileSystem: fixture.mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = sut.extractMentionCandidates(
+        let candidates = fixture.sut.extractMentionCandidates(
             from: "please open app coordinator dot swift for me",
             index: index
         )
 
-        XCTAssertFalse(candidates.isEmpty, "Should detect 'app coordinator dot swift' as candidate")
-        XCTAssertTrue(candidates.contains { $0.text.lowercased().contains("dot") },
-            "Dot pattern candidate should contain 'dot'")
+        #expect(candidates.isEmpty == false)
+        #expect(candidates.contains { $0.text.lowercased().contains("dot") })
     }
 
-    // MARK: - Known Stem Extraction
-
-    func testKnownStemExtractsCandidates() async {
-        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+    @Test func knownStemExtractsCandidates() async {
+        let fixture = makeSUT()
+        let index = WorkspaceFileIndexService(fileSystem: fixture.mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = sut.extractMentionCandidates(
+        let candidates = fixture.sut.extractMentionCandidates(
             from: "check the AppCoordinator for issues",
             index: index
         )
 
-        // "AppCoordinator" should match as a stem in the index
-        let hasAppCoordinator = candidates.contains { candidate in
-            candidate.text.contains("AppCoordinator")
-        }
-        XCTAssertTrue(hasAppCoordinator, "Should detect 'AppCoordinator' as a known stem candidate")
+        #expect(candidates.contains { $0.text.contains("AppCoordinator") })
     }
 
-    // MARK: - Cache Reuse When Roots Unchanged
+    @Test func cacheReusedWhenRootsUnchanged() async {
+        let fixture = makeSUT()
 
-    func testCacheReusedWhenRootsUnchanged() async {
-        // First call — builds index
-        let result1 = await sut.rewrite(
+        let result1 = await fixture.sut.rewrite(
             text: "AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        // Second call with same roots — should reuse cache (same behavior)
-        let result2 = await sut.rewrite(
+        let result2 = await fixture.sut.rewrite(
             text: "AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertEqual(result1.text, result2.text, "Cached index should produce same results")
-        XCTAssertEqual(result1.rewrittenCount, result2.rewrittenCount)
+        #expect(result1.text == result2.text)
+        #expect(result1.rewrittenCount == result2.rewrittenCount)
     }
 
-    // MARK: - Cache Invalidation When Roots Change
+    @Test func cacheInvalidatedWhenRootsChange() async {
+        let cursorCapabilities = makeSUT().cursorCapabilities
 
-    func testCacheInvalidatedWhenRootsChange() async {
-        // First call with /workspace
-        _ = await sut.rewrite(
-            text: "AppCoordinator.swift",
-            capabilities: cursorCapabilities,
-            workspaceRoots: ["/workspace"]
-        )
-
-        // Second call with different roots — should rebuild index
         var otherFS = MockFileSystemProvider()
         otherFS.directories = ["/other"]
         otherFS.filesByRoot = ["/other": ["/other/SomeFile.swift"]]
@@ -257,253 +229,241 @@ final class MentionRewriteServiceTests: XCTestCase {
             workspaceRoots: ["/other"]
         )
 
-        // AppCoordinator.swift doesn't exist in /other, so no rewrite
-        XCTAssertFalse(result.didRewrite,
-            "After roots change, new index should not find old files")
+        #expect(result.didRewrite == false)
     }
 
-    // MARK: - ClearCache Resets State
+    @Test func clearCacheResetsState() async {
+        let fixture = makeSUT()
 
-    func testClearCacheResetsState() async {
-        // Build cache
-        _ = await sut.rewrite(
+        _ = await fixture.sut.rewrite(
             text: "AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        // Clear it
-        sut.clearCache()
+        fixture.sut.clearCache()
 
-        // After clearing, next rewrite should still work (rebuilds index)
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        // Should still work fine — cache cleared but rebuilt on next call
-        XCTAssertTrue(result.rewrittenCount > 0 || result.preservedCount >= 0,
-            "Service should still function after cache clear")
+        #expect(result.rewrittenCount > 0 || result.preservedCount >= 0)
     }
 
-    // MARK: - Different Adapter Prefixes
-
-    func testVSCodeAdapterUsesAtPrefix() async {
+    @Test func vsCodeAdapterUsesAtPrefix() async {
+        let fixture = makeSUT()
         let vsCodeCapabilities = VSCodeAdapter().capabilities
 
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check AppCoordinator.swift",
             capabilities: vsCodeCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "VS Code adapter should rewrite when workspace has matching files")
-        XCTAssertTrue(result.text.contains("@"),
-            "VS Code adapter should use @ prefix for mentions")
-        XCTAssertFalse(result.text.contains("#"),
-            "VS Code adapter should NOT use # prefix")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@"))
+        #expect(result.text.contains("#") == false)
     }
 
-    func testVSCodeRewriteNormalizesExistingHashPrefix() async {
-        let result = await sut.rewrite(
+    @Test func vsCodeRewriteNormalizesExistingHashPrefix() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "Can you update #README.md for me?",
             capabilities: VSCodeAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("@README.md"),
-            "VS Code rewrite should normalize existing hash-prefixed mention to @ syntax")
-        XCTAssertFalse(result.text.contains("#@README.md"))
-        XCTAssertFalse(result.text.contains("@@README.md"))
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@README.md"))
+        #expect(result.text.contains("#@README.md") == false)
+        #expect(result.text.contains("@@README.md") == false)
     }
 
-    func testZedAdapterUsesSlashPrefix() async {
+    @Test func zedAdapterUsesSlashPrefix() async {
+        let fixture = makeSUT()
         let zedCapabilities = ZedAdapter().capabilities
 
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check AppCoordinator.swift",
             capabilities: zedCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Zed adapter should rewrite when workspace has matching files")
-        XCTAssertTrue(result.text.contains("/"),
-            "Zed adapter should use / prefix for mentions")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("/"))
     }
 
-    func testWindsurfAdapterUsesAtPrefix() async {
+    @Test func windsurfAdapterUsesAtPrefix() async {
+        let fixture = makeSUT()
         let windsurfCapabilities = WindsurfAdapter().capabilities
 
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check AppCoordinator.swift",
             capabilities: windsurfCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Windsurf adapter should rewrite when workspace has matching files")
-        XCTAssertTrue(result.text.contains("@"),
-            "Windsurf adapter should use @ prefix for mentions")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@"))
     }
 
-    func testCursorAdapterUsesAtPrefix() async {
-        let result = await sut.rewrite(
+    @Test func cursorAdapterUsesAtPrefix() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "check AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Cursor adapter should rewrite when workspace has matching files")
-        XCTAssertTrue(result.text.contains("@"),
-            "Cursor adapter should use @ prefix for mentions")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@"))
     }
 
-    // MARK: - Per-Editor Exact Mention Format Validation
-
-    func testVSCodeFormatsExactMentionPath() async {
-        let result = await sut.rewrite(
+    @Test func vsCodeFormatsExactMentionPath() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: VSCodeAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "VS Code should format as @relative/path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testZedFormatsExactMentionPath() async {
-        let result = await sut.rewrite(
+    @Test func zedFormatsExactMentionPath() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: ZedAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("/Pindrop/Services/AppCoordinator.swift"),
-            "Zed should format as /relative/path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("/Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testCursorFormatsExactMentionPath() async {
-        let result = await sut.rewrite(
+    @Test func cursorFormatsExactMentionPath() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: CursorAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "Cursor should format as @relative/path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testWindsurfFormatsExactMentionPath() async {
-        let result = await sut.rewrite(
+    @Test func windsurfFormatsExactMentionPath() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: WindsurfAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "Windsurf should format as @relative/path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    // MARK: - MentionRewriteResult Properties
-
-    func testResultDidRewriteReflectsRewrittenCount() {
+    @Test func resultDidRewriteReflectsRewrittenCount() {
         let noRewrite = MentionRewriteResult(text: "hello", rewrittenCount: 0, preservedCount: 0)
-        XCTAssertFalse(noRewrite.didRewrite)
+        #expect(noRewrite.didRewrite == false)
 
         let withRewrite = MentionRewriteResult(text: "hello", rewrittenCount: 1, preservedCount: 0)
-        XCTAssertTrue(withRewrite.didRewrite)
+        #expect(withRewrite.didRewrite)
     }
 
-    // MARK: - Text Preserved On No Matches
-
-    func testOriginalTextPreservedWhenNoMentionCandidatesFound() async {
+    @Test func originalTextPreservedWhenNoMentionCandidatesFound() async {
+        let fixture = makeSUT()
         let originalText = "just a regular sentence with no code references at all"
 
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: originalText,
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertEqual(result.text, originalText)
-        XCTAssertEqual(result.rewrittenCount, 0)
-        XCTAssertEqual(result.preservedCount, 0)
+        #expect(result.text == originalText)
+        #expect(result.rewrittenCount == 0)
+        #expect(result.preservedCount == 0)
     }
 
-    // MARK: - Empty Text Input
-
-    func testEmptyTextReturnsEmptyResult() async {
-        let result = await sut.rewrite(
+    @Test func emptyTextReturnsEmptyResult() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertEqual(result.text, "")
-        XCTAssertFalse(result.didRewrite)
+        #expect(result.text == "")
+        #expect(result.didRewrite == false)
     }
 
-    // MARK: - Workspace Root Normalization
-
-    func testNormalizeFilePathToParentDirectory() {
+    @Test func normalizeFilePathToParentDirectory() {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.directories.insert("/workspace/Pindrop/Services")
-        sut = MentionRewriteService(fileSystem: mockFS) // Recreate after mutating struct
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "/workspace/Pindrop/Services/AppCoordinator.swift"
         ])
 
-        XCTAssertEqual(result, ["/workspace/Pindrop/Services"])
+        #expect(result == ["/workspace/Pindrop/Services"])
     }
 
-    func testNormalizeTildePath() {
+    @Test func normalizeTildePath() {
+        let fixture = makeSUT()
         let home = NSHomeDirectory()
         let expandedPath = "\(home)/Projects/pindrop"
+        var mockFS = fixture.mockFS
         mockFS.directories.insert(expandedPath)
-        sut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots(["~/Projects/pindrop"])
 
-        XCTAssertEqual(result, [expandedPath])
+        #expect(result == [expandedPath])
     }
 
-    func testNormalizeFileURLScheme() {
+    @Test func normalizeFileURLScheme() {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.directories.insert("/workspace/some")
-        sut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "file:///workspace/some/file.swift"
         ])
 
-        XCTAssertEqual(result, ["/workspace/some"])
+        #expect(result == ["/workspace/some"])
     }
 
-    func testNormalizeClimbsToProjectMarker() {
+    @Test func normalizeClimbsToProjectMarker() {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.directories.insert("/workspace/Pindrop/Services")
         mockFS.directories.insert("/workspace/Pindrop")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        sut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "/workspace/Pindrop/Services/AppCoordinator.swift"
         ])
 
-        XCTAssertEqual(result, ["/workspace"],
-            "Should climb up to /workspace where .git exists")
+        #expect(result == ["/workspace"])
     }
 
-    func testNormalizeDeduplicatesRoots() {
+    @Test func normalizeDeduplicatesRoots() {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.directories.insert("/workspace")
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "/workspace",
@@ -511,35 +471,38 @@ final class MentionRewriteServiceTests: XCTestCase {
             "/workspace"
         ])
 
-        XCTAssertEqual(result, ["/workspace"])
+        #expect(result == ["/workspace"])
     }
 
-    func testNormalizeSkipsCompletelyInvalidPaths() {
-        let result = sut.normalizeWorkspaceRoots([
+    @Test func normalizeSkipsCompletelyInvalidPaths() {
+        let fixture = makeSUT()
+        let result = fixture.sut.normalizeWorkspaceRoots([
             "/nonexistent/path/to/file.swift"
         ])
 
-        XCTAssertTrue(result.isEmpty,
-            "Should skip paths where neither file nor parent directory exists")
+        #expect(result.isEmpty)
     }
 
-    func testNormalizeWithFileURLAndTildeAndFilePath() {
+    @Test func normalizeWithFileURLAndTildeAndFilePath() {
+        let fixture = makeSUT()
         let home = NSHomeDirectory()
         let projectRoot = "\(home)/Projects/pindrop"
+        var mockFS = fixture.mockFS
         mockFS.directories.insert(projectRoot)
         mockFS.directories.insert("\(projectRoot)/Pindrop")
         mockFS.directories.insert("\(projectRoot)/.git")
-        sut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "file://\(projectRoot)/Pindrop/AppCoordinator.swift"
         ])
 
-        XCTAssertEqual(result, [projectRoot],
-            "Should strip file://, resolve to parent dir, climb to .git project root")
+        #expect(result == [projectRoot])
     }
 
-    func testRewriteWorksWithFilePathAsWorkspaceRoot() async {
+    @Test func rewriteWorksWithFilePathAsWorkspaceRoot() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.directories.insert("/workspace/Pindrop/Services")
         mockFS.directories.insert("/workspace/Pindrop")
         mockFS.directories.insert("/workspace")
@@ -549,220 +512,208 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let result = await fileSut.rewrite(
             text: "check AppCoordinator.swift",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace/Pindrop/Services/AppCoordinator.swift"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Should normalize file path to project root and find files")
+        #expect(result.didRewrite)
     }
 
-    // MARK: - Mixed Extraction (Dot Pattern + Stem)
-
-    func testMixedDotPatternAndStemExtraction() async {
-        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+    @Test func mixedDotPatternAndStemExtraction() async {
+        let fixture = makeSUT()
+        let index = WorkspaceFileIndexService(fileSystem: fixture.mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = sut.extractMentionCandidates(
+        let candidates = fixture.sut.extractMentionCandidates(
             from: "check app coordinator dot swift and also AudioRecorder",
             index: index
         )
 
         let hasDotPattern = candidates.contains { $0.text.lowercased().contains("dot") }
-        let hasStemMatch = candidates.contains {
-            $0.text.contains("AudioRecorder")
-        }
+        let hasStemMatch = candidates.contains { $0.text.contains("AudioRecorder") }
 
-        XCTAssertTrue(hasDotPattern, "Should detect dot-pattern mention")
-        XCTAssertTrue(hasStemMatch, "Should also detect stem mention in same text")
-        XCTAssertGreaterThanOrEqual(candidates.count, 2,
-            "Both patterns should produce candidates")
+        #expect(hasDotPattern)
+        #expect(hasStemMatch)
+        #expect(candidates.count >= 2)
     }
 
-    func testMixedExtractionDoesNotDuplicateOverlaps() async {
-        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+    @Test func mixedExtractionDoesNotDuplicateOverlaps() async {
+        let fixture = makeSUT()
+        let index = WorkspaceFileIndexService(fileSystem: fixture.mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = sut.extractMentionCandidates(
+        let candidates = fixture.sut.extractMentionCandidates(
             from: "look at app coordinator dot swift",
             index: index
         )
 
         let dotMentions = candidates.filter { $0.text.lowercased().contains("dot") }
-        XCTAssertEqual(dotMentions.count, 1,
-            "Dot pattern should not be duplicated by stem pattern due to overlap dedup")
+        #expect(dotMentions.count == 1)
     }
 
-    // MARK: - Literal Dotted Filename Extraction
-
-    func testLiteralDottedFilenameExtraction() async {
-        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+    @Test func literalDottedFilenameExtraction() async {
+        let fixture = makeSUT()
+        let index = WorkspaceFileIndexService(fileSystem: fixture.mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = sut.extractMentionCandidates(
+        let candidates = fixture.sut.extractMentionCandidates(
             from: "check the AppCoordinator.swift file",
             index: index
         )
 
-        let hasLiteral = candidates.contains { $0.text == "AppCoordinator.swift" }
-        XCTAssertTrue(hasLiteral,
-            "Should extract 'AppCoordinator.swift' as a single literal dotted filename candidate")
+        #expect(candidates.contains { $0.text == "AppCoordinator.swift" })
     }
 
-    func testLiteralDottedFilenameWithDifferentExtension() async {
+    @Test func literalDottedFilenameWithDifferentExtension() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
-        let goSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let index = WorkspaceFileIndexService(fileSystem: mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = goSut.extractMentionCandidates(
+        let candidates = sut.extractMentionCandidates(
             from: "open fixtures.go please",
             index: index
         )
 
-        let hasFixtures = candidates.contains { $0.text == "fixtures.go" }
-        XCTAssertTrue(hasFixtures,
-            "Should extract 'fixtures.go' as a literal dotted filename candidate")
+        #expect(candidates.contains { $0.text == "fixtures.go" })
     }
 
-    func testPathQualifiedLiteralFilename() async {
+    @Test func pathQualifiedLiteralFilename() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
-        let pathSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let index = WorkspaceFileIndexService(fileSystem: mockFS)
         try? await index.buildIndex(roots: ["/workspace"])
 
-        let candidates = pathSut.extractMentionCandidates(
+        let candidates = sut.extractMentionCandidates(
             from: "look at gen/fixtures.go",
             index: index
         )
 
-        let hasPathQualified = candidates.contains { $0.text == "gen/fixtures.go" }
-        XCTAssertTrue(hasPathQualified,
-            "Should extract 'gen/fixtures.go' as a path-qualified literal filename candidate")
+        #expect(candidates.contains { $0.text == "gen/fixtures.go" })
     }
 
-    // MARK: - Active Document Disambiguation
-
-    func testActiveDocumentDisambiguatesMultipleMatches() async {
+    @Test func activeDocumentDisambiguatesMultipleMatches() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let disambigSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await disambigSut.rewrite(
+        let result = await sut.rewrite(
             text: "check fixtures.go",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "/workspace/gen/fixtures.go"
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Should rewrite when active document disambiguates")
-        XCTAssertTrue(result.text.contains("gen/fixtures.go"),
-            "Should produce mention with gen/fixtures.go path since that's the active document")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("gen/fixtures.go"))
     }
 
-    func testRewriteWithoutActiveDocumentPreservesAmbiguous() async {
+    @Test func rewriteWithoutActiveDocumentPreservesAmbiguous() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let ambigSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await ambigSut.rewrite(
+        let result = await sut.rewrite(
             text: "check fixtures.go",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.text.contains("fixtures.go"),
-            "Without active document, ambiguous mention should be preserved as-is")
+        #expect(result.text.contains("fixtures.go"))
     }
 
-    func testVSCodeRewriteDisambiguatesReadmeInActiveDocumentDirectory() async {
+    @Test func vsCodeRewriteDisambiguatesReadmeInActiveDocumentDirectory() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/docs/README.md")
         mockFS.directories.insert("/workspace/docs")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let vsCodeSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await vsCodeSut.rewrite(
+        let result = await sut.rewrite(
             text: "Can you update README.md for me?",
             capabilities: VSCodeAdapter().capabilities,
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "/workspace/CONTRIBUTING.md"
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "README.md should rewrite to VS Code mention syntax when active document directory provides a unique tie-break")
-        XCTAssertTrue(result.text.contains("@README.md"),
-            "Rewritten text should contain @README.md mention for VS Code adapter")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@README.md"))
     }
 
-    func testActiveDocumentPathNormalizesFileURL() async {
+    @Test func activeDocumentPathNormalizesFileURL() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let urlSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await urlSut.rewrite(
+        let result = await sut.rewrite(
             text: "check fixtures.go",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "file:///workspace/gen/fixtures.go"
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Should rewrite after normalizing file:// URL in activeDocumentPath")
-        XCTAssertTrue(result.text.contains("gen/fixtures.go"),
-            "Should disambiguate to gen/fixtures.go even when given as file:// URL")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("gen/fixtures.go"))
     }
 
-    // MARK: - Regression: Capitalized Filename With Punctuation + Active Document
-
-    func testRegressionCapitalizedFixturesGoWithActiveDocument() async {
+    @Test func regressionCapitalizedFixturesGoWithActiveDocument() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let regSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await regSut.rewrite(
+        let result = await sut.rewrite(
             text: "Can you fix the error in Fixtures.go?",
-            capabilities: cursorCapabilities,
+            capabilities: fixture.cursorCapabilities,
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "/workspace/gen/fixtures.go"
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Should rewrite capitalized 'Fixtures.go' when active document disambiguates")
-        XCTAssertTrue(result.text.contains("@gen/fixtures.go"),
-            "Rewritten text should contain @gen/fixtures.go mention for Cursor adapter")
-        XCTAssertFalse(result.text.contains("Fixtures.go"),
-            "Original capitalized 'Fixtures.go' should be replaced, not preserved")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@gen/fixtures.go"))
+        #expect(result.text.contains("Fixtures.go") == false)
     }
 
-    // MARK: - Antigravity Adapter Integration
-
-    func testAntigravityAdapterRewriteWithTildeRedactedRoot() async {
+    @Test func antigravityAdapterRewriteWithTildeRedactedRoot() async {
+        let fixture = makeSUT()
         let home = NSHomeDirectory()
         let projectRoot = "\(home)/Projects/pindrop"
+        var mockFS = fixture.mockFS
         mockFS.directories.insert(projectRoot)
         mockFS.directories.insert("\(projectRoot)/Pindrop")
         mockFS.directories.insert("\(projectRoot)/Pindrop/Services")
@@ -772,53 +723,48 @@ final class MentionRewriteServiceTests: XCTestCase {
             "\(projectRoot)/Pindrop/Services/AudioRecorder.swift",
             "\(projectRoot)/README.md",
         ]
-        let agSut = MentionRewriteService(fileSystem: mockFS)
-        let antigravityCapabilities = AntigravityAdapter().capabilities
-
-        let result = await agSut.rewrite(
-            text: "check the AppCoordinator.swift file",
-            capabilities: antigravityCapabilities,
-            workspaceRoots: ["~/Projects/pindrop"]
-        )
-
-        XCTAssertTrue(result.didRewrite,
-            "Should rewrite with Antigravity adapter when given tilde-redacted workspace root")
-        XCTAssertTrue(result.text.contains("@"),
-            "Antigravity adapter should use @ prefix")
-    }
-
-    func testAntigravityAdapterNoRewriteWithEmptyWorkspace() async {
-        let antigravityCapabilities = AntigravityAdapter().capabilities
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = await sut.rewrite(
             text: "check the AppCoordinator.swift file",
-            capabilities: antigravityCapabilities,
+            capabilities: AntigravityAdapter().capabilities,
+            workspaceRoots: ["~/Projects/pindrop"]
+        )
+
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@"))
+    }
+
+    @Test func antigravityAdapterNoRewriteWithEmptyWorkspace() async {
+        let fixture = makeSUT()
+
+        let result = await fixture.sut.rewrite(
+            text: "check the AppCoordinator.swift file",
+            capabilities: AntigravityAdapter().capabilities,
             workspaceRoots: []
         )
 
-        XCTAssertFalse(result.didRewrite,
-            "Should not rewrite when no workspace roots available")
+        #expect(result.didRewrite == false)
     }
 
-    func testNormalizeTildeRedactedFilePath() {
+    @Test func normalizeTildeRedactedFilePath() {
+        let fixture = makeSUT()
         let home = NSHomeDirectory()
         let projectRoot = "\(home)/Projects/pindrop"
+        var mockFS = fixture.mockFS
         mockFS.directories.insert(projectRoot)
         mockFS.directories.insert("\(projectRoot)/.git")
         mockFS.directories.insert("\(projectRoot)/Pindrop")
-        sut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
         let result = sut.normalizeWorkspaceRoots([
             "~/Projects/pindrop/Pindrop/AppCoordinator.swift"
         ])
 
-        XCTAssertEqual(result, [projectRoot],
-            "Should expand tilde, derive parent dir, and climb to project root")
+        #expect(result == [projectRoot])
     }
 
-    // MARK: - PromptRoutingSignal Workspace Derivation
-
-    func testRoutingSignalDerivesWorkspaceRootFromDocumentPath() {
+    @Test func routingSignalDerivesWorkspaceRootFromDocumentPath() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -837,11 +783,10 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let signal = PromptRoutingSignal.from(snapshot: snapshot)
 
-        XCTAssertEqual(signal.workspacePath, "~/Projects/pindrop/Pindrop",
-            "workspacePath should be the parent directory of documentPath")
+        #expect(signal.workspacePath == "~/Projects/pindrop/Pindrop")
     }
 
-    func testRoutingSignalDerivesWorkspaceRootFromFileURL() {
+    @Test func routingSignalDerivesWorkspaceRootFromFileURL() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -860,11 +805,10 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let signal = PromptRoutingSignal.from(snapshot: snapshot)
 
-        XCTAssertEqual(signal.workspacePath, "/Users/test/Projects/pindrop",
-            "workspacePath should strip file:// and return parent directory")
+        #expect(signal.workspacePath == "/Users/test/Projects/pindrop")
     }
 
-    func testRoutingSignalUsesDirectoryDocumentPathForTerminalApps() {
+    @Test func routingSignalUsesDirectoryDocumentPathForTerminalApps() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -883,11 +827,10 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let signal = PromptRoutingSignal.from(snapshot: snapshot)
 
-        XCTAssertEqual(signal.workspacePath, "~/Projects/pindrop",
-            "workspacePath should preserve a directory-style documentPath instead of climbing to its parent")
+        #expect(signal.workspacePath == "~/Projects/pindrop")
     }
 
-    func testRoutingSignalNilWorkspaceWhenNoDocumentPath() {
+    @Test func routingSignalNilWorkspaceWhenNoDocumentPath() {
         let snapshot = ContextSnapshot(
             timestamp: Date(),
             appContext: AppContextInfo(
@@ -906,13 +849,10 @@ final class MentionRewriteServiceTests: XCTestCase {
 
         let signal = PromptRoutingSignal.from(snapshot: snapshot)
 
-        XCTAssertNil(signal.workspacePath,
-            "workspacePath should be nil when documentPath is nil")
+        #expect(signal.workspacePath == nil)
     }
 
-    // MARK: - Per-Editor Workspace Derivation + Mention Integration
-
-    private func makeEditorIntegrationSut() -> (MentionRewriteService, MockFileSystemProvider) {
+    private func makeEditorIntegrationSut() -> MentionRewriteService {
         var fs = MockFileSystemProvider()
         let home = NSHomeDirectory()
         let root = "\(home)/Projects/pindrop"
@@ -929,119 +869,112 @@ final class MentionRewriteServiceTests: XCTestCase {
                 "\(root)/README.md",
             ]
         ]
-        return (MentionRewriteService(fileSystem: fs), fs)
+        return MentionRewriteService(fileSystem: fs)
     }
 
-    func testCursorDerivationAndRewriteFromFilePath() async {
-        let (editorSut, _) = makeEditorIntegrationSut()
+    @Test func cursorDerivationAndRewriteFromFilePath() async {
+        let sut = makeEditorIntegrationSut()
         let home = NSHomeDirectory()
 
-        let result = await editorSut.rewrite(
+        let result = await sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: CursorAdapter().capabilities,
             workspaceRoots: ["\(home)/Projects/pindrop/Pindrop/Services/AppCoordinator.swift"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Cursor: should derive workspace root from file path and rewrite")
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "Cursor: should produce @-prefixed relative path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testVSCodeDerivationAndRewriteFromFileURL() async {
-        let (editorSut, _) = makeEditorIntegrationSut()
+    @Test func vsCodeDerivationAndRewriteFromFileURL() async {
+        let sut = makeEditorIntegrationSut()
         let home = NSHomeDirectory()
 
-        let result = await editorSut.rewrite(
+        let result = await sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: VSCodeAdapter().capabilities,
             workspaceRoots: ["file://\(home)/Projects/pindrop/Pindrop/Services/AppCoordinator.swift"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "VS Code: should derive workspace root from file:// URL and rewrite")
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "VS Code: should produce @-prefixed relative path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testZedDerivationAndRewriteFromTildePath() async {
-        let (editorSut, _) = makeEditorIntegrationSut()
+    @Test func zedDerivationAndRewriteFromTildePath() async {
+        let sut = makeEditorIntegrationSut()
 
-        let result = await editorSut.rewrite(
+        let result = await sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: ZedAdapter().capabilities,
             workspaceRoots: ["~/Projects/pindrop"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Zed: should derive workspace root from tilde path and rewrite")
-        XCTAssertTrue(result.text.contains("/Pindrop/Services/AppCoordinator.swift"),
-            "Zed: should produce /-prefixed relative path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("/Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testWindsurfDerivationAndRewriteFromSubdirectory() async {
-        let (editorSut, _) = makeEditorIntegrationSut()
+    @Test func windsurfDerivationAndRewriteFromSubdirectory() async {
+        let sut = makeEditorIntegrationSut()
         let home = NSHomeDirectory()
 
-        let result = await editorSut.rewrite(
+        let result = await sut.rewrite(
             text: "open AppCoordinator.swift",
             capabilities: WindsurfAdapter().capabilities,
             workspaceRoots: ["\(home)/Projects/pindrop/Pindrop/Services"]
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Windsurf: should climb from subdirectory to project root and rewrite")
-        XCTAssertTrue(result.text.contains("@Pindrop/Services/AppCoordinator.swift"),
-            "Windsurf: should produce @-prefixed relative path — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@Pindrop/Services/AppCoordinator.swift"))
     }
 
-    func testWindsurfNoRewriteWithEmptyWorkspace() async {
-        let windsurfCapabilities = WindsurfAdapter().capabilities
+    @Test func windsurfNoRewriteWithEmptyWorkspace() async {
+        let fixture = makeSUT()
 
-        let result = await sut.rewrite(
+        let result = await fixture.sut.rewrite(
             text: "check AppCoordinator.swift",
-            capabilities: windsurfCapabilities,
+            capabilities: WindsurfAdapter().capabilities,
             workspaceRoots: []
         )
 
-        XCTAssertFalse(result.didRewrite,
-            "Windsurf: should not rewrite when no workspace roots available")
+        #expect(result.didRewrite == false)
     }
 
-    func testWindsurfRewriteMultipleMentions() async {
-        let result = await sut.rewrite(
+    @Test func windsurfRewriteMultipleMentions() async {
+        let fixture = makeSUT()
+
+        let result = await fixture.sut.rewrite(
             text: "look at AppCoordinator.swift and AudioRecorder.swift",
             capabilities: WindsurfAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertGreaterThanOrEqual(result.rewrittenCount + result.preservedCount, 2,
-            "Windsurf: both mentions should be detected as candidates")
+        #expect(result.rewrittenCount + result.preservedCount >= 2)
     }
 
-    func testWindsurfActiveDocumentDisambiguation() async {
+    @Test func windsurfActiveDocumentDisambiguation() async {
+        let fixture = makeSUT()
+        var mockFS = fixture.mockFS
         mockFS.filesByRoot["/workspace"]?.append("/workspace/gen/fixtures.go")
         mockFS.filesByRoot["/workspace"]?.append("/workspace/test/fixtures.go")
         mockFS.directories.insert("/workspace/gen")
         mockFS.directories.insert("/workspace/test")
         mockFS.directories.insert("/workspace")
         mockFS.directories.insert("/workspace/.git")
-        let wsSut = MentionRewriteService(fileSystem: mockFS)
+        let sut = MentionRewriteService(fileSystem: mockFS)
 
-        let result = await wsSut.rewrite(
+        let result = await sut.rewrite(
             text: "check fixtures.go",
             capabilities: WindsurfAdapter().capabilities,
             workspaceRoots: ["/workspace"],
             activeDocumentPath: "/workspace/gen/fixtures.go"
         )
 
-        XCTAssertTrue(result.didRewrite,
-            "Windsurf: should disambiguate using active document")
-        XCTAssertTrue(result.text.contains("@gen/fixtures.go"),
-            "Windsurf: should produce @gen/fixtures.go — got: \(result.text)")
+        #expect(result.didRewrite)
+        #expect(result.text.contains("@gen/fixtures.go"))
     }
 
-    func testAllEditorsPrefixDeterminism() async {
+    @Test func allEditorsPrefixDeterminism() async {
+        let fixture = makeSUT()
         let editors: [(String, AppAdapterCapabilities, String)] = [
             ("Cursor", CursorAdapter().capabilities, "@"),
             ("VS Code", VSCodeAdapter().capabilities, "@"),
@@ -1050,48 +983,52 @@ final class MentionRewriteServiceTests: XCTestCase {
         ]
 
         for (name, caps, expectedPrefix) in editors {
-            let result = await sut.rewrite(
+            let result = await fixture.sut.rewrite(
                 text: "check AppCoordinator.swift",
                 capabilities: caps,
                 workspaceRoots: ["/workspace"]
             )
 
-            XCTAssertTrue(result.didRewrite,
-                "\(name): should rewrite with valid workspace")
-            XCTAssertTrue(result.text.contains("\(expectedPrefix)Pindrop/Services/AppCoordinator.swift"),
-                "\(name): expected prefix '\(expectedPrefix)' in mention — got: \(result.text)")
+            #expect(result.didRewrite, "\(name): should rewrite with valid workspace")
+            #expect(
+                result.text.contains("\(expectedPrefix)Pindrop/Services/AppCoordinator.swift"),
+                "\(name): expected prefix '\(expectedPrefix)' in mention - got: \(result.text)"
+            )
         }
     }
 
-    func testRewriteToCanonicalPlaceholdersUsesCanonicalTemplate() async {
-        let result = await sut.rewriteToCanonicalPlaceholders(
+    @Test func rewriteToCanonicalPlaceholdersUsesCanonicalTemplate() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewriteToCanonicalPlaceholders(
             text: "check AppCoordinator.swift",
             capabilities: CursorAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertTrue(result.text.contains("[[:Pindrop/Services/AppCoordinator.swift:]]"))
+        #expect(result.didRewrite)
+        #expect(result.text.contains("[[:Pindrop/Services/AppCoordinator.swift:]]"))
     }
 
-    func testRenderCanonicalPlaceholdersUsesCodexMarkdownTemplate() {
-        let result = sut.renderCanonicalPlaceholders(
+    @Test func renderCanonicalPlaceholdersUsesCodexMarkdownTemplate() {
+        let fixture = makeSUT()
+        let result = fixture.sut.renderCanonicalPlaceholders(
             in: "update [[:README.md:]]",
             capabilities: CodexAdapter().capabilities
         )
 
-        XCTAssertTrue(result.didRewrite)
-        XCTAssertEqual(result.rewrittenCount, 1)
-        XCTAssertEqual(result.text, "update [@README.md](README.md)")
+        #expect(result.didRewrite)
+        #expect(result.rewrittenCount == 1)
+        #expect(result.text == "update [@README.md](README.md)")
     }
 
-    func testRewriteDoesNotCorruptMarkdownLinkTargetPath() async {
-        let result = await sut.rewrite(
+    @Test func rewriteDoesNotCorruptMarkdownLinkTargetPath() async {
+        let fixture = makeSUT()
+        let result = await fixture.sut.rewrite(
             text: "see [@README.md](README.md)",
             capabilities: CodexAdapter().capabilities,
             workspaceRoots: ["/workspace"]
         )
 
-        XCTAssertEqual(result.text, "see [@README.md](README.md)")
+        #expect(result.text == "see [@README.md](README.md)")
     }
 }

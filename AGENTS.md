@@ -1,11 +1,11 @@
 # Repository Guidelines
 
-Last updated: 2026-03-13
+Last updated: 2026-03-21
 
 ## Project Snapshot
 
 - App: `Pindrop` (menu bar macOS app, `LSUIElement` behavior)
-- Stack: Swift 5.9+, SwiftUI, SwiftData, XCTest
+- Stack: Swift 5.9+, SwiftUI, SwiftData, Swift Testing, XCTest UI tests
 - Platform target: macOS 14+
 - Main dependency path: `Pindrop.xcodeproj` + SwiftPM
 - Entry points: `Pindrop/PindropApp.swift`, `Pindrop/AppCoordinator.swift`
@@ -39,7 +39,8 @@ just export-app            # Developer ID export for distribution
 just dmg                   # Signed DMG for distribution
 just test                  # Unit test plan
 just test-integration      # Integration test plan (opt-in)
-just test-all              # Unit + integration
+just test-ui               # UI test plan
+just test-all              # Unit + integration + UI
 just test-coverage         # Unit tests with coverage
 just dev                   # clean + build + test
 just ci                    # clean + unsigned build + unsigned test + unsigned release build
@@ -51,6 +52,7 @@ Direct focused test commands:
 
 ```bash
 xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -testPlan Unit -destination 'platform=macOS'
+xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -testPlan UI -destination 'platform=macOS'
 xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platform=macOS' -only-testing:PindropTests/AudioRecorderTests
 xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platform=macOS' -only-testing:PindropTests/AudioRecorderTests/testStartRecordingRequestsPermission
 ```
@@ -95,12 +97,13 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 ## Testing Conventions
 
 - Test files: `*Tests.swift`
-- Typical test class shape: `@MainActor final class XTests: XCTestCase`
+- Unit tests use Swift Testing with `@Suite` / `@Test`; macOS UI coverage stays in `PindropUITests/` with XCTest UI APIs
 - Standard naming: `sut` for system under test
-- Use `setUp`/`tearDown` to build and nil shared state
+- Prefer local fixture builders over shared `setUp` / `tearDown`; use `PindropTests/TestSupport.swift` for reusable test helpers
 - Use protocol mocks from `PindropTests/TestHelpers/` for hardware/system APIs
 - Integration tests are gated (see `PINDROP_RUN_INTEGRATION_TESTS` pattern)
 - Test mode signal exists in runtime (`PINDROP_TEST_MODE`)
+- UI tests run through `PINDROP_UI_TEST_MODE` and deterministic fixture surfaces in `Pindrop/AppTestMode.swift`
 
 ## Change Scope Rules
 
@@ -146,5 +149,6 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 - Use `just` commands in examples unless a direct `xcodebuild` form is required
 - When adding tests, mirror structure from the nearest existing test file first
+- Prefer Swift Testing assertions (`#expect`, `#require`, `Issue.record`) for unit tests; keep XCTest only for UI automation
 - When touching settings, verify both app behavior and test-mode behavior
 - When touching model or schema code, verify migration and read/write behavior

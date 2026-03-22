@@ -101,12 +101,14 @@ final class ToastService: ToastShowing {
     }
 
     private let presenter: ToastPresenting
+    private let scheduler: TaskScheduling
     private var queue: [ToastPayload] = []
     private var activeToast: ActiveToast?
-    private var dismissTask: Task<Void, Never>?
+    private var dismissTask: ScheduledTask?
 
-    init(presenter: ToastPresenting) {
+    init(presenter: ToastPresenting, scheduler: TaskScheduling = DefaultTaskScheduler()) {
         self.presenter = presenter
+        self.scheduler = scheduler
     }
 
     func show(_ payload: ToastPayload) {
@@ -186,13 +188,11 @@ final class ToastService: ToastShowing {
         }
 
         activeToast.remainingDuration = remainingDuration
-        activeToast.dismissStartedAt = Date()
+        activeToast.dismissStartedAt = scheduler.now
         activeToast.isTimerPaused = false
         self.activeToast = activeToast
 
-        dismissTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(remainingDuration * 1_000_000_000))
-            guard !Task.isCancelled else { return }
+        dismissTask = scheduler.schedule(after: remainingDuration) { [weak self] in
             self?.dismissCurrentToast()
         }
     }
@@ -207,7 +207,7 @@ final class ToastService: ToastShowing {
             dismissTask = nil
 
             if let dismissStartedAt = activeToast.dismissStartedAt {
-                let elapsed = Date().timeIntervalSince(dismissStartedAt)
+                let elapsed = scheduler.now.timeIntervalSince(dismissStartedAt)
                 activeToast.remainingDuration = max(0, remainingDuration - elapsed)
             }
 
