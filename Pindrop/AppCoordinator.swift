@@ -23,6 +23,7 @@ private final class EventTapRunLoopThread: Thread {
     init(name: String) {
         super.init()
         self.name = name
+        self.qualityOfService = .userInteractive
     }
 
     override func main() {
