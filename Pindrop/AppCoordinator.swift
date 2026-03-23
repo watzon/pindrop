@@ -1906,7 +1906,8 @@ final class AppCoordinator {
                     contentPrompt: notePrompt,
                     generateMetadata: true,
                     existingTags: existingTags,
-                    context: enhancementContext
+                    context: enhancementContext,
+                    provider: settingsStore.currentAIProvider
                 )
                 Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
                 let normalizedEnhancedContent = normalizedTranscriptionText(enhancedNote.content)
@@ -2649,7 +2650,8 @@ final class AppCoordinator {
                     model: settingsStore.aiModel,
                     customPrompt: basePrompt,
                     imageBase64: nil,
-                    context: contextMetadata
+                    context: contextMetadata,
+                    provider: settingsStore.currentAIProvider
                 )
                 if let capabilities = mentionFormattingCapabilities,
                    capabilities.supportsFileMentions,

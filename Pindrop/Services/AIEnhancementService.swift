@@ -834,7 +834,8 @@ final class AIEnhancementService {
         apiEndpoint: String,
         apiKey: String?,
         model: String = "gpt-4o-mini",
-        customPrompt: String = AIEnhancementService.defaultSystemPrompt
+        customPrompt: String = AIEnhancementService.defaultSystemPrompt,
+        provider: AIProvider = .openai
     ) async throws -> String {
         guard !text.isEmpty else {
             return text
@@ -845,35 +846,10 @@ final class AIEnhancementService {
         }
 
         do {
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
-                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-            }
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
-
-            let requestBody: [String: Any] = [
-                "model": model,
-                "messages": [
-                    [
-                        "role": "system",
-                        "content": customPrompt
-                    ],
-                    [
-                        "role": "user",
-                        "content": text
-                    ]
-                ],
-                "temperature": 0.1,
-                "max_tokens": 2048
-            ]
-
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-            // Debug: avoid logging payload content; only record a summary.
-            let logLines = AIEnhancementService.redactedPayloadLogLines(for: requestBody, redactImageBase64: true)
-            Log.aiEnhancement.debug("Prepared enhancement request payload (redactedLines=\(logLines.count))")
+            let request = buildAPIRequest(
+                url: url, apiKey: apiKey, model: model,
+                systemPrompt: customPrompt, userContent: text, provider: provider
+            )
 
             let (data, response) = try await session.data(for: request)
 
@@ -890,15 +866,7 @@ final class AIEnhancementService {
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let choices = json["choices"] as? [[String: Any]],
-                  let firstChoice = choices.first,
-                  let message = firstChoice["message"] as? [String: Any],
-                  let content = message["content"] as? String else {
-                throw EnhancementError.invalidResponse
-            }
-
-            return content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return try parseAPIResponse(data: data, provider: provider)
         } catch let error as EnhancementError {
             throw error
         } catch {
@@ -913,7 +881,8 @@ final class AIEnhancementService {
         model: String = "gpt-4o-mini",
         customPrompt: String = AIEnhancementService.defaultSystemPrompt,
         imageBase64: String?,
-        context: ContextMetadata = .none
+        context: ContextMetadata = .none,
+        provider: AIProvider = .openai
     ) async throws -> String {
         guard !text.isEmpty else {
             return text
@@ -924,33 +893,36 @@ final class AIEnhancementService {
         }
 
         do {
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
-                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            var request: URLRequest
+
+            if provider == .anthropic {
+                let contextAwarePrompt = AIEnhancementService.buildContextAwareSystemPrompt(
+                    basePrompt: customPrompt, context: context
+                )
+                request = buildAPIRequest(
+                    url: url, apiKey: apiKey, model: model,
+                    systemPrompt: contextAwarePrompt, userContent: text, provider: provider
+                )
+            } else {
+                let messages = AIEnhancementService.buildMessages(
+                    systemPrompt: customPrompt, text: text,
+                    imageBase64: imageBase64, context: context
+                )
+
+                request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                }
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+
+                let requestBody: [String: Any] = [
+                    "model": model, "messages": messages,
+                    "temperature": 0.1, "max_tokens": 2048
+                ]
+                request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
             }
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
-
-            let messages = AIEnhancementService.buildMessages(
-                systemPrompt: customPrompt,
-                text: text,
-                imageBase64: imageBase64,
-                context: context
-            )
-
-            let requestBody: [String: Any] = [
-                "model": model,
-                "messages": messages,
-                "temperature": 0.1,
-                "max_tokens": 2048
-            ]
-
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-            // Debug: avoid logging payload content; only record a summary.
-            let logLines = AIEnhancementService.redactedPayloadLogLines(for: requestBody, redactImageBase64: true)
-            Log.aiEnhancement.debug("Prepared enhancement request payload (redactedLines=\(logLines.count))")
 
             let (data, response) = try await session.data(for: request)
 
@@ -967,19 +939,76 @@ final class AIEnhancementService {
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let choices = json["choices"] as? [[String: Any]],
+            return try parseAPIResponse(data: data, provider: provider)
+        } catch let error as EnhancementError {
+            throw error
+        } catch {
+            throw EnhancementError.apiError(error.localizedDescription)
+        }
+    }
+
+    // MARK: - Provider-specific request/response helpers
+
+    private func buildAPIRequest(
+        url: URL, apiKey: String?, model: String,
+        systemPrompt: String, userContent: String, provider: AIProvider
+    ) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        if provider == .anthropic {
+            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+            }
+            request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+
+            let requestBody: [String: Any] = [
+                "model": model, "max_tokens": 2048,
+                "system": systemPrompt,
+                "messages": [["role": "user", "content": userContent]]
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
+        } else {
+            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
+                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            }
+            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
+
+            let requestBody: [String: Any] = [
+                "model": model,
+                "messages": [
+                    ["role": "system", "content": systemPrompt],
+                    ["role": "user", "content": userContent]
+                ],
+                "temperature": 0.1, "max_tokens": 2048
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
+        }
+
+        return request
+    }
+
+    private func parseAPIResponse(data: Data, provider: AIProvider) throws -> String {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw EnhancementError.invalidResponse
+        }
+
+        if provider == .anthropic {
+            guard let content = json["content"] as? [[String: Any]],
+                  let firstBlock = content.first,
+                  let text = firstBlock["text"] as? String else {
+                throw EnhancementError.invalidResponse
+            }
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            guard let choices = json["choices"] as? [[String: Any]],
                   let firstChoice = choices.first,
                   let message = firstChoice["message"] as? [String: Any],
                   let content = message["content"] as? String else {
                 throw EnhancementError.invalidResponse
             }
-
             return content.trimmingCharacters(in: .whitespacesAndNewlines)
-        } catch let error as EnhancementError {
-            throw error
-        } catch {
-            throw EnhancementError.apiError(error.localizedDescription)
         }
     }
 
@@ -1180,12 +1209,13 @@ final class AIEnhancementService {
         contentPrompt: String,
         generateMetadata: Bool = true,
         existingTags: [String] = [],
-        context: ContextMetadata = .none
+        context: ContextMetadata = .none,
+        provider: AIProvider = .openai
     ) async throws -> EnhancedNote {
         guard !content.isEmpty else {
             return EnhancedNote(content: content, title: "Untitled Note", tags: [])
         }
-        
+
         let enhancedContent = try await enhance(
             text: content,
             apiEndpoint: apiEndpoint,
@@ -1193,12 +1223,13 @@ final class AIEnhancementService {
             model: model,
             customPrompt: contentPrompt,
             imageBase64: nil,
-            context: context
+            context: context,
+            provider: provider
         )
-        
+
         var title = generateFallbackTitle(from: enhancedContent)
         var tags: [String] = []
-        
+
         if generateMetadata {
             do {
                 let metadata = try await generateNoteMetadata(
@@ -1206,7 +1237,8 @@ final class AIEnhancementService {
                     apiEndpoint: apiEndpoint,
                     apiKey: apiKey,
                     model: model,
-                    existingTags: existingTags
+                    existingTags: existingTags,
+                    provider: provider
                 )
                 title = metadata.title
                 tags = metadata.tags
@@ -1275,49 +1307,30 @@ final class AIEnhancementService {
         apiEndpoint: String,
         apiKey: String?,
         model: String = "gpt-4o-mini",
-        existingTags: [String] = []
+        existingTags: [String] = [],
+        provider: AIProvider = .openai
     ) async throws -> (title: String, tags: [String]) {
         guard !content.isEmpty else {
             return ("Untitled Note", [])
         }
-        
+
         guard let url = URL(string: apiEndpoint) else {
             throw EnhancementError.invalidEndpoint
         }
-        
+
         do {
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            if let apiKey = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines), !apiKey.isEmpty {
-                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-            }
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
-            
-            let requestBody: [String: Any] = [
-                "model": model,
-                "messages": [
-                    [
-                        "role": "system",
-                        "content": AIEnhancementService.metadataGenerationPrompt(existingTags: existingTags)
-                    ],
-                    [
-                        "role": "user",
-                        "content": content
-                    ]
-                ],
-                "temperature": 0.3,
-                "max_tokens": 256
-            ]
-            
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-            
+            let metadataPrompt = AIEnhancementService.metadataGenerationPrompt(existingTags: existingTags)
+            let request = buildAPIRequest(
+                url: url, apiKey: apiKey, model: model,
+                systemPrompt: metadataPrompt, userContent: content, provider: provider
+            )
+
             let (data, response) = try await session.data(for: request)
-            
+
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw EnhancementError.invalidResponse
             }
-            
+
             guard httpResponse.statusCode == 200 else {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let error = json["error"] as? [String: Any],
@@ -1326,14 +1339,8 @@ final class AIEnhancementService {
                 }
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
-            
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let choices = json["choices"] as? [[String: Any]],
-                  let firstChoice = choices.first,
-                  let message = firstChoice["message"] as? [String: Any],
-                  let content = message["content"] as? String else {
-                throw EnhancementError.invalidResponse
-            }
+
+            let content = try parseAPIResponse(data: data, provider: provider)
             
             // Parse the JSON response from the AI
             let cleanedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
