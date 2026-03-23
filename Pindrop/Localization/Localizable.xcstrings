@@ -89,6 +89,23 @@
         }
       }
     },
+    "(Empty)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Empty)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Vacío)"
+          }
+        }
+      }
+    },
     "#%@" : {
       "localizations" : {
         "en" : {
@@ -694,6 +711,23 @@
         }
       }
     },
+    "Add trailing space" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add trailing space"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir espacio al final"
+          }
+        }
+      }
+    },
     "Add word replacements to automatically correct common transcription errors." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -775,6 +809,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La mejora con IA falló"
+          }
+        }
+      }
+    },
+    "AI enhancement is disabled." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI enhancement is disabled."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La mejora con IA está desactivada."
           }
         }
       }
@@ -1012,7 +1063,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Automatic (Follow System)"
+            "value" : "Automático (Seguir sistema)"
           }
         }
       }
@@ -1085,6 +1136,23 @@
         }
       }
     },
+    "Available Models" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available Models"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelos disponibles"
+          }
+        }
+      }
+    },
     "Avg Speed" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1097,7 +1165,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avg Speed"
+            "value" : "Velocidad prom"
           }
         }
       }
@@ -1351,7 +1419,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check for Updates..."
+            "value" : "Buscar actualizaciones..."
           }
         }
       }
@@ -2425,6 +2493,23 @@
         }
       }
     },
+    "Default Model" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Model"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelo predeterminado"
+          }
+        }
+      }
+    },
     "Define word replacements to automatically replace specific words or phrases" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2878,7 +2963,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dutch"
+            "value" : "Neerlandés"
           }
         }
       }
@@ -3014,7 +3099,24 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "English"
+            "value" : "Inglés"
+          }
+        }
+      }
+    },
+    "English-only" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English-only"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo inglés"
           }
         }
       }
@@ -3117,6 +3219,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error"
+          }
+        }
+      }
+    },
+    "European multilingual" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "European multilingual"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Multilingüe europeo"
           }
         }
       }
@@ -3665,6 +3784,23 @@
         }
       }
     },
+    "Feature Models" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feature Models"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelos de funciones"
+          }
+        }
+      }
+    },
     "Fetch models in Models" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3812,7 +3948,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "French"
+            "value" : "Francés"
           }
         }
       }
@@ -3846,7 +3982,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "German"
+            "value" : "Alemán"
           }
         }
       }
@@ -3948,7 +4084,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Good afternoon"
+            "value" : "Buenas tardes"
           }
         }
       }
@@ -3965,7 +4101,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Good evening"
+            "value" : "Buenas noches"
           }
         }
       }
@@ -3982,7 +4118,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Good morning"
+            "value" : "Buenos días"
           }
         }
       }
@@ -3999,7 +4135,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Good night"
+            "value" : "Buenas noches"
           }
         }
       }
@@ -4390,7 +4526,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Italian"
+            "value" : "Italiano"
           }
         }
       }
@@ -4424,7 +4560,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Japanese"
+            "value" : "Japonés"
           }
         }
       }
@@ -4475,7 +4611,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Korean"
+            "value" : "Coreano"
           }
         }
       }
@@ -5141,6 +5277,23 @@
         }
       }
     },
+    "Multilingual" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Multilingual"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Multilingüe"
+          }
+        }
+      }
+    },
     "Must be OpenAI-compatible" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5345,6 +5498,7 @@
       }
     },
     "No model selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5661,6 +5815,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Captura de notas (Alternar)"
+          }
+        }
+      }
+    },
+    "Note from" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note from"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota de"
           }
         }
       }
@@ -6520,7 +6691,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Portuguese (Brazil)"
+            "value" : "Portugués (Brasil)"
           }
         }
       }
@@ -6907,12 +7078,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quit Pindrop"
+            "value" : "Salir de Pindrop"
           }
         }
       }
     },
     "Ready" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7058,7 +7230,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "recordings"
+            "value" : "grabaciones"
           }
         }
       }
@@ -7826,6 +7998,23 @@
         }
       }
     },
+    "Sent to the AI model when processing dictation for direct text insertion." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sent to the AI model when processing dictation for direct text insertion."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se envía al modelo de IA al procesar el dictado para inserción directa de texto."
+          }
+        }
+      }
+    },
     "sessions" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7838,7 +8027,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "sessions"
+            "value" : "sesiones"
           }
         }
       }
@@ -7855,7 +8044,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sessions"
+            "value" : "Sesiones"
           }
         }
       }
@@ -7945,6 +8134,23 @@
         }
       }
     },
+    "Show App" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar app"
+          }
+        }
+      }
+    },
     "Show App in Finder" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7957,7 +8163,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show App in Finder"
+            "value" : "Mostrar app en Finder"
           }
         }
       }
@@ -8076,7 +8282,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Simplified Chinese"
+            "value" : "Chino simplificado"
           }
         }
       }
@@ -8217,6 +8423,23 @@
         }
       }
     },
+    "Sort by" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort by"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenar por"
+          }
+        }
+      }
+    },
     "Source" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8246,7 +8469,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spanish"
+            "value" : "Español"
           }
         }
       }
@@ -8804,7 +9027,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Time Saved"
+            "value" : "Tiempo ahorrado"
           }
         }
       }
@@ -8839,6 +9062,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "to start talking"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoy"
           }
         }
       }
@@ -8940,7 +9180,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "transcribed"
+            "value" : "transcrita"
           }
         }
       }
@@ -9455,6 +9695,23 @@
         }
       }
     },
+    "Used when capturing notes via hotkey. Can add markdown formatting for longer content." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used when capturing notes via hotkey. Can add markdown formatting for longer content."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se usa al capturar notas mediante atajo de teclado. Puede añadir formato markdown para contenido más extenso."
+          }
+        }
+      }
+    },
     "v%@" : {
       "localizations" : {
         "en" : {
@@ -9573,6 +9830,23 @@
         }
       }
     },
+    "View" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver"
+          }
+        }
+      }
+    },
     "View all" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9624,6 +9898,23 @@
         }
       }
     },
+    "Vocabulary" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vocabulary"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vocabulario"
+          }
+        }
+      }
+    },
     "vs typing" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9636,7 +9927,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "vs typing"
+            "value" : "vs escribir"
           }
         }
       }
@@ -9691,6 +9982,23 @@
         }
       }
     },
+    "Word Replacements" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Word Replacements"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reemplazos de palabras"
+          }
+        }
+      }
+    },
     "words" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9703,7 +10011,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "words"
+            "value" : "palabras"
           }
         }
       }
@@ -9720,7 +10028,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Words"
+            "value" : "Palabras"
           }
         }
       }
@@ -9737,7 +10045,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "words/min"
+            "value" : "palabras/min"
           }
         }
       }
@@ -9754,7 +10062,24 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WPM"
+            "value" : "PPM"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayer"
           }
         }
       }

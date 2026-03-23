@@ -46,9 +46,9 @@ struct HistoryView: View {
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
             if calendar.isDateInToday(record.timestamp) {
-                return "Today"
+                return localized("Today", locale: locale)
             } else if calendar.isDateInYesterday(record.timestamp) {
-                return "Yesterday"
+                return localized("Yesterday", locale: locale)
             } else {
                 return Self.dayFormatter.string(from: record.timestamp)
             }

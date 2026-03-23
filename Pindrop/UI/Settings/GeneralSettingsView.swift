@@ -61,7 +61,7 @@ struct GeneralSettingsView: View {
                 SettingsDivider()
 
                 SettingsToggleRow(
-                    title: "Add trailing space",
+                    title: localized("Add trailing space", locale: locale),
                     detail: localized("Append a space after each transcription for seamless dictation.", locale: locale),
                     isOn: $settings.addTrailingSpace,
                     accessibilityIdentifier: "settings.toggle.addTrailingSpace"

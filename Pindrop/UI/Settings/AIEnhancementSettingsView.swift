@@ -57,15 +57,15 @@ struct AIEnhancementSettingsView: View {
          }
       }
 
-      var description: String {
-         switch self {
-         case .transcription:
-            return "Sent to the AI model when processing dictation for direct text insertion."
-         case .notes:
-            return
-               "Used when capturing notes via hotkey. Can add markdown formatting for longer content."
-         }
-      }
+       var description: String {
+          switch self {
+          case .transcription:
+             return localized("Sent to the AI model when processing dictation for direct text insertion.", locale: .autoupdatingCurrent)
+          case .notes:
+             return
+                localized("Used when capturing notes via hotkey. Can add markdown formatting for longer content.", locale: .autoupdatingCurrent)
+          }
+       }
    }
 
    var body: some View {

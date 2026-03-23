@@ -142,7 +142,7 @@ struct ModelsSettingsView: View {
     }
     
     private var currentModelCard: some View {
-        SettingsCard(title: "Default Model", icon: "checkmark.circle") {
+        SettingsCard(title: localized("Default Model", locale: locale), icon: "checkmark.circle") {
             if let currentModel = modelManager.availableModels.first(where: { $0.name == settings.selectedModel }) {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 16) {
@@ -159,8 +159,8 @@ struct ModelsSettingsView: View {
                                     MetadataBadge(icon: "internaldrive", text: currentModel.formattedSize)
                                 }
 
-                                RatingIndicator(label: "Speed", rating: currentModel.speedRating)
-                                RatingIndicator(label: "Accuracy", rating: currentModel.accuracyRating)
+                                RatingIndicator(label: localized("Speed", locale: locale), rating: currentModel.speedRating)
+                                RatingIndicator(label: localized("Accuracy", locale: locale), rating: currentModel.accuracyRating)
                             }
                         }
 
@@ -169,7 +169,7 @@ struct ModelsSettingsView: View {
                         if modelManager.isModelDownloaded(currentModel.name) {
                             HStack(spacing: 4) {
                                 IconView(icon: .circleCheck, size: 14)
-                                Text("Ready")
+                                Text(localized("Ready", locale: locale))
                             }
                             .font(.caption)
                             .foregroundStyle(.green)
@@ -178,7 +178,7 @@ struct ModelsSettingsView: View {
 
                 }
             } else {
-                Text("No model selected")
+                Text(localized("No model selected", locale: locale))
                     .foregroundStyle(.secondary)
             }
         }
@@ -199,7 +199,7 @@ struct ModelsSettingsView: View {
     }
     
     private var availableModelsCard: some View {
-        SettingsCard(title: "Available Models", icon: "square.stack.3d.up") {
+        SettingsCard(title: localized("Available Models", locale: locale), icon: "square.stack.3d.up") {
             LazyVStack(spacing: 0) {
                 if visibleModels.isEmpty {
                     emptyModelsState
@@ -280,7 +280,7 @@ struct ModelsSettingsView: View {
     }
     
     private var featureModelsCard: some View {
-        SettingsCard(title: "Feature Models", icon: "puzzlepiece.extension") {
+        SettingsCard(title: localized("Feature Models", locale: locale), icon: "puzzlepiece.extension") {
             VStack(spacing: 0) {
                 ForEach(Array(FeatureModelType.allCases.enumerated()), id: \.element.id) { index, featureType in
                     FeatureModelRow(

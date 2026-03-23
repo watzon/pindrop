@@ -303,11 +303,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // === VIEW SECTION ===
-        let viewHeader = createHeaderItem("View")
+        let viewHeader = createHeaderItem(localized("View", locale: locale))
         menu.addItem(viewHeader)
 
         let showAppItem = NSMenuItem(
-            title: "Show App",
+            title: localized("Show App", locale: locale),
             action: #selector(showApp),
             keyEquivalent: "0"
         )
@@ -479,7 +479,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         // Add new recent items
         for (index, transcript) in recentTranscripts.enumerated() {
             let truncatedText = String(transcript.text.prefix(40))
-            let displayText = truncatedText.isEmpty ? "(Empty)" : truncatedText
+            let displayText = truncatedText.isEmpty ? localized("(Empty)", locale: locale) : truncatedText
             let timeFormatter = DateFormatter()
             timeFormatter.timeStyle = .short
 
