@@ -1184,7 +1184,7 @@ final class AppCoordinator {
                             || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
                             self.clearFloatingIndicatorTemporaryHiddenState()
                         }
-                        self.updateFloatingIndicatorVisibility()
+                        self.updateFloatingIndicatorVisibility(previousType: previousSnapshot.floatingIndicatorType)
                     }
 
                     if previousSnapshot.hotkeys != snapshot.hotkeys {
@@ -1217,9 +1217,7 @@ final class AppCoordinator {
             .store(in: &cancellables)
     }
     
-    private func updateFloatingIndicatorVisibility() {
-        guard !isRecording && !isProcessing else { return }
-
+    private func updateFloatingIndicatorVisibility(previousType: FloatingIndicatorType? = nil) {
         guard !isFloatingIndicatorTemporarilyHidden() else {
             hideAllFloatingIndicators()
             return
@@ -1231,6 +1229,19 @@ final class AppCoordinator {
         }
 
         let selectedType = configuredFloatingIndicatorType()
+        
+        if isRecording || isProcessing {
+            if previousType != selectedType {
+                let oldType = activeFloatingIndicatorType ?? previousType ?? selectedType
+                if oldType != selectedType {
+                    floatingIndicatorPresenters[oldType]?.hide()
+                    activeFloatingIndicatorType = selectedType
+                    floatingIndicatorPresenters[selectedType]?.showForCurrentState()
+                }
+            }
+            return
+        }
+
         hideAllFloatingIndicators(except: selectedType)
         floatingIndicatorPresenters[selectedType]?.showIdleIndicator()
     }

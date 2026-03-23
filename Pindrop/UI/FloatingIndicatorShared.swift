@@ -7,6 +7,14 @@
 
 import Foundation
 import SwiftUI
+import AppKit
+
+extension NSScreen {
+    static func screenUnderMouse() -> NSScreen {
+        let mouseLocation = NSEvent.mouseLocation
+        return NSScreen.screens.first { $0.frame.contains(mouseLocation) } ?? NSScreen.main ?? NSScreen.screens.first!
+    }
+}
 
 enum FloatingIndicatorWaveformBarLayout {
     case fixed(count: Int, heightScale: [CGFloat]? = nil)
@@ -159,6 +167,7 @@ protocol FloatingIndicatorPresenting: AnyObject {
 
     func configure(actions: FloatingIndicatorActions)
     func showIdleIndicator()
+    func showForCurrentState()
     func hide()
     func startRecording()
     func transitionToProcessing()

@@ -117,11 +117,13 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     private var panel: NotchPanel?
     private var hostingView: NSHostingView<NotchIndicatorView>?
     private var actions = FloatingIndicatorActions()
+    private var screenTrackingTimer: Timer?
+    private var lastScreen: NSScreen?
 
     init(state: FloatingIndicatorState) {
         self.state = state
     }
-
+    
     func configure(actions: FloatingIndicatorActions) {
         self.actions = actions
     }
@@ -130,13 +132,21 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         hide()
     }
 
+    func showForCurrentState() {
+        if panel == nil {
+            show()
+        } else {
+            panel?.orderFrontRegardless()
+        }
+    }
+
     private func show() {
         guard panel == nil else {
             panel?.orderFrontRegardless()
             return
         }
         
-        guard let screen = NSScreen.main else { return }
+        guard let screen = Optional(NSScreen.screenUnderMouse()) else { return }
         
         let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
         let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
@@ -185,6 +195,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         
         panel.contentView = hostingView
         self.panel = panel
+        self.lastScreen = screen
         
         panel.alphaValue = 0
         panel.orderFrontRegardless()
@@ -196,9 +207,12 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             localPanel.animator().alphaValue = 1
         }
+        
+        startScreenTracking()
     }
     
     func hide() {
+        stopScreenTracking()
         guard let panel = panel else { return }
         let localPanel = panel
 
@@ -231,6 +245,63 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
 
     func handleStopButtonTapped() {
         actions.onStopRecording?(type)
+    }
+    
+    private func startScreenTracking() {
+        screenTrackingTimer?.invalidate()
+        screenTrackingTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkAndUpdateScreenPosition()
+            }
+        }
+    }
+    
+    private func stopScreenTracking() {
+        screenTrackingTimer?.invalidate()
+        screenTrackingTimer = nil
+        lastScreen = nil
+    }
+    
+    private func checkAndUpdateScreenPosition() {
+        guard let panel = panel else { return }
+        guard let currentScreen = Optional(NSScreen.screenUnderMouse()) else { return }
+        
+        if lastScreen !== currentScreen {
+            lastScreen = currentScreen
+            
+            let notchWidth = currentScreen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
+            let maxPanelWidth = max(0, currentScreen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
+            let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
+            let dynamicSideWidth = max(
+                NotchPanelMetrics.minimumSideWidth,
+                min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
+            )
+            let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
+            let panelHeight = currentScreen.hasNotch
+                ? currentScreen.notchPanelHeight
+                : max(NotchPanelMetrics.panelHeightMinimum, currentScreen.notchPanelHeight)
+            let expandedWidth = notchWidth + (sideWidth * 2)
+            let panelWidth = min(expandedWidth, maxPanelWidth)
+            
+            let xPosition = currentScreen.visibleFrame.midX - (panelWidth / 2)
+            let yPosition = currentScreen.frame.maxY - panelHeight
+            
+            let clampedXPosition = max(
+                currentScreen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
+                min(
+                    xPosition,
+                    currentScreen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
+                )
+            )
+            
+            let newFrame = NSRect(
+                x: clampedXPosition,
+                y: yPosition,
+                width: panelWidth,
+                height: panelHeight
+            )
+            panel.setFrame(newFrame, display: true, animate: true)
+        }
     }
 }
 

@@ -57,6 +57,14 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         hide()
     }
 
+    func showForCurrentState() {
+        if panel == nil {
+            show()
+        } else {
+            panel?.orderFrontRegardless()
+        }
+    }
+
     func startRecording() {
         state.startRecording()
         isHovered = false

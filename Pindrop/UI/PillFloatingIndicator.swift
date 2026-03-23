@@ -116,7 +116,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             return
         }
 
-        guard let screen = NSScreen.main else { return }
+        guard let screen = Optional(NSScreen.screenUnderMouse()) else { return }
 
         let state = layoutState
 
@@ -146,6 +146,14 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         lastScreen = screen
         startScreenTracking()
         startHoverIntentMonitoring()
+    }
+
+    func showForCurrentState() {
+        if !isVisible {
+            showIdleIndicator()
+        } else {
+            refreshLayout(animated: true, duration: 0.24)
+        }
     }
 
     private func startScreenTracking() {
@@ -493,8 +501,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func checkAndUpdateScreenPosition() {
-        guard isVisible, !state.isRecording, !state.isProcessing else { return }
-        guard let currentScreen = NSScreen.main, let panel = panel else { return }
+        guard isVisible else { return }
+        guard let currentScreen = Optional(NSScreen.screenUnderMouse()), let panel = panel else { return }
 
         if lastScreen !== currentScreen {
             lastScreen = currentScreen
@@ -550,6 +558,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         hideHoverTooltip()
         lastHoverContactAt = .distantPast
         refreshLayout(animated: true, duration: 0.22)
+        hide()
     }
 
     func hide() {
@@ -703,7 +712,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func refreshLayout(animated: Bool, duration: TimeInterval = 0.22) {
         guard let panel = panel else { return }
-        guard let screen = NSScreen.main ?? panel.screen ?? NSScreen.screens.first else { return }
+        guard let screen = Optional(NSScreen.screenUnderMouse()) ?? panel.screen ?? NSScreen.screens.first else { return }
 
         let state = layoutState
 
