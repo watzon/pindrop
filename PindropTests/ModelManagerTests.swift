@@ -34,7 +34,7 @@ struct ModelManagerTests {
     }
 
     @Test func multilingualRecommendationsPreferWhisperMultilingualModels() {
-        let recommendedModelNames = modelManager.recommendedModels(for: .simplifiedChinese).map(\.name)
+        let recommendedModelNames = modelManager.recommendedModels(for: .spanish).map(\.name)
         #expect(recommendedModelNames == ModelManager.multilingualRecommendedModelNames)
     }
 
