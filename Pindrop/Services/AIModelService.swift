@@ -117,6 +117,8 @@ final class AIModelService {
                 return try await fetchOpenRouterModels()
             case .openai:
                 return try await fetchOpenAIModels(apiKey: apiKey)
+            case .anthropic:
+                return fetchAnthropicModels()
             case .custom:
                 return try await fetchCustomProviderModels(
                     endpointOverride: endpointOverride,
@@ -304,6 +306,17 @@ final class AIModelService {
             provider: .custom,
             apiKey: normalizedAPIKey
         )
+    }
+
+    private func fetchAnthropicModels() -> [AIModel] {
+        [
+            AIModel(id: "claude-haiku-4-5-20251001", name: "Claude Haiku 4.5", provider: .anthropic,
+                    description: "Fast and affordable", contextLength: 200_000),
+            AIModel(id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6", provider: .anthropic,
+                    description: "Balanced performance", contextLength: 1_000_000),
+            AIModel(id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: .anthropic,
+                    description: "Most capable", contextLength: 1_000_000),
+        ]
     }
 
     private func fetchOpenAICompatibleModels(
