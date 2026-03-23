@@ -482,17 +482,16 @@ final class SettingsStore: ObservableObject {
       return .custom
    }
 
-   init() {
-      guard !SettingsStoreRuntime.isPreview else { return }
-      apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
-      if let provider = provider(for: apiEndpoint) {
-         aiProvider = provider.rawValue
-      }
-      if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
-         customLocalProviderType = customProvider.rawValue
-      }
-      PindropThemeController.shared.refresh()
-   }
+    init() {
+       guard !SettingsStoreRuntime.isPreview else { return }
+       apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
+       if let provider = provider(for: apiEndpoint) {
+          aiProvider = provider.rawValue
+       }
+       if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
+          customLocalProviderType = customProvider.rawValue
+       }
+    }
 
    // MARK: - Keychain Methods
    private func resolvedCustomLocalProvider(_ customLocalProvider: CustomProviderType?) ->
