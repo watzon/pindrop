@@ -763,6 +763,7 @@
 				es,
 				fr,
 				ja,
+				"pt-BR",
 				"zh-Hans",
 				Base,
 			);
