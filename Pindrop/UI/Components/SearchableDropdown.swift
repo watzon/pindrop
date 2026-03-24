@@ -75,64 +75,78 @@ public struct SelectField: View {
       .buttonStyle(.plain)
       .frame(maxWidth: .infinity, alignment: .leading)
       .background {
-         FloatingDropdownPresenter(
-            isPresented: $isOpen,
-            panelHeight: dropdownHeight,
-            content: { width in
-               AnyView(
-                  dropdown
-                     .frame(width: width)
-               )
-            },
+         AnchoredFloatingPanelPresenter(
+            isPresented: isOpen,
+            direction: .down,
+            verticalSpacing: AISettingsFieldStyle.dropdownSpacing,
             onDismiss: {
                isOpen = false
             }
-         )
+         ) { width in
+            dropdown
+               .frame(width: width)
+         }
       }
+      .zIndex(isOpen ? 10 : 0)
    }
 
    private var selectedLabel: String {
       options.first(where: { $0.id == selection })?.displayName ?? localizedPlaceholder
    }
 
-   private var dropdown: some View {
-      VStack(spacing: 0) {
-         ForEach(options) { option in
-            Button {
-               guard option.isEnabled else { return }
-               selection = option.id
-               isOpen = false
-            } label: {
-               HStack(spacing: 0) {
-                  Text(option.displayName)
-                     .font(.body)
-                     .foregroundStyle(option.isEnabled ? AppColors.textPrimary : AppColors.textSecondary)
+   private var selectFieldOptionRows: some View {
+      ForEach(options) { option in
+         Button {
+            guard option.isEnabled else { return }
+            selection = option.id
+            isOpen = false
+         } label: {
+            HStack(spacing: 0) {
+               Text(option.displayName)
+                  .font(.body)
+                  .foregroundStyle(option.isEnabled ? AppColors.textPrimary : AppColors.textSecondary)
 
-                  Spacer(minLength: 0)
+               Spacer(minLength: 0)
 
-                  if option.id == selection {
-                     Image(systemName: "checkmark")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(AppColors.textSecondary)
-                  }
+               if option.id == selection {
+                  Image(systemName: "checkmark")
+                     .font(.caption.weight(.semibold))
+                     .foregroundStyle(AppColors.textSecondary)
                }
-               .frame(
-                  maxWidth: .infinity,
-                  minHeight: AISettingsFieldStyle.minHeight,
-                  alignment: .leading
-                )
-                .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
-                .background(rowBackground(isHovered: hoveredOptionID == option.id, isSelected: option.id == selection))
-                .contentShape(Rectangle())
-             }
-             .frame(maxWidth: .infinity, alignment: .leading)
-             .buttonStyle(.plain)
-             .disabled(!option.isEnabled)
-             .opacity(option.isEnabled ? 1.0 : 0.55)
-             .onHover { isHovered in
-                hoveredOptionID = isHovered ? option.id : nil
-             }
-          }
+            }
+            .frame(
+               maxWidth: .infinity,
+               minHeight: AISettingsFieldStyle.minHeight,
+               alignment: .leading
+            )
+            .padding(.horizontal, AISettingsFieldStyle.horizontalPadding)
+            .background(rowBackground(isHovered: hoveredOptionID == option.id, isSelected: option.id == selection))
+            .contentShape(Rectangle())
+         }
+         .frame(maxWidth: .infinity, alignment: .leading)
+         .buttonStyle(.plain)
+         .disabled(!option.isEnabled)
+         .opacity(option.isEnabled ? 1.0 : 0.55)
+         .onHover { isHovered in
+            hoveredOptionID = isHovered ? option.id : nil
+         }
+      }
+   }
+
+   private var dropdown: some View {
+      Group {
+         if options.count > 5 {
+            ScrollView {
+               VStack(spacing: 0) {
+                  selectFieldOptionRows
+               }
+            }
+            .frame(maxHeight: AISettingsFieldStyle.dropdownMaxHeight)
+         } else {
+            VStack(spacing: 0) {
+               selectFieldOptionRows
+            }
+         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(
@@ -144,10 +158,6 @@ public struct SelectField: View {
             .stroke(AISettingsFieldStyle.borderColor, lineWidth: 1)
       }
       .shadow(color: .black.opacity(0.22), radius: 18, y: 10)
-   }
-
-   private var dropdownHeight: CGFloat {
-      CGFloat(max(options.count, 1)) * AISettingsFieldStyle.minHeight
    }
 
    @ViewBuilder
@@ -241,20 +251,20 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
    public var body: some View {
       field
          .background {
-            FloatingDropdownPresenter(
-               isPresented: $isOpen,
-               panelHeight: dropdownHeight,
-               content: { width in
-                  AnyView(
-                     dropdown
-                        .frame(width: width)
-                  )
-               },
+            AnchoredFloatingPanelPresenter(
+               isPresented: isOpen,
+               direction: .down,
+               verticalSpacing: AISettingsFieldStyle.dropdownSpacing,
+               wantsKeyPanel: true,
                onDismiss: {
                   dismissDropdown()
                }
-            )
+            ) { width in
+               dropdown
+                  .frame(width: width)
+            }
          }
+         .zIndex(isOpen ? 10 : 0)
          .onAppear {
             syncQueryFromSelection()
          }
@@ -403,13 +413,6 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
       return items.first(where: { $0.id == selection })
    }
 
-   private var dropdownHeight: CGFloat {
-      let rowCount = max(filteredItems.count, 1)
-      let visibleRows = min(rowCount, 5)
-      let rowHeight = AISettingsFieldStyle.minHeight
-      return min(CGFloat(visibleRows) * rowHeight, AISettingsFieldStyle.dropdownMaxHeight)
-   }
-
    private func openDropdown() {
       closeTask?.cancel()
       isOpen = true
@@ -489,14 +492,50 @@ public struct SearchableDropdown<Item: SearchableDropdownItem>: View where Item.
     }
 }
 
-private struct FloatingDropdownPresenter: NSViewRepresentable {
-   @Binding var isPresented: Bool
-   let panelHeight: CGFloat
-   let content: (CGFloat) -> AnyView
-   let onDismiss: () -> Void
+// MARK: - Anchored floating panel (AppKit)
+
+private enum FloatingPanelDirection {
+   case up
+   case down
+}
+
+private enum FloatingPanelHorizontalAlignment {
+   case leading
+   case trailing
+}
+
+/// Presents SwiftUI content in a borderless child `NSPanel` positioned from an anchor view’s
+/// on-screen frame. Repositions when the anchor scrolls, the window moves or resizes, or the
+/// anchor’s layout changes, and clamps the panel into the host window’s content rect.
+private struct AnchoredFloatingPanelPresenter<Content: View>: NSViewRepresentable {
+   var isPresented: Bool
+   var direction: FloatingPanelDirection
+   var horizontalAlignment: FloatingPanelHorizontalAlignment
+   var verticalSpacing: CGFloat
+   var wantsKeyPanel: Bool
+   var onDismiss: () -> Void
+   @ViewBuilder var content: (CGFloat) -> Content
+
+   init(
+      isPresented: Bool,
+      direction: FloatingPanelDirection = .down,
+      horizontalAlignment: FloatingPanelHorizontalAlignment = .leading,
+      verticalSpacing: CGFloat = 6,
+      wantsKeyPanel: Bool = false,
+      onDismiss: @escaping () -> Void,
+      @ViewBuilder content: @escaping (CGFloat) -> Content
+   ) {
+      self.isPresented = isPresented
+      self.direction = direction
+      self.horizontalAlignment = horizontalAlignment
+      self.verticalSpacing = verticalSpacing
+      self.wantsKeyPanel = wantsKeyPanel
+      self.onDismiss = onDismiss
+      self.content = content
+   }
 
    func makeCoordinator() -> Coordinator {
-      Coordinator(parent: self)
+      Coordinator()
    }
 
    func makeNSView(context: Context) -> NSView {
@@ -507,121 +546,390 @@ private struct FloatingDropdownPresenter: NSViewRepresentable {
    }
 
    func updateNSView(_ nsView: NSView, context: Context) {
-      context.coordinator.parent = self
-      context.coordinator.updatePanel(from: nsView)
+      context.coordinator.anchorView = nsView
+      let width = max(nsView.bounds.width, 160)
+      context.coordinator.update(
+         isPresented: isPresented,
+         direction: direction,
+         horizontalAlignment: horizontalAlignment,
+         verticalSpacing: verticalSpacing,
+         wantsKeyPanel: wantsKeyPanel,
+         onDismiss: onDismiss,
+         content: AnyView(content(width))
+      )
    }
 
    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
-      coordinator.hidePanel()
+      coordinator.dismiss()
    }
 
    final class Coordinator: NSObject {
-      var parent: FloatingDropdownPresenter
       weak var anchorView: NSView?
-      private var panel: NSPanel?
-      private var hostingView: NSHostingView<AnyView>?
+      private let hostingController = NSHostingController(rootView: AnyView(EmptyView()))
+      private var panel: DropdownFloatingPanel?
       private var localMonitor: Any?
       private var globalMonitor: Any?
       private var resignObserver: NSObjectProtocol?
+      private var layoutObservers: [NSObjectProtocol] = []
+      private var onDismiss: (() -> Void)?
 
-      init(parent: FloatingDropdownPresenter) {
-         self.parent = parent
-      }
+      private var isPresented = false
+      private var direction: FloatingPanelDirection = .down
+      private var horizontalAlignment: FloatingPanelHorizontalAlignment = .leading
+      private var verticalSpacing: CGFloat = 6
+      private var wantsKeyPanel = false
 
-      func updatePanel(from anchorView: NSView) {
-         guard let window = anchorView.window else { return }
+      private weak var observedClipView: NSClipView?
+      private var clipViewPriorPostsBounds = false
 
-         if parent.isPresented {
-            let panel = ensurePanel(attachedTo: window)
-            installResignObserver(for: window)
-            let width = max(anchorView.bounds.width, 160)
-            let contentSize = NSSize(width: width, height: parent.panelHeight)
+      func update(
+         isPresented: Bool,
+         direction: FloatingPanelDirection,
+         horizontalAlignment: FloatingPanelHorizontalAlignment,
+         verticalSpacing: CGFloat,
+         wantsKeyPanel: Bool,
+         onDismiss: @escaping () -> Void,
+         content: AnyView
+      ) {
+         guard let anchorView else {
+            dismiss()
+            return
+         }
 
-            if let hostingView {
-               hostingView.rootView = parent.content(width)
-               hostingView.frame = CGRect(origin: .zero, size: contentSize)
-            } else {
-               let hostingView = NSHostingView(rootView: parent.content(width))
-               hostingView.frame = CGRect(origin: .zero, size: contentSize)
-               panel.contentView = hostingView
-               self.hostingView = hostingView
-            }
+         self.isPresented = isPresented
+         self.direction = direction
+         self.horizontalAlignment = horizontalAlignment
+         self.verticalSpacing = verticalSpacing
+         self.wantsKeyPanel = wantsKeyPanel
+         self.onDismiss = onDismiss
 
-            panel.setContentSize(contentSize)
-            panel.setFrame(frame(for: anchorView, size: contentSize), display: true)
-            panel.orderFront(nil)
+         if isPresented {
+            hostingController.rootView = content
+            presentIfNeeded(from: anchorView)
+            installLayoutObservers(for: anchorView)
+            installResignObserverIfNeeded(for: anchorView)
+            repositionPanel()
             installEventMonitors()
          } else {
-            hidePanel()
+            dismiss()
          }
       }
 
-      func hidePanel() {
-         if let panel {
-            panel.parent?.removeChildWindow(panel)
-            panel.orderOut(nil)
-         }
-
+      func dismiss() {
+         removeLayoutObservers()
          removeEventMonitors()
          removeResignObserver()
+         restoreClipViewBoundsPosting()
+         if let panel,
+            let parent = panel.parent {
+            parent.removeChildWindow(panel)
+         }
+         panel?.orderOut(nil)
+         panel = nil
       }
 
-      private func ensurePanel(attachedTo window: NSWindow) -> NSPanel {
-         if let panel {
-            if panel.parent != window {
-               panel.parent?.removeChildWindow(panel)
-               window.addChildWindow(panel, ordered: .above)
+      private func dismissAndNotify() {
+         onDismiss?()
+         dismiss()
+      }
+
+      private func dismissAndBlurField() {
+         if let anchorView, let window = anchorView.window {
+            window.makeFirstResponder(nil)
+         }
+         onDismiss?()
+         dismiss()
+      }
+
+      private func presentIfNeeded(from anchorView: NSView) {
+         if panel == nil {
+            let panel = DropdownFloatingPanel(
+               contentRect: CGRect(x: 0, y: 0, width: 10, height: 10),
+               styleMask: [.borderless, .nonactivatingPanel],
+               backing: .buffered,
+               defer: true
+            )
+            panel.isOpaque = false
+            panel.backgroundColor = .clear
+            panel.hasShadow = false
+            panel.level = .floating
+            panel.collectionBehavior = [.transient, .moveToActiveSpace, .fullScreenAuxiliary]
+            panel.hidesOnDeactivate = true
+            panel.ignoresMouseEvents = false
+            panel.contentView = hostingController.view
+            self.panel = panel
+         }
+
+         if let panel,
+            let window = anchorView.window,
+            panel.parent !== window {
+            window.addChildWindow(panel, ordered: .above)
+         }
+
+         panel?.orderFrontRegardless()
+         if wantsKeyPanel {
+            panel?.makeKey()
+         }
+      }
+
+      private func repositionPanel() {
+         guard let anchorView,
+               let panel,
+               let window = anchorView.window,
+               isPresented
+         else {
+            return
+         }
+
+         hostingController.view.layoutSubtreeIfNeeded()
+         var fittingSize = hostingController.view.fittingSize
+         if fittingSize.width.isNaN || fittingSize.width <= 0 { fittingSize.width = 160 }
+         if fittingSize.height.isNaN || fittingSize.height <= 0 { fittingSize.height = 1 }
+
+         let anchorFrameInWindow = anchorView.convert(anchorView.bounds, to: nil)
+         let anchorOnScreen = window.convertToScreen(anchorFrameInWindow)
+         let windowContent = windowContentRectOnScreen(for: window)
+
+         let origin = panelOrigin(
+            anchorFrameOnScreen: anchorOnScreen,
+            panelSize: fittingSize,
+            direction: direction,
+            horizontalAlignment: horizontalAlignment,
+            verticalSpacing: verticalSpacing
+         )
+         var frame = CGRect(origin: origin, size: fittingSize)
+         frame = adjustedFrameForVisibility(
+            frame,
+            anchorFrame: anchorOnScreen,
+            direction: direction,
+            verticalSpacing: verticalSpacing,
+            windowContent: windowContent
+         )
+
+         hostingController.view.frame = CGRect(origin: .zero, size: frame.size)
+         panel.setFrame(frame, display: true)
+      }
+
+      private func windowContentRectOnScreen(for window: NSWindow) -> CGRect {
+         guard let contentView = window.contentView else {
+            return window.frame
+         }
+         let rectInWindow = contentView.convert(contentView.bounds, to: nil)
+         return window.convertToScreen(rectInWindow)
+      }
+
+      private func panelOrigin(
+         anchorFrameOnScreen: CGRect,
+         panelSize: CGSize,
+         direction: FloatingPanelDirection,
+         horizontalAlignment: FloatingPanelHorizontalAlignment,
+         verticalSpacing: CGFloat
+      ) -> CGPoint {
+         let x = panelOriginX(
+            for: horizontalAlignment,
+            anchorFrameOnScreen: anchorFrameOnScreen,
+            panelWidth: panelSize.width
+         )
+         let y = panelOriginY(
+            for: direction,
+            anchorFrameOnScreen: anchorFrameOnScreen,
+            panelHeight: panelSize.height,
+            verticalSpacing: verticalSpacing
+         )
+         return CGPoint(x: x, y: y)
+      }
+
+      private func panelOriginX(
+         for horizontalAlignment: FloatingPanelHorizontalAlignment,
+         anchorFrameOnScreen: CGRect,
+         panelWidth: CGFloat
+      ) -> CGFloat {
+         switch horizontalAlignment {
+         case .leading:
+            anchorFrameOnScreen.minX
+         case .trailing:
+            anchorFrameOnScreen.maxX - panelWidth
+         }
+      }
+
+      private func panelOriginY(
+         for direction: FloatingPanelDirection,
+         anchorFrameOnScreen: CGRect,
+         panelHeight: CGFloat,
+         verticalSpacing: CGFloat
+      ) -> CGFloat {
+         switch direction {
+         case .up:
+            anchorFrameOnScreen.maxY + verticalSpacing
+         case .down:
+            anchorFrameOnScreen.minY - verticalSpacing - panelHeight
+         }
+      }
+
+      private func adjustedFrameForVisibility(
+         _ proposed: CGRect,
+         anchorFrame: CGRect,
+         direction: FloatingPanelDirection,
+         verticalSpacing: CGFloat,
+         windowContent: CGRect
+      ) -> CGRect {
+         let margin: CGFloat = 8
+         let bounds = windowContent.insetBy(dx: margin, dy: margin)
+         var frame = proposed
+
+         if frame.width > bounds.width {
+            frame.size.width = bounds.width
+         }
+         if frame.height > bounds.height {
+            frame.size.height = bounds.height
+         }
+
+         if frame.maxX > bounds.maxX {
+            frame.origin.x = bounds.maxX - frame.width
+         }
+         if frame.minX < bounds.minX {
+            frame.origin.x = bounds.minX
+         }
+
+         if !verticalRangeContains(frame, bounds) {
+            let flippedY: CGFloat
+            switch direction {
+            case .down:
+               flippedY = anchorFrame.maxY + verticalSpacing
+            case .up:
+               flippedY = anchorFrame.minY - verticalSpacing - frame.height
             }
-            return panel
+            frame.origin.y = flippedY
          }
 
-         let panel = NSPanel(
-            contentRect: .zero,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: true
-         )
-         panel.backgroundColor = .clear
-         panel.isOpaque = false
-         panel.hasShadow = true
-         panel.hidesOnDeactivate = false
-         panel.level = .floating
-         panel.collectionBehavior = [.moveToActiveSpace, .transient]
-         panel.isMovable = false
-         panel.ignoresMouseEvents = false
-         panel.becomesKeyOnlyIfNeeded = true
+         if !verticalRangeContains(frame, bounds) {
+            if frame.height <= bounds.height {
+               if frame.minY < bounds.minY {
+                  frame.origin.y = bounds.minY
+               }
+               if frame.maxY > bounds.maxY {
+                  frame.origin.y = bounds.maxY - frame.height
+               }
+            } else {
+               frame.origin.y = bounds.minY
+               frame.size.height = bounds.height
+            }
+         }
 
-         window.addChildWindow(panel, ordered: .above)
-         self.panel = panel
-         return panel
+         return frame
       }
 
-      private func frame(for anchorView: NSView, size: NSSize) -> CGRect {
-         guard let window = anchorView.window else {
-            return CGRect(origin: .zero, size: size)
+      private func verticalRangeContains(_ frame: CGRect, _ bounds: CGRect) -> Bool {
+         frame.minY >= bounds.minY - 0.5 && frame.maxY <= bounds.maxY + 0.5
+      }
+
+      private func installLayoutObservers(for anchorView: NSView) {
+         removeLayoutObservers()
+
+         let center = NotificationCenter.default
+
+         let frameToken = center.addObserver(
+            forName: NSView.frameDidChangeNotification,
+            object: anchorView,
+            queue: .main
+         ) { [weak self] _ in
+            self?.repositionPanel()
+         }
+         layoutObservers.append(frameToken)
+
+         if let window = anchorView.window {
+            let moveToken = center.addObserver(
+               forName: NSWindow.didMoveNotification,
+               object: window,
+               queue: .main
+            ) { [weak self] _ in
+               self?.repositionPanel()
+            }
+            let resizeToken = center.addObserver(
+               forName: NSWindow.didResizeNotification,
+               object: window,
+               queue: .main
+            ) { [weak self] _ in
+               self?.repositionPanel()
+            }
+            layoutObservers.append(contentsOf: [moveToken, resizeToken])
          }
 
-         let rectInWindow = anchorView.convert(anchorView.bounds, to: nil)
-         let rectOnScreen = window.convertToScreen(rectInWindow)
+         if let scrollView = anchorView.enclosingScrollView {
+            let clipView = scrollView.contentView
+            observedClipView = clipView
+            clipViewPriorPostsBounds = clipView.postsBoundsChangedNotifications
+            clipView.postsBoundsChangedNotifications = true
 
-         return CGRect(
-            x: rectOnScreen.minX,
-            y: rectOnScreen.minY - AISettingsFieldStyle.dropdownSpacing - size.height,
-            width: size.width,
-            height: size.height
-         )
+            let boundsToken = center.addObserver(
+               forName: NSView.boundsDidChangeNotification,
+               object: clipView,
+               queue: .main
+            ) { [weak self] _ in
+               self?.repositionPanel()
+            }
+            layoutObservers.append(boundsToken)
+         }
+      }
+
+      private func removeLayoutObservers() {
+         let center = NotificationCenter.default
+         for token in layoutObservers {
+            center.removeObserver(token)
+         }
+         layoutObservers.removeAll()
+         restoreClipViewBoundsPosting()
+      }
+
+      private func restoreClipViewBoundsPosting() {
+         if let clip = observedClipView {
+            clip.postsBoundsChangedNotifications = clipViewPriorPostsBounds
+            observedClipView = nil
+         }
       }
 
       private func installEventMonitors() {
          guard localMonitor == nil, globalMonitor == nil else { return }
 
-         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            self?.handle(event: event)
+         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] event in
+            guard let self else { return event }
+            guard let panel = self.panel else { return event }
+
+            if event.window === panel || self.isEventInsideAnchorView(event) {
+               return event
+            }
+
+            if event.window !== panel {
+               self.dismissAndNotify()
+            }
             return event
          }
 
-         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            self?.handle(event: event)
+         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] event in
+            guard let self, self.isPresented else { return }
+            guard let panel = self.panel, let anchorView = self.anchorView else { return }
+
+            let locationInScreen: NSPoint
+            if let eventWindow = event.window {
+               locationInScreen = eventWindow.convertPoint(toScreen: event.locationInWindow)
+            } else {
+               locationInScreen = NSEvent.mouseLocation
+            }
+
+            let anchorRect: CGRect
+            if let window = anchorView.window {
+               anchorRect = window.convertToScreen(anchorView.convert(anchorView.bounds, to: nil))
+            } else {
+               anchorRect = .zero
+            }
+
+            if panel.frame.contains(locationInScreen) || anchorRect.contains(locationInScreen) {
+               return
+            }
+
+            DispatchQueue.main.async {
+               self.dismissAndNotify()
+            }
          }
       }
 
@@ -630,22 +938,40 @@ private struct FloatingDropdownPresenter: NSViewRepresentable {
             NSEvent.removeMonitor(localMonitor)
             self.localMonitor = nil
          }
-
          if let globalMonitor {
             NSEvent.removeMonitor(globalMonitor)
             self.globalMonitor = nil
          }
       }
 
-      private func installResignObserver(for window: NSWindow) {
-         guard resignObserver == nil else { return }
+      private func isEventInsideAnchorView(_ event: NSEvent) -> Bool {
+         guard let anchorView,
+               event.window === anchorView.window
+         else {
+            return false
+         }
+
+         let pointInAnchor = anchorView.convert(event.locationInWindow, from: nil)
+         return anchorView.bounds.contains(pointInAnchor)
+      }
+
+      private func installResignObserverIfNeeded(for anchorView: NSView) {
+         guard resignObserver == nil,
+               let window = anchorView.window
+         else {
+            return
+         }
 
          resignObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResignKeyNotification,
             object: window,
             queue: .main
          ) { [weak self] _ in
-            self?.dismissAndBlurField()
+            guard let self, let panel = self.panel else { return }
+            if NSApp.keyWindow === panel {
+               return
+            }
+            self.dismissAndBlurField()
          }
       }
 
@@ -655,36 +981,10 @@ private struct FloatingDropdownPresenter: NSViewRepresentable {
             self.resignObserver = nil
          }
       }
-
-      private func handle(event: NSEvent) {
-         guard parent.isPresented else { return }
-         guard let panel, let anchorView, let window = anchorView.window else { return }
-
-         let locationInScreen: NSPoint
-         if let eventWindow = event.window {
-            locationInScreen = eventWindow.convertPoint(toScreen: event.locationInWindow)
-         } else {
-            locationInScreen = NSEvent.mouseLocation
-         }
-
-         let anchorRect = window.convertToScreen(anchorView.convert(anchorView.bounds, to: nil))
-         if panel.frame.contains(locationInScreen) || anchorRect.contains(locationInScreen) {
-            return
-         }
-
-         DispatchQueue.main.async { [weak self] in
-            self?.dismissAndBlurField()
-         }
-      }
-
-      private func dismissAndBlurField() {
-         guard let anchorView, let window = anchorView.window else {
-            parent.onDismiss()
-            return
-         }
-
-         window.makeFirstResponder(nil)
-         parent.onDismiss()
-      }
    }
+}
+
+private final class DropdownFloatingPanel: NSPanel {
+   override var canBecomeKey: Bool { true }
+   override var canBecomeMain: Bool { false }
 }
