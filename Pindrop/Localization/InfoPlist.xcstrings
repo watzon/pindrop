@@ -28,6 +28,12 @@
             "state": "translated",
             "value": "Pindrop"
           }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
         }
       }
     },
@@ -54,6 +60,12 @@
           }
         },
         "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -88,6 +100,12 @@
             "state": "translated",
             "value": ""
           }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
         }
       }
     },
@@ -117,6 +135,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop precisa de acesso ao microfone para transcrever sua voz."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop necessita dell'accesso al microfono per trascrivere la tua voce."
           }
         }
       }

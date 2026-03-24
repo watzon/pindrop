@@ -86,9 +86,9 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
    var isSelectable: Bool {
       switch self {
       case .automatic, .english, .simplifiedChinese, .spanish, .french, .german, .japanese,
-           .portugueseBrazil:
+           .portugueseBrazil, .italian:
          return true
-      case .italian, .dutch, .korean:
+      case .dutch, .korean:
          return false
       }
    }

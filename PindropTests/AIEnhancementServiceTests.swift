@@ -245,6 +245,11 @@ struct AIEnhancementServiceTests {
         // Given
         let systemPrompt = "You are helpful"
         let userContent = "Hello"
+        let expectedUserPayload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: userContent,
+            clipboardText: nil,
+            context: .none
+        )
 
         // When
         let messages = AIEnhancementService.buildMessages(
@@ -263,10 +268,11 @@ struct AIEnhancementServiceTests {
         #expect(systemContent!.contains("<enhancement_request>"))
         #expect(systemContent!.contains("<instructions>"))
         #expect(systemContent!.contains(systemPrompt))
+        #expect(systemContent!.contains("<behavior_rule>"))
 
-        // User message - text only format
+        // User message - structured enhancement payload (not raw transcript only)
         #expect(messages[1]["role"] as? String == "user")
-        #expect(messages[1]["content"] as? String == userContent)
+        #expect(messages[1]["content"] as? String == expectedUserPayload)
     }
     @Test func testBuildMessagesWithImage() {
         // Given
@@ -299,8 +305,13 @@ struct AIEnhancementServiceTests {
         #expect(content?.count == 2)
 
         // Text part
+        let expectedUserPayload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: userContent,
+            clipboardText: nil,
+            context: .none
+        )
         #expect(content?[0]["type"] as? String == "text")
-        #expect(content?[0]["text"] as? String == userContent)
+        #expect(content?[0]["text"] as? String == expectedUserPayload)
 
         // Image part
         #expect(content?[1]["type"] as? String == "image_url")
@@ -335,6 +346,8 @@ struct AIEnhancementServiceTests {
         #expect(result.contains(basePrompt))
         #expect(result.contains("<supplementary_context>"))
         #expect(result.contains("<available>false</available>"))
+        #expect(result.contains("<behavior_rule>"))
+        #expect(result.contains("Do not answer questions"))
     }
     @Test func testBuildContextAwareSystemPromptWithClipboardText() {
         let basePrompt = "Enhance this text"
@@ -422,10 +435,15 @@ struct AIEnhancementServiceTests {
         #expect(systemContent!.contains("clipboard snippet"))
         #expect(systemContent!.contains(systemPrompt))
 
+        let expectedUserPayload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: userContent,
+            clipboardText: "clipboard snippet",
+            context: context
+        )
         #expect(messages[1]["role"] as? String == "user")
-        #expect(messages[1]["content"] as? String == userContent)
+        #expect(messages[1]["content"] as? String == expectedUserPayload)
     }
-    @Test func testBuildMessagesContextLivesInSystemPromptUserHasOnlyTranscription() {
+    @Test func testBuildMessagesUserPayloadIncludesTranscriptionAndContextBlocks() {
         let appContext = AppContextInfo(
             bundleIdentifier: "com.apple.dt.Xcode",
             appName: "Xcode",
@@ -470,8 +488,13 @@ struct AIEnhancementServiceTests {
         #expect(systemContent!.contains("<routing_signal>"))
         #expect(systemContent!.contains("<workspace_file_tree>"))
 
+        let expectedUserPayload = AIEnhancementService.buildTranscriptionEnhancementInput(
+            transcription: "this is the spoken message",
+            clipboardText: context.clipboardText,
+            context: context
+        )
         #expect(messages[1]["role"] as? String == "user")
-        #expect(messages[1]["content"] as? String == "this is the spoken message")
+        #expect(messages[1]["content"] as? String == expectedUserPayload)
     }
     @Test func testRedactedPayloadLogLinesRedactsImageAndChunks() {
         // Given

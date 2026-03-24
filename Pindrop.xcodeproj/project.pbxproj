@@ -762,6 +762,7 @@
 				de,
 				es,
 				fr,
+				it,
 				ja,
 				"pt-BR",
 				"zh-Hans",
