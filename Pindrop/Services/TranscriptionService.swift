@@ -107,14 +107,20 @@ class TranscriptionService {
         state = .loading
         error = nil
 
+        let loadStarted = CFAbsoluteTimeGetCurrent()
         Log.transcription.info("Loading model: \(modelName) with provider: \(provider.rawValue)...")
+        Log.boot.info("TranscriptionService.loadModel begin name=\(modelName) provider=\(provider.rawValue) state=loading")
 
         do {
             let newEngine = try engineFactory(provider)
+            Log.boot.info("TranscriptionService.loadModel engine instance created provider=\(provider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
             try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
+                    Log.boot.info("TranscriptionService.loadModel engine.loadModel task started name=\(modelName)")
+                    let engineLoadStart = CFAbsoluteTimeGetCurrent()
                     try await newEngine.loadModel(name: modelName, downloadBase: self.getDownloadBase())
+                    Log.boot.info("TranscriptionService.loadModel engine.loadModel task finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - engineLoadStart))")
                 }
 
                 group.addTask {
@@ -129,15 +135,18 @@ class TranscriptionService {
             engine = newEngine
             currentProvider = provider
             Log.transcription.info("Model loaded successfully with \(provider.rawValue) engine")
+            Log.boot.info("TranscriptionService.loadModel success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
             state = .ready
         } catch let error as TranscriptionError {
             Log.transcription.error("Model load failed: \(error)")
+            Log.boot.error("TranscriptionService.loadModel failed TranscriptionError after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = error
             state = .error
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            Log.boot.error("TranscriptionService.loadModel failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = loadError
             state = .error
             throw loadError
@@ -156,14 +165,19 @@ class TranscriptionService {
         state = .loading
         error = nil
 
+        let loadStarted = CFAbsoluteTimeGetCurrent()
         Log.transcription.info("Loading model from path: \(modelPath) with prewarm enabled...")
+        Log.boot.info("TranscriptionService.loadModel(path) begin")
 
         do {
             let newEngine = WhisperKitEngine()
+            Log.boot.info("TranscriptionService.loadModel(path) WhisperKitEngine created elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
             try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
+                    Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task started")
                     try await newEngine.loadModel(path: modelPath)
+                    Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task finished")
                 }
 
                 group.addTask {
@@ -178,15 +192,18 @@ class TranscriptionService {
             engine = newEngine
             currentProvider = .whisperKit
             Log.transcription.info("Model loaded and prewarmed successfully")
+            Log.boot.info("TranscriptionService.loadModel(path) success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
             state = .ready
         } catch let error as TranscriptionError {
             Log.transcription.error("Model load failed: \(error)")
+            Log.boot.error("TranscriptionService.loadModel(path) TranscriptionError after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = error
             state = .error
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            Log.boot.error("TranscriptionService.loadModel(path) failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = loadError
             state = .error
             throw loadError

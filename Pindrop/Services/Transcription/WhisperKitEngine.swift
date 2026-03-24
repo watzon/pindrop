@@ -57,6 +57,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
         state = .loading
         error = nil
         
+        let wallStart = CFAbsoluteTimeGetCurrent()
+        Log.boot.info("WhisperKitEngine.loadModel(path) begin")
+        
         do {
             let config = WhisperKitConfig(
                 modelFolder: path,
@@ -68,11 +71,17 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                 logLevel: .error
             )
             
+            let initStart = CFAbsoluteTimeGetCurrent()
             whisperKit = try await WhisperKit(config)
+            Log.boot.info("WhisperKitEngine(path) WhisperKit(config) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - initStart))")
+            
+            let loadModelsStart = CFAbsoluteTimeGetCurrent()
             try await whisperKit?.loadModels()
+            Log.boot.info("WhisperKitEngine(path) loadModels elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadModelsStart)) total=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - wallStart))")
             
             state = .ready
         } catch {
+            Log.boot.error("WhisperKitEngine.loadModel(path) failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - wallStart)) \(error.localizedDescription)")
             self.error = error
             state = .error
             throw error
@@ -86,6 +95,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
         state = .loading
         error = nil
         
+        let wallStart = CFAbsoluteTimeGetCurrent()
+        Log.boot.info("WhisperKitEngine.loadModel(name) begin name=\(name) downloadBaseProvided=\(downloadBase != nil)")
+        
         do {
             let config = WhisperKitConfig(
                 model: name,
@@ -98,11 +110,17 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                 logLevel: .error
             )
             
+            let initStart = CFAbsoluteTimeGetCurrent()
             whisperKit = try await WhisperKit(config)
+            Log.boot.info("WhisperKitEngine WhisperKit(config) await returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - initStart)) cumulative=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - wallStart))")
+            
+            let loadModelsStart = CFAbsoluteTimeGetCurrent()
             try await whisperKit?.loadModels()
+            Log.boot.info("WhisperKitEngine loadModels() finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadModelsStart)) total=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - wallStart))")
             
             state = .ready
         } catch {
+            Log.boot.error("WhisperKitEngine.loadModel(name) failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - wallStart)) \(error.localizedDescription)")
             self.error = error
             state = .error
             throw error

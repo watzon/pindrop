@@ -577,6 +577,7 @@ final class AppCoordinator {
         }
         observeSettings()
         setupNotifications()
+        Log.boot.info("AppCoordinator init finished enableSystemHooks=\(self.enableSystemHooks)")
     }
     
     private func setupNotifications() {
@@ -613,11 +614,14 @@ final class AppCoordinator {
     // MARK: - Lifecycle
     
     func start() async {
+        Log.boot.info("AppCoordinator.start() entered hasCompletedOnboarding=\(settingsStore.hasCompletedOnboarding) selectedModel=\(settingsStore.selectedModel)")
         if !settingsStore.hasCompletedOnboarding {
+            Log.boot.info("Taking onboarding path (skipping splash and normal operation until complete)")
             showOnboarding()
             return
         }
 
+        Log.boot.info("Taking normal startup path: seed presets, splash, startNormalOperation")
         seedBuiltInPresetsIfNeeded()
         refreshStatusBarPresets()
 
@@ -628,9 +632,11 @@ final class AppCoordinator {
         splashController.dismiss { [weak self] in
             self?.mainWindowController.show()
         }
+        Log.boot.info("AppCoordinator.start() finished normal path")
     }
     
     private func showOnboarding() {
+        Log.boot.info("showOnboarding: presenting onboarding window")
         onboardingController.showOnboarding(
             settings: settingsStore,
             modelManager: modelManager,
@@ -654,12 +660,14 @@ final class AppCoordinator {
     }
     
     private func finishPostOnboardingSetup() async {
+        Log.boot.info("finishPostOnboardingSetup begin")
         seedBuiltInPresetsIfNeeded()
         refreshStatusBarPresets()
         registerHotkeysFromSettings()
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "post-onboarding", showFallbackAlert: false)
         updateVibeRuntimeStateFromSettings()
+        Log.boot.info("finishPostOnboardingSetup complete")
     }
     
     private func seedBuiltInPresetsIfNeeded() {
@@ -709,6 +717,7 @@ final class AppCoordinator {
         modelName: String,
         displayName: String
     ) async throws {
+        Log.boot.info("attemptWhisperModelRepairAndReload begin model=\(modelName)")
         Log.model.warning("Selected Whisper model failed to load, attempting repair for \(modelName)")
 
         do {
@@ -726,6 +735,7 @@ final class AppCoordinator {
 
         splashController.setLoading("Loading \(displayName)...")
         try await loadAndActivateModel(named: modelName, provider: .whisperKit)
+        Log.boot.info("attemptWhisperModelRepairAndReload finished OK model=\(modelName)")
     }
 
     private func handleModelLoadError(_ error: Error, context: String) {
@@ -739,6 +749,7 @@ final class AppCoordinator {
     }
     
     private func startNormalOperation() async {
+        Log.boot.info("startNormalOperation begin")
         // Sync launch at login state on startup
         let actualLaunchAtLoginState = launchAtLoginManager.isEnabled
         if settingsStore.launchAtLogin != actualLaunchAtLoginState {
@@ -834,6 +845,7 @@ final class AppCoordinator {
         updateFloatingIndicatorVisibility()
 
         updateVibeRuntimeStateFromSettings()
+        Log.boot.info("startNormalOperation complete")
     }
 
     // MARK: - Hotkey Setup

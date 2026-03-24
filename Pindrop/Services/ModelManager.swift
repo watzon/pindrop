@@ -8,7 +8,6 @@
 import Foundation
 import WhisperKit
 import FluidAudio
-import os.log
 
 @MainActor
 @Observable
@@ -566,6 +565,9 @@ class ModelManager {
     
     private let fileManager = FileManager.default
     
+    /// Last decile (0...10) logged for WhisperKit file download progress to avoid log spam.
+    private var whisperKitDownloadLastLoggedDecile: Int = -1
+    
     private var modelsBaseURL: URL {
         fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("Pindrop", isDirectory: true)
@@ -673,8 +675,12 @@ class ModelManager {
         }
         
         guard !isDownloading else {
+            Log.boot.error("downloadModel rejected: another download in progress current=\(currentDownloadModel ?? "nil")")
             throw ModelError.downloadFailed("Another download is in progress")
         }
+        
+        Log.boot.info("ModelManager.downloadModel begin name=\(modelName) provider=\(model.provider.rawValue)")
+        let downloadWallClock = CFAbsoluteTimeGetCurrent()
         
         isDownloading = true
         currentDownloadModel = modelName
@@ -690,29 +696,49 @@ class ModelManager {
         } else {
             try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
         }
+        Log.boot.info("ModelManager.downloadModel finished OK name=\(modelName) wallClock=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - downloadWallClock))")
     }
     
     private func downloadWhisperKitModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+        whisperKitDownloadLastLoggedDecile = -1
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
         do {
             Log.model.info("Downloading WhisperKit model: \(modelName) to \(self.modelsBaseURL.path)")
+            Log.boot.info(
+                "WhisperKit pipeline begin variant=\(modelName) storageLeaf=Pindrop/models/argmaxinc/whisperkit-coreml (under Application Support) uiProgressNote=0-80pct is file download 85-100pct is prewarm"
+            )
             
+            let mkdirStart = CFAbsoluteTimeGetCurrent()
             try fileManager.createDirectory(at: self.modelsBaseURL, withIntermediateDirectories: true)
+            Log.boot.info("WhisperKit storage directories ensured elapsed=\(String(format: "%.3fs", CFAbsoluteTimeGetCurrent() - mkdirStart))")
             
+            let fileDownloadStart = CFAbsoluteTimeGetCurrent()
+            Log.boot.info("WhisperKit.download starting")
             _ = try await WhisperKit.download(
                 variant: modelName,
                 downloadBase: self.modelsBaseURL,
                 progressCallback: { [weak self] progress in
                     Task { @MainActor in
-                        self?.downloadProgress = progress.fractionCompleted * 0.8
-                        onProgress?(self?.downloadProgress ?? 0)
+                        guard let self else { return }
+                        let fraction = progress.fractionCompleted
+                        let decile = min(10, Int(fraction * 10.0001))
+                        if decile > self.whisperKitDownloadLastLoggedDecile || fraction >= 1.0 {
+                            self.whisperKitDownloadLastLoggedDecile = max(self.whisperKitDownloadLastLoggedDecile, decile)
+                            Log.boot.info("WhisperKit.download progress fraction=\(String(format: "%.3f", fraction)) uiMapped=\(String(format: "%.3f", fraction * 0.8))")
+                        }
+                        self.downloadProgress = fraction * 0.8
+                        onProgress?(self.downloadProgress)
                     }
                 }
             )
+            Log.boot.info("WhisperKit.download finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fileDownloadStart))")
             
             Log.model.info("Download complete, prewarming model...")
             downloadProgress = 0.85
             onProgress?(0.85)
+            Log.boot.info("Entering prewarm phase (WhisperKitConfig prewarm=true load=false) — UI shows ~85% \"Preparing Model\"")
             
+            let prewarmStart = CFAbsoluteTimeGetCurrent()
             let config = WhisperKitConfig(
                 model: modelName,
                 downloadBase: self.modelsBaseURL,
@@ -722,20 +748,28 @@ class ModelManager {
                 load: false
             )
             _ = try await WhisperKit(config)
+            Log.boot.info("WhisperKit prewarm (init) completed elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - prewarmStart))")
             
             Log.model.info("Model prewarmed successfully")
             downloadProgress = 1.0
             onProgress?(1.0)
             await refreshDownloadedModels()
+            Log.boot.info("WhisperKit pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) downloadedModelsCount=\(downloadedModelNames.count)")
         } catch {
             downloadProgress = 0.0
+            let nsError = error as NSError
+            Log.boot.error(
+                "WhisperKit pipeline failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)"
+            )
             throw ModelError.downloadFailed(error.localizedDescription)
         }
     }
     
     private func downloadParakeetModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
         Log.model.info("Parakeet model download requested: \(modelName)")
         Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
+        Log.boot.info("Parakeet pipeline begin name=\(modelName)")
         
         let version: AsrModelVersion
         if modelName.contains("v3") {
@@ -748,13 +782,16 @@ class ModelManager {
         
         do {
             try fileManager.createDirectory(at: parakeetModelsURL, withIntermediateDirectories: true)
+            Log.boot.info("Parakeet storage directory ready")
         } catch {
+            Log.boot.error("Parakeet mkdir failed: \(error.localizedDescription)")
             throw ModelError.downloadFailed("Failed to create Parakeet models directory: \(error.localizedDescription)")
         }
         
         downloadProgress = 0.1
         onProgress?(0.1)
         Log.model.info("Starting Parakeet model download (version: \(version == .v3 ? "v3" : "v2"))")
+        Log.boot.info("Parakeet AsrModels.downloadAndLoad starting version=\(version == .v3 ? "v3" : "v2")")
         
         do {
             let targetDir = parakeetModelsURL.appendingPathComponent(
@@ -765,7 +802,9 @@ class ModelManager {
             downloadProgress = 0.3
             onProgress?(0.3)
             
+            let fetchStart = CFAbsoluteTimeGetCurrent()
             _ = try await AsrModels.downloadAndLoad(to: targetDir, version: version)
+            Log.boot.info("Parakeet AsrModels.downloadAndLoad finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fetchStart))")
             
             Log.model.info("Parakeet model download complete")
             downloadProgress = 0.9
@@ -775,8 +814,11 @@ class ModelManager {
             onProgress?(1.0)
             
             await refreshDownloadedModels()
+            Log.boot.info("Parakeet pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart))")
         } catch {
             downloadProgress = 0.0
+            let nsError = error as NSError
+            Log.boot.error("Parakeet pipeline failed domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)")
             Log.model.error("Parakeet model download failed: \(error.localizedDescription)")
             throw ModelError.downloadFailed(error.localizedDescription)
         }

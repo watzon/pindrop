@@ -33,6 +33,7 @@ enum Log {
     static let output = AppLogCategory(subsystem: subsystem, category: "Output")
     static let hotkey = AppLogCategory(subsystem: subsystem, category: "Hotkey")
     static let app = AppLogCategory(subsystem: subsystem, category: "App")
+    static let boot = AppLogCategory(subsystem: subsystem, category: "Boot")
     static let ui = AppLogCategory(subsystem: subsystem, category: "UI")
     static let update = AppLogCategory(subsystem: subsystem, category: "Update")
     static let aiEnhancement = AppLogCategory(subsystem: subsystem, category: "AIEnhancement")
@@ -273,12 +274,17 @@ private final class LogFileSink {
         guard !hasWrittenSessionHeader else { return }
 
         let timestamp = Self.timestampFormatter.string(from: Date())
+        let processInfo = ProcessInfo.processInfo
+        let physicalMemoryBytes = Int64(processInfo.physicalMemory)
+        let physicalMemoryLabel = ByteCountFormatter.string(fromByteCount: physicalMemoryBytes, countStyle: .memory)
         let header = """
         ----------------------------------------------------------------
         Pindrop log session started at \(timestamp)
         App version: \(Bundle.main.appShortVersionString) (\(Bundle.main.appBuildVersionString))
-        macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
-        Process ID: \(ProcessInfo.processInfo.processIdentifier)
+        macOS: \(processInfo.operatingSystemVersionString)
+        Process ID: \(processInfo.processIdentifier)
+        Hardware: \(processInfo.processorCount) processors (\(processInfo.activeProcessorCount) active), physical memory \(physicalMemoryLabel)
+        Locale: \(Locale.current.identifier)
         ----------------------------------------------------------------
 
         """

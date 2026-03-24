@@ -120,6 +120,7 @@ struct OnboardingWindow: View {
             let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
             currentStep = initialStep
             onPreferredContentSizeChange(Self.preferredContentSize(for: initialStep))
+            Log.boot.info("OnboardingWindow appeared step=\(initialStep.title) storedStepIndex=\(settings.currentOnboardingStep)")
         }
         .onChange(of: currentStep) { _, newStep in
             onPreferredContentSizeChange(Self.preferredContentSize(for: newStep))
@@ -251,6 +252,7 @@ struct OnboardingWindow: View {
     }
     
     private func goToStep(_ step: OnboardingStep, direction: Int = 1) {
+        Log.boot.info("Onboarding goToStep -> \(step.title) direction=\(direction)")
         self.direction = direction
         withAnimation {
             currentStep = step
@@ -264,7 +266,9 @@ struct OnboardingWindow: View {
     }
     
     private func startModelDownload() {
-        if modelManager.isModelDownloaded(selectedModelName) {
+        let cached = modelManager.isModelDownloaded(selectedModelName)
+        Log.boot.info("Onboarding startModelDownload model=\(selectedModelName) alreadyOnDisk=\(cached)")
+        if cached {
             goToStep(.aiEnhancement)
         } else {
             goToStep(.modelDownload)
@@ -272,6 +276,7 @@ struct OnboardingWindow: View {
     }
     
     private func completeOnboarding() {
+        Log.boot.info("Onboarding completeOnboarding selectedModel=\(selectedModelName)")
         settings.selectedModel = selectedModelName
         settings.hasCompletedOnboarding = true
         settings.currentOnboardingStep = 0

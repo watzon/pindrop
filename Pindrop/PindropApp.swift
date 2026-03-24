@@ -61,36 +61,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
+        let bootStarted = CFAbsoluteTimeGetCurrent()
         Log.bootstrap()
+        Log.boot.info("applicationDidFinishLaunching begin logFile=\(Log.currentLogFileName)")
         guard !Self.isRunningUITests else {
             AppUITestFixture.configureApplication()
             Log.app.debug("Detected UI test environment, launching fixture surface")
+            Log.boot.info("Boot aborted: UI test fixture mode")
             return
         }
         guard !Self.isRunningTests else {
             Log.app.debug("Detected XCTest environment, skipping app startup flow")
+            Log.boot.info("Boot aborted: XCTest environment")
             return
         }
         
+        Log.boot.info("Preparing SwiftData store location")
         do {
             try storeRepairService.prepareStoreLocation()
+            Log.boot.info("Creating ModelContainer")
             modelContainer = try makeModelContainer()
+            Log.boot.info("ModelContainer ready elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         } catch {
             let initialError = error
             Log.app.error("Failed to create ModelContainer: \(describe(error: initialError))")
+            Log.boot.error("ModelContainer creation failed: \(describe(error: initialError))")
 
             do {
                 let repairOutcome = try storeRepairService.repairIfNeeded(storeURL: storeRepairService.storeURL())
                 guard repairOutcome.repaired else {
+                    Log.boot.error("SwiftData repair not applied; terminating")
                     showModelContainerErrorAlert(error: initialError)
                     NSApplication.shared.terminate(nil)
                     return
                 }
 
                 Log.app.info("Retrying ModelContainer creation after repairing the SwiftData store")
+                Log.boot.info("SwiftData repair applied; retrying ModelContainer creation")
                 modelContainer = try makeModelContainer()
+                Log.boot.info("ModelContainer ready after repair elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
             } catch {
                 Log.app.error("Failed to repair ModelContainer store: \(describe(error: error))")
+                Log.boot.error("ModelContainer repair retry failed: \(describe(error: error))")
                 showModelContainerErrorAlert(error: initialError)
                 NSApplication.shared.terminate(nil)
                 return
@@ -98,13 +110,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         guard let container = modelContainer else {
+            Log.boot.error("ModelContainer nil after setup; terminating")
             NSApplication.shared.terminate(nil)
             return
         }
         
         let context = container.mainContext
+        Log.boot.info("Constructing AppCoordinator")
         coordinator = AppCoordinator(modelContext: context, modelContainer: container)
         settingsStore = coordinator?.settingsStore
+        let onboardingDone = settingsStore?.hasCompletedOnboarding ?? false
+        Log.boot.info("AppCoordinator ready hasCompletedOnboarding=\(onboardingDone) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         PindropThemeController.shared.refresh()
 
         updateDockVisibility()
@@ -117,8 +133,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
         
+        Log.boot.info("Scheduling coordinator.start()")
         Task { @MainActor in
+            Log.boot.info("coordinator.start() begin")
             await coordinator?.start()
+            Log.boot.info("coordinator.start() returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         }
     }
     

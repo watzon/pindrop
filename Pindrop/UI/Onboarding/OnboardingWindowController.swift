@@ -21,10 +21,12 @@ final class OnboardingWindowController {
         onComplete: @escaping () -> Void
     ) {
         guard window == nil else {
+            Log.boot.info("OnboardingWindowController.showOnboarding: window already present, ordering front")
             window?.makeKeyAndOrderFront(nil)
             return
         }
         
+        Log.boot.info("OnboardingWindowController.showOnboarding: creating window")
         let onboardingView = OnboardingWindow(
             settings: settings,
             modelManager: modelManager,
@@ -59,6 +61,7 @@ final class OnboardingWindowController {
         self.window = window
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        Log.boot.info("OnboardingWindowController.showOnboarding: window visible")
     }
 
     private func ensureWindowCanFitContentSize(_ preferredSize: CGSize) {
@@ -82,6 +85,7 @@ final class OnboardingWindowController {
     }
     
     func closeOnboarding() {
+        Log.boot.info("OnboardingWindowController.closeOnboarding")
         window?.close()
         window = nil
         hostingController = nil
