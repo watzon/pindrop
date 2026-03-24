@@ -30,7 +30,7 @@ struct GeneralSettingsView: View {
             title: localized("Language", locale: locale),
             icon: "globe",
             detail: localized(
-                "Use one preference for transcription today and the app interface once localization ships.",
+                "Choose languages for the interface and for dictation. Automatic follows the system.",
                 locale: locale
             )
         ) {

@@ -16,6 +16,12 @@
             "state" : "translated",
             "value" : "Pindrop"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pindrop"
+          }
         }
       }
     },
@@ -30,6 +36,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pindrop"
+          }
+        },
+        "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pindrop"
@@ -52,6 +64,12 @@
             "state" : "translated",
             "value" : ""
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
         }
       }
     },
@@ -69,6 +87,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pindrop necesita acceso al micrófono para transcribir tu voz."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pindropは音声を文字起こしするためにマイクへのアクセスが必要です。"
           }
         }
       }

@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Last updated: 2026-03-21
+Last updated: 2026-03-24
 
 ## Project Snapshot
 
@@ -82,6 +82,16 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Catch at boundaries, log with context, then rethrow typed errors when possible
 - Do not swallow errors with empty catch blocks
 
+## Localization
+
+- **String Catalogs**: `Pindrop/Localization/Localizable.xcstrings` (in-app copy) and `Pindrop/Localization/InfoPlist.xcstrings` (privacy strings, bundle display name). Both are in the app target’s **Copy Bundle Resources**.
+- **Runtime API**: `localized("English key", locale: locale)` in `Pindrop/AppLocalization.swift` resolves against `Bundle` for `SettingsStore.selectedAppLanguage` (see `MainWindow`, `SettingsWindow`, menu bar). The catalog **key is usually the English default string**; if you add UI text in Swift but **omit** the key from `Localizable.xcstrings`, every locale falls back to that English key and nothing appears translated.
+- **New user-facing strings**: Add an entry to `Localizable.xcstrings` with **en** plus every shipped locale (**es**, **fr**, **de**, **zh-Hans**, **ja**, …). Xcode can export/import; hand-editing JSON is fine if you mirror an existing entry’s shape (`localizations` → `stringUnit` → `state` / `value`).
+- **New language (locale)**: Add the locale to **Project → Info → Localizations** (or `knownRegions` in `Pindrop.xcodeproj/project.pbxproj`), add `localizations` blocks for that code in both `.xcstrings` files, and if it should appear in **Settings → General → Language**, set `AppLanguage.isSelectable` in `SettingsStore.swift` and ensure `AppLanguage` has a matching `locale` identifier.
+- **Single “Language” setting**: The General settings picker drives **both** UI locale (`\.locale`) and transcription language (`TranscriptionOptions` / Whisper). Copy in that section should stay accurate when you change behavior.
+- **AI enhancement prompts**: `AIEnhancementSettingsView` localizes default prompts for display; if the user saves without editing, the **localized** prompt text can be persisted and sent to the API—expect models to follow non-English system prompts, or keep defaults in English if you change that flow.
+- **Machine translation helper** (optional, not CI): `scripts/translate_xcstrings.py` fills a target locale from English using `deep-translator` and preserves `%@`, `%lld`, `${transcription}`, etc. Examples: `just translate-xcstrings ja`, `just translate-xcstrings-missing ja`, `just translate-infoplist ja`. Always **review** MT output before release.
+
 ## Logging
 
 - Use `Log` categories from `Pindrop/Utils/Logger.swift`
@@ -142,6 +152,8 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Audio capture core: `Pindrop/Services/AudioRecorder.swift`
 - Transcription orchestration: `Pindrop/Services/TranscriptionService.swift`
 - Logging facade: `Pindrop/Utils/Logger.swift`
+- Localization: `Pindrop/AppLocalization.swift`, `Pindrop/Localization/Localizable.xcstrings`, `Pindrop/Localization/InfoPlist.xcstrings`
+- MT helper (optional): `scripts/translate_xcstrings.py`
 - Build recipes: `justfile`
 - Contributor docs: `README.md`, `CONTRIBUTING.md`, `BUILD.md`
 
@@ -152,3 +164,4 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Prefer Swift Testing assertions (`#expect`, `#require`, `Issue.record`) for unit tests; keep XCTest only for UI automation
 - When touching settings, verify both app behavior and test-mode behavior
 - When touching model or schema code, verify migration and read/write behavior
+- When adding or changing user-visible strings, update **both** Swift `localized(...)` keys and `Localizable.xcstrings` (and `InfoPlist.xcstrings` for permission / bundle strings) for all shipped locales

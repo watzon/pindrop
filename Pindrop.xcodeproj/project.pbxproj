@@ -762,6 +762,7 @@
 				de,
 				es,
 				fr,
+				ja,
 				"zh-Hans",
 				Base,
 			);
