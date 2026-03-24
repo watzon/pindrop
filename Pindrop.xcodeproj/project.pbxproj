@@ -764,6 +764,8 @@
 				fr,
 				it,
 				ja,
+				ko,
+				nl,
 				"pt-BR",
 				"zh-Hans",
 				Base,

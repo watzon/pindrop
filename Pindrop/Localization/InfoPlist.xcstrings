@@ -34,6 +34,18 @@
             "state": "translated",
             "value": "Pindrop"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
         }
       }
     },
@@ -66,6 +78,18 @@
           }
         },
         "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -106,6 +130,18 @@
             "state": "translated",
             "value": ""
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
         }
       }
     },
@@ -141,6 +177,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop necessita dell'accesso al microfono per trascrivere la tua voce."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop heeft toegang tot de microfoon nodig om je stem te kunnen transcriberen."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop이 귀하의 음성을 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다."
           }
         }
       }
