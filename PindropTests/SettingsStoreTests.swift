@@ -192,6 +192,11 @@ struct SettingsStoreTests {
         #expect(settingsStore.selectedAppLanguage == .german)
     }
 
+    @Test func testLocalizedResolvesSelectedLocaleStrings() {
+        #expect(localized("Settings", locale: Locale(identifier: "de")) == "Einstellungen")
+        #expect(localized("Settings", locale: Locale(identifier: "tr")) == "Ayarlar")
+    }
+
     @Test func testThemeModeFallsBackToSystemForUnknownValue() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }
