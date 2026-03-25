@@ -767,6 +767,7 @@
 				ko,
 				nl,
 				"pt-BR",
+				tr,
 				"zh-Hans",
 				Base,
 			);
