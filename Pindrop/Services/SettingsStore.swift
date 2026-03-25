@@ -34,6 +34,7 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
    case spanish = "es"
    case french = "fr"
    case german = "de"
+   case turkish = "tr"
    case japanese = "ja"
    case portugueseBrazil = "pt-BR"
    case italian = "it"
@@ -42,112 +43,58 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
    public var id: String { rawValue }
 
-    var displayName: String {
-       displayName(locale: .autoupdatingCurrent)
-    }
+   private struct Metadata {
+      let displayKey: String
+      let whisperCode: String?
+      let localeIdentifier: String?
+      let selectable: Bool
+   }
 
-    var pickerLabel: String {
-       pickerLabel(locale: .autoupdatingCurrent)
-    }
-
-    func displayName(locale: Locale) -> String {
-       switch self {
-       case .automatic:
-          return localized("Automatic (Follow System)", locale: locale)
-       case .english:
-          return localized("English", locale: locale)
-       case .simplifiedChinese:
-          return localized("Simplified Chinese", locale: locale)
-       case .spanish:
-          return localized("Spanish", locale: locale)
-       case .french:
-          return localized("French", locale: locale)
-       case .german:
-          return localized("German", locale: locale)
-       case .japanese:
-          return localized("Japanese", locale: locale)
-       case .portugueseBrazil:
-          return localized("Portuguese (Brazil)", locale: locale)
-       case .italian:
-          return localized("Italian", locale: locale)
-       case .dutch:
-          return localized("Dutch", locale: locale)
-       case .korean:
-          return localized("Korean", locale: locale)
-       }
-    }
-
-    func pickerLabel(locale: Locale) -> String {
-       let displayName = displayName(locale: locale)
-       guard !isSelectable else { return displayName }
-       return String(format: localized("%@ (Coming Soon)", locale: locale), displayName)
-    }
-
-   var isSelectable: Bool {
+   private var metadata: Metadata {
       switch self {
-      case .automatic, .english, .simplifiedChinese, .spanish, .french, .german, .japanese,
-           .portugueseBrazil, .italian, .dutch, .korean:
-         return true
+      case .automatic:        return Metadata(displayKey: "Automatic (Follow System)", whisperCode: nil, localeIdentifier: nil, selectable: true)
+      case .english:          return Metadata(displayKey: "English", whisperCode: "en", localeIdentifier: "en", selectable: true)
+      case .simplifiedChinese: return Metadata(displayKey: "Simplified Chinese", whisperCode: "zh", localeIdentifier: "zh-Hans", selectable: true)
+      case .spanish:          return Metadata(displayKey: "Spanish", whisperCode: "es", localeIdentifier: "es", selectable: true)
+      case .french:           return Metadata(displayKey: "French", whisperCode: "fr", localeIdentifier: "fr", selectable: true)
+      case .german:           return Metadata(displayKey: "German", whisperCode: "de", localeIdentifier: "de", selectable: true)
+      case .turkish:          return Metadata(displayKey: "Turkish", whisperCode: "tr", localeIdentifier: "tr", selectable: true)
+      case .japanese:         return Metadata(displayKey: "Japanese", whisperCode: "ja", localeIdentifier: "ja", selectable: true)
+      case .portugueseBrazil: return Metadata(displayKey: "Portuguese (Brazil)", whisperCode: "pt", localeIdentifier: "pt-BR", selectable: true)
+      case .italian:          return Metadata(displayKey: "Italian", whisperCode: "it", localeIdentifier: "it", selectable: true)
+      case .dutch:            return Metadata(displayKey: "Dutch", whisperCode: "nl", localeIdentifier: "nl", selectable: true)
+      case .korean:           return Metadata(displayKey: "Korean", whisperCode: "ko", localeIdentifier: "ko", selectable: true)
       }
    }
 
-   var isEnglish: Bool {
-      self == .english
+   var displayName: String {
+      displayName(locale: .autoupdatingCurrent)
    }
+
+   var pickerLabel: String {
+      pickerLabel(locale: .autoupdatingCurrent)
+   }
+
+   func displayName(locale: Locale) -> String {
+      localized(metadata.displayKey, locale: locale)
+   }
+
+   func pickerLabel(locale: Locale) -> String {
+      let name = displayName(locale: locale)
+      guard !isSelectable else { return name }
+      return String(format: localized("%@ (Coming Soon)", locale: locale), name)
+   }
+
+   var isSelectable: Bool { metadata.selectable }
+
+   var isEnglish: Bool { self == .english }
 
    var locale: Locale {
-      switch self {
-      case .automatic:
-         return .autoupdatingCurrent
-      case .english:
-         return Locale(identifier: "en")
-      case .simplifiedChinese:
-         return Locale(identifier: "zh-Hans")
-      case .spanish:
-         return Locale(identifier: "es")
-      case .french:
-         return Locale(identifier: "fr")
-      case .german:
-         return Locale(identifier: "de")
-      case .japanese:
-         return Locale(identifier: "ja")
-      case .portugueseBrazil:
-         return Locale(identifier: "pt-BR")
-      case .italian:
-         return Locale(identifier: "it")
-      case .dutch:
-         return Locale(identifier: "nl")
-      case .korean:
-         return Locale(identifier: "ko")
-      }
+      guard let id = metadata.localeIdentifier else { return .autoupdatingCurrent }
+      return Locale(identifier: id)
    }
 
-   var whisperLanguageCode: String? {
-      switch self {
-      case .automatic:
-         return nil
-      case .english:
-         return "en"
-      case .simplifiedChinese:
-         return "zh"
-      case .spanish:
-         return "es"
-      case .french:
-         return "fr"
-      case .german:
-         return "de"
-      case .japanese:
-         return "ja"
-      case .portugueseBrazil:
-         return "pt"
-      case .italian:
-         return "it"
-      case .dutch:
-         return "nl"
-      case .korean:
-         return "ko"
-      }
-   }
+   var whisperLanguageCode: String? { metadata.whisperCode }
 
 }
 
