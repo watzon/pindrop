@@ -150,7 +150,10 @@ struct SettingsContainerView: View {
     }
 
     var body: some View {
-        MainContentPageLayout(scrollContent: true, headerBottomPadding: AppTheme.Spacing.lg) {
+        MainContentPageLayout(
+            scrollContent: true,
+            headerBottomPadding: filteredTabs.isEmpty ? AppTheme.Spacing.lg : AppTheme.Spacing.xl
+        ) {
             fixedHeader
         } content: {
             scrollableContent
@@ -183,8 +186,6 @@ struct SettingsContainerView: View {
             emptySearchState
         } else {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
-                tabsBar
-
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
                     Text(selectedTab.title(locale: locale))
                         .font(AppTypography.headline)
@@ -238,6 +239,10 @@ struct SettingsContainerView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textTertiary)
                 }
+            }
+
+            if !filteredTabs.isEmpty {
+                tabsBar
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

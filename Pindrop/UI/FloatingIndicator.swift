@@ -249,7 +249,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     
     private func startScreenTracking() {
         screenTrackingTimer?.invalidate()
-        screenTrackingTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.5) { [weak self] _ in
             Task { @MainActor in
                 self?.checkAndUpdateScreenPosition()
             }

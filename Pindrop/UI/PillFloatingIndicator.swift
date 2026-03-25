@@ -158,7 +158,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func startScreenTracking() {
         screenTrackingTimer?.invalidate()
-        screenTrackingTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.5) { [weak self] _ in
             Task { @MainActor in
                 self?.checkAndUpdateScreenPosition()
             }
@@ -173,7 +173,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func startHoverIntentMonitoring() {
         hoverIntentTimer?.invalidate()
-        hoverIntentTimer = Timer.scheduledTimer(withTimeInterval: LayoutMetrics.hoverMonitorInterval, repeats: true) { [weak self] _ in
+        hoverIntentTimer = Timer.pindrop_scheduleRepeating(interval: LayoutMetrics.hoverMonitorInterval) { [weak self] _ in
             Task { @MainActor in
                 self?.evaluateHoverIntent()
             }

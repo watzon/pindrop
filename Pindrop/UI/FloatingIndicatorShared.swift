@@ -10,9 +10,56 @@ import SwiftUI
 import AppKit
 
 extension NSScreen {
+    /// Resolves the display that currently owns the cursor using global screen coordinates.
+    ///
+    /// Uses `frame` first (includes menu bar and dock margins outside `visibleFrame`). When multiple
+    /// `NSScreen` frames overlap (mirroring, unusual layouts), prefers a screen whose `visibleFrame`
+    /// contains the point, then the smallest `frame`. When the point falls in a seam/gap, picks the
+    /// screen whose visible rect is closest so the indicator does not stick to `main` by accident.
     static func screenUnderMouse() -> NSScreen {
-        let mouseLocation = NSEvent.mouseLocation
-        return NSScreen.screens.first { $0.frame.contains(mouseLocation) } ?? NSScreen.main ?? NSScreen.screens.first!
+        let point = NSEvent.mouseLocation
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else {
+            return NSScreen.main!
+        }
+
+        let containing = screens.filter { $0.frame.contains(point) }
+        if containing.count == 1 {
+            return containing[0]
+        }
+        if containing.count > 1 {
+            if let visibleMatch = containing.first(where: { $0.visibleFrame.contains(point) }) {
+                return visibleMatch
+            }
+            return containing.min(by: { $0.frame.width * $0.frame.height < $1.frame.width * $1.frame.height })!
+        }
+
+        func distanceToRect(_ rect: CGRect) -> CGFloat {
+            let dx: CGFloat
+            if point.x < rect.minX { dx = rect.minX - point.x }
+            else if point.x > rect.maxX { dx = point.x - rect.maxX }
+            else { dx = 0 }
+            let dy: CGFloat
+            if point.y < rect.minY { dy = rect.minY - point.y }
+            else if point.y > rect.maxY { dy = point.y - rect.maxY }
+            else { dy = 0 }
+            return hypot(dx, dy)
+        }
+
+        return screens.min(by: { distanceToRect($0.visibleFrame) < distanceToRect($1.visibleFrame) })
+            ?? NSScreen.main
+            ?? screens[0]
+    }
+}
+
+extension Timer {
+    /// Repeating timer on the main run loop in `.common` modes so it still fires during event tracking
+    /// (window drag, resize, menus, scroll tracking) when `.default`-only timers are paused.
+    @MainActor
+    static func pindrop_scheduleRepeating(interval: TimeInterval, block: @escaping (Timer) -> Void) -> Timer {
+        let timer = Timer(timeInterval: interval, repeats: true, block: block)
+        RunLoop.main.add(timer, forMode: .common)
+        return timer
     }
 }
 

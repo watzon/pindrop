@@ -211,7 +211,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
 
     private func startAnchorRefresh() {
         anchorRefreshTimer?.invalidate()
-        anchorRefreshTimer = Timer.scheduledTimer(withTimeInterval: LayoutMetrics.refreshInterval, repeats: true) { [weak self] _ in
+        anchorRefreshTimer = Timer.pindrop_scheduleRepeating(interval: LayoutMetrics.refreshInterval) { [weak self] _ in
             Task { @MainActor in
                 self?.refreshAnchorPosition(animated: false)
             }
@@ -226,10 +226,11 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         if animated {
             panel.animator().setFrame(frame, display: true)
         } else {
-            if panel.frame.size == frame.size {
-                panel.setFrameOrigin(frame.origin)
-            } else {
-                panel.setFrame(frame, display: true)
+            // Match pill screen jumps: no implicit Core Animation interpolation across displays.
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0
+                context.allowsImplicitAnimation = false
+                panel.setFrame(frame, display: false, animate: false)
             }
         }
     }
