@@ -158,6 +158,7 @@ struct SettingsObservationSnapshot: Equatable {
     let outputMode: String
     let automaticDictionaryLearningEnabled: Bool
     let selectedInputDeviceUID: String
+    let selectedAppLanguage: AppLanguage
     let floatingIndicatorEnabled: Bool
     let floatingIndicatorType: FloatingIndicatorType
     let aiEnhancementEnabled: Bool
@@ -1132,6 +1133,7 @@ final class AppCoordinator {
             outputMode: settingsStore.outputMode,
             automaticDictionaryLearningEnabled: settingsStore.automaticDictionaryLearningEnabled,
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
+            selectedAppLanguage: settingsStore.selectedAppLanguage,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
             aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
@@ -1210,6 +1212,11 @@ final class AppCoordinator {
                     if previousSnapshot.automaticDictionaryLearningEnabled
                         && !snapshot.automaticDictionaryLearningEnabled {
                         self.automaticDictionaryLearningService.cancelObservation()
+                    }
+
+                    if previousSnapshot.selectedAppLanguage != snapshot.selectedAppLanguage {
+                        self.statusBarController.reloadLocalizedStrings()
+                        self.pillFloatingIndicatorController.reloadLocalizedStrings()
                     }
 
                     self.statusBarController.updateDynamicItems()
@@ -3298,8 +3305,6 @@ final class AppCoordinator {
 
     private func handleSelectLanguage(_ language: AppLanguage) {
         settingsStore.selectedAppLanguage = language
-        statusBarController.reloadLocalizedStrings()
-        pillFloatingIndicatorController.reloadLocalizedStrings()
         Log.ui.info("Selected app language: \(language.rawValue)")
     }
 
