@@ -295,6 +295,11 @@ final class SettingsStore: ObservableObject {
 
    private let keychainService = "com.pindrop.settings"
    private let apiEndpointAccount = "api-endpoint"
+   /// Per Custom / Ollama / LM Studio endpoint storage (OpenAI-compatible URLs).
+   private func apiEndpointCustomAccount(for type: CustomProviderType) -> String {
+      "api-endpoint-custom-\(type.storageKey)"
+   }
+
    private let legacyAPIKeyAccount = "api-key"
 
    private static var inMemoryKeychainStorage: [String: String] = [:]
@@ -330,7 +335,11 @@ final class SettingsStore: ObservableObject {
          return storedProvider
       }
 
-      return inferredCustomLocalProvider(for: apiEndpoint) ?? .custom
+      let genericEndpoint =
+         (try? loadFromKeychain(account: apiEndpointCustomAccount(for: .custom)))
+         ?? ""
+      let trimmed = genericEndpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+      return inferredCustomLocalProvider(for: trimmed.isEmpty ? nil : trimmed) ?? .custom
    }
 
    var selectedFloatingIndicatorType: FloatingIndicatorType {
@@ -430,7 +439,8 @@ final class SettingsStore: ObservableObject {
 
     init() {
        guard !SettingsStoreRuntime.isPreview else { return }
-       apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
+       migrateLegacyCustomEndpointIfNeeded()
+       refreshCachedAPIEndpoint()
        if let provider = provider(for: apiEndpoint) {
           aiProvider = provider.rawValue
        }
@@ -475,14 +485,103 @@ final class SettingsStore: ObservableObject {
       } + ["api-key-\(provider.rawValue)"]
    }
 
-   func saveAPIEndpoint(_ endpoint: String) throws {
-      try saveToKeychain(value: endpoint, account: apiEndpointAccount)
-      apiEndpoint = endpoint
-      if let provider = provider(for: endpoint) {
-         aiProvider = provider.rawValue
+   /// Saved OpenAI-compatible URL for a custom provider subtype (Custom, Ollama, LM Studio, …).
+   func storedAPIEndpoint(forCustomLocalProvider type: CustomProviderType) -> String? {
+      guard let value = try? loadFromKeychain(account: apiEndpointCustomAccount(for: type)) else {
+         return nil
       }
-      if let customProvider = inferredCustomLocalProvider(for: endpoint), currentAIProvider == .custom {
-         customLocalProviderType = customProvider.rawValue
+      let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+      return trimmed.isEmpty ? nil : trimmed
+   }
+
+   /// Persists the API endpoint for the given provider. Custom OpenAI-compatible endpoints are stored per subtype.
+   func saveAPIEndpoint(
+      _ endpoint: String,
+      for targetProvider: AIProvider,
+      customLocalProvider: CustomProviderType? = nil
+   ) throws {
+      let trimmed = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+
+      if targetProvider == .custom {
+         let resolved = customLocalProvider ?? currentCustomLocalProvider
+         let account = apiEndpointCustomAccount(for: resolved)
+         if trimmed.isEmpty {
+            try deleteFromKeychain(account: account)
+         } else {
+            try saveToKeychain(value: trimmed, account: account)
+         }
+         if let p = provider(for: trimmed.isEmpty ? nil : trimmed) {
+            aiProvider = p.rawValue
+         }
+         refreshCachedAPIEndpoint()
+         objectWillChange.send()
+         return
+      }
+
+      if trimmed.isEmpty {
+         try deleteFromKeychain(account: apiEndpointAccount)
+         apiEndpoint = nil
+      } else {
+         try saveToKeychain(value: trimmed, account: apiEndpointAccount)
+         apiEndpoint = trimmed
+         if let p = provider(for: trimmed) {
+            aiProvider = p.rawValue
+         }
+      }
+      objectWillChange.send()
+   }
+
+   /// Legacy helper: infers built-in vs custom from the URL and which custom subtype to use.
+   func saveAPIEndpoint(_ endpoint: String) throws {
+      let trimmed = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty else {
+         try deleteFromKeychain(account: apiEndpointAccount)
+         for type in CustomProviderType.allCases {
+            try? deleteFromKeychain(account: apiEndpointCustomAccount(for: type))
+         }
+         refreshCachedAPIEndpoint()
+         objectWillChange.send()
+         return
+      }
+      guard let p = provider(for: trimmed) else {
+         try saveAPIEndpoint(trimmed, for: .openai, customLocalProvider: nil)
+         return
+      }
+      switch p {
+      case .custom:
+         let customType = inferredCustomLocalProvider(for: trimmed) ?? .custom
+         try saveAPIEndpoint(trimmed, for: .custom, customLocalProvider: customType)
+         customLocalProviderType = customType.rawValue
+      default:
+         try saveAPIEndpoint(trimmed, for: p, customLocalProvider: nil)
+      }
+   }
+
+   private func migrateLegacyCustomEndpointIfNeeded() {
+      guard let legacy = try? loadFromKeychain(account: apiEndpointAccount) else { return }
+      let trimmed = legacy.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty, provider(for: trimmed) == .custom else { return }
+
+      let targetType: CustomProviderType =
+         if let stored = CustomProviderType(rawValue: customLocalProviderType), stored != .custom {
+            stored
+         } else {
+            inferredCustomLocalProvider(for: trimmed) ?? .custom
+         }
+
+      let account = apiEndpointCustomAccount(for: targetType)
+      if ((try? loadFromKeychain(account: account)) ?? nil) == nil {
+         try? saveToKeychain(value: trimmed, account: account)
+      }
+      try? deleteFromKeychain(account: apiEndpointAccount)
+   }
+
+   private func refreshCachedAPIEndpoint() {
+      if currentAIProvider == .custom {
+         let account = apiEndpointCustomAccount(for: currentCustomLocalProvider)
+         apiEndpoint = try? loadFromKeychain(account: account)
+      } else {
+         apiEndpoint = try? loadFromKeychain(account: apiEndpointAccount)
       }
    }
 
@@ -583,7 +682,11 @@ final class SettingsStore: ObservableObject {
 
    func deleteAPIEndpoint() throws {
       try deleteFromKeychain(account: apiEndpointAccount)
-      apiEndpoint = nil
+      for type in CustomProviderType.allCases {
+         try? deleteFromKeychain(account: apiEndpointCustomAccount(for: type))
+      }
+      refreshCachedAPIEndpoint()
+      objectWillChange.send()
    }
 
    func deleteAPIKey(

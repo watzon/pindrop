@@ -16,7 +16,8 @@ struct AIEnhancementSettingsView: View {
    @State private var selectedProvider: AIProvider = .openai
    @State private var selectedCustomProvider: CustomProviderType = .custom
    @State private var apiKey = ""
-   @State private var customEndpoint = ""
+   /// Separate draft URL per Custom / Ollama / LM Studio (and future) subtype.
+   @State private var customEndpointDrafts: [CustomProviderType: String] = [:]
    @State private var selectedModel = "gpt-4o-mini"
    @State private var customModel = ""
    @State private var enhancementPrompt = ""
@@ -105,9 +106,7 @@ struct AIEnhancementSettingsView: View {
          guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
           Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
       }
-      .onChange(of: selectedCustomProvider) { oldValue, newValue in
-         applyCustomEndpointDefault(previousCustomProvider: oldValue)
-
+      .onChange(of: selectedCustomProvider) { _, newValue in
          apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
 
          if newValue == .custom {
@@ -125,10 +124,6 @@ struct AIEnhancementSettingsView: View {
                forceRefresh: true
             )
          }
-      }
-      .onChange(of: customEndpoint) { _, newValue in
-         guard selectedProvider == .custom, selectedCustomProvider.supportsModelListing else { return }
-         scheduleEndpointRefresh(for: newValue)
       }
       .sheet(isPresented: $showPresetManagement) {
          PresetManagementSheet()
@@ -656,7 +651,7 @@ struct AIEnhancementSettingsView: View {
                  .foregroundStyle(AppColors.textSecondary)
           }
 
-           TextField(selectedCustomProvider.endpointPlaceholder, text: $customEndpoint)
+           TextField(selectedCustomProvider.endpointPlaceholder, text: customEndpointTextBinding())
               .textFieldStyle(.plain)
               .aiSettingsInputChrome()
         }
@@ -821,22 +816,43 @@ struct AIEnhancementSettingsView: View {
        }
     }
 
-    private func applyCustomEndpointDefault(
-       previousCustomProvider: CustomProviderType? = nil,
-       forceReset: Bool = false
-    ) {
+    private func applyCustomEndpointDefault(forceReset: Bool = false) {
        guard selectedProvider == .custom else { return }
 
        if forceReset {
-          customEndpoint = selectedCustomProvider.defaultEndpoint
-          return
+          let defaultEndpoint = selectedCustomProvider.defaultEndpoint
+          if !defaultEndpoint.isEmpty {
+             customEndpointDrafts[selectedCustomProvider] = defaultEndpoint
+          }
        }
+    }
 
-       let trimmedEndpoint = customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines)
-       let previousDefaultEndpoint = previousCustomProvider?.defaultEndpoint
-       if trimmedEndpoint.isEmpty || trimmedEndpoint == previousDefaultEndpoint {
-          customEndpoint = selectedCustomProvider.defaultEndpoint
+    private func customEndpointTextBinding() -> Binding<String> {
+       Binding(
+          get: { customEndpointDrafts[selectedCustomProvider] ?? "" },
+          set: { newValue in
+             customEndpointDrafts[selectedCustomProvider] = newValue
+             if selectedProvider == .custom, selectedCustomProvider.supportsModelListing {
+                scheduleEndpointRefresh(for: newValue)
+             }
+          }
+       )
+    }
+
+    private func loadCustomEndpointDrafts() {
+       for type in CustomProviderType.allCases {
+          if let stored = settings.storedAPIEndpoint(forCustomLocalProvider: type) {
+             customEndpointDrafts[type] = stored
+          } else if !type.defaultEndpoint.isEmpty {
+             customEndpointDrafts[type] = type.defaultEndpoint
+          } else {
+             customEndpointDrafts[type] = ""
+          }
        }
+    }
+
+    private var currentCustomEndpointText: String {
+       (customEndpointDrafts[selectedCustomProvider] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func scheduleEndpointRefresh(for endpoint: String) {
@@ -945,7 +961,7 @@ struct AIEnhancementSettingsView: View {
                 for: provider,
                 customLocalProvider: resolvedCustomProvider
              ) ?? apiKey,
-             endpointOverride: provider == .custom ? customEndpoint : nil,
+             endpointOverride: provider == .custom ? (customEndpointDrafts[selectedCustomProvider] ?? "") : nil,
              customLocalProvider: resolvedCustomProvider
           )
           availableModels = models
@@ -1005,7 +1021,7 @@ struct AIEnhancementSettingsView: View {
           return false
        }
        if selectedProvider == .custom {
-          if customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
+          if currentCustomEndpointText.isEmpty { return false }
           let configuredModel = selectedCustomProvider.supportsModelListing ? selectedModel : customModel
           if configuredModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
        }
@@ -1022,8 +1038,9 @@ struct AIEnhancementSettingsView: View {
        selectedModel = loadedModel
        selectedCustomProvider = settings.currentCustomLocalProvider
 
+       loadCustomEndpointDrafts()
+
        if let endpoint = settings.apiEndpoint {
-          customEndpoint = endpoint
           if endpoint.contains("openai.com") {
              selectedProvider = .openai
          } else if endpoint.contains("anthropic.com") {
@@ -1036,6 +1053,8 @@ struct AIEnhancementSettingsView: View {
              selectedProvider = .custom
              selectedCustomProvider = settings.inferredCustomLocalProvider(for: endpoint) ?? settings.currentCustomLocalProvider
           }
+       } else if settings.currentAIProvider == .custom {
+          selectedProvider = .custom
        }
        customModel = loadedModel
        apiKey = settings.loadAPIKey(
@@ -1082,11 +1101,18 @@ struct AIEnhancementSettingsView: View {
        do {
           if selectedProvider == .custom {
              settings.customLocalProviderType = selectedCustomProvider.rawValue
+             for type in CustomProviderType.allCases {
+                let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                try settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
+             }
+          } else {
+             try settings.saveAPIEndpoint(
+                selectedProvider.defaultEndpoint,
+                for: selectedProvider,
+                customLocalProvider: nil
+             )
           }
 
-          let endpoint =
-             selectedProvider == .custom ? customEndpoint : selectedProvider.defaultEndpoint
-          try settings.saveAPIEndpoint(endpoint)
           try settings.saveAPIKey(
              apiKey,
              for: selectedProvider,

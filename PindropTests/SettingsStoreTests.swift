@@ -143,6 +143,21 @@ struct SettingsStoreTests {
         #expect(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .ollama) == nil)
     }
 
+    @Test func testCustomProviderEndpointsAreScopedBySubtype() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        let groqLike = "https://api.groq.com/openai/v1/chat/completions"
+        let ollamaLocal = "http://localhost:11434/v1/chat/completions"
+
+        try settingsStore.saveAPIEndpoint(groqLike, for: .custom, customLocalProvider: .custom)
+        try settingsStore.saveAPIEndpoint(ollamaLocal, for: .custom, customLocalProvider: .ollama)
+
+        #expect(settingsStore.storedAPIEndpoint(forCustomLocalProvider: .custom) == groqLike)
+        #expect(settingsStore.storedAPIEndpoint(forCustomLocalProvider: .ollama) == ollamaLocal)
+        #expect(settingsStore.storedAPIEndpoint(forCustomLocalProvider: .lmStudio) == nil)
+    }
+
     @Test func testSavingBlankAPIKeyDeletesStoredValue() throws {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }

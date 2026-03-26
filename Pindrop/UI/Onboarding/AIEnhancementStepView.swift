@@ -165,7 +165,7 @@ struct AIEnhancementStepView: View {
     @State private var selectedProvider: AIProvider = .openai
     @State private var selectedCustomProvider: CustomProviderType = .custom
     @State private var apiKey = ""
-    @State private var customEndpoint = ""
+    @State private var customEndpointDrafts: [CustomProviderType: String] = [:]
     @State private var selectedModel = "gpt-4o-mini"
     @State private var customModel = ""
     @State private var showingAPIKey = false
@@ -227,9 +227,7 @@ struct AIEnhancementStepView: View {
            guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
            Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
         }
-        .onChange(of: selectedCustomProvider) { oldValue, newValue in
-           applyCustomEndpointDefault(previousCustomProvider: oldValue)
-
+        .onChange(of: selectedCustomProvider) { _, newValue in
            apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
 
            if newValue == .custom {
@@ -248,11 +246,6 @@ struct AIEnhancementStepView: View {
               )
            }
         }
-        .onChange(of: customEndpoint) { _, newValue in
-           guard selectedProvider == .custom, selectedCustomProvider.supportsModelListing else { return }
-           scheduleEndpointRefresh(for: newValue)
-        }
-
     }
 
     private var headerSection: some View {
@@ -437,7 +430,7 @@ struct AIEnhancementStepView: View {
                  .foregroundStyle(.secondary)
           }
 
-           TextField(selectedCustomProvider.endpointPlaceholder, text: $customEndpoint)
+           TextField(selectedCustomProvider.endpointPlaceholder, text: customEndpointTextBinding())
               .textFieldStyle(.plain)
               .aiSettingsInputChrome()
         }
@@ -559,22 +552,43 @@ struct AIEnhancementStepView: View {
        }
     }
 
-    private func applyCustomEndpointDefault(
-       previousCustomProvider: CustomProviderType? = nil,
-       forceReset: Bool = false
-    ) {
+    private func applyCustomEndpointDefault(forceReset: Bool = false) {
        guard selectedProvider == .custom else { return }
 
        if forceReset {
-          customEndpoint = selectedCustomProvider.defaultEndpoint
-          return
+          let defaultEndpoint = selectedCustomProvider.defaultEndpoint
+          if !defaultEndpoint.isEmpty {
+             customEndpointDrafts[selectedCustomProvider] = defaultEndpoint
+          }
        }
+    }
 
-       let trimmedEndpoint = customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines)
-       let previousDefaultEndpoint = previousCustomProvider?.defaultEndpoint
-       if trimmedEndpoint.isEmpty || trimmedEndpoint == previousDefaultEndpoint {
-          customEndpoint = selectedCustomProvider.defaultEndpoint
+    private func customEndpointTextBinding() -> Binding<String> {
+       Binding(
+          get: { customEndpointDrafts[selectedCustomProvider] ?? "" },
+          set: { newValue in
+             customEndpointDrafts[selectedCustomProvider] = newValue
+             if selectedProvider == .custom, selectedCustomProvider.supportsModelListing {
+                scheduleEndpointRefresh(for: newValue)
+             }
+          }
+       )
+    }
+
+    private func loadCustomEndpointDrafts() {
+       for type in CustomProviderType.allCases {
+          if let stored = settings.storedAPIEndpoint(forCustomLocalProvider: type) {
+             customEndpointDrafts[type] = stored
+          } else if !type.defaultEndpoint.isEmpty {
+             customEndpointDrafts[type] = type.defaultEndpoint
+          } else {
+             customEndpointDrafts[type] = ""
+          }
        }
+    }
+
+    private var currentCustomEndpointText: String {
+       (customEndpointDrafts[selectedCustomProvider] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func scheduleEndpointRefresh(for endpoint: String) {
@@ -603,7 +617,7 @@ struct AIEnhancementStepView: View {
        selectedCustomProvider = settings.currentCustomLocalProvider
        selectedModel = settings.aiModel
        customModel = settings.aiModel
-       customEndpoint = settings.apiEndpoint ?? selectedCustomProvider.defaultEndpoint
+       loadCustomEndpointDrafts()
        apiKey = settings.loadAPIKey(
           for: selectedProvider,
           customLocalProvider: selectedCustomProvider
@@ -613,7 +627,6 @@ struct AIEnhancementStepView: View {
           selectedProvider == .custom {
           selectedCustomProvider = settings.inferredCustomLocalProvider(for: endpoint)
              ?? settings.currentCustomLocalProvider
-          customEndpoint = endpoint
        }
 
        Task {
@@ -706,7 +719,7 @@ struct AIEnhancementStepView: View {
                 for: provider,
                 customLocalProvider: resolvedCustomProvider
              ) ?? apiKey,
-             endpointOverride: provider == .custom ? customEndpoint : nil,
+             endpointOverride: provider == .custom ? (customEndpointDrafts[selectedCustomProvider] ?? "") : nil,
              customLocalProvider: resolvedCustomProvider
           )
           availableModels = models
@@ -807,9 +820,7 @@ struct AIEnhancementStepView: View {
        {
           return false
        }
-       if selectedProvider == .custom
-          && customEndpoint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-       {
+       if selectedProvider == .custom, currentCustomEndpointText.isEmpty {
           return false
        }
        let configuredModel = selectedProvider == .custom && !selectedCustomProvider.supportsModelListing
@@ -826,10 +837,17 @@ struct AIEnhancementStepView: View {
 
        if selectedProvider == .custom {
           settings.customLocalProviderType = selectedCustomProvider.rawValue
+          for type in CustomProviderType.allCases {
+             let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+             try? settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
+          }
+       } else {
+          try? settings.saveAPIEndpoint(
+             selectedProvider.defaultEndpoint,
+             for: selectedProvider,
+             customLocalProvider: nil
+          )
        }
-
-       let endpoint = selectedProvider == .custom ? customEndpoint : selectedProvider.defaultEndpoint
-       try? settings.saveAPIEndpoint(endpoint)
        try? settings.saveAPIKey(
           apiKey,
           for: selectedProvider,
