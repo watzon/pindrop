@@ -10,6 +10,23 @@ import SwiftUI
 import AppKit
 
 extension NSScreen {
+    /// Stable identity for the physical display backing this screen (handles cases where AppKit
+    /// may vend different `NSScreen` instances for the same monitor across queries).
+    var pindrop_displayNumber: UInt32 {
+        (deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+    }
+
+    /// Whether two screens refer to the same physical display.
+    func pindrop_isSameDisplay(as other: NSScreen?) -> Bool {
+        guard let other else { return false }
+        let a = pindrop_displayNumber
+        let b = other.pindrop_displayNumber
+        if a != 0, b != 0 {
+            return a == b
+        }
+        return self === other
+    }
+
     /// Resolves the display that currently owns the cursor using global screen coordinates.
     ///
     /// Uses `frame` first (includes menu bar and dock margins outside `visibleFrame`). When multiple

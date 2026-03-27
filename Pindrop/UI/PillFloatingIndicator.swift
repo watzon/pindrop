@@ -67,7 +67,6 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     @Published var isHovered: Bool = false
     @Published var isHoverTooltipVisible: Bool = false
     @Published private(set) var isDragging = false
-    private var screenTrackingTimer: Timer?
     private var hoverIntentTimer: Timer?
     private var hoverTooltipTimer: Timer?
     private var lastScreen: NSScreen?
@@ -144,7 +143,6 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }
 
         lastScreen = screen
-        startScreenTracking()
         startHoverIntentMonitoring()
     }
 
@@ -156,28 +154,21 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }
     }
 
-    private func startScreenTracking() {
-        screenTrackingTimer?.invalidate()
-        screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.5) { [weak self] _ in
-            Task { @MainActor in
-                self?.checkAndUpdateScreenPosition()
-            }
-        }
-    }
-
-    private func stopScreenTracking() {
-        screenTrackingTimer?.invalidate()
-        screenTrackingTimer = nil
-        lastScreen = nil
-    }
-
     private func startHoverIntentMonitoring() {
         hoverIntentTimer?.invalidate()
         hoverIntentTimer = Timer.pindrop_scheduleRepeating(interval: LayoutMetrics.hoverMonitorInterval) { [weak self] _ in
             Task { @MainActor in
-                self?.evaluateHoverIntent()
+                self?.pillMonitorTick()
             }
         }
+    }
+
+    /// Screen follow + hover: runs on the main run loop in `.common` modes (same cadence as hover),
+    /// so the pill tracks the cursor across displays while idle, recording, or processing.
+    private func pillMonitorTick() {
+        guard isVisible else { return }
+        checkAndUpdateScreenPosition()
+        evaluateHoverIntent()
     }
 
     private func stopHoverIntentMonitoring() {
@@ -501,12 +492,18 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func checkAndUpdateScreenPosition() {
-        guard isVisible else { return }
-        guard let currentScreen = Optional(NSScreen.screenUnderMouse()), let panel = panel else { return }
+        guard isVisible, let panel else { return }
 
-        if lastScreen !== currentScreen {
-            lastScreen = currentScreen
-            let newFrame = frame(for: currentScreen, state: layoutState)
+        let currentScreen = NSScreen.screenUnderMouse()
+        if let last = lastScreen, currentScreen.pindrop_isSameDisplay(as: last) {
+            return
+        }
+
+        lastScreen = currentScreen
+        let newFrame = frame(for: currentScreen, state: layoutState)
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0
+            context.allowsImplicitAnimation = false
             panel.setFrame(newFrame, display: false, animate: false)
         }
     }
@@ -565,8 +562,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         guard let panel = panel else { return }
         let localPanel = panel
 
-        stopScreenTracking()
         stopHoverIntentMonitoring()
+        lastScreen = nil
         hideHoverTooltip()
         isVisible = false
         isDragging = false
@@ -712,7 +709,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func refreshLayout(animated: Bool, duration: TimeInterval = 0.22) {
         guard let panel = panel else { return }
-        guard let screen = Optional(NSScreen.screenUnderMouse()) ?? panel.screen ?? NSScreen.screens.first else { return }
+        let screen = NSScreen.screenUnderMouse()
+        lastScreen = screen
 
         let state = layoutState
 
