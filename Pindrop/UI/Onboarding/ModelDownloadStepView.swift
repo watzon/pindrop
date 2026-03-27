@@ -110,9 +110,11 @@ struct ModelDownloadStepView: View {
         } else if modelManager.isDownloading {
             if let model = selectedModel {
                 let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
-                return localized("%d / %d MB", locale: locale)
-                    .replacingOccurrences(of: "%d", with: "\(downloadedMB)")
-                    .replacingOccurrences(of: " / %d", with: " / \(model.sizeInMB)").replacingOccurrences(of: "%d", with: "\(model.sizeInMB)")
+                return String(
+                    format: localized("%d / %d MB", locale: locale),
+                    locale: locale,
+                    arguments: [downloadedMB, model.sizeInMB]
+                )
             }
             return localized("Please wait...", locale: locale)
         } else {
