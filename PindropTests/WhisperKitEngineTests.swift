@@ -10,7 +10,7 @@ import Testing
 @testable import Pindrop
 
 @MainActor
-@Suite
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["PINDROP_RUN_INTEGRATION_TESTS"] == "1", "WhisperKit engine integration tests are disabled by default. Run `just test-integration` to execute them."))
 struct WhisperKitEngineTests {
     private func makeEngine() -> WhisperKitEngine {
         WhisperKitEngine()

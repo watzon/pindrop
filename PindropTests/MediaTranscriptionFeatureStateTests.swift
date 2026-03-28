@@ -85,6 +85,34 @@ struct MediaTranscriptionFeatureStateTests {
         #expect(sut.selectedFolderID == nil)
     }
 
+    @Test func setupIssueAndLibraryMessageFollowSharedStateMachine() {
+        let sut = MediaTranscriptionFeatureState()
+
+        sut.setSetupIssue("ffmpeg missing")
+        #expect(sut.route == .library)
+        #expect(sut.setupIssue == "ffmpeg missing")
+
+        sut.clearSetupIssue()
+        #expect(sut.setupIssue == nil)
+
+        sut.setLibraryMessage("Ready")
+        #expect(sut.libraryMessage == "Ready")
+
+        sut.setLibraryMessage(nil)
+        #expect(sut.libraryMessage == nil)
+    }
+
+    @Test func clearCurrentJobUsesSharedStateMachine() {
+        let sut = MediaTranscriptionFeatureState()
+        let job = MediaTranscriptionJobState(request: .link("https://example.com"))
+        sut.beginJob(job)
+
+        sut.clearCurrentJob()
+
+        #expect(sut.currentJob == nil)
+        #expect(sut.route == .processing(job.id))
+    }
+
     @Test func librarySearchAndSortStateRemainMutableDuringJobLifecycle() {
         let sut = MediaTranscriptionFeatureState()
         let folderID = UUID()

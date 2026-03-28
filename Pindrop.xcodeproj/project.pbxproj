@@ -865,6 +865,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/scripts/build-shared-frameworks-if-needed.sh",
 				"$(SRCROOT)/shared/build.gradle.kts",
 				"$(SRCROOT)/shared/gradle.properties",
 				"$(SRCROOT)/shared/core/build.gradle.kts",
@@ -876,12 +877,13 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(SRCROOT)/shared/build/xcode-shared-frameworks.stamp",
 				"$(SRCROOT)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/Info.plist",
 				"$(SRCROOT)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/Info.plist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\ncd \"$SRCROOT/shared\"\n\"$SRCROOT/shared/gradlew\" --no-daemon --console=plain -p \"$SRCROOT/shared\" :core:assemblePindropSharedCoreXCFramework :feature-transcription:assemblePindropSharedTranscriptionXCFramework\n";
+			shellScript = "set -euo pipefail\n\"$SRCROOT/scripts/build-shared-frameworks-if-needed.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

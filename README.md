@@ -120,6 +120,7 @@ Since this is an open-source project, you can also build it yourself. Don't worr
 - `assets/`: images and other repository assets
 
 The current shipping app is still the native macOS target in `Pindrop/`. The `shared/` workspace contains cross-platform logic that future native Windows and Linux clients can reuse while keeping their own platform-specific transcription adapters and UI layers.
+Today, the shared workspace only produces the macOS frameworks used by the app plus JVM test artifacts. Linux and Windows are represented by explicit stub verification tasks that fail fast until real platform targets are implemented.
 
 ### Step 1: Clone the Repository
 

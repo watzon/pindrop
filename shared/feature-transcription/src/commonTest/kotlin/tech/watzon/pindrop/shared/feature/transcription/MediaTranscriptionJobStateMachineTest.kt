@@ -110,4 +110,21 @@ class MediaTranscriptionJobStateMachineTest {
         )
         assertNull(afterFolderDelete.selectedFolderId)
     }
+
+    @Test
+    fun setupIssueAndLibraryMessagesCanBeMutatedWithoutSwiftFallbacks() {
+        val initial = MediaTranscriptionJobStateMachine.setSetupIssue(
+            snapshot = MediaTranscriptionFeatureSnapshot(),
+            message = "ffmpeg missing",
+        )
+
+        assertEquals("ffmpeg missing", initial.setupIssue)
+        assertIs<MediaTranscriptionRoute.Library>(initial.route)
+
+        val messaged = MediaTranscriptionJobStateMachine.setLibraryMessage(
+            snapshot = initial,
+            message = "Ready",
+        )
+        assertEquals("Ready", messaged.libraryMessage)
+    }
 }

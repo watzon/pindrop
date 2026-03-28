@@ -21,29 +21,30 @@ struct TranscriptionServiceTests {
     }
     
     @Test func modelLoadingStates() async throws {
-        let service = TranscriptionService()
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.loadDelayNanoseconds = 300_000_000
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
 
-        // Start loading model
         Task {
-            do {
-                try await service.loadModel(modelName: "tiny")
-            } catch {
-                // Expected to fail in test environment without actual model
-            }
+            try? await service.loadModel(modelName: "tiny")
         }
-        
-        // Give it a moment to start loading
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-        
-        // State should have changed from unloaded
-        #expect(service.state != .unloaded, "State should change from unloaded when loading starts")
+
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(service.state == .loading, "State should transition to loading while model load is in flight")
+        #expect(mockEngine.state == .loading)
     }
     
     @Test func modelLoadingError() async throws {
-        let service = TranscriptionService()
-        
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.loadModelPathError = NSError(
+            domain: "TranscriptionServiceTests",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "bad model path"]
+        )
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
         do {
-            // Try to load with invalid model path
             try await service.loadModel(modelPath: "/invalid/path/to/model")
             Issue.record("Should throw error for invalid model path")
         } catch {
@@ -56,17 +57,9 @@ struct TranscriptionServiceTests {
     
     @Test func transcribeWithoutLoadedModel() async throws {
         let service = TranscriptionService()
-        
-        // Create dummy audio data (16kHz mono PCM)
-        let sampleCount = 16000 // 1 second of audio
-        var audioData = Data()
-        for _ in 0..<sampleCount {
-            var sample: Int16 = 0
-            audioData.append(Data(bytes: &sample, count: MemoryLayout<Int16>.size))
-        }
-        
+
         do {
-            _ = try await service.transcribe(audioData: audioData)
+            _ = try await service.transcribe(audioData: makeFloatAudioData(seconds: 1.0))
             Issue.record("Should throw error when model not loaded")
         } catch TranscriptionService.TranscriptionError.modelNotLoaded {
         } catch {
@@ -75,14 +68,9 @@ struct TranscriptionServiceTests {
     }
     
     @Test func transcribeWithEmptyAudioData() async throws {
-        let service = TranscriptionService()
-        
-        // Try to load model first (will fail in test environment, but that's ok)
-        do {
-            try await service.loadModel(modelName: "tiny")
-        } catch {
-            // Expected to fail in test environment
-        }
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+        try await service.loadModel(modelName: "tiny")
         
         let emptyData = Data()
         
@@ -101,40 +89,33 @@ struct TranscriptionServiceTests {
     // MARK: - State Management Tests
     
     @Test func stateTransitions() async throws {
-        let service = TranscriptionService()
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.loadDelayNanoseconds = 300_000_000
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
         
         #expect(service.state == .unloaded)
         
-        // Attempt to load model (will fail in test environment)
         Task {
-            do {
-                try await service.loadModel(modelName: "tiny")
-            } catch {
-                // Expected
-            }
+            try? await service.loadModel(modelName: "tiny")
         }
-        
-        // Give it time to transition
+
         try await Task.sleep(nanoseconds: 100_000_000)
         
-        // State should have changed
-        #expect(service.state != .unloaded)
+        #expect(service.state == .loading)
+
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        #expect(service.state == .ready)
     }
     
     @Test func concurrentTranscriptionPrevention() async throws {
-        let service = TranscriptionService()
-        
-        // Create dummy audio data
-        let sampleCount = 16000
-        var audioData = Data()
-        for _ in 0..<sampleCount {
-            var sample: Int16 = 0
-            audioData.append(Data(bytes: &sample, count: MemoryLayout<Int16>.size))
-        }
-        
-        let testAudioData = audioData
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["first"]
+        mockEngine.transcribeDelayNanoseconds = 300_000_000
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+        try await service.loadModel(modelName: "tiny")
 
-        // Try to transcribe twice concurrently
+        let testAudioData = makeFloatAudioData(seconds: 1.0)
         async let result1 = service.transcribe(audioData: testAudioData)
         async let result2 = service.transcribe(audioData: testAudioData)
         
@@ -142,54 +123,51 @@ struct TranscriptionServiceTests {
             _ = try await result1
             _ = try await result2
             Issue.record("Should not allow concurrent transcriptions")
+        } catch let error as TranscriptionService.TranscriptionError {
+            guard case .transcriptionFailed(let message) = error else {
+                Issue.record("Unexpected error: \(error)")
+                return
+            }
+            #expect(message.contains("already in progress"))
         } catch {
+            Issue.record("Unexpected error: \(error)")
         }
     }
     
     // MARK: - Engine Switching Integration Tests
     
     @Test func engineSwitchCallsUnloadForDifferentProvider() async throws {
-        // Given: Service starts in unloaded state
-        let service = TranscriptionService()
+        let whisperEngine = MockDiarizationTranscriptionEngine()
+        let parakeetEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(
+            engineFactory: { provider in
+                switch provider {
+                case .whisperKit:
+                    return whisperEngine
+                case .parakeet:
+                    return parakeetEngine
+                default:
+                    throw TranscriptionService.TranscriptionError.modelLoadFailed("unsupported")
+                }
+            }
+        )
         #expect(service.state == .unloaded)
-        
-        // When: Attempt to load a model (fails in test env but exercises switching path)
-        do {
-            try await service.loadModel(modelPath: "/test/whisperkit/model")
-        } catch {
-            // Expected: model path doesn't exist
-        }
-        
-        let stateAfterFirstLoad = service.state
-        
-        // When: Switch provider
-        do {
-            try await service.loadModel(modelPath: "/test/parakeet/model")
-        } catch {
-            // Expected
-        }
-        
-        // Then: Both load attempts should have been made (state changed from unloaded)
-        #expect(stateAfterFirstLoad == .error, "First load should result in error for invalid path")
-        #expect(service.state == .error, "Second load should also result in error")
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        try await service.loadModel(modelName: "parakeet-tdt-0.6b-v3", provider: .parakeet)
+
+        #expect(whisperEngine.unloadCallCount == 1)
+        #expect(parakeetEngine.loadModelNameCalls == ["parakeet-tdt-0.6b-v3"])
+        #expect(service.state == .ready)
     }
     
     @Test func engineSwitchPreservesUnloadedStateOnCleanup() async throws {
-        let service = TranscriptionService()
-        
-        // Given: Attempt failed loads (exercises switching logic)
-        do {
-            try await service.loadModel(modelPath: "/test/path1")
-        } catch {}
-        
-        do {
-            try await service.loadModel(modelPath: "/test/path2")
-        } catch {}
-        
-        // When: Unload after switching attempts
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
+        try await service.loadModel(modelName: "tiny")
         await service.unloadModel()
-        
-        // Then: Should be back to clean unloaded state
+
         #expect(service.state == .unloaded)
         #expect(service.error == nil)
     }
@@ -215,61 +193,54 @@ struct TranscriptionServiceTests {
     }
     
     @Test func unloadModelReleasesEngineReference() async throws {
-        let service = TranscriptionService()
-        
-        // Given: Attempt to load an engine
-        do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
-        } catch {
-            // Expected in test environment
-        }
-        
-        // When: Unload the model
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
         await service.unloadModel()
-        
-        // Then: State should be unloaded and error cleared
+
         #expect(service.state == .unloaded, "State should be unloaded after unloadModel")
         #expect(service.error == nil, "Error should be nil after unloadModel")
+        #expect(mockEngine.unloadCallCount == 1)
     }
     
     @Test func unloadModelAfterSwitchingEngines() async throws {
-        let service = TranscriptionService()
-        
-        // Given: Load and switch engines (both will fail in test env)
-        do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
-        } catch {}
-        
-        do {
-            try await service.loadModel(modelName: "parakeet-tdt-0.6b-v3", provider: .parakeet)
-        } catch {}
-        
-        // When: Unload
+        let whisperEngine = MockDiarizationTranscriptionEngine()
+        let parakeetEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(
+            engineFactory: { provider in
+                switch provider {
+                case .whisperKit:
+                    return whisperEngine
+                case .parakeet:
+                    return parakeetEngine
+                default:
+                    throw TranscriptionService.TranscriptionError.modelLoadFailed("unsupported")
+                }
+            }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        try await service.loadModel(modelName: "parakeet-tdt-0.6b-v3", provider: .parakeet)
         await service.unloadModel()
-        
-        // Then: Should cleanly return to unloaded state
+
         #expect(service.state == .unloaded, "State should be unloaded")
         #expect(service.error == nil, "Error should be cleared")
+        #expect(parakeetEngine.unloadCallCount == 1)
     }
     
     @Test func reloadSameEngineAfterUnload() async throws {
-        let service = TranscriptionService()
-        
-        // Given: Load then unload WhisperKit
-        do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
-        } catch {}
-        
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
         await service.unloadModel()
         #expect(service.state == .unloaded)
-        
-        // When: Load same engine again
-        do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
-        } catch {}
-        
-        // Then: Should attempt to load (state transitions from unloaded)
-        #expect(service.state != .unloaded, "State should change when reloading engine")
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+
+        #expect(service.state == .ready, "State should be ready after reloading engine")
+        #expect(mockEngine.loadModelNameCalls == ["tiny", "tiny"])
     }
 
     // MARK: - Speaker Diarization Tests
@@ -759,6 +730,10 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     private(set) var state: TranscriptionEngineState = .unloaded
     var transcribeResponses: [String] = []
     var transcribeError: Error?
+    var transcribeDelayNanoseconds: UInt64 = 0
+    var loadDelayNanoseconds: UInt64 = 0
+    var loadModelPathError: Error?
+    var loadModelNameError: Error?
     private(set) var transcribeCallCount = 0
     private(set) var receivedOptions: [TranscriptionOptions] = []
     private(set) var loadModelNameCalls: [String] = []
@@ -767,17 +742,37 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
 
     func loadModel(path: String) async throws {
         loadModelPathCalls.append(path)
+        state = .loading
+        if loadDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: loadDelayNanoseconds)
+        }
+        if let loadModelPathError {
+            state = .error
+            throw loadModelPathError
+        }
         state = .ready
     }
 
     func loadModel(name: String, downloadBase: URL?) async throws {
         loadModelNameCalls.append(name)
+        state = .loading
+        if loadDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: loadDelayNanoseconds)
+        }
+        if let loadModelNameError {
+            state = .error
+            throw loadModelNameError
+        }
         state = .ready
     }
 
     func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
         if let transcribeError {
             throw transcribeError
+        }
+
+        if transcribeDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: transcribeDelayNanoseconds)
         }
 
         receivedOptions.append(options)
