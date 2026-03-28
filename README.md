@@ -1,15 +1,16 @@
 # Pindrop 🎤
 
-> The only 100% open source, truly Mac-native AI dictation app
+> Open source native dictation with a Kotlin Multiplatform core and native transcription adapters
 
 [![GitHub stars](https://img.shields.io/github/stars/watzon/pindrop?style=flat-square)](https://github.com/watzon/pindrop/stargazers)
 [![GitHub license](https://img.shields.io/github/license/watzon/pindrop?style=flat-square)](LICENSE)
 [![macOS](https://img.shields.io/badge/macOS-14.0+-blue?style=flat-square&logo=apple)](https://www.apple.com/macos/)
+[![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin%20Multiplatform-enabled-7F52FF?style=flat-square&logo=kotlin)](https://kotlinlang.org/docs/multiplatform.html)
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange?style=flat-square&logo=swift)](https://swift.org/)
 
 ![Pindrop Screenshot](assets/images/screenshot.png)
 
-**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by WhisperKit for optimal Apple Silicon performance.
+**Pindrop** is a menu bar dictation app for macOS that turns your speech into text completely offline and privately. Today, the shipped app remains fully macOS-native with SwiftUI, AppKit, WhisperKit, and other native adapters for transcription. Under the hood, Pindrop now also has a Kotlin Multiplatform shared core for cross-platform domain logic, which lays the groundwork for future Windows and Linux support without giving up native transcription backends on each platform.
 
 **[Download Latest Release](https://github.com/watzon/pindrop/releases)** · **[Documentation](#documentation)** · **[Contributing](#contributing)** · **[Community](#community)**
 
@@ -19,26 +20,27 @@
 
 While other dictation apps compromise on privacy, performance, or platform fidelity, Pindrop is designed specifically for Mac users who refuse to compromise.
 
-| Pillar                         | What It Means                                                              |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| 🍎 **Mac-Native**              | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it.           |
-| 🔒 **Privacy-First**           | 100% local transcription. Your voice never leaves your Mac.                |
-| ⚡ **Apple Silicon Optimized** | WhisperKit + Core ML = 2-3x faster than generic Whisper on M-series chips. |
-| 🏆 **100% Open Source**        | No freemium tiers, no "Pro" features, no lock-in. Ever.                    |
+| Pillar                          | What It Means                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| 🍎 **Mac-Native**                | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it.              |
+| 🔒 **Privacy-First**             | 100% local transcription. Your voice never leaves your Mac.                   |
+| ⚡ **Apple Silicon Optimized**   | WhisperKit + Core ML = 2-3x faster than generic Whisper on M-series chips.    |
+| 🏆 **100% Open Source**          | No freemium tiers, no "Pro" features, no lock-in. Ever.                       |
+| 🌍 **Cross-Platform Foundation** | Shared Kotlin Multiplatform logic today, native Windows/Linux adapters later. |
 
 ---
 
 ## Comparison
 
-| Feature             | Pindrop                    | Handy                 | OpenWhispr                     |
-| ------------------- | -------------------------- | --------------------- | ------------------------------ |
-| **Platform**        | macOS only                 | Windows, macOS, Linux | Windows, macOS, Linux          |
-| **Framework**       | Swift/SwiftUI (native)     | Tauri (Rust + Web)    | Tauri (Rust + Web)             |
-| **ML Engine**       | WhisperKit (Apple Core ML) | Generic Whisper       | Generic Whisper                |
-| **Apple Silicon**   | Native optimization        | Emulated              | Emulated                       |
-| **Source Code**     | 100% open source           | 100% open source      | Freemium (paid "Lazy Edition") |
-| **Battery Impact**  | Minimal (native)           | Higher (web runtime)  | Higher (web runtime)           |
-| **Menu Bar Design** | First-class native         | Web-based UI          | Web-based UI                   |
+| Feature             | Pindrop                              | Handy                 | OpenWhispr                     |
+| ------------------- | ------------------------------------ | --------------------- | ------------------------------ |
+| **Platform**        | macOS today; Windows/Linux planned   | Windows, macOS, Linux | Windows, macOS, Linux          |
+| **Framework**       | Swift/SwiftUI + Kotlin Multiplatform | Tauri (Rust + Web)    | Tauri (Rust + Web)             |
+| **ML Engine**       | WhisperKit (Apple Core ML)           | Generic Whisper       | Generic Whisper                |
+| **Apple Silicon**   | Native optimization                  | Emulated              | Emulated                       |
+| **Source Code**     | 100% open source                     | 100% open source      | Freemium (paid "Lazy Edition") |
+| **Battery Impact**  | Minimal (native)                     | Higher (web runtime)  | Higher (web runtime)           |
+| **Menu Bar Design** | First-class native                   | Web-based UI          | Web-based UI                   |
 
 **The bottom line:** If you want the best dictation experience on a Mac—maximum speed, minimal battery drain, and true native feel—Pindrop is the only choice.
 
@@ -48,6 +50,8 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 - **100% Local Transcription** — Runs entirely on your Mac using OpenAI's Whisper model via WhisperKit. Your voice never leaves your computer.
 - **Multiple Transcription Engines** — Choose between WhisperKit (Core ML optimized) and Parakeet, with streaming transcription support for real-time results.
+- **Cross-Platform Core** — Shared transcription policies, model selection logic, and workflow state now live in Kotlin Multiplatform so future native Windows and Linux apps can reuse them.
+- **Native Transcription Adapters** — Transcription execution stays platform-native. macOS continues to use native engines like WhisperKit and Parakeet, and future platforms will provide their own native adapters.
 - **Global Hotkeys** — Toggle mode (press to start, press to stop) or push-to-talk. Works from anywhere in macOS.
 - **Smart Output** — Text is automatically copied to your clipboard and optionally inserted directly at your cursor.
 - **Notes System** — Full note-taking with pinning, tagging, and AI-powered title generation. Organize and revisit your transcriptions as structured notes.
@@ -65,16 +69,24 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 - **[Swift](https://swift.org/)** — Apple's modern, fast, and safe programming language
 - **[SwiftUI](https://developer.apple.com/swiftui/)** — Declarative UI framework for truly native Mac apps
+- **[Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html)** — Shared cross-platform domain logic and transcription orchestration policies
 - **[WhisperKit](https://www.argmaxinc.com/whisperkit)** — High-performance Core ML implementation of OpenAI Whisper by Argmax, Inc.
 - **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
-- **Just one external dependency** — WhisperKit. Everything else is Apple's first-party frameworks.
+- **Native transcription adapters** — Platform-specific execution layers around local engines such as WhisperKit and Parakeet on macOS
 
 ## Requirements
+
+Current app target:
 
 - **macOS 14.0 (Sonoma) or later**
 - **Apple Silicon (M1/M2/M3/M4)** recommended for optimal performance
 - **Microphone access** (required for recording)
 - **Accessibility permission** (optional, enables direct text insertion; clipboard works without it)
+
+Future targets:
+
+- **Windows** planned
+- **Linux** planned
 
 ## Installation
 
@@ -106,6 +118,8 @@ Since this is an open-source project, you can also build it yourself. Don't worr
 - `shared/`: Kotlin Multiplatform shared workspace
 - `scripts/`: build and release helper scripts
 - `assets/`: images and other repository assets
+
+The current shipping app is still the native macOS target in `Pindrop/`. The `shared/` workspace contains cross-platform logic that future native Windows and Linux clients can reuse while keeping their own platform-specific transcription adapters and UI layers.
 
 ### Step 1: Clone the Repository
 
