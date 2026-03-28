@@ -99,6 +99,15 @@
 		MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */; };
 		MEDIATRANSSTATEBUILDTEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */; };
 		MEDIATRANSTYPESBUILD01 /* MediaTranscriptionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */; };
+		KMPADAPTERSBUILD01A2B3C4D5E6F /* NativeTranscriptionAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = KMPADAPTERSFILE01A2B3C4D5E6F /* NativeTranscriptionAdapters.swift */; };
+		KMPBRIDGEBUILD01A2B3C4D5E6F /* KMPTranscriptionBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = KMPBRIDGEFILE01A2B3C4D5E6F /* KMPTranscriptionBridge.swift */; };
+		KMPMODELCATALOGBUILD01A2B3C4D5E6F /* TranscriptionModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = KMPMODELCATALOGFILE01A2B3C4D5E6F /* TranscriptionModelCatalog.swift */; };
+		KMPPOLICYBUILD01A2B3C4D5E6F /* TranscriptionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = KMPPOLICYFILE01A2B3C4D5E6F /* TranscriptionPolicy.swift */; };
+		KMPPORTSBUILD01A2B3C4D5E6F /* TranscriptionPorts.swift in Sources */ = {isa = PBXBuildFile; fileRef = KMPPORTSFILE01A2B3C4D5E6F /* TranscriptionPorts.swift */; };
+		KMPSHAREDCOREBUILD01A2B3C4D5E6F /* PindropSharedCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDCOREFILE01A2B3C4D5E6F /* PindropSharedCore.framework */; };
+		KMPSHAREDCOREEMBED01A2B3C4D5E6F /* PindropSharedCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDCOREFILE01A2B3C4D5E6F /* PindropSharedCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		KMPSHAREDTRANSBUILD01A2B3C4D5E6F /* PindropSharedTranscription.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDTRANSFILE01A2B3C4D5E6F /* PindropSharedTranscription.framework */; };
+		KMPSHAREDTRANSEMBED01A2B3C4D5E6F /* PindropSharedTranscription.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDTRANSFILE01A2B3C4D5E6F /* PindropSharedTranscription.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		MNTFMT01A2B3C4D5E6F /* MentionFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */; };
 		MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */; };
 		MNTRWRT02A2B3C4D5E6F /* MentionRewriteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTRWRT01A2B3C4D5E6F /* MentionRewriteService.swift */; };
@@ -168,6 +177,21 @@
 			remoteInfo = Pindrop;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		KMPFRAMEWORKSEMBEDPHASE01A2B3C4D5E6F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				KMPSHAREDCOREEMBED01A2B3C4D5E6F /* PindropSharedCore.framework in Embed Frameworks */,
+				KMPSHAREDTRANSEMBED01A2B3C4D5E6F /* PindropSharedTranscription.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskScheduler.swift; path = TaskScheduler.swift; sourceTree = "<group>"; };
@@ -262,6 +286,13 @@
 		MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSourceKind.swift; sourceTree = "<group>"; };
 		MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionFeatureStateTests.swift; sourceTree = "<group>"; };
 		MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionTypes.swift; sourceTree = "<group>"; };
+		KMPADAPTERSFILE01A2B3C4D5E6F /* NativeTranscriptionAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTranscriptionAdapters.swift; sourceTree = "<group>"; };
+		KMPBRIDGEFILE01A2B3C4D5E6F /* KMPTranscriptionBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPTranscriptionBridge.swift; sourceTree = "<group>"; };
+		KMPMODELCATALOGFILE01A2B3C4D5E6F /* TranscriptionModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionModelCatalog.swift; sourceTree = "<group>"; };
+		KMPPOLICYFILE01A2B3C4D5E6F /* TranscriptionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionPolicy.swift; sourceTree = "<group>"; };
+		KMPPORTSFILE01A2B3C4D5E6F /* TranscriptionPorts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionPorts.swift; sourceTree = "<group>"; };
+		KMPSHAREDCOREFILE01A2B3C4D5E6F /* PindropSharedCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedCore.framework; path = shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64/PindropSharedCore.framework; sourceTree = SOURCE_ROOT; };
+		KMPSHAREDTRANSFILE01A2B3C4D5E6F /* PindropSharedTranscription.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedTranscription.framework; path = shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64/PindropSharedTranscription.framework; sourceTree = SOURCE_ROOT; };
 		MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionFormatter.swift; sourceTree = "<group>"; };
 		MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionFormatterTests.swift; sourceTree = "<group>"; };
 		MNTRWRT01A2B3C4D5E6F /* MentionRewriteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionRewriteService.swift; sourceTree = "<group>"; };
@@ -321,6 +352,8 @@
 		37A010B78338464E90A60BD4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				KMPSHAREDCOREBUILD01A2B3C4D5E6F /* PindropSharedCore.framework in Frameworks */,
+				KMPSHAREDTRANSBUILD01A2B3C4D5E6F /* PindropSharedTranscription.framework in Frameworks */,
 				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
 				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
 				SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
@@ -467,6 +500,8 @@
 			isa = PBXGroup;
 			children = (
 				49CB4FF0EA78C24EFBB3F08A /* Cocoa.framework */,
+				KMPSHAREDCOREFILE01A2B3C4D5E6F /* PindropSharedCore.framework */,
+				KMPSHAREDTRANSFILE01A2B3C4D5E6F /* PindropSharedTranscription.framework */,
 			);
 			name = "OS X";
 			sourceTree = "<group>";
@@ -644,6 +679,11 @@
 			isa = PBXGroup;
 			children = (
 				AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */,
+				KMPPORTSFILE01A2B3C4D5E6F /* TranscriptionPorts.swift */,
+				KMPPOLICYFILE01A2B3C4D5E6F /* TranscriptionPolicy.swift */,
+				KMPBRIDGEFILE01A2B3C4D5E6F /* KMPTranscriptionBridge.swift */,
+				KMPMODELCATALOGFILE01A2B3C4D5E6F /* TranscriptionModelCatalog.swift */,
+				KMPADAPTERSFILE01A2B3C4D5E6F /* NativeTranscriptionAdapters.swift */,
 				TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */,
 				STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */,
 				VADDETECT01A2B3C4D5E6F /* VoiceActivityDetector.swift */,
@@ -677,9 +717,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BC51A0710CA54327ADB4808B /* Build configuration list for PBXNativeTarget "Pindrop" */;
 			buildPhases = (
+				KMPSHAREDBUILD01A2B3C4D5E6F /* Build Shared Kotlin Frameworks */,
 				6E3989E80A1A4BF5BEC7A015 /* Sources */,
 				37A010B78338464E90A60BD4 /* Frameworks */,
 				C9D46B9D12B748D9BBCFE2A3 /* Resources */,
+				KMPFRAMEWORKSEMBEDPHASE01A2B3C4D5E6F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -814,6 +856,35 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		KMPSHAREDBUILD01A2B3C4D5E6F /* Build Shared Kotlin Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/shared/build.gradle.kts",
+				"$(SRCROOT)/shared/gradle.properties",
+				"$(SRCROOT)/shared/core/build.gradle.kts",
+				"$(SRCROOT)/shared/feature-transcription/build.gradle.kts",
+				"$(SRCROOT)/shared/settings.gradle.kts",
+				"$(SRCROOT)/shared/gradlew",
+			);
+			name = "Build Shared Kotlin Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/Info.plist",
+				"$(SRCROOT)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\ncd \"$SRCROOT/shared\"\n\"$SRCROOT/shared/gradlew\" --no-daemon --console=plain -p \"$SRCROOT/shared\" :core:assemblePindropSharedCoreXCFramework :feature-transcription:assemblePindropSharedTranscriptionXCFramework\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		572D6581DD0541D98D9191B2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -868,6 +939,10 @@
 				862E74C35C4D46713D5A1B80 /* TranscriptionRecordSchema.swift in Sources */,
 				MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */,
 				MEDIATRANSTYPESBUILD01 /* MediaTranscriptionTypes.swift in Sources */,
+				KMPPORTSBUILD01A2B3C4D5E6F /* TranscriptionPorts.swift in Sources */,
+				KMPPOLICYBUILD01A2B3C4D5E6F /* TranscriptionPolicy.swift in Sources */,
+				KMPBRIDGEBUILD01A2B3C4D5E6F /* KMPTranscriptionBridge.swift in Sources */,
+				KMPMODELCATALOGBUILD01A2B3C4D5E6F /* TranscriptionModelCatalog.swift in Sources */,
 				WORDRPLACEA1B2C3D4 /* WordReplacement.swift in Sources */,
 				VOCABWORDA1B2C3D4 /* VocabularyWord.swift in Sources */,
 				NOTESCH001A2B3C4D5 /* NoteSchema.swift in Sources */,
@@ -930,6 +1005,7 @@
 				NOTESTORE1A2B3C4D5E6F70 /* NotesStore.swift in Sources */,
 				MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */,
 				PREVMOCKS1A2B3C4D5E6F70 /* PreviewMocks.swift in Sources */,
+				KMPADAPTERSBUILD01A2B3C4D5E6F /* NativeTranscriptionAdapters.swift in Sources */,
 				TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */,
 				WHISPERENG02A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
 				PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */,
@@ -992,6 +1068,11 @@
 				CURRENT_PROJECT_VERSION = 13;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MB5789APU7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.14.0;
@@ -1020,6 +1101,12 @@
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Pindrop;
@@ -1101,6 +1188,11 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MB5789APU7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop.uitests;
@@ -1194,6 +1286,12 @@
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Pindrop;
@@ -1218,6 +1316,11 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MB5789APU7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.watzon.pindrop.uitests;
@@ -1238,6 +1341,11 @@
 				CURRENT_PROJECT_VERSION = 13;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = MB5789APU7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/shared/core/build/XCFrameworks/release/PindropSharedCore.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/macos-arm64_x86_64",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.14.0;

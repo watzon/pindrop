@@ -85,6 +85,14 @@ struct ModelManagerTests {
         #expect(hasParakeetModel)
     }
 
+    @Test func providerLocalityMatchesSharedPolicy() {
+        #expect(ModelManager.ModelProvider.whisperKit.isLocal == true)
+        #expect(ModelManager.ModelProvider.parakeet.isLocal == true)
+        #expect(ModelManager.ModelProvider.openAI.isLocal == false)
+        #expect(ModelManager.ModelProvider.elevenLabs.isLocal == false)
+        #expect(ModelManager.ModelProvider.groq.isLocal == false)
+    }
+
     @Test func englishOnlyModelsWarnForNonEnglishSelection() throws {
         let model = try #require(modelManager.availableModels.first { $0.name == "openai_whisper-base.en" })
         #expect(model.supports(language: .english) == true)

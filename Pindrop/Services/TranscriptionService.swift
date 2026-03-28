@@ -68,10 +68,11 @@ class TranscriptionService {
 
     private(set) var state: State = .unloaded
     private(set) var error: Error?
-    private var engine: (any TranscriptionEngine)?
-    private var speakerDiarizer: (any SpeakerDiarizer)?
-    private var streamingEngine: (any StreamingTranscriptionEngine)?
+    private var engine: (any TranscriptionEnginePort)?
+    private var speakerDiarizer: (any SpeakerDiarizerPort)?
+    private var streamingEngine: (any StreamingTranscriptionEnginePort)?
     private var currentProvider: ModelManager.ModelProvider?
+    private var currentModelIdentifier: String?
     private var streamingPartialCallback: (@Sendable (String) -> Void)?
     private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
 
@@ -96,24 +97,33 @@ class TranscriptionService {
     }
 
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
-        if state == .transcribing {
-            throw TranscriptionError.engineSwitchDuringTranscription
-        }
+        try applyStateTransition(
+            KMPTranscriptionBridge.beginModelLoad(currentState: state)
+        )
 
-        if currentProvider != nil && currentProvider != provider {
+        let loadPlan = KMPTranscriptionBridge.planModelLoad(
+            requestedProvider: provider,
+            currentProvider: currentProvider,
+            loadsFromPath: false
+        )
+
+        if loadPlan.shouldUnloadCurrentModel {
             await unloadModel()
         }
 
-        state = .loading
+        guard loadPlan.supportsLocalModelLoading else {
+            throw TranscriptionError.modelLoadFailed("Provider \(loadPlan.resolvedProvider.rawValue) not supported locally")
+        }
+
         error = nil
 
         let loadStarted = CFAbsoluteTimeGetCurrent()
-        Log.transcription.info("Loading model: \(modelName) with provider: \(provider.rawValue)...")
-        Log.boot.info("TranscriptionService.loadModel begin name=\(modelName) provider=\(provider.rawValue) state=loading")
+        Log.transcription.info("Loading model: \(modelName) with provider: \(loadPlan.resolvedProvider.rawValue)...")
+        Log.boot.info("TranscriptionService.loadModel begin name=\(modelName) provider=\(loadPlan.resolvedProvider.rawValue) state=loading")
 
         do {
-            let newEngine = try engineFactory(provider)
-            Log.boot.info("TranscriptionService.loadModel engine instance created provider=\(provider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
+            let newEngine = try engineFactory(loadPlan.resolvedProvider)
+            Log.boot.info("TranscriptionService.loadModel engine instance created provider=\(loadPlan.resolvedProvider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
             try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
@@ -133,36 +143,46 @@ class TranscriptionService {
             }
 
             engine = newEngine
-            currentProvider = provider
-            Log.transcription.info("Model loaded successfully with \(provider.rawValue) engine")
+            currentProvider = loadPlan.resolvedProvider
+            currentModelIdentifier = modelName
+            Log.transcription.info("Model loaded successfully with \(loadPlan.resolvedProvider.rawValue) engine")
             Log.boot.info("TranscriptionService.loadModel success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
-            state = .ready
+            state = KMPTranscriptionBridge.completeModelLoad(success: true)
         } catch let error as TranscriptionError {
             Log.transcription.error("Model load failed: \(error)")
             Log.boot.error("TranscriptionService.loadModel failed TranscriptionError after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = error
-            state = .error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
             Log.boot.error("TranscriptionService.loadModel failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = loadError
-            state = .error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
             throw loadError
         }
     }
 
     func loadModel(modelPath: String) async throws {
-        if state == .transcribing {
-            throw TranscriptionError.engineSwitchDuringTranscription
-        }
+        try applyStateTransition(
+            KMPTranscriptionBridge.beginModelLoad(currentState: state)
+        )
 
-        if currentProvider != nil {
+        let loadPlan = KMPTranscriptionBridge.planModelLoad(
+            requestedProvider: .whisperKit,
+            currentProvider: currentProvider,
+            loadsFromPath: true
+        )
+
+        if loadPlan.shouldUnloadCurrentModel {
             await unloadModel()
         }
 
-        state = .loading
+        guard loadPlan.supportsLocalModelLoading else {
+            throw TranscriptionError.modelLoadFailed("Provider \(loadPlan.resolvedProvider.rawValue) not supported locally")
+        }
+
         error = nil
 
         let loadStarted = CFAbsoluteTimeGetCurrent()
@@ -170,8 +190,8 @@ class TranscriptionService {
         Log.boot.info("TranscriptionService.loadModel(path) begin")
 
         do {
-            let newEngine = WhisperKitEngine()
-            Log.boot.info("TranscriptionService.loadModel(path) WhisperKitEngine created elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
+            let newEngine = try engineFactory(loadPlan.resolvedProvider)
+            Log.boot.info("TranscriptionService.loadModel(path) engine created provider=\(loadPlan.resolvedProvider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
             try await withThrowingTaskGroup(of: Void.self) { group in
                 group.addTask {
@@ -190,22 +210,23 @@ class TranscriptionService {
             }
 
             engine = newEngine
-            currentProvider = .whisperKit
+            currentProvider = loadPlan.resolvedProvider
+            currentModelIdentifier = URL(fileURLWithPath: modelPath).lastPathComponent
             Log.transcription.info("Model loaded and prewarmed successfully")
             Log.boot.info("TranscriptionService.loadModel(path) success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
-            state = .ready
+            state = KMPTranscriptionBridge.completeModelLoad(success: true)
         } catch let error as TranscriptionError {
             Log.transcription.error("Model load failed: \(error)")
             Log.boot.error("TranscriptionService.loadModel(path) TranscriptionError after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = error
-            state = .error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
             throw error
         } catch {
             Log.transcription.error("Model load failed: \(error)")
             let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
             Log.boot.error("TranscriptionService.loadModel(path) failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted)) \(error.localizedDescription)")
             self.error = loadError
-            state = .error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
             throw loadError
         }
     }
@@ -233,24 +254,26 @@ class TranscriptionService {
     ) async throws -> TranscriptionOutput {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
 
+        try applyStateTransition(
+            KMPTranscriptionBridge.beginBatchTranscription(
+                currentState: state,
+                hasLoadedModel: engine != nil,
+                audioByteCount: audioData.count
+            )
+        )
         guard let engine else {
             throw TranscriptionError.modelNotLoaded
         }
-
-        guard !audioData.isEmpty else {
-            throw TranscriptionError.invalidAudioData
-        }
-
-        guard state != .transcribing else {
-            throw TranscriptionError.transcriptionFailed("Transcription already in progress")
-        }
-
-        state = .transcribing
 
         do {
             let floatCount = audioData.count / MemoryLayout<Float>.size
             let duration = Double(floatCount) / Double(Self.sampleRate)
             let providerName = currentProvider?.rawValue ?? "unknown"
+            let executionPlan = transcriptionExecutionPlan(
+                diarizationRequested: diarizationEnabled,
+                isStreamingSessionActive: false,
+                options: options
+            )
             Log.transcription.info("Transcribing \(floatCount) samples (\(String(format: "%.2f", duration))s) using \(providerName)")
 
             let startTime = Date()
@@ -261,21 +284,22 @@ class TranscriptionService {
                 audioData: audioData,
                 samples: samples,
                 sampleRate: Self.sampleRate,
-                diarizationEnabled: diarizationEnabled,
+                diarizationEnabled: executionPlan.useSpeakerDiarization,
+                shouldNormalizeOutput: executionPlan.shouldNormalizeOutput,
                 options: options
             )
 
             let elapsed = Date().timeIntervalSince(startTime)
             Log.transcription.info("Transcription completed in \(String(format: "%.2f", elapsed))s")
 
-            state = .ready
+            state = KMPTranscriptionBridge.completeBatchTranscription()
             Log.transcription.debug("Result redacted (chars=\(output.text.count), diarizedSegments=\(output.diarizedSegments?.count ?? 0))")
             return output
         } catch let error as TranscriptionError {
-            state = .ready
+            state = KMPTranscriptionBridge.completeBatchTranscription()
             throw error
         } catch {
-            state = .ready
+            state = KMPTranscriptionBridge.completeBatchTranscription()
             throw TranscriptionError.transcriptionFailed(error.localizedDescription)
         }
     }
@@ -288,7 +312,8 @@ class TranscriptionService {
         speakerDiarizer = nil
         streamingEngine = nil
         currentProvider = nil
-        state = .unloaded
+        currentModelIdentifier = nil
+        state = KMPTranscriptionBridge.stateAfterUnload()
         error = nil
     }
 
@@ -313,9 +338,7 @@ class TranscriptionService {
 
         switch streamingEngine.state {
         case .ready, .streaming, .paused:
-            if state == .unloaded || state == .error {
-                state = .ready
-            }
+            state = KMPTranscriptionBridge.stateAfterStreamingPrepared(currentState: state)
             return
         case .loading:
             return
@@ -326,32 +349,31 @@ class TranscriptionService {
         let modelPath = FeatureModelType.streaming.repoFolderName
         do {
             try await streamingEngine.loadModel(name: modelPath)
-            if state == .unloaded || state == .error {
-                state = .ready
-            }
+            state = KMPTranscriptionBridge.stateAfterStreamingPrepared(currentState: state)
         } catch {
             let path = getStreamingModelBase()
                 .appendingPathComponent(modelPath, isDirectory: true)
                 .path
             let streamingError = TranscriptionError.streamingModelNotAvailable(path)
             self.error = streamingError
-            state = .error
+            state = KMPTranscriptionBridge.failStreamingPreparation()
             throw streamingError
         }
     }
 
     func startStreaming() async throws {
-        guard state != .transcribing else {
-            throw TranscriptionError.transcriptionFailed("Transcription already in progress")
-        }
-
         do {
             try await prepareStreamingEngine()
             guard let streamingEngine else {
                 throw TranscriptionError.streamingNotReady
             }
+            let transition = KMPTranscriptionBridge.beginStreaming(
+                currentState: state,
+                hasPreparedStreamingEngine: true
+            )
+            try validateStateTransition(transition)
             try await streamingEngine.startStreaming()
-            state = .transcribing
+            state = transition.nextState
             error = nil
         } catch let error as TranscriptionError {
             self.error = error
@@ -364,8 +386,10 @@ class TranscriptionService {
     }
 
     func processStreamingAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {
-        guard state == .transcribing else {
-            throw TranscriptionError.streamingNotReady
+        if let validationError = KMPTranscriptionBridge.validateStreamingAudio(
+            isStreamingSessionActive: state == .transcribing && streamingEngine != nil
+        ) {
+            throw transcriptionError(for: validationError)
         }
 
         guard let streamingEngine else {
@@ -390,38 +414,52 @@ class TranscriptionService {
 
         do {
             let finalText = try await streamingEngine.stopStreaming()
-            state = .ready
+            state = KMPTranscriptionBridge.completeStreamingSession(
+                hasLoadedModel: engine != nil,
+                hasPreparedStreamingEngine: streamingEngine != nil
+            )
             return finalText
         } catch let error as TranscriptionError {
-            state = .ready
+            state = KMPTranscriptionBridge.completeStreamingSession(
+                hasLoadedModel: engine != nil,
+                hasPreparedStreamingEngine: streamingEngine != nil
+            )
             throw error
         } catch {
             let streamingError = TranscriptionError.streamingStopFailed(error.localizedDescription)
             self.error = streamingError
-            state = .ready
+            state = KMPTranscriptionBridge.completeStreamingSession(
+                hasLoadedModel: engine != nil,
+                hasPreparedStreamingEngine: streamingEngine != nil
+            )
             throw streamingError
         }
     }
 
     func cancelStreaming() async {
         await streamingEngine?.reset()
-        if engine != nil || streamingEngine != nil {
-            state = .ready
-        } else {
-            state = .unloaded
-        }
+        state = KMPTranscriptionBridge.completeStreamingSession(
+            hasLoadedModel: engine != nil,
+            hasPreparedStreamingEngine: streamingEngine != nil
+        )
     }
 
     private func transcribeWithOptionalDiarization(
-        engine: any TranscriptionEngine,
+        engine: any TranscriptionEnginePort,
         audioData: Data,
         samples: [Float],
         sampleRate: Int,
         diarizationEnabled: Bool,
+        shouldNormalizeOutput: Bool,
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         guard diarizationEnabled else {
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await transcribeWithoutDiarization(
+                engine: engine,
+                audioData: audioData,
+                shouldNormalizeOutput: shouldNormalizeOutput,
+                options: options
+            )
         }
 
         Log.transcription.info("Speaker diarization enabled for current transcription")
@@ -437,7 +475,12 @@ class TranscriptionService {
 
             guard !normalizedSegments.isEmpty else {
                 Log.transcription.warning("Speaker diarization returned no usable segments. Falling back to plain transcript.")
-                return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+                return try await transcribeWithoutDiarization(
+                    engine: engine,
+                    audioData: audioData,
+                    shouldNormalizeOutput: shouldNormalizeOutput,
+                    options: options
+                )
             }
 
             let output = try await transcribeBySpeakerSegments(
@@ -445,6 +488,7 @@ class TranscriptionService {
                 samples: samples,
                 sampleRate: sampleRate,
                 segments: normalizedSegments,
+                shouldNormalizeOutput: shouldNormalizeOutput,
                 options: options
             )
 
@@ -454,27 +498,40 @@ class TranscriptionService {
             }
 
             Log.transcription.warning("Speaker diarization produced no transcript text. Falling back to plain transcript.")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await transcribeWithoutDiarization(
+                engine: engine,
+                audioData: audioData,
+                shouldNormalizeOutput: shouldNormalizeOutput,
+                options: options
+            )
         } catch {
             Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(error.localizedDescription)")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await transcribeWithoutDiarization(
+                engine: engine,
+                audioData: audioData,
+                shouldNormalizeOutput: shouldNormalizeOutput,
+                options: options
+            )
         }
     }
 
     private func transcribeWithoutDiarization(
-        engine: any TranscriptionEngine,
+        engine: any TranscriptionEnginePort,
         audioData: Data,
+        shouldNormalizeOutput: Bool,
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         let text = try await engine.transcribe(audioData: audioData, options: options)
         return TranscriptionOutput(text: text, diarizedSegments: nil)
+            .normalized(shouldNormalizeOutput: shouldNormalizeOutput)
     }
 
     private func transcribeBySpeakerSegments(
-        engine: any TranscriptionEngine,
+        engine: any TranscriptionEnginePort,
         samples: [Float],
         sampleRate: Int,
         segments: [SpeakerSegment],
+        shouldNormalizeOutput: Bool,
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         var speakerLabelsByID: [String: String] = [:]
@@ -492,7 +549,10 @@ class TranscriptionService {
             }
 
             let segmentText = try await engine.transcribe(audioData: segmentData, options: options)
-            let trimmed = segmentText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmed = normalizedOutputText(
+                segmentText,
+                shouldNormalizeOutput: shouldNormalizeOutput
+            )
             guard !trimmed.isEmpty else { continue }
 
             let speakerID = segment.speaker.id
@@ -534,6 +594,7 @@ class TranscriptionService {
             text: mergedText,
             diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments
         )
+        .normalized(shouldNormalizeOutput: shouldNormalizeOutput)
     }
 
     private func splitTranscriptSegmentIfNeeded(
@@ -758,7 +819,7 @@ class TranscriptionService {
         }
     }
 
-    private func getOrCreateSpeakerDiarizer() -> any SpeakerDiarizer {
+    private func getOrCreateSpeakerDiarizer() -> any SpeakerDiarizerPort {
         if let speakerDiarizer {
             return speakerDiarizer
         }
@@ -821,5 +882,83 @@ class TranscriptionService {
         }
 
         return floatArray
+    }
+
+    private func transcriptionExecutionPlan(
+        diarizationRequested: Bool,
+        isStreamingSessionActive: Bool,
+        options: TranscriptionOptions
+    ) -> SharedTranscriptionExecutionPlan {
+        let provider = currentProvider ?? .whisperKit
+        let modelIdentifier = currentModelIdentifier ?? options.language.rawValue
+
+        return KMPTranscriptionBridge.planTranscriptionExecution(
+            selectedProvider: provider,
+            selectedModelName: modelIdentifier,
+            diarizationRequested: diarizationRequested,
+            isStreamingSessionActive: isStreamingSessionActive
+        )
+    }
+
+    private func normalizedOutputText(
+        _ text: String,
+        shouldNormalizeOutput: Bool
+    ) -> String {
+        guard shouldNormalizeOutput else { return text }
+        return TranscriptionPolicy.normalizedTranscriptionText(text)
+    }
+
+    private func applyStateTransition(
+        _ transition: SharedTranscriptionStateTransition
+    ) throws {
+        try validateStateTransition(transition)
+        state = transition.nextState
+    }
+
+    private func validateStateTransition(
+        _ transition: SharedTranscriptionStateTransition
+    ) throws {
+        if let errorCode = transition.errorCode {
+            throw transcriptionError(for: errorCode)
+        }
+    }
+
+    private func transcriptionError(
+        for errorCode: SharedTranscriptionSessionErrorCode
+    ) -> TranscriptionError {
+        switch errorCode {
+        case .engineSwitchDuringTranscription:
+            .engineSwitchDuringTranscription
+        case .modelNotLoaded:
+            .modelNotLoaded
+        case .invalidAudioData:
+            .invalidAudioData
+        case .transcriptionAlreadyInProgress:
+            .transcriptionFailed("Transcription already in progress")
+        case .streamingNotReady:
+            .streamingNotReady
+        }
+    }
+}
+
+extension TranscriptionService: TranscriptionOrchestrating {}
+
+private extension TranscriptionOutput {
+    func normalized(shouldNormalizeOutput: Bool) -> TranscriptionOutput {
+        guard shouldNormalizeOutput else { return self }
+
+        let normalizedText = TranscriptionPolicy.normalizedTranscriptionText(text)
+        let normalizedSegments = diarizedSegments?.map { segment in
+            DiarizedTranscriptSegment(
+                speakerId: segment.speakerId,
+                speakerLabel: segment.speakerLabel,
+                startTime: segment.startTime,
+                endTime: segment.endTime,
+                confidence: segment.confidence,
+                text: TranscriptionPolicy.normalizedTranscriptionText(segment.text)
+            )
+        }
+
+        return TranscriptionOutput(text: normalizedText, diarizedSegments: normalizedSegments)
     }
 }

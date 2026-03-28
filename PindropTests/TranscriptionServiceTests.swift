@@ -316,6 +316,45 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.receivedOptions == [options])
     }
 
+    @Test func loadModelPathUsesInjectedFactoryAndKeepsWhisperKitAsPrimaryProvider() async throws {
+        let whisperEngine = MockDiarizationTranscriptionEngine()
+        let parakeetEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(
+            engineFactory: { provider in
+                switch provider {
+                case .whisperKit:
+                    return whisperEngine
+                case .parakeet:
+                    return parakeetEngine
+                default:
+                    throw TranscriptionService.TranscriptionError.modelLoadFailed("unsupported")
+                }
+            }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .parakeet)
+        #expect(parakeetEngine.loadModelNameCalls == ["tiny"])
+
+        try await service.loadModel(modelPath: "/tmp/openai_whisper-base")
+
+        #expect(parakeetEngine.unloadCallCount == 1)
+        #expect(whisperEngine.loadModelPathCalls == ["/tmp/openai_whisper-base"])
+    }
+
+    @Test func transcribeNormalizesOutputTextThroughSharedPolicy() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["  normalized transcript \n"]
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let output = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 1.0),
+            diarizationEnabled: false
+        )
+
+        #expect(output.text == "normalized transcript")
+    }
+
     @Test func transcribeWithDiarizationEnabledReturnsSpeakerLabeledOutput() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team", "We should ship this today"]
@@ -690,12 +729,17 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     var transcribeError: Error?
     private(set) var transcribeCallCount = 0
     private(set) var receivedOptions: [TranscriptionOptions] = []
+    private(set) var loadModelNameCalls: [String] = []
+    private(set) var loadModelPathCalls: [String] = []
+    private(set) var unloadCallCount = 0
 
     func loadModel(path: String) async throws {
+        loadModelPathCalls.append(path)
         state = .ready
     }
 
     func loadModel(name: String, downloadBase: URL?) async throws {
+        loadModelNameCalls.append(name)
         state = .ready
     }
 
@@ -715,6 +759,7 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     }
 
     func unloadModel() async {
+        unloadCallCount += 1
         state = .unloaded
     }
 }

@@ -207,20 +207,16 @@ final class AppCoordinator {
         disableLoopWindow: TimeInterval,
         maxReenableAttemptsBeforeRecreate: Int
     ) -> EventTapRecoveryDecision {
-        let nextCount: Int
-        if let lastDisableAt,
-           now.timeIntervalSince(lastDisableAt) <= disableLoopWindow {
-            nextCount = consecutiveDisableCount + 1
-        } else {
-            nextCount = 1
-        }
-
-        let recreateThreshold = max(1, maxReenableAttemptsBeforeRecreate)
-        let action: EventTapRecoveryAction = nextCount >= recreateThreshold ? .recreate : .reenable
+        let decision = KMPTranscriptionBridge.determineEventTapRecovery(
+            elapsedSinceLastDisable: lastDisableAt.map { now.timeIntervalSince($0) },
+            consecutiveDisableCount: consecutiveDisableCount,
+            disableLoopWindow: disableLoopWindow,
+            maxReenableAttemptsBeforeRecreate: maxReenableAttemptsBeforeRecreate
+        )
 
         return EventTapRecoveryDecision(
-            consecutiveDisableCount: nextCount,
-            action: action
+            consecutiveDisableCount: decision.consecutiveDisableCount,
+            action: decision.action == .recreate ? .recreate : .reenable
         )
     }
 
@@ -768,33 +764,44 @@ final class AppCoordinator {
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "startup", showFallbackAlert: false)
 
-        var modelName = settingsStore.selectedModel
+        await modelManager.refreshDownloadedModels()
+        let downloadedModels = await modelManager.getDownloadedModels()
+        let startupModel = KMPTranscriptionBridge.resolveStartupModel(
+            selectedModelId: settingsStore.selectedModel,
+            defaultModelId: SettingsStore.Defaults.selectedModel,
+            availableModels: modelManager.availableModels,
+            downloadedModelIds: downloadedModels.map(\.name)
+        )
 
-        if !modelManager.availableModels.contains(where: { $0.name == modelName }) {
-            Log.model.warning("Selected model \(modelName) is not recognized, resetting to default")
-            modelName = SettingsStore.Defaults.selectedModel
-            settingsStore.selectedModel = modelName
+        if settingsStore.selectedModel != startupModel.updatedSelectedModelId {
+            if startupModel.action == .loadFallback {
+                Log.model.info(
+                    "Selected model \(settingsStore.selectedModel) not found locally, falling back to \(startupModel.updatedSelectedModelId)"
+                )
+            } else {
+                Log.model.warning(
+                    "Selected model \(settingsStore.selectedModel) is not recognized, resetting to \(startupModel.updatedSelectedModelId)"
+                )
+            }
+            settingsStore.selectedModel = startupModel.updatedSelectedModelId
         }
 
-        let selectedModel = modelManager.availableModels.first(where: { $0.name == modelName })
-        let selectedProvider = selectedModel?.provider ?? .whisperKit
-        let selectedDisplayName = selectedModel?.displayName ?? modelName
-        
-        await modelManager.refreshDownloadedModels()
-        let modelExists = modelManager.isModelDownloaded(modelName)
-        
-        if modelExists {
+        switch startupModel.action {
+        case .loadSelected:
             splashController.setLoading("Loading model...")
-            Log.model.info("Model \(modelName) found, loading...")
+            Log.model.info("Model \(startupModel.resolvedModel.name) found, loading...")
             do {
-                try await loadAndActivateModel(named: modelName, provider: selectedProvider)
+                try await loadAndActivateModel(
+                    named: startupModel.resolvedModel.name,
+                    provider: startupModel.resolvedModel.provider
+                )
                 Log.model.info("Model loaded successfully")
             } catch {
-                if selectedProvider == .whisperKit {
+                if startupModel.resolvedModel.provider == .whisperKit {
                     do {
                         try await attemptWhisperModelRepairAndReload(
-                            modelName: modelName,
-                            displayName: selectedDisplayName
+                            modelName: startupModel.resolvedModel.name,
+                            displayName: startupModel.resolvedModel.displayName
                         )
                         Log.model.info("Model repaired and loaded successfully")
                     } catch {
@@ -804,38 +811,36 @@ final class AppCoordinator {
                     handleModelLoadError(error, context: "Failed to load transcription model")
                 }
             }
-        } else {
-            // Model missing - check if any model is available for fallback
-            let downloadedModels = await modelManager.getDownloadedModels()
-            
-            if let fallbackModel = downloadedModels.first {
-                Log.model.info("Selected model \(modelName) not found, falling back to \(fallbackModel.name)")
-                splashController.setLoading("Using \(fallbackModel.displayName)...")
-                settingsStore.selectedModel = fallbackModel.name
-                do {
-                    try await loadAndActivateModel(named: fallbackModel.name, provider: fallbackModel.provider)
-                    Log.model.info("Fallback model loaded successfully")
-                } catch {
-                    handleModelLoadError(error, context: "Failed to load fallback model")
-                }
-            } else {
-                // No models available - download the selected one
-                splashController.setDownloading("Downloading \(modelName)...")
-                Log.model.info("Model \(modelName) not found, downloading...")
-                
-                do {
-                    try await modelManager.downloadModel(named: modelName) { [weak self] progress in
-                        Task { @MainActor in
-                            self?.splashController.updateProgress(progress)
-                        }
+        case .loadFallback:
+            splashController.setLoading("Using \(startupModel.resolvedModel.displayName)...")
+            do {
+                try await loadAndActivateModel(
+                    named: startupModel.resolvedModel.name,
+                    provider: startupModel.resolvedModel.provider
+                )
+                Log.model.info("Fallback model loaded successfully")
+            } catch {
+                handleModelLoadError(error, context: "Failed to load fallback model")
+            }
+        case .downloadSelected:
+            splashController.setDownloading("Downloading \(startupModel.resolvedModel.name)...")
+            Log.model.info("Model \(startupModel.resolvedModel.name) not found, downloading...")
+
+            do {
+                try await modelManager.downloadModel(named: startupModel.resolvedModel.name) { [weak self] progress in
+                    Task { @MainActor in
+                        self?.splashController.updateProgress(progress)
                     }
-                    splashController.setLoading("Loading model...")
-                    Log.model.info("Model downloaded, loading...")
-                    try await loadAndActivateModel(named: modelName, provider: selectedProvider)
-                    Log.model.info("Model loaded successfully")
-                } catch {
-                    handleModelLoadError(error, context: "Failed to download/load model")
                 }
+                splashController.setLoading("Loading model...")
+                Log.model.info("Model downloaded, loading...")
+                try await loadAndActivateModel(
+                    named: startupModel.resolvedModel.name,
+                    provider: startupModel.resolvedModel.provider
+                )
+                Log.model.info("Model loaded successfully")
+            } catch {
+                handleModelLoadError(error, context: "Failed to download/load model")
             }
         }
 
@@ -1353,9 +1358,11 @@ final class AppCoordinator {
     // MARK: - Live Session Context
 
     private func shouldRunLiveContextSession() -> Bool {
-        settingsStore.aiEnhancementEnabled &&
-            settingsStore.enableUIContext &&
-            settingsStore.vibeLiveSessionEnabled
+        KMPTranscriptionBridge.shouldRunLiveContextSession(
+            aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
+            uiContextEnabled: settingsStore.enableUIContext,
+            liveSessionEnabled: settingsStore.vibeLiveSessionEnabled
+        )
     }
 
     private func updateVibeRuntimeStateFromSettings() {
@@ -1473,9 +1480,11 @@ final class AppCoordinator {
         trigger: ContextSessionUpdateTrigger,
         in session: ContextSessionState
     ) -> Bool {
-        guard trigger != .recordingStart else { return true }
-        guard let lastSignature = session.transitions.last?.transitionSignature else { return true }
-        return lastSignature != signature
+        KMPTranscriptionBridge.shouldAppendTransition(
+            signature: signature,
+            trigger: trigger.rawValue,
+            lastSignature: session.transitions.last?.transitionSignature
+        )
     }
 
     private func currentLiveSessionContext() -> AIEnhancementService.LiveSessionContext? {
@@ -2103,29 +2112,28 @@ final class AppCoordinator {
     }
 
     static func normalizedTranscriptionText(_ text: String) -> String {
-        text.trimmingCharacters(in: .whitespacesAndNewlines)
+        TranscriptionPolicy.normalizedTranscriptionText(text)
     }
     private func isTranscriptionEffectivelyEmpty(_ text: String) -> Bool {
         Self.isTranscriptionEffectivelyEmpty(text)
     }
 
     static func isTranscriptionEffectivelyEmpty(_ text: String) -> Bool {
-        let normalizedText = normalizedTranscriptionText(text)
-        if normalizedText.isEmpty {
-            return true
-        }
-        return normalizedText.caseInsensitiveCompare("[BLANK AUDIO]") == .orderedSame
+        TranscriptionPolicy.isTranscriptionEffectivelyEmpty(text)
     }
 
     static func shouldPersistHistory(outputSucceeded: Bool, text: String) -> Bool {
-        outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
+        TranscriptionPolicy.shouldPersistHistory(outputSucceeded: outputSucceeded, text: text)
     }
 
     static func shouldUseSpeakerDiarization(
         diarizationFeatureEnabled: Bool,
         isStreamingSessionActive: Bool
     ) -> Bool {
-        diarizationFeatureEnabled && !isStreamingSessionActive
+        TranscriptionPolicy.shouldUseSpeakerDiarization(
+            diarizationFeatureEnabled: diarizationFeatureEnabled,
+            isStreamingSessionActive: isStreamingSessionActive
+        )
     }
 
     static func shouldUseStreamingTranscription(
@@ -2134,10 +2142,12 @@ final class AppCoordinator {
         aiEnhancementEnabled: Bool,
         isQuickCaptureMode: Bool
     ) -> Bool {
-        streamingFeatureEnabled &&
-            outputMode == .directInsert &&
-            !aiEnhancementEnabled &&
-            !isQuickCaptureMode
+        TranscriptionPolicy.shouldUseStreamingTranscription(
+            streamingFeatureEnabled: streamingFeatureEnabled,
+            outputMode: outputMode,
+            aiEnhancementEnabled: aiEnhancementEnabled,
+            isQuickCaptureMode: isQuickCaptureMode
+        )
     }
 
     private func encodeDiarizationSegmentsJSON(_ segments: [DiarizedTranscriptSegment]?) -> String? {
@@ -3075,7 +3085,10 @@ final class AppCoordinator {
     }
     
     static func shouldSuppressEscapeEvent(isRecording: Bool, isProcessing: Bool) -> Bool {
-        isRecording || isProcessing
+        RecordingInteractionPolicy.shouldSuppressEscapeEvent(
+            isRecording: isRecording,
+            isProcessing: isProcessing
+        )
     }
 
     static func isDoubleEscapePress(
@@ -3083,8 +3096,11 @@ final class AppCoordinator {
         lastEscapeTime: Date?,
         threshold: TimeInterval
     ) -> Bool {
-        guard let lastEscapeTime else { return false }
-        return now.timeIntervalSince(lastEscapeTime) <= threshold
+        RecordingInteractionPolicy.isDoubleEscapePress(
+            now: now,
+            lastEscapeTime: lastEscapeTime,
+            threshold: threshold
+        )
     }
 
     private nonisolated func handleKeyEvent(
@@ -3216,7 +3232,7 @@ final class AppCoordinator {
         mediaTranscriptionTask?.cancel()
         mediaTranscriptionTask = nil
         mediaTranscriptionState.showLibrary()
-        mediaTranscriptionState.libraryMessage = "Transcription canceled."
+        mediaTranscriptionState.setLibraryMessage("Transcription canceled.")
         mediaTranscriptionState.clearCurrentJob()
         if hadStreamingSession {
             Task { @MainActor [weak self] in
@@ -3400,8 +3416,8 @@ final class AppCoordinator {
             guard let self else { return }
             do {
                 try await self.modelManager.downloadFeatureModel(.diarization)
-                self.mediaTranscriptionState.setupIssue = nil
-                self.mediaTranscriptionState.libraryMessage = "Speaker diarization is ready."
+                self.mediaTranscriptionState.clearSetupIssue()
+                self.mediaTranscriptionState.setLibraryMessage("Speaker diarization is ready.")
             } catch {
                 self.mediaTranscriptionState.setSetupIssue(error.localizedDescription)
             }
@@ -3410,7 +3426,7 @@ final class AppCoordinator {
 
     private func startMediaTranscriptionTask(from request: MediaTranscriptionRequest) {
         guard mediaTranscriptionTask == nil else {
-            mediaTranscriptionState.libraryMessage = "Another transcription is already in progress."
+            mediaTranscriptionState.setLibraryMessage("Another transcription is already in progress.")
             return
         }
 
@@ -3423,7 +3439,7 @@ final class AppCoordinator {
 
     private func performMediaTranscription(_ request: MediaTranscriptionRequest) async {
         guard !isRecording && !isProcessing else {
-            mediaTranscriptionState.libraryMessage = "Finish the active transcription before starting another one."
+            mediaTranscriptionState.setLibraryMessage("Finish the active transcription before starting another one.")
             return
         }
 
@@ -3537,7 +3553,7 @@ final class AppCoordinator {
             resetProcessingState()
             didResetProcessingState = true
             mediaTranscriptionState.showLibrary()
-            mediaTranscriptionState.libraryMessage = "Transcription canceled."
+            mediaTranscriptionState.setLibraryMessage("Transcription canceled.")
             mediaTranscriptionState.clearCurrentJob()
         } catch let error as MediaIngestionError {
             Log.app.error("Media ingestion failed: \(error.localizedDescription)")
@@ -3547,7 +3563,7 @@ final class AppCoordinator {
             if case .toolingUnavailable(let message) = error {
                 mediaTranscriptionState.setSetupIssue(message)
             } else {
-                mediaTranscriptionState.libraryMessage = error.localizedDescription
+                mediaTranscriptionState.setLibraryMessage(error.localizedDescription)
             }
         } catch {
             Log.app.error("Media transcription failed: \(error)")

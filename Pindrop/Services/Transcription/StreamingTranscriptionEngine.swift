@@ -35,24 +35,8 @@ public typealias StreamingTranscriptionCallback = @Sendable (StreamingTranscript
 public typealias EndOfUtteranceCallback = @Sendable (String) -> Void
 
 @MainActor
-public protocol StreamingTranscriptionEngine: AnyObject {
-    var state: StreamingTranscriptionState { get }
-    
-    func loadModel(name: String) async throws
-    func unloadModel() async
-    
-    func startStreaming() async throws
-    func stopStreaming() async throws -> String
-    func pauseStreaming() async
-    func resumeStreaming() async throws
-    
-    func processAudioChunk(_ samples: [Float]) async throws
+public protocol StreamingTranscriptionEngine: StreamingTranscriptionEnginePort {
     func processAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws
-    
-    func setTranscriptionCallback(_ callback: @escaping StreamingTranscriptionCallback)
-    func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback)
-    
-    func reset() async
 }
 
 extension StreamingTranscriptionEngine {

@@ -102,21 +102,7 @@ public enum DiarizationMode: Sendable {
 }
 
 @MainActor
-public protocol SpeakerDiarizer: AnyObject {
-    var state: SpeakerDiarizerState { get }
-    var mode: DiarizationMode { get }
-    
-    func loadModels() async throws
-    func unloadModels() async
-    
-    func diarize(audioData: Data) async throws -> DiarizationResult
-    func diarize(samples: [Float], sampleRate: Int) async throws -> DiarizationResult
-    
-    func compareSpeakers(audio1: [Float], audio2: [Float]) async throws -> Float
-    
-    func registerKnownSpeaker(_ speaker: Speaker) async throws
-    func clearKnownSpeakers() async
-}
+public protocol SpeakerDiarizer: SpeakerDiarizerPort {}
 
 extension SpeakerDiarizer {
     public func diarize(audioData: Data) async throws -> DiarizationResult {

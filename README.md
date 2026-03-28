@@ -98,6 +98,15 @@ Pindrop releases are now signed with the project's Apple Developer identity. Aft
 
 Since this is an open-source project, you can also build it yourself. Don't worry—it's straightforward.
 
+### Repository Layout
+
+- `Pindrop/`: macOS app source
+- `PindropTests/`: unit and integration tests
+- `PindropUITests/`: UI automation tests
+- `shared/`: Kotlin Multiplatform shared workspace
+- `scripts/`: build and release helper scripts
+- `assets/`: images and other repository assets
+
 ### Step 1: Clone the Repository
 
 ```bash
@@ -140,6 +149,13 @@ just test               # Run tests
 just dmg-self-signed    # Fallback self-signed DMG
 just clean              # Clean build artifacts
 just --list             # Show all available commands
+```
+
+**Shared Kotlin commands:**
+
+```bash
+just shared-test        # Run shared Kotlin tests
+just shared-xcframework # Build shared Apple XCFrameworks
 ```
 
 **Release commands (maintainers):**

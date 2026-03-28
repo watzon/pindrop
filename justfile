@@ -103,6 +103,18 @@ test:
         -destination 'platform=macOS'
     @echo "✅ Tests complete"
 
+# Run Kotlin Multiplatform shared-module tests
+shared-test:
+    @echo "🧪 Running shared Kotlin tests..."
+    ./shared/gradlew --no-daemon --console=plain -p shared :core:jvmTest :feature-transcription:jvmTest
+    @echo "✅ Shared Kotlin tests complete"
+
+# Build Apple XCFrameworks for the shared Kotlin modules
+shared-xcframework:
+    @echo "📦 Building shared XCFrameworks..."
+    ./shared/gradlew --no-daemon --console=plain -p shared :core:assemblePindropSharedCoreXCFramework :feature-transcription:assemblePindropSharedTranscriptionXCFramework
+    @echo "✅ Shared XCFrameworks built"
+
 # Run integration tests only (opt-in)
 test-integration:
     @echo "🧪 Running integration tests..."

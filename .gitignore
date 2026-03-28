@@ -8,6 +8,8 @@ xcuserdata/
 # Build products
 build/
 DerivedData/
+.gradle/
+.kotlin/
 *.ipa
 *.dSYM.zip
 *.dSYM
