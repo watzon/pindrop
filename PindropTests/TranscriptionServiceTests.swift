@@ -688,15 +688,47 @@ struct TranscriptionServiceTests {
     }
     
     @Test func invalidProviderHandling() async throws {
-        // This tests that non-local providers throw appropriate errors
-        // The implementation should reject cloud-only providers
-        // Currently WhisperKit and Parakeet are the only local providers
-        
-        // Verify error type exists for this case
-        let error = TranscriptionService.TranscriptionError.modelLoadFailed("Provider not supported locally")
-        #expect(error.errorDescription != nil)
-        #expect(error.errorDescription?.contains("not supported") ?? false,
-                "Error should indicate provider not supported")
+        let service = TranscriptionService(engineFactory: { _ in
+            Issue.record("Engine factory should not be called for unsupported providers")
+            return MockDiarizationTranscriptionEngine()
+        })
+
+        do {
+            try await service.loadModel(modelName: "openai_whisper-1", provider: .openAI)
+            Issue.record("Expected unsupported provider load to throw")
+        } catch let error as TranscriptionService.TranscriptionError {
+            guard case let .modelLoadFailed(message) = error else {
+                Issue.record("Expected modelLoadFailed, got \(error)")
+                return
+            }
+
+            #expect(message.contains("not supported locally"))
+            #expect(service.state == .error)
+
+            guard let storedError = service.error as? TranscriptionService.TranscriptionError else {
+                Issue.record("Expected service.error to store a TranscriptionError")
+                return
+            }
+
+            guard case let .modelLoadFailed(storedMessage) = storedError else {
+                Issue.record("Expected stored error to be modelLoadFailed, got \(storedError)")
+                return
+            }
+
+            #expect(storedMessage == message)
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
+    }
+
+    @Test func recordingStartTransitionBypassesDeduplication() {
+        #expect(
+            KMPTranscriptionBridge.shouldAppendTransition(
+                signature: "same-signature",
+                trigger: ContextSessionUpdateTrigger.recordingStart.rawValue,
+                lastSignature: "same-signature"
+            )
+        )
     }
 
     private func makeStreamingBuffer(frameCount: AVAudioFrameCount = 320) throws -> AVAudioPCMBuffer {

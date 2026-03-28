@@ -380,7 +380,7 @@ object SharedTranscriptionOrchestrator {
         trigger: String,
         lastSignature: String?,
     ): Boolean {
-        if (trigger == "recordingStart") {
+        if (trigger == "recording_start") {
             return true
         }
 

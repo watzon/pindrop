@@ -584,7 +584,7 @@ enum KMPTranscriptionBridge {
             lastSignature: lastSignature
         )
         #else
-        trigger == "recordingStart" || lastSignature == nil || lastSignature != signature
+        trigger == "recording_start" || lastSignature == nil || lastSignature != signature
         #endif
     }
 

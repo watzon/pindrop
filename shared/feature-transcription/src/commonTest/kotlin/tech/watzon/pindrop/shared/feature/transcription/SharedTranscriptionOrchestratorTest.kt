@@ -332,7 +332,7 @@ class SharedTranscriptionOrchestratorTest {
         assertTrue(
             SharedTranscriptionOrchestrator.shouldAppendTransition(
                 signature = "a",
-                trigger = "recordingStart",
+                trigger = "recording_start",
                 lastSignature = "a",
             ),
         )

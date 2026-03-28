@@ -112,7 +112,12 @@ class TranscriptionService {
         }
 
         guard loadPlan.supportsLocalModelLoading else {
-            throw TranscriptionError.modelLoadFailed("Provider \(loadPlan.resolvedProvider.rawValue) not supported locally")
+            let loadError = TranscriptionError.modelLoadFailed(
+                "Provider \(loadPlan.resolvedProvider.rawValue) not supported locally"
+            )
+            self.error = loadError
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw loadError
         }
 
         error = nil
