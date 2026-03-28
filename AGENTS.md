@@ -1,13 +1,13 @@
 # Repository Guidelines
 
-Last updated: 2026-03-24
+Last updated: 2026-03-28
 
 ## Project Snapshot
 
 - App: `Pindrop` (menu bar macOS app, `LSUIElement` behavior)
-- Stack: Swift 5.9+, SwiftUI, SwiftData, Swift Testing, XCTest UI tests
-- Platform target: macOS 14+
-- Main dependency path: `Pindrop.xcodeproj` + SwiftPM
+- Stack: Swift 5.9+, SwiftUI, SwiftData, Swift Testing, XCTest UI tests, Kotlin Multiplatform shared modules
+- Platform target: macOS 14+ for the shipped app; shared KMP code is intended to support future Windows/Linux targets
+- Main dependency path: `Pindrop.xcodeproj`, SwiftPM, and the Gradle-based KMP workspace under `shared/`
 - Entry points: `Pindrop/PindropApp.swift`, `Pindrop/AppCoordinator.swift`
 
 ## Source Layout
@@ -19,12 +19,15 @@ Last updated: 2026-03-24
 - Utilities/logging: `Pindrop/Utils/`
 - Tests: `PindropTests/`
 - Test doubles: `PindropTests/TestHelpers/`
+- Shared KMP workspace: `shared/`
 - Build automation: `justfile`, `scripts/`, `.github/workflows/`
 
 ## Required Local Tooling
 
 - Xcode with command-line tools (`xcodebuild`)
 - `just` for all routine workflows: `brew install just`
+- JDK 21+ for the Gradle/Kotlin toolchain used by `shared/`
+- Prefer the checked-in Gradle wrapper at `shared/gradlew` over a globally installed `gradle`
 - Optional: `swiftlint`, `swiftformat`, `create-dmg`
 - Apple Developer signing configured in Xcode for signed local/release builds; CI recipes use explicit unsigned overrides
 
@@ -38,6 +41,8 @@ just build-release         # Release build
 just export-app            # Developer ID export for distribution
 just dmg                   # Signed DMG for distribution
 just test                  # Unit test plan
+just shared-test           # Kotlin shared-module tests
+just shared-xcframework    # Build embedded KMP XCFrameworks
 just test-integration      # Integration test plan (opt-in)
 just test-ui               # UI test plan
 just test-all              # Unit + integration + UI
@@ -125,6 +130,7 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 ## Release and Distribution
 
 - Local release helpers: `just build-release`, `just export-app`, `just dmg`, `just dmg-self-signed` (fallback only)
+- macOS release builds embed the XCFrameworks produced from `shared/`; KMP is a build input, not a separate end-user artifact
 - Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
   1. Create/edit contextual release notes (`release-notes/vX.Y.Z.md`)
   2. Run tests

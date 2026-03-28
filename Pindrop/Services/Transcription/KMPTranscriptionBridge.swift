@@ -531,7 +531,7 @@ enum KMPTranscriptionBridge {
     ) -> SharedEventTapRecoveryDecision {
         #if canImport(PindropSharedTranscription)
         let decision = SharedTranscriptionOrchestrator.shared.determineEventTapRecovery(
-            elapsedSinceLastDisableSeconds: elapsedSinceLastDisable.map(NSNumber.init(value:)),
+            elapsedSinceLastDisableSeconds: elapsedSinceLastDisable.map(KotlinDouble.init(value:)),
             consecutiveDisableCount: Int32(consecutiveDisableCount),
             disableLoopWindowSeconds: disableLoopWindow,
             maxReenableAttemptsBeforeRecreate: Int32(maxReenableAttemptsBeforeRecreate)
