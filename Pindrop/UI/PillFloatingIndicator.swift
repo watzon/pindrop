@@ -528,6 +528,15 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }
     }
 
+    func handleCompactHover(_ hovering: Bool) {
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing, !isContextMenuOpen else { return }
+
+        if hovering {
+            lastHoverContactAt = Date()
+            setHoverState(true)
+        }
+    }
+
     func startRecording() {
         isHovered = false
         hideHoverTooltip()
@@ -784,6 +793,9 @@ struct PillIndicatorView: View {
             }
             .buttonStyle(.plain)
             .contentShape(Capsule())
+            .onHover { hovering in
+                controller.handleCompactHover(hovering)
+            }
 
             if controller.isHoverTooltipVisible {
                 PillHoverTooltip(
