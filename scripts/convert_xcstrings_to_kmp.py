@@ -382,28 +382,97 @@ def convert_xcstrings(xcstrings_path: Path, output_dir: Path) -> dict:
     return key_to_id
 
 
-def generate_key_mapping_kotlin(key_mapping: dict, output_path: Path):
+def generate_strings_bundle(
+    xcstrings_path: Path, key_mapping: dict, output_dir: Path
+) -> dict:
     """
-    Generate Kotlin code with the key mapping embedded in SharedLocalization.kt.
-    This creates internal lookup tables used by the Swift bridge.
+    Generate a JSON bundle with all localized strings for runtime access.
+    Format: { "locale": { "kmp_identifier": "localized string" } }
     """
-    # Generate the mapping as Kotlin code
-    entries = []
-    for xc_key, kmp_id in sorted(key_mapping.items()):
-        # Escape for Kotlin string: backslash, dollar sign (template), quotes, newlines
-        escaped_key = (
-            xc_key.replace("\\", "\\\\")
-            .replace("$", "\\$")
-            .replace('"', '\\"')
-            .replace("\n", "\\n")
-            .replace("\r", "")
-        )
-        escaped_id = (
-            kmp_id.replace("\\", "\\\\").replace("$", "\\$").replace('"', '\\"')
-        )
-        entries.append(f'        "{escaped_key}" to "{escaped_id}"')
+    with open(xcstrings_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    mapping_code = ",\n".join(entries)
+    strings = data.get("strings", {})
+    skip_keys = {"": True}
+
+    bundle: dict[str, dict[str, str]] = {}
+
+    for locale in ALL_LOCALES:
+        locale_strings: dict[str, str] = {}
+
+        for key, val in strings.items():
+            if key in skip_keys or key not in key_mapping:
+                continue
+
+            identifier = key_mapping[key]
+
+            # Get localized value
+            value = get_localized_value(val, locale)
+            if value is None:
+                if locale == "en":
+                    value = key
+                else:
+                    value = get_localized_value(val, "en")
+                    if value is None:
+                        value = key
+
+            # Convert format specifiers to Kotlin format
+            value = convert_format_specifiers(value)
+
+            locale_strings[identifier] = value
+
+        bundle[locale] = locale_strings
+
+    # Write the bundle JSON
+    bundle_path = output_dir / "strings_bundle.json"
+    with open(bundle_path, "w", encoding="utf-8") as f:
+        json.dump(bundle, f, ensure_ascii=False, indent=2)
+
+    total_entries = sum(len(v) for v in bundle.values())
+    print(
+        f"  Generated strings_bundle.json ({total_entries} total entries across {len(bundle)} locales)"
+    )
+    return bundle
+
+
+def _escape_kotlin_string(s: str) -> str:
+    """Escape a string for use in a Kotlin string literal."""
+    return (
+        s.replace("\\", "\\\\")
+        .replace("$", "\\$")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "")
+    )
+
+
+def generate_strings_kotlin(bundle: dict, key_mapping: dict, output_path: Path):
+    """
+    Generate SharedLocalization.kt with embedded key mapping and all localized strings.
+    """
+    # Build key mapping entries
+    mapping_entries = []
+    for xc_key, kmp_id in sorted(key_mapping.items()):
+        escaped_key = _escape_kotlin_string(xc_key)
+        escaped_id = _escape_kotlin_string(kmp_id)
+        mapping_entries.append(f'        "{escaped_key}" to "{escaped_id}"')
+    mapping_code = ",\n".join(mapping_entries)
+
+    # Build locale string entries
+    locale_entries = []
+    for locale in sorted(bundle.keys()):
+        string_entries = []
+        for kmp_id, value in sorted(bundle[locale].items()):
+            escaped_id = _escape_kotlin_string(kmp_id)
+            escaped_value = _escape_kotlin_string(value)
+            string_entries.append(
+                f'                        "{escaped_id}" to "{escaped_value}"'
+            )
+        strings_code = ",\n".join(string_entries)
+        locale_entries.append(
+            f'            "{locale}" to mapOf(\n{strings_code}\n            )'
+        )
+    locale_map_code = ",\n".join(locale_entries)
 
     kotlin_code = f"""//
 //  SharedLocalization.kt
@@ -419,15 +488,14 @@ package tech.watzon.pindrop.shared.uilocalization
 /**
  * Shared localization authority.
  *
- * Provides runtime verification of key coverage and locale support
- * for the KMP Multiplatform Resources-based localization system.
- * Actual string access is via generated `Res.string.*` accessors.
+ * Provides runtime string lookup by xcstrings key and locale.
+ * All strings are embedded from Localizable.xcstrings.
+ * Swift calls [getString] to resolve localized text at runtime.
  */
 object SharedLocalization {{
 
     /**
-     * Bidirectional mapping from xcstrings keys to KMP resource identifiers.
-     * Populated by convert_xcstrings_to_kmp.py from Localizable.xcstrings.
+     * Mapping from xcstrings keys to KMP resource identifiers.
      */
     internal val _keyMapping: Map<String, String> = mapOf(
 {mapping_code}
@@ -439,15 +507,21 @@ object SharedLocalization {{
     internal val _reverseMapping: Map<String, String> = _keyMapping.entries.associate {{ it.value to it.key }}
 
     /**
-     * Returns all KMP resource string identifiers generated from the xcstrings catalog.
-     * These correspond to `Res.string.{{identifier}}` accessors.
+     * All localized strings: locale → (kmpId → localized value).
+     */
+    private val _strings: Map<String, Map<String, String>> = mapOf(
+{locale_map_code}
+    )
+
+    /**
+     * Returns all KMP resource string identifiers.
      */
     fun allKeys(): Set<String> {{
         return _keyMapping.values.toSet()
     }}
 
     /**
-     * Check if a given KMP identifier exists in the generated resources.
+     * Check if a given KMP identifier exists.
      */
     fun hasKey(key: String): Boolean {{
         return _keyMapping.values.contains(key)
@@ -455,7 +529,6 @@ object SharedLocalization {{
 
     /**
      * Returns the set of supported locale codes.
-     * Includes: en, de, es, fr, it, ja, ko, nl, pt-BR, tr, zh-Hans
      */
     fun supportedLocales(): Set<String> {{
         return setOf(
@@ -465,8 +538,6 @@ object SharedLocalization {{
 
     /**
      * Returns the bidirectional mapping from xcstrings keys to KMP resource identifiers.
-     * Key: original xcstrings key (English text or short identifier)
-     * Value: generated KMP snake_case identifier (usable as Res.string.{{value}})
      */
     fun keyMapping(): Map<String, String> {{
         return _keyMapping.toMap()
@@ -485,13 +556,60 @@ object SharedLocalization {{
     fun xcKeyForKmpIdentifier(kmpId: String): String? {{
         return _reverseMapping[kmpId]
     }}
+
+    /**
+     * Resolve a localized string by its original xcstrings key and locale.
+     *
+     * This is the primary entry point for Swift consumers.
+     * Falls back to English if the locale is not found,
+     * then falls back to the key itself if no translation exists.
+     */
+    fun getString(xcKey: String, locale: String): String {{
+        val kmpId = _keyMapping[xcKey] ?: return xcKey
+        return getStringById(kmpId, locale)
+    }}
+
+    /**
+     * Resolve a localized string by its KMP identifier and locale.
+     */
+    fun getStringById(kmpId: String, locale: String): String {{
+        // Try exact locale match
+        val localeStrings = _strings[locale]
+        if (localeStrings != null) {{
+            val value = localeStrings[kmpId]
+            if (value != null) return value
+        }}
+
+        // Try language-only fallback (e.g., "pt" from "pt-BR")
+        val langOnly = locale.split("-").firstOrNull()
+        if (langOnly != null && langOnly != locale) {{
+            for ((locKey, locStrings) in _strings) {{
+                if (locKey.startsWith(langOnly)) {{
+                    val value = locStrings[kmpId]
+                    if (value != null) return value
+                }}
+            }}
+        }}
+
+        // Fall back to English
+        val enStrings = _strings["en"]
+        if (enStrings != null) {{
+            val value = enStrings[kmpId]
+            if (value != null) return value
+        }}
+
+        // Last resort: return the key
+        return kmpId
+    }}
 }}
 """
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(kotlin_code)
 
-    print(f"  Generated SharedLocalization.kt ({len(key_mapping)} key mappings)")
+    print(
+        f"  Generated SharedLocalization.kt with {len(key_mapping)} key mappings and {len(bundle)} locales"
+    )
 
 
 def save_key_mapping_json(key_mapping: dict, output_path: Path):
@@ -573,9 +691,12 @@ def main():
     # Save key mapping
     save_key_mapping_json(key_mapping, KEY_MAPPING_OUTPUT)
 
-    # Generate Kotlin code with embedded mapping
-    generate_key_mapping_kotlin(
-        key_mapping, KOTLIN_PACKAGE_DIR / "SharedLocalization.kt"
+    # Generate strings bundle JSON and get the bundle data
+    bundle = generate_strings_bundle(XCSTRINGS_PATH, key_mapping, OUTPUT_DIR)
+
+    # Generate Kotlin code with embedded strings and key mapping
+    generate_strings_kotlin(
+        bundle, key_mapping, KOTLIN_PACKAGE_DIR / "SharedLocalization.kt"
     )
 
     # Verify
