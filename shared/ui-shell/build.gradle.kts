@@ -57,6 +57,7 @@ kotlin {
             implementation(project(":core"))
             implementation(project(":settings-schema"))
             implementation(project(":ui-localization"))
+            implementation(project(":ui-settings"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -12,6 +12,7 @@ import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uishell.cinterop.libadwaita.*
 import tech.watzon.pindrop.shared.ui.shell.linux.onboarding.OnboardingWizard
+import tech.watzon.pindrop.shared.ui.shell.linux.settings.SettingsDialog
 
 /**
  * Linux lifecycle coordinator — adapts the macOS AppCoordinator pattern
@@ -37,6 +38,7 @@ class LinuxCoordinator(
     private var trayMenu: TrayMenu? = null
     private var trayFallback: TrayFallback? = null
     private var onboardingWizard: OnboardingWizard? = null
+    private var settingsDialog: SettingsDialog? = null
 
     // First-run detection
     private var needsOnboarding: Boolean = false
@@ -94,10 +96,19 @@ class LinuxCoordinator(
     }
 
     /**
-     * Show settings placeholder until the Linux settings dialog is available.
+     * Show settings dialog and reuse the same instance while it stays alive.
      */
     fun showSettings() {
-        gtk_window_present(window.reinterpret())
+        if (settingsDialog == null) {
+            settingsDialog = SettingsDialog(
+                settings = settingsPersistence,
+                secrets = secretStorage,
+                autostart = autostartManager,
+                parentWindow = window,
+                locale = getLocale(),
+            )
+        }
+        settingsDialog?.show()
     }
 
     /**
@@ -157,10 +168,12 @@ class LinuxCoordinator(
         trayMenu?.destroy()
         trayFallback?.destroy()
         onboardingWizard?.destroy()
+        settingsDialog?.destroy()
         trayIcon = null
         trayMenu = null
         trayFallback = null
         onboardingWizard = null
+        settingsDialog = null
         g_application_quit(app.reinterpret())
     }
 
