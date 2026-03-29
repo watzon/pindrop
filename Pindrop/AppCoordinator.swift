@@ -1818,11 +1818,14 @@ final class AppCoordinator {
         suspendLiveContextSessionUpdates()
         isProcessing = true
         statusBarController.setProcessingState()
+        var didResetProcessingState = false
 
         transitionRecordingIndicatorToProcessing()
 
         defer {
-            resetProcessingState()
+            if !didResetProcessingState {
+                resetProcessingState()
+            }
         }
 
         let audioData: Data
