@@ -8,6 +8,9 @@
 import AppKit
 import Testing
 @testable import Pindrop
+#if canImport(PindropSharedSchema)
+import PindropSharedSchema
+#endif
 #if canImport(PindropSharedUITheme)
 import PindropSharedUITheme
 #endif
@@ -34,7 +37,7 @@ struct SettingsStoreTests {
         settingsStore.resetAllSettings()
         try? settingsStore.deleteAPIEndpoint()
         try? settingsStore.deleteAPIKey()
-        settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
+        settingsStore.mentionTemplateOverridesJSON = SettingsDefaults.shared.mentionTemplateOverridesJSON
     }
 
     @Test func testSaveAndLoadSettings() {
@@ -79,8 +82,8 @@ struct SettingsStoreTests {
 
         settingsStore.selectedModel = "base"
         settingsStore.selectedThemeMode = .system
-        settingsStore.lightThemePresetID = SettingsStore.Defaults.lightThemePresetID
-        settingsStore.darkThemePresetID = SettingsStore.Defaults.darkThemePresetID
+        settingsStore.lightThemePresetID = SettingsDefaults.shared.lightThemePresetID
+        settingsStore.darkThemePresetID = SettingsDefaults.shared.darkThemePresetID
         settingsStore.toggleHotkey = "⌘⇧R"
         settingsStore.pushToTalkHotkey = "⌘⇧T"
         settingsStore.outputMode = "clipboard"
@@ -184,17 +187,17 @@ struct SettingsStoreTests {
         let store = makeSettingsStore()
         defer { cleanup(store) }
 
-        #expect(store.selectedModel == SettingsStore.Defaults.selectedModel)
+        #expect(store.selectedModel == SettingsDefaults.shared.selectedModel)
         #expect(store.selectedThemeMode == .system)
-        #expect(store.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
-        #expect(store.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
-        #expect(store.toggleHotkey == SettingsStore.Defaults.Hotkeys.toggleHotkey)
-        #expect(store.pushToTalkHotkey == SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
+        #expect(store.lightThemePresetID == SettingsDefaults.shared.lightThemePresetID)
+        #expect(store.darkThemePresetID == SettingsDefaults.shared.darkThemePresetID)
+        #expect(store.toggleHotkey == SettingsDefaults.Hotkeys.shared.toggleHotkey)
+        #expect(store.pushToTalkHotkey == SettingsDefaults.Hotkeys.shared.pushToTalkHotkey)
         #expect(store.outputMode == "clipboard")
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
         #expect(store.floatingIndicatorEnabled)
-        #expect(store.floatingIndicatorType == FloatingIndicatorType.pill.rawValue)
+        #expect(store.floatingIndicatorType == Pindrop.FloatingIndicatorType.pill.rawValue)
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)
     }
@@ -213,9 +216,9 @@ struct SettingsStoreTests {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }
 
-        settingsStore.selectedAppLanguage = .german
+        settingsStore.selectedAppLanguage = Pindrop.AppLanguage.german
 
-        #expect(settingsStore.selectedLanguage == AppLanguage.german.rawValue)
+        #expect(settingsStore.selectedLanguage == Pindrop.AppLanguage.german.rawValue)
         #expect(settingsStore.selectedAppLanguage == .german)
     }
 
@@ -595,8 +598,8 @@ struct SettingsStoreTests {
         settingsStore.resetAllSettings()
 
         #expect(settingsStore.selectedThemeMode == .system)
-        #expect(settingsStore.lightThemePresetID == SettingsStore.Defaults.lightThemePresetID)
-        #expect(settingsStore.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
+        #expect(settingsStore.lightThemePresetID == SettingsDefaults.shared.lightThemePresetID)
+        #expect(settingsStore.darkThemePresetID == SettingsDefaults.shared.darkThemePresetID)
     }
 
     @Test func testSelectedFloatingIndicatorTypeBridgesStoredValue() {
@@ -605,7 +608,7 @@ struct SettingsStoreTests {
 
         settingsStore.selectedFloatingIndicatorType = .notch
 
-        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.notch.rawValue)
+        #expect(settingsStore.floatingIndicatorType == Pindrop.FloatingIndicatorType.notch.rawValue)
         #expect(settingsStore.selectedFloatingIndicatorType == .notch)
     }
 

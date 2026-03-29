@@ -13,6 +13,10 @@ import AVFoundation
 import AppKit
 import os.log
 
+#if canImport(PindropSharedSchema)
+import PindropSharedSchema
+#endif
+
 private final class EventTapRunLoopThread: Thread {
 
     private let readinessSemaphore = DispatchSemaphore(value: 0)
@@ -768,7 +772,7 @@ final class AppCoordinator {
         let downloadedModels = await modelManager.getDownloadedModels()
         let startupModel = KMPTranscriptionBridge.resolveStartupModel(
             selectedModelId: settingsStore.selectedModel,
-            defaultModelId: SettingsStore.Defaults.selectedModel,
+            defaultModelId: SettingsDefaults.shared.selectedModel,
             availableModels: modelManager.availableModels,
             downloadedModelIds: downloadedModels.map(\.name)
         )

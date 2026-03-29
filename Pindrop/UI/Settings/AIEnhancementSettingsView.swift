@@ -10,6 +10,9 @@ import SwiftUI
 #if canImport(PindropSharedSettings)
 import PindropSharedSettings
 #endif
+#if canImport(PindropSharedSchema)
+import PindropSharedSchema
+#endif
 
 struct AIEnhancementSettingsView: View {
    @ObservedObject var settings: SettingsStore
@@ -560,7 +563,7 @@ struct AIEnhancementSettingsView: View {
          settings.selectedPresetId = nil  // Reset preset to Custom
          enhancementPrompt = localizedTranscriptionPrompt(AIEnhancementService.defaultSystemPrompt)
       case .notes:
-         noteEnhancementPrompt = localizedNotePrompt(SettingsStore.Defaults.noteEnhancementPrompt)
+         noteEnhancementPrompt = localizedNotePrompt(SettingsDefaults.shared.noteEnhancementPrompt)
       }
    }
 
@@ -1386,7 +1389,7 @@ private extension AIEnhancementSettingsView {
    }
 
    func localizedNotePrompt(_ prompt: String) -> String {
-      if prompt == SettingsStore.Defaults.noteEnhancementPrompt {
+      if prompt == SettingsDefaults.shared.noteEnhancementPrompt {
          return localized("You are a note formatting assistant. Transform the transcribed text into a well-structured note.\n\nRules:\n- Fix grammar, punctuation, and spelling errors\n- For longer content (3+ paragraphs), add markdown formatting:\n  - Use headers (## or ###) to organize sections\n  - Use bullet points or numbered lists where appropriate\n  - Use **bold** for emphasis on key terms\n- For shorter content, keep it simple with minimal formatting\n- Preserve the original meaning and tone\n- Do not add content that wasn't in the original\n- Return only the formatted note without any commentary", locale: locale)
       }
 

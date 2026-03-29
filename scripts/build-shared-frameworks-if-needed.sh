@@ -11,6 +11,7 @@ UI_THEME_INFO_PLIST="$SHARED_DIR/ui-theme/build/XCFrameworks/release/PindropShar
 UI_SHELL_INFO_PLIST="$SHARED_DIR/ui-shell/build/XCFrameworks/release/PindropSharedNavigation.xcframework/Info.plist"
 UI_SETTINGS_INFO_PLIST="$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedSettings.xcframework/Info.plist"
 UI_WORKSPACE_INFO_PLIST="$SHARED_DIR/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/Info.plist"
+SETTINGS_SCHEMA_INFO_PLIST="$SHARED_DIR/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/Info.plist"
 BUILD_STAMP="$SHARED_DIR/build/xcode-shared-frameworks.stamp"
 
 needs_build=0
@@ -29,7 +30,7 @@ cleanup_xcframework_outputs() {
         "$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedUISettings.xcframework"
 }
 
-if [ ! -f "$CORE_INFO_PLIST" ] || [ ! -f "$TRANSCRIPTION_INFO_PLIST" ] || [ ! -f "$UI_THEME_INFO_PLIST" ] || [ ! -f "$UI_SHELL_INFO_PLIST" ] || [ ! -f "$UI_SETTINGS_INFO_PLIST" ] || [ ! -f "$UI_WORKSPACE_INFO_PLIST" ] || [ ! -f "$BUILD_STAMP" ]; then
+if [ ! -f "$CORE_INFO_PLIST" ] || [ ! -f "$TRANSCRIPTION_INFO_PLIST" ] || [ ! -f "$UI_THEME_INFO_PLIST" ] || [ ! -f "$UI_SHELL_INFO_PLIST" ] || [ ! -f "$UI_SETTINGS_INFO_PLIST" ] || [ ! -f "$UI_WORKSPACE_INFO_PLIST" ] || [ ! -f "$SETTINGS_SCHEMA_INFO_PLIST" ] || [ ! -f "$BUILD_STAMP" ]; then
     needs_build=1
 fi
 
@@ -67,6 +68,7 @@ cd "$SHARED_DIR"
     :ui-theme:assemblePindropSharedUIThemeXCFramework \
     :ui-shell:assemblePindropSharedNavigationXCFramework \
     :ui-settings:assemblePindropSharedSettingsXCFramework \
-    :ui-workspace:assemblePindropSharedUIWorkspaceXCFramework
+    :ui-workspace:assemblePindropSharedUIWorkspaceXCFramework \
+    :settings-schema:assemblePindropSharedSchemaXCFramework
 mkdir -p "$(dirname "$BUILD_STAMP")"
 touch "$BUILD_STAMP"

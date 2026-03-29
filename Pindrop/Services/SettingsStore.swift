@@ -10,6 +10,10 @@ import Foundation
 import Security
 import SwiftUI
 
+#if canImport(PindropSharedSchema)
+import PindropSharedSchema
+#endif
+
 private enum SettingsStoreRuntime {
    static let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
 
@@ -114,117 +118,62 @@ final class SettingsStore: ObservableObject {
       }
    }
 
-   // MARK: - Default Values (Single Source of Truth)
-
-   enum Defaults {
-      static let selectedModel = "openai_whisper-base"
-       static let outputMode = "clipboard"
-       static let selectedLanguage = AppLanguage.automatic.rawValue
-       static let themeMode = PindropThemeMode.system.rawValue
-      static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
-      static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
-      static let automaticDictionaryLearningEnabled = true
-      static let selectedInputDeviceUID = ""
-      static let aiModel = "openai/gpt-4o-mini"
-      static let aiEnhancementPrompt =
-         "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
-      static let floatingIndicatorEnabled = true
-      static let floatingIndicatorType = FloatingIndicatorType.pill.rawValue
-      static let pillFloatingIndicatorOffsetX = 0.0
-      static let pillFloatingIndicatorOffsetY = 0.0
-      static let noteEnhancementPrompt = """
-         You are a note formatting assistant. Transform the transcribed text into a well-structured note.
-
-         Rules:
-         - Fix grammar, punctuation, and spelling errors
-         - For longer content (3+ paragraphs), add markdown formatting:
-           - Use headers (## or ###) to organize sections
-           - Use bullet points or numbered lists where appropriate
-           - Use **bold** for emphasis on key terms
-         - For shorter content, keep it simple with minimal formatting
-         - Preserve the original meaning and tone
-         - Do not add content that wasn't in the original
-         - Return only the formatted note without any commentary
-         """
-      static let mentionTemplateOverridesJSON = "{}"
-
-      enum Hotkeys {
-         static let toggleHotkey = "⌥Space"
-         static let toggleHotkeyCode = 49
-         static let toggleHotkeyModifiers = 0x800
-
-         static let pushToTalkHotkey = "⌘/"
-         static let pushToTalkHotkeyCode = 44
-         static let pushToTalkHotkeyModifiers = 0x100
-
-         static let copyLastTranscriptHotkey = "⇧⌘C"
-         static let copyLastTranscriptHotkeyCode = 8
-         static let copyLastTranscriptHotkeyModifiers = 0x300
-
-         static let quickCapturePTTHotkey = "⇧⌥Space"
-         static let quickCapturePTTHotkeyCode = 49
-         static let quickCapturePTTHotkeyModifiers = 0xA00  // Shift + Option
-
-         static let quickCaptureToggleHotkey = ""
-         static let quickCaptureToggleHotkeyCode = 0
-         static let quickCaptureToggleHotkeyModifiers = 0
-      }
-   }
+   // MARK: - Default Values (Single Source of Truth: KMP SettingsDefaults)
 
    // MARK: - AppStorage Properties
 
    @AppStorage("selectedModel", store: SettingsStoreRuntime.appStorageStore) var selectedModel:
-      String = Defaults.selectedModel
+      String = SettingsDefaults.shared.selectedModel
    @AppStorage("toggleHotkey", store: SettingsStoreRuntime.appStorageStore) var toggleHotkey:
-      String = Defaults.Hotkeys.toggleHotkey
+      String = SettingsDefaults.Hotkeys.shared.toggleHotkey
    @AppStorage("toggleHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
-   var toggleHotkeyCode: Int = Defaults.Hotkeys.toggleHotkeyCode
-   @AppStorage("toggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
-   var toggleHotkeyModifiers: Int = Defaults.Hotkeys.toggleHotkeyModifiers
+    var toggleHotkeyCode: Int = Int(SettingsDefaults.Hotkeys.shared.toggleHotkeyCode)
+    @AppStorage("toggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+    var toggleHotkeyModifiers: Int = Int(SettingsDefaults.Hotkeys.shared.toggleHotkeyModifiers)
    @AppStorage("pushToTalkHotkey", store: SettingsStoreRuntime.appStorageStore)
-   var pushToTalkHotkey: String = Defaults.Hotkeys.pushToTalkHotkey
+   var pushToTalkHotkey: String = SettingsDefaults.Hotkeys.shared.pushToTalkHotkey
    @AppStorage("pushToTalkHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
-   var pushToTalkHotkeyCode: Int = Defaults.Hotkeys.pushToTalkHotkeyCode
-   @AppStorage("pushToTalkHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
-   var pushToTalkHotkeyModifiers: Int = Defaults.Hotkeys.pushToTalkHotkeyModifiers
+    var pushToTalkHotkeyCode: Int = Int(SettingsDefaults.Hotkeys.shared.pushToTalkHotkeyCode)
+    @AppStorage("pushToTalkHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+    var pushToTalkHotkeyModifiers: Int = Int(SettingsDefaults.Hotkeys.shared.pushToTalkHotkeyModifiers)
    @AppStorage("copyLastTranscriptHotkey", store: SettingsStoreRuntime.appStorageStore)
-   var copyLastTranscriptHotkey: String = Defaults.Hotkeys.copyLastTranscriptHotkey
+   var copyLastTranscriptHotkey: String = SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkey
    @AppStorage("copyLastTranscriptHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
-   var copyLastTranscriptHotkeyCode: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
-   @AppStorage("copyLastTranscriptHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
-   var copyLastTranscriptHotkeyModifiers: Int = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
+    var copyLastTranscriptHotkeyCode: Int = Int(SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkeyCode)
+    @AppStorage("copyLastTranscriptHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+    var copyLastTranscriptHotkeyModifiers: Int = Int(SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkeyModifiers)
    @AppStorage("quickCapturePTTHotkey", store: SettingsStoreRuntime.appStorageStore)
-   var quickCapturePTTHotkey: String = Defaults.Hotkeys.quickCapturePTTHotkey
+   var quickCapturePTTHotkey: String = SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkey
    @AppStorage("quickCapturePTTHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
-   var quickCapturePTTHotkeyCode: Int = Defaults.Hotkeys.quickCapturePTTHotkeyCode
-   @AppStorage("quickCapturePTTHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
-   var quickCapturePTTHotkeyModifiers: Int = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
-   @AppStorage("quickCaptureToggleHotkey", store: SettingsStoreRuntime.appStorageStore)
-   var quickCaptureToggleHotkey: String = Defaults.Hotkeys.quickCaptureToggleHotkey
-   @AppStorage("quickCaptureToggleHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
-   var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
-   @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
-   var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
+    var quickCapturePTTHotkeyCode: Int = Int(SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkeyCode)
+    @AppStorage("quickCapturePTTHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+    var quickCapturePTTHotkeyModifiers: Int = Int(SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkeyModifiers)
+    @AppStorage("quickCaptureToggleHotkey", store: SettingsStoreRuntime.appStorageStore)
+    var quickCaptureToggleHotkey: String = SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkey
+    @AppStorage("quickCaptureToggleHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
+    var quickCaptureToggleHotkeyCode: Int = Int(SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkeyCode)
+    @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+    var quickCaptureToggleHotkeyModifiers: Int = Int(SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkeyModifiers)
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
-       Defaults.outputMode
+       SettingsDefaults.shared.outputMode
     @AppStorage("selectedLanguage", store: SettingsStoreRuntime.appStorageStore)
-    var selectedLanguage: String = Defaults.selectedLanguage
+    var selectedLanguage: String = SettingsDefaults.shared.selectedLanguage
     @AppStorage(PindropThemeStorageKeys.themeMode, store: SettingsStoreRuntime.appStorageStore)
-    var themeMode: String = Defaults.themeMode {
+    var themeMode: String = SettingsDefaults.shared.themeMode {
       didSet { notifyThemeDidChange() }
    }
    @AppStorage(PindropThemeStorageKeys.lightThemePresetID, store: SettingsStoreRuntime.appStorageStore)
-   var lightThemePresetID: String = Defaults.lightThemePresetID {
+   var lightThemePresetID: String = SettingsDefaults.shared.lightThemePresetID {
       didSet { notifyThemeDidChange() }
    }
    @AppStorage(PindropThemeStorageKeys.darkThemePresetID, store: SettingsStoreRuntime.appStorageStore)
-   var darkThemePresetID: String = Defaults.darkThemePresetID {
+   var darkThemePresetID: String = SettingsDefaults.shared.darkThemePresetID {
       didSet { notifyThemeDidChange() }
    }
    @AppStorage("automaticDictionaryLearningEnabled", store: SettingsStoreRuntime.appStorageStore)
-   var automaticDictionaryLearningEnabled: Bool = Defaults.automaticDictionaryLearningEnabled
+   var automaticDictionaryLearningEnabled: Bool = SettingsDefaults.shared.automaticDictionaryLearningEnabled
    @AppStorage("selectedInputDeviceUID", store: SettingsStoreRuntime.appStorageStore)
-   var selectedInputDeviceUID: String = Defaults.selectedInputDeviceUID
+   var selectedInputDeviceUID: String = SettingsDefaults.shared.selectedInputDeviceUID
    @AppStorage("aiEnhancementEnabled", store: SettingsStoreRuntime.appStorageStore)
    var aiEnhancementEnabled: Bool = false
    @AppStorage("aiProvider", store: SettingsStoreRuntime.appStorageStore)
@@ -232,23 +181,23 @@ final class SettingsStore: ObservableObject {
    @AppStorage("customLocalProviderType", store: SettingsStoreRuntime.appStorageStore)
    var customLocalProviderType: String = CustomProviderType.custom.rawValue
    @AppStorage("aiModel", store: SettingsStoreRuntime.appStorageStore) var aiModel: String =
-      Defaults.aiModel
+      SettingsDefaults.shared.aiModel
    @AppStorage("openRouterModelsCacheTimestamp", store: SettingsStoreRuntime.appStorageStore)
    var openRouterModelsCacheTimestamp: TimeInterval = 0
    @AppStorage("openAIModelsCacheTimestamp", store: SettingsStoreRuntime.appStorageStore)
    var openAIModelsCacheTimestamp: TimeInterval = 0
    @AppStorage("aiEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore)
-   var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
+   var aiEnhancementPrompt: String = SettingsDefaults.shared.aiEnhancementPrompt
    @AppStorage("noteEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore)
-   var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
+   var noteEnhancementPrompt: String = SettingsDefaults.shared.noteEnhancementPrompt
    @AppStorage("floatingIndicatorEnabled", store: SettingsStoreRuntime.appStorageStore)
-   var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
+   var floatingIndicatorEnabled: Bool = SettingsDefaults.shared.floatingIndicatorEnabled
    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore)
-   var floatingIndicatorType: String = Defaults.floatingIndicatorType
+   var floatingIndicatorType: String = SettingsDefaults.shared.floatingIndicatorType
    @AppStorage("pillFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
-   var pillFloatingIndicatorOffsetX: Double = Defaults.pillFloatingIndicatorOffsetX
+   var pillFloatingIndicatorOffsetX: Double = SettingsDefaults.shared.pillFloatingIndicatorOffsetX
    @AppStorage("pillFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
-   var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
+   var pillFloatingIndicatorOffsetY: Double = SettingsDefaults.shared.pillFloatingIndicatorOffsetY
    @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool =
       false
    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore)
@@ -262,7 +211,7 @@ final class SettingsStore: ObservableObject {
    @AppStorage("selectedPresetId", store: SettingsStoreRuntime.appStorageStore)
    var selectedPresetId: String?
    @AppStorage("mentionTemplateOverridesJSON", store: SettingsStoreRuntime.appStorageStore)
-   var mentionTemplateOverridesJSON: String = Defaults.mentionTemplateOverridesJSON
+   var mentionTemplateOverridesJSON: String = SettingsDefaults.shared.mentionTemplateOverridesJSON
 
    @AppStorage("enableClipboardContext", store: SettingsStoreRuntime.appStorageStore)
    var enableClipboardContext: Bool = false
@@ -387,8 +336,8 @@ final class SettingsStore: ObservableObject {
 
    func resetPillFloatingIndicatorOffset() {
       pillFloatingIndicatorOffset = CGSize(
-         width: Defaults.pillFloatingIndicatorOffsetX,
-         height: Defaults.pillFloatingIndicatorOffsetY
+         width: SettingsDefaults.shared.pillFloatingIndicatorOffsetX,
+         height: SettingsDefaults.shared.pillFloatingIndicatorOffsetY
       )
    }
 
@@ -704,38 +653,38 @@ final class SettingsStore: ObservableObject {
    }
 
    func resetAllSettings() {
-      selectedModel = Defaults.selectedModel
-      themeMode = Defaults.themeMode
-      lightThemePresetID = Defaults.lightThemePresetID
-      darkThemePresetID = Defaults.darkThemePresetID
-      toggleHotkey = Defaults.Hotkeys.toggleHotkey
-      toggleHotkeyCode = Defaults.Hotkeys.toggleHotkeyCode
-      toggleHotkeyModifiers = Defaults.Hotkeys.toggleHotkeyModifiers
-      pushToTalkHotkey = Defaults.Hotkeys.pushToTalkHotkey
-      pushToTalkHotkeyCode = Defaults.Hotkeys.pushToTalkHotkeyCode
-      pushToTalkHotkeyModifiers = Defaults.Hotkeys.pushToTalkHotkeyModifiers
-      copyLastTranscriptHotkey = Defaults.Hotkeys.copyLastTranscriptHotkey
-      copyLastTranscriptHotkeyCode = Defaults.Hotkeys.copyLastTranscriptHotkeyCode
-      copyLastTranscriptHotkeyModifiers = Defaults.Hotkeys.copyLastTranscriptHotkeyModifiers
-      quickCapturePTTHotkey = Defaults.Hotkeys.quickCapturePTTHotkey
-      quickCapturePTTHotkeyCode = Defaults.Hotkeys.quickCapturePTTHotkeyCode
-      quickCapturePTTHotkeyModifiers = Defaults.Hotkeys.quickCapturePTTHotkeyModifiers
-      quickCaptureToggleHotkey = Defaults.Hotkeys.quickCaptureToggleHotkey
-      quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
-      quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
-      outputMode = Defaults.outputMode
-      selectedLanguage = Defaults.selectedLanguage
-      selectedInputDeviceUID = Defaults.selectedInputDeviceUID
+      selectedModel = SettingsDefaults.shared.selectedModel
+      themeMode = SettingsDefaults.shared.themeMode
+      lightThemePresetID = SettingsDefaults.shared.lightThemePresetID
+      darkThemePresetID = SettingsDefaults.shared.darkThemePresetID
+      toggleHotkey = SettingsDefaults.Hotkeys.shared.toggleHotkey
+      toggleHotkeyCode = Int(SettingsDefaults.Hotkeys.shared.toggleHotkeyCode)
+      toggleHotkeyModifiers = Int(SettingsDefaults.Hotkeys.shared.toggleHotkeyModifiers)
+      pushToTalkHotkey = SettingsDefaults.Hotkeys.shared.pushToTalkHotkey
+      pushToTalkHotkeyCode = Int(SettingsDefaults.Hotkeys.shared.pushToTalkHotkeyCode)
+      pushToTalkHotkeyModifiers = Int(SettingsDefaults.Hotkeys.shared.pushToTalkHotkeyModifiers)
+      copyLastTranscriptHotkey = SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkey
+      copyLastTranscriptHotkeyCode = Int(SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkeyCode)
+      copyLastTranscriptHotkeyModifiers = Int(SettingsDefaults.Hotkeys.shared.copyLastTranscriptHotkeyModifiers)
+      quickCapturePTTHotkey = SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkey
+      quickCapturePTTHotkeyCode = Int(SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkeyCode)
+      quickCapturePTTHotkeyModifiers = Int(SettingsDefaults.Hotkeys.shared.quickCapturePTTHotkeyModifiers)
+      quickCaptureToggleHotkey = SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkey
+      quickCaptureToggleHotkeyCode = Int(SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkeyCode)
+      quickCaptureToggleHotkeyModifiers = Int(SettingsDefaults.Hotkeys.shared.quickCaptureToggleHotkeyModifiers)
+      outputMode = SettingsDefaults.shared.outputMode
+      selectedLanguage = SettingsDefaults.shared.selectedLanguage
+      selectedInputDeviceUID = SettingsDefaults.shared.selectedInputDeviceUID
       aiEnhancementEnabled = false
       aiProvider = AIProvider.openai.rawValue
       customLocalProviderType = CustomProviderType.custom.rawValue
-      floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
-      floatingIndicatorType = Defaults.floatingIndicatorType
+      floatingIndicatorEnabled = SettingsDefaults.shared.floatingIndicatorEnabled
+      floatingIndicatorType = SettingsDefaults.shared.floatingIndicatorType
       resetPillFloatingIndicatorOffset()
       pauseMediaOnRecording = false
       muteAudioDuringRecording = false
       launchAtLogin = false
-      mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
+      mentionTemplateOverridesJSON = SettingsDefaults.shared.mentionTemplateOverridesJSON
       enableUIContext = false
       contextCaptureTimeoutSeconds = 2.0
       vibeLiveSessionEnabled = true
