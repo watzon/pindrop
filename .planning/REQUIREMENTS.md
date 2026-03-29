@@ -79,33 +79,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SHRD-01 | — | Pending |
-| SHRD-02 | — | Pending |
-| SHRD-03 | — | Pending |
-| LNX-01 | — | Pending |
-| LNX-02 | — | Pending |
-| LNX-03 | — | Pending |
-| LNX-04 | — | Pending |
-| LNX-05 | — | Pending |
-| DICT-01 | — | Pending |
-| DICT-02 | — | Pending |
-| DICT-03 | — | Pending |
-| DICT-04 | — | Pending |
-| DICT-05 | — | Pending |
-| DICT-06 | — | Pending |
-| DICT-07 | — | Pending |
-| HIST-01 | — | Pending |
-| HIST-02 | — | Pending |
-| LANG-01 | — | Pending |
-| AI-01 | — | Pending |
-| AI-02 | — | Pending |
-| AI-03 | — | Pending |
+| SHRD-01 | Phase 1 | Pending |
+| SHRD-02 | Phase 1 | Pending |
+| SHRD-03 | Phase 1 | Pending |
+| LNX-01 | Phase 6 | Pending |
+| LNX-02 | Phase 2 | Pending |
+| LNX-03 | Phase 2 | Pending |
+| LNX-04 | Phase 2 | Pending |
+| LNX-05 | Phase 2 | Pending |
+| DICT-01 | Phase 4 | Pending |
+| DICT-02 | Phase 4 | Pending |
+| DICT-03 | Phase 4 | Pending |
+| DICT-04 | Phase 3 | Pending |
+| DICT-05 | Phase 3 | Pending |
+| DICT-06 | Phase 4 | Pending |
+| DICT-07 | Phase 4 | Pending |
+| HIST-01 | Phase 5 | Pending |
+| HIST-02 | Phase 5 | Pending |
+| LANG-01 | Phase 5 | Pending |
+| AI-01 | Phase 5 | Pending |
+| AI-02 | Phase 5 | Pending |
+| AI-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-29*
-*Last updated: 2026-03-29 after initial definition*
+*Last updated: 2026-03-29 after roadmap creation*
