@@ -16,14 +16,14 @@ Users can get a native-feeling, offline-first dictation experience on each deskt
 - ✓ Local transcription on macOS with native engines and platform-specific adapters — existing
 - ✓ History, search, notes, dictionary, model management, and optional AI enhancement in the shipped app — existing
 - ✓ Kotlin Multiplatform shared core already owns part of the domain logic and transcription policy surface — existing
+- ✓ Shared business logic moved into Kotlin (settings schema, dictionary cleanup, history semantics, AI enhancement behavior) — Validated in Phase 01: shared-core-authority
+- ✓ Localization maintained from one shared source of truth (KMP Multiplatform Resources, 606 strings, 11 locales) — Validated in Phase 01: shared-core-authority
 
 ### Active
 
 - [ ] Linux users can launch a native desktop app and complete the core daily dictation workflow with near-macOS parity.
-- [ ] Shared business logic that does not have to stay platform-native is moved into Kotlin so macOS, Linux, and future Windows clients can reuse it.
 - [ ] Linux includes required desktop integrations for v1: global hotkey, tray app entry point, floating indicator, and auto-start support.
 - [ ] Linux supports transcription, AI enhancement, history/search, and model management as first-class user workflows.
-- [ ] Localization is maintained from one shared source of truth rather than separate translation systems per platform.
 - [ ] Linux support ships as a packaged, distributable app rather than a source-only developer preview.
 
 ### Out of Scope
@@ -58,8 +58,8 @@ This project also needs to reduce long-term maintenance cost. In practice, that 
 | Keep macOS UI native | The current app’s platform fidelity is part of the product value and should not regress | — Pending |
 | Keep WhisperKit transcription native on macOS | WhisperKit is explicitly platform-bound and one of the few areas that must stay outside the shared Kotlin layer | — Pending |
 | Target Linux near-parity for core daily workflows | The goal is a real desktop product, not a stripped-down proof of concept | — Pending |
-| Move remaining shareable business logic into Kotlin | Shared logic lowers maintenance cost and enables Linux-first now without blocking future Windows support | — Pending |
-| Use one shared localization source | Maintaining parallel translations across three apps is too expensive and error-prone | — Pending |
+| Move remaining shareable business logic into Kotlin | Shared logic lowers maintenance cost and enables Linux-first now without blocking future Windows support | ✓ Done — Phase 01 |
+| Use one shared localization source | Maintaining parallel translations across three apps is too expensive and error-prone | ✓ Done — Phase 01 |
 
 ## Evolution
 
@@ -79,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-29 after initialization*
+*Last updated: 2026-03-29 after Phase 01 completion*
