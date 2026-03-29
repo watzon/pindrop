@@ -39,8 +39,9 @@ Carthage/Build/
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 
-# Docs
+# AI shit
 .sisyphus/
+.ruff_cache/
 
 # Test coverage
 *.profraw
