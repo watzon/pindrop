@@ -45,7 +45,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 **Plans**: 3 plans
 **UI hint**: yes
 
-- [ ] 02-01-PLAN.md — Build Foundation & Linux Platform Adapters (cinterop, TOML, libsecret, autostart)
+- [x] 02-01-PLAN.md — Build Foundation & Linux Platform Adapters (cinterop, TOML, libsecret, autostart)
 - [ ] 02-02-PLAN.md — Linux Shell & System Tray (GApplication, AppIndicator, coordinator)
 - [ ] 02-03-PLAN.md — Onboarding & Settings UI (7-step wizard, AdwPreferencesDialog)
 

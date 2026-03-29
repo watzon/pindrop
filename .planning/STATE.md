@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 2 plans created (3 plans, 3 waves)
-last_updated: "2026-03-29"
+status: executing
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-29T22:40:51.212Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 33
 ---
 
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 2
-Plan: Planning complete — 3 plans in 3 waves
-Status: Planning complete
+Phase: 02 (linux-shell-settings) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-03-29
 
 Progress: [███░░░░░░░] 33%
@@ -54,6 +54,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 01 P01 | 35m | 2 tasks | 13 files |
 | Phase 01 P03 | 15min | 2 tasks | 24 files |
 | Phase 01 P02 | 19min | 2 tasks | 29 files |
+| Phase 02 P01 | 1min | 2 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,10 @@ Recent decisions affecting current work:
 - [Phase 01]: Embedded locale data directly in Kotlin code (per-locale files) to avoid KMP native resource loading complexity
 - [Phase 01]: Bidirectional xcstrings↔KMP key mapping: 606 English-text keys mapped to snake_case identifiers
 - [Phase 01]: Swift calls SharedLocalization.getString() via XCFramework — same localized() signature preserved for 653 call sites
+- [Phase 02]: isLinuxHost conditional guards cinterop so macOS builds succeed
+- [Phase 02]: Tests in jvmTest not commonTest due to Kotlin 2.3.10 strict source set hierarchy
+- [Phase 02]: Minimal TOML subset (key=value) avoids KMP native dependency complexity
+- [Phase 02]: POSIX file I/O via platform.posix with @OptIn(ExperimentalForeignApi::class)
 
 ### Pending Todos
 
@@ -85,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29
-Stopped at: Phase 2 planning complete (02-01, 02-02, 02-03)
+Last session: 2026-03-29T22:40:51.208Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

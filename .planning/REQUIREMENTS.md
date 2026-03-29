@@ -16,10 +16,10 @@ Requirements for the Linux support initiative and shared-core expansion. Each ma
 ### Linux Shell
 
 - [ ] **LNX-01**: Linux user can install and launch Pindrop as a packaged desktop app.
-- [ ] **LNX-02**: Linux user can keep Pindrop available from the system tray without keeping a main window open.
-- [ ] **LNX-03**: Linux user can configure Pindrop to start automatically on login.
-- [ ] **LNX-04**: Linux user can complete first-run onboarding for microphone setup, model setup, hotkey setup, and environment-specific limitations.
-- [ ] **LNX-05**: Linux user can manage native app settings for language, hotkeys, output behavior, model preferences, history, dictionary, and AI enhancement.
+- [x] **LNX-02**: Linux user can keep Pindrop available from the system tray without keeping a main window open.
+- [x] **LNX-03**: Linux user can configure Pindrop to start automatically on login.
+- [x] **LNX-04**: Linux user can complete first-run onboarding for microphone setup, model setup, hotkey setup, and environment-specific limitations.
+- [x] **LNX-05**: Linux user can manage native app settings for language, hotkeys, output behavior, model preferences, history, dictionary, and AI enhancement.
 
 ### Dictation
 
@@ -83,10 +83,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHRD-02 | Phase 1 | Complete |
 | SHRD-03 | Phase 1 | Complete |
 | LNX-01 | Phase 6 | Pending |
-| LNX-02 | Phase 2 | Pending |
-| LNX-03 | Phase 2 | Pending |
-| LNX-04 | Phase 2 | Pending |
-| LNX-05 | Phase 2 | Pending |
+| LNX-02 | Phase 2 | Complete |
+| LNX-03 | Phase 2 | Complete |
+| LNX-04 | Phase 2 | Complete |
+| LNX-05 | Phase 2 | Complete |
 | DICT-01 | Phase 4 | Pending |
 | DICT-02 | Phase 4 | Pending |
 | DICT-03 | Phase 4 | Pending |
