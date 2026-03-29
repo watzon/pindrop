@@ -267,7 +267,7 @@ struct TranscriptionServiceTests {
         #expect(mockDiarizer.diarizeCallCount == 0)
     }
 
-    @Test func transcribeForwardsLanguageOptionsToEngine() async throws {
+    @Test func transcribeForwardsOptionsToEngine() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["ni hao"]
         let mockDiarizer = MockSpeakerDiarizer()
@@ -277,7 +277,10 @@ struct TranscriptionServiceTests {
         )
 
         try await service.loadModel(modelName: "tiny", provider: .whisperKit)
-        let options = TranscriptionOptions(language: .simplifiedChinese)
+        let options = TranscriptionOptions(
+            language: .simplifiedChinese,
+            customVocabularyWords: ["Claude Code", "Anthropic"]
+        )
         _ = try await service.transcribe(
             audioData: makeFloatAudioData(seconds: 2.0),
             diarizationEnabled: false,

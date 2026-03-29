@@ -1514,6 +1514,14 @@ final class AppCoordinator {
         ).bounded()
     }
 
+    private func currentTranscriptionOptions() throws -> TranscriptionOptions {
+        let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
+        return TranscriptionOptions(
+            language: settingsStore.selectedAppLanguage,
+            customVocabularyWords: vocabularyWords
+        )
+    }
+
     private func startLiveContextSessionIfNeeded(initialSnapshot: ContextSnapshot?) {
         guard isRecording else { return }
         guard shouldRunLiveContextSession() else {
@@ -1853,7 +1861,7 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: try currentTranscriptionOptions()
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -2455,7 +2463,7 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: try currentTranscriptionOptions()
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -3507,7 +3515,7 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
                 diarizationEnabled: true,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: try currentTranscriptionOptions()
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 

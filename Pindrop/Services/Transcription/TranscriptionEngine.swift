@@ -9,9 +9,14 @@ import Foundation
 
 public struct TranscriptionOptions: Sendable, Equatable {
     public let language: AppLanguage
+    public let customVocabularyWords: [String]
 
-    public init(language: AppLanguage = .automatic) {
+    public init(
+        language: AppLanguage = .automatic,
+        customVocabularyWords: [String] = []
+    ) {
         self.language = language
+        self.customVocabularyWords = customVocabularyWords
     }
 }
 

@@ -43,6 +43,8 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
     
     private var asrManager: AsrManager?
     private var transcribingTask: Task<String, Error>?
+    private var ctcModels: CtcModels?
+    private var configuredVocabularyTerms: [String] = []
     
     public init() {}
     
@@ -106,7 +108,11 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
             let samples = audioData.withUnsafeBytes { bytes in
                 Array(bytes.bindMemory(to: Float.self))
             }
-            
+
+            try await configureVocabularyBoostingIfNeeded(
+                options.customVocabularyWords,
+                asrManager: asrManager
+            )
             let result = try await asrManager.transcribe(samples, source: .microphone)
             
             state = .ready
@@ -123,6 +129,8 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         transcribingTask = nil
         
         asrManager = nil
+        ctcModels = nil
+        configuredVocabularyTerms = []
         error = nil
         state = .unloaded
     }
@@ -133,5 +141,58 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
     
     public func loadModel(modelPath: String) async throws {
         try await loadModel(path: modelPath)
+    }
+
+    private func configureVocabularyBoostingIfNeeded(
+        _ words: [String],
+        asrManager: AsrManager
+    ) async throws {
+        let normalizedWords = normalizedVocabularyWords(words)
+
+        guard !normalizedWords.isEmpty else {
+            if !configuredVocabularyTerms.isEmpty {
+                asrManager.disableVocabularyBoosting()
+                configuredVocabularyTerms = []
+            }
+            return
+        }
+
+        guard normalizedWords != configuredVocabularyTerms else {
+            return
+        }
+
+        let vocabulary = CustomVocabularyContext(
+            terms: normalizedWords.map { CustomVocabularyTerm(text: $0) }
+        )
+
+        if ctcModels == nil {
+            ctcModels = try await CtcModels.downloadAndLoad()
+        }
+
+        guard let ctcModels else {
+            throw EngineError.transcriptionFailed("Failed to load vocabulary boosting models")
+        }
+
+        try await asrManager.configureVocabularyBoosting(
+            vocabulary: vocabulary,
+            ctcModels: ctcModels
+        )
+        configuredVocabularyTerms = normalizedWords
+    }
+
+    private func normalizedVocabularyWords(_ words: [String]) -> [String] {
+        var seen = Set<String>()
+        var normalized: [String] = []
+
+        for word in words {
+            let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+
+            let key = trimmed.lowercased()
+            guard seen.insert(key).inserted else { continue }
+            normalized.append(trimmed)
+        }
+
+        return normalized
     }
 }
