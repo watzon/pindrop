@@ -1,6 +1,7 @@
 package tech.watzon.pindrop.shared.runtime.transcription
 
 import kotlinx.coroutines.test.runTest
+import tech.watzon.pindrop.shared.core.ModelAvailability
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,10 +38,12 @@ class LocalTranscriptionRuntimeTest {
         val macWhisper = LocalTranscriptionCatalog.model(LocalPlatformId.MACOS, TranscriptionModelId("openai_whisper-base"))
         val linuxWhisper = LocalTranscriptionCatalog.model(LocalPlatformId.LINUX, TranscriptionModelId("openai_whisper-base"))
         val windowsParakeet = LocalTranscriptionCatalog.model(LocalPlatformId.WINDOWS, TranscriptionModelId("parakeet-tdt-0.6b-v3"))
+        val linuxManualSetup = LocalTranscriptionCatalog.model(LocalPlatformId.LINUX, TranscriptionModelId("openai_whisper-large-v3-v20240930"))
 
         assertEquals(LocalModelProvider.WHISPER_KIT, macWhisper?.provider)
         assertEquals(LocalModelProvider.WCPP, linuxWhisper?.provider)
         assertEquals(LocalModelProvider.PARAKEET_NATIVE, windowsParakeet?.provider)
+        assertEquals(ModelAvailability.REQUIRES_SETUP, linuxManualSetup?.availability)
     }
 
     @Test

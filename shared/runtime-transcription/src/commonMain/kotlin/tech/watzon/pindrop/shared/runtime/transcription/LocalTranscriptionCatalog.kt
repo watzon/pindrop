@@ -59,10 +59,13 @@ object LocalTranscriptionCatalog {
         return localModels.map { descriptor ->
             val preferredBackend = preferredBackendFor(platform, descriptor.family)
             val provider = providerFor(preferredBackend)
-            val availability = if (preferredBackend in descriptor.supportedBackends) {
-                descriptor.availability
-            } else {
-                ModelAvailability.COMING_SOON
+            val availability = when {
+                preferredBackend !in descriptor.supportedBackends -> ModelAvailability.COMING_SOON
+                platform != LocalPlatformId.MACOS &&
+                    preferredBackend == LocalBackendId.WHISPER_CPP &&
+                    descriptor.family == LocalModelFamily.WHISPER &&
+                    descriptor.id !in WhisperCppRemoteModelRepository.curatedModelIds -> ModelAvailability.REQUIRES_SETUP
+                else -> descriptor.availability
             }
 
             descriptor.copy(

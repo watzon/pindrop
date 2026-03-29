@@ -34,11 +34,13 @@ kotlin {
         commonMain.dependencies {
             api(project(":core"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+            implementation("io.ktor:ktor-client-core:3.4.1")
             implementation("com.squareup.okio:okio:3.9.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+            implementation("io.ktor:ktor-client-mock:3.4.1")
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
     }
