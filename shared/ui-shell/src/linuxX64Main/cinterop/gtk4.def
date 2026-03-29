@@ -1,0 +1,5 @@
+headers = gtk/gtk.h gdk/gdk.h glib.h gobject/gobject.h
+
+package = tech.watzon.pindrop.shared.uishell.cinterop.gtk4
+
+linkerOpts = -lgtk-4 -lgdk-4 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0

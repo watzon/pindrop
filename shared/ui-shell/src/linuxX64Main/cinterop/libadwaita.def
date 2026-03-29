@@ -1,0 +1,5 @@
+headers = libadwaita-1/adw.h
+
+package = tech.watzon.pindrop.shared.uishell.cinterop.libadwaita
+
+linkerOpts = -ladwaita-1 -lgtk-4 -lgdk-4 -lgio-2.0 -lgobject-2.0 -lglib-2.0

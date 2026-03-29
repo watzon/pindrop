@@ -5,6 +5,8 @@ plugins {
     kotlin("multiplatform")
 }
 
+val isLinuxHost = System.getProperty("os.name")?.lowercase()?.contains("linux") == true
+
 kotlin {
     jvm {
         compilerOptions {
@@ -20,6 +22,25 @@ kotlin {
         target.binaries.framework {
             baseName = "PindropSharedNavigation"
             xcframework.add(this)
+        }
+    }
+
+    linuxX64 {
+        if (isLinuxHost) {
+            compilations.getByName("main").cinterops {
+                val gtk4 by creating {
+                    definitionFile = project.file("src/linuxX64Main/cinterop/gtk4.def")
+                    packageName = "tech.watzon.pindrop.shared.uishell.cinterop.gtk4"
+                }
+                val libadwaita by creating {
+                    definitionFile = project.file("src/linuxX64Main/cinterop/libadwaita.def")
+                    packageName = "tech.watzon.pindrop.shared.uishell.cinterop.libadwaita"
+                }
+                val appindicator by creating {
+                    definitionFile = project.file("src/linuxX64Main/cinterop/appindicator.def")
+                    packageName = "tech.watzon.pindrop.shared.uishell.cinterop.appindicator"
+                }
+            }
         }
     }
 

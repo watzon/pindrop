@@ -5,6 +5,8 @@ plugins {
     kotlin("multiplatform")
 }
 
+val isLinuxHost = System.getProperty("os.name")?.lowercase()?.contains("linux") == true
+
 kotlin {
     jvm {
         compilerOptions {
@@ -13,7 +15,16 @@ kotlin {
     }
     val macosArm64Target = macosArm64()
     val macosX64Target = macosX64()
-    linuxX64()
+    linuxX64 {
+        if (isLinuxHost) {
+            compilations.getByName("main").cinterops {
+                val libsecret by creating {
+                    definitionFile = project.file("src/linuxX64Main/cinterop/libsecret.def")
+                    packageName = "tech.watzon.pindrop.shared.core.cinterop.libsecret"
+                }
+            }
+        }
+    }
     mingwX64()
 
     val xcframework = XCFramework("PindropSharedCore")

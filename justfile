@@ -516,6 +516,12 @@ appcast dmg_path:
 	@echo "  1. Review appcast.xml"
 	@echo "  2. Attach {{dmg_path}} and appcast.xml to the matching GitHub release tag"
 
+# Build Linux binary from shared Kotlin modules
+build-linux:
+    @echo "🔨 Building Linux binary..."
+    ./shared/gradlew --no-daemon --console=plain -p shared :ui-shell:linuxX64Binaries
+    @echo "✅ Linux binary built"
+
 # Install dependencies (if any)
 deps:
     @echo "📦 Installing dependencies..."

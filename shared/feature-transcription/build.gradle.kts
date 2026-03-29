@@ -13,6 +13,7 @@ kotlin {
     }
     val macosArm64Target = macosArm64()
     val macosX64Target = macosX64()
+    linuxX64()
 
     val xcframework = XCFramework("PindropSharedTranscription")
 
