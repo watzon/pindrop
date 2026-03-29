@@ -57,22 +57,18 @@ object LocalTranscriptionCatalog {
 
     fun models(platform: LocalPlatformId): List<LocalModelDescriptor> {
         return localModels.map { descriptor ->
-            when (descriptor.family) {
-                LocalModelFamily.WHISPER -> descriptor.copy(
-                    provider = if (platform == LocalPlatformId.MACOS) {
-                        LocalModelProvider.WHISPER_KIT
-                    } else {
-                        LocalModelProvider.WCPP
-                    },
-                )
-                LocalModelFamily.PARAKEET -> descriptor.copy(
-                    provider = if (platform == LocalPlatformId.MACOS) {
-                        LocalModelProvider.PARAKEET_COREML
-                    } else {
-                        LocalModelProvider.PARAKEET_NATIVE
-                    },
-                )
+            val preferredBackend = preferredBackendFor(platform, descriptor.family)
+            val provider = providerFor(preferredBackend)
+            val availability = if (preferredBackend in descriptor.supportedBackends) {
+                descriptor.availability
+            } else {
+                ModelAvailability.COMING_SOON
             }
+
+            descriptor.copy(
+                provider = provider,
+                availability = availability,
+            )
         }
     }
 
@@ -92,6 +88,7 @@ object LocalTranscriptionCatalog {
         val ranks = recommendedModelIds(language).withIndex().associate { it.value to it.index }
         return models
             .filter { it.id in ranks.keys }
+            .filter { it.availability == ModelAvailability.AVAILABLE }
             .filter { supportsLanguage(it.languageSupport, language) }
             .sortedBy { ranks[it.id] ?: Int.MAX_VALUE }
     }
@@ -138,6 +135,7 @@ object LocalTranscriptionCatalog {
             id = TranscriptionModelId(id),
             family = LocalModelFamily.WHISPER,
             provider = LocalModelProvider.WHISPER_KIT,
+            supportedBackends = setOf(LocalBackendId.WHISPER_KIT, LocalBackendId.WHISPER_CPP),
             displayName = displayName,
             languageSupport = languageSupport,
             sizeInMb = sizeInMb,
@@ -162,6 +160,7 @@ object LocalTranscriptionCatalog {
             id = TranscriptionModelId(id),
             family = LocalModelFamily.PARAKEET,
             provider = LocalModelProvider.PARAKEET_COREML,
+            supportedBackends = setOf(LocalBackendId.PARAKEET_APPLE),
             displayName = displayName,
             languageSupport = languageSupport,
             sizeInMb = sizeInMb,
@@ -170,5 +169,37 @@ object LocalTranscriptionCatalog {
             accuracyRating = accuracyRating,
             availability = availability,
         )
+    }
+
+    private fun preferredBackendFor(
+        platform: LocalPlatformId,
+        family: LocalModelFamily,
+    ): LocalBackendId {
+        return when (family) {
+            LocalModelFamily.WHISPER -> {
+                if (platform == LocalPlatformId.MACOS) {
+                    LocalBackendId.WHISPER_KIT
+                } else {
+                    LocalBackendId.WHISPER_CPP
+                }
+            }
+
+            LocalModelFamily.PARAKEET -> {
+                if (platform == LocalPlatformId.MACOS) {
+                    LocalBackendId.PARAKEET_APPLE
+                } else {
+                    LocalBackendId.PARAKEET_NATIVE
+                }
+            }
+        }
+    }
+
+    private fun providerFor(backendId: LocalBackendId): LocalModelProvider {
+        return when (backendId) {
+            LocalBackendId.WHISPER_KIT -> LocalModelProvider.WHISPER_KIT
+            LocalBackendId.WHISPER_CPP -> LocalModelProvider.WCPP
+            LocalBackendId.PARAKEET_APPLE -> LocalModelProvider.PARAKEET_COREML
+            LocalBackendId.PARAKEET_NATIVE -> LocalModelProvider.PARAKEET_NATIVE
+        }
     }
 }

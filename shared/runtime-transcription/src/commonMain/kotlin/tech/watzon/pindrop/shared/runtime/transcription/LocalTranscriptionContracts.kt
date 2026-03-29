@@ -70,6 +70,7 @@ data class LocalModelDescriptor(
     val id: TranscriptionModelId,
     val family: LocalModelFamily,
     val provider: LocalModelProvider,
+    val supportedBackends: Set<LocalBackendId>,
     val displayName: String,
     val languageSupport: ModelLanguageSupport,
     val sizeInMb: Int,

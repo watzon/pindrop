@@ -49,8 +49,10 @@ class LocalTranscriptionRuntime(
         defaultModelId: TranscriptionModelId,
     ): LocalModelSelectionResolution {
         val models = catalog()
-        val normalizedSelectedModel = models.firstOrNull { it.id == selectedModelId }
-            ?: models.firstOrNull { it.id == defaultModelId }
+        val selectableModels = models.filter { it.availability == ModelAvailability.AVAILABLE }
+        val normalizedSelectedModel = selectableModels.firstOrNull { it.id == selectedModelId }
+            ?: selectableModels.firstOrNull { it.id == defaultModelId }
+            ?: selectableModels.firstOrNull()
             ?: models.first()
 
         val installedSet = installedModels
@@ -176,8 +178,16 @@ class LocalTranscriptionRuntime(
 
         val backend = backendRegistry.backend(
             when (family) {
-                LocalModelFamily.WHISPER -> LocalBackendId.WHISPER_KIT
-                LocalModelFamily.PARAKEET -> LocalBackendId.PARAKEET_APPLE
+                LocalModelFamily.WHISPER -> if (platform == LocalPlatformId.MACOS) {
+                    LocalBackendId.WHISPER_KIT
+                } else {
+                    LocalBackendId.WHISPER_CPP
+                }
+                LocalModelFamily.PARAKEET -> if (platform == LocalPlatformId.MACOS) {
+                    LocalBackendId.PARAKEET_APPLE
+                } else {
+                    LocalBackendId.PARAKEET_NATIVE
+                }
             },
         )
 
