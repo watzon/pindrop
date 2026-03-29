@@ -16,23 +16,28 @@ kotlin {
     linuxX64()
     mingwX64()
 
-    val xcframework = XCFramework("PindropSharedCore")
+    val xcframework = XCFramework("PindropSharedRuntimeTranscription")
 
     listOf(
         macosArm64Target,
         macosX64Target,
     ).forEach { target ->
         target.binaries.framework {
-            baseName = "PindropSharedCore"
+            baseName = "PindropSharedRuntimeTranscription"
+            export(project(":core"))
+            transitiveExport = true
             xcframework.add(this)
         }
     }
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":core"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
         }
     }
 }

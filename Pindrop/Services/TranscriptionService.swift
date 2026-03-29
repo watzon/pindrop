@@ -75,15 +75,21 @@ class TranscriptionService {
     private var currentModelIdentifier: String?
     private var streamingPartialCallback: (@Sendable (String) -> Void)?
     private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
+    #if canImport(PindropSharedTranscription)
+    @ObservationIgnored
+    private lazy var localRuntimeBridge = KMPTranscriptionRuntimeBridge(
+        modelManager: ModelManager(),
+        engineFactory: engineFactory
+    )
+    #endif
 
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer
     private let streamingEngineFactory: @MainActor () -> any StreamingTranscriptionEngine
+    private let usesLegacyLocalExecution: Bool
 
     init(
-        engineFactory: @escaping @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine = {
-            try TranscriptionService.defaultEngineFactory(provider: $0)
-        },
+        engineFactory: (@MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine)? = nil,
         diarizerFactory: @escaping @MainActor () -> any SpeakerDiarizer = {
             FluidSpeakerDiarizer()
         },
@@ -91,12 +97,18 @@ class TranscriptionService {
             ParakeetStreamingEngine()
         }
     ) {
-        self.engineFactory = engineFactory
+        self.engineFactory = engineFactory ?? TranscriptionService.defaultEngineFactory(provider:)
         self.speakerDiarizerFactory = diarizerFactory
         self.streamingEngineFactory = streamingEngineFactory
+        self.usesLegacyLocalExecution = engineFactory != nil
     }
 
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
+        if !usesLegacyLocalExecution {
+            try await loadModelUsingRuntime(modelName: modelName, provider: provider)
+            return
+        }
+
         try applyStateTransition(
             KMPTranscriptionBridge.beginModelLoad(currentState: state)
         )
@@ -170,6 +182,11 @@ class TranscriptionService {
     }
 
     func loadModel(modelPath: String) async throws {
+        if !usesLegacyLocalExecution {
+            try await loadModelFromPathUsingRuntime(modelPath: modelPath)
+            return
+        }
+
         try applyStateTransition(
             KMPTranscriptionBridge.beginModelLoad(currentState: state)
         )
@@ -310,7 +327,11 @@ class TranscriptionService {
     }
 
     func unloadModel() async {
-        await engine?.unloadModel()
+        if !usesLegacyLocalExecution {
+            await localRuntimeBridge.unloadModel()
+        } else {
+            await engine?.unloadModel()
+        }
         await speakerDiarizer?.unloadModels()
         await streamingEngine?.unloadModel()
         engine = nil
@@ -526,7 +547,13 @@ class TranscriptionService {
         shouldNormalizeOutput: Bool,
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
-        let text = try await engine.transcribe(audioData: audioData, options: options)
+        let text: String
+        if usesLegacyLocalExecution {
+            text = try await engine.transcribe(audioData: audioData, options: options)
+        } else {
+            text = try await localRuntimeBridge.transcribe(audioData: audioData, options: options)
+        }
+
         return TranscriptionOutput(text: text, diarizedSegments: nil)
             .normalized(shouldNormalizeOutput: shouldNormalizeOutput)
     }
@@ -834,7 +861,7 @@ class TranscriptionService {
         return created
     }
 
-    private static func defaultEngineFactory(
+    static func defaultEngineFactory(
         provider: ModelManager.ModelProvider
     ) throws -> any TranscriptionEngine {
         switch provider {
@@ -942,6 +969,138 @@ class TranscriptionService {
             .transcriptionFailed("Transcription already in progress")
         case .streamingNotReady:
             .streamingNotReady
+        }
+    }
+
+    private func loadModelUsingRuntime(
+        modelName: String,
+        provider: ModelManager.ModelProvider
+    ) async throws {
+        try applyStateTransition(
+            KMPTranscriptionBridge.beginModelLoad(currentState: state)
+        )
+
+        let loadPlan = KMPTranscriptionBridge.planModelLoad(
+            requestedProvider: provider,
+            currentProvider: currentProvider,
+            loadsFromPath: false
+        )
+
+        if loadPlan.shouldUnloadCurrentModel {
+            await unloadModel()
+        }
+
+        guard loadPlan.supportsLocalModelLoading else {
+            let loadError = TranscriptionError.modelLoadFailed(
+                "Provider \(loadPlan.resolvedProvider.rawValue) not supported locally"
+            )
+            self.error = loadError
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw loadError
+        }
+
+        error = nil
+
+        let loadStarted = CFAbsoluteTimeGetCurrent()
+        Log.transcription.info("Loading model: \(modelName) with provider: \(loadPlan.resolvedProvider.rawValue)...")
+        Log.boot.info("TranscriptionService.loadModel(runtime) begin name=\(modelName) provider=\(loadPlan.resolvedProvider.rawValue)")
+
+        do {
+            let loadedEngine = try await withThrowingTaskGroup(of: (any TranscriptionEnginePort).self) { group in
+                group.addTask {
+                    try await self.localRuntimeBridge.loadModel(named: modelName, provider: loadPlan.resolvedProvider)
+                }
+
+                group.addTask {
+                    try await Task.sleep(for: .seconds(120))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
+                }
+
+                let result = try await group.next()
+                group.cancelAll()
+                guard let result else {
+                    throw TranscriptionError.modelLoadFailed("Model loading finished without an engine result")
+                }
+                return result
+            }
+
+            engine = loadedEngine
+            currentProvider = loadPlan.resolvedProvider
+            currentModelIdentifier = modelName
+            state = KMPTranscriptionBridge.completeModelLoad(success: true)
+            Log.boot.info("TranscriptionService.loadModel(runtime) success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
+        } catch let error as TranscriptionError {
+            self.error = error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw error
+        } catch {
+            let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            self.error = loadError
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw loadError
+        }
+    }
+
+    private func loadModelFromPathUsingRuntime(
+        modelPath: String
+    ) async throws {
+        try applyStateTransition(
+            KMPTranscriptionBridge.beginModelLoad(currentState: state)
+        )
+
+        let loadPlan = KMPTranscriptionBridge.planModelLoad(
+            requestedProvider: .whisperKit,
+            currentProvider: currentProvider,
+            loadsFromPath: true
+        )
+
+        if loadPlan.shouldUnloadCurrentModel {
+            await unloadModel()
+        }
+
+        guard loadPlan.supportsLocalModelLoading else {
+            let loadError = TranscriptionError.modelLoadFailed(
+                "Provider \(loadPlan.resolvedProvider.rawValue) not supported locally"
+            )
+            self.error = loadError
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw loadError
+        }
+
+        error = nil
+
+        do {
+            let loadedEngine = try await withThrowingTaskGroup(of: (any TranscriptionEnginePort).self) { group in
+                group.addTask {
+                    try await self.localRuntimeBridge.loadModel(fromPath: modelPath)
+                }
+
+                group.addTask {
+                    try await Task.sleep(for: .seconds(120))
+                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
+                }
+
+                let result = try await group.next()
+                group.cancelAll()
+                guard let result else {
+                    throw TranscriptionError.modelLoadFailed("Model loading finished without an engine result")
+                }
+                return result
+            }
+
+            engine = loadedEngine
+            currentProvider = loadPlan.resolvedProvider
+            currentModelIdentifier = URL(fileURLWithPath: modelPath).lastPathComponent
+            state = KMPTranscriptionBridge.completeModelLoad(success: true)
+        } catch let error as TranscriptionError {
+            self.error = error
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw error
+        } catch {
+            let loadError = TranscriptionError.modelLoadFailed(error.localizedDescription)
+            self.error = loadError
+            state = KMPTranscriptionBridge.completeModelLoad(success: false)
+            throw loadError
         }
     }
 }

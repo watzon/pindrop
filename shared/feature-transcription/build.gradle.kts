@@ -22,13 +22,17 @@ kotlin {
     ).forEach { target ->
         target.binaries.framework {
             baseName = "PindropSharedTranscription"
+            export(project(":runtime-transcription"))
+            export(project(":core"))
+            transitiveExport = true
             xcframework.add(this)
         }
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core"))
+            api(project(":runtime-transcription"))
+            api(project(":core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
