@@ -13,9 +13,7 @@ import Observation
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 struct TranscribeView: View {
     @Environment(\.displayScale) private var displayScale
@@ -60,36 +58,16 @@ struct TranscribeView: View {
     }
 
     private var visibleFolders: [MediaFolder] {
-        #if canImport(PindropSharedUIWorkspace)
         let visibleIDs = Set(libraryBrowseState.visibleFolderIds)
         return folders.filter { visibleIDs.contains($0.id.uuidString) }
-        #else
-        guard selectedFolder == nil else { return [] }
-        guard !trimmedSearchText.isEmpty else { return folders }
-        return folders.filter { $0.name.localizedStandardContains(trimmedSearchText) }
-        #endif
     }
 
     private var visibleMediaRecords: [TranscriptionRecord] {
-        #if canImport(PindropSharedUIWorkspace)
         let visibleIDs = Set(libraryBrowseState.visibleRecordIds)
         return mediaRecords.filter { visibleIDs.contains($0.id.uuidString) }
-        #else
-        let filteredRecords = mediaRecords
-            .filter { record in
-                guard let selectedFolder else { return record.folder == nil }
-                return record.folder?.id == selectedFolder.id
-            }
-            .filter { record in
-                trimmedSearchText.isEmpty || record.matchesMediaLibrarySearch(trimmedSearchText)
-            }
-
-        return sort(records: filteredRecords)
-        #endif
     }
 
     private var libraryBrowseState: MediaLibraryBrowseState {
-        #if canImport(PindropSharedUIWorkspace)
         return MediaLibraryPresenter.shared.browse(
             folders: folders.map { folder in
                 MediaFolderSnapshot(
@@ -113,22 +91,9 @@ struct TranscribeView: View {
             searchText: featureState.librarySearchText,
             sortMode: featureState.librarySortMode.coreValue
         )
-        #else
-        return MediaLibraryBrowseState(
-            trimmedSearchText: trimmedSearchText,
-            selectedFolderId: selectedFolder?.id.uuidString,
-            visibleFolderIds: visibleFolders.map(\.id.uuidString),
-            visibleRecordIds: visibleMediaRecords.map(\.id.uuidString),
-            filteredFolderCount: Int32(visibleFolders.count),
-            filteredRecordCount: Int32(visibleMediaRecords.count),
-            totalRecordCountForSelectedFolder: Int32(mediaRecords.filter { $0.folder?.id == selectedFolder?.id }.count),
-            emptyStateKind: visibleFolders.isEmpty && visibleMediaRecords.isEmpty ? .libraryEmpty : .none
-        )
-        #endif
     }
 
     private var transcribeLibraryViewState: TranscribeLibraryViewState {
-        #if canImport(PindropSharedUIWorkspace)
         return TranscribeLibraryPresenter.shared.present(
             selectedFolderId: selectedFolder?.id.uuidString,
             selectedFolderName: selectedFolder?.name,
@@ -136,23 +101,6 @@ struct TranscribeView: View {
             librarySearchText: featureState.librarySearchText,
             browseState: libraryBrowseState
         )
-        #else
-        return TranscribeLibraryViewState(
-            selectedFolderId: selectedFolder?.id.uuidString,
-            selectedFolderName: selectedFolder?.name,
-            trimmedSearchText: trimmedSearchText,
-            filteredFolderCount: libraryBrowseState.filteredFolderCount,
-            filteredRecordCount: libraryBrowseState.filteredRecordCount,
-            totalRecordCountForSelectedFolder: libraryBrowseState.totalRecordCountForSelectedFolder,
-            shouldShowBackButton: selectedFolder != nil,
-            canSubmitDraftLink: !featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            shouldShowDraftLinkClearButton: !featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            shouldShowLibraryEmptyState: libraryBrowseState.emptyStateKind != .none,
-            emptyStateTitleKey: "No results found",
-            emptyStateMessageKey: "Try a different search term.",
-            emptyStateIconName: trimmedSearchText.isEmpty ? "folder.badge.questionmark" : "magnifyingglass"
-        )
-        #endif
     }
 
     private var totalLibraryCountText: String {

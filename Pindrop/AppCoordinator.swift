@@ -13,9 +13,7 @@ import AVFoundation
 import AppKit
 import os.log
 
-#if canImport(PindropSharedSchema)
 import PindropSharedSchema
-#endif
 
 private final class EventTapRunLoopThread: Thread {
 

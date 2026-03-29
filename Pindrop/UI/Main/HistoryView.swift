@@ -9,9 +9,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 struct HistoryView: View {
     private static let topListPadding: CGFloat = 12
@@ -45,7 +43,6 @@ struct HistoryView: View {
     }
 
     private var historyViewState: HistoryViewState {
-        #if canImport(PindropSharedUIWorkspace)
         return HistoryPresenter.shared.present(
             records: visibleTranscriptions.map {
                 HistoryRecordSnapshot(
@@ -62,28 +59,10 @@ struct HistoryView: View {
             nowEpochMillis: Int64(Date().timeIntervalSince1970 * 1000),
             timeZoneOffsetMinutes: Int32(TimeZone.current.secondsFromGMT() / 60)
         )
-        #else
-        return HistoryViewState(
-            trimmedSearchText: trimmedSearchText,
-            totalTranscriptionsCount: Int32(totalTranscriptionsCount),
-            selectedRecordId: selectedRecord?.id.uuidString,
-            contentStateKind: {
-                if errorMessage != nil { return .error }
-                if !hasLoadedInitialPage { return .loading }
-                if totalTranscriptionsCount == 0 && !trimmedSearchText.isEmpty { return .emptySearch }
-                if totalTranscriptionsCount == 0 { return .emptyLibrary }
-                return .populated
-            }(),
-            canExport: totalTranscriptionsCount > 0,
-            shouldShowLoadingMoreIndicator: isLoadingPage && hasLoadedInitialPage && !visibleTranscriptions.isEmpty,
-            sections: []
-        )
-        #endif
     }
     
     /// Group transcriptions by date
     private var groupedTranscriptions: [(String, [TranscriptionRecord])] {
-        #if canImport(PindropSharedUIWorkspace)
         return historyViewState.sections.compactMap { section in
             let records = section.recordIds.compactMap { recordID in
                 visibleTranscriptions.first { $0.id.uuidString == recordID }
@@ -91,26 +70,6 @@ struct HistoryView: View {
             guard !records.isEmpty else { return nil }
             return (title(for: section), records)
         }
-        #else
-        let calendar = Calendar.current
-        let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
-            if calendar.isDateInToday(record.timestamp) {
-                return localized("Today", locale: locale)
-            } else if calendar.isDateInYesterday(record.timestamp) {
-                return localized("Yesterday", locale: locale)
-            } else {
-                return Self.dayFormatter.string(from: record.timestamp)
-            }
-        }
-        
-        return grouped.sorted { first, second in
-            if first.key == "Today" { return true }
-            if second.key == "Today" { return false }
-            if first.key == "Yesterday" { return true }
-            if second.key == "Yesterday" { return false }
-            return first.value.first?.timestamp ?? Date() > second.value.first?.timestamp ?? Date()
-        }
-        #endif
     }
     
     var body: some View {

@@ -8,9 +8,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 enum DictionarySection: String, CaseIterable {
     case replacements = "Word Replacements"
@@ -95,7 +93,6 @@ struct DictionaryView: View {
     @State private var hoveredRowID: UUID?
 
     private var dictionaryViewState: DictionaryViewState {
-        #if canImport(PindropSharedUIWorkspace)
         return DictionaryPresenter.shared.present(
             selectedSection: selectedSection.coreValue,
             replacements: replacements.map {
@@ -116,26 +113,6 @@ struct DictionaryView: View {
             secondaryInput: secondaryInput,
             errorMessage: errorMessage
         )
-        #else
-        return DictionaryViewState(
-            selectedSection: selectedSection.coreValue,
-            totalItemCount: Int32(replacements.count + vocabularyWords.count),
-            visibleReplacementIds: replacements.sorted(by: { $0.sortOrder < $1.sortOrder }).map { $0.id.uuidString },
-            visibleVocabularyIds: vocabularyWords.sorted(by: { $0.word.localizedCaseInsensitiveCompare($1.word) == .orderedAscending }).map { $0.id.uuidString },
-            canAdd: {
-                if selectedSection == .replacements {
-                    return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty &&
-                        !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-                }
-                return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-            }(),
-            contentStateKind: {
-                if errorMessage != nil { return .error }
-                if selectedSection == .replacements ? replacements.isEmpty : vocabularyWords.isEmpty { return .empty }
-                return .populated
-            }()
-        )
-        #endif
     }
 
     private var visibleReplacements: [WordReplacement] {
@@ -1034,7 +1011,6 @@ struct VocabularyRow: View {
     }
 }
 
-#if canImport(PindropSharedUIWorkspace)
 private extension DictionarySection {
     var coreValue: DictionarySectionCore {
         switch self {
@@ -1045,7 +1021,6 @@ private extension DictionarySection {
         }
     }
 }
-#endif
 
 // MARK: - Flow Layout
 

@@ -8,9 +8,7 @@
 import AppKit
 import Foundation
 
-#if canImport(PindropSharedUITheme)
 import PindropSharedUITheme
-#endif
 
 enum PindropThemeStorageKeys {
     static let themeMode = "themeMode"
@@ -24,7 +22,6 @@ enum PindropThemeVariant: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    #if canImport(PindropSharedUITheme)
     var coreValue: ThemeVariant {
         switch self {
         case .light: .light
@@ -40,7 +37,6 @@ enum PindropThemeVariant: String, CaseIterable, Identifiable {
             self = .dark
         }
     }
-    #endif
 }
 
 enum PindropThemeMode: String, CaseIterable, Identifiable {
@@ -87,7 +83,6 @@ enum PindropThemeMode: String, CaseIterable, Identifiable {
         }
     }
 
-    #if canImport(PindropSharedUITheme)
     var coreValue: ThemeMode {
         switch self {
         case .system: .system
@@ -106,7 +101,6 @@ enum PindropThemeMode: String, CaseIterable, Identifiable {
             self = .dark
         }
     }
-    #endif
 }
 
 struct PindropThemeProfile: Hashable {
@@ -119,7 +113,6 @@ struct PindropThemeProfile: Hashable {
     let dangerHex: String
     let processingHex: String
 
-    #if canImport(PindropSharedUITheme)
     init(coreProfile: ThemeProfile) {
         accentHex = coreProfile.accentHex
         backgroundHex = coreProfile.backgroundHex
@@ -130,7 +123,6 @@ struct PindropThemeProfile: Hashable {
         dangerHex = coreProfile.dangerHex
         processingHex = coreProfile.processingHex
     }
-    #endif
 }
 
 struct PindropThemePreset: Hashable, Identifiable {
@@ -153,7 +145,6 @@ struct PindropThemePreset: Hashable, Identifiable {
         }
     }
 
-    #if canImport(PindropSharedUITheme)
     init(corePreset: ThemePreset) {
         id = corePreset.id
         title = corePreset.title
@@ -164,32 +155,19 @@ struct PindropThemePreset: Hashable, Identifiable {
         lightTheme = PindropThemeProfile(coreProfile: corePreset.lightTheme)
         darkTheme = PindropThemeProfile(coreProfile: corePreset.darkTheme)
     }
-    #endif
 }
 
 enum PindropThemePresetCatalog {
     static var defaultPresetID: String {
-        #if canImport(PindropSharedUITheme)
         ThemeCatalog.shared.defaultPresetId
-        #else
-        "pindrop"
-        #endif
     }
 
     static var presets: [PindropThemePreset] {
-        #if canImport(PindropSharedUITheme)
         ThemeCatalog.shared.presets().map(PindropThemePreset.init(corePreset:))
-        #else
-        []
-        #endif
     }
 
     static func preset(withID id: String?) -> PindropThemePreset {
-        #if canImport(PindropSharedUITheme)
         PindropThemePreset(corePreset: ThemeCatalog.shared.preset(id: id))
-        #else
-        fatalError("PindropSharedUITheme is required")
-        #endif
     }
 
     static func profile(for id: String?, variant: PindropThemeVariant) -> PindropThemeProfile {
@@ -197,7 +175,6 @@ enum PindropThemePresetCatalog {
     }
 }
 
-#if canImport(PindropSharedUITheme)
 enum PindropThemeBridge {
     static let capabilities = ThemeCapabilities(
         supportsTranslucentSidebar: true,
@@ -312,4 +289,3 @@ enum PindropThemeBridge {
             ?? ThemeCatalog.shared.defaultPresetId
     }
 }
-#endif

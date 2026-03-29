@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-#if canImport(PindropSharedNavigation)
 import PindropSharedNavigation
-#endif
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
@@ -40,7 +38,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         SettingsTab.browseState(for: searchText, selectedTab: self, initialTab: self).filteredSections.contains(coreValue)
     }
 
-    #if canImport(PindropSharedNavigation)
     var coreValue: SettingsSection {
         switch self {
         case .general: .general
@@ -84,7 +81,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             initialSection: initialTab.coreValue
         )
     }
-    #endif
 }
 
 struct SettingsWindow: View {

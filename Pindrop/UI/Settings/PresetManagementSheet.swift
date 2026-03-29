@@ -7,9 +7,7 @@
 
 import SwiftUI
 import SwiftData
-#if canImport(PindropSharedSettings)
 import PindropSharedSettings
-#endif
 
 struct PresetManagementSheet: View {
     @Environment(\.modelContext) private var modelContext
@@ -36,28 +34,19 @@ struct PresetManagementSheet: View {
     @State private var hoveredRowID: UUID?
 
     private var builtInPresets: [PromptPreset] {
-        #if canImport(PindropSharedSettings)
         let visibleIDs = Set(presetManagementState.builtInPresetIds)
         return presets
             .sorted(by: { $0.sortOrder < $1.sortOrder })
             .filter { visibleIDs.contains($0.id.uuidString) }
-        #else
-        presets.filter { $0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
-        #endif
     }
 
     private var customPresets: [PromptPreset] {
-        #if canImport(PindropSharedSettings)
         let visibleIDs = Set(presetManagementState.customPresetIds)
         return presets
             .sorted(by: { $0.sortOrder < $1.sortOrder })
             .filter { visibleIDs.contains($0.id.uuidString) }
-        #else
-        presets.filter { !$0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
-        #endif
     }
 
-    #if canImport(PindropSharedSettings)
     private var presetManagementState: PromptPresetManagementState {
         PromptPresetPresenter.shared.present(
             presets: presets.map {
@@ -76,7 +65,6 @@ struct PresetManagementSheet: View {
             editPrompt: editPrompt
         )
     }
-    #endif
 
     var body: some View {
         VStack(spacing: 0) {
@@ -556,19 +544,11 @@ struct PresetManagementSheet: View {
 
 private extension PresetManagementSheet {
     var canCreatePreset: Bool {
-        #if canImport(PindropSharedSettings)
         presetManagementState.canCreatePreset
-        #else
-        !newName.isEmpty && !newPrompt.isEmpty
-        #endif
     }
 
     var canSaveEditingPreset: Bool {
-        #if canImport(PindropSharedSettings)
         presetManagementState.canSaveEditingPreset
-        #else
-        editingPresetID != nil && !editName.isEmpty && !editPrompt.isEmpty
-        #endif
     }
 }
 

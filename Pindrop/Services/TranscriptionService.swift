@@ -75,13 +75,11 @@ class TranscriptionService {
     private var currentModelIdentifier: String?
     private var streamingPartialCallback: (@Sendable (String) -> Void)?
     private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
-    #if canImport(PindropSharedTranscription)
     @ObservationIgnored
     private lazy var localRuntimeBridge = KMPTranscriptionRuntimeBridge(
         modelManager: ModelManager(),
         engineFactory: engineFactory
     )
-    #endif
 
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer

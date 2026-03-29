@@ -7,9 +7,7 @@
 
 import Foundation
 
-#if canImport(PindropSharedTranscription)
 import PindropSharedTranscription
-#endif
 
 struct SharedTranscriptionSessionPlan: Equatable, Sendable {
     let useStreaming: Bool
@@ -67,54 +65,29 @@ struct SharedTranscriptionStateTransition: Equatable, Sendable {
 
 enum KMPTranscriptionBridge {
     static func localAvailableModels() -> [ModelManager.WhisperModel] {
-        #if canImport(PindropSharedTranscription)
         LocalTranscriptionCatalog.shared.models(platform: localPlatform()).map(localModel(from:))
-        #else
-        []
-        #endif
     }
 
     static func recommendedLocalModels(for language: AppLanguage) -> [ModelManager.WhisperModel] {
-        #if canImport(PindropSharedTranscription)
         LocalTranscriptionCatalog.shared.recommendedModels(
             platform: localPlatform(),
             language: coreLanguage(from: language)
         ).map(localModel(from:))
-        #else
-        []
-        #endif
     }
 
     static func normalizeTranscriptionText(_ text: String) -> String {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.normalizeTranscriptionText(text: text)
-        #else
-        text.trimmingCharacters(in: .whitespacesAndNewlines)
-        #endif
     }
 
     static func isTranscriptionEffectivelyEmpty(_ text: String) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.isTranscriptionEffectivelyEmpty(text: text)
-        #else
-        let normalizedText = normalizeTranscriptionText(text)
-        if normalizedText.isEmpty {
-            return true
-        }
-
-        return normalizedText.caseInsensitiveCompare("[BLANK AUDIO]") == .orderedSame
-        #endif
     }
 
     static func shouldPersistHistory(outputSucceeded: Bool, text: String) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.shouldPersistHistory(
             outputSucceeded: outputSucceeded,
             text: text
         )
-        #else
-        outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
-        #endif
     }
 
     static func shouldUseStreamingTranscription(
@@ -123,75 +96,40 @@ enum KMPTranscriptionBridge {
         aiEnhancementEnabled: Bool,
         isQuickCaptureMode: Bool
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.shouldUseStreamingTranscription(
             streamingFeatureEnabled: streamingFeatureEnabled,
             outputMode: outputMode.kmpValue,
             aiEnhancementEnabled: aiEnhancementEnabled,
             isQuickCaptureMode: isQuickCaptureMode
         )
-        #else
-        streamingFeatureEnabled &&
-            outputMode == .directInsert &&
-            !aiEnhancementEnabled &&
-            !isQuickCaptureMode
-        #endif
     }
 
     static func shouldUseSpeakerDiarization(
         diarizationFeatureEnabled: Bool,
         isStreamingSessionActive: Bool
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.shouldUseSpeakerDiarization(
             diarizationFeatureEnabled: diarizationFeatureEnabled,
             isStreamingSessionActive: isStreamingSessionActive
         )
-        #else
-        diarizationFeatureEnabled && !isStreamingSessionActive
-        #endif
     }
 
     static func providerSupportsLocalModelLoading(
         _ provider: ModelManager.ModelProvider
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.providerSupportsLocalLoading(
             provider: coreProvider(from: provider)
         )
-        #else
-        provider == .whisperKit || provider == .parakeet
-        #endif
     }
 
     static func modelSupportsLanguage(
         _ support: ModelManager.LanguageSupport,
         language: AppLanguage
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.supportsLanguage(
             support: coreLanguageSupport(from: support),
             language: coreLanguage(from: language)
         )
-        #else
-        if language == .automatic {
-            return true
-        }
-
-        switch support {
-        case .englishOnly:
-            return language == .english
-        case .fullMultilingual:
-            return true
-        case .parakeetV3European:
-            switch language {
-            case .automatic, .english, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch, .turkish:
-                return true
-            case .simplifiedChinese, .japanese, .korean:
-                return false
-            }
-        }
-        #endif
     }
 
     static func planSession(
@@ -203,7 +141,6 @@ enum KMPTranscriptionBridge {
         aiEnhancementEnabled: Bool,
         isQuickCaptureMode: Bool
     ) -> SharedTranscriptionSessionPlan {
-        #if canImport(PindropSharedTranscription)
         let policy = TranscriptionRuntimePolicy(
             selectedProvider: coreProvider(from: selectedProvider),
             selectedModelId: TranscriptionModelId(value: selectedModelName),
@@ -219,22 +156,6 @@ enum KMPTranscriptionBridge {
             useStreaming: plan.useStreaming,
             useSpeakerDiarization: plan.useSpeakerDiarization
         )
-        #else
-        let useStreaming = shouldUseStreamingTranscription(
-            streamingFeatureEnabled: streamingFeatureEnabled,
-            outputMode: outputMode,
-            aiEnhancementEnabled: aiEnhancementEnabled,
-            isQuickCaptureMode: isQuickCaptureMode
-        )
-
-        return SharedTranscriptionSessionPlan(
-            useStreaming: useStreaming,
-            useSpeakerDiarization: shouldUseSpeakerDiarization(
-                diarizationFeatureEnabled: diarizationFeatureEnabled,
-                isStreamingSessionActive: useStreaming
-            )
-        )
-        #endif
     }
 
     static func planModelLoad(
@@ -242,7 +163,6 @@ enum KMPTranscriptionBridge {
         currentProvider: ModelManager.ModelProvider?,
         loadsFromPath: Bool
     ) -> SharedModelLoadPlan {
-        #if canImport(PindropSharedTranscription)
         let plan = SharedTranscriptionOrchestrator.shared.planModelLoad(
             requestedProvider: coreProvider(from: requestedProvider),
             currentProvider: currentProvider.map { coreProvider(from: $0) },
@@ -255,15 +175,6 @@ enum KMPTranscriptionBridge {
             supportsLocalModelLoading: plan.supportsLocalModelLoading,
             prefersPathBasedLoading: plan.prefersPathBasedLoading
         )
-        #else
-        let resolvedProvider: ModelManager.ModelProvider = loadsFromPath ? .whisperKit : requestedProvider
-        return SharedModelLoadPlan(
-            resolvedProvider: resolvedProvider,
-            shouldUnloadCurrentModel: currentProvider != nil && currentProvider != resolvedProvider,
-            supportsLocalModelLoading: resolvedProvider.isLocal,
-            prefersPathBasedLoading: loadsFromPath && resolvedProvider == .whisperKit
-        )
-        #endif
     }
 
     static func planTranscriptionExecution(
@@ -272,7 +183,6 @@ enum KMPTranscriptionBridge {
         diarizationRequested: Bool,
         isStreamingSessionActive: Bool
     ) -> SharedTranscriptionExecutionPlan {
-        #if canImport(PindropSharedTranscription)
         let plan = SharedTranscriptionOrchestrator.shared.planTranscriptionExecution(
             selectedProvider: coreProvider(from: selectedProvider),
             selectedModelId: TranscriptionModelId(value: selectedModelName),
@@ -286,44 +196,21 @@ enum KMPTranscriptionBridge {
             useSpeakerDiarization: plan.useSpeakerDiarization,
             shouldNormalizeOutput: plan.shouldNormalizeOutput
         )
-        #else
-        SharedTranscriptionExecutionPlan(
-            selectedProvider: selectedProvider,
-            selectedModelId: selectedModelName,
-            useSpeakerDiarization: diarizationRequested && !isStreamingSessionActive,
-            shouldNormalizeOutput: true
-        )
-        #endif
     }
 
     static func beginModelLoad(
         currentState: TranscriptionService.State
     ) -> SharedTranscriptionStateTransition {
-        #if canImport(PindropSharedTranscription)
         let transition = SharedTranscriptionOrchestrator.shared.beginModelLoad(
             currentState: coreState(from: currentState)
         )
         return stateTransition(from: transition)
-        #else
-        if currentState == .transcribing {
-            return SharedTranscriptionStateTransition(
-                nextState: currentState,
-                errorCode: .engineSwitchDuringTranscription
-            )
-        }
-
-        return SharedTranscriptionStateTransition(nextState: .loading, errorCode: nil)
-        #endif
     }
 
     static func completeModelLoad(success: Bool) -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.completeModelLoad(success: success)
         )
-        #else
-        success ? .ready : .error
-        #endif
     }
 
     static func beginBatchTranscription(
@@ -331,134 +218,79 @@ enum KMPTranscriptionBridge {
         hasLoadedModel: Bool,
         audioByteCount: Int
     ) -> SharedTranscriptionStateTransition {
-        #if canImport(PindropSharedTranscription)
         let transition = SharedTranscriptionOrchestrator.shared.beginBatchTranscription(
             currentState: coreState(from: currentState),
             hasLoadedModel: hasLoadedModel,
             audioByteCount: Int32(audioByteCount)
         )
         return stateTransition(from: transition)
-        #else
-        if !hasLoadedModel {
-            return SharedTranscriptionStateTransition(nextState: currentState, errorCode: .modelNotLoaded)
-        }
-        if audioByteCount <= 0 {
-            return SharedTranscriptionStateTransition(nextState: currentState, errorCode: .invalidAudioData)
-        }
-        if currentState == .transcribing {
-            return SharedTranscriptionStateTransition(nextState: currentState, errorCode: .transcriptionAlreadyInProgress)
-        }
-
-        return SharedTranscriptionStateTransition(nextState: .transcribing, errorCode: nil)
-        #endif
     }
 
     static func completeBatchTranscription() -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.completeBatchTranscription()
         )
-        #else
-        .ready
-        #endif
     }
 
     static func stateAfterUnload() -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.stateAfterUnload()
         )
-        #else
-        .unloaded
-        #endif
     }
 
     static func stateAfterStreamingPrepared(
         currentState: TranscriptionService.State
     ) -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.stateAfterStreamingPrepared(
                 currentState: coreState(from: currentState)
             )
         )
-        #else
-        switch currentState {
-        case .unloaded, .error:
-            .ready
-        case .loading, .ready, .transcribing:
-            currentState
-        }
-        #endif
     }
 
     static func failStreamingPreparation() -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.failStreamingPreparation()
         )
-        #else
-        .error
-        #endif
     }
 
     static func beginStreaming(
         currentState: TranscriptionService.State,
         hasPreparedStreamingEngine: Bool
     ) -> SharedTranscriptionStateTransition {
-        #if canImport(PindropSharedTranscription)
         let transition = SharedTranscriptionOrchestrator.shared.beginStreaming(
             currentState: coreState(from: currentState),
             hasPreparedStreamingEngine: hasPreparedStreamingEngine
         )
         return stateTransition(from: transition)
-        #else
-        if currentState == .transcribing {
-            return SharedTranscriptionStateTransition(nextState: currentState, errorCode: .transcriptionAlreadyInProgress)
-        }
-        if !hasPreparedStreamingEngine {
-            return SharedTranscriptionStateTransition(nextState: currentState, errorCode: .streamingNotReady)
-        }
-
-        return SharedTranscriptionStateTransition(nextState: .transcribing, errorCode: nil)
-        #endif
     }
 
     static func validateStreamingAudio(
         isStreamingSessionActive: Bool
     ) -> SharedTranscriptionSessionErrorCode? {
-        #if canImport(PindropSharedTranscription)
         sessionErrorCode(
             from: SharedTranscriptionOrchestrator.shared.validateStreamingAudio(
                 isStreamingSessionActive: isStreamingSessionActive
             )
         )
-        #else
-        isStreamingSessionActive ? nil : .streamingNotReady
-        #endif
     }
 
     static func completeStreamingSession(
         hasLoadedModel: Bool,
         hasPreparedStreamingEngine: Bool
     ) -> TranscriptionService.State {
-        #if canImport(PindropSharedTranscription)
         serviceState(
             from: SharedTranscriptionOrchestrator.shared.completeStreamingSession(
                 hasLoadedModel: hasLoadedModel,
                 hasPreparedStreamingEngine: hasPreparedStreamingEngine
             )
         )
-        #else
-        (hasLoadedModel || hasPreparedStreamingEngine) ? .ready : .unloaded
-        #endif
     }
 
     static func recommendedModels(
         availableModels: [ModelManager.WhisperModel],
         for language: AppLanguage
     ) -> [ModelManager.WhisperModel] {
-        #if canImport(PindropSharedTranscription)
         let orchestrator = SharedTranscriptionOrchestrator.shared
         let curatedIds = recommendedModelNames(for: language).map { TranscriptionModelId(value: $0) }
         let descriptors = availableModels.map(coreDescriptor(from:))
@@ -472,21 +304,6 @@ enum KMPTranscriptionBridge {
 
         let modelsByName = Dictionary(uniqueKeysWithValues: availableModels.map { ($0.name, $0) })
         return orderedDescriptors.compactMap { modelsByName[$0.id.value] }
-        #else
-        let recommendedModelNames = recommendedModelNames(for: language)
-        let recommendationRanks = Dictionary(
-            uniqueKeysWithValues: recommendedModelNames.enumerated().map { index, name in
-                (name, index)
-            }
-        )
-
-        return availableModels
-            .filter { recommendedModelNames.contains($0.name) }
-            .filter { $0.supports(language: language) }
-            .sorted {
-                recommendationRanks[$0.name, default: .max] < recommendationRanks[$1.name, default: .max]
-            }
-        #endif
     }
 
     static func resolveStartupModel(
@@ -495,7 +312,6 @@ enum KMPTranscriptionBridge {
         availableModels: [ModelManager.WhisperModel],
         downloadedModelIds: [String]
     ) -> SharedStartupModelResolution {
-        #if canImport(PindropSharedTranscription)
         let orchestrator = SharedTranscriptionOrchestrator.shared
         let descriptors = availableModels.map(coreDescriptor(from:))
         let modelsByName = Dictionary(uniqueKeysWithValues: availableModels.map { ($0.name, $0) })
@@ -513,33 +329,6 @@ enum KMPTranscriptionBridge {
             resolvedModel: resolvedModel,
             updatedSelectedModelId: resolution.updatedSelectedModelId.value
         )
-        #else
-        let selectedModel = availableModels.first(where: { $0.name == selectedModelId })
-            ?? availableModels.first(where: { $0.name == defaultModelId })
-            ?? availableModels.first!
-
-        if downloadedModelIds.contains(selectedModel.name) {
-            return SharedStartupModelResolution(
-                action: .loadSelected,
-                resolvedModel: selectedModel,
-                updatedSelectedModelId: selectedModel.name
-            )
-        }
-
-        if let fallbackModel = availableModels.first(where: { downloadedModelIds.contains($0.name) }) {
-            return SharedStartupModelResolution(
-                action: .loadFallback,
-                resolvedModel: fallbackModel,
-                updatedSelectedModelId: fallbackModel.name
-            )
-        }
-
-        return SharedStartupModelResolution(
-            action: .downloadSelected,
-            resolvedModel: selectedModel,
-            updatedSelectedModelId: selectedModel.name
-        )
-        #endif
     }
 
     static func determineEventTapRecovery(
@@ -548,7 +337,6 @@ enum KMPTranscriptionBridge {
         disableLoopWindow: TimeInterval,
         maxReenableAttemptsBeforeRecreate: Int
     ) -> SharedEventTapRecoveryDecision {
-        #if canImport(PindropSharedTranscription)
         let decision = SharedTranscriptionOrchestrator.shared.determineEventTapRecovery(
             elapsedSinceLastDisableSeconds: elapsedSinceLastDisable.map(KotlinDouble.init(value:)),
             consecutiveDisableCount: Int32(consecutiveDisableCount),
@@ -560,19 +348,6 @@ enum KMPTranscriptionBridge {
             consecutiveDisableCount: Int(decision.consecutiveDisableCount),
             action: eventTapRecoveryAction(from: decision.action)
         )
-        #else
-        let nextCount: Int
-        if let elapsedSinceLastDisable, elapsedSinceLastDisable <= disableLoopWindow {
-            nextCount = consecutiveDisableCount + 1
-        } else {
-            nextCount = 1
-        }
-
-        return SharedEventTapRecoveryDecision(
-            consecutiveDisableCount: nextCount,
-            action: nextCount >= max(1, maxReenableAttemptsBeforeRecreate) ? .recreate : .reenable
-        )
-        #endif
     }
 
     static func shouldRunLiveContextSession(
@@ -580,15 +355,11 @@ enum KMPTranscriptionBridge {
         uiContextEnabled: Bool,
         liveSessionEnabled: Bool
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.shouldRunLiveContextSession(
             aiEnhancementEnabled: aiEnhancementEnabled,
             uiContextEnabled: uiContextEnabled,
             liveSessionEnabled: liveSessionEnabled
         )
-        #else
-        aiEnhancementEnabled && uiContextEnabled && liveSessionEnabled
-        #endif
     }
 
     static func shouldAppendTransition(
@@ -596,15 +367,11 @@ enum KMPTranscriptionBridge {
         trigger: String,
         lastSignature: String?
     ) -> Bool {
-        #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.shouldAppendTransition(
             signature: signature,
             trigger: trigger,
             lastSignature: lastSignature
         )
-        #else
-        trigger == "recording_start" || lastSignature == nil || lastSignature != signature
-        #endif
     }
 
     private static func recommendedModelNames(for language: AppLanguage) -> [String] {
@@ -627,7 +394,6 @@ enum KMPTranscriptionBridge {
     }
 }
 
-#if canImport(PindropSharedTranscription)
 private extension KMPTranscriptionBridge {
     static func coreProvider(from provider: ModelManager.ModelProvider) -> TranscriptionProviderId {
         switch provider {
@@ -898,4 +664,3 @@ private extension OutputMode {
         }
     }
 }
-#endif

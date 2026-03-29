@@ -7,9 +7,7 @@
 
 import SwiftUI
 import SwiftData
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
@@ -48,7 +46,6 @@ struct DashboardView: View {
     }
 
     private var dashboardState: DashboardViewState {
-        #if canImport(PindropSharedUIWorkspace)
         return DashboardPresenter.shared.present(
             records: transcriptions.map {
                 DashboardRecordSnapshot(text: $0.text, durationSeconds: $0.duration)
@@ -56,28 +53,6 @@ struct DashboardView: View {
             currentHour: Int32(Calendar.current.component(.hour, from: Date())),
             hasDismissedHotkeyReminder: hasDismissedHotkeyReminder
         )
-        #else
-        let totalWords = transcriptions.reduce(0) { $0 + $1.text.split(separator: " ").count }
-        let totalDuration = transcriptions.reduce(0) { $0 + $1.duration }
-        let minutes = totalDuration / 60
-        let averageWPM = totalDuration > 0 ? Double(totalWords) / max(minutes, 1) : 0
-        let hour = Calendar.current.component(.hour, from: Date())
-        let greetingKey: String
-        switch hour {
-        case 5..<12: greetingKey = "Good morning"
-        case 12..<17: greetingKey = "Good afternoon"
-        case 17..<22: greetingKey = "Good evening"
-        default: greetingKey = "Good night"
-        }
-        return DashboardViewState(
-            greetingKey: greetingKey,
-            totalSessions: Int32(transcriptions.count),
-            totalWords: Int32(totalWords),
-            totalDurationSeconds: totalDuration,
-            averageWordsPerMinute: averageWPM,
-            shouldShowHotkeyReminder: !hasDismissedHotkeyReminder
-        )
-        #endif
     }
     
     var body: some View {

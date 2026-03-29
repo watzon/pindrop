@@ -8,9 +8,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
-#if canImport(PindropSharedNavigation)
 import PindropSharedNavigation
-#endif
 
 // MARK: - Navigation
 
@@ -66,7 +64,6 @@ enum MainNavItem: String, Identifiable {
         rawValue
     }
 
-    #if canImport(PindropSharedNavigation)
     var coreValue: MainNavigationItem {
         switch self {
         case .home: .home
@@ -97,7 +94,6 @@ enum MainNavItem: String, Identifiable {
             self = .settings
         }
     }
-    #endif
 }
 
 // MARK: - Navigation Notification
@@ -151,12 +147,7 @@ final class TitlebarlessHostingController<Content: View>: NSHostingController<Co
 struct MainWindow: View {
     @ObservedObject private var theme = PindropThemeController.shared
     @ObservedObject var settingsStore: SettingsStore
-    #if canImport(PindropSharedNavigation)
     @State private var workspaceState = MainWorkspaceNavigator.shared.initialState()
-    #else
-    @State private var selectedNav: MainNavItem = .home
-    @State private var selectedSettingsTab: SettingsTab = .general
-    #endif
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
     let onImportMediaFiles: (([URL]) -> Void)?
@@ -167,36 +158,19 @@ struct MainWindow: View {
         if item == .transcribe {
             mediaTranscriptionState?.showLibrary()
         }
-        #if canImport(PindropSharedNavigation)
         workspaceState = MainWorkspaceNavigator.shared.navigateTo(currentState: workspaceState, item: item.coreValue)
-        #else
-        selectedNav = item
-        #endif
     }
 
     private func navigateToSettings(_ tab: SettingsTab) {
-        #if canImport(PindropSharedNavigation)
         workspaceState = MainWorkspaceNavigator.shared.navigateToSettings(currentState: workspaceState, section: tab.coreValue)
-        #else
-        selectedSettingsTab = tab
-        selectedNav = .settings
-        #endif
     }
 
     private var currentSelectedNav: MainNavItem {
-        #if canImport(PindropSharedNavigation)
         MainNavItem(coreValue: workspaceState.selectedNavigationItem)
-        #else
-        selectedNav
-        #endif
     }
 
     private var currentSelectedSettingsTab: SettingsTab {
-        #if canImport(PindropSharedNavigation)
         SettingsTab(coreValue: workspaceState.selectedSettingsSection)
-        #else
-        selectedSettingsTab
-        #endif
     }
 
     var body: some View {

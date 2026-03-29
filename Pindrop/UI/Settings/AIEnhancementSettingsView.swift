@@ -7,12 +7,8 @@
 
 import SwiftData
 import SwiftUI
-#if canImport(PindropSharedSettings)
 import PindropSharedSettings
-#endif
-#if canImport(PindropSharedSchema)
 import PindropSharedSchema
-#endif
 
 struct AIEnhancementSettingsView: View {
    @ObservedObject var settings: SettingsStore
@@ -51,7 +47,6 @@ struct AIEnhancementSettingsView: View {
       PromptPresetStore(modelContext: modelContext)
    }
 
-   #if canImport(PindropSharedSettings)
    private var aiEnhancementViewState: AIEnhancementViewState {
       AIEnhancementPresenter.shared.present(
          draft: AIEnhancementDraft(
@@ -83,59 +78,29 @@ struct AIEnhancementSettingsView: View {
          }
       )
    }
-   #endif
 
    private var validatedSelectedPresetId: String? {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.validatedPresetId
-      #else
-      guard let presetId = settings.selectedPresetId,
-         presets.contains(where: { $0.id.uuidString == presetId })
-      else {
-         return nil
-      }
-      return presetId
-      #endif
    }
 
    private var shouldShowCustomProviderPicker: Bool {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.shouldShowCustomProviderPicker
-      #else
-      selectedProvider == .custom
-      #endif
    }
 
    private var shouldShowPrimaryModelPicker: Bool {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.shouldShowModelPicker && selectedProvider != .custom
-      #else
-      selectedProvider == .openrouter || selectedProvider == .openai || selectedProvider == .anthropic
-      #endif
    }
 
    private var shouldShowCustomModelPicker: Bool {
-      #if canImport(PindropSharedSettings)
       shouldShowCustomProviderPicker && aiEnhancementViewState.shouldShowModelPicker
-      #else
-      selectedProvider == .custom && selectedCustomProvider.supportsModelListing
-      #endif
    }
 
    private var shouldShowCustomModelField: Bool {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.shouldShowCustomModelField
-      #else
-      selectedProvider == .custom && !selectedCustomProvider.supportsModelListing
-      #endif
    }
 
    private var shouldShowCustomEndpointField: Bool {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.shouldShowCustomEndpointField
-      #else
-      selectedProvider == .custom
-      #endif
    }
 
    enum PromptType: String, CaseIterable, Identifiable {
@@ -482,15 +447,8 @@ struct AIEnhancementSettingsView: View {
    private var promptContent: some View {
       let currentPrompt =
          selectedPromptType == .transcription ? $enhancementPrompt : $noteEnhancementPrompt
-      #if canImport(PindropSharedSettings)
       let charCount = aiEnhancementViewState.selectedPromptCharacterCount
       let isReadOnly = aiEnhancementViewState.isSelectedPromptReadOnly
-      #else
-      let charCount =
-         selectedPromptType == .transcription
-         ? enhancementPrompt.count : noteEnhancementPrompt.count
-      let isReadOnly = selectedPromptType == .transcription && isBuiltInPresetSelected
-      #endif
 
       VStack(alignment: .leading, spacing: 12) {
           TextEditor(text: currentPrompt)
@@ -547,14 +505,7 @@ struct AIEnhancementSettingsView: View {
    }
 
    private var isBuiltInPresetSelected: Bool {
-      #if canImport(PindropSharedSettings)
       aiEnhancementViewState.isBuiltInPresetSelected
-      #else
-      guard let id = settings.selectedPresetId,
-         let preset = presets.first(where: { $0.id.uuidString == id })
-      else { return false }
-      return preset.isBuiltIn
-      #endif
    }
 
    private func resetCurrentPrompt() {
@@ -827,25 +778,7 @@ struct AIEnhancementSettingsView: View {
 
 
    private var emptyModelsMessage: String {
-      #if canImport(PindropSharedSettings)
       return localized(aiEnhancementViewState.emptyModelsMessageKey, locale: locale)
-      #else
-      if isLoadingModels {
-         return localized("Loading models...", locale: locale)
-      }
-      if selectedProvider == .openai,
-         apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-      {
-         return localized("Enter an OpenAI API key to load models.", locale: locale)
-      }
-      if modelError != nil {
-         return localized("Unable to load models. Try refresh.", locale: locale)
-      }
-      if selectedProvider == .custom && selectedCustomProvider.supportsModelListing {
-         return localized("No models available. Try Refresh or enter a model ID manually.", locale: locale)
-      }
-      return localized("No models available.", locale: locale)
-      #endif
      }
 
    private var saveButton: some View {
@@ -897,36 +830,15 @@ struct AIEnhancementSettingsView: View {
     }
 
     private var isAPIKeyOptional: Bool {
-       #if canImport(PindropSharedSettings)
        aiEnhancementViewState.isApiKeyOptional
-       #else
-       selectedProvider == .custom && !selectedCustomProvider.requiresAPIKey
-       #endif
     }
 
     private var currentAPIKeyPlaceholder: String {
-       #if canImport(PindropSharedSettings)
        aiEnhancementViewState.currentApiKeyPlaceholder
-       #else
-       selectedProvider == .custom ? selectedCustomProvider.apiKeyPlaceholder : selectedProvider.apiKeyPlaceholder
-       #endif
     }
 
     private var apiKeyHelpText: String? {
-       #if canImport(PindropSharedSettings)
        aiEnhancementViewState.apiKeyHelpText
-       #else
-       guard selectedProvider == .custom else { return nil }
-
-       switch selectedCustomProvider {
-       case .custom:
-          return nil
-       case .ollama:
-          return "Ollama usually does not require authentication for local requests."
-       case .lmStudio:
-          return "LM Studio only needs a token if local server authentication is enabled."
-       }
-       #endif
     }
 
     private func applyCustomEndpointDefault(forceReset: Bool = false) {
@@ -1127,27 +1039,7 @@ struct AIEnhancementSettingsView: View {
     // MARK: - Logic
 
     private var canSave: Bool {
-       #if canImport(PindropSharedSettings)
        aiEnhancementViewState.canSave
-       #else
-       guard selectedProvider.isImplemented else { return false }
-       if settings.requiresAPIKey(for: selectedProvider, customLocalProvider: selectedCustomProvider)
-          && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-       {
-          return false
-       }
-       if selectedProvider == .custom {
-          if currentCustomEndpointText.isEmpty { return false }
-          let configuredModel = selectedCustomProvider.supportsModelListing ? selectedModel : customModel
-          if configuredModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
-       }
-       if (selectedProvider == .openrouter || selectedProvider == .openai || selectedProvider == .anthropic)
-          && selectedModel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-       {
-          return false
-       }
-       return true
-       #endif
     }
 
     private func loadCredentialsAndPrompt() {
@@ -1157,7 +1049,6 @@ struct AIEnhancementSettingsView: View {
 
        loadCustomEndpointDrafts()
 
-       #if canImport(PindropSharedSettings)
        let inferredSelection = AISettingsCatalog.shared.inferProviderSelection(
           endpoint: settings.apiEndpoint,
           fallbackCustomProvider: settings.currentCustomLocalProvider.coreValue,
@@ -1165,24 +1056,6 @@ struct AIEnhancementSettingsView: View {
        )
        selectedProvider = AIProvider(coreValue: inferredSelection.provider)
        selectedCustomProvider = CustomProviderType(coreValue: inferredSelection.customProvider)
-       #else
-       if let endpoint = settings.apiEndpoint {
-          if endpoint.contains("openai.com") {
-             selectedProvider = .openai
-          } else if endpoint.contains("anthropic.com") {
-             selectedProvider = .anthropic
-          } else if endpoint.contains("googleapis.com") {
-             selectedProvider = .google
-          } else if endpoint.contains("openrouter.ai") {
-             selectedProvider = .openrouter
-          } else if !endpoint.isEmpty {
-             selectedProvider = .custom
-             selectedCustomProvider = settings.inferredCustomLocalProvider(for: endpoint) ?? settings.currentCustomLocalProvider
-          }
-       } else if settings.currentAIProvider == .custom {
-          selectedProvider = .custom
-       }
-       #endif
        customModel = loadedModel
        apiKey = settings.loadAPIKey(
           for: selectedProvider,
@@ -1405,7 +1278,6 @@ extension AIModelService.AIModel: SearchableDropdownItem {
     }
 }
 
-#if canImport(PindropSharedSettings)
 private extension AIEnhancementSettingsView.PromptType {
    var coreValue: PromptTypeCore {
       switch self {
@@ -1414,4 +1286,3 @@ private extension AIEnhancementSettingsView.PromptType {
       }
    }
 }
-#endif

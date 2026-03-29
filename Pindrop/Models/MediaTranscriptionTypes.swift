@@ -8,12 +8,8 @@
 import Foundation
 import Observation
 
-#if canImport(PindropSharedTranscription)
 import PindropSharedTranscription
-#endif
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
     case newest
@@ -39,7 +35,6 @@ enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
     }
 }
 
-#if canImport(PindropSharedUIWorkspace)
 extension MediaLibrarySortMode {
     var coreValue: MediaLibrarySortModeCore {
         switch self {
@@ -54,7 +49,6 @@ extension MediaLibrarySortMode {
         }
     }
 }
-#endif
 
 enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
     case preflight
@@ -335,108 +329,53 @@ enum KMPMediaTranscriptionBridge {
     static func showLibrary(
         snapshot: SharedMediaTranscriptionFeatureSnapshot
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.showLibrary(snapshot: coreSnapshot)
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: .library,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: snapshot.libraryMessage
-        )
-        #endif
     }
 
     static func beginJob(
         snapshot: SharedMediaTranscriptionFeatureSnapshot,
         job: MediaTranscriptionJobState
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         let machine = MediaTranscriptionJobStateMachine.shared
         let transformed = machine.beginJob(
             snapshot: coreSnapshot(from: snapshot),
             job: coreJob(from: job)
         )
         return makeSharedSnapshot(from: transformed, currentJob: job)
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: .processing(job.id),
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: job,
-            setupIssue: nil,
-            libraryMessage: nil
-        )
-        #endif
     }
 
     static func selectRecord(
         snapshot: SharedMediaTranscriptionFeatureSnapshot,
         recordID: UUID
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.selectRecord(
                 snapshot: coreSnapshot,
                 recordId: recordID.uuidString
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: .detail(recordID),
-            selectedRecordID: recordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: nil
-        )
-        #endif
     }
 
     static func selectFolder(
         snapshot: SharedMediaTranscriptionFeatureSnapshot,
         folderID: UUID
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.selectFolder(
                 snapshot: coreSnapshot,
                 folderId: folderID.uuidString
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: folderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: nil
-        )
-        #endif
     }
 
     static func clearSelectedFolder(
         snapshot: SharedMediaTranscriptionFeatureSnapshot
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.clearSelectedFolder(snapshot: coreSnapshot)
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: nil,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: snapshot.libraryMessage
-        )
-        #endif
     }
 
     static func updateJob(
@@ -446,7 +385,6 @@ enum KMPMediaTranscriptionBridge {
         detail: String?,
         errorMessage: String?
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.updateJob(
                 snapshot: coreSnapshot,
@@ -458,23 +396,6 @@ enum KMPMediaTranscriptionBridge {
                 )
             )
         }
-        #else
-        guard var job = snapshot.currentJob else { return snapshot }
-        job.stage = stage
-        job.progress = progress
-        if let detail {
-            job.detail = detail
-        }
-        job.errorMessage = errorMessage
-        return SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: job,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: snapshot.libraryMessage
-        )
-        #endif
     }
 
     static func completeCurrentJob(
@@ -482,7 +403,6 @@ enum KMPMediaTranscriptionBridge {
         recordID: UUID,
         shouldNavigateToDetail: Bool
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.completeCurrentJob(
                 snapshot: coreSnapshot,
@@ -490,23 +410,6 @@ enum KMPMediaTranscriptionBridge {
                 shouldNavigateToDetail: shouldNavigateToDetail
             )
         }
-        #else
-        let updated = updateJob(
-            snapshot: snapshot,
-            stage: .completed,
-            progress: 1.0,
-            detail: "Saved transcription",
-            errorMessage: nil
-        )
-        return SharedMediaTranscriptionFeatureSnapshot(
-            route: shouldNavigateToDetail ? .detail(recordID) : .library,
-            selectedRecordID: recordID,
-            selectedFolderID: updated.selectedFolderID,
-            currentJob: updated.currentJob,
-            setupIssue: updated.setupIssue,
-            libraryMessage: shouldNavigateToDetail ? nil : "Transcription finished."
-        )
-        #endif
     }
 
     static func failCurrentJob(
@@ -514,7 +417,6 @@ enum KMPMediaTranscriptionBridge {
         message: String,
         returnToLibrary: Bool
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.failCurrentJob(
                 snapshot: coreSnapshot,
@@ -522,89 +424,38 @@ enum KMPMediaTranscriptionBridge {
                 returnToLibrary: returnToLibrary
             )
         }
-        #else
-        let updated = updateJob(
-            snapshot: snapshot,
-            stage: .failed,
-            progress: nil,
-            detail: nil,
-            errorMessage: message
-        )
-        guard returnToLibrary else { return updated }
-        return SharedMediaTranscriptionFeatureSnapshot(
-            route: .library,
-            selectedRecordID: updated.selectedRecordID,
-            selectedFolderID: updated.selectedFolderID,
-            currentJob: updated.currentJob,
-            setupIssue: updated.setupIssue,
-            libraryMessage: message
-        )
-        #endif
     }
 
     static func clearCurrentJob(
         snapshot: SharedMediaTranscriptionFeatureSnapshot
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.clearCurrentJob(snapshot: coreSnapshot)
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: nil,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: snapshot.libraryMessage
-        )
-        #endif
     }
 
     static func setSetupIssue(
         snapshot: SharedMediaTranscriptionFeatureSnapshot,
         message: String
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.setSetupIssue(
                 snapshot: coreSnapshot,
                 message: message
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: .library,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: message,
-            libraryMessage: snapshot.libraryMessage
-        )
-        #endif
     }
 
     static func setLibraryMessage(
         snapshot: SharedMediaTranscriptionFeatureSnapshot,
         message: String?
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.setLibraryMessage(
                 snapshot: coreSnapshot,
                 message: message
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: message
-        )
-        #endif
     }
 
     static func handleDeletedRecord(
@@ -612,7 +463,6 @@ enum KMPMediaTranscriptionBridge {
         recordID: UUID,
         message: String
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.handleDeletedRecord(
                 snapshot: coreSnapshot,
@@ -620,16 +470,6 @@ enum KMPMediaTranscriptionBridge {
                 message: message
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route == .detail(recordID) ? .library : snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID == recordID ? nil : snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: message
-        )
-        #endif
     }
 
     static func handleDeletedFolder(
@@ -637,7 +477,6 @@ enum KMPMediaTranscriptionBridge {
         folderID: UUID,
         message: String
     ) -> SharedMediaTranscriptionFeatureSnapshot {
-        #if canImport(PindropSharedTranscription)
         apply(snapshot) { machine, coreSnapshot in
             machine.handleDeletedFolder(
                 snapshot: coreSnapshot,
@@ -645,21 +484,10 @@ enum KMPMediaTranscriptionBridge {
                 message: message
             )
         }
-        #else
-        SharedMediaTranscriptionFeatureSnapshot(
-            route: snapshot.route,
-            selectedRecordID: snapshot.selectedRecordID,
-            selectedFolderID: snapshot.selectedFolderID == folderID ? nil : snapshot.selectedFolderID,
-            currentJob: snapshot.currentJob,
-            setupIssue: snapshot.setupIssue,
-            libraryMessage: message
-        )
-        #endif
     }
 
 }
 
-#if canImport(PindropSharedTranscription)
 private extension KMPMediaTranscriptionBridge {
     static func apply(
         _ state: SharedMediaTranscriptionFeatureSnapshot,
@@ -803,4 +631,3 @@ private extension KMPMediaTranscriptionBridge {
         }
     }
 }
-#endif

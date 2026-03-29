@@ -8,9 +8,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 struct NotesView: View {
     @Environment(\.modelContext) private var modelContext
@@ -28,7 +26,6 @@ struct NotesView: View {
     }
 
     private var notesViewState: NotesViewState {
-        #if canImport(PindropSharedUIWorkspace)
         return NotesPresenter.shared.present(
             notes: notes.map {
                 NoteSnapshot(
@@ -44,22 +41,6 @@ struct NotesView: View {
             selectedNoteId: selectedNote?.id.uuidString,
             errorMessage: errorMessage
         )
-        #else
-        let filtered = filteredNotesFallback
-        return NotesViewState(
-            trimmedSearchText: searchText.trimmingCharacters(in: .whitespacesAndNewlines),
-            sortOrder: sortOrder.coreValue,
-            selectedNoteId: selectedNote?.id.uuidString,
-            visibleNoteIds: filtered.map { $0.id.uuidString },
-            totalVisibleCount: Int32(filtered.count),
-            contentStateKind: {
-                if errorMessage != nil { return .error }
-                if filtered.isEmpty && !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return .emptySearch }
-                if filtered.isEmpty { return .emptyLibrary }
-                return .populated
-            }()
-        )
-        #endif
     }
 
     private var filteredNotes: [NoteSchema.Note] {
@@ -321,7 +302,6 @@ enum SortOrder {
     case descending
 }
 
-#if canImport(PindropSharedUIWorkspace)
 private extension SortOrder {
     var coreValue: NotesSortOrderCore {
         switch self {
@@ -332,7 +312,6 @@ private extension SortOrder {
         }
     }
 }
-#endif
 
 // MARK: - Preview
 

@@ -213,13 +213,11 @@ class ModelManager {
     private(set) var downloadedFeatureModels: Set<FeatureModelType> = []
     
     private let fileManager = FileManager.default
-    #if canImport(PindropSharedTranscription)
     @ObservationIgnored
     private lazy var localRuntimeBridge = KMPTranscriptionRuntimeBridge(
         modelManager: self,
         engineFactory: TranscriptionService.defaultEngineFactory(provider:)
     )
-    #endif
     
     /// Last decile (0...10) logged for WhisperKit file download progress to avoid log spam.
     private var whisperKitDownloadLastLoggedDecile: Int = -1
@@ -268,15 +266,11 @@ class ModelManager {
     }
     
     func refreshDownloadedModels() async {
-        #if canImport(PindropSharedTranscription)
         let downloaded = await localRuntimeBridge.refreshInstalledModelNames()
         if downloaded != downloadedModelNames {
             Log.model.debug("Found \(downloaded.count) downloaded models via KMP runtime: \(downloaded)")
         }
         downloadedModelNames = downloaded
-        #else
-        await refreshDownloadedModelsFromDisk()
-        #endif
     }
 
     private func refreshDownloadedModelsFromDisk() async {
@@ -359,15 +353,11 @@ class ModelManager {
             currentDownloadModel = nil
         }
 
-        #if canImport(PindropSharedTranscription)
         if model.provider.isLocal {
             try await localRuntimeBridge.installModel(named: modelName, onProgress: onProgress)
         } else {
             throw ModelError.downloadNotImplemented(model.provider.rawValue)
         }
-        #else
-        try await installModelArtifacts(named: modelName, onProgress: onProgress)
-        #endif
         Log.boot.info("ModelManager.downloadModel finished OK name=\(modelName) wallClock=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - downloadWallClock))")
     }
 
@@ -511,14 +501,9 @@ class ModelManager {
     }
     
     func deleteModel(named modelName: String) async throws {
-        #if canImport(PindropSharedTranscription)
         try await localRuntimeBridge.deleteModel(named: modelName)
         await refreshDownloadedModels()
         return
-        #else
-        try await deleteModelArtifacts(named: modelName)
-        await refreshDownloadedModels()
-        #endif
     }
 
     func deleteModelArtifacts(named modelName: String) async throws {

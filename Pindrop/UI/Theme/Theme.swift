@@ -8,9 +8,7 @@
 import AppKit
 import SwiftUI
 
-#if canImport(PindropSharedUITheme)
 import PindropSharedUITheme
-#endif
 
 @MainActor
 final class PindropThemeController: ObservableObject {
@@ -23,9 +21,7 @@ final class PindropThemeController: ObservableObject {
     }
 
     func refresh() {
-        #if canImport(PindropSharedUITheme)
         PindropThemeBridge.invalidateCache()
-        #endif
         applyAppAppearance()
         revision &+= 1
     }
@@ -66,9 +62,7 @@ enum AppTheme {
         static var xxxl: CGFloat { CGFloat(themeSpacing.xxxl) }
         static var huge: CGFloat { CGFloat(themeSpacing.huge) }
 
-        #if canImport(PindropSharedUITheme)
         private static var themeSpacing: SpacingScale { PindropThemeBridge.spacingScale }
-        #endif
     }
 
     enum Radius {
@@ -78,9 +72,7 @@ enum AppTheme {
         static var xl: CGFloat { CGFloat(themeRadius.xl) }
         static var full: CGFloat { CGFloat(themeRadius.full) }
 
-        #if canImport(PindropSharedUITheme)
         private static var themeRadius: RadiusScale { PindropThemeBridge.radiusScale }
-        #endif
     }
 
     enum Shadow {
@@ -88,7 +80,6 @@ enum AppTheme {
         static var md: ShadowStyle { shadowStyle(from: themeShadow.md) }
         static var lg: ShadowStyle { shadowStyle(from: themeShadow.lg) }
 
-        #if canImport(PindropSharedUITheme)
         private static var themeShadow: ShadowScale { PindropThemeBridge.shadowScale }
 
         private static func shadowStyle(from token: ShadowTokenValue) -> ShadowStyle {
@@ -99,7 +90,6 @@ enum AppTheme {
                 y: CGFloat(token.y)
             )
         }
-        #endif
     }
 
     enum Window {
@@ -191,12 +181,8 @@ enum AppColors {
     }
 
     private static func resolvedPalette(for appearance: NSAppearance) -> ResolvedPalette {
-        #if canImport(PindropSharedUITheme)
         let variant: PindropThemeVariant = isDark(appearance) ? .dark : .light
         return ResolvedPalette(theme: PindropThemeBridge.resolveTheme(systemVariant: variant))
-        #else
-        fatalError("PindropSharedUITheme is required")
-        #endif
     }
 
     private static func isDark(_ appearance: NSAppearance) -> Bool {
@@ -218,7 +204,6 @@ enum AppTypography {
     static var statLarge: Font { font(from: scale.statLarge) }
     static var statMedium: Font { font(from: scale.statMedium) }
 
-    #if canImport(PindropSharedUITheme)
     private static var scale: TypographyScale { PindropThemeBridge.typographyScale }
 
     private static func font(from token: TypographyTokenValue) -> Font {
@@ -250,7 +235,6 @@ enum AppTypography {
             .rounded
         }
     }
-    #endif
 }
 
 private struct ResolvedPalette {
@@ -292,7 +276,6 @@ private struct ResolvedPalette {
     let overlayTooltipAccent: NSColor
     let shadow: NSColor
 
-    #if canImport(PindropSharedUITheme)
     init(theme: ResolvedTheme) {
         let tokens = theme.tokens
         windowBackground = NSColor(tokens.windowBackground)
@@ -333,7 +316,6 @@ private struct ResolvedPalette {
         overlayTooltipAccent = NSColor(tokens.overlayTooltipAccent)
         shadow = NSColor(tokens.shadow)
     }
-    #endif
 }
 
 private struct HairlineBorderModifier<BorderShape: InsettableShape, BorderStyle: ShapeStyle>: ViewModifier {
@@ -464,7 +446,6 @@ extension NSColor {
         self.init(red: red, green: green, blue: blue, alpha: 1)
     }
 
-    #if canImport(PindropSharedUITheme)
     convenience init(_ token: ColorTokenValue) {
         self.init(
             red: CGFloat(token.red) / 255,
@@ -473,7 +454,6 @@ extension NSColor {
             alpha: CGFloat(token.alpha) / 255
         )
     }
-    #endif
 }
 
 #Preview("Theme Colors - Light") {

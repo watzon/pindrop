@@ -173,7 +173,6 @@ final class MacOSSettingsSnapshotAdapter: SettingsSnapshotProvider {
     }
 }
 
-#if canImport(PindropSharedTranscription)
 import PindropSharedTranscription
 
 @MainActor
@@ -778,4 +777,3 @@ private extension TranscriptionLanguage {
         }
     }
 }
-#endif

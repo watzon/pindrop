@@ -6,9 +6,7 @@
 //
 
 import SwiftUI
-#if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
-#endif
 
 private let modelListItemInset: CGFloat = 6
 
@@ -65,7 +63,6 @@ struct ModelsSettingsView: View {
     }
 
     private var browseState: ModelsBrowseState {
-        #if canImport(PindropSharedUIWorkspace)
         return ModelsPresenter.shared.browse(
             models: modelManager.availableModels.map { model in
                 ModelCatalogEntrySnapshot(
@@ -82,17 +79,6 @@ struct ModelsSettingsView: View {
             selectedFilter: selectedFilter.coreValue,
             searchText: searchText
         )
-        #else
-        return ModelsBrowseState(
-            trimmedSearchText: searchText.trimmingCharacters(in: .whitespacesAndNewlines),
-            selectedFilter: selectedFilter.coreValue,
-            effectiveFilter: searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? selectedFilter.coreValue : .all,
-            visibleModelIds: filteredModelsFallback.map(\.id),
-            contentStateKind: filteredModelsFallback.isEmpty
-                ? (searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .emptyLibrary : .emptySearch)
-                : .populated
-        )
-        #endif
     }
 
     private var filteredModelsFallback: [ModelManager.WhisperModel] {
@@ -913,7 +899,6 @@ private extension ModelManager.WhisperModel {
     }
 }
 
-#if canImport(PindropSharedUIWorkspace)
 private extension ModelsSettingsView.ModelFilter {
     var coreValue: ModelsFilterCore {
         switch self {
@@ -958,7 +943,6 @@ private extension ModelManager.ModelAvailability {
         }
     }
 }
-#endif
 
 #Preview {
     ModelsSettingsView(settings: SettingsStore(), modelManager: ModelManager())
