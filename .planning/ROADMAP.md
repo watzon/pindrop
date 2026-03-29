@@ -31,7 +31,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 
 - [x] 01-01-PLAN.md — Settings Schema Authority (KMP module + Swift wiring)
 - [ ] 01-02-PLAN.md — Localization Source of Truth (xcstrings → KMP resources)
-- [ ] 01-03-PLAN.md — Shared Domain Logic + Fallback Cleanup
+- [x] 01-03-PLAN.md — Shared Domain Logic + Fallback Cleanup
 
 ### Phase 2: Linux Shell & Settings
 **Goal**: Linux users can keep Pindrop available as a real desktop utility with onboarding, tray presence, autostart, and daily settings control.
