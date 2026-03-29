@@ -30,7 +30,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 **Plans**: 3 plans
 
 - [x] 01-01-PLAN.md — Settings Schema Authority (KMP module + Swift wiring)
-- [ ] 01-02-PLAN.md — Localization Source of Truth (xcstrings → KMP resources)
+- [x] 01-02-PLAN.md — Localization Source of Truth (xcstrings → KMP resources)
 - [x] 01-03-PLAN.md — Shared Domain Logic + Fallback Cleanup
 
 ### Phase 2: Linux Shell & Settings

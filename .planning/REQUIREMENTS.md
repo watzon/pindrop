@@ -10,7 +10,7 @@ Requirements for the Linux support initiative and shared-core expansion. Each ma
 ### Shared Platform
 
 - [x] **SHRD-01**: Supported desktop clients use one authoritative Kotlin implementation for non-native product rules including settings schema, model policy, transcription session policy, history/search semantics, dictionary cleanup, and AI enhancement behavior.
-- [ ] **SHRD-02**: Supported desktop clients consume one shared localization source of truth for shipped UI strings.
+- [x] **SHRD-02**: Supported desktop clients consume one shared localization source of truth for shipped UI strings.
 - [x] **SHRD-03**: Shared platform contracts keep macOS UI and macOS WhisperKit transcription native while exposing reusable adapters needed by Linux and future Windows clients.
 
 ### Linux Shell
@@ -80,7 +80,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SHRD-01 | Phase 1 | Complete |
-| SHRD-02 | Phase 1 | Pending |
+| SHRD-02 | Phase 1 | Complete |
 | SHRD-03 | Phase 1 | Complete |
 | LNX-01 | Phase 6 | Pending |
 | LNX-02 | Phase 2 | Pending |
