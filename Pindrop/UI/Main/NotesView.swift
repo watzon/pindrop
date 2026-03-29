@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 import Foundation
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 struct NotesView: View {
     @Environment(\.modelContext) private var modelContext
@@ -23,27 +26,60 @@ struct NotesView: View {
     private var notesStore: NotesStore {
         NotesStore(modelContext: modelContext)
     }
-    
-    private var filteredNotes: [NoteSchema.Note] {
-        let sorted = sortNotes(notes)
-        
-        if searchText.isEmpty {
-            return sorted
-        } else {
-            return sorted.filter { note in
-                note.title.localizedStandardContains(searchText) ||
-                note.content.localizedStandardContains(searchText) ||
-                note.tags.contains { $0.localizedStandardContains(searchText) }
-            }
-        }
+
+    private var notesViewState: NotesViewState {
+        #if canImport(PindropSharedUIWorkspace)
+        return NotesPresenter.shared.present(
+            notes: notes.map {
+                NoteSnapshot(
+                    id: $0.id.uuidString,
+                    title: $0.title,
+                    content: $0.content,
+                    tags: $0.tags,
+                    updatedAtEpochMillis: Int64($0.updatedAt.timeIntervalSince1970 * 1000)
+                )
+            },
+            searchText: searchText,
+            sortOrder: sortOrder.coreValue,
+            selectedNoteId: selectedNote?.id.uuidString,
+            errorMessage: errorMessage
+        )
+        #else
+        let filtered = filteredNotesFallback
+        return NotesViewState(
+            trimmedSearchText: searchText.trimmingCharacters(in: .whitespacesAndNewlines),
+            sortOrder: sortOrder.coreValue,
+            selectedNoteId: selectedNote?.id.uuidString,
+            visibleNoteIds: filtered.map { $0.id.uuidString },
+            totalVisibleCount: Int32(filtered.count),
+            contentStateKind: {
+                if errorMessage != nil { return .error }
+                if filtered.isEmpty && !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return .emptySearch }
+                if filtered.isEmpty { return .emptyLibrary }
+                return .populated
+            }()
+        )
+        #endif
     }
-    
-    private func sortNotes(_ notes: [NoteSchema.Note]) -> [NoteSchema.Note] {
-        switch sortOrder {
-        case .ascending:
-            return notes.sorted { $0.updatedAt < $1.updatedAt }
-        case .descending:
-            return notes.sorted { $0.updatedAt > $1.updatedAt }
+
+    private var filteredNotes: [NoteSchema.Note] {
+        let visibleIDs = Set(notesViewState.visibleNoteIds)
+        let sorted = filteredNotesFallback
+        return sorted.filter { visibleIDs.contains($0.id.uuidString) }
+    }
+
+    private var filteredNotesFallback: [NoteSchema.Note] {
+        let sorted = switch sortOrder {
+        case .ascending: notes.sorted { $0.updatedAt < $1.updatedAt }
+        case .descending: notes.sorted { $0.updatedAt > $1.updatedAt }
+        }
+
+        let trimmedSearchText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedSearchText.isEmpty else { return sorted }
+        return sorted.filter { note in
+            note.title.localizedStandardContains(trimmedSearchText) ||
+            note.content.localizedStandardContains(trimmedSearchText) ||
+            note.tags.contains { $0.localizedStandardContains(trimmedSearchText) }
         }
     }
     
@@ -73,7 +109,7 @@ struct NotesView: View {
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("\(filteredNotes.count) \(localized("notes", locale: locale))")
+                Text("\(notesViewState.totalVisibleCount) \(localized("notes", locale: locale))")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -153,7 +189,7 @@ struct NotesView: View {
     private var contentArea: some View {
         if let errorMessage = errorMessage {
             errorView(errorMessage)
-        } else if filteredNotes.isEmpty {
+        } else if notesViewState.contentStateKind == .emptyLibrary || notesViewState.contentStateKind == .emptySearch {
             emptyStateView
         } else {
             notesGrid
@@ -185,23 +221,23 @@ struct NotesView: View {
     
     private var emptyStateView: some View {
         VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: searchText.isEmpty ? "note.text" : "magnifyingglass")
+            Image(systemName: notesViewState.contentStateKind == .emptyLibrary ? "note.text" : "magnifyingglass")
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(searchText.isEmpty
+            Text(notesViewState.contentStateKind == .emptyLibrary
                  ? localized("No notes yet", locale: locale)
                  : localized("No results found", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
-            Text(searchText.isEmpty
+            Text(notesViewState.contentStateKind == .emptyLibrary
                  ? localized("Create your first note to get started", locale: locale)
                  : localized("Try a different search term", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
             
-            if searchText.isEmpty {
+            if notesViewState.contentStateKind == .emptyLibrary {
                 Button(localized("Create New Note", locale: locale)) {
                     createNewNote()
                 }
@@ -284,6 +320,19 @@ enum SortOrder {
     case ascending
     case descending
 }
+
+#if canImport(PindropSharedUIWorkspace)
+private extension SortOrder {
+    var coreValue: NotesSortOrderCore {
+        switch self {
+        case .ascending:
+            return .ascending
+        case .descending:
+            return .descending
+        }
+    }
+}
+#endif
 
 // MARK: - Preview
 

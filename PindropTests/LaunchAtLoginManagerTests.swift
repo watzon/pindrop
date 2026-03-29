@@ -47,7 +47,7 @@ struct LaunchAtLoginManagerTests {
 
     @Test func initialization() {
         let sut = makeSUT().sut
-        #expect(sut != nil)
+        #expect(sut.isEnabled == false)
     }
 
     @Test func isEnabledReflectsServiceStatus() {
@@ -137,7 +137,6 @@ struct LaunchAtLoginManagerTests {
 
     @Test func errorConformsToLocalizedError() {
         let error = LaunchAtLoginManager.LaunchAtLoginError.registrationFailed(NSError(domain: "test", code: 1))
-        #expect(error is LocalizedError)
         #expect((error as LocalizedError).errorDescription != nil)
     }
 

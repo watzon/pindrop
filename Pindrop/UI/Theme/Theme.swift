@@ -8,6 +8,10 @@
 import AppKit
 import SwiftUI
 
+#if canImport(PindropSharedUITheme)
+import PindropSharedUITheme
+#endif
+
 @MainActor
 final class PindropThemeController: ObservableObject {
     static let shared = PindropThemeController()
@@ -19,13 +23,16 @@ final class PindropThemeController: ObservableObject {
     }
 
     func refresh() {
+        #if canImport(PindropSharedUITheme)
+        PindropThemeBridge.invalidateCache()
+        #endif
         applyAppAppearance()
         revision &+= 1
     }
 
     func apply(to window: NSWindow?) {
         window?.appearance = currentMode.appKitAppearanceName.flatMap(NSAppearance.init(named:))
-        window?.backgroundColor = NSColor(AppColors.windowBackground)
+        window?.backgroundColor = AppColors.windowBackgroundColor
     }
 
     private func applyAppAppearance() {
@@ -49,29 +56,50 @@ private struct ThemeRefreshModifier: ViewModifier {
 
 enum AppTheme {
     enum Spacing {
-        static let xxs: CGFloat = 4
-        static let xs: CGFloat = 6
-        static let sm: CGFloat = 10
-        static let md: CGFloat = 14
-        static let lg: CGFloat = 18
-        static let xl: CGFloat = 24
-        static let xxl: CGFloat = 32
-        static let xxxl: CGFloat = 40
-        static let huge: CGFloat = 56
+        static var xxs: CGFloat { CGFloat(themeSpacing.xxs) }
+        static var xs: CGFloat { CGFloat(themeSpacing.xs) }
+        static var sm: CGFloat { CGFloat(themeSpacing.sm) }
+        static var md: CGFloat { CGFloat(themeSpacing.md) }
+        static var lg: CGFloat { CGFloat(themeSpacing.lg) }
+        static var xl: CGFloat { CGFloat(themeSpacing.xl) }
+        static var xxl: CGFloat { CGFloat(themeSpacing.xxl) }
+        static var xxxl: CGFloat { CGFloat(themeSpacing.xxxl) }
+        static var huge: CGFloat { CGFloat(themeSpacing.huge) }
+
+        #if canImport(PindropSharedUITheme)
+        private static var themeSpacing: SpacingScale { PindropThemeBridge.spacingScale }
+        #endif
     }
 
     enum Radius {
-        static let sm: CGFloat = 8
-        static let md: CGFloat = 12
-        static let lg: CGFloat = 18
-        static let xl: CGFloat = 24
-        static let full: CGFloat = 9999
+        static var sm: CGFloat { CGFloat(themeRadius.sm) }
+        static var md: CGFloat { CGFloat(themeRadius.md) }
+        static var lg: CGFloat { CGFloat(themeRadius.lg) }
+        static var xl: CGFloat { CGFloat(themeRadius.xl) }
+        static var full: CGFloat { CGFloat(themeRadius.full) }
+
+        #if canImport(PindropSharedUITheme)
+        private static var themeRadius: RadiusScale { PindropThemeBridge.radiusScale }
+        #endif
     }
 
     enum Shadow {
-        static let sm = ShadowStyle(color: AppColors.shadowColor.opacity(0.08), radius: 6, x: 0, y: 2)
-        static let md = ShadowStyle(color: AppColors.shadowColor.opacity(0.14), radius: 16, x: 0, y: 8)
-        static let lg = ShadowStyle(color: AppColors.shadowColor.opacity(0.2), radius: 30, x: 0, y: 18)
+        static var sm: ShadowStyle { shadowStyle(from: themeShadow.sm) }
+        static var md: ShadowStyle { shadowStyle(from: themeShadow.md) }
+        static var lg: ShadowStyle { shadowStyle(from: themeShadow.lg) }
+
+        #if canImport(PindropSharedUITheme)
+        private static var themeShadow: ShadowScale { PindropThemeBridge.shadowScale }
+
+        private static func shadowStyle(from token: ShadowTokenValue) -> ShadowStyle {
+            ShadowStyle(
+                color: Color(nsColor: NSColor(token.color)),
+                radius: CGFloat(token.radius),
+                x: CGFloat(token.x),
+                y: CGFloat(token.y)
+            )
+        }
+        #endif
     }
 
     enum Window {
@@ -158,16 +186,17 @@ enum AppColors {
 
     private static func dynamicNSColor(_ keyPath: KeyPath<ResolvedPalette, NSColor>) -> NSColor {
         NSColor(name: nil) { appearance in
-            resolvedPalette(for: isDark(appearance))[keyPath: keyPath]
+            resolvedPalette(for: appearance)[keyPath: keyPath]
         }
     }
 
-    private static func resolvedPalette(for isDark: Bool) -> ResolvedPalette {
-        let variant: PindropThemeVariant = isDark ? .dark : .light
-        let storageKey = isDark ? PindropThemeStorageKeys.darkThemePresetID : PindropThemeStorageKeys.lightThemePresetID
-        let presetID = UserDefaults.standard.string(forKey: storageKey)
-        let profile = PindropThemePresetCatalog.profile(for: presetID, variant: variant)
-        return ResolvedPalette(profile: profile, isDark: isDark)
+    private static func resolvedPalette(for appearance: NSAppearance) -> ResolvedPalette {
+        #if canImport(PindropSharedUITheme)
+        let variant: PindropThemeVariant = isDark(appearance) ? .dark : .light
+        return ResolvedPalette(theme: PindropThemeBridge.resolveTheme(systemVariant: variant))
+        #else
+        fatalError("PindropSharedUITheme is required")
+        #endif
     }
 
     private static func isDark(_ appearance: NSAppearance) -> Bool {
@@ -176,18 +205,52 @@ enum AppColors {
 }
 
 enum AppTypography {
-    static let largeTitle = Font.system(size: 30, weight: .semibold, design: .rounded)
-    static let title = Font.system(size: 21, weight: .semibold, design: .rounded)
-    static let headline = Font.system(size: 16, weight: .semibold, design: .rounded)
-    static let subheadline = Font.system(size: 14, weight: .semibold, design: .rounded)
-    static let body = Font.system(size: 14, weight: .regular, design: .rounded)
-    static let bodySmall = Font.system(size: 13, weight: .regular, design: .rounded)
-    static let caption = Font.system(size: 12, weight: .medium, design: .rounded)
-    static let tiny = Font.system(size: 11, weight: .medium, design: .rounded)
-    static let mono = Font.system(size: 13, weight: .medium, design: .monospaced)
-    static let monoSmall = Font.system(size: 11, weight: .medium, design: .monospaced)
-    static let statLarge = Font.system(size: 32, weight: .bold, design: .rounded)
-    static let statMedium = Font.system(size: 24, weight: .semibold, design: .rounded)
+    static var largeTitle: Font { font(from: scale.largeTitle) }
+    static var title: Font { font(from: scale.title) }
+    static var headline: Font { font(from: scale.headline) }
+    static var subheadline: Font { font(from: scale.subheadline) }
+    static var body: Font { font(from: scale.body) }
+    static var bodySmall: Font { font(from: scale.bodySmall) }
+    static var caption: Font { font(from: scale.caption) }
+    static var tiny: Font { font(from: scale.tiny) }
+    static var mono: Font { font(from: scale.mono) }
+    static var monoSmall: Font { font(from: scale.monoSmall) }
+    static var statLarge: Font { font(from: scale.statLarge) }
+    static var statMedium: Font { font(from: scale.statMedium) }
+
+    #if canImport(PindropSharedUITheme)
+    private static var scale: TypographyScale { PindropThemeBridge.typographyScale }
+
+    private static func font(from token: TypographyTokenValue) -> Font {
+        Font.system(
+            size: token.size,
+            weight: weight(from: Int(token.weight)),
+            design: design(from: token.design)
+        )
+    }
+
+    private static func weight(from value: Int) -> Font.Weight {
+        switch value {
+        case 700...:
+            .bold
+        case 600...:
+            .semibold
+        case 500...:
+            .medium
+        default:
+            .regular
+        }
+    }
+
+    private static func design(from design: TypographyDesign) -> Font.Design {
+        switch design {
+        case .monospaced:
+            .monospaced
+        default:
+            .rounded
+        }
+    }
+    #endif
 }
 
 private struct ResolvedPalette {
@@ -229,96 +292,48 @@ private struct ResolvedPalette {
     let overlayTooltipAccent: NSColor
     let shadow: NSColor
 
-    init(profile: PindropThemeProfile, isDark: Bool) {
-        let background = NSColor(pindropHex: profile.backgroundHex)
-            ?? (isDark ? NSColor(red: 0.08, green: 0.08, blue: 0.09, alpha: 1) : NSColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1))
-        let foreground = NSColor(pindropHex: profile.foregroundHex)
-            ?? (isDark ? NSColor.white : NSColor.black)
-        let accentBase = NSColor(pindropHex: profile.accentHex) ?? .systemOrange
-        let successBase = NSColor(pindropHex: profile.successHex) ?? .systemGreen
-        let warningBase = NSColor(pindropHex: profile.warningHex) ?? .systemOrange
-        let dangerBase = NSColor(pindropHex: profile.dangerHex) ?? .systemRed
-        let processingBase = NSColor(pindropHex: profile.processingHex) ?? .systemBlue
-        let contrast = min(max(profile.contrast, 20), 80) / 100
-
-        if isDark {
-            windowBackground = background
-            sidebarBackground = background.lighter(by: 0.035)
-            contentBackground = background.lighter(by: 0.015)
-            surfaceBackground = background.lighter(by: 0.055 + contrast * 0.035)
-            elevatedSurface = background.lighter(by: 0.09 + contrast * 0.045)
-            mutedSurface = foreground.withAlphaComponent(0.06 + contrast * 0.02)
-            inputBackground = background.lighter(by: 0.075 + contrast * 0.03)
-            inputBorder = foreground.withAlphaComponent(0.14 + contrast * 0.06)
-            inputBorderFocused = accentBase.withAlphaComponent(0.78)
-            accent = accentBase
-            accentSecondary = accentBase.mixed(with: foreground, ratio: 0.22)
-            accentBackground = accentBase.mixed(with: background, ratio: 0.86)
-            textPrimary = foreground
-            textSecondary = foreground.withAlphaComponent(0.72)
-            textTertiary = foreground.withAlphaComponent(0.48)
-            border = foreground.withAlphaComponent(0.11 + contrast * 0.05)
-            divider = foreground.withAlphaComponent(0.08 + contrast * 0.04)
-            success = successBase
-            successBackground = successBase.mixed(with: background, ratio: 0.88)
-            warning = warningBase
-            warningBackground = warningBase.mixed(with: background, ratio: 0.88)
-            error = dangerBase
-            errorBackground = dangerBase.mixed(with: background, ratio: 0.89)
-            recording = dangerBase
-            processing = processingBase
-            sidebarItemHover = foreground.withAlphaComponent(0.065)
-            sidebarItemActive = accentBase.mixed(with: background, ratio: 0.82)
-            overlaySurface = background.darker(by: 0.24)
-            overlaySurfaceStrong = background.darker(by: 0.32)
-            overlayLine = foreground.withAlphaComponent(0.18)
-            overlayTextPrimary = NSColor.white.withAlphaComponent(0.96)
-            overlayTextSecondary = NSColor.white.withAlphaComponent(0.74)
-            overlayWaveform = accentBase.mixed(with: NSColor.white, ratio: 0.24)
-            overlayRecording = dangerBase.mixed(with: NSColor.white, ratio: 0.12)
-            overlayWarning = warningBase
-            overlayTooltipAccent = accentBase.mixed(with: NSColor.white, ratio: 0.3)
-            shadow = NSColor.black
-        } else {
-            windowBackground = background
-            sidebarBackground = background.darker(by: 0.018)
-            contentBackground = background.lighter(by: 0.005)
-            surfaceBackground = background.lighter(by: 0.025)
-            elevatedSurface = background.darker(by: 0.02 + contrast * 0.01)
-            mutedSurface = foreground.withAlphaComponent(0.045 + contrast * 0.02)
-            inputBackground = background.lighter(by: 0.015)
-            inputBorder = foreground.withAlphaComponent(0.14 + contrast * 0.04)
-            inputBorderFocused = accentBase.withAlphaComponent(0.72)
-            accent = accentBase
-            accentSecondary = accentBase.mixed(with: foreground, ratio: 0.18)
-            accentBackground = accentBase.mixed(with: background, ratio: 0.92)
-            textPrimary = foreground
-            textSecondary = foreground.withAlphaComponent(0.7)
-            textTertiary = foreground.withAlphaComponent(0.48)
-            border = foreground.withAlphaComponent(0.1 + contrast * 0.04)
-            divider = foreground.withAlphaComponent(0.07 + contrast * 0.03)
-            success = successBase
-            successBackground = successBase.mixed(with: background, ratio: 0.93)
-            warning = warningBase
-            warningBackground = warningBase.mixed(with: background, ratio: 0.93)
-            error = dangerBase
-            errorBackground = dangerBase.mixed(with: background, ratio: 0.94)
-            recording = dangerBase
-            processing = processingBase
-            sidebarItemHover = foreground.withAlphaComponent(0.05)
-            sidebarItemActive = accentBase.mixed(with: background, ratio: 0.87)
-            overlaySurface = background.darker(by: 0.82)
-            overlaySurfaceStrong = background.darker(by: 0.9)
-            overlayLine = NSColor.white.withAlphaComponent(0.14)
-            overlayTextPrimary = NSColor.white.withAlphaComponent(0.96)
-            overlayTextSecondary = NSColor.white.withAlphaComponent(0.74)
-            overlayWaveform = accentBase.mixed(with: NSColor.white, ratio: 0.42)
-            overlayRecording = dangerBase.mixed(with: NSColor.white, ratio: 0.18)
-            overlayWarning = warningBase.mixed(with: NSColor.white, ratio: 0.18)
-            overlayTooltipAccent = accentBase.mixed(with: NSColor.white, ratio: 0.42)
-            shadow = foreground
-        }
+    #if canImport(PindropSharedUITheme)
+    init(theme: ResolvedTheme) {
+        let tokens = theme.tokens
+        windowBackground = NSColor(tokens.windowBackground)
+        sidebarBackground = NSColor(tokens.sidebarBackground)
+        contentBackground = NSColor(tokens.contentBackground)
+        surfaceBackground = NSColor(tokens.surfaceBackground)
+        elevatedSurface = NSColor(tokens.elevatedSurface)
+        mutedSurface = NSColor(tokens.mutedSurface)
+        inputBackground = NSColor(tokens.inputBackground)
+        inputBorder = NSColor(tokens.inputBorder)
+        inputBorderFocused = NSColor(tokens.inputBorderFocused)
+        accent = NSColor(tokens.accent)
+        accentSecondary = NSColor(tokens.accentSecondary)
+        accentBackground = NSColor(tokens.accentBackground)
+        textPrimary = NSColor(tokens.textPrimary)
+        textSecondary = NSColor(tokens.textSecondary)
+        textTertiary = NSColor(tokens.textTertiary)
+        border = NSColor(tokens.border)
+        divider = NSColor(tokens.divider)
+        success = NSColor(tokens.success)
+        successBackground = NSColor(tokens.successBackground)
+        warning = NSColor(tokens.warning)
+        warningBackground = NSColor(tokens.warningBackground)
+        error = NSColor(tokens.error)
+        errorBackground = NSColor(tokens.errorBackground)
+        recording = NSColor(tokens.recording)
+        processing = NSColor(tokens.processing)
+        sidebarItemHover = NSColor(tokens.sidebarItemHover)
+        sidebarItemActive = NSColor(tokens.sidebarItemActive)
+        overlaySurface = NSColor(tokens.overlaySurface)
+        overlaySurfaceStrong = NSColor(tokens.overlaySurfaceStrong)
+        overlayLine = NSColor(tokens.overlayLine)
+        overlayTextPrimary = NSColor(tokens.overlayTextPrimary)
+        overlayTextSecondary = NSColor(tokens.overlayTextSecondary)
+        overlayWaveform = NSColor(tokens.overlayWaveform)
+        overlayRecording = NSColor(tokens.overlayRecording)
+        overlayWarning = NSColor(tokens.overlayWarning)
+        overlayTooltipAccent = NSColor(tokens.overlayTooltipAccent)
+        shadow = NSColor(tokens.shadow)
     }
+    #endif
 }
 
 private struct HairlineBorderModifier<BorderShape: InsettableShape, BorderStyle: ShapeStyle>: ViewModifier {
@@ -449,27 +464,16 @@ extension NSColor {
         self.init(red: red, green: green, blue: blue, alpha: 1)
     }
 
-    func mixed(with color: NSColor, ratio: CGFloat) -> NSColor {
-        let resolvedSelf = usingColorSpace(.deviceRGB) ?? self
-        let resolvedOther = color.usingColorSpace(.deviceRGB) ?? color
-        let clampedRatio = min(max(ratio, 0), 1)
-        let inverse = 1 - clampedRatio
-
-        return NSColor(
-            red: (resolvedSelf.redComponent * inverse) + (resolvedOther.redComponent * clampedRatio),
-            green: (resolvedSelf.greenComponent * inverse) + (resolvedOther.greenComponent * clampedRatio),
-            blue: (resolvedSelf.blueComponent * inverse) + (resolvedOther.blueComponent * clampedRatio),
-            alpha: (resolvedSelf.alphaComponent * inverse) + (resolvedOther.alphaComponent * clampedRatio)
+    #if canImport(PindropSharedUITheme)
+    convenience init(_ token: ColorTokenValue) {
+        self.init(
+            red: CGFloat(token.red) / 255,
+            green: CGFloat(token.green) / 255,
+            blue: CGFloat(token.blue) / 255,
+            alpha: CGFloat(token.alpha) / 255
         )
     }
-
-    func lighter(by amount: CGFloat) -> NSColor {
-        mixed(with: .white, ratio: amount)
-    }
-
-    func darker(by amount: CGFloat) -> NSColor {
-        mixed(with: .black, ratio: amount)
-    }
+    #endif
 }
 
 #Preview("Theme Colors - Light") {
@@ -519,22 +523,17 @@ private struct ThemePreviewView: View {
         }
         .padding(AppTheme.Spacing.xxl)
         .background(AppColors.windowBackground)
-        .themeRefresh()
     }
 
-    private func colorSwatch(_ name: String, _ color: Color) -> some View {
+    private func colorSwatch(_ title: String, _ color: Color) -> some View {
         VStack(spacing: AppTheme.Spacing.xs) {
-            RoundedRectangle(cornerRadius: AppTheme.Radius.sm)
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
                 .fill(color)
-                .frame(width: 60, height: 40)
-                .hairlineBorder(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
-                    style: AppColors.border
-                )
-
-            Text(name)
-                .font(AppTypography.tiny)
+                .frame(height: 72)
+            Text(title)
+                .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textSecondary)
         }
+        .frame(maxWidth: .infinity)
     }
 }

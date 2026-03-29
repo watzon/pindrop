@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(PindropSharedNavigation)
+import PindropSharedNavigation
+#endif
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
@@ -18,25 +21,11 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     func title(locale: Locale) -> String {
-        switch self {
-        case .general: return localized("General", locale: locale)
-        case .theme: return localized("Theme", locale: locale)
-        case .hotkeys: return localized("Hotkeys", locale: locale)
-        case .ai: return localized("AI Enhancement", locale: locale)
-        case .update: return localized("Update", locale: locale)
-        case .about: return localized("About", locale: locale)
-        }
+        localized(definition.titleKey, locale: locale)
     }
 
     var systemIcon: String {
-        switch self {
-        case .general: return "gear"
-        case .theme: return "paintbrush"
-        case .hotkeys: return "keyboard"
-        case .ai: return "sparkles"
-        case .update: return "arrow.triangle.2.circlepath"
-        case .about: return "info.circle"
-        }
+        definition.systemIcon
     }
 
     var subtitle: String {
@@ -44,61 +33,58 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     }
 
     func subtitle(locale: Locale) -> String {
-        switch self {
-        case .general:
-            return localized("Output, audio, interface, and everyday behavior", locale: locale)
-        case .theme:
-            return localized("Light, dark, and curated palette presets", locale: locale)
-        case .hotkeys:
-            return localized("Configure keyboard shortcuts for recording and note capture", locale: locale)
-        case .ai:
-            return localized("Providers, prompts, and vibe mode controls", locale: locale)
-        case .update:
-            return localized("Automatic updates and manual update checks", locale: locale)
-        case .about:
-            return localized("App info, acknowledgments, support, and logs", locale: locale)
-        }
-    }
-
-    private var searchKeywords: [String] {
-        switch self {
-        case .general:
-            return [
-                "output", "clipboard", "direct insert", "space", "microphone", "audio",
-                "input", "floating indicator", "dictionary", "launch at login", "dock",
-                "mute", "pause media", "reset", "language", "locale", "transcription language",
-                "interface language"
-            ]
-        case .theme:
-            return [
-                "appearance", "theme", "light", "dark", "system", "preset", "palette"
-            ]
-        case .hotkeys:
-            return [
-                "shortcut", "toggle recording", "push to talk", "copy last transcript",
-                "note capture", "keyboard"
-            ]
-        case .ai:
-            return [
-                "provider", "api key", "endpoint", "prompt", "preset", "vibe mode",
-                "clipboard context", "ui context", "model", "enhancement"
-            ]
-        case .update:
-            return ["updates", "automatic updates", "check now", "version"]
-        case .about:
-            return ["support", "logs", "github", "license", "system info", "version"]
-        }
+        localized(definition.subtitleKey, locale: locale)
     }
 
     func matches(_ searchText: String) -> Bool {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return true }
-
-        let searchableText = ([rawValue, subtitle] + searchKeywords)
-            .joined(separator: " ")
-            .lowercased()
-        return searchableText.contains(query)
+        SettingsTab.browseState(for: searchText, selectedTab: self, initialTab: self).filteredSections.contains(coreValue)
     }
+
+    #if canImport(PindropSharedNavigation)
+    var coreValue: SettingsSection {
+        switch self {
+        case .general: .general
+        case .theme: .theme
+        case .hotkeys: .hotkeys
+        case .ai: .ai
+        case .update: .update
+        case .about: .about
+        }
+    }
+
+    init(coreValue: SettingsSection) {
+        switch coreValue {
+        case .general:
+            self = .general
+        case .theme:
+            self = .theme
+        case .hotkeys:
+            self = .hotkeys
+        case .ai:
+            self = .ai
+        case .update:
+            self = .update
+        default:
+            self = .about
+        }
+    }
+
+    fileprivate var definition: SettingsSectionDefinition {
+        SettingsShell.shared.section(id: coreValue)
+    }
+
+    fileprivate static func browseState(
+        for query: String,
+        selectedTab: SettingsTab?,
+        initialTab: SettingsTab
+    ) -> SettingsBrowseState {
+        SettingsShell.shared.browse(
+            query: query,
+            selectedSection: selectedTab?.coreValue,
+            initialSection: initialTab.coreValue
+        )
+    }
+    #endif
 }
 
 struct SettingsWindow: View {
@@ -146,7 +132,15 @@ struct SettingsContainerView: View {
     }
 
     private var filteredTabs: [SettingsTab] {
-        SettingsTab.allCases.filter { $0.matches(searchText) }
+        browseState.filteredSections.map(SettingsTab.init(coreValue:))
+    }
+
+    private var browseState: SettingsBrowseState {
+        SettingsTab.browseState(for: searchText, selectedTab: selectedTab, initialTab: initialTab)
+    }
+
+    private var activeTab: SettingsTab {
+        SettingsTab(coreValue: browseState.selectedSection)
     }
 
     var body: some View {
@@ -162,10 +156,7 @@ struct SettingsContainerView: View {
             selectedTab = newValue
         }
         .onChange(of: searchText) { _, _ in
-            guard let firstVisibleTab = filteredTabs.first else { return }
-            if !filteredTabs.contains(selectedTab) {
-                selectedTab = firstVisibleTab
-            }
+            selectedTab = activeTab
         }
         .onAppear {
             if AppTestMode.isRunningUITests {
@@ -187,11 +178,11 @@ struct SettingsContainerView: View {
         } else {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
-                    Text(selectedTab.title(locale: locale))
+                    Text(activeTab.title(locale: locale))
                         .font(AppTypography.headline)
                         .foregroundStyle(AppColors.textPrimary)
 
-                    Text(selectedTab.subtitle(locale: locale))
+                    Text(activeTab.subtitle(locale: locale))
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -200,7 +191,7 @@ struct SettingsContainerView: View {
                     .background(AppColors.divider)
 
                 Group {
-                    switch selectedTab {
+                    switch activeTab {
                     case .general:
                         GeneralSettingsView(settings: settings)
                     case .theme:
@@ -358,10 +349,7 @@ private extension SettingsContainerView {
 
 private extension SettingsTab {
     var accessibilityIdentifier: String {
-        let slug = rawValue
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "-")
-        return "settings.tab.\(slug)"
+        definition.accessibilityIdentifier
     }
 }
 

@@ -13,6 +13,9 @@ import Observation
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 struct TranscribeView: View {
     @Environment(\.displayScale) private var displayScale
@@ -57,12 +60,21 @@ struct TranscribeView: View {
     }
 
     private var visibleFolders: [MediaFolder] {
+        #if canImport(PindropSharedUIWorkspace)
+        let visibleIDs = Set(libraryBrowseState.visibleFolderIds)
+        return folders.filter { visibleIDs.contains($0.id.uuidString) }
+        #else
         guard selectedFolder == nil else { return [] }
         guard !trimmedSearchText.isEmpty else { return folders }
         return folders.filter { $0.name.localizedStandardContains(trimmedSearchText) }
+        #endif
     }
 
     private var visibleMediaRecords: [TranscriptionRecord] {
+        #if canImport(PindropSharedUIWorkspace)
+        let visibleIDs = Set(libraryBrowseState.visibleRecordIds)
+        return mediaRecords.filter { visibleIDs.contains($0.id.uuidString) }
+        #else
         let filteredRecords = mediaRecords
             .filter { record in
                 guard let selectedFolder else { return record.folder == nil }
@@ -73,21 +85,89 @@ struct TranscribeView: View {
             }
 
         return sort(records: filteredRecords)
+        #endif
+    }
+
+    private var libraryBrowseState: MediaLibraryBrowseState {
+        #if canImport(PindropSharedUIWorkspace)
+        return MediaLibraryPresenter.shared.browse(
+            folders: folders.map { folder in
+                MediaFolderSnapshot(
+                    id: folder.id.uuidString,
+                    name: folder.name,
+                    itemCount: Int32(mediaRecords.filter { $0.folder?.id == folder.id }.count)
+                )
+            },
+            records: mediaRecords.map { record in
+                MediaRecordSnapshot(
+                    id: record.id.uuidString,
+                    folderId: record.folder?.id.uuidString,
+                    timestampEpochMillis: Int64(record.timestamp.timeIntervalSince1970 * 1000),
+                    searchText: [record.text, record.originalText, record.sourceDisplayName, record.originalSourceURL]
+                        .compactMap { $0 }
+                        .joined(separator: "\n"),
+                    sortName: record.mediaLibrarySortName
+                )
+            },
+            selectedFolderId: featureState.selectedFolderID?.uuidString,
+            searchText: featureState.librarySearchText,
+            sortMode: featureState.librarySortMode.coreValue
+        )
+        #else
+        return MediaLibraryBrowseState(
+            trimmedSearchText: trimmedSearchText,
+            selectedFolderId: selectedFolder?.id.uuidString,
+            visibleFolderIds: visibleFolders.map(\.id.uuidString),
+            visibleRecordIds: visibleMediaRecords.map(\.id.uuidString),
+            filteredFolderCount: Int32(visibleFolders.count),
+            filteredRecordCount: Int32(visibleMediaRecords.count),
+            totalRecordCountForSelectedFolder: Int32(mediaRecords.filter { $0.folder?.id == selectedFolder?.id }.count),
+            emptyStateKind: visibleFolders.isEmpty && visibleMediaRecords.isEmpty ? .libraryEmpty : .none
+        )
+        #endif
+    }
+
+    private var transcribeLibraryViewState: TranscribeLibraryViewState {
+        #if canImport(PindropSharedUIWorkspace)
+        return TranscribeLibraryPresenter.shared.present(
+            selectedFolderId: selectedFolder?.id.uuidString,
+            selectedFolderName: selectedFolder?.name,
+            draftLink: featureState.draftLink,
+            librarySearchText: featureState.librarySearchText,
+            browseState: libraryBrowseState
+        )
+        #else
+        return TranscribeLibraryViewState(
+            selectedFolderId: selectedFolder?.id.uuidString,
+            selectedFolderName: selectedFolder?.name,
+            trimmedSearchText: trimmedSearchText,
+            filteredFolderCount: libraryBrowseState.filteredFolderCount,
+            filteredRecordCount: libraryBrowseState.filteredRecordCount,
+            totalRecordCountForSelectedFolder: libraryBrowseState.totalRecordCountForSelectedFolder,
+            shouldShowBackButton: selectedFolder != nil,
+            canSubmitDraftLink: !featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            shouldShowDraftLinkClearButton: !featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            shouldShowLibraryEmptyState: libraryBrowseState.emptyStateKind != .none,
+            emptyStateTitleKey: "No results found",
+            emptyStateMessageKey: "Try a different search term.",
+            emptyStateIconName: trimmedSearchText.isEmpty ? "folder.badge.questionmark" : "magnifyingglass"
+        )
+        #endif
     }
 
     private var totalLibraryCountText: String {
         if let selectedFolder {
             return localized("%d items in %@", locale: locale)
-                .replacingOccurrences(of: "%d", with: "\(visibleMediaRecords.count)")
+                .replacingOccurrences(of: "%d", with: "\(libraryBrowseState.filteredRecordCount)")
                 .replacingOccurrences(of: "%@", with: selectedFolder.name)
         }
 
-        let folderCountLabel = visibleFolders.count == 1
+        let folderCountLabel = libraryBrowseState.filteredFolderCount == 1
             ? localized("1 folder", locale: locale)
-            : localized("%d folders", locale: locale).replacingOccurrences(of: "%d", with: "\(visibleFolders.count)")
-        let transcriptCountLabel = visibleMediaRecords.count == 1
+            : localized("%d folders", locale: locale).replacingOccurrences(of: "%d", with: "\(libraryBrowseState.filteredFolderCount)")
+        let transcriptCountLabel = libraryBrowseState.filteredRecordCount == 1
             ? localized("1 transcription", locale: locale)
-            : localized("%d transcriptions", locale: locale).replacingOccurrences(of: "%d", with: "\(visibleMediaRecords.count)")
+            : localized("%d transcriptions", locale: locale).replacingOccurrences(of: "%d", with: "\(libraryBrowseState.filteredRecordCount)")
         return "\(folderCountLabel) • \(transcriptCountLabel)"
     }
 
@@ -335,7 +415,7 @@ struct TranscribeView: View {
                         submitCurrentLink()
                     }
                     .buttonStyle(.borderless)
-                    .disabled(featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .disabled(!transcribeLibraryViewState.canSubmitDraftLink)
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.md)
@@ -371,7 +451,7 @@ struct TranscribeView: View {
             HStack {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                     HStack(spacing: AppTheme.Spacing.sm) {
-                        if selectedFolder != nil {
+                        if transcribeLibraryViewState.shouldShowBackButton {
                             Button {
                                 featureState.clearSelectedFolder()
                             } label: {
@@ -395,9 +475,9 @@ struct TranscribeView: View {
 
             libraryControls
 
-            if visibleFolders.isEmpty && visibleMediaRecords.isEmpty {
+            if transcribeLibraryViewState.shouldShowLibraryEmptyState {
                 VStack(spacing: AppTheme.Spacing.md) {
-                    Image(systemName: trimmedSearchText.isEmpty ? "folder.badge.questionmark" : "magnifyingglass")
+                    Image(systemName: transcribeLibraryViewState.emptyStateIconName)
                         .font(.system(size: 36))
                         .foregroundStyle(AppColors.textTertiary)
                     Text(emptyLibraryTitle)
@@ -709,48 +789,15 @@ struct TranscribeView: View {
     }
 
     private var emptyLibraryTitle: String {
-        if let selectedFolder {
-            return trimmedSearchText.isEmpty
-                ? localized("No items in %@", locale: locale).replacingOccurrences(of: "%@", with: selectedFolder.name)
-                : localized("No results found", locale: locale)
+        let key = transcribeLibraryViewState.emptyStateTitleKey
+        if key.contains("%@") {
+            return localized(key, locale: locale).replacingOccurrences(of: "%@", with: transcribeLibraryViewState.selectedFolderName ?? "")
         }
-
-        if trimmedSearchText.isEmpty {
-            return localized("No media transcriptions yet", locale: locale)
-        }
-
-        return localized("No results found", locale: locale)
+        return localized(key, locale: locale)
     }
 
     private var emptyLibraryMessage: String {
-        if selectedFolder != nil {
-            return trimmedSearchText.isEmpty
-                ? localized("Import or transcribe media while this folder is selected to save items here.", locale: locale)
-                : localized("Try a different search term in this folder.", locale: locale)
-        }
-
-        if trimmedSearchText.isEmpty {
-            return localized("Imported files and web links will appear here once processing completes.", locale: locale)
-        }
-
-        return localized("Try a different search term.", locale: locale)
-    }
-
-    private func sort(records: [TranscriptionRecord]) -> [TranscriptionRecord] {
-        switch featureState.librarySortMode {
-        case .newest:
-            return records.sorted { $0.timestamp > $1.timestamp }
-        case .oldest:
-            return records.sorted { $0.timestamp < $1.timestamp }
-        case .nameAscending:
-            return records.sorted {
-                $0.mediaLibrarySortName.localizedStandardCompare($1.mediaLibrarySortName) == .orderedAscending
-            }
-        case .nameDescending:
-            return records.sorted {
-                $0.mediaLibrarySortName.localizedStandardCompare($1.mediaLibrarySortName) == .orderedDescending
-            }
-        }
+        localized(transcribeLibraryViewState.emptyStateMessageKey, locale: locale)
     }
 
     private func saveFolder(mode: FolderSheetMode, name: String) throws {

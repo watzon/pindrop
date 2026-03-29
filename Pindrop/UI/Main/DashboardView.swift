@@ -7,6 +7,9 @@
 
 import SwiftUI
 import SwiftData
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
@@ -29,21 +32,52 @@ struct DashboardView: View {
     }
     
     private var totalSessions: Int {
-        transcriptions.count
+        Int(dashboardState.totalSessions)
     }
     
     private var totalWords: Int {
-        transcriptions.reduce(0) { $0 + $1.text.split(separator: " ").count }
+        Int(dashboardState.totalWords)
     }
     
     private var totalDuration: TimeInterval {
-        transcriptions.reduce(0) { $0 + $1.duration }
+        dashboardState.totalDurationSeconds
     }
     
     private var averageWPM: Double {
-        guard totalDuration > 0 else { return 0 }
+        dashboardState.averageWordsPerMinute
+    }
+
+    private var dashboardState: DashboardViewState {
+        #if canImport(PindropSharedUIWorkspace)
+        return DashboardPresenter.shared.present(
+            records: transcriptions.map {
+                DashboardRecordSnapshot(text: $0.text, durationSeconds: $0.duration)
+            },
+            currentHour: Int32(Calendar.current.component(.hour, from: Date())),
+            hasDismissedHotkeyReminder: hasDismissedHotkeyReminder
+        )
+        #else
+        let totalWords = transcriptions.reduce(0) { $0 + $1.text.split(separator: " ").count }
+        let totalDuration = transcriptions.reduce(0) { $0 + $1.duration }
         let minutes = totalDuration / 60
-        return Double(totalWords) / max(minutes, 1)
+        let averageWPM = totalDuration > 0 ? Double(totalWords) / max(minutes, 1) : 0
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greetingKey: String
+        switch hour {
+        case 5..<12: greetingKey = "Good morning"
+        case 12..<17: greetingKey = "Good afternoon"
+        case 17..<22: greetingKey = "Good evening"
+        default: greetingKey = "Good night"
+        }
+        return DashboardViewState(
+            greetingKey: greetingKey,
+            totalSessions: Int32(transcriptions.count),
+            totalWords: Int32(totalWords),
+            totalDurationSeconds: totalDuration,
+            averageWordsPerMinute: averageWPM,
+            shouldShowHotkeyReminder: !hasDismissedHotkeyReminder
+        )
+        #endif
     }
     
     var body: some View {
@@ -70,7 +104,7 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.xxl) {
             welcomeHeader
 
-            if !hasDismissedHotkeyReminder {
+            if dashboardState.shouldShowHotkeyReminder {
                 hotkeyReminderCard
             }
 
@@ -104,13 +138,7 @@ struct DashboardView: View {
     }
     
     private var greetingText: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12: return localized("Good morning", locale: locale)
-        case 12..<17: return localized("Good afternoon", locale: locale)
-        case 17..<22: return localized("Good evening", locale: locale)
-        default: return localized("Good night", locale: locale)
-        }
+        localized(dashboardState.greetingKey, locale: locale)
     }
     
     private func statBadge(icon: String, value: String, label: String) -> some View {

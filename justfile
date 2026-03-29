@@ -106,13 +106,13 @@ test:
 # Run Kotlin Multiplatform shared-module tests
 shared-test:
     @echo "🧪 Running shared Kotlin tests..."
-    ./shared/gradlew --no-daemon --console=plain -p shared :core:jvmTest :feature-transcription:jvmTest
+    ./shared/gradlew --no-daemon --console=plain -p shared :core:jvmTest :feature-transcription:jvmTest :ui-theme:jvmTest :ui-shell:jvmTest :ui-settings:jvmTest :ui-workspace:jvmTest
     @echo "✅ Shared Kotlin tests complete"
 
 # Build Apple XCFrameworks for the shared Kotlin modules
 shared-xcframework:
     @echo "📦 Building shared XCFrameworks..."
-    ./shared/gradlew --no-daemon --console=plain -p shared :core:assemblePindropSharedCoreXCFramework :feature-transcription:assemblePindropSharedTranscriptionXCFramework
+    FORCE_SHARED_FRAMEWORK_BUILD=1 ./scripts/build-shared-frameworks-if-needed.sh
     @echo "✅ Shared XCFrameworks built"
 
 # Run integration tests only (opt-in)

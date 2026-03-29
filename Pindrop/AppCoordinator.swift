@@ -1817,16 +1817,12 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
         isProcessing = true
-        var didResetProcessingState = false
-
         statusBarController.setProcessingState()
 
         transitionRecordingIndicatorToProcessing()
 
         defer {
-            if !didResetProcessingState {
-                resetProcessingState()
-            }
+            resetProcessingState()
         }
 
         let audioData: Data
@@ -2323,16 +2319,13 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
         isProcessing = true
-        var didResetProcessingState = false
 
         statusBarController.setProcessingState()
 
         transitionRecordingIndicatorToProcessing()
 
         defer {
-            if !didResetProcessingState {
-                resetProcessingState()
-            }
+            resetProcessingState()
         }
 
         do {

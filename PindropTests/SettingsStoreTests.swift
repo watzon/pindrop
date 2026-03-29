@@ -8,6 +8,18 @@
 import AppKit
 import Testing
 @testable import Pindrop
+#if canImport(PindropSharedUITheme)
+import PindropSharedUITheme
+#endif
+#if canImport(PindropSharedNavigation)
+import PindropSharedNavigation
+#endif
+#if canImport(PindropSharedSettings)
+import PindropSharedSettings
+#endif
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 @MainActor
 @Suite
@@ -247,6 +259,329 @@ struct SettingsStoreTests {
         #expect(PindropThemeMode.system.appKitAppearanceName == nil)
         #expect(PindropThemeMode.light.appKitAppearanceName == .aqua)
         #expect(PindropThemeMode.dark.appKitAppearanceName == .darkAqua)
+    }
+
+    @Test func testThemeCatalogBridgesSharedPresetDefinitions() {
+        let presetIDs = Set(PindropThemePresetCatalog.presets.map(\.id))
+
+        #expect(presetIDs.contains(PindropThemePresetCatalog.defaultPresetID))
+        #expect(presetIDs.contains("paper"))
+        #expect(presetIDs.contains("signal"))
+    }
+
+    @Test func testThemeBridgeResolvesSharedThemeAndCapabilities() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        UserDefaults.standard.set(PindropThemeMode.system.rawValue, forKey: PindropThemeStorageKeys.themeMode)
+        UserDefaults.standard.set("paper", forKey: PindropThemeStorageKeys.lightThemePresetID)
+        UserDefaults.standard.set("signal", forKey: PindropThemeStorageKeys.darkThemePresetID)
+
+        #if canImport(PindropSharedUITheme)
+        PindropThemeBridge.invalidateCache()
+        let lightTheme = PindropThemeBridge.resolveTheme(systemVariant: .light)
+        let darkTheme = PindropThemeBridge.resolveTheme(systemVariant: .dark)
+
+        #expect(lightTheme.selectedPreset.id == "paper")
+        #expect(darkTheme.selectedPreset.id == "signal")
+        #expect(lightTheme.adaptedSidebarTreatment == .translucent)
+        #expect(darkTheme.adaptedOverlayTreatment == .blurred)
+        #endif
+    }
+
+    @Test func testSettingsTabSearchUsesSharedShellDefinitions() {
+        #expect(SettingsTab.theme.matches("palette"))
+        #expect(!SettingsTab.about.matches("palette"))
+    }
+
+    @Test func testAISettingsPresenterSharesValidationAndPresetRules() {
+        #if canImport(PindropSharedSettings)
+        let state = AIEnhancementPresenter.shared.present(
+            draft: AIEnhancementDraft(
+                selectedProvider: .custom,
+                selectedCustomProvider: .ollama,
+                apiKey: "",
+                selectedModel: "",
+                customModel: "",
+                enhancementPrompt: "Prompt",
+                noteEnhancementPrompt: "Notes",
+                selectedPromptType: .transcription,
+                selectedPresetId: "builtin",
+                customEndpointText: "http://localhost:11434/v1/chat/completions",
+                availableModels: [],
+                modelErrorMessage: nil,
+                isLoadingModels: false,
+                aiEnhancementEnabled: true
+            ),
+            presets: [
+                PromptPresetSnapshot(
+                    id: "builtin",
+                    name: "Built In",
+                    prompt: "Prompt",
+                    isBuiltIn: true,
+                    sortOrder: 0
+                )
+            ]
+        )
+
+        #expect(state.isApiKeyOptional)
+        #expect(!state.canSave)
+        #expect(state.selectedPresetId == "builtin")
+        #expect(state.isBuiltInPresetSelected)
+        #expect(state.isSelectedPromptReadOnly)
+        #endif
+    }
+
+    @Test func testPromptPresetPresenterSharesGroupingAndValidation() {
+        #if canImport(PindropSharedSettings)
+        let state = PromptPresetPresenter.shared.present(
+            presets: [
+                PromptPresetSnapshot(id: "builtin", name: "Built In", prompt: "One", isBuiltIn: true, sortOrder: 0),
+                PromptPresetSnapshot(id: "custom", name: "Custom", prompt: "Two", isBuiltIn: false, sortOrder: 1),
+            ],
+            newName: "New",
+            newPrompt: "Prompt",
+            editingPresetId: "custom",
+            editName: "Edited",
+            editPrompt: "Updated"
+        )
+
+        #expect(state.builtInPresetIds == ["builtin"])
+        #expect(state.customPresetIds == ["custom"])
+        #expect(state.canCreatePreset)
+        #expect(state.canSaveEditingPreset)
+        #endif
+    }
+
+    @Test func testSharedShellBrowseSelectsFirstVisibleTab() {
+        #if canImport(PindropSharedNavigation)
+        let browseState = SettingsShell.shared.browse(
+            query: "palette",
+            selectedSection: SettingsSection.general,
+            initialSection: SettingsSection.general
+        )
+
+        #expect(browseState.selectedSection == .theme)
+        #expect(browseState.matchCount == 1)
+        #endif
+    }
+
+    @Test func testMainWorkspaceNavigatorRoutesSettingsSelection() {
+        #if canImport(PindropSharedNavigation)
+        let state = MainWorkspaceNavigator.shared.navigateToSettings(
+            currentState: MainWorkspaceNavigator.shared.initialState(),
+            section: .hotkeys
+        )
+
+        #expect(state.selectedNavigationItem == .settings)
+        #expect(state.selectedSettingsSection == .hotkeys)
+        #endif
+    }
+
+    @Test func testDashboardPresenterSharesGreetingAndStats() {
+        #if canImport(PindropSharedUIWorkspace)
+        let state = DashboardPresenter.shared.present(
+            records: [
+                DashboardRecordSnapshot(text: "one two three", durationSeconds: 30),
+                DashboardRecordSnapshot(text: "four five", durationSeconds: 30),
+            ],
+            currentHour: 9,
+            hasDismissedHotkeyReminder: false
+        )
+
+        #expect(state.greetingKey == "Good morning")
+        #expect(state.totalSessions == 2)
+        #expect(state.totalWords == 5)
+        #expect(state.shouldShowHotkeyReminder)
+        #endif
+    }
+
+    @Test func testMediaLibraryPresenterFiltersAndSortsRecords() {
+        #if canImport(PindropSharedUIWorkspace)
+        let state = MediaLibraryPresenter.shared.browse(
+            folders: [
+                MediaFolderSnapshot(id: "folder-a", name: "Calls", itemCount: 1),
+                MediaFolderSnapshot(id: "folder-b", name: "Meetings", itemCount: 1),
+            ],
+            records: [
+                MediaRecordSnapshot(
+                    id: "record-older",
+                    folderId: nil,
+                    timestampEpochMillis: 1,
+                    searchText: "planning session",
+                    sortName: "Planning Session"
+                ),
+                MediaRecordSnapshot(
+                    id: "record-newer",
+                    folderId: nil,
+                    timestampEpochMillis: 2,
+                    searchText: "planning follow up",
+                    sortName: "Planning Follow Up"
+                ),
+            ],
+            selectedFolderId: nil,
+            searchText: "planning",
+            sortMode: .newest
+        )
+
+        #expect(state.visibleRecordIds == ["record-newer", "record-older"])
+        #expect(state.emptyStateKind == .none)
+        #endif
+    }
+
+    @Test func testHistoryPresenterBuildsSectionsAndLoadingState() {
+        #if canImport(PindropSharedUIWorkspace)
+        let now: Int64 = 1_700_000_000_000
+        let state = HistoryPresenter.shared.present(
+            records: [
+                HistoryRecordSnapshot(id: "today", timestampEpochMillis: now),
+                HistoryRecordSnapshot(id: "yesterday", timestampEpochMillis: now - 86_400_000),
+                HistoryRecordSnapshot(id: "older", timestampEpochMillis: now - 172_800_000),
+            ],
+            totalTranscriptionsCount: 3,
+            searchText: "",
+            selectedRecordId: "yesterday",
+            hasLoadedInitialPage: true,
+            isLoadingPage: false,
+            errorMessage: nil,
+            nowEpochMillis: now,
+            timeZoneOffsetMinutes: 0
+        )
+
+        #expect(state.contentStateKind == .populated)
+        #expect(state.selectedRecordId == "yesterday")
+        #expect(state.sections.count == 3)
+        #expect(state.sections[0].kind == .today)
+        #expect(state.sections[1].kind == .yesterday)
+        #expect(state.sections[2].kind == .date)
+        #endif
+    }
+
+    @Test func testDictionaryPresenterSharesOrderingAndFormValidation() {
+        #if canImport(PindropSharedUIWorkspace)
+        let state = DictionaryPresenter.shared.present(
+            selectedSection: .replacements,
+            replacements: [
+                ReplacementEntrySnapshot(id: "second", originals: ["beta"], replacement: "B", sortOrder: 2),
+                ReplacementEntrySnapshot(id: "first", originals: ["alpha"], replacement: "A", sortOrder: 1),
+            ],
+            vocabularyWords: [
+                VocabularyWordSnapshot(id: "vocabulary", word: "Zebra"),
+            ],
+            primaryInput: "source",
+            secondaryInput: "target",
+            errorMessage: nil
+        )
+
+        #expect(state.totalItemCount == 3)
+        #expect(state.visibleReplacementIds == ["first", "second"])
+        #expect(state.canAdd)
+        #expect(state.contentStateKind == .populated)
+        #endif
+    }
+
+    @Test func testNotesPresenterSharesFilteringAndEmptyState() {
+        #if canImport(PindropSharedUIWorkspace)
+        let state = NotesPresenter.shared.present(
+            notes: [
+                NoteSnapshot(
+                    id: "note-1",
+                    title: "Meeting Notes",
+                    content: "Quarterly planning session",
+                    tags: ["planning"],
+                    updatedAtEpochMillis: 20
+                ),
+                NoteSnapshot(
+                    id: "note-2",
+                    title: "Ideas",
+                    content: "Ship desktop rewrite",
+                    tags: ["product"],
+                    updatedAtEpochMillis: 10
+                ),
+            ],
+            searchText: "quarterly",
+            sortOrder: .descending,
+            selectedNoteId: "note-2",
+            errorMessage: nil
+        )
+
+        #expect(state.visibleNoteIds == ["note-1"])
+        #expect(state.selectedNoteId == nil)
+        #expect(state.contentStateKind == .populated)
+
+        let emptyState = NotesPresenter.shared.present(
+            notes: [],
+            searchText: "missing",
+            sortOrder: .ascending,
+            selectedNoteId: nil,
+            errorMessage: nil
+        )
+
+        #expect(emptyState.contentStateKind == .emptySearch)
+        #endif
+    }
+
+    @Test func testModelsPresenterSharesBrowseState() {
+        #if canImport(PindropSharedUIWorkspace)
+        let state = ModelsPresenter.shared.browse(
+            models: [
+                ModelCatalogEntrySnapshot(
+                    id: "recommended",
+                    name: "recommended",
+                    displayName: "Recommended Local",
+                    description: "fast local model",
+                    providerName: "WhisperKit",
+                    isLocal: true,
+                    isRecommended: true,
+                    availability: "available"
+                ),
+                ModelCatalogEntrySnapshot(
+                    id: "cloud",
+                    name: "cloud",
+                    displayName: "Cloud Model",
+                    description: "remote model",
+                    providerName: "OpenAI",
+                    isLocal: false,
+                    isRecommended: false,
+                    availability: "available"
+                ),
+            ],
+            selectedFilter: .recommended,
+            searchText: ""
+        )
+
+        #expect(state.effectiveFilter == .recommended)
+        #expect(state.visibleModelIds == ["recommended"])
+        #expect(state.contentStateKind == .populated)
+        #endif
+    }
+
+    @Test func testTranscribeLibraryPresenterSharesEmptyStateAndActions() {
+        #if canImport(PindropSharedUIWorkspace)
+        let browseState = MediaLibraryBrowseState(
+            trimmedSearchText: "",
+            selectedFolderId: "folder-1",
+            visibleFolderIds: [],
+            visibleRecordIds: [],
+            filteredFolderCount: 0,
+            filteredRecordCount: 0,
+            totalRecordCountForSelectedFolder: 0,
+            emptyStateKind: .folderEmpty
+        )
+        let state = TranscribeLibraryPresenter.shared.present(
+            selectedFolderId: "folder-1",
+            selectedFolderName: "Calls",
+            draftLink: " https://example.com/video ",
+            librarySearchText: "",
+            browseState: browseState
+        )
+
+        #expect(state.shouldShowBackButton)
+        #expect(state.canSubmitDraftLink)
+        #expect(state.shouldShowLibraryEmptyState)
+        #expect(state.emptyStateTitleKey == "No items in %@")
+        #expect(state.emptyStateMessageKey == "Import or transcribe media while this folder is selected to save items here.")
+        #endif
     }
 
     @Test func testResetAllSettingsResetsThemeSettings() {

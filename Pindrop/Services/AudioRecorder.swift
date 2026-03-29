@@ -351,7 +351,7 @@ final class AudioRecorder {
     var onAudioLevel: ((Float) -> Void)?
     var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
     
-    nonisolated init(
+    init(
         permissionManager: some PermissionProviding,
         captureBackend: AudioCaptureBackend? = nil
     ) throws {

@@ -11,6 +11,9 @@ import Observation
 #if canImport(PindropSharedTranscription)
 import PindropSharedTranscription
 #endif
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
     case newest
@@ -35,6 +38,23 @@ enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
         localized(title, locale: locale)
     }
 }
+
+#if canImport(PindropSharedUIWorkspace)
+extension MediaLibrarySortMode {
+    var coreValue: MediaLibrarySortModeCore {
+        switch self {
+        case .newest:
+            .newest
+        case .oldest:
+            .oldest
+        case .nameAscending:
+            .nameAscending
+        case .nameDescending:
+            .nameDescending
+        }
+    }
+}
+#endif
 
 enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
     case preflight

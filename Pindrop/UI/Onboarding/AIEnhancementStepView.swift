@@ -7,6 +7,9 @@
 
 import Foundation
 import SwiftUI
+#if canImport(PindropSharedSettings)
+import PindropSharedSettings
+#endif
 
 enum AIProvider: String, CaseIterable, Identifiable {
    case openai = "OpenAI"
@@ -18,12 +21,16 @@ enum AIProvider: String, CaseIterable, Identifiable {
    var id: String { rawValue }
 
    var displayName: String {
+      #if canImport(PindropSharedSettings)
+      return AISettingsCatalog.shared.provider(id: coreValue).displayName
+      #else
       switch self {
       case .custom:
          return "Custom/Local"
       default:
          return rawValue
       }
+      #endif
    }
 
    var icon: Icon {
@@ -37,6 +44,9 @@ enum AIProvider: String, CaseIterable, Identifiable {
    }
 
    var defaultEndpoint: String {
+      #if canImport(PindropSharedSettings)
+      return AISettingsCatalog.shared.provider(id: coreValue).defaultEndpoint
+      #else
       switch self {
       case .openai: return "https://api.openai.com/v1/chat/completions"
       case .google: return "https://generativelanguage.googleapis.com/v1beta"
@@ -44,9 +54,13 @@ enum AIProvider: String, CaseIterable, Identifiable {
       case .openrouter: return "https://openrouter.ai/api/v1/chat/completions"
       case .custom: return ""
       }
+      #endif
    }
 
    var apiKeyPlaceholder: String {
+      #if canImport(PindropSharedSettings)
+      return AISettingsCatalog.shared.provider(id: coreValue).apiKeyPlaceholder
+      #else
       switch self {
       case .openai: return "sk-..."
       case .google: return "AIza..."
@@ -54,14 +68,41 @@ enum AIProvider: String, CaseIterable, Identifiable {
       case .openrouter: return "sk-or-..."
       case .custom: return "Enter API key"
       }
+      #endif
    }
 
    var isImplemented: Bool {
+      #if canImport(PindropSharedSettings)
+      return AISettingsCatalog.shared.provider(id: coreValue).isImplemented
+      #else
       switch self {
       case .openai, .openrouter, .custom, .anthropic: return true
       default: return false
       }
+      #endif
    }
+
+   #if canImport(PindropSharedSettings)
+   var coreValue: AIProviderCore {
+      switch self {
+      case .openai: .openai
+      case .google: .google
+      case .anthropic: .anthropic
+      case .openrouter: .openrouter
+      case .custom: .custom
+      }
+   }
+
+   init(coreValue: AIProviderCore) {
+      switch coreValue {
+      case .openai: self = .openai
+      case .google: self = .google
+      case .anthropic: self = .anthropic
+      case .openrouter: self = .openrouter
+      default: self = .custom
+      }
+   }
+   #endif
 }
 
 enum CustomProviderType: String, CaseIterable, Identifiable {
@@ -81,6 +122,9 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
    }
 
    var storageKey: String {
+      #if canImport(PindropSharedSettings)
+      return AISettingsCatalog.shared.customProvider(id: coreValue).storageKey
+      #else
       switch self {
       case .custom:
          return "custom"
@@ -89,17 +133,29 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return "lm-studio"
       }
+      #endif
    }
 
    var requiresAPIKey: Bool {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).requiresApiKey
+      #else
       self == .custom
+      #endif
    }
 
    var supportsModelListing: Bool {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).supportsModelListing
+      #else
       self != .custom
+      #endif
    }
 
    var defaultEndpoint: String {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).defaultEndpoint
+      #else
       switch self {
       case .custom:
          return ""
@@ -108,9 +164,13 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return "http://localhost:1234/v1/chat/completions"
       }
+      #endif
    }
 
    var defaultModelsEndpoint: String? {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).defaultModelsEndpoint
+      #else
       switch self {
       case .custom:
          return nil
@@ -119,9 +179,13 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return "http://localhost:1234/v1/models"
       }
+      #endif
    }
 
    var apiKeyPlaceholder: String {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).apiKeyPlaceholder
+      #else
       switch self {
       case .custom:
          return "Enter API key"
@@ -130,9 +194,13 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return "Optional unless auth is enabled"
       }
+      #endif
    }
 
    var endpointPlaceholder: String {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).endpointPlaceholder
+      #else
       switch self {
       case .custom:
          return "https://your-api.com/v1/chat/completions"
@@ -141,9 +209,13 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return defaultEndpoint
       }
+      #endif
    }
 
    var modelPlaceholder: String {
+      #if canImport(PindropSharedSettings)
+      AISettingsCatalog.shared.customProvider(id: coreValue).modelPlaceholder
+      #else
       switch self {
       case .custom:
          return "e.g., gpt-4o"
@@ -152,7 +224,26 @@ enum CustomProviderType: String, CaseIterable, Identifiable {
       case .lmStudio:
          return "e.g., local-model"
       }
+      #endif
    }
+
+   #if canImport(PindropSharedSettings)
+   var coreValue: CustomProviderTypeCore {
+      switch self {
+      case .custom: .custom
+      case .ollama: .ollama
+      case .lmStudio: .lmStudio
+      }
+   }
+
+   init(coreValue: CustomProviderTypeCore) {
+      switch coreValue {
+      case .custom: self = .custom
+      case .ollama: self = .ollama
+      default: self = .lmStudio
+      }
+   }
+   #endif
 }
 
 struct AIEnhancementStepView: View {

@@ -61,7 +61,7 @@ struct ModelManagerTests {
 
     @Test func checkDownloadedModels() async {
         let downloadedModels = await modelManager.getDownloadedModels()
-        #expect(downloadedModels != nil)
+        _ = downloadedModels
     }
 
     @Test func isModelDownloaded() {

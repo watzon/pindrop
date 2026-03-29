@@ -7,6 +7,9 @@
 
 import SwiftUI
 import SwiftData
+#if canImport(PindropSharedSettings)
+import PindropSharedSettings
+#endif
 
 struct PresetManagementSheet: View {
     @Environment(\.modelContext) private var modelContext
@@ -33,12 +36,47 @@ struct PresetManagementSheet: View {
     @State private var hoveredRowID: UUID?
 
     private var builtInPresets: [PromptPreset] {
+        #if canImport(PindropSharedSettings)
+        let visibleIDs = Set(presetManagementState.builtInPresetIds)
+        return presets
+            .sorted(by: { $0.sortOrder < $1.sortOrder })
+            .filter { visibleIDs.contains($0.id.uuidString) }
+        #else
         presets.filter { $0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
+        #endif
     }
 
     private var customPresets: [PromptPreset] {
+        #if canImport(PindropSharedSettings)
+        let visibleIDs = Set(presetManagementState.customPresetIds)
+        return presets
+            .sorted(by: { $0.sortOrder < $1.sortOrder })
+            .filter { visibleIDs.contains($0.id.uuidString) }
+        #else
         presets.filter { !$0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
+        #endif
     }
+
+    #if canImport(PindropSharedSettings)
+    private var presetManagementState: PromptPresetManagementState {
+        PromptPresetPresenter.shared.present(
+            presets: presets.map {
+                PromptPresetSnapshot(
+                    id: $0.id.uuidString,
+                    name: $0.name,
+                    prompt: $0.prompt,
+                    isBuiltIn: $0.isBuiltIn,
+                    sortOrder: Int32($0.sortOrder)
+                )
+            },
+            newName: newName,
+            newPrompt: newPrompt,
+            editingPresetId: editingPresetID?.uuidString,
+            editName: editName,
+            editPrompt: editPrompt
+        )
+    }
+    #endif
 
     var body: some View {
         VStack(spacing: 0) {
@@ -239,8 +277,8 @@ struct PresetManagementSheet: View {
                 .background(AppColors.accent)
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.md))
-                .disabled(newName.isEmpty || newPrompt.isEmpty)
-                .opacity(newName.isEmpty || newPrompt.isEmpty ? 0.5 : 1)
+                .disabled(!canCreatePreset)
+                .opacity(canCreatePreset ? 1 : 0.5)
             }
         }
         .padding(AppTheme.Spacing.lg)
@@ -392,6 +430,7 @@ struct PresetManagementSheet: View {
 
     private func saveNewPreset() {
         guard let store = store else { return }
+        guard canCreatePreset else { return }
 
         let preset = PromptPreset(
             name: newName,
@@ -419,6 +458,7 @@ struct PresetManagementSheet: View {
 
     private func saveEdit(_ preset: PromptPreset) {
         guard let store = store else { return }
+        guard canSaveEditingPreset else { return }
 
         preset.name = editName
         preset.prompt = editPrompt
@@ -511,6 +551,24 @@ struct PresetManagementSheet: View {
         } catch {
             errorMessage = localized("Failed to import presets: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
+    }
+}
+
+private extension PresetManagementSheet {
+    var canCreatePreset: Bool {
+        #if canImport(PindropSharedSettings)
+        presetManagementState.canCreatePreset
+        #else
+        !newName.isEmpty && !newPrompt.isEmpty
+        #endif
+    }
+
+    var canSaveEditingPreset: Bool {
+        #if canImport(PindropSharedSettings)
+        presetManagementState.canSaveEditingPreset
+        #else
+        editingPresetID != nil && !editName.isEmpty && !editPrompt.isEmpty
+        #endif
     }
 }
 

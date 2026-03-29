@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 private let modelListItemInset: CGFloat = 6
 
@@ -19,8 +22,6 @@ struct ModelsSettingsView: View {
     @State private var errorMessage: String?
     @State private var selectedFilter: ModelFilter = .recommended
     @State private var searchText = ""
-    @State private var visibleModels: [ModelManager.WhisperModel] = []
-    @State private var searchTask: Task<Void, Never>?
 
     enum ModelFilter: String, CaseIterable {
         case recommended
@@ -55,15 +56,6 @@ struct ModelsSettingsView: View {
         }
     }
     
-    private var filteredModels: [ModelManager.WhisperModel] {
-        switch effectiveFilter {
-        case .recommended:
-            return recommendedModels
-        case .all, .local, .cloud, .comingSoon:
-            return modelManager.availableModels.filter { effectiveFilter.matches($0) }
-        }
-    }
-
     private var recommendedModels: [ModelManager.WhisperModel] {
         modelManager.recommendedModels(for: settings.selectedAppLanguage)
     }
@@ -72,12 +64,62 @@ struct ModelsSettingsView: View {
         Set(recommendedModels.map(\.name))
     }
 
+    private var browseState: ModelsBrowseState {
+        #if canImport(PindropSharedUIWorkspace)
+        return ModelsPresenter.shared.browse(
+            models: modelManager.availableModels.map { model in
+                ModelCatalogEntrySnapshot(
+                    id: model.id,
+                    name: model.name,
+                    displayName: model.displayName,
+                    description: model.description,
+                    providerName: model.provider.rawValue,
+                    isLocal: model.provider.isLocal,
+                    isRecommended: recommendedModelNameSet.contains(model.name),
+                    availability: model.availability.coreValue
+                )
+            },
+            selectedFilter: selectedFilter.coreValue,
+            searchText: searchText
+        )
+        #else
+        return ModelsBrowseState(
+            trimmedSearchText: searchText.trimmingCharacters(in: .whitespacesAndNewlines),
+            selectedFilter: selectedFilter.coreValue,
+            effectiveFilter: searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? selectedFilter.coreValue : .all,
+            visibleModelIds: filteredModelsFallback.map(\.id),
+            contentStateKind: filteredModelsFallback.isEmpty
+                ? (searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .emptyLibrary : .emptySearch)
+                : .populated
+        )
+        #endif
+    }
+
+    private var filteredModelsFallback: [ModelManager.WhisperModel] {
+        let effectiveFilter = searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? selectedFilter : .all
+        let filteredModels: [ModelManager.WhisperModel]
+        switch effectiveFilter {
+        case .recommended:
+            filteredModels = recommendedModels
+        case .all, .local, .cloud, .comingSoon:
+            filteredModels = modelManager.availableModels.filter { effectiveFilter.matches($0) }
+        }
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return filteredModels }
+        return filteredModels.filter { $0.matchesSearch(query) }
+    }
+
+    private var visibleModels: [ModelManager.WhisperModel] {
+        let visibleIDs = Set(browseState.visibleModelIds)
+        return modelManager.availableModels.filter { visibleIDs.contains($0.id) }
+    }
+
     private var effectiveFilter: ModelFilter {
-        trimmedSearchText.isEmpty ? selectedFilter : .all
+        ModelFilter(coreValue: browseState.effectiveFilter)
     }
 
     private var trimmedSearchText: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        browseState.trimmedSearchText
     }
 
     var body: some View {
@@ -100,32 +142,18 @@ struct ModelsSettingsView: View {
         .task {
             await modelManager.refreshDownloadedModels()
             await modelManager.refreshDownloadedFeatureModels()
-            updateVisibleModels(immediately: true)
         }
         .onAppear {
             if activeModelName == nil {
                 activeModelName = settings.selectedModel
             }
             NotificationCenter.default.post(name: .requestActiveModel, object: nil)
-            updateVisibleModels(immediately: true)
-        }
-        .onChange(of: selectedFilter) { _, _ in
-            updateVisibleModels(immediately: trimmedSearchText.isEmpty)
-        }
-        .onChange(of: searchText) { _, _ in
-            updateVisibleModels(immediately: trimmedSearchText.isEmpty)
-        }
-        .onChange(of: settings.selectedLanguage) { _, _ in
-            updateVisibleModels(immediately: true)
         }
         .onReceive(NotificationCenter.default.publisher(for: .modelActiveChanged)) { notification in
             if let modelName = notification.userInfo?["modelName"] as? String {
                 activeModelName = modelName
                 switchingToModel = nil
             }
-        }
-        .onDisappear {
-            searchTask?.cancel()
         }
     }
 
@@ -387,25 +415,6 @@ struct ModelsSettingsView: View {
         }
     }
 
-    private func updateVisibleModels(immediately: Bool = false) {
-        searchTask?.cancel()
-
-        let models = filteredModels
-        let query = trimmedSearchText
-
-        searchTask = Task {
-            if !immediately && !query.isEmpty {
-                try? await Task.sleep(for: .milliseconds(120))
-            }
-
-            let filtered = await Task.detached(priority: .userInitiated) {
-                filterModels(models, matching: query)
-            }.value
-
-            guard !Task.isCancelled else { return }
-            visibleModels = filtered
-        }
-    }
 }
 
 struct FilterButton: View {
@@ -904,13 +913,52 @@ private extension ModelManager.WhisperModel {
     }
 }
 
-private func filterModels(
-    _ models: [ModelManager.WhisperModel],
-    matching query: String
-) -> [ModelManager.WhisperModel] {
-    guard !query.isEmpty else { return models }
-    return models.filter { $0.matchesSearch(query) }
+#if canImport(PindropSharedUIWorkspace)
+private extension ModelsSettingsView.ModelFilter {
+    var coreValue: ModelsFilterCore {
+        switch self {
+        case .recommended:
+            return .recommended
+        case .local:
+            return .local
+        case .cloud:
+            return .cloud
+        case .comingSoon:
+            return .comingSoon
+        case .all:
+            return .all
+        }
+    }
+
+    init(coreValue: ModelsFilterCore) {
+        switch coreValue {
+        case .recommended:
+            self = .recommended
+        case .local:
+            self = .local
+        case .cloud:
+            self = .cloud
+        case .comingSoon:
+            self = .comingSoon
+        default:
+            self = .all
+        }
+    }
 }
+
+private extension ModelManager.ModelAvailability {
+    var coreValue: String {
+        switch self {
+        case .available:
+            return "available"
+        case .comingSoon:
+            return "comingSoon"
+        case .requiresSetup:
+            return "requiresSetup"
+        }
+    }
+}
+#endif
 
 #Preview {
     ModelsSettingsView(settings: SettingsStore(), modelManager: ModelManager())

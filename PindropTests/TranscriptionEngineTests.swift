@@ -29,8 +29,8 @@ struct TranscriptionEngineTests {
     }
 
     @Test func mockEngineConformsToProtocol() {
-        let engine = MockTranscriptionEngine()
-        #expect(engine is TranscriptionEngine)
+        let engine: any TranscriptionEngine = MockTranscriptionEngine()
+        #expect(engine.state == .unloaded)
     }
 
     @Test func mockEngineInitialState() {

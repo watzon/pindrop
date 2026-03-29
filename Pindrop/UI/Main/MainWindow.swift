@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 import AppKit
+#if canImport(PindropSharedNavigation)
+import PindropSharedNavigation
+#endif
 
 // MARK: - Navigation
 
@@ -33,18 +36,18 @@ enum MainNavItem: String, Identifiable {
     var id: String { rawValue }
 
     func title(locale: Locale) -> String {
-        localized(rawValue, locale: locale)
+        localized(titleKey, locale: locale)
     }
 
     var icon: String {
         switch self {
-        case .home: return "house.fill"
-        case .history: return "clock.fill"
-        case .transcribe: return "waveform"
-        case .models: return "cpu"
-        case .notes: return "note.text"
-        case .dictionary: return "text.book.closed"
-        case .settings: return "gearshape"
+        case .home: "house.fill"
+        case .history: "clock.fill"
+        case .transcribe: "waveform"
+        case .models: "cpu"
+        case .notes: "note.text"
+        case .dictionary: "text.book.closed"
+        case .settings: "gearshape"
         }
     }
 
@@ -58,6 +61,43 @@ enum MainNavItem: String, Identifiable {
     }
 
     var isComingSoon: Bool { false }
+
+    private var titleKey: String {
+        rawValue
+    }
+
+    #if canImport(PindropSharedNavigation)
+    var coreValue: MainNavigationItem {
+        switch self {
+        case .home: .home
+        case .history: .history
+        case .transcribe: .transcribe
+        case .models: .models
+        case .notes: .notes
+        case .dictionary: .dictionary
+        case .settings: .settings
+        }
+    }
+
+    init(coreValue: MainNavigationItem) {
+        switch coreValue {
+        case .home:
+            self = .home
+        case .history:
+            self = .history
+        case .transcribe:
+            self = .transcribe
+        case .models:
+            self = .models
+        case .notes:
+            self = .notes
+        case .dictionary:
+            self = .dictionary
+        default:
+            self = .settings
+        }
+    }
+    #endif
 }
 
 // MARK: - Navigation Notification
@@ -111,8 +151,12 @@ final class TitlebarlessHostingController<Content: View>: NSHostingController<Co
 struct MainWindow: View {
     @ObservedObject private var theme = PindropThemeController.shared
     @ObservedObject var settingsStore: SettingsStore
+    #if canImport(PindropSharedNavigation)
+    @State private var workspaceState = MainWorkspaceNavigator.shared.initialState()
+    #else
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
+    #endif
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
     let onImportMediaFiles: (([URL]) -> Void)?
@@ -123,13 +167,36 @@ struct MainWindow: View {
         if item == .transcribe {
             mediaTranscriptionState?.showLibrary()
         }
-
+        #if canImport(PindropSharedNavigation)
+        workspaceState = MainWorkspaceNavigator.shared.navigateTo(currentState: workspaceState, item: item.coreValue)
+        #else
         selectedNav = item
+        #endif
     }
 
     private func navigateToSettings(_ tab: SettingsTab) {
+        #if canImport(PindropSharedNavigation)
+        workspaceState = MainWorkspaceNavigator.shared.navigateToSettings(currentState: workspaceState, section: tab.coreValue)
+        #else
         selectedSettingsTab = tab
         selectedNav = .settings
+        #endif
+    }
+
+    private var currentSelectedNav: MainNavItem {
+        #if canImport(PindropSharedNavigation)
+        MainNavItem(coreValue: workspaceState.selectedNavigationItem)
+        #else
+        selectedNav
+        #endif
+    }
+
+    private var currentSelectedSettingsTab: SettingsTab {
+        #if canImport(PindropSharedNavigation)
+        SettingsTab(coreValue: workspaceState.selectedSettingsSection)
+        #else
+        selectedSettingsTab
+        #endif
     }
 
     var body: some View {
@@ -165,7 +232,7 @@ struct MainWindow: View {
 
     private var sidebarPanel: some View {
         return MainSidebar(
-            selectedNav: selectedNav,
+            selectedNav: currentSelectedNav,
             onSelect: navigateTo
         )
         .frame(width: AppTheme.Window.sidebarWidth)
@@ -200,7 +267,7 @@ struct MainWindow: View {
     
     @ViewBuilder
     private var detailContent: some View {
-        switch selectedNav {
+        switch currentSelectedNav {
         case .home:
             DashboardView(
                 onOpenHotkeys: { navigateToSettings(.hotkeys) },
@@ -224,20 +291,20 @@ struct MainWindow: View {
                     onOpenModels: { navigateTo(.models) }
                 )
             } else {
-                comingSoonView(for: selectedNav)
+                comingSoonView(for: currentSelectedNav)
             }
         case .models:
             if let modelManager {
                 ModelsSettingsView(settings: settingsStore, modelManager: modelManager)
             } else {
-                comingSoonView(for: selectedNav)
+                comingSoonView(for: currentSelectedNav)
             }
         case .notes:
             NotesView()
         case .dictionary:
             DictionaryView()
         case .settings:
-            SettingsContainerView(settings: settingsStore, initialTab: selectedSettingsTab)
+            SettingsContainerView(settings: settingsStore, initialTab: currentSelectedSettingsTab)
         }
     }
     

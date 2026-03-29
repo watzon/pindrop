@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 import Foundation
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 enum DictionarySection: String, CaseIterable {
     case replacements = "Word Replacements"
@@ -90,9 +93,63 @@ struct DictionaryView: View {
     
     // Hover state
     @State private var hoveredRowID: UUID?
-    
-    private var totalItemCount: Int {
-        replacements.count + vocabularyWords.count
+
+    private var dictionaryViewState: DictionaryViewState {
+        #if canImport(PindropSharedUIWorkspace)
+        return DictionaryPresenter.shared.present(
+            selectedSection: selectedSection.coreValue,
+            replacements: replacements.map {
+                ReplacementEntrySnapshot(
+                    id: $0.id.uuidString,
+                    originals: $0.originals,
+                    replacement: $0.replacement,
+                    sortOrder: Int32($0.sortOrder)
+                )
+            },
+            vocabularyWords: vocabularyWords.map {
+                VocabularyWordSnapshot(
+                    id: $0.id.uuidString,
+                    word: $0.word
+                )
+            },
+            primaryInput: primaryInput,
+            secondaryInput: secondaryInput,
+            errorMessage: errorMessage
+        )
+        #else
+        return DictionaryViewState(
+            selectedSection: selectedSection.coreValue,
+            totalItemCount: Int32(replacements.count + vocabularyWords.count),
+            visibleReplacementIds: replacements.sorted(by: { $0.sortOrder < $1.sortOrder }).map { $0.id.uuidString },
+            visibleVocabularyIds: vocabularyWords.sorted(by: { $0.word.localizedCaseInsensitiveCompare($1.word) == .orderedAscending }).map { $0.id.uuidString },
+            canAdd: {
+                if selectedSection == .replacements {
+                    return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty &&
+                        !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+                }
+                return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+            }(),
+            contentStateKind: {
+                if errorMessage != nil { return .error }
+                if selectedSection == .replacements ? replacements.isEmpty : vocabularyWords.isEmpty { return .empty }
+                return .populated
+            }()
+        )
+        #endif
+    }
+
+    private var visibleReplacements: [WordReplacement] {
+        let visibleIDs = Set(dictionaryViewState.visibleReplacementIds)
+        return replacements
+            .sorted(by: { $0.sortOrder < $1.sortOrder })
+            .filter { visibleIDs.contains($0.id.uuidString) }
+    }
+
+    private var visibleVocabularyWords: [VocabularyWord] {
+        let visibleIDs = Set(dictionaryViewState.visibleVocabularyIds)
+        return vocabularyWords
+            .sorted(by: { $0.word.localizedCaseInsensitiveCompare($1.word) == .orderedAscending })
+            .filter { visibleIDs.contains($0.id.uuidString) }
     }
     
     var body: some View {
@@ -139,7 +196,7 @@ struct DictionaryView: View {
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
                     
-                    Text("\(totalItemCount) \(localized("items", locale: locale))")
+                    Text("\(dictionaryViewState.totalItemCount) \(localized("items", locale: locale))")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -294,19 +351,10 @@ struct DictionaryView: View {
             .buttonStyle(.plain)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(canAdd ? AppColors.accent : AppColors.textTertiary.opacity(0.3))
+                    .fill(dictionaryViewState.canAdd ? AppColors.accent : AppColors.textTertiary.opacity(0.3))
             )
             .foregroundStyle(.white)
-            .disabled(!canAdd)
-        }
-    }
-    
-    private var canAdd: Bool {
-        if selectedSection == .replacements {
-            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty &&
-                   !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-        } else {
-            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+            .disabled(!dictionaryViewState.canAdd)
         }
     }
     
@@ -316,20 +364,11 @@ struct DictionaryView: View {
     private var contentArea: some View {
         if let errorMessage = errorMessage {
             errorView(errorMessage)
-        } else if isContentEmpty {
+        } else if dictionaryViewState.contentStateKind == .empty {
             emptyStateView
         } else {
             contentTable
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        }
-    }
-    
-    private var isContentEmpty: Bool {
-        switch selectedSection {
-        case .replacements:
-            return replacements.isEmpty
-        case .vocabulary:
-            return vocabularyWords.isEmpty
         }
     }
     
@@ -428,7 +467,7 @@ struct DictionaryView: View {
             
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(replacements.sorted(by: { $0.sortOrder < $1.sortOrder })) { replacement in
+                    ForEach(visibleReplacements) { replacement in
                         ReplacementRow(
                             replacement: replacement,
                             isEditing: editingReplacement?.id == replacement.id,
@@ -448,7 +487,7 @@ struct DictionaryView: View {
                             }
                         }
                         
-                        if replacement.id != replacements.last?.id {
+                        if replacement.id != visibleReplacements.last?.id {
                             Divider()
                                 .padding(.horizontal, AppTheme.Spacing.md)
                                 .background(AppColors.divider)
@@ -493,7 +532,7 @@ struct DictionaryView: View {
             // Rows
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(vocabularyWords.sorted(by: { $0.word < $1.word })) { word in
+                    ForEach(visibleVocabularyWords) { word in
                         VocabularyRow(
                             word: word,
                             isEditing: editingVocabulary?.id == word.id,
@@ -512,7 +551,7 @@ struct DictionaryView: View {
                             }
                         }
                         
-                        if word.id != vocabularyWords.last?.id {
+                        if word.id != visibleVocabularyWords.last?.id {
                             Divider()
                                 .padding(.horizontal, AppTheme.Spacing.md)
                                 .background(AppColors.divider)
@@ -994,6 +1033,19 @@ struct VocabularyRow: View {
         }
     }
 }
+
+#if canImport(PindropSharedUIWorkspace)
+private extension DictionarySection {
+    var coreValue: DictionarySectionCore {
+        switch self {
+        case .replacements:
+            return .replacements
+        case .vocabulary:
+            return .vocabulary
+        }
+    }
+}
+#endif
 
 // MARK: - Flow Layout
 

@@ -65,10 +65,10 @@ final class GentleReminderUserDriverDelegate: NSObject, SPUStandardUserDriverDel
 
     nonisolated func updater(_ updater: SPUUpdater, willScheduleUpdateCheckAfterDelay delay: TimeInterval) {
         Task { @MainActor in
-            UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
-                if let error {
-                    Log.app.warning("Failed to request notification authorization for updates: \(error.localizedDescription)")
-                }
+            do {
+                _ = try await UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound])
+            } catch {
+                Log.app.warning("Failed to request notification authorization for updates: \(error.localizedDescription)")
             }
         }
     }
@@ -86,7 +86,11 @@ final class GentleReminderUserDriverDelegate: NSObject, SPUStandardUserDriverDel
                 content.sound = .default
 
                 let request = UNNotificationRequest(identifier: self.notificationIdentifier, content: content, trigger: nil)
-                UNUserNotificationCenter.current().add(request)
+                do {
+                    try await UNUserNotificationCenter.current().add(request)
+                } catch {
+                    Log.app.warning("Failed to schedule update notification: \(error.localizedDescription)")
+                }
             }
         }
     }

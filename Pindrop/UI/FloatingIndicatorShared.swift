@@ -73,7 +73,7 @@ extension Timer {
     /// Repeating timer on the main run loop in `.common` modes so it still fires during event tracking
     /// (window drag, resize, menus, scroll tracking) when `.default`-only timers are paused.
     @MainActor
-    static func pindrop_scheduleRepeating(interval: TimeInterval, block: @escaping (Timer) -> Void) -> Timer {
+    static func pindrop_scheduleRepeating(interval: TimeInterval, block: @escaping @Sendable (Timer) -> Void) -> Timer {
         let timer = Timer(timeInterval: interval, repeats: true, block: block)
         RunLoop.main.add(timer, forMode: .common)
         return timer

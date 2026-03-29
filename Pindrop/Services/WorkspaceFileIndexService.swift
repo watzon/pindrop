@@ -337,10 +337,13 @@ final class WorkspaceFileIndexService {
                 )
             }
 
+            let buildTimeout = Self.buildTimeout
+            let timeoutSeconds = Int(buildTimeout.components.seconds)
+
             group.addTask {
-                try await Task.sleep(for: Self.buildTimeout)
+                try await Task.sleep(for: buildTimeout)
                 throw WorkspaceFileIndexError.enumerationFailed(
-                    "Indexing exceeded \(Int(Self.buildTimeout.components.seconds)) seconds"
+                    "Indexing exceeded \(timeoutSeconds) seconds"
                 )
             }
 

@@ -17,3 +17,7 @@ rootProject.name = "pindrop-shared"
 
 include(":core")
 include(":feature-transcription")
+include(":ui-shell")
+include(":ui-settings")
+include(":ui-theme")
+include(":ui-workspace")

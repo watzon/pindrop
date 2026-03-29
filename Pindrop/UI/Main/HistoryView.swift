@@ -9,6 +9,9 @@
 import SwiftUI
 import SwiftData
 import Foundation
+#if canImport(PindropSharedUIWorkspace)
+import PindropSharedUIWorkspace
+#endif
 
 struct HistoryView: View {
     private static let topListPadding: CGFloat = 12
@@ -40,9 +43,55 @@ struct HistoryView: View {
     private var historyStore: HistoryStore {
         HistoryStore(modelContext: modelContext)
     }
+
+    private var historyViewState: HistoryViewState {
+        #if canImport(PindropSharedUIWorkspace)
+        return HistoryPresenter.shared.present(
+            records: visibleTranscriptions.map {
+                HistoryRecordSnapshot(
+                    id: $0.id.uuidString,
+                    timestampEpochMillis: Int64($0.timestamp.timeIntervalSince1970 * 1000)
+                )
+            },
+            totalTranscriptionsCount: Int32(totalTranscriptionsCount),
+            searchText: searchText,
+            selectedRecordId: selectedRecord?.id.uuidString,
+            hasLoadedInitialPage: hasLoadedInitialPage,
+            isLoadingPage: isLoadingPage,
+            errorMessage: errorMessage,
+            nowEpochMillis: Int64(Date().timeIntervalSince1970 * 1000),
+            timeZoneOffsetMinutes: Int32(TimeZone.current.secondsFromGMT() / 60)
+        )
+        #else
+        return HistoryViewState(
+            trimmedSearchText: trimmedSearchText,
+            totalTranscriptionsCount: Int32(totalTranscriptionsCount),
+            selectedRecordId: selectedRecord?.id.uuidString,
+            contentStateKind: {
+                if errorMessage != nil { return .error }
+                if !hasLoadedInitialPage { return .loading }
+                if totalTranscriptionsCount == 0 && !trimmedSearchText.isEmpty { return .emptySearch }
+                if totalTranscriptionsCount == 0 { return .emptyLibrary }
+                return .populated
+            }(),
+            canExport: totalTranscriptionsCount > 0,
+            shouldShowLoadingMoreIndicator: isLoadingPage && hasLoadedInitialPage && !visibleTranscriptions.isEmpty,
+            sections: []
+        )
+        #endif
+    }
     
     /// Group transcriptions by date
     private var groupedTranscriptions: [(String, [TranscriptionRecord])] {
+        #if canImport(PindropSharedUIWorkspace)
+        return historyViewState.sections.compactMap { section in
+            let records = section.recordIds.compactMap { recordID in
+                visibleTranscriptions.first { $0.id.uuidString == recordID }
+            }
+            guard !records.isEmpty else { return nil }
+            return (title(for: section), records)
+        }
+        #else
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
             if calendar.isDateInToday(record.timestamp) {
@@ -54,7 +103,6 @@ struct HistoryView: View {
             }
         }
         
-        // Sort by most recent date first
         return grouped.sorted { first, second in
             if first.key == "Today" { return true }
             if second.key == "Today" { return false }
@@ -62,6 +110,7 @@ struct HistoryView: View {
             if second.key == "Yesterday" { return false }
             return first.value.first?.timestamp ?? Date() > second.value.first?.timestamp ?? Date()
         }
+        #endif
     }
     
     var body: some View {
@@ -93,7 +142,7 @@ struct HistoryView: View {
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
                     
-                    Text("\(totalTranscriptionsCount) \(localized("transcriptions", locale: locale))")
+                    Text("\(historyViewState.totalTranscriptionsCount) \(localized("transcriptions", locale: locale))")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -171,7 +220,7 @@ struct HistoryView: View {
             .padding(.vertical, AppTheme.Spacing.sm)
         }
         .menuStyle(.borderlessButton)
-        .disabled(totalTranscriptionsCount == 0)
+        .disabled(!historyViewState.canExport)
     }
     
     // MARK: - Content
@@ -180,9 +229,9 @@ struct HistoryView: View {
     private var contentArea: some View {
         if let errorMessage = errorMessage {
             errorView(errorMessage)
-        } else if !hasLoadedInitialPage {
+        } else if historyViewState.contentStateKind == .loading {
             loadingStateView
-        } else if totalTranscriptionsCount == 0 {
+        } else if historyViewState.contentStateKind == .emptyLibrary || historyViewState.contentStateKind == .emptySearch {
             emptyStateView
         } else {
             transcriptionsList
@@ -226,17 +275,17 @@ struct HistoryView: View {
     
     private var emptyStateView: some View {
         VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: searchText.isEmpty ? "waveform.badge.mic" : "magnifyingglass")
+            Image(systemName: historyViewState.contentStateKind == .emptyLibrary ? "waveform.badge.mic" : "magnifyingglass")
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(searchText.isEmpty
+            Text(historyViewState.contentStateKind == .emptyLibrary
                  ? localized("No transcriptions yet", locale: locale)
                  : localized("No results found", locale: locale))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
             
-            Text(searchText.isEmpty
+            Text(historyViewState.contentStateKind == .emptyLibrary
                  ? localized("Start recording to see your transcriptions here", locale: locale)
                  : localized("Try a different search term", locale: locale))
                 .font(AppTypography.body)
@@ -281,7 +330,7 @@ struct HistoryView: View {
                 }
             }
 
-            if isLoadingPage && hasLoadedInitialPage && !visibleTranscriptions.isEmpty {
+            if historyViewState.shouldShowLoadingMoreIndicator {
                 HStack {
                     Spacer()
                     ProgressView()
@@ -337,6 +386,18 @@ struct HistoryView: View {
         }
         .padding(.vertical, AppTheme.Spacing.sm)
         .background(AppColors.contentBackground)
+    }
+
+    private func title(for section: HistorySectionState) -> String {
+        switch section.kind {
+        case .today:
+            return localized("Today", locale: locale)
+        case .yesterday:
+            return localized("Yesterday", locale: locale)
+        default:
+            let date = Date(timeIntervalSince1970: TimeInterval(section.representativeTimestampEpochMillis) / 1000)
+            return Self.dayFormatter.string(from: date)
+        }
     }
     
     // MARK: - Actions
