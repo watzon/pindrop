@@ -29,6 +29,7 @@ data class TranscriptionRequest(
     val audioData: ByteArray,
     val language: TranscriptionLanguage = TranscriptionLanguage.AUTOMATIC,
     val diarizationEnabled: Boolean = false,
+    val customVocabularyWords: List<String> = emptyList(),
 )
 
 data class StreamingTranscriptionConfig(

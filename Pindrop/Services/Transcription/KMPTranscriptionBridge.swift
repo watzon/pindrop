@@ -66,6 +66,25 @@ struct SharedTranscriptionStateTransition: Equatable, Sendable {
 }
 
 enum KMPTranscriptionBridge {
+    static func localAvailableModels() -> [ModelManager.WhisperModel] {
+        #if canImport(PindropSharedTranscription)
+        LocalTranscriptionCatalog.shared.models(platform: localPlatform()).map(localModel(from:))
+        #else
+        []
+        #endif
+    }
+
+    static func recommendedLocalModels(for language: AppLanguage) -> [ModelManager.WhisperModel] {
+        #if canImport(PindropSharedTranscription)
+        LocalTranscriptionCatalog.shared.recommendedModels(
+            platform: localPlatform(),
+            language: coreLanguage(from: language)
+        ).map(localModel(from:))
+        #else
+        []
+        #endif
+    }
+
     static func normalizeTranscriptionText(_ text: String) -> String {
         #if canImport(PindropSharedTranscription)
         SharedTranscriptionOrchestrator.shared.normalizeTranscriptionText(text: text)
@@ -187,7 +206,7 @@ enum KMPTranscriptionBridge {
         #if canImport(PindropSharedTranscription)
         let policy = TranscriptionRuntimePolicy(
             selectedProvider: coreProvider(from: selectedProvider),
-            selectedModelId: CoreTranscriptionModelId(value: selectedModelName),
+            selectedModelId: TranscriptionModelId(value: selectedModelName),
             streamingFeatureEnabled: streamingFeatureEnabled,
             diarizationFeatureEnabled: diarizationFeatureEnabled,
             outputMode: outputMode.kmpValue,
@@ -256,7 +275,7 @@ enum KMPTranscriptionBridge {
         #if canImport(PindropSharedTranscription)
         let plan = SharedTranscriptionOrchestrator.shared.planTranscriptionExecution(
             selectedProvider: coreProvider(from: selectedProvider),
-            selectedModelId: CoreTranscriptionModelId(value: selectedModelName),
+            selectedModelId: TranscriptionModelId(value: selectedModelName),
             diarizationRequested: diarizationRequested,
             isStreamingSessionActive: isStreamingSessionActive
         )
@@ -441,7 +460,7 @@ enum KMPTranscriptionBridge {
     ) -> [ModelManager.WhisperModel] {
         #if canImport(PindropSharedTranscription)
         let orchestrator = SharedTranscriptionOrchestrator.shared
-        let curatedIds = recommendedModelNames(for: language).map { CoreTranscriptionModelId(value: $0) }
+        let curatedIds = recommendedModelNames(for: language).map { TranscriptionModelId(value: $0) }
         let descriptors = availableModels.map(coreDescriptor(from:))
         let language = coreLanguage(from: language)
 
@@ -482,10 +501,10 @@ enum KMPTranscriptionBridge {
         let modelsByName = Dictionary(uniqueKeysWithValues: availableModels.map { ($0.name, $0) })
 
         let resolution = orchestrator.resolveStartupModel(
-            selectedModelId: CoreTranscriptionModelId(value: selectedModelId),
-            defaultModelId: CoreTranscriptionModelId(value: defaultModelId),
+            selectedModelId: TranscriptionModelId(value: selectedModelId),
+            defaultModelId: TranscriptionModelId(value: defaultModelId),
             availableModels: descriptors,
-            downloadedModelIds: downloadedModelIds.map(CoreTranscriptionModelId.init(value:))
+            downloadedModelIds: downloadedModelIds.map { TranscriptionModelId(value: $0) }
         )
 
         let resolvedModel = modelsByName[resolution.resolvedModel.id.value] ?? availableModels.first!
@@ -610,7 +629,7 @@ enum KMPTranscriptionBridge {
 
 #if canImport(PindropSharedTranscription)
 private extension KMPTranscriptionBridge {
-    static func coreProvider(from provider: ModelManager.ModelProvider) -> CoreTranscriptionProviderId {
+    static func coreProvider(from provider: ModelManager.ModelProvider) -> TranscriptionProviderId {
         switch provider {
         case .whisperKit:
             .whisperKit
@@ -625,7 +644,7 @@ private extension KMPTranscriptionBridge {
         }
     }
 
-    static func modelProvider(from provider: CoreTranscriptionProviderId) -> ModelManager.ModelProvider {
+    static func modelProvider(from provider: TranscriptionProviderId) -> ModelManager.ModelProvider {
         switch provider {
         case .whisperKit:
             .whisperKit
@@ -642,7 +661,7 @@ private extension KMPTranscriptionBridge {
         }
     }
 
-    static func coreLanguage(from language: AppLanguage) -> CoreTranscriptionLanguage {
+    static func coreLanguage(from language: AppLanguage) -> TranscriptionLanguage {
         switch language {
         case .automatic:
             .automatic
@@ -673,7 +692,7 @@ private extension KMPTranscriptionBridge {
 
     static func coreLanguageSupport(
         from support: ModelManager.LanguageSupport
-    ) -> CoreModelLanguageSupport {
+    ) -> ModelLanguageSupport {
         switch support {
         case .englishOnly:
             .englishOnly
@@ -686,7 +705,7 @@ private extension KMPTranscriptionBridge {
 
     static func coreAvailability(
         from availability: ModelManager.ModelAvailability
-    ) -> CoreModelAvailability {
+    ) -> ModelAvailability {
         switch availability {
         case .available:
             .available
@@ -697,9 +716,9 @@ private extension KMPTranscriptionBridge {
         }
     }
 
-    static func coreDescriptor(from model: ModelManager.WhisperModel) -> CoreModelDescriptor {
-        CoreModelDescriptor(
-            id: CoreTranscriptionModelId(value: model.name),
+    static func coreDescriptor(from model: ModelManager.WhisperModel) -> ModelDescriptor {
+        ModelDescriptor(
+            id: TranscriptionModelId(value: model.name),
             displayName: model.displayName,
             provider: coreProvider(from: model.provider),
             languageSupport: coreLanguageSupport(from: model.languageSupport),
@@ -711,7 +730,76 @@ private extension KMPTranscriptionBridge {
         )
     }
 
-    static func coreState(from state: TranscriptionService.State) -> CoreSharedTranscriptionState {
+    static func localProvider(
+        from provider: LocalModelProvider
+    ) -> ModelManager.ModelProvider {
+        switch provider {
+        case .whisperKit, .wcpp:
+            .whisperKit
+        case .parakeetCoreml, .parakeetNative:
+            .parakeet
+        default:
+            .whisperKit
+        }
+    }
+
+    static func localAvailability(
+        from availability: ModelAvailability
+    ) -> ModelManager.ModelAvailability {
+        switch availability {
+        case .available:
+            .available
+        case .comingSoon:
+            .comingSoon
+        case .requiresSetup:
+            .requiresSetup
+        default:
+            .available
+        }
+    }
+
+    static func localLanguageSupport(
+        from support: ModelLanguageSupport
+    ) -> ModelManager.LanguageSupport {
+        switch support {
+        case .englishOnly:
+            .englishOnly
+        case .fullMultilingual:
+            .fullMultilingual
+        case .parakeetV3European:
+            .parakeetV3European
+        default:
+            .fullMultilingual
+        }
+    }
+
+    static func localModel(
+        from descriptor: LocalModelDescriptor
+    ) -> ModelManager.WhisperModel {
+        ModelManager.WhisperModel(
+            name: descriptor.id.value,
+            displayName: descriptor.displayName,
+            sizeInMB: Int(descriptor.sizeInMb),
+            description: descriptor.description_,
+            speedRating: descriptor.speedRating,
+            accuracyRating: descriptor.accuracyRating,
+            languageSupport: localLanguageSupport(from: descriptor.languageSupport),
+            provider: localProvider(from: descriptor.provider),
+            availability: localAvailability(from: descriptor.availability)
+        )
+    }
+
+    static func localPlatform() -> LocalPlatformId {
+        #if os(macOS)
+        .macos
+        #elseif os(Windows)
+        .windows
+        #else
+        .linux
+        #endif
+    }
+
+    static func coreState(from state: TranscriptionService.State) -> SharedTranscriptionState {
         switch state {
         case .unloaded:
             .unloaded
@@ -726,7 +814,7 @@ private extension KMPTranscriptionBridge {
         }
     }
 
-    static func serviceState(from state: CoreSharedTranscriptionState) -> TranscriptionService.State {
+    static func serviceState(from state: SharedTranscriptionState) -> TranscriptionService.State {
         switch state {
         case .unloaded:
             .unloaded

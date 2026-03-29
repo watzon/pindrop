@@ -13,6 +13,8 @@ kotlin {
     }
     val macosArm64Target = macosArm64()
     val macosX64Target = macosX64()
+    linuxX64()
+    mingwX64()
 
     val xcframework = XCFramework("PindropSharedCore")
 
