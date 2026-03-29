@@ -42,10 +42,21 @@ kotlin {
                 }
             }
         }
+
+        binaries {
+            executable {
+                entryPoint = "tech.watzon.pindrop.shared.ui.shell.linux.main"
+            }
+        }
     }
 
     sourceSets {
         commonMain.dependencies {
+        }
+        linuxX64Main.dependencies {
+            implementation(project(":core"))
+            implementation(project(":settings-schema"))
+            implementation(project(":ui-localization"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
