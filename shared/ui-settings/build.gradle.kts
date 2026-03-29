@@ -25,6 +25,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":settings-schema"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
