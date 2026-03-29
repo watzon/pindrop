@@ -6,40 +6,69 @@
 //
 
 import Foundation
+#if canImport(PindropSharedLocalization)
+import PindropSharedLocalization
+#endif
 
 nonisolated func localized(_ key: String, locale: Locale) -> String {
-    let bundle = localizationBundle(for: locale)
-    let localizedValue = bundle.localizedString(forKey: key, value: nil, table: nil)
-
-    if localizedValue != key || bundle == Bundle.main {
-        return localizedValue
-    }
-
-    return Bundle.main.localizedString(forKey: key, value: key, table: nil)
+    let localeCode = localeIdentifierForKMP(locale)
+    return SharedLocalization.shared.getString(xcKey: key, locale: localeCode)
 }
 
-private nonisolated func localizationBundle(for locale: Locale) -> Bundle {
-    for identifier in localizationIdentifiers(for: locale) {
-        if let path = Bundle.main.path(forResource: identifier, ofType: "lproj"),
-           let bundle = Bundle(path: path) {
-            return bundle
-        }
+/// Convert a Swift Locale to a KMP-compatible locale identifier.
+/// Maps SwiftUI Locale identifiers to the locale codes used in the KMP strings bundle.
+private nonisolated func localeIdentifierForKMP(_ locale: Locale) -> String {
+    // Try the full identifier first (e.g., "pt-BR", "zh-Hans")
+    let identifier = locale.identifier.replacingOccurrences(of: "_", with: "-")
+
+    // Check for known multi-part locale codes
+    let knownMultiPart: Set<String> = [
+        "pt-BR", "zh-Hans", "zh-Hant", "zh-Hans-CN", "zh-Hant-TW",
+        "en-US", "en-GB", "en-AU", "en-CA",
+        "de-DE", "de-AT", "de-CH",
+        "es-ES", "es-MX", "es-AR",
+        "fr-FR", "fr-CA", "fr-BE",
+        "it-IT", "it-CH",
+        "nl-NL", "nl-BE",
+        "ko-KR",
+        "ja-JP",
+        "tr-TR",
+    ]
+
+    if knownMultiPart.contains(identifier) {
+        // Map to our supported locale codes
+        if identifier.hasPrefix("pt") { return "pt-BR" }
+        if identifier.hasPrefix("zh-Hans") { return "zh-Hans" }
+        // For other multi-part codes, fall through to language-only mapping
     }
 
-    return Bundle.main
-}
-
-private nonisolated func localizationIdentifiers(for locale: Locale) -> [String] {
-    var identifiers: [String] = []
-    let normalizedIdentifier = locale.identifier.replacingOccurrences(of: "_", with: "-")
-
-    if !normalizedIdentifier.isEmpty {
-        identifiers.append(normalizedIdentifier)
-
-        if let languageIdentifier = normalizedIdentifier.split(separator: "-").first {
-            identifiers.append(String(languageIdentifier))
-        }
+    // Extract the language code
+    let languageCode: String
+    if let lang = locale.language.languageCode?.identifier {
+        languageCode = lang
+    } else {
+        let parts = identifier.split(separator: "-")
+        languageCode = parts.first.map(String.init) ?? identifier
     }
 
-    return Array(NSOrderedSet(array: identifiers)) as? [String] ?? identifiers
+    // Map language codes to our supported locales
+    switch languageCode {
+    case "de": return "de"
+    case "es": return "es"
+    case "fr": return "fr"
+    case "it": return "it"
+    case "ja": return "ja"
+    case "ko": return "ko"
+    case "nl": return "nl"
+    case "pt": return "pt-BR"
+    case "tr": return "tr"
+    case "zh":
+        // Determine simplified vs traditional
+        if identifier.hasPrefix("zh-Hans") || identifier.hasPrefix("zh-CN") {
+            return "zh-Hans"
+        }
+        // Default to simplified for any zh variant
+        return "zh-Hans"
+    default: return "en"
+    }
 }

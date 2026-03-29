@@ -13,37 +13,39 @@ package tech.watzon.pindrop.shared.uilocalization
  * Shared localization authority.
  *
  * Provides runtime string lookup by xcstrings key and locale.
- * All strings are loaded from the bundled strings_bundle.json resource.
+ * All strings are embedded from Localizable.xcstrings via generated locale files.
  * Swift calls [getString] to resolve localized text at runtime.
  */
 object SharedLocalization {
 
     /**
      * Mapping from xcstrings keys to KMP resource identifiers.
-     * Populated from key_mapping.json by the conversion script.
+     * Generated from key_mapping.json by the conversion script.
      */
-    internal var _keyMapping: Map<String, String> = emptyMap()
+    internal val _keyMapping: Map<String, String> = KEY_MAPPING
+
+    /**
+     * Reverse mapping from KMP identifiers to xcstrings keys.
+     */
+    internal val _reverseMapping: Map<String, String> = _keyMapping.entries.associate { it.value to it.key }
 
     /**
      * All localized strings: locale → (kmpId → localized value).
-     * Populated from strings_bundle.json by platform-specific loader.
+     * Populated from per-locale generated files.
      */
-    private var _strings: Map<String, Map<String, String>> = emptyMap()
-
-    /**
-     * Whether the strings have been initialized.
-     */
-    private var _initialized: Boolean = false
-
-    /**
-     * Initialize with pre-loaded data.
-     * Called by platform-specific code after loading JSON resources.
-     */
-    fun initialize(keyMapping: Map<String, String>, strings: Map<String, Map<String, String>>) {
-        _keyMapping = keyMapping
-        _strings = strings
-        _initialized = true
-    }
+    private val _strings: Map<String, Map<String, String>> = mapOf(
+        "en" to STRINGS_EN,
+        "de" to STRINGS_DE,
+        "es" to STRINGS_ES,
+        "fr" to STRINGS_FR,
+        "it" to STRINGS_IT,
+        "ja" to STRINGS_JA,
+        "ko" to STRINGS_KO,
+        "nl" to STRINGS_NL,
+        "pt-BR" to STRINGS_PT_BR,
+        "tr" to STRINGS_TR,
+        "zh-Hans" to STRINGS_ZH_HANS,
+    )
 
     /**
      * Returns all KMP resource string identifiers.
@@ -63,9 +65,7 @@ object SharedLocalization {
      * Returns the set of supported locale codes.
      */
     fun supportedLocales(): Set<String> {
-        return setOf(
-            "en", "de", "es", "fr", "it", "ja", "ko", "nl", "pt-BR", "tr", "zh-Hans"
-        )
+        return _strings.keys.toSet()
     }
 
     /**
@@ -86,7 +86,7 @@ object SharedLocalization {
      * Look up an xcstrings key from a KMP identifier.
      */
     fun xcKeyForKmpIdentifier(kmpId: String): String? {
-        return _keyMapping.entries.find { it.value == kmpId }?.key
+        return _reverseMapping[kmpId]
     }
 
     /**
@@ -97,19 +97,14 @@ object SharedLocalization {
      * then falls back to the key itself if no translation exists.
      */
     fun getString(xcKey: String, locale: String): String {
-        val kmpId = _keyMapping[xcKey]
-        if (kmpId != null) {
-            return getStringById(kmpId, locale)
-        }
-        return xcKey
+        val kmpId = _keyMapping[xcKey] ?: return xcKey
+        return getStringById(kmpId, locale)
     }
 
     /**
      * Resolve a localized string by its KMP identifier and locale.
      */
     fun getStringById(kmpId: String, locale: String): String {
-        if (!_initialized) return kmpId
-
         // Try exact locale match
         val localeStrings = _strings[locale]
         if (localeStrings != null) {
@@ -135,7 +130,7 @@ object SharedLocalization {
             if (value != null) return value
         }
 
-        // Last resort: return the identifier
+        // Last resort: return the key
         return kmpId
     }
 }
