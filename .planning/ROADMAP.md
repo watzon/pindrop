@@ -27,7 +27,11 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
   1. Supported desktop clients apply the same shared rules for settings schema, model policy, transcription session policy, history/search semantics, dictionary cleanup, and AI enhancement behavior.
   2. Shipped UI strings for supported desktop clients come from one shared localization source instead of separate per-platform translation systems.
   3. macOS users still get native SwiftUI/AppKit UI and native WhisperKit transcription while Linux- and Windows-ready adapters are exposed through shared contracts.
-**Plans**: TBD
+**Plans**: 3 plans
+
+- [ ] 01-01-PLAN.md — Settings Schema Authority (KMP module + Swift wiring)
+- [ ] 01-02-PLAN.md — Localization Source of Truth (xcstrings → KMP resources)
+- [ ] 01-03-PLAN.md — Shared Domain Logic + Fallback Cleanup
 
 ### Phase 2: Linux Shell & Settings
 **Goal**: Linux users can keep Pindrop available as a real desktop utility with onboarding, tray presence, autostart, and daily settings control.
@@ -93,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Shared Core Authority | 0/TBD | Not started | - |
+| 1. Shared Core Authority | 0/3 | Planning complete | - |
 | 2. Linux Shell & Settings | 0/TBD | Not started | - |
 | 3. Linux Offline Transcription | 0/TBD | Not started | - |
 | 4. Linux Capture & Output Loop | 0/TBD | Not started | - |
