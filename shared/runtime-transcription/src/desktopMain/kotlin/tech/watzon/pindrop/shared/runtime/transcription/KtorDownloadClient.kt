@@ -1,7 +1,7 @@
 package tech.watzon.pindrop.shared.runtime.transcription
 
-import io.ktor.client.call.body
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
@@ -11,7 +11,7 @@ import okio.Path
 import okio.buffer
 import okio.use
 
-class KtorDownloadClient(
+internal class KtorDownloadClient(
     private val httpClient: HttpClient,
     private val fileSystem: FileSystem,
 ) : DownloadClientPort {

@@ -1,6 +1,5 @@
 package tech.watzon.pindrop.shared.runtime.transcription
 
-import io.ktor.client.HttpClient
 import okio.FileSystem
 import okio.Path
 
@@ -9,11 +8,11 @@ object WhisperCppRuntimeFactory {
         platform: LocalPlatformId,
         fileSystem: FileSystem,
         installRoot: Path,
-        httpClient: HttpClient,
+        downloadClient: DownloadClientPort,
         bridge: WhisperCppBridgePort,
         observer: RuntimeObserver? = null,
+        repository: RemoteModelRepositoryPort = WhisperCppRemoteModelRepository(),
     ): LocalTranscriptionRuntime {
-        val repository = WhisperCppRemoteModelRepository()
         return LocalTranscriptionRuntime(
             platform = platform,
             installedModelIndex = FileSystemInstalledModelIndex(
@@ -24,10 +23,7 @@ object WhisperCppRuntimeFactory {
                 fileSystem = fileSystem,
                 installRoot = installRoot,
                 repository = repository,
-                downloadClient = KtorDownloadClient(
-                    httpClient = httpClient,
-                    fileSystem = fileSystem,
-                ),
+                downloadClient = downloadClient,
             ),
             backendRegistry = DefaultBackendRegistry(
                 platform = platform,

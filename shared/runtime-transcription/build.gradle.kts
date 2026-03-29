@@ -31,10 +31,16 @@ kotlin {
     }
 
     sourceSets {
+        val desktopMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation("io.ktor:ktor-client-core:3.4.1")
+            }
+        }
+
         commonMain.dependencies {
             api(project(":core"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-            implementation("io.ktor:ktor-client-core:3.4.1")
             implementation("com.squareup.okio:okio:3.9.0")
         }
         commonTest.dependencies {
@@ -43,5 +49,9 @@ kotlin {
             implementation("io.ktor:ktor-client-mock:3.4.1")
             implementation("com.squareup.okio:okio-fakefilesystem:3.9.0")
         }
+
+        jvmMain.get().dependsOn(desktopMain)
+        linuxX64Main.get().dependsOn(desktopMain)
+        mingwX64Main.get().dependsOn(desktopMain)
     }
 }

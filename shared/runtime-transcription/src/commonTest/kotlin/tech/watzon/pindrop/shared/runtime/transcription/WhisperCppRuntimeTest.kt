@@ -1,9 +1,5 @@
 package tech.watzon.pindrop.shared.runtime.transcription
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.encodeUtf8
 import okio.Path.Companion.toPath
@@ -110,20 +106,26 @@ class WhisperCppRuntimeTest {
         val fileSystem = FakeFileSystem()
         val installRoot = "/models".toPath()
         val bridge = FakeWhisperCppBridge()
+        val repository = WhisperCppRemoteModelRepository()
+        val model = requireNotNull(
+            LocalTranscriptionCatalog.model(
+                platform = LocalPlatformId.WINDOWS,
+                modelId = TranscriptionModelId("openai_whisper-base.en"),
+            ),
+        )
+        val artifact = repository.artifactsFor(model).single()
         val runtime = WhisperCppRuntimeFactory.create(
             platform = LocalPlatformId.WINDOWS,
             fileSystem = fileSystem,
             installRoot = installRoot,
-            httpClient = HttpClient(
-                MockEngine { request ->
-                    val fileName = request.url.encodedPath.substringAfterLast('/')
-                    respond(
-                        content = fileName.encodeUtf8().toByteArray(),
-                        status = HttpStatusCode.OK,
-                    )
-                },
+            downloadClient = FakeArtifactDownloadClient(
+                fileSystem = fileSystem,
+                contentByUrl = mapOf(
+                    artifact.downloadUrl to "ggml-base.en.bin".encodeUtf8(),
+                ),
             ),
             bridge = bridge,
+            repository = repository,
         )
         val modelId = TranscriptionModelId("openai_whisper-base.en")
 
