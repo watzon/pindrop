@@ -1,11 +1,12 @@
 package tech.watzon.pindrop.shared.runtime.transcription
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.readAvailable
 import okio.FileSystem
 import okio.Path
 import okio.buffer
@@ -49,13 +50,30 @@ internal class KtorDownloadClient(
         onProgress: (bytesDownloaded: Long, totalBytes: Long?) -> Unit,
     ) {
         val totalBytes = response.headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: fallbackTotalBytes
-        val bytes = response.body<ByteArray>()
+        val channel = response.bodyAsChannel()
+        val buffer = ByteArray(BUFFER_SIZE_BYTES)
+        var downloadedBytes = 0L
 
         onProgress(0L, totalBytes)
 
         fileSystem.sink(destination).buffer().use { sink ->
-            sink.write(bytes)
+            while (true) {
+                val readCount = channel.readAvailable(buffer, 0, buffer.size)
+                if (readCount == -1) {
+                    break
+                }
+                if (readCount == 0) {
+                    continue
+                }
+
+                sink.write(buffer, 0, readCount)
+                downloadedBytes += readCount
+                onProgress(downloadedBytes, totalBytes)
+            }
         }
-        onProgress(bytes.size.toLong(), totalBytes ?: bytes.size.toLong())
+    }
+
+    private companion object {
+        const val BUFFER_SIZE_BYTES = 64 * 1024
     }
 }

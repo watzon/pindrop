@@ -251,6 +251,7 @@ final class KMPTranscriptionRuntimeBridge {
                 }
             }
         }
+        try validateRuntimeLoadSucceeded(modelName: modelName)
 
         guard let engine = backendRegistry.engine(for: backendProvider) else {
             throw TranscriptionService.TranscriptionError.modelLoadFailed(
@@ -270,6 +271,7 @@ final class KMPTranscriptionRuntimeBridge {
                 }
             }
         }
+        try validateRuntimePathLoadSucceeded(path: path)
 
         guard let engine = backendRegistry.engine(for: .whisperKit) else {
             throw TranscriptionService.TranscriptionError.modelLoadFailed(
@@ -337,6 +339,28 @@ final class KMPTranscriptionRuntimeBridge {
                 }
             }
         }
+    }
+
+    private func validateRuntimeLoadSucceeded(modelName: String) throws {
+        if runtime.state == .ready, runtime.activeModel?.descriptor.id.value == modelName {
+            return
+        }
+
+        throw TranscriptionService.TranscriptionError.modelLoadFailed(
+            runtime.lastErrorMessage ??
+                "Runtime failed to load model '\(modelName)' (\(runtime.lastErrorCode?.name ?? "unknown_error"))"
+        )
+    }
+
+    private func validateRuntimePathLoadSucceeded(path: String) throws {
+        if runtime.state == .ready {
+            return
+        }
+
+        throw TranscriptionService.TranscriptionError.modelLoadFailed(
+            runtime.lastErrorMessage ??
+                "Runtime failed to load model at path '\(path)' (\(runtime.lastErrorCode?.name ?? "unknown_error"))"
+        )
     }
 }
 
