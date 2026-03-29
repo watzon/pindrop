@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 plans created
-last_updated: "2026-03-29T20:15:00.000Z"last_activity: 2026-03-29 — Phase 1 planned (3 plans, 2 waves 1 parallel + 1 sequential)
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-03-29T20:19:15.231Z"
+last_activity: 2026-03-29
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Users can get a native-feeling, offline-first dictation experience on each desktop platform without sacrificing platform fidelity or maintaining separate business logic for every app.
-**Current focus:** Phase 1 - Shared Core Authority
+**Current focus:** Phase 01 — shared-core-authority
 
 ## Current Position
 
-Phase: 1 of 6 (Shared Core Authority)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-29 — Initial roadmap created for Linux support initiative
+Phase: 01 (shared-core-authority) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-03-29
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -50,6 +51,8 @@ Progress: [░░░░░░░░░░] 0%
 - Last 5 plans: none
 - Trend: Stable
 
+| Phase 01 P01 | 35m | 2 tasks | 13 files |
+
 ## Accumulated Context
 
 ### Decisions
@@ -60,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 1]: Shared Kotlin becomes the authority for non-native product rules and shared localization.
 - [Phase 1]: macOS UI stays native SwiftUI/AppKit and macOS WhisperKit stays native.
 - [Phase 2-6]: Linux is treated as a packaged first-class desktop product, not a source-only preview.
+- [Phase 01]: KMP objects map to Swift .shared singleton; Kotlin Int → Swift Int32 requires Int() wrapper
+- [Phase 01]: settings-schema module is standalone with no dependency on other shared modules
+- [Phase 01]: Type name collisions between KMP and Swift resolved with Pindrop.* prefix in test files
 
 ### Pending Todos
 
@@ -73,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T19:21:40.628Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-shared-core-authority/01-CONTEXT.md
+Last session: 2026-03-29T20:19:15.228Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None

@@ -29,7 +29,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
   3. macOS users still get native SwiftUI/AppKit UI and native WhisperKit transcription while Linux- and Windows-ready adapters are exposed through shared contracts.
 **Plans**: 3 plans
 
-- [ ] 01-01-PLAN.md — Settings Schema Authority (KMP module + Swift wiring)
+- [x] 01-01-PLAN.md — Settings Schema Authority (KMP module + Swift wiring)
 - [ ] 01-02-PLAN.md — Localization Source of Truth (xcstrings → KMP resources)
 - [ ] 01-03-PLAN.md — Shared Domain Logic + Fallback Cleanup
 
