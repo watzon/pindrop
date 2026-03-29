@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(PindropSharedLocalization)
 import PindropSharedLocalization
-#endif
 
 nonisolated func localized(_ key: String, locale: Locale) -> String {
     let localeCode = localeIdentifierForKMP(locale)

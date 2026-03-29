@@ -28,7 +28,6 @@
 		6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0729D0116F8418084311F4C /* HistoryStoreTests.swift */; };
 		6E6131CA672EBD7B453B6F24 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0396D539B94AA6C8EAAFC8A /* PermissionsStepView.swift */; };
 		6EA189DAD2FC954E2AA5B6B3 /* AIEnhancementStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */; };
-		6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */; };
 		6EA189DAD2FC954E2AA5B6B6 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */; };
 		70CE9E64F744FED2830FD930 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DC71BCB19DB51FA606C373 /* Icons.swift */; };
 		735CDA1E1288B02683BE5ED6 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */; };
@@ -117,6 +116,8 @@
 		KMPSHAREDUIWORKSPACEBUILD01A2B3C4D5 /* PindropSharedUIWorkspace.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDUIWORKSPACEFILE01A2B3C4D5 /* PindropSharedUIWorkspace.framework */; };
 	KMPSETTINGSHEMABUILD01A2B3C4 /* PindropSharedSchema.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSETTINGSHEMAFILE01A2B3C4 /* PindropSharedSchema.framework */; };
 	KMPSETTINGSHEMAEMBED01A2B3C4 /* PindropSharedSchema.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSETTINGSHEMAFILE01A2B3C4 /* PindropSharedSchema.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+	KMPUILOCALIZATIONBUILD01A2B3C4 /* PindropSharedLocalization.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = KMPUILOCALIZATIONFILE01A2B3C4 /* PindropSharedLocalization.framework */; };
+	KMPUILOCALIZATIONEMBED01A2B3C4 /* PindropSharedLocalization.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = KMPUILOCALIZATIONFILE01A2B3C4 /* PindropSharedLocalization.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		KMPSHAREDUIWORKSPACEEMBED01A2B3C4D5 /* PindropSharedUIWorkspace.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = KMPSHAREDUIWORKSPACEFILE01A2B3C4D5 /* PindropSharedUIWorkspace.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		MNTFMT01A2B3C4D5E6F /* MentionFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */; };
 		MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */; };
@@ -202,6 +203,7 @@
 				KMPSHAREDUISETTINGSEMBED01A2B3C4D5 /* PindropSharedSettings.framework in Embed Frameworks */,
 				KMPSHAREDUIWORKSPACEEMBED01A2B3C4D5 /* PindropSharedUIWorkspace.framework in Embed Frameworks */,
 				KMPSETTINGSHEMAEMBED01A2B3C4 /* PindropSharedSchema.framework in Embed Frameworks */,
+				KMPUILOCALIZATIONEMBED01A2B3C4 /* PindropSharedLocalization.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -223,7 +225,6 @@
 		562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelSelectionStepView.swift; sourceTree = "<group>"; };
 		643AABFF228E4861A399A74F /* ModelsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsSettingsView.swift; sourceTree = "<group>"; };
 		68A6BA5D6DB40F25222D224E /* StatusBarController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
-		6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		6f62938483ec4a11ad5636be /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsView.swift; sourceTree = "<group>"; };
@@ -313,6 +314,7 @@
 		KMPSHAREDUISETTINGSFILE01A2B3C4D5 /* PindropSharedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedSettings.framework; path = shared/ui-settings/build/XCFrameworks/release/PindropSharedSettings.xcframework/macos-arm64_x86_64/PindropSharedSettings.framework; sourceTree = SOURCE_ROOT; };
 		KMPSHAREDUIWORKSPACEFILE01A2B3C4D5 /* PindropSharedUIWorkspace.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedUIWorkspace.framework; path = shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64/PindropSharedUIWorkspace.framework; sourceTree = SOURCE_ROOT; };
 	KMPSETTINGSHEMAFILE01A2B3C4 /* PindropSharedSchema.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedSchema.framework; path = shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64/PindropSharedSchema.framework; sourceTree = SOURCE_ROOT; };
+	KMPUILOCALIZATIONFILE01A2B3C4 /* PindropSharedLocalization.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PindropSharedLocalization.framework; path = shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64/PindropSharedLocalization.framework; sourceTree = SOURCE_ROOT; };
 		MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionFormatter.swift; sourceTree = "<group>"; };
 		MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionFormatterTests.swift; sourceTree = "<group>"; };
 		MNTRWRT01A2B3C4D5E6F /* MentionRewriteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionRewriteService.swift; sourceTree = "<group>"; };
@@ -379,6 +381,7 @@
 				KMPSHAREDUISETTINGSBUILD01A2B3C4D5 /* PindropSharedSettings.framework in Frameworks */,
 				KMPSHAREDUIWORKSPACEBUILD01A2B3C4D5 /* PindropSharedUIWorkspace.framework in Frameworks */,
 				KMPSETTINGSHEMABUILD01A2B3C4 /* PindropSharedSchema.framework in Frameworks */,
+				KMPUILOCALIZATIONBUILD01A2B3C4 /* PindropSharedLocalization.framework in Frameworks */,
 				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
 				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
 				SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
@@ -532,6 +535,7 @@
 				KMPSHAREDUISETTINGSFILE01A2B3C4D5 /* PindropSharedSettings.framework */,
 				KMPSHAREDUIWORKSPACEFILE01A2B3C4D5 /* PindropSharedUIWorkspace.framework */,
 				KMPSETTINGSHEMAFILE01A2B3C4 /* PindropSharedSchema.framework */,
+				KMPUILOCALIZATIONFILE01A2B3C4 /* PindropSharedLocalization.framework */,
 			);
 			name = "OS X";
 			sourceTree = "<group>";
@@ -580,7 +584,6 @@
 		LOCALIZATIONGRP01A2B3C4D5E6F /* Localization */ = {
 			isa = PBXGroup;
 			children = (
-				6EA189DAD2FC954E2AA5B6B5 /* Localizable.xcstrings */,
 				6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */,
 			);
 			path = Localization;
@@ -880,7 +883,6 @@
 				6EA189DAD2FC954E2AA5B6B6 /* InfoPlist.xcstrings in Resources */,
 				440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */,
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
-				6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */,
 				APPICON02A2B3C4D5E6F70 /* Pindrop.icon in Resources */,
 			);
 		};
@@ -1117,6 +1119,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -1156,6 +1159,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
@@ -1247,6 +1251,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -1351,6 +1356,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Pindrop/Info.plist;
@@ -1385,6 +1391,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -1415,6 +1422,7 @@
 					"$(PROJECT_DIR)/shared/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/macos-arm64_x86_64",
 					"$(PROJECT_DIR)/shared/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/macos-arm64_x86_64",
+					"$(PROJECT_DIR)/shared/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/macos-arm64_x86_64",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
