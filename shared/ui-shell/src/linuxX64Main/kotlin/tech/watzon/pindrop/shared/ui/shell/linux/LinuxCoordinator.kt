@@ -11,6 +11,7 @@ import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uishell.cinterop.libadwaita.*
+import tech.watzon.pindrop.shared.ui.shell.linux.onboarding.OnboardingWizard
 
 /**
  * Linux lifecycle coordinator — adapts the macOS AppCoordinator pattern
@@ -35,6 +36,7 @@ class LinuxCoordinator(
     private var trayIcon: TrayIcon? = null
     private var trayMenu: TrayMenu? = null
     private var trayFallback: TrayFallback? = null
+    private var onboardingWizard: OnboardingWizard? = null
 
     // First-run detection
     private var needsOnboarding: Boolean = false
@@ -50,12 +52,6 @@ class LinuxCoordinator(
         val completedOnboarding = settingsPersistence.getBool(SettingsKeys.hasCompletedOnboarding)
             ?: SettingsDefaults.hasCompletedOnboarding
         needsOnboarding = !completedOnboarding
-
-        if (needsOnboarding) {
-            // Plan 03 provides the onboarding wizard.
-            // For now, show the main window with a placeholder.
-            gtk_widget_show(window)
-        }
 
         // 3. Synchronize autostart if launchAtLogin is enabled
         val launchAtLogin = settingsPersistence.getBool(SettingsKeys.launchAtLogin)
@@ -91,13 +87,16 @@ class LinuxCoordinator(
             trayFallback = TrayFallback(this, window)
             trayFallback?.show()
         }
+
+        if (needsOnboarding) {
+            showOnboarding()
+        }
     }
 
     /**
-     * Show settings — placeholder that Plan 03 will wire to settings dialog.
+     * Show settings placeholder until the Linux settings dialog is available.
      */
     fun showSettings() {
-        // TODO: Plan 03 creates the settings dialog
         gtk_window_present(window.reinterpret())
     }
 
@@ -157,9 +156,11 @@ class LinuxCoordinator(
         settingsPersistence.save()
         trayMenu?.destroy()
         trayFallback?.destroy()
+        onboardingWizard?.destroy()
         trayIcon = null
         trayMenu = null
         trayFallback = null
+        onboardingWizard = null
         g_application_quit(app.reinterpret())
     }
 
@@ -188,5 +189,21 @@ class LinuxCoordinator(
     private fun getAutostartDir(): String {
         val home = getenv("HOME")?.toKString() ?: "/tmp"
         return "$home/.config/autostart"
+    }
+
+    private fun showOnboarding() {
+        if (onboardingWizard == null) {
+            onboardingWizard = OnboardingWizard(
+                settings = settingsPersistence,
+                secrets = secretStorage,
+                parentWindow = window,
+                locale = getLocale(),
+            ).also { wizard ->
+                wizard.onFinished = {
+                    needsOnboarding = false
+                }
+            }
+        }
+        onboardingWizard?.show()
     }
 }
