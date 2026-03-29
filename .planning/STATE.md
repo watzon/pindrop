@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-03-29T23:11:54.976Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-03-29T23:38:00.000Z"
 last_activity: 2026-03-29
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 33
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Users can get a native-feeling, offline-first dictation experience on each desktop platform without sacrificing platform fidelity or maintaining separate business logic for every app.
-**Current focus:** Phase 02 — linux-shell-settings
+**Current focus:** Phase 03 — linux-offline-transcription
 
 ## Current Position
 
-Phase: 02 (linux-shell-settings) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Phase: 03 (linux-offline-transcription) — READY
+Plan: 0 of TBD
+Status: Phase 02 complete
 Last activity: 2026-03-29
 
 Progress: [███░░░░░░░] 33%
@@ -36,7 +36,7 @@ Progress: [███░░░░░░░] 33%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 6
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -44,11 +44,12 @@ Progress: [███░░░░░░░] 33%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| Phase 01 | 3/3 | 69m | 23m |
+| Phase 02 | 3/3 | unknown | unknown |
 
 **Recent Trend:**
 
-- Last 5 plans: none
+- Last 5 plans: Phase 01 P03, Phase 01 P02, Phase 02 P01, Phase 02 P02, Phase 02 P03
 - Trend: Stable
 
 | Phase 01 P01 | 35m | 2 tasks | 13 files |
@@ -56,6 +57,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 01 P02 | 19min | 2 tasks | 29 files |
 | Phase 02 P01 | 1min | 2 tasks | 24 files |
 | Phase 02 P02 | 4min | 2 tasks | 8 files |
+| Phase 02 P03 | unknown | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -80,10 +82,12 @@ Recent decisions affecting current work:
 - [Phase 02]: POSIX file I/O via platform.posix with @OptIn(ExperimentalForeignApi::class)
 - [Phase 02]: AppIndicator uses GTK 3 menus in a GTK 4 app via separate cinterop packages — TrayIcon links libgtk-3 for AppIndicator menu, main app uses GTK 4
 - [Phase 02]: StableRef pattern for passing Kotlin coordinator state to static C callbacks — staticCFunction cannot capture state, so StableRef.asCPointer() passes coordinator through user_data
+- [Phase 02]: Linux onboarding uses soft gates for audio/hotkey setup because desktop capability varies across X11 and Wayland sessions
+- [Phase 02]: Linux settings UI uses a GTK stack dialog instead of AdwPreferencesDialog while still using shared settings-schema and ui-settings rules
 
 ### Pending Todos
 
-None yet.
+Phase 03 planning and execution remain.
 
 ### Blockers/Concerns
 
@@ -93,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T23:11:54.973Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-03-29T23:38:00.000Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

@@ -10,8 +10,8 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Shared Core Authority** - Make shared Kotlin rules and localization authoritative without breaking native macOS boundaries.
-- [ ] **Phase 2: Linux Shell & Settings** - Deliver the Linux tray app shell, onboarding flow, autostart, and daily settings surfaces.
+- [x] **Phase 1: Shared Core Authority** - Make shared Kotlin rules and localization authoritative without breaking native macOS boundaries.
+- [x] **Phase 2: Linux Shell & Settings** - Deliver the Linux tray app shell, onboarding flow, autostart, and daily settings surfaces.
 - [ ] **Phase 3: Linux Offline Transcription** - Deliver Linux microphone transcription and local model management as a complete offline workflow.
 - [ ] **Phase 4: Linux Capture & Output Loop** - Deliver hotkey-driven recording, recording feedback, and reliable text delivery behavior.
 - [ ] **Phase 5: History, Dictionary & AI Workflows** - Deliver transcript recovery, cleanup tools, and optional AI enhancement on Linux.
@@ -47,7 +47,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 
 - [x] 02-01-PLAN.md — Build Foundation & Linux Platform Adapters (cinterop, TOML, libsecret, autostart)
 - [x] 02-02-PLAN.md — Linux Shell & System Tray (GApplication, AppIndicator, coordinator)
-- [ ] 02-03-PLAN.md — Onboarding & Settings UI (7-step wizard, AdwPreferencesDialog)
+- [x] 02-03-PLAN.md — Onboarding & Settings UI (7-step wizard, AdwPreferencesDialog)
 
 ### Phase 3: Linux Offline Transcription
 **Goal**: Linux users can record microphone audio locally and manage offline transcription models from the app.
@@ -101,8 +101,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Shared Core Authority | 0/3 | Planning complete | - |
-| 2. Linux Shell & Settings | 0/3 | Planning complete | - |
+| 1. Shared Core Authority | 3/3 | Complete | 2026-03-29 |
+| 2. Linux Shell & Settings | 3/3 | Complete | 2026-03-29 |
 | 3. Linux Offline Transcription | 0/TBD | Not started | - |
 | 4. Linux Capture & Output Loop | 0/TBD | Not started | - |
 | 5. History, Dictionary & AI Workflows | 0/TBD | Not started | - |
