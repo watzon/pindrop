@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Pindrop
+GenericName=Dictation App
+Comment=Privacy-first dictation app
+Exec=pindrop
+Icon=pindrop
+Terminal=false
+Categories=Utility;Audio;Accessibility;
+Keywords=dictation;speech;text;transcription;
+StartupWMClass=pindrop
+StartupNotify=true
+DBusActivatable=true
