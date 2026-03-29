@@ -42,8 +42,12 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
   2. Linux user can complete first-run onboarding for microphone setup, model setup, hotkey setup, and environment-specific limitations.
   3. Linux user can enable start-on-login and have Pindrop relaunch automatically in a new desktop session.
   4. Linux user can manage language, hotkeys, output behavior, model preferences, history, dictionary, and AI enhancement settings from the Linux app.
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+- [ ] 02-01-PLAN.md — Build Foundation & Linux Platform Adapters (cinterop, TOML, libsecret, autostart)
+- [ ] 02-02-PLAN.md — Linux Shell & System Tray (GApplication, AppIndicator, coordinator)
+- [ ] 02-03-PLAN.md — Onboarding & Settings UI (7-step wizard, AdwPreferencesDialog)
 
 ### Phase 3: Linux Offline Transcription
 **Goal**: Linux users can record microphone audio locally and manage offline transcription models from the app.
@@ -98,7 +102,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Shared Core Authority | 0/3 | Planning complete | - |
-| 2. Linux Shell & Settings | 0/TBD | Not started | - |
+| 2. Linux Shell & Settings | 0/3 | Planning complete | - |
 | 3. Linux Offline Transcription | 0/TBD | Not started | - |
 | 4. Linux Capture & Output Loop | 0/TBD | Not started | - |
 | 5. History, Dictionary & AI Workflows | 0/TBD | Not started | - |
