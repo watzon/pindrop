@@ -48,7 +48,6 @@ kotlin {
                     definitionFile = project.file("src/linuxX64Main/cinterop/libsecret.def")
                     packageName = "tech.watzon.pindrop.shared.core.cinterop.libsecret"
                     compilerOpts(*pkgConfigArgs("--cflags", "libsecret-1").toTypedArray())
-                    linkerOpts(*pkgConfigArgs("--libs", "libsecret-1").toTypedArray())
                 }
             }
         }

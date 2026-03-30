@@ -1,3 +1,5 @@
-headers = libayatana-appindicator3-0.1/libayatana-appindicator/app-indicator.h gtk/gtk.h
+headers = libayatana-appindicator/app-indicator.h gtk/gtk.h
 
 package = tech.watzon.pindrop.shared.uishell.cinterop.appindicator
+
+linkerOpts = -layatana-appindicator3 -lgtk-3 -lgdk-3 -lgio-2.0 -lgobject-2.0 -lglib-2.0

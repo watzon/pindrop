@@ -1,1 +1,3 @@
 headers = X11/Xlib.h X11/keysym.h
+
+linkerOpts = -lX11

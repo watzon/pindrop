@@ -58,25 +58,21 @@ kotlin {
                     definitionFile = project.file("src/linuxX64Main/cinterop/gtk4.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.gtk4"
                     compilerOpts(*pkgConfigArgs("--cflags", "gtk4").toTypedArray())
-                    linkerOpts(*pkgConfigArgs("--libs", "gtk4").toTypedArray())
                 }
                 val libadwaita by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/libadwaita.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.libadwaita"
                     compilerOpts(*pkgConfigArgs("--cflags", "libadwaita-1").toTypedArray())
-                    linkerOpts(*pkgConfigArgs("--libs", "libadwaita-1").toTypedArray())
                 }
                 val appindicator by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/appindicator.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.appindicator"
                     compilerOpts(*pkgConfigArgs("--cflags", "ayatana-appindicator3-0.1", "gtk+-3.0").toTypedArray())
-                    linkerOpts(*pkgConfigArgs("--libs", "ayatana-appindicator3-0.1", "gtk+-3.0").toTypedArray())
                 }
                 val x11 by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/x11.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.x11"
                     compilerOpts(*pkgConfigArgs("--cflags", "x11").toTypedArray())
-                    linkerOpts(*pkgConfigArgs("--libs", "x11").toTypedArray())
                 }
             }
         }
