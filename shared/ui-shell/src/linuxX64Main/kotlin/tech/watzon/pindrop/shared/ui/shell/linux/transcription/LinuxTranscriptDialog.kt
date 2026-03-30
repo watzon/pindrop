@@ -19,8 +19,10 @@ class LinuxTranscriptDialog(
         gtk_window_set_default_size(window?.reinterpret(), 640, 420)
         gtk_window_set_modal(window?.reinterpret(), 1)
         gtk_window_set_transient_for(window?.reinterpret(), parentWindow.reinterpret())
+        gtk_widget_add_css_class(window, "pindrop-window")
 
         val root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12)
+        gtk_widget_add_css_class(root, "pindrop-transcript-surface")
         gtk_widget_set_margin_top(root, 16)
         gtk_widget_set_margin_bottom(root, 16)
         gtk_widget_set_margin_start(root, 16)

@@ -19,7 +19,8 @@ import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
  */
 class ReadyStep(
     private val settings: SettingsPersistence,
-    private val locale: String
+    private val locale: String,
+    private val onboardingRef: CPointer<*>?,
 ) : OnboardingStep {
 
     override fun title(locale: String): String =
@@ -55,7 +56,7 @@ class ReadyStep(
         // Summary section
         val summaryBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8)
         gtk_widget_set_margin_top(summaryBox, 16)
-        gtk_widget_add_css_class(summaryBox, "card")
+        gtk_widget_add_css_class(summaryBox, "pindrop-summary-card")
 
         val model = settings.getString(SettingsKeys.selectedModel) ?: "Base"
         val hotkey = settings.getString(SettingsKeys.Hotkeys.toggleHotkey) ?: ""
@@ -99,6 +100,26 @@ class ReadyStep(
         }
 
         gtk_box_append(box?.reinterpret(), summaryBox)
+
+        val finishButton = gtk_button_new_with_label(
+            SharedLocalization.getString("Launch Pindrop", locale)
+        )
+        gtk_widget_add_css_class(finishButton, "suggested-action")
+        gtk_widget_set_halign(finishButton, GTK_ALIGN_CENTER)
+        gtk_widget_set_margin_top(finishButton, 12)
+        g_signal_connect_data(
+            finishButton,
+            "clicked",
+            staticCFunction { _: CPointer<*>?, data: CPointer<*>? ->
+                if (data != null) {
+                    data.asStableRef<OnboardingWizard>().get().finishFromCallToAction()
+                }
+            }.reinterpret(),
+            onboardingRef,
+            null,
+            0u,
+        )
+        gtk_box_append(box?.reinterpret(), finishButton)
 
         return box
     }

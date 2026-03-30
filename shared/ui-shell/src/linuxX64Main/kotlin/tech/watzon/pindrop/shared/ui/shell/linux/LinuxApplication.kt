@@ -56,6 +56,7 @@ private fun onActivate(app: CPointer<AdwApplication>) {
     val window = adw_application_window_new(app.reinterpret())
     gtk_window_set_title(window.reinterpret(), "Pindrop")
     gtk_window_set_default_size(window.reinterpret(), 400, 300)
+    gtk_widget_add_css_class(window?.reinterpret(), "pindrop-window")
 
     // Create and start the coordinator — loads settings, sets up tray
     val coord = LinuxCoordinator(

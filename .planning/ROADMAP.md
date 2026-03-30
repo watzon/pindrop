@@ -12,7 +12,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 
 - [x] **Phase 1: Shared Core Authority** - Make shared Kotlin rules and localization authoritative without breaking native macOS boundaries.
 - [x] **Phase 2: Linux Shell & Settings** - Deliver the Linux tray app shell, onboarding flow, autostart, and daily settings surfaces.
-- [ ] **Phase 3: Linux Offline Transcription** - Deliver Linux microphone transcription and local model management as a complete offline workflow.
+- [x] **Phase 3: Linux Offline Transcription** - Deliver Linux microphone transcription and local model management as a complete offline workflow.
 - [ ] **Phase 4: Linux Capture & Output Loop** - Deliver hotkey-driven recording, recording feedback, and reliable text delivery behavior.
 - [ ] **Phase 5: History, Dictionary & AI Workflows** - Deliver transcript recovery, cleanup tools, and optional AI enhancement on Linux.
 - [ ] **Phase 6: Packaged Linux Release** - Ship Linux as an installable packaged app instead of a source-only build.
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Shared Core Authority | 3/3 | Complete | 2026-03-29 |
 | 2. Linux Shell & Settings | 3/3 | Complete | 2026-03-29 |
-| 3. Linux Offline Transcription | 0/TBD | Not started | - |
+| 3. Linux Offline Transcription | 3/3 | Complete | 2026-03-30 |
 | 4. Linux Capture & Output Loop | 0/TBD | Not started | - |
 | 5. History, Dictionary & AI Workflows | 0/TBD | Not started | - |
 | 6. Packaged Linux Release | 0/TBD | Not started | - |

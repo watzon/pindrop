@@ -77,6 +77,14 @@ kotlin {
             }
         }
 
+        if (!isLinuxHost) {
+            compilations.configureEach {
+                compileTaskProvider.configure {
+                    enabled = false
+                }
+            }
+        }
+
         binaries {
             executable {
                 entryPoint = "tech.watzon.pindrop.shared.ui.shell.linux.main"
@@ -95,6 +103,7 @@ kotlin {
             implementation(project(":settings-schema"))
             implementation(project(":ui-localization"))
             implementation(project(":ui-settings"))
+            implementation(project(":ui-theme"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         }
         commonTest.dependencies {

@@ -52,6 +52,7 @@ class TrayFallback(
         gtk_window_set_title(window?.reinterpret(), "Pindrop")
         gtk_window_set_default_size(window?.reinterpret(), 220, 120)
         gtk_window_set_resizable(window?.reinterpret(), 0)
+        gtk_widget_add_css_class(window, "pindrop-window")
 
         // Don't destroy the app when this window is closed — just hide
         g_signal_connect_data(
@@ -68,6 +69,7 @@ class TrayFallback(
 
         // Vertical box layout
         val box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8)
+        gtk_widget_add_css_class(box, "pindrop-panel")
         gtk_widget_set_margin_top(box, 12)
         gtk_widget_set_margin_bottom(box, 12)
         gtk_widget_set_margin_start(box, 12)

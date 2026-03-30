@@ -18,10 +18,13 @@ class SettingsDialog(
     private val autostart: AutostartManager,
     private val parentWindow: CPointer<GtkWidget>,
     private val locale: String,
+    private val onSaved: (() -> Unit)? = null,
+    private val onClosed: (() -> Unit)? = null,
 ) {
     private val window = gtk_window_new()
     private val stack = gtk_stack_new()
     private val selfRef = StableRef.create(this)
+    private var hasClosed = false
 
     private val generalPage = GeneralSettingsPage(
         locale = locale,
@@ -71,14 +74,24 @@ class SettingsDialog(
         gtk_window_set_default_size(window?.reinterpret(), 820, 620)
         gtk_window_set_modal(window?.reinterpret(), 1)
         gtk_window_set_transient_for(window?.reinterpret(), parentWindow.reinterpret())
+        gtk_widget_add_css_class(window, "pindrop-window")
+
+        g_signal_connect_data(window, "close-request", staticCFunction { _: CPointer<*>?, data: CPointer<*>? ->
+            if (data != null) {
+                data.asStableRef<SettingsDialog>().get().notifyClosed()
+            }
+            0
+        }.reinterpret(), selfRef.asCPointer(), null, 0u)
 
         val root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12)
+        gtk_widget_add_css_class(root, "pindrop-panel")
         gtk_widget_set_margin_start(root, 16)
         gtk_widget_set_margin_end(root, 16)
         gtk_widget_set_margin_top(root, 16)
         gtk_widget_set_margin_bottom(root, 16)
 
         val switcher = gtk_stack_switcher_new()
+        gtk_widget_add_css_class(switcher, "pindrop-toolbar")
         gtk_stack_switcher_set_stack(switcher?.reinterpret(), stack?.reinterpret())
         gtk_box_append(root?.reinterpret(), switcher)
 
@@ -124,6 +137,7 @@ class SettingsDialog(
     }
 
     fun destroy() {
+        notifyClosed()
         selfRef.dispose()
     }
 
@@ -156,7 +170,14 @@ class SettingsDialog(
         if (launchAtLogin) autostart.enableAutostart() else autostart.disableAutostart()
         aiPage.saveSecrets()
         settings.save()
+        onSaved?.invoke()
         return true
+    }
+
+    private fun notifyClosed() {
+        if (hasClosed) return
+        hasClosed = true
+        onClosed?.invoke()
     }
 
     private fun addPage(title: String, content: CPointer<GtkWidget>?) {

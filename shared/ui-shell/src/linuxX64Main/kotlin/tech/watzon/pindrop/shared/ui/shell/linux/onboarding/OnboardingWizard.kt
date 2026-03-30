@@ -38,6 +38,9 @@ class OnboardingWizard(
 
     /** Callback invoked when the wizard completes (apply). */
     var onFinished: (() -> Unit)? = null
+    var onDismissed: (() -> Unit)? = null
+    private var hasDismissed = false
+    private var disposed = false
 
     /** The 7 steps. */
     private val steps: List<OnboardingStep> = listOf(
@@ -47,7 +50,7 @@ class OnboardingWizard(
         ModelDownloadStep(settings, locale),
         HotkeySetupStep(settings, locale),
         AIConfigStep(settings, secrets, locale),
-        ReadyStep(settings, locale),
+        ReadyStep(settings, locale, selfRef.asCPointer()),
     )
 
     init {
@@ -62,6 +65,7 @@ class OnboardingWizard(
         gtk_window_set_title(assistant?.reinterpret(), "Pindrop Setup")
         gtk_window_set_default_size(assistant?.reinterpret(), 600, 450)
         gtk_window_set_modal(assistant?.reinterpret(), 1)
+        gtk_widget_add_css_class(assistant, "pindrop-window")
         if (parentWindow != null) {
             gtk_window_set_transient_for(assistant?.reinterpret(), parentWindow?.reinterpret())
         }
@@ -70,6 +74,7 @@ class OnboardingWizard(
         for ((index, step) in steps.withIndex()) {
             val content = step.createContent()
             if (content != null) {
+                gtk_widget_add_css_class(content, "pindrop-onboarding-page")
                 gtk_assistant_append_page(assistant?.reinterpret(), content)
                 gtk_assistant_set_page_title(
                     assistant?.reinterpret(),
@@ -77,9 +82,9 @@ class OnboardingWizard(
                     step.title(locale)
                 )
 
-                // Page type: CONTENT for all pages except the last (CONFIRM)
+                // Use SUMMARY for the last page so GTK exposes the completion affordance.
                 val pageType = if (index == steps.lastIndex) {
-                    GTK_ASSISTANT_PAGE_CONFIRM
+                    GTK_ASSISTANT_PAGE_SUMMARY
                 } else {
                     GTK_ASSISTANT_PAGE_CONTENT
                 }
@@ -134,6 +139,21 @@ class OnboardingWizard(
             null,
             0u
         )
+
+        g_signal_connect_data(
+            assistant,
+            "close-request",
+            staticCFunction { _: CPointer<*>?, data: CPointer<*>? ->
+                if (data != null) {
+                    val wizard = data.asStableRef<OnboardingWizard>().get()
+                    wizard.handleClose()
+                }
+                1
+            }.reinterpret(),
+            selfRef.asCPointer(),
+            null,
+            0u,
+        )
     }
 
     /**
@@ -148,6 +168,8 @@ class OnboardingWizard(
      * Persist onboarding state and notify coordinator.
      */
     private fun handleApply() {
+        if (hasDismissed) return
+
         // Call onComplete on all steps
         for (step in steps) {
             step.onComplete()
@@ -159,9 +181,7 @@ class OnboardingWizard(
 
         // Notify coordinator
         onFinished?.invoke()
-
-        // Close the wizard
-        gtk_window_close(assistant?.reinterpret())
+        dismiss()
     }
 
     /**
@@ -169,21 +189,36 @@ class OnboardingWizard(
      * Still allow the app to run (just don't mark onboarding complete).
      */
     private fun handleCancel() {
-        // Don't mark onboarding complete — will show again on next launch
-        gtk_window_close(assistant?.reinterpret())
+        if (hasDismissed) return
+        dismiss()
     }
 
     /**
      * Handle the "close" signal.
      */
     private fun handleClose() {
-        gtk_window_close(assistant?.reinterpret())
+        if (hasDismissed) return
+        dismiss()
+    }
+
+    fun finishFromCallToAction() {
+        handleApply()
+    }
+
+    private fun dismiss() {
+        if (hasDismissed) return
+        hasDismissed = true
+        onDismissed?.invoke()
+        gtk_window_destroy(assistant?.reinterpret())
     }
 
     /**
      * Clean up resources.
      */
     fun destroy() {
-        selfRef.dispose()
+        if (!disposed) {
+            disposed = true
+            selfRef.dispose()
+        }
     }
 }

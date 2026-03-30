@@ -20,6 +20,7 @@ import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uishell.cinterop.libadwaita.*
 import tech.watzon.pindrop.shared.ui.shell.linux.onboarding.OnboardingWizard
 import tech.watzon.pindrop.shared.ui.shell.linux.settings.SettingsDialog
+import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxTranscriptDialog
 import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxVoiceSessionFactory
 import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxVoiceSessionHandle
 
@@ -41,6 +42,7 @@ class LinuxCoordinator(
     private val settingsPersistence = SettingsPersistence(configDir)
     private val secretStorage = SecretStorage()
     private val autostartManager = AutostartManager(getAutostartDir())
+    private val themeStyler = LinuxThemeStyler(settingsPersistence)
 
     // Tray components (set up during start)
     private var trayIcon: TrayIcon? = null
@@ -49,6 +51,7 @@ class LinuxCoordinator(
     private var onboardingWizard: OnboardingWizard? = null
     private var settingsDialog: SettingsDialog? = null
     private var floatingIndicator: FloatingIndicatorWindow? = null
+    private var transcriptDialog: LinuxTranscriptDialog? = null
     private var voiceSessionHandle: LinuxVoiceSessionHandle? = null
     private var hotkeyRuntime: LinuxHotkeyRuntime? = null
     private var lastVoiceSessionUiState = VoiceSessionUiState(state = VoiceSessionState.IDLE)
@@ -62,6 +65,7 @@ class LinuxCoordinator(
     fun start() {
         // 1. Load settings from TOML
         settingsPersistence.load()
+        themeStyler.apply()
 
         // 2. Check first-run state
         val completedOnboarding = settingsPersistence.getBool(SettingsKeys.hasCompletedOnboarding)
@@ -101,7 +105,9 @@ class LinuxCoordinator(
             trayMenu?.destroy()
             trayMenu = null
             trayFallback = TrayFallback(this, window)
-            trayFallback?.show()
+            if (!needsOnboarding) {
+                trayFallback?.show()
+            }
         }
 
         initializeHotkeys()
@@ -122,6 +128,15 @@ class LinuxCoordinator(
                 autostart = autostartManager,
                 parentWindow = window,
                 locale = getLocale(),
+                onSaved = {
+                    themeStyler.apply()
+                    refreshHotkeyBindings()
+                    trayMenu?.updateAutostartItem(isAutostartEnabled())
+                    updateRecordingControls(lastVoiceSessionUiState)
+                },
+                onClosed = {
+                    settingsDialog = null
+                },
             )
         }
         settingsDialog?.show()
@@ -214,6 +229,7 @@ class LinuxCoordinator(
         onboardingWizard?.destroy()
         settingsDialog?.destroy()
         floatingIndicator?.destroy()
+        transcriptDialog?.destroy()
         hotkeyRuntime?.dispose()
         trayIcon = null
         trayMenu = null
@@ -221,6 +237,7 @@ class LinuxCoordinator(
         onboardingWizard = null
         settingsDialog = null
         floatingIndicator = null
+        transcriptDialog = null
         hotkeyRuntime = null
         g_application_quit(app.reinterpret())
     }
@@ -262,6 +279,13 @@ class LinuxCoordinator(
             ).also { wizard ->
                 wizard.onFinished = {
                     needsOnboarding = false
+                    themeStyler.apply()
+                }
+                wizard.onDismissed = {
+                    onboardingWizard = null
+                    if (trayFallback != null) {
+                        trayFallback?.show()
+                    }
                 }
             }
         }
@@ -291,9 +315,20 @@ class LinuxCoordinator(
         handle.events.onErrorCallback = {
             showStatusMessage("Recording failed: ${it.name.replace('_', ' ').lowercase()}")
         }
-        handle.events.onTranscriptReadyCallback = { _ -> }
+        handle.events.onTranscriptReadyCallback = ::showTranscriptDialog
         runBlocking { handle.coordinator.initialize() }
         updateRecordingControls(lastVoiceSessionUiState)
+    }
+
+    private fun showTranscriptDialog(transcript: String) {
+        transcriptDialog?.destroy()
+        transcriptDialog = LinuxTranscriptDialog(
+            parentWindow = window,
+            transcript = transcript,
+        ).also { dialog ->
+            dialog.show()
+        }
+        showStatusMessage("Transcript ready.")
     }
 
     private fun initializeHotkeys() {

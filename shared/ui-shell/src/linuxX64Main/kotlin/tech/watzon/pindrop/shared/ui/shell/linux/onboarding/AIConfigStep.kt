@@ -27,6 +27,8 @@ class AIConfigStep(
     private val secrets: SecretStorage,
     private val locale: String
 ) : OnboardingStep {
+    private var providerDropDown: CPointer<GtkWidget>? = null
+    private var apiKeyEntry: CPointer<GtkWidget>? = null
 
     /** Whether the user chose to skip AI setup. */
     private var skipped: Boolean = false
@@ -65,15 +67,15 @@ class AIConfigStep(
         gtk_box_append(box?.reinterpret(), desc)
 
         // Provider dropdown
-        val dropDown = gtk_drop_down_new_from_strings(
+        providerDropDown = gtk_drop_down_new_from_strings(
             providers.map { it.displayName }
                 .toTypedArray()
                 .let { arr -> arrayOf(*arr, null) }
                 .toCValues()
         )
-        gtk_widget_set_halign(dropDown, GTK_ALIGN_CENTER)
-        gtk_widget_set_margin_top(dropDown, 12)
-        gtk_box_append(box?.reinterpret(), dropDown)
+        gtk_widget_set_halign(providerDropDown, GTK_ALIGN_CENTER)
+        gtk_widget_set_margin_top(providerDropDown, 12)
+        gtk_box_append(box?.reinterpret(), providerDropDown)
 
         // API key entry
         val keyLabel = gtk_label_new(
@@ -84,13 +86,13 @@ class AIConfigStep(
         gtk_widget_set_margin_top(keyLabel, 12)
         gtk_box_append(box?.reinterpret(), keyLabel)
 
-        val keyEntry = gtk_password_entry_new()
-        gtk_password_entry_set_show_peek_icon(keyEntry?.reinterpret(), 1)
+        apiKeyEntry = gtk_password_entry_new()
+        gtk_password_entry_set_show_peek_icon(apiKeyEntry?.reinterpret(), 1)
         gtk_entry_set_placeholder_text(
-            keyEntry?.reinterpret(),
+            apiKeyEntry?.reinterpret(),
             SharedLocalization.getString("Enter API key (optional)", locale)
         )
-        gtk_box_append(box?.reinterpret(), keyEntry)
+        gtk_box_append(box?.reinterpret(), apiKeyEntry)
 
         // Feature list
         val featureBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4)
@@ -124,6 +126,7 @@ class AIConfigStep(
     override fun onComplete() {
         if (!skipped) {
             val providers = AISettingsCatalog.providers()
+            selectedProviderIndex = gtk_drop_down_get_selected(providerDropDown?.reinterpret()).toInt()
             if (selectedProviderIndex < providers.size) {
                 val provider = providers[selectedProviderIndex]
                 settings.setString(SettingsKeys.aiProvider, provider.displayName)
@@ -132,6 +135,12 @@ class AIConfigStep(
                     AISettingsCatalog.defaultModelIdentifier(provider.id)
                 )
                 settings.setBool(SettingsKeys.aiEnhancementEnabled, true)
+                val apiKey = gtk_editable_get_text(apiKeyEntry?.reinterpret()).toKString().trim()
+                if (apiKey.isBlank()) {
+                    secrets.deleteSecret(account = provider.displayName, service = "pindrop-ai")
+                } else {
+                    secrets.storeSecret(account = provider.displayName, service = "pindrop-ai", value = apiKey)
+                }
             }
         }
     }
