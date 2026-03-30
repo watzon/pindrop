@@ -1,5 +1,6 @@
 package tech.watzon.pindrop.shared.ui.shell.linux.models
 
+import kotlinx.coroutines.runBlocking
 import tech.watzon.pindrop.shared.core.TranscriptionLanguage
 import tech.watzon.pindrop.shared.core.TranscriptionModelId
 import tech.watzon.pindrop.shared.core.platform.SettingsPersistence
@@ -7,14 +8,33 @@ import tech.watzon.pindrop.shared.runtime.transcription.InstalledModelRecord
 import tech.watzon.pindrop.shared.runtime.transcription.LinuxWhisperRuntimeBootstrap
 import tech.watzon.pindrop.shared.runtime.transcription.LocalModelDescriptor
 import tech.watzon.pindrop.shared.runtime.transcription.LocalTranscriptionRuntime
+import tech.watzon.pindrop.shared.runtime.transcription.ModelInstallProgress
+import tech.watzon.pindrop.shared.runtime.transcription.RuntimeObserver
+import tech.watzon.pindrop.shared.runtime.transcription.ActiveLocalModel
+import tech.watzon.pindrop.shared.runtime.transcription.LocalRuntimeErrorCode
+import tech.watzon.pindrop.shared.runtime.transcription.LocalRuntimeState
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
 
 class LinuxModelController(
     private val settings: SettingsPersistence,
-    private val runtimeProvider: () -> LocalTranscriptionRuntime = { LinuxWhisperRuntimeBootstrap.create() },
+    private val runtimeProvider: (RuntimeObserver) -> LocalTranscriptionRuntime = { observer ->
+        LinuxWhisperRuntimeBootstrap.create(observer = observer)
+    },
 ) {
-    private val runtime: LocalTranscriptionRuntime by lazy(runtimeProvider)
+    private var installProgressListener: ((Double, String?) -> Unit)? = null
+    private val observer = object : RuntimeObserver {
+        override fun onStateChanged(state: LocalRuntimeState) = Unit
+
+        override fun onActiveModelChanged(model: ActiveLocalModel?) = Unit
+
+        override fun onInstallProgress(progress: ModelInstallProgress?) {
+            progress?.let { installProgressListener?.invoke(it.progress, it.message) }
+        }
+
+        override fun onErrorChanged(errorCode: LocalRuntimeErrorCode?, message: String?) = Unit
+    }
+    private val runtime: LocalTranscriptionRuntime by lazy { runtimeProvider(observer) }
 
     val selectedModelId: TranscriptionModelId
         get() = TranscriptionModelId(
@@ -30,29 +50,43 @@ class LinuxModelController(
         }
     }
 
-    suspend fun installedModels(): List<InstalledModelRecord> {
-        return runtime.refreshInstalledModels()
+    fun allModels(): List<LocalModelDescriptor> = runtime.catalog()
+
+    fun installedModels(): List<InstalledModelRecord> {
+        return runBlocking { runtime.refreshInstalledModels() }
     }
 
-    suspend fun install(
+    fun install(
         modelId: TranscriptionModelId,
         onProgress: (Double, String?) -> Unit,
     ): InstalledModelRecord {
-        return runtime.installModel(modelId).also {
+        installProgressListener = onProgress
+        onProgress(0.0, "Starting download")
+        return runBlocking {
+            runtime.installModel(modelId)
+        }.also {
             settings.setString(SettingsKeys.selectedModel, modelId.value)
             settings.save()
-            onProgress(1.0, null)
+            onProgress(1.0, "Install complete")
+            installProgressListener = null
         }
     }
 
-    suspend fun delete(modelId: TranscriptionModelId) {
-        runtime.deleteModel(modelId)
+    fun delete(modelId: TranscriptionModelId) {
+        runBlocking { runtime.deleteModel(modelId) }
     }
 
-    suspend fun load(modelId: TranscriptionModelId) {
-        runtime.refreshInstalledModels()
-        runtime.loadModel(modelId)
+    fun load(modelId: TranscriptionModelId) {
+        runBlocking {
+            runtime.refreshInstalledModels()
+            runtime.loadModel(modelId)
+        }
         settings.setString(SettingsKeys.selectedModel, modelId.value)
+        settings.save()
+    }
+
+    fun setSelectedModel(modelId: String) {
+        settings.setString(SettingsKeys.selectedModel, modelId)
         settings.save()
     }
 

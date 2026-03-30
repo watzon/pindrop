@@ -59,6 +59,7 @@ kotlin {
             implementation(project(":settings-schema"))
             implementation(project(":ui-localization"))
             implementation(project(":ui-settings"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

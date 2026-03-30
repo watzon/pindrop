@@ -44,7 +44,7 @@ class OnboardingWizard(
         WelcomeStep(locale),
         AudioCheckStep(locale),
         ModelSelectionStep(settings, locale),
-        ModelDownloadStep(locale),
+        ModelDownloadStep(settings, locale),
         HotkeySetupStep(settings, locale),
         AIConfigStep(settings, secrets, locale),
         ReadyStep(settings, locale),
