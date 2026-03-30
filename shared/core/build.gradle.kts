@@ -40,9 +40,19 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":settings-schema"))
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":settings-schema"))
+            }
         }
+
+        val macosMain by creating {
+            dependsOn(commonMain)
+        }
+
+        getByName("macosArm64Main").dependsOn(macosMain)
+        getByName("macosX64Main").dependsOn(macosMain)
+
         commonTest.dependencies {
             implementation(kotlin("test"))
         }

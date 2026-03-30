@@ -120,7 +120,7 @@ Since this is an open-source project, you can also build it yourself. Don't worr
 - `assets/`: images and other repository assets
 
 The current shipping app is still the native macOS target in `Pindrop/`. The `shared/` workspace contains cross-platform logic that future native Windows and Linux clients can reuse while keeping their own platform-specific transcription adapters and UI layers.
-Today, the shared workspace only produces the macOS frameworks used by the app plus JVM test artifacts. Linux and Windows are represented by explicit stub verification tasks that fail fast until real platform targets are implemented.
+Today, the shared workspace produces the macOS frameworks used by the app, JVM test artifacts, and an experimental native `linuxX64` executable that must be built on a Linux host.
 
 ### Step 1: Clone the Repository
 
@@ -171,7 +171,83 @@ just --list             # Show all available commands
 ```bash
 just shared-test        # Run shared Kotlin tests
 just shared-xcframework # Build shared Apple XCFrameworks
+just build-linux        # Build the native Linux x86_64 executable
 ```
+
+### Linux Build (Experimental)
+
+The Linux app currently builds as a native `linuxX64` executable from the Kotlin Multiplatform `shared/` workspace.
+
+- Build Linux artifacts on a Linux host. The native GTK/libadwaita/AppIndicator/X11 cinterop bindings are only generated when Gradle runs on Linux.
+- The current repo does not yet produce an AppImage. The supported output today is the raw x86_64 executable.
+
+#### Ubuntu / Debian
+
+```bash
+sudo apt update
+sudo apt install -y \
+  build-essential \
+  git \
+  just \
+  pkg-config \
+  openjdk-21-jdk \
+  libgtk-4-dev \
+  libadwaita-1-dev \
+  libayatana-appindicator3-dev \
+  libsecret-1-dev \
+  libx11-dev \
+  wl-clipboard \
+  xclip \
+  xsel \
+  xdotool \
+  wtype
+```
+
+#### Arch Linux
+
+```bash
+sudo pacman -S --needed \
+  base-devel \
+  git \
+  just \
+  pkgconf \
+  jdk21-openjdk \
+  gtk4 \
+  libadwaita \
+  libayatana-appindicator \
+  libsecret \
+  libx11 \
+  wl-clipboard \
+  xclip \
+  xsel \
+  xdotool \
+  wtype
+```
+
+Notes:
+- `wl-clipboard`, `xclip`, and `xsel` back clipboard delivery, depending on the desktop session.
+- `xdotool` and `wtype` are used for best-effort direct insert when the environment supports it.
+- Some desktops may still require additional runtime packages for tray support.
+
+#### Build Command
+
+```bash
+just build-linux
+```
+
+Equivalent direct Gradle command:
+
+```bash
+./shared/gradlew --no-daemon --console=plain -p shared :ui-shell:linuxX64Binaries
+```
+
+Expected output:
+
+```text
+shared/ui-shell/build/bin/linuxX64/
+```
+
+Run the produced binary from that directory on your Linux machine after the build completes.
 
 **Release commands (maintainers):**
 

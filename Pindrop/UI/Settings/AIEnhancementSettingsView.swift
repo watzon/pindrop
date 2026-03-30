@@ -7,7 +7,7 @@
 
 import SwiftData
 import SwiftUI
-import PindropSharedSettings
+import PindropSharedAISettings
 import PindropSharedSchema
 
 struct AIEnhancementSettingsView: View {

@@ -142,6 +142,46 @@ struct AIEnhancementServiceTests {
             }
         }
     }
+    @Test func testEnhanceTimesOutWhenRequestStalls() async throws {
+        let mockSession = MockURLSession()
+        mockSession.delay = .milliseconds(200)
+        mockSession.mockData = """
+        {
+            "choices": [{
+                "message": {
+                    "content": "Enhanced text"
+                }
+            }]
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let service = AIEnhancementService(
+            session: mockSession,
+            requestTimeout: .milliseconds(50),
+            requestTimeoutInterval: 0.05
+        )
+
+        do {
+            _ = try await service.enhance(
+                text: "original text",
+                apiEndpoint: "https://api.openai.com/v1/chat/completions",
+                apiKey: "test-api-key"
+            )
+            Issue.record("Expected timeout to be thrown")
+        } catch let error as AIEnhancementService.EnhancementError {
+            if case .timedOut = error {
+                #expect(true)
+            } else {
+                Issue.record("Wrong error type: \(error)")
+            }
+        }
+    }
     @Test func testThrowsOnInvalidJSON() async throws {
         let (service, mockSession) = makeSUT()
 
@@ -1348,9 +1388,14 @@ class MockURLSession: URLSessionProtocol {
     var mockResponse: URLResponse?
     var mockError: Error?
     var lastRequest: URLRequest?
+    var delay: Duration?
     
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         lastRequest = request
+
+        if let delay {
+            try await Task.sleep(for: delay)
+        }
         
         if let error = mockError {
             throw error

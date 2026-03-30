@@ -10,7 +10,22 @@ import PindropSharedLocalization
 
 nonisolated func localized(_ key: String, locale: Locale) -> String {
     let localeCode = localeIdentifierForKMP(locale)
-    return SharedLocalization.shared.getString(xcKey: key, locale: localeCode)
+    let value = SharedLocalization.shared.getString(xcKey: key, locale: localeCode)
+    return normalizedFoundationFormatString(value)
+}
+
+private nonisolated func normalizedFoundationFormatString(_ value: String) -> String {
+    guard value.contains("%s") || value.contains("$s") else {
+        return value
+    }
+
+    let pattern = "%((?:\\d+\\$)?)s"
+    guard let regex = try? NSRegularExpression(pattern: pattern) else {
+        return value
+    }
+
+    let range = NSRange(value.startIndex..., in: value)
+    return regex.stringByReplacingMatches(in: value, options: [], range: range, withTemplate: "%$1@")
 }
 
 /// Convert a Swift Locale to a KMP-compatible locale identifier.

@@ -241,6 +241,7 @@ final class KMPTranscriptionRuntimeBridge {
         provider: ModelManager.ModelProvider
     ) async throws -> (any TranscriptionEnginePort) {
         let backendProvider = effectiveRuntimeProvider(for: provider)
+        _ = try await refreshInstalledModels()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             runtime.loadModel(modelId: TranscriptionModelId(value: modelName)) { error in
                 if let error {

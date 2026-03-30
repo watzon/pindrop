@@ -216,7 +216,7 @@ class VoiceSessionCoordinator(
             return false
         }
 
-        val settings = currentSettings ?: settingsStore.load().also { currentSettings = it }
+        val settings = settingsStore.load().also { currentSettings = it }
         if (startupModel?.action == LocalModelSelectionAction.DOWNLOAD_SELECTED || activeModelId == null) {
             transitionToError(
                 VoiceSessionError.MODEL_NOT_INSTALLED,
@@ -277,7 +277,7 @@ class VoiceSessionCoordinator(
             return VoiceSessionStopResult(reason = VoiceSessionStopReason.FAILED)
         }
 
-        val settings = currentSettings ?: settingsStore.load().also { currentSettings = it }
+        val settings = settingsStore.load().also { currentSettings = it }
         val modelId = activeModelId ?: startupModel?.updatedSelectedModelId
         if (modelId == null) {
             transitionToError(

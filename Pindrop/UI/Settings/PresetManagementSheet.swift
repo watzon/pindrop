@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import PindropSharedSettings
+import PindropSharedAISettings
 
 struct PresetManagementSheet: View {
     @Environment(\.modelContext) private var modelContext

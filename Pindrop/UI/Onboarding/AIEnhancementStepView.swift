@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import PindropSharedSettings
+import PindropSharedAISettings
 
 enum AIProvider: String, CaseIterable, Identifiable {
    case openai = "OpenAI"

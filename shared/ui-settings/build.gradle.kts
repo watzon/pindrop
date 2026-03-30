@@ -15,11 +15,11 @@ kotlin {
     val macosX64Target = macosX64()
     linuxX64()
 
-    val xcframework = XCFramework("PindropSharedSettings")
+    val xcframework = XCFramework("PindropSharedAISettings")
 
     listOf(macosArm64Target, macosX64Target).forEach { target ->
         target.binaries.framework {
-            baseName = "PindropSharedSettings"
+            baseName = "PindropSharedAISettings"
             xcframework.add(this)
         }
     }

@@ -17,8 +17,8 @@ import PindropSharedUITheme
 #if canImport(PindropSharedNavigation)
 import PindropSharedNavigation
 #endif
-#if canImport(PindropSharedSettings)
-import PindropSharedSettings
+#if canImport(PindropSharedAISettings)
+import PindropSharedAISettings
 #endif
 #if canImport(PindropSharedUIWorkspace)
 import PindropSharedUIWorkspace
@@ -298,7 +298,7 @@ struct SettingsStoreTests {
     }
 
     @Test func testAISettingsPresenterSharesValidationAndPresetRules() {
-        #if canImport(PindropSharedSettings)
+        #if canImport(PindropSharedAISettings)
         let state = AIEnhancementPresenter.shared.present(
             draft: AIEnhancementDraft(
                 selectedProvider: .custom,
@@ -336,7 +336,7 @@ struct SettingsStoreTests {
     }
 
     @Test func testPromptPresetPresenterSharesGroupingAndValidation() {
-        #if canImport(PindropSharedSettings)
+        #if canImport(PindropSharedAISettings)
         let state = PromptPresetPresenter.shared.present(
             presets: [
                 PromptPresetSnapshot(id: "builtin", name: "Built In", prompt: "One", isBuiltIn: true, sortOrder: 0),

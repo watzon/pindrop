@@ -9,7 +9,7 @@ CORE_INFO_PLIST="$SHARED_DIR/core/build/XCFrameworks/release/PindropSharedCore.x
 TRANSCRIPTION_INFO_PLIST="$SHARED_DIR/feature-transcription/build/XCFrameworks/release/PindropSharedTranscription.xcframework/Info.plist"
 UI_THEME_INFO_PLIST="$SHARED_DIR/ui-theme/build/XCFrameworks/release/PindropSharedUITheme.xcframework/Info.plist"
 UI_SHELL_INFO_PLIST="$SHARED_DIR/ui-shell/build/XCFrameworks/release/PindropSharedNavigation.xcframework/Info.plist"
-UI_SETTINGS_INFO_PLIST="$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedSettings.xcframework/Info.plist"
+UI_SETTINGS_INFO_PLIST="$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedAISettings.xcframework/Info.plist"
 UI_WORKSPACE_INFO_PLIST="$SHARED_DIR/ui-workspace/build/XCFrameworks/release/PindropSharedUIWorkspace.xcframework/Info.plist"
 SETTINGS_SCHEMA_INFO_PLIST="$SHARED_DIR/settings-schema/build/XCFrameworks/release/PindropSharedSchema.xcframework/Info.plist"
 UI_LOCALIZATION_INFO_PLIST="$SHARED_DIR/ui-localization/build/XCFrameworks/release/PindropSharedLocalization.xcframework/Info.plist"
@@ -25,8 +25,8 @@ cleanup_xcframework_outputs() {
         "$SHARED_DIR/ui-shell/build/XCFrameworks/release/PindropSharedNavigation.xcframework" \
         "$SHARED_DIR/ui-shell/build/XCFrameworks/debug/PindropSharedUIShell.xcframework" \
         "$SHARED_DIR/ui-shell/build/XCFrameworks/release/PindropSharedUIShell.xcframework" \
-        "$SHARED_DIR/ui-settings/build/XCFrameworks/debug/PindropSharedSettings.xcframework" \
-        "$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedSettings.xcframework" \
+        "$SHARED_DIR/ui-settings/build/XCFrameworks/debug/PindropSharedAISettings.xcframework" \
+        "$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedAISettings.xcframework" \
         "$SHARED_DIR/ui-settings/build/XCFrameworks/debug/PindropSharedUISettings.xcframework" \
         "$SHARED_DIR/ui-settings/build/XCFrameworks/release/PindropSharedUISettings.xcframework"
 }
@@ -68,7 +68,7 @@ cd "$SHARED_DIR"
     :feature-transcription:assemblePindropSharedTranscriptionXCFramework \
     :ui-theme:assemblePindropSharedUIThemeXCFramework \
     :ui-shell:assemblePindropSharedNavigationXCFramework \
-    :ui-settings:assemblePindropSharedSettingsXCFramework \
+    :ui-settings:assemblePindropSharedAISettingsXCFramework \
     :ui-workspace:assemblePindropSharedUIWorkspaceXCFramework \
     :settings-schema:assemblePindropSharedSchemaXCFramework \
     :ui-localization:assemblePindropSharedLocalizationXCFramework

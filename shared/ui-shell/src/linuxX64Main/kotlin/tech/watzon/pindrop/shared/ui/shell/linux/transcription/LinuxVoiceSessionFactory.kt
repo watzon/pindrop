@@ -3,7 +3,6 @@ package tech.watzon.pindrop.shared.ui.shell.linux.transcription
 import tech.watzon.pindrop.shared.core.TranscriptionLanguage
 import tech.watzon.pindrop.shared.core.TranscriptionModelId
 import tech.watzon.pindrop.shared.core.platform.SettingsPersistence
-import tech.watzon.pindrop.shared.feature.transcription.ClipboardPort
 import tech.watzon.pindrop.shared.feature.transcription.PermissionPort
 import tech.watzon.pindrop.shared.feature.transcription.PermissionStatus
 import tech.watzon.pindrop.shared.feature.transcription.SettingsStorePort
@@ -56,15 +55,16 @@ class LinuxVoiceSessionEvents : VoiceSessionEventSink {
 object LinuxVoiceSessionFactory {
     fun create(settings: SettingsPersistence): LinuxVoiceSessionHandle {
         val events = LinuxVoiceSessionEvents()
+        val textDelivery = LinuxTextDeliveryPort(settings)
         val coordinator = VoiceSessionCoordinator(
             runtime = LinuxWhisperRuntimeBootstrap.create(),
             audioCapture = LinuxAudioCapture(),
-            clipboard = InMemoryClipboardPort(),
+            clipboard = textDelivery,
             permissions = LinuxPermissionPort(),
             settingsStore = LinuxVoiceSettingsStore(settings),
             eventSink = events,
             timestampProvider = TimestampProvider { platform.posix.time(null) * 1000L },
-            supportsDirectInsert = false,
+            supportsDirectInsert = textDelivery.supportsDirectInsert(),
         )
 
         return LinuxVoiceSessionHandle(
@@ -77,14 +77,6 @@ object LinuxVoiceSessionFactory {
 private class LinuxPermissionPort : PermissionPort {
     override suspend fun microphoneStatus(): PermissionStatus = PermissionStatus.GRANTED
     override suspend fun requestMicrophonePermission(): PermissionStatus = PermissionStatus.GRANTED
-}
-
-private class InMemoryClipboardPort : ClipboardPort {
-    var lastCopiedText: String? = null
-    override fun copyText(text: String): Boolean {
-        lastCopiedText = text
-        return true
-    }
 }
 
 private class LinuxVoiceSettingsStore(

@@ -809,6 +809,7 @@ final class AIEnhancementService {
         case invalidResponse
         case apiError(String)
         case keychainError(String)
+        case timedOut
 
         var errorDescription: String? {
             switch self {
@@ -820,15 +821,28 @@ final class AIEnhancementService {
                 return "API error: \(message)"
             case .keychainError(let message):
                 return "Keychain error: \(message)"
+            case .timedOut:
+                return "AI enhancement timed out. Check your provider connection or try again."
             }
         }
     }
 
+    nonisolated private static let defaultRequestTimeout: Duration = .seconds(20)
+    nonisolated private static let defaultRequestTimeoutInterval: TimeInterval = 20
+
     private let session: URLSessionProtocol
+    private let requestTimeout: Duration
+    private let requestTimeoutInterval: TimeInterval
     private let keychainService = "com.pindrop.ai-enhancement"
 
-    init(session: URLSessionProtocol = URLSession.shared) {
-        self.session = session
+    init(
+        session: URLSessionProtocol? = nil,
+        requestTimeout: Duration = AIEnhancementService.defaultRequestTimeout,
+        requestTimeoutInterval: TimeInterval = AIEnhancementService.defaultRequestTimeoutInterval
+    ) {
+        self.session = session ?? AIEnhancementService.makeDefaultSession(timeoutInterval: requestTimeoutInterval)
+        self.requestTimeout = requestTimeout
+        self.requestTimeoutInterval = requestTimeoutInterval
     }
 
     func enhance(
@@ -857,11 +871,7 @@ final class AIEnhancementService {
                 provider: provider
             )
 
-            let (data, response) = try await session.data(for: request)
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw EnhancementError.invalidResponse
-            }
+            let (data, httpResponse) = try await performRequest(request)
 
             guard httpResponse.statusCode == 200 else {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -944,6 +954,8 @@ final class AIEnhancementService {
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
             }
 
+            request.timeoutInterval = requestTimeoutInterval
+
             // Debug: avoid logging payload content; only record a summary.
             if let body = request.httpBody,
                let bodyObj = try? JSONSerialization.jsonObject(with: body) as? [String: Any] {
@@ -951,11 +963,7 @@ final class AIEnhancementService {
                 Log.aiEnhancement.debug("Prepared enhancement request payload (redactedLines=\(logLines.count))")
             }
 
-            let (data, response) = try await session.data(for: request)
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw EnhancementError.invalidResponse
-            }
+            let (data, httpResponse) = try await performRequest(request)
 
             guard httpResponse.statusCode == 200 else {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -986,6 +994,7 @@ final class AIEnhancementService {
     ) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = requestTimeoutInterval
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         if provider == .anthropic {
@@ -1022,6 +1031,43 @@ final class AIEnhancementService {
         }
 
         return request
+    }
+
+    private static func makeDefaultSession(timeoutInterval: TimeInterval) -> URLSession {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = timeoutInterval
+        configuration.timeoutIntervalForResource = timeoutInterval
+        configuration.waitsForConnectivity = false
+        return URLSession(configuration: configuration)
+    }
+
+    private func performRequest(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        do {
+            return try await withThrowingTaskGroup(of: (Data, HTTPURLResponse).self) { group in
+                group.addTask { [session] in
+                    let (data, response) = try await session.data(for: request)
+                    guard let httpResponse = response as? HTTPURLResponse else {
+                        throw EnhancementError.invalidResponse
+                    }
+                    return (data, httpResponse)
+                }
+
+                group.addTask { [requestTimeout] in
+                    try await Task.sleep(for: requestTimeout)
+                    throw EnhancementError.timedOut
+                }
+
+                guard let result = try await group.next() else {
+                    throw EnhancementError.invalidResponse
+                }
+                group.cancelAll()
+                return result
+            }
+        } catch let error as EnhancementError {
+            throw error
+        } catch let error as URLError where error.code == .timedOut {
+            throw EnhancementError.timedOut
+        }
     }
 
     private func parseAPIResponse(data: Data, provider: AIProvider) throws -> String {
