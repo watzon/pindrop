@@ -19,14 +19,14 @@ class WhisperCppCommandBuilderTest {
             "/home/tester/.local/share/pindrop/bin/whisper-cli",
             WhisperCppCommandBuilder.resolveLinuxBinaryPath(
                 homeDirectory = home,
-                environment = emptyMap(),
+                environment = emptyMap<String, String>(),
             ),
         )
         assertEquals(
             "whisper-cli",
             WhisperCppCommandBuilder.resolveLinuxBinaryPath(
                 homeDirectory = null,
-                environment = emptyMap(),
+                environment = emptyMap<String, String>(),
             ),
         )
     }
@@ -35,7 +35,7 @@ class WhisperCppCommandBuilderTest {
     fun linuxPathPolicyUsesXdgStyleDefaults() {
         val paths = WhisperCppCommandBuilder.linuxPathPolicy(
             homeDirectory = "/home/tester",
-            environment = emptyMap(),
+            environment = emptyMap<String, String>(),
         )
 
         assertEquals("/home/tester/.local/share/pindrop/models", paths.modelsRoot)
