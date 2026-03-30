@@ -44,13 +44,13 @@ class HotkeyRuntimeModelsTest {
         )
 
         assertEquals(HotkeyBindingRuntimeState.ACTIVE, active.state)
-        assertEquals("x11", active.backend.id)
+        assertEquals(HotkeyRuntimeBackendId.X11, active.backend.id)
         assertEquals("Active", active.statusLabel)
         assertEquals(HotkeyBindingRuntimeState.UNAVAILABLE, unavailable.state)
-        assertEquals("unavailable", unavailable.backend.id)
-        assertTrue(unavailable.message.contains("tray or fallback", ignoreCase = true))
+        assertEquals(HotkeyRuntimeBackendId.UNAVAILABLE, unavailable.backend.id)
+        assertTrue((unavailable.message ?: "").contains("tray or fallback", ignoreCase = true))
         assertEquals(HotkeyBindingRuntimeState.FAILED_TO_BIND, failed.state)
-        assertEquals("portal", failed.backend.id)
+        assertEquals(HotkeyRuntimeBackendId.PORTAL, failed.backend.id)
         assertEquals("Failed to bind", failed.statusLabel)
         assertEquals(HotkeyBindingRuntimeState.NOT_CONFIGURED, notConfigured.state)
         assertEquals("Not configured", notConfigured.statusLabel)
@@ -105,6 +105,6 @@ class HotkeyRuntimeModelsTest {
         assertEquals(HotkeyRuntimeBackendId.X11, x11.backend)
         assertEquals(HotkeyRuntimeBackendId.PORTAL, portal.backend)
         assertEquals(HotkeyRuntimeBackendId.UNAVAILABLE, unavailable.backend)
-        assertTrue(unavailable.guidance.contains("tray", ignoreCase = true))
+        assertTrue((unavailable.guidance ?: "").contains("tray", ignoreCase = true))
     }
 }

@@ -40,6 +40,10 @@ kotlin {
                     definitionFile = project.file("src/linuxX64Main/cinterop/appindicator.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.appindicator"
                 }
+                val x11 by creating {
+                    definitionFile = project.file("src/linuxX64Main/cinterop/x11.def")
+                    packageName = "tech.watzon.pindrop.shared.uishell.cinterop.x11"
+                }
             }
         }
 
@@ -52,6 +56,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":feature-transcription"))
         }
         linuxX64Main.dependencies {
             implementation(project(":core"))
