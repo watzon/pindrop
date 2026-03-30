@@ -3,6 +3,8 @@
 package tech.watzon.pindrop.shared.ui.shell.linux
 
 import kotlinx.cinterop.*
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyBindingSnapshot
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyStatus
 import tech.watzon.pindrop.shared.uishell.cinterop.appindicator.*
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
@@ -32,6 +34,8 @@ class TrayMenu(
     private var autostartCheckItem: CPointer<GtkWidget>? = null
     private var startRecordingItem: CPointer<GtkWidget>? = null
     private var stopRecordingItem: CPointer<GtkWidget>? = null
+    private var toggleHotkeyStatusItem: CPointer<GtkWidget>? = null
+    private var pushToTalkStatusItem: CPointer<GtkWidget>? = null
 
     /**
      * Build the full tray menu with localized items and signal handlers.
@@ -58,6 +62,9 @@ class TrayMenu(
         stopRecordingItem = stopItem
         gtk_menu_shell_append(menu.reinterpret(), stopItem)
         updateRecordingState(coordinator.isRecording())
+
+        toggleHotkeyStatusItem = disabledStatusItem(menu, "Toggle Shortcut: Not configured")
+        pushToTalkStatusItem = disabledStatusItem(menu, "Push-to-Talk: Not configured")
 
         val settingsLabel = SharedLocalization.getString("Settings", locale)
         val settingsItem = gtk_menu_item_new_with_label(settingsLabel)
@@ -113,6 +120,13 @@ class TrayMenu(
         gtk_widget_show(sep)
     }
 
+    private fun disabledStatusItem(menu: CPointer<GtkWidget>?, label: String): CPointer<GtkWidget>? {
+        val item = gtk_menu_item_new_with_label(label)
+        gtk_menu_item_set_sensitive(item?.reinterpret(), 0)
+        gtk_menu_shell_append(menu?.reinterpret(), item)
+        return item
+    }
+
     /**
      * Connect the "activate" signal on a menu item to a coordinator action.
      *
@@ -154,6 +168,17 @@ class TrayMenu(
     fun updateRecordingState(recording: Boolean) {
         startRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 0 else 1) }
         stopRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 1 else 0) }
+    }
+
+    fun updateHotkeyStatuses(snapshot: LinuxHotkeyBindingSnapshot) {
+        gtk_menu_item_set_label(
+            toggleHotkeyStatusItem?.reinterpret(),
+            LinuxHotkeyStatus.formatMenuLabel("Toggle Shortcut", snapshot.toggle),
+        )
+        gtk_menu_item_set_label(
+            pushToTalkStatusItem?.reinterpret(),
+            LinuxHotkeyStatus.formatMenuLabel("Push-to-Talk", snapshot.pushToTalk),
+        )
     }
 
     /**

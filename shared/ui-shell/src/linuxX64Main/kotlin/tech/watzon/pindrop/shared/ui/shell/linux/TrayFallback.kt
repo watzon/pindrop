@@ -3,6 +3,8 @@
 package tech.watzon.pindrop.shared.ui.shell.linux
 
 import kotlinx.cinterop.*
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyBindingSnapshot
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyStatus
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
 
@@ -28,6 +30,7 @@ class TrayFallback(
     private val locale: String = coordinator.getLocale()
     private var fallbackWindow: CPointer<GtkWidget>? = null
     private var statusLabel: CPointer<GtkWidget>? = null
+    private var hotkeyStatusLabel: CPointer<GtkWidget>? = null
     private var startButton: CPointer<GtkWidget>? = null
     private var stopButton: CPointer<GtkWidget>? = null
 
@@ -72,6 +75,11 @@ class TrayFallback(
         // Status label
         statusLabel = gtk_label_new("Pindrop is running")
         gtk_widget_add_css_class(statusLabel, "title-4")
+
+        hotkeyStatusLabel = gtk_label_new("Toggle Shortcut: Not configured\nPush-to-Talk: Not configured")
+        gtk_label_set_wrap(hotkeyStatusLabel?.reinterpret(), 1)
+        gtk_widget_add_css_class(hotkeyStatusLabel, "dim-label")
+        gtk_widget_set_halign(hotkeyStatusLabel, GTK_ALIGN_START)
 
         // Settings button
         startButton = gtk_button_new_with_label("Start Recording")
@@ -136,6 +144,7 @@ class TrayFallback(
 
         // Pack widgets into box
         gtk_box_append(box?.reinterpret(), statusLabel)
+        gtk_box_append(box?.reinterpret(), hotkeyStatusLabel)
         gtk_box_append(box?.reinterpret(), startButton)
         gtk_box_append(box?.reinterpret(), stopButton)
         gtk_box_append(box?.reinterpret(), settingsBtn)
@@ -165,5 +174,12 @@ class TrayFallback(
     fun updateRecordingState(recording: Boolean) {
         gtk_widget_set_sensitive(startButton, if (recording) 0 else 1)
         gtk_widget_set_sensitive(stopButton, if (recording) 1 else 0)
+    }
+
+    fun updateHotkeyStatuses(snapshot: LinuxHotkeyBindingSnapshot) {
+        gtk_label_set_text(
+            hotkeyStatusLabel?.reinterpret(),
+            LinuxHotkeyStatus.formatFallbackSummary(snapshot),
+        )
     }
 }

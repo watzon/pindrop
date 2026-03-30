@@ -10,6 +10,9 @@ import tech.watzon.pindrop.shared.core.platform.SecretStorage
 import tech.watzon.pindrop.shared.core.platform.AutostartManager
 import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionCoordinator
 import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionState
+import tech.watzon.pindrop.shared.ui.shell.hotkeys.HotkeyRuntimeInvocation
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyBindingSnapshot
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyRuntime
 import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
@@ -45,6 +48,7 @@ class LinuxCoordinator(
     private var trayFallback: TrayFallback? = null
     private var onboardingWizard: OnboardingWizard? = null
     private var settingsDialog: SettingsDialog? = null
+    private var hotkeyRuntime: LinuxHotkeyRuntime? = null
     private var transcriptDialog: LinuxTranscriptDialog? = null
     private var voiceSessionHandle: LinuxVoiceSessionHandle? = null
 
@@ -98,6 +102,8 @@ class LinuxCoordinator(
             trayFallback = TrayFallback(this, window)
             trayFallback?.show()
         }
+
+        initializeHotkeys()
 
         if (needsOnboarding) {
             showOnboarding()
@@ -195,12 +201,14 @@ class LinuxCoordinator(
         trayFallback?.destroy()
         onboardingWizard?.destroy()
         settingsDialog?.destroy()
+        hotkeyRuntime?.dispose()
         transcriptDialog?.destroy()
         trayIcon = null
         trayMenu = null
         trayFallback = null
         onboardingWizard = null
         settingsDialog = null
+        hotkeyRuntime = null
         transcriptDialog = null
         g_application_quit(app.reinterpret())
     }
@@ -263,6 +271,41 @@ class LinuxCoordinator(
         }
         runBlocking { handle.coordinator.initialize() }
         updateRecordingControls()
+    }
+
+
+    private fun initializeHotkeys() {
+        hotkeyRuntime?.dispose()
+        hotkeyRuntime = LinuxHotkeyRuntime(::handleHotkeyInvocation)
+        refreshHotkeyBindings()
+    }
+
+    private fun refreshHotkeyBindings() {
+        val snapshot = hotkeyRuntime?.refreshBindings(
+            toggleHotkey = settingsPersistence.getString(SettingsKeys.Hotkeys.toggleHotkey),
+            pushToTalkHotkey = settingsPersistence.getString(SettingsKeys.Hotkeys.pushToTalkHotkey),
+        ) ?: return
+        applyHotkeySnapshot(snapshot)
+    }
+
+    private fun applyHotkeySnapshot(snapshot: LinuxHotkeyBindingSnapshot) {
+        trayMenu?.updateHotkeyStatuses(snapshot)
+        trayFallback?.updateHotkeyStatuses(snapshot)
+        snapshot.guidance?.let(::showStatusMessage)
+    }
+
+    private fun handleHotkeyInvocation(invocation: HotkeyRuntimeInvocation) {
+        when (invocation) {
+            HotkeyRuntimeInvocation.ToggleRecording -> {
+                if (isRecording()) stopRecording() else startRecording()
+            }
+            HotkeyRuntimeInvocation.PushToTalkPressed -> {
+                if (!isRecording()) startRecording()
+            }
+            HotkeyRuntimeInvocation.PushToTalkReleased -> {
+                if (isRecording()) stopRecording()
+            }
+        }
     }
 
     private fun voiceSessionCoordinator(): VoiceSessionCoordinator? = voiceSessionHandle?.coordinator

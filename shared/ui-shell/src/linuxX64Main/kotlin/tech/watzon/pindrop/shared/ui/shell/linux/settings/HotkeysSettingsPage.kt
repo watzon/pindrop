@@ -5,6 +5,7 @@ package tech.watzon.pindrop.shared.ui.shell.linux.settings
 import kotlinx.cinterop.*
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
+import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyStatus
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
 
@@ -17,6 +18,7 @@ class HotkeysSettingsPage(
     private val toggleHotkeyEntry = gtk_entry_new()
     private val pushToTalkHotkeyEntry = gtk_entry_new()
     private val copyLastTranscriptHotkeyEntry = gtk_entry_new()
+    private val statusSnapshot = LinuxHotkeyStatus.previewSnapshot(initialToggleHotkey, initialPushToTalkHotkey)
 
     init {
         gtk_editable_set_text(toggleHotkeyEntry?.reinterpret(), initialToggleHotkey.ifBlank { SettingsDefaults.Hotkeys.toggleHotkey })
@@ -30,7 +32,9 @@ class HotkeysSettingsPage(
         val box = settingsPageBox()
         gtk_box_append(box?.reinterpret(), pageHeading(title(), "Shortcut preferences and Linux-specific guidance"))
         gtk_box_append(box?.reinterpret(), labeledRow("Toggle Recording", toggleHotkeyEntry, locale))
+        gtk_box_append(box?.reinterpret(), infoLabel(LinuxHotkeyStatus.formatSettingsLabel("Toggle Shortcut", statusSnapshot.toggle)))
         gtk_box_append(box?.reinterpret(), labeledRow("Push-to-Talk", pushToTalkHotkeyEntry, locale))
+        gtk_box_append(box?.reinterpret(), infoLabel(LinuxHotkeyStatus.formatSettingsLabel("Push-to-Talk", statusSnapshot.pushToTalk)))
         gtk_box_append(box?.reinterpret(), labeledRow("Copy Last Transcript", copyLastTranscriptHotkeyEntry, locale))
 
         val warning = gtk_label_new(
@@ -44,6 +48,14 @@ class HotkeysSettingsPage(
         gtk_widget_set_halign(warning, GTK_ALIGN_START)
         gtk_box_append(box?.reinterpret(), warning)
         return box
+    }
+
+    private fun infoLabel(text: String): CPointer<GtkWidget>? {
+        val label = gtk_label_new(text)
+        gtk_label_set_wrap(label?.reinterpret(), 1)
+        gtk_widget_add_css_class(label, "dim-label")
+        gtk_widget_set_halign(label, GTK_ALIGN_START)
+        return label
     }
 
     fun values(): Map<String, Any> {
