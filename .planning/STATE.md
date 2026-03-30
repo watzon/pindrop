@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-30T00:22:26.096Z"
+status: executing
+stopped_at: Completed 04-linux-capture-output-loop-01-PLAN.md
+last_updated: "2026-03-30T03:31:36.962Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 12
+  completed_plans: 10
   percent: 33
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Users can get a native-feeling, offline-first dictation experience on each desktop platform without sacrificing platform fidelity or maintaining separate business logic for every app.
-**Current focus:** Phase 03 — linux-offline-transcription
+**Current focus:** Phase 04 — linux-capture-output-loop
 
 ## Current Position
 
-Phase: 03 (linux-offline-transcription) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 04 (linux-capture-output-loop) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-03-30
 
 Progress: [███░░░░░░░] 33%
@@ -61,6 +61,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03 P01 | unknown | 2 tasks | 6 files |
 | Phase 03 P02 | unknown | 2 tasks | 7 files |
 | Phase 03 P03 | unknown | 2 tasks | 7 files |
+| Phase 04-linux-capture-output-loop P01 | 11min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -96,10 +97,13 @@ Recent decisions affecting current work:
 - [Phase 03]: Linux recording reuses VoiceSessionCoordinator with a Linux-specific factory instead of rebuilding dictation state in the GTK shell
 - [Phase 03]: Completed transcripts surface in a GTK dialog while the coordinator receives an in-memory clipboard port, avoiding automatic clipboard writes in Phase 03
 - [Phase 03]: Linux audio capture prefers pw-record and falls back to parecord so the first offline recording path stays simple and platform-native
+- [Phase 04]: Shared hotkey runtime models reuse feature-transcription hotkey types so Linux shell code stays aligned with VoiceSessionCoordinator semantics.
+- [Phase 04]: Linux hotkey startup is capability-based: prefer X11, expose a portal placeholder surface on supported Wayland sessions, and degrade with guidance instead of blocking startup.
+- [Phase 04]: Tray, fallback, and settings surfaces consume binding snapshots so hotkey failures stay visible while manual recording controls remain available.
 
 ### Pending Todos
 
-Phase 03 planning and execution remain.
+Phase 04 planning has not started. Phase 03 still has partial human UAT to resume.
 
 ### Blockers/Concerns
 
@@ -109,6 +113,6 @@ Phase 03 planning and execution remain.
 
 ## Session Continuity
 
-Last session: 2026-03-30T00:22:26.093Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-03-30T03:31:36.959Z
+Stopped at: Completed 04-linux-capture-output-loop-01-PLAN.md
 Resume file: None

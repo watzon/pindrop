@@ -76,7 +76,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 **Plans**: 3 plans
 **UI hint**: yes
 
-- [ ] 04-01-PLAN.md — Hotkey runtime, capability detection, and shell-visible binding status
+- [x] 04-01-PLAN.md — Hotkey runtime, capability detection, and shell-visible binding status
 - [ ] 04-02-PLAN.md — Floating indicator and state-driven feedback surfaces
 - [ ] 04-03-PLAN.md — Clipboard-first delivery, best-effort direct insert, and transcript dialog demotion
 
