@@ -1,4 +1,4 @@
-headers = libadwaita-1/adw.h
+headers = adwaita.h
 
 package = tech.watzon.pindrop.shared.uishell.cinterop.libadwaita
 
