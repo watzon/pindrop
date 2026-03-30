@@ -30,6 +30,8 @@ class TrayMenu(
 
     /** Keep a reference to the autostart check item for live updates. */
     private var autostartCheckItem: CPointer<GtkWidget>? = null
+    private var startRecordingItem: CPointer<GtkWidget>? = null
+    private var stopRecordingItem: CPointer<GtkWidget>? = null
 
     /**
      * Build the full tray menu with localized items and signal handlers.
@@ -46,6 +48,17 @@ class TrayMenu(
         appendSeparator(menu)
 
         // --- Settings ---
+        val startItem = gtk_menu_item_new_with_label("Start Recording")
+        connectActivate(startItem) { coord -> coord.startRecording() }
+        startRecordingItem = startItem
+        gtk_menu_shell_append(menu.reinterpret(), startItem)
+
+        val stopItem = gtk_menu_item_new_with_label("Stop Recording")
+        connectActivate(stopItem) { coord -> coord.stopRecording() }
+        stopRecordingItem = stopItem
+        gtk_menu_shell_append(menu.reinterpret(), stopItem)
+        updateRecordingState(coordinator.isRecording())
+
         val settingsLabel = SharedLocalization.getString("Settings", locale)
         val settingsItem = gtk_menu_item_new_with_label(settingsLabel)
         connectActivate(settingsItem) { coord ->
@@ -136,6 +149,11 @@ class TrayMenu(
                 if (enabled) 1 else 0
             )
         }
+    }
+
+    fun updateRecordingState(recording: Boolean) {
+        startRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 0 else 1) }
+        stopRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 1 else 0) }
     }
 
     /**

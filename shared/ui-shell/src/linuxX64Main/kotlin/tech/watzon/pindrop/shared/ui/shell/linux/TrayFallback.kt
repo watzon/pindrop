@@ -27,6 +27,9 @@ class TrayFallback(
     private val coordinatorRef = StableRef.create(coordinator)
     private val locale: String = coordinator.getLocale()
     private var fallbackWindow: CPointer<GtkWidget>? = null
+    private var statusLabel: CPointer<GtkWidget>? = null
+    private var startButton: CPointer<GtkWidget>? = null
+    private var stopButton: CPointer<GtkWidget>? = null
 
     /**
      * Create and show the fallback window.
@@ -67,13 +70,41 @@ class TrayFallback(
         gtk_widget_set_valign(box, GTK_ALIGN_CENTER)
 
         // Status label
-        val statusLabel = gtk_label_new("Pindrop is running")
+        statusLabel = gtk_label_new("Pindrop is running")
         gtk_widget_add_css_class(statusLabel, "title-4")
 
         // Settings button
+        startButton = gtk_button_new_with_label("Start Recording")
+        gtk_widget_add_css_class(startButton, "suggested-action")
+        g_signal_connect_data(
+            startButton,
+            "clicked",
+            staticCFunction { _: CPointer<*>?, data: CPointer<*>? ->
+                if (data != null) {
+                    data.asStableRef<LinuxCoordinator>().get().startRecording()
+                }
+            }.reinterpret(),
+            coordinatorRef.asCPointer(),
+            null,
+            0u
+        )
+
+        stopButton = gtk_button_new_with_label("Stop Recording")
+        g_signal_connect_data(
+            stopButton,
+            "clicked",
+            staticCFunction { _: CPointer<*>?, data: CPointer<*>? ->
+                if (data != null) {
+                    data.asStableRef<LinuxCoordinator>().get().stopRecording()
+                }
+            }.reinterpret(),
+            coordinatorRef.asCPointer(),
+            null,
+            0u
+        )
+
         val settingsLabel = SharedLocalization.getString("Settings", locale)
         val settingsBtn = gtk_button_new_with_label(settingsLabel)
-        gtk_widget_add_css_class(settingsBtn, "suggested-action")
         g_signal_connect_data(
             settingsBtn,
             "clicked",
@@ -105,8 +136,11 @@ class TrayFallback(
 
         // Pack widgets into box
         gtk_box_append(box?.reinterpret(), statusLabel)
+        gtk_box_append(box?.reinterpret(), startButton)
+        gtk_box_append(box?.reinterpret(), stopButton)
         gtk_box_append(box?.reinterpret(), settingsBtn)
         gtk_box_append(box?.reinterpret(), quitBtn)
+        updateRecordingState(coordinator.isRecording())
 
         // Set box as window child
         gtk_window_set_child(window?.reinterpret(), box)
@@ -122,5 +156,14 @@ class TrayFallback(
         coordinatorRef.dispose()
         fallbackWindow?.let { gtk_window_destroy(it.reinterpret()) }
         fallbackWindow = null
+    }
+
+    fun updateStatus(message: String) {
+        gtk_label_set_text(statusLabel?.reinterpret(), message)
+    }
+
+    fun updateRecordingState(recording: Boolean) {
+        gtk_widget_set_sensitive(startButton, if (recording) 0 else 1)
+        gtk_widget_set_sensitive(stopButton, if (recording) 1 else 0)
     }
 }

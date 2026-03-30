@@ -3,16 +3,22 @@
 package tech.watzon.pindrop.shared.ui.shell.linux
 
 import kotlinx.cinterop.*
+import kotlinx.coroutines.runBlocking
 import platform.posix.*
 import tech.watzon.pindrop.shared.core.platform.SettingsPersistence
 import tech.watzon.pindrop.shared.core.platform.SecretStorage
 import tech.watzon.pindrop.shared.core.platform.AutostartManager
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionCoordinator
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionState
 import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uishell.cinterop.libadwaita.*
 import tech.watzon.pindrop.shared.ui.shell.linux.onboarding.OnboardingWizard
 import tech.watzon.pindrop.shared.ui.shell.linux.settings.SettingsDialog
+import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxTranscriptDialog
+import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxVoiceSessionFactory
+import tech.watzon.pindrop.shared.ui.shell.linux.transcription.LinuxVoiceSessionHandle
 
 /**
  * Linux lifecycle coordinator — adapts the macOS AppCoordinator pattern
@@ -39,6 +45,8 @@ class LinuxCoordinator(
     private var trayFallback: TrayFallback? = null
     private var onboardingWizard: OnboardingWizard? = null
     private var settingsDialog: SettingsDialog? = null
+    private var transcriptDialog: LinuxTranscriptDialog? = null
+    private var voiceSessionHandle: LinuxVoiceSessionHandle? = null
 
     // First-run detection
     private var needsOnboarding: Boolean = false
@@ -70,6 +78,7 @@ class LinuxCoordinator(
         }
 
         // 4. Initialize tray — try AppIndicator first, fallback if unavailable
+        initializeVoiceSession()
         try {
             trayMenu = TrayMenu(this)
             trayIcon = TrayIcon()
@@ -110,6 +119,23 @@ class LinuxCoordinator(
         }
         settingsDialog?.show()
     }
+
+    fun startRecording() {
+        val session = voiceSessionCoordinator() ?: return
+        val didStart = runBlocking { session.startRecording() }
+        if (!didStart) {
+            showStatusMessage("Unable to start recording.")
+        }
+        updateRecordingControls()
+    }
+
+    fun stopRecording() {
+        val session = voiceSessionCoordinator() ?: return
+        runBlocking { session.stopRecording() }
+        updateRecordingControls()
+    }
+
+    fun isRecording(): Boolean = voiceSessionCoordinator()?.isRecording() == true
 
     /**
      * Toggle autostart on/off. Called from tray menu.
@@ -169,11 +195,13 @@ class LinuxCoordinator(
         trayFallback?.destroy()
         onboardingWizard?.destroy()
         settingsDialog?.destroy()
+        transcriptDialog?.destroy()
         trayIcon = null
         trayMenu = null
         trayFallback = null
         onboardingWizard = null
         settingsDialog = null
+        transcriptDialog = null
         g_application_quit(app.reinterpret())
     }
 
@@ -218,5 +246,39 @@ class LinuxCoordinator(
             }
         }
         onboardingWizard?.show()
+    }
+
+    private fun initializeVoiceSession() {
+        val handle = LinuxVoiceSessionFactory.create(settingsPersistence)
+        voiceSessionHandle = handle
+        handle.events.onStateChangedCallback = { state ->
+            trayFallback?.updateStatus(state.message ?: state.state.name)
+            updateRecordingControls(state.state)
+        }
+        handle.events.onErrorCallback = {
+            showStatusMessage("Recording failed: ${it.name.replace('_', ' ').lowercase()}")
+        }
+        handle.events.onTranscriptReadyCallback = { transcript ->
+            showTranscriptDialog(transcript)
+        }
+        runBlocking { handle.coordinator.initialize() }
+        updateRecordingControls()
+    }
+
+    private fun voiceSessionCoordinator(): VoiceSessionCoordinator? = voiceSessionHandle?.coordinator
+
+    private fun updateRecordingControls(state: VoiceSessionState? = null) {
+        val isRecording = state == VoiceSessionState.RECORDING || voiceSessionCoordinator()?.isRecording() == true
+        trayMenu?.updateRecordingState(isRecording)
+        trayFallback?.updateRecordingState(isRecording)
+    }
+
+    private fun showTranscriptDialog(transcript: String) {
+        transcriptDialog?.destroy()
+        transcriptDialog = LinuxTranscriptDialog(window, transcript).also { it.show() }
+    }
+
+    private fun showStatusMessage(message: String) {
+        trayFallback?.updateStatus(message)
     }
 }
