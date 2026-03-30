@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-30T00:16:27.938Z"
+status: verifying
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-30T00:22:26.096Z"
 last_activity: 2026-03-30
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
   percent: 33
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 Phase: 03 (linux-offline-transcription) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-03-30
 
 Progress: [███░░░░░░░] 33%
@@ -60,6 +60,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02 P03 | unknown | 2 tasks | 18 files |
 | Phase 03 P01 | unknown | 2 tasks | 6 files |
 | Phase 03 P02 | unknown | 2 tasks | 7 files |
+| Phase 03 P03 | unknown | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Linux model UI reads LocalTranscriptionCatalog and persisted settings instead of maintaining a second hardcoded Linux-only list
 - [Phase 03]: GTK pages call through LinuxModelController so runtime install/load/delete remains in shared runtime-transcription
 - [Phase 03]: Onboarding downloads use the already-persisted SettingsKeys.selectedModel value so model selection and installation stay aligned
+- [Phase 03]: Linux recording reuses VoiceSessionCoordinator with a Linux-specific factory instead of rebuilding dictation state in the GTK shell
+- [Phase 03]: Completed transcripts surface in a GTK dialog while the coordinator receives an in-memory clipboard port, avoiding automatic clipboard writes in Phase 03
+- [Phase 03]: Linux audio capture prefers pw-record and falls back to parecord so the first offline recording path stays simple and platform-native
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ Phase 03 planning and execution remain.
 
 ## Session Continuity
 
-Last session: 2026-03-30T00:16:27.935Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-03-30T00:22:26.093Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

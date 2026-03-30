@@ -61,7 +61,7 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
 
 - [x] 03-01-PLAN.md — Linux runtime bootstrap + whisper.cpp bridge
 - [x] 03-02-PLAN.md — Model download/select/remove UI in onboarding + settings
-- [ ] 03-03-PLAN.md — In-app recording flow + transcript result dialog
+- [x] 03-03-PLAN.md — In-app recording flow + transcript result dialog
 
 ### Phase 4: Linux Capture & Output Loop
 **Goal**: Linux users can trigger dictation quickly, see recording state clearly, and receive text reliably in daily desktop workflows.
