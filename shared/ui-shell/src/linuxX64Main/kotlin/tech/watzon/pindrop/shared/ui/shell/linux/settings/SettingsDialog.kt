@@ -6,6 +6,7 @@ import kotlinx.cinterop.*
 import tech.watzon.pindrop.shared.core.platform.AutostartManager
 import tech.watzon.pindrop.shared.core.platform.SecretStorage
 import tech.watzon.pindrop.shared.core.platform.SettingsPersistence
+import tech.watzon.pindrop.shared.ui.shell.linux.models.LinuxModelController
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.schemasettings.SettingsValidation
 import tech.watzon.pindrop.shared.schemasettings.SettingsValidationResult
@@ -46,6 +47,7 @@ class SettingsDialog(
     )
     private val modelsPage = ModelsSettingsPage(
         locale = locale,
+        modelController = modelController,
         initialSelectedModel = settings.getString(tech.watzon.pindrop.shared.schemasettings.SettingsKeys.selectedModel) ?: SettingsDefaults.selectedModel,
         initialSelectedLanguage = settings.getString(tech.watzon.pindrop.shared.schemasettings.SettingsKeys.selectedLanguage) ?: SettingsDefaults.selectedLanguage,
     )
@@ -212,3 +214,4 @@ internal fun textBufferString(buffer: CPointer<GtkTextBuffer>?): String = memSco
     gtk_text_buffer_get_bounds(buffer, start.ptr, end.ptr)
     gtk_text_buffer_get_text(buffer, start.ptr, end.ptr, 0)?.toKString().orEmpty()
 }
+    private val modelController = LinuxModelController(settings)

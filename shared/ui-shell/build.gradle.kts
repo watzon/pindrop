@@ -55,6 +55,7 @@ kotlin {
         }
         linuxX64Main.dependencies {
             implementation(project(":core"))
+            implementation(project(":runtime-transcription"))
             implementation(project(":settings-schema"))
             implementation(project(":ui-localization"))
             implementation(project(":ui-settings"))

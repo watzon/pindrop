@@ -5,11 +5,13 @@ package tech.watzon.pindrop.shared.ui.shell.linux.settings
 import kotlinx.cinterop.*
 import tech.watzon.pindrop.shared.schemasettings.SettingsDefaults
 import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
+import tech.watzon.pindrop.shared.ui.shell.linux.models.LinuxModelController
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
 
 class ModelsSettingsPage(
     private val locale: String,
+    private val modelController: LinuxModelController,
     initialSelectedModel: String,
     initialSelectedLanguage: String,
 ) {
@@ -28,6 +30,11 @@ class ModelsSettingsPage(
         gtk_box_append(box?.reinterpret(), pageHeading(title(), "Transcription model and language defaults"))
         gtk_box_append(box?.reinterpret(), labeledRow("Selected Model", selectedModelEntry, locale))
         gtk_box_append(box?.reinterpret(), labeledRow("Transcription Language", selectedLanguageEntry, locale))
+        val selectionLabel = gtk_label_new("Runtime controller: ${modelController.selectedModelId.value}")
+        gtk_widget_add_css_class(selectionLabel, "caption")
+        gtk_widget_add_css_class(selectionLabel, "dim-label")
+        gtk_widget_set_halign(selectionLabel, GTK_ALIGN_START)
+        gtk_box_append(box?.reinterpret(), selectionLabel)
 
         val placeholder = gtk_label_new(
             SharedLocalization.getString(
