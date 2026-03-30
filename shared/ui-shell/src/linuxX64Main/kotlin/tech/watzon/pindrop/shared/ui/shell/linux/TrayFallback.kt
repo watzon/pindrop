@@ -3,6 +3,8 @@
 package tech.watzon.pindrop.shared.ui.shell.linux
 
 import kotlinx.cinterop.*
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionState
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionUiState
 import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyBindingSnapshot
 import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyStatus
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
@@ -149,7 +151,7 @@ class TrayFallback(
         gtk_box_append(box?.reinterpret(), stopButton)
         gtk_box_append(box?.reinterpret(), settingsBtn)
         gtk_box_append(box?.reinterpret(), quitBtn)
-        updateRecordingState(coordinator.isRecording())
+        updateRecordingState(VoiceSessionUiState(state = if (coordinator.isRecording()) VoiceSessionState.RECORDING else VoiceSessionState.IDLE))
 
         // Set box as window child
         gtk_window_set_child(window?.reinterpret(), box)
@@ -171,9 +173,22 @@ class TrayFallback(
         gtk_label_set_text(statusLabel?.reinterpret(), message)
     }
 
-    fun updateRecordingState(recording: Boolean) {
-        gtk_widget_set_sensitive(startButton, if (recording) 0 else 1)
-        gtk_widget_set_sensitive(stopButton, if (recording) 1 else 0)
+    fun updateRecordingState(state: VoiceSessionUiState) {
+        val startEnabled = state.canRecord && when (state.state) {
+            VoiceSessionState.IDLE,
+            VoiceSessionState.COMPLETED,
+            VoiceSessionState.ERROR,
+            -> true
+
+            VoiceSessionState.STARTING,
+            VoiceSessionState.RECORDING,
+            VoiceSessionState.PROCESSING,
+            -> false
+        }
+        val stopEnabled = state.state == VoiceSessionState.RECORDING
+
+        gtk_widget_set_sensitive(startButton, if (startEnabled) 1 else 0)
+        gtk_widget_set_sensitive(stopButton, if (stopEnabled) 1 else 0)
     }
 
     fun updateHotkeyStatuses(snapshot: LinuxHotkeyBindingSnapshot) {

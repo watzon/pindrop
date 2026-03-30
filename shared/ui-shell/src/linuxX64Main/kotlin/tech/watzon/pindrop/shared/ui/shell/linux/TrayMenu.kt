@@ -3,6 +3,8 @@
 package tech.watzon.pindrop.shared.ui.shell.linux
 
 import kotlinx.cinterop.*
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionState
+import tech.watzon.pindrop.shared.feature.transcription.VoiceSessionUiState
 import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyBindingSnapshot
 import tech.watzon.pindrop.shared.ui.shell.linux.hotkeys.LinuxHotkeyStatus
 import tech.watzon.pindrop.shared.uishell.cinterop.appindicator.*
@@ -34,6 +36,7 @@ class TrayMenu(
     private var autostartCheckItem: CPointer<GtkWidget>? = null
     private var startRecordingItem: CPointer<GtkWidget>? = null
     private var stopRecordingItem: CPointer<GtkWidget>? = null
+    private var sessionStatusItem: CPointer<GtkWidget>? = null
     private var toggleHotkeyStatusItem: CPointer<GtkWidget>? = null
     private var pushToTalkStatusItem: CPointer<GtkWidget>? = null
 
@@ -61,7 +64,9 @@ class TrayMenu(
         connectActivate(stopItem) { coord -> coord.stopRecording() }
         stopRecordingItem = stopItem
         gtk_menu_shell_append(menu.reinterpret(), stopItem)
-        updateRecordingState(coordinator.isRecording())
+
+        sessionStatusItem = disabledStatusItem(menu, "Status: Ready to record.")
+        updateRecordingState(VoiceSessionUiState(state = if (coordinator.isRecording()) VoiceSessionState.RECORDING else VoiceSessionState.IDLE))
 
         toggleHotkeyStatusItem = disabledStatusItem(menu, "Toggle Shortcut: Not configured")
         pushToTalkStatusItem = disabledStatusItem(menu, "Push-to-Talk: Not configured")
@@ -165,9 +170,26 @@ class TrayMenu(
         }
     }
 
-    fun updateRecordingState(recording: Boolean) {
-        startRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 0 else 1) }
-        stopRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (recording) 1 else 0) }
+    fun updateRecordingState(state: VoiceSessionUiState) {
+        val startEnabled = state.canRecord && when (state.state) {
+            VoiceSessionState.IDLE,
+            VoiceSessionState.COMPLETED,
+            VoiceSessionState.ERROR,
+            -> true
+
+            VoiceSessionState.STARTING,
+            VoiceSessionState.RECORDING,
+            VoiceSessionState.PROCESSING,
+            -> false
+        }
+        val stopEnabled = state.state == VoiceSessionState.RECORDING
+
+        startRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (startEnabled) 1 else 0) }
+        stopRecordingItem?.let { gtk_menu_item_set_sensitive(it.reinterpret(), if (stopEnabled) 1 else 0) }
+    }
+
+    fun updateSessionStatus(message: String) {
+        gtk_menu_item_set_label(sessionStatusItem?.reinterpret(), "Status: $message")
     }
 
     fun updateHotkeyStatuses(snapshot: LinuxHotkeyBindingSnapshot) {
