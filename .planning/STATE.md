@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-03-29T23:38:00.000Z"
-last_activity: 2026-03-29
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-30T00:07:43.327Z"
+last_activity: 2026-03-30
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 33
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 03 (linux-offline-transcription) — READY
-Plan: 0 of TBD
-Status: Phase 02 complete
-Last activity: 2026-03-29
+Phase: 03 (linux-offline-transcription) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-03-30
 
 Progress: [███░░░░░░░] 33%
 
@@ -58,6 +58,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02 P01 | 1min | 2 tasks | 24 files |
 | Phase 02 P02 | 4min | 2 tasks | 8 files |
 | Phase 02 P03 | unknown | 2 tasks | 18 files |
+| Phase 03 P01 | unknown | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 02]: StableRef pattern for passing Kotlin coordinator state to static C callbacks — staticCFunction cannot capture state, so StableRef.asCPointer() passes coordinator through user_data
 - [Phase 02]: Linux onboarding uses soft gates for audio/hotkey setup because desktop capability varies across X11 and Wayland sessions
 - [Phase 02]: Linux settings UI uses a GTK stack dialog instead of AdwPreferencesDialog while still using shared settings-schema and ui-settings rules
+- [Phase 03]: Linux runtime paths resolve through explicit XDG-style defaults instead of repo-relative discovery
+- [Phase 03]: Linux whisper.cpp integration shells out through a small bridge while keeping model install/load/delete in shared runtime-transcription
+- [Phase 03]: Model downloads reuse KtorDownloadClient and WhisperCppRemoteModelRepository rather than adding Linux-only downloader code
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ Phase 03 planning and execution remain.
 
 ## Session Continuity
 
-Last session: 2026-03-29T23:38:00.000Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-03-30T00:07:43.324Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

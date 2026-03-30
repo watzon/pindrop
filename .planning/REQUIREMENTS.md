@@ -26,8 +26,8 @@ Requirements for the Linux support initiative and shared-core expansion. Each ma
 - [ ] **DICT-01**: Linux user can start and stop dictation with a configurable global toggle hotkey.
 - [ ] **DICT-02**: Linux user can use push-to-talk dictation with a configurable hold shortcut.
 - [ ] **DICT-03**: Linux user can see a floating recording indicator while dictation is active.
-- [ ] **DICT-04**: Linux user can record microphone audio and receive a local offline transcription.
-- [ ] **DICT-05**: Linux user can download, select, and remove local transcription models from the app.
+- [x] **DICT-04**: Linux user can record microphone audio and receive a local offline transcription.
+- [x] **DICT-05**: Linux user can download, select, and remove local transcription models from the app.
 - [ ] **DICT-06**: Linux user receives transcribed text via clipboard by default immediately after dictation completes.
 - [ ] **DICT-07**: Linux user can insert transcription directly at the cursor when the current Linux environment supports it, with a clear clipboard fallback when it does not.
 
@@ -90,8 +90,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DICT-01 | Phase 4 | Pending |
 | DICT-02 | Phase 4 | Pending |
 | DICT-03 | Phase 4 | Pending |
-| DICT-04 | Phase 3 | Pending |
-| DICT-05 | Phase 3 | Pending |
+| DICT-04 | Phase 3 | Complete |
+| DICT-05 | Phase 3 | Complete |
 | DICT-06 | Phase 4 | Pending |
 | DICT-07 | Phase 4 | Pending |
 | HIST-01 | Phase 5 | Pending |

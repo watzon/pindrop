@@ -57,7 +57,11 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
   1. Linux user can record microphone audio and receive a local offline transcription.
   2. Linux user can download, select, and remove local transcription models without leaving the app.
   3. Linux user can complete the core offline transcription flow without requiring cloud services.
-**Plans**: TBD
+**Plans**: 3 plans
+
+- [x] 03-01-PLAN.md — Linux runtime bootstrap + whisper.cpp bridge
+- [ ] 03-02-PLAN.md — Model download/select/remove UI in onboarding + settings
+- [ ] 03-03-PLAN.md — In-app recording flow + transcript result dialog
 
 ### Phase 4: Linux Capture & Output Loop
 **Goal**: Linux users can trigger dictation quickly, see recording state clearly, and receive text reliably in daily desktop workflows.
