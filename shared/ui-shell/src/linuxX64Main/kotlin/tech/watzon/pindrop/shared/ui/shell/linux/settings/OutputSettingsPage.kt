@@ -48,10 +48,22 @@ class OutputSettingsPage(
 
     fun build(): CPointer<GtkWidget>? {
         val box = settingsPageBox()
-        gtk_box_append(box?.reinterpret(), pageHeading(title(), "Text insertion and floating indicator behavior"))
+        gtk_box_append(box?.reinterpret(), pageHeading(title(), "Choose delivery behavior and lightweight recording feedback."))
         gtk_box_append(box?.reinterpret(), labeledRow("Output Mode", outputModeDropDown, locale))
         gtk_box_append(box?.reinterpret(), labeledRow("Add Trailing Space", addTrailingSpaceSwitch, locale))
+        gtk_box_append(
+            box?.reinterpret(),
+            helpText(
+                "Direct Insert is best-effort on Linux. Pindrop keeps clipboard fallback available when the desktop cannot insert at the cursor.",
+            ),
+        )
         gtk_box_append(box?.reinterpret(), labeledRow("Floating Indicator", floatingIndicatorSwitch, locale))
+        gtk_box_append(
+            box?.reinterpret(),
+            helpText(
+                "Floating indicator settings only control the overlay style and position. They do not start, stop, or otherwise control dictation.",
+            ),
+        )
         gtk_box_append(box?.reinterpret(), labeledRow("Indicator Style", floatingIndicatorDropDown, locale))
         gtk_box_append(box?.reinterpret(), labeledRow("Indicator Offset X", offsetXSpin, locale))
         gtk_box_append(box?.reinterpret(), labeledRow("Indicator Offset Y", offsetYSpin, locale))
@@ -69,5 +81,13 @@ class OutputSettingsPage(
             SettingsKeys.pillFloatingIndicatorOffsetX to gtk_spin_button_get_value(offsetXSpin?.reinterpret()),
             SettingsKeys.pillFloatingIndicatorOffsetY to gtk_spin_button_get_value(offsetYSpin?.reinterpret()),
         )
+    }
+
+    private fun helpText(text: String): CPointer<GtkWidget>? {
+        val label = gtk_label_new(text)
+        gtk_label_set_wrap(label?.reinterpret(), 1)
+        gtk_widget_add_css_class(label, "dim-label")
+        gtk_widget_set_halign(label, GTK_ALIGN_START)
+        return label
     }
 }
