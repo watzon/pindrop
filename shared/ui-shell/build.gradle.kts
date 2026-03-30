@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 plugins {
     kotlin("multiplatform")
@@ -12,9 +13,17 @@ fun pkgConfigArgs(vararg args: String): List<String> {
     if (!isLinuxHost) return emptyList()
 
     val output = ByteArrayOutputStream()
-    project.exec {
-        commandLine("pkg-config", *args)
-        standardOutput = output
+    val process = ProcessBuilder(listOf("pkg-config", *args))
+        .directory(File(project.projectDir.absolutePath))
+        .redirectErrorStream(true)
+        .start()
+
+    process.inputStream.use { input ->
+        input.copyTo(output)
+    }
+
+    check(process.waitFor() == 0) {
+        "pkg-config ${args.joinToString(" ")} failed: ${output.toString().trim()}"
     }
 
     return output
