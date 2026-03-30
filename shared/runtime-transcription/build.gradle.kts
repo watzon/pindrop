@@ -52,6 +52,9 @@ kotlin {
 
         jvmMain.get().dependsOn(desktopMain)
         linuxX64Main.get().dependsOn(desktopMain)
+        linuxX64Main.dependencies {
+            implementation("io.ktor:ktor-client-curl:3.4.1")
+        }
         mingwX64Main.get().dependsOn(desktopMain)
     }
 }
