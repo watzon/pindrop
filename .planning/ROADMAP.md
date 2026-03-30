@@ -73,8 +73,12 @@ Pindrop already delivers a native macOS dictation experience. This roadmap expan
   3. Linux user can see a floating recording indicator while dictation is active.
   4. Linux user receives completed transcriptions through the clipboard by default immediately after dictation finishes.
   5. Linux user can insert transcription directly at the cursor when the current environment supports it, with a clear clipboard fallback when it does not.
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+- [ ] 04-01-PLAN.md — Hotkey runtime, capability detection, and shell-visible binding status
+- [ ] 04-02-PLAN.md — Floating indicator and state-driven feedback surfaces
+- [ ] 04-03-PLAN.md — Clipboard-first delivery, best-effort direct insert, and transcript dialog demotion
 
 ### Phase 5: History, Dictionary & AI Workflows
 **Goal**: Linux users can recover past work, improve transcript cleanup, and optionally enhance output without losing offline-first core dictation.
