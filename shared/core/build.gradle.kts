@@ -1,11 +1,28 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("multiplatform")
 }
 
 val isLinuxHost = System.getProperty("os.name")?.lowercase()?.contains("linux") == true
+
+fun pkgConfigArgs(vararg args: String): List<String> {
+    if (!isLinuxHost) return emptyList()
+
+    val output = ByteArrayOutputStream()
+    project.exec {
+        commandLine("pkg-config", *args)
+        standardOutput = output
+    }
+
+    return output
+        .toString()
+        .trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+}
 
 kotlin {
     jvm {
@@ -21,6 +38,8 @@ kotlin {
                 val libsecret by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/libsecret.def")
                     packageName = "tech.watzon.pindrop.shared.core.cinterop.libsecret"
+                    compilerOpts(*pkgConfigArgs("--cflags", "libsecret-1").toTypedArray())
+                    linkerOpts(*pkgConfigArgs("--libs", "libsecret-1").toTypedArray())
                 }
             }
         }

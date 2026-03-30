@@ -1,11 +1,28 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("multiplatform")
 }
 
 val isLinuxHost = System.getProperty("os.name")?.lowercase()?.contains("linux") == true
+
+fun pkgConfigArgs(vararg args: String): List<String> {
+    if (!isLinuxHost) return emptyList()
+
+    val output = ByteArrayOutputStream()
+    project.exec {
+        commandLine("pkg-config", *args)
+        standardOutput = output
+    }
+
+    return output
+        .toString()
+        .trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+}
 
 kotlin {
     jvm {
@@ -31,18 +48,26 @@ kotlin {
                 val gtk4 by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/gtk4.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.gtk4"
+                    compilerOpts(*pkgConfigArgs("--cflags", "gtk4").toTypedArray())
+                    linkerOpts(*pkgConfigArgs("--libs", "gtk4").toTypedArray())
                 }
                 val libadwaita by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/libadwaita.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.libadwaita"
+                    compilerOpts(*pkgConfigArgs("--cflags", "libadwaita-1").toTypedArray())
+                    linkerOpts(*pkgConfigArgs("--libs", "libadwaita-1").toTypedArray())
                 }
                 val appindicator by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/appindicator.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.appindicator"
+                    compilerOpts(*pkgConfigArgs("--cflags", "ayatana-appindicator3-0.1", "gtk+-3.0").toTypedArray())
+                    linkerOpts(*pkgConfigArgs("--libs", "ayatana-appindicator3-0.1", "gtk+-3.0").toTypedArray())
                 }
                 val x11 by creating {
                     definitionFile = project.file("src/linuxX64Main/cinterop/x11.def")
                     packageName = "tech.watzon.pindrop.shared.uishell.cinterop.x11"
+                    compilerOpts(*pkgConfigArgs("--cflags", "x11").toTypedArray())
+                    linkerOpts(*pkgConfigArgs("--libs", "x11").toTypedArray())
                 }
             }
         }

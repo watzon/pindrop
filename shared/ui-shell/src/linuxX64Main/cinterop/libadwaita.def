@@ -1,5 +1,3 @@
 headers = libadwaita-1/adw.h
 
 package = tech.watzon.pindrop.shared.uishell.cinterop.libadwaita
-
-pkgConfig = libadwaita-1

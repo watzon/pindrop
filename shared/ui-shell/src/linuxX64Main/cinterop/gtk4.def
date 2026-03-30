@@ -1,5 +1,3 @@
 headers = gtk/gtk.h gdk/gdk.h glib.h gobject/gobject.h
 
 package = tech.watzon.pindrop.shared.uishell.cinterop.gtk4
-
-pkgConfig = gtk4
