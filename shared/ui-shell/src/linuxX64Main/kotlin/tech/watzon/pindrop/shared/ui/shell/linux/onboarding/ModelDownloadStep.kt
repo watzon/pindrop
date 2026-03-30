@@ -5,6 +5,7 @@ package tech.watzon.pindrop.shared.ui.shell.linux.onboarding
 import kotlinx.cinterop.*
 import tech.watzon.pindrop.shared.core.TranscriptionModelId
 import tech.watzon.pindrop.shared.core.platform.SettingsPersistence
+import tech.watzon.pindrop.shared.schemasettings.SettingsKeys
 import tech.watzon.pindrop.shared.ui.shell.linux.models.LinuxModelController
 import tech.watzon.pindrop.shared.uishell.cinterop.gtk4.*
 import tech.watzon.pindrop.shared.uilocalization.SharedLocalization
@@ -80,7 +81,9 @@ class ModelDownloadStep(
     }
 
     private fun downloadSelectedModel() {
-        val selectedModel = modelController.selectedModelId
+        val selectedModel = TranscriptionModelId(
+            settings.getString(SettingsKeys.selectedModel) ?: modelController.selectedModelId.value,
+        )
         runCatching {
             modelController.install(selectedModel) { progress, message ->
                 gtk_progress_bar_set_fraction(progressBar, progress)
