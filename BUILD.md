@@ -8,6 +8,7 @@ Complete guide for building, testing, and distributing Pindrop.
 - **Xcode 15+** with Command Line Tools
 - **macOS 14+** (Sonoma or later)
 - **just** - Command runner (`brew install just`)
+- **Active developer directory set to full Xcode** (`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`)
 
 ### Optional (for distribution)
 - **create-dmg** - DMG creation (`brew install create-dmg`)

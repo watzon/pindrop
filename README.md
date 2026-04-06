@@ -76,14 +76,26 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 ## Requirements
 
-Current app target:
+### Required for development
 
 - **macOS 14.0 (Sonoma) or later**
-- **Apple Silicon (M1/M2/M3/M4)** recommended for optimal performance
+- **Xcode 15+** with Command Line Tools
+- **just** (`brew install just`)
+- **JDK 21+** for the Kotlin Multiplatform workspace (`brew install openjdk@21`)
+- **Active developer directory set to full Xcode** (`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`)
+
+### Optional for release work
+
+- **create-dmg** (`brew install create-dmg`)
+- **GitHub CLI** (`brew install gh`)
+- **swiftlint** and **swiftformat** if you use the local lint/format recipes
+
+### Runtime permissions
+
 - **Microphone access** (required for recording)
 - **Accessibility permission** (optional, enables direct text insertion; clipboard works without it)
 
-Future targets:
+### Platform roadmap
 
 - **Windows** planned
 - **Linux** planned
@@ -129,29 +141,44 @@ git clone https://github.com/watzon/pindrop.git
 cd pindrop
 ```
 
-### Step 2: Open in Xcode
+### Step 2: Install Dependencies
+
+```bash
+brew install just openjdk@21
+```
+
+If you plan to export releases or build DMGs, also install:
+
+```bash
+brew install create-dmg gh
+```
+
+### Step 3: Build
+
+```bash
+just build
+```
+
+That builds the macOS app and the shared Kotlin Multiplatform pieces it depends on.
+
+### Step 4: Open in Xcode
 
 ```bash
 open Pindrop.xcodeproj
 ```
 
-Or simply double-click `Pindrop.xcodeproj` in Finder.
+Or simply double-click `Pindrop.xcodeproj` in Finder. Use Xcode for the UI, but keep `just build` as the normal development path.
 
-### Step 3: Build and Run
-
-1. In Xcode, select a scheme from the toolbar (Pindrop should be selected by default)
-2. Press `Cmd+R` or click the Run button
-3. The app will compile and launch
-
-After the first build, Pindrop will appear in your menu bar (look for the microphone icon). The app runs exclusively in the menu bar—no dock icon.
-
-### Using the Build System (Recommended)
-
-This project includes a `justfile` for common build tasks. Install `just` if you haven't already:
+### Step 5: Run Tests
 
 ```bash
-brew install just
+just test
+just shared-test
 ```
+
+After the first build, Pindrop will appear in your menu bar (look for the microphone icon). The app runs exclusively in the menu bar, so there is no dock icon.
+
+### Using the Build System (Recommended)
 
 **Common commands:**
 
@@ -160,7 +187,9 @@ just build              # Build for development (Debug)
 just build-release      # Build for release
 just export-app         # Export a signed app for distribution
 just dmg                # Export signed app + create DMG
-just test               # Run tests
+just test               # Run app tests
+just shared-test        # Run Kotlin Multiplatform tests
+just shared-xcframework # Build shared Apple XCFrameworks
 just dmg-self-signed    # Fallback self-signed DMG
 just clean              # Clean build artifacts
 just --list             # Show all available commands
@@ -188,7 +217,7 @@ To create a distributable build manually:
 xcodebuild -scheme Pindrop -configuration Release build
 ```
 
-The compiled app will be in `DerivedData/Build/Products/Release/Pindrop.app`.
+The compiled app will be in `DerivedData/Build/Products/Release/Pindrop.app`. `just build` is the preferred path because it keeps the shared Kotlin workspace in sync.
 
 ### Exporting a Signed App
 
@@ -450,6 +479,13 @@ Pindrop/
 ```
 
 ## Running Tests
+
+```bash
+just test
+just shared-test
+```
+
+For a direct Xcode run:
 
 ```bash
 xcodebuild test -scheme Pindrop -destination 'platform=macOS'
