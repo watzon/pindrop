@@ -5,6 +5,7 @@
 //  Created on 2026-01-25.
 //
 
+import FluidAudio
 import Testing
 @testable import Pindrop
 
@@ -129,6 +130,67 @@ struct ModelManagerTests {
         #expect(modelManager.downloadProgress == 0.0)
         #expect(modelManager.isDownloading == false)
         #expect(modelManager.currentDownloadModel == nil)
+    }
+
+    @Test func parakeetDownloadProgressMapping_listing_setsListingPhase() {
+        let snapshot = ModelManager.parakeetDownloadSnapshot(
+            modelName: "parakeet-tdt-0.6b-v3",
+            progress: DownloadUtils.DownloadProgress(
+                fractionCompleted: 0.12,
+                phase: .listing
+            )
+        )
+
+        #expect(snapshot.modelName == "parakeet-tdt-0.6b-v3")
+        #expect(snapshot.progress == 0.12)
+        #expect(snapshot.phase == .listing)
+    }
+
+    @Test func parakeetDownloadProgressMapping_downloading_setsFileCounts() {
+        let snapshot = ModelManager.parakeetDownloadSnapshot(
+            modelName: "parakeet-tdt-0.6b-v3",
+            progress: DownloadUtils.DownloadProgress(
+                fractionCompleted: 0.42,
+                phase: .downloading(completedFiles: 3, totalFiles: 7)
+            )
+        )
+
+        #expect(snapshot.progress == 0.42)
+        #expect(snapshot.phase == .downloading(completedFiles: 3, totalFiles: 7))
+    }
+
+    @Test func parakeetDownloadProgressMapping_compiling_setsCompilingPhase() {
+        let snapshot = ModelManager.parakeetDownloadSnapshot(
+            modelName: "parakeet-tdt-0.6b-v3",
+            progress: DownloadUtils.DownloadProgress(
+                fractionCompleted: 0.76,
+                phase: .compiling(modelName: "Decoder.mlmodelc")
+            )
+        )
+
+        #expect(snapshot.progress == 0.76)
+        #expect(snapshot.phase == .compiling(modelName: "Decoder.mlmodelc"))
+    }
+
+    @Test func whisperKitPreparationPhase_setsPreparingSnapshot() {
+        let snapshot = ModelManager.preparingDownloadSnapshot(
+            modelName: "openai_whisper-base"
+        )
+
+        #expect(snapshot.progress == 0.85)
+        #expect(snapshot.phase == .preparing)
+    }
+
+    @Test func downloadSnapshotClearsWhenRequested() {
+        let snapshot = ModelManager.completedDownloadSnapshot(modelName: "openai_whisper-base")
+
+        modelManager.updateDownloadSnapshot(snapshot)
+        #expect(modelManager.downloadSnapshot == snapshot)
+        #expect(modelManager.downloadProgress == 1.0)
+
+        modelManager.clearDownloadState(resetProgress: true)
+        #expect(modelManager.downloadSnapshot == nil)
+        #expect(modelManager.downloadProgress == 0.0)
     }
 
     @Test func downloadNonexistentModel() async {

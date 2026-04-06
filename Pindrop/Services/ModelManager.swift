@@ -8,6 +8,9 @@
 import Foundation
 import WhisperKit
 import FluidAudio
+#if canImport(PindropSharedTranscription)
+import PindropSharedTranscription
+#endif
 
 @MainActor
 @Observable
@@ -113,6 +116,21 @@ class ModelManager {
         case comingSoon
         case requiresSetup
     }
+
+    enum DownloadPhase: Equatable, Sendable {
+        case idle
+        case listing
+        case downloading(completedFiles: Int?, totalFiles: Int?)
+        case compiling(modelName: String?)
+        case preparing
+        case completed
+    }
+
+    struct DownloadSnapshot: Equatable, Sendable {
+        let modelName: String
+        let progress: Double
+        let phase: DownloadPhase
+    }
     
     struct WhisperModel: Identifiable, Equatable, Sendable {
         let id: String
@@ -203,6 +221,7 @@ class ModelManager {
     }
     
     private(set) var downloadProgress: Double = 0.0
+    private(set) var downloadSnapshot: DownloadSnapshot?
     private(set) var isDownloading: Bool = false
     private(set) var currentDownloadModel: String?
     private(set) var downloadedModelNames: Set<String> = []
@@ -265,6 +284,146 @@ class ModelManager {
     
     init() {
         guard !Self.isPreview else { return }
+    }
+
+    static func parakeetDownloadSnapshot(
+        modelName: String,
+        progress: DownloadUtils.DownloadProgress
+    ) -> DownloadSnapshot {
+        let phase: DownloadPhase
+        switch progress.phase {
+        case .listing:
+            phase = .listing
+        case .downloading(let completedFiles, let totalFiles):
+            phase = .downloading(completedFiles: completedFiles, totalFiles: totalFiles)
+        case .compiling(let modelName):
+            let normalizedModelName = modelName.isEmpty ? nil : modelName
+            phase = .compiling(modelName: normalizedModelName)
+        }
+
+        return DownloadSnapshot(
+            modelName: modelName,
+            progress: progress.fractionCompleted,
+            phase: phase
+        )
+    }
+
+    static func whisperDownloadSnapshot(
+        modelName: String,
+        fileDownloadFraction: Double
+    ) -> DownloadSnapshot {
+        DownloadSnapshot(
+            modelName: modelName,
+            progress: fileDownloadFraction * 0.8,
+            phase: .downloading(completedFiles: nil, totalFiles: nil)
+        )
+    }
+
+    static func preparingDownloadSnapshot(
+        modelName: String,
+        progress: Double = 0.85
+    ) -> DownloadSnapshot {
+        DownloadSnapshot(
+            modelName: modelName,
+            progress: progress,
+            phase: .preparing
+        )
+    }
+
+    static func completedDownloadSnapshot(modelName: String) -> DownloadSnapshot {
+        DownloadSnapshot(
+            modelName: modelName,
+            progress: 1.0,
+            phase: .completed
+        )
+    }
+
+    #if canImport(PindropSharedTranscription)
+    static func runtimeInstallSnapshot(
+        modelName: String,
+        progress: ModelInstallProgress
+    ) -> DownloadSnapshot {
+        if progress.state == .installed {
+            return completedDownloadSnapshot(modelName: modelName)
+        }
+
+        let phase = runtimeDownloadPhase(message: progress.message)
+        return DownloadSnapshot(
+            modelName: modelName,
+            progress: progress.progress,
+            phase: phase
+        )
+    }
+
+    static func runtimeProgressMessage(for snapshot: DownloadSnapshot) -> String? {
+        switch snapshot.phase {
+        case .idle:
+            return nil
+        case .listing:
+            return "__pindrop_phase__:listing"
+        case .downloading(let completedFiles, let totalFiles):
+            let completed = completedFiles.map(String.init) ?? ""
+            let total = totalFiles.map(String.init) ?? ""
+            return "__pindrop_phase__:downloading:\(completed):\(total)"
+        case .compiling(let modelName):
+            let normalizedModelName = modelName ?? ""
+            return "__pindrop_phase__:compiling:\(normalizedModelName)"
+        case .preparing:
+            return "__pindrop_phase__:preparing"
+        case .completed:
+            return "__pindrop_phase__:completed"
+        }
+    }
+
+    private static func runtimeDownloadPhase(message: String?) -> DownloadPhase {
+        guard let message, message.hasPrefix("__pindrop_phase__:") else {
+            return .downloading(completedFiles: nil, totalFiles: nil)
+        }
+
+        let components = message.split(separator: ":", omittingEmptySubsequences: false)
+        guard components.count >= 3 else {
+            return .downloading(completedFiles: nil, totalFiles: nil)
+        }
+
+        switch components[2] {
+        case "listing":
+            return .listing
+        case "downloading":
+            let completedFiles = components.count > 3 ? Int(String(components[3])) : nil
+            let totalFiles = components.count > 4 ? Int(String(components[4])) : nil
+            return .downloading(completedFiles: completedFiles, totalFiles: totalFiles)
+        case "compiling":
+            let modelName = components.count > 3 ? String(components[3]) : ""
+            return .compiling(modelName: modelName.isEmpty ? nil : modelName)
+        case "preparing":
+            return .preparing
+        case "completed":
+            return .completed
+        default:
+            return .downloading(completedFiles: nil, totalFiles: nil)
+        }
+    }
+    #endif
+
+    func updateDownloadSnapshot(
+        _ snapshot: DownloadSnapshot,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) {
+        let clampedSnapshot = DownloadSnapshot(
+            modelName: snapshot.modelName,
+            progress: max(0.0, min(snapshot.progress, 1.0)),
+            phase: snapshot.phase
+        )
+        downloadSnapshot = clampedSnapshot
+        downloadProgress = clampedSnapshot.progress
+        onProgress?(clampedSnapshot)
+    }
+
+    func clearDownloadState(resetProgress: Bool) {
+        downloadSnapshot = nil
+        if resetProgress {
+            downloadProgress = 0.0
+        }
     }
     
     func refreshDownloadedModels() async {
@@ -337,7 +496,7 @@ class ModelManager {
         downloadedModelNames.contains(modelName)
     }
     
-    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+    func downloadModel(named modelName: String, onProgress: ((DownloadSnapshot) -> Void)? = nil) async throws {
         guard let model = availableModels.first(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
@@ -352,7 +511,7 @@ class ModelManager {
         
         isDownloading = true
         currentDownloadModel = modelName
-        downloadProgress = 0.0
+        clearDownloadState(resetProgress: true)
         
         defer {
             isDownloading = false
@@ -371,7 +530,10 @@ class ModelManager {
         Log.boot.info("ModelManager.downloadModel finished OK name=\(modelName) wallClock=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - downloadWallClock))")
     }
 
-    func installModelArtifacts(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+    func installModelArtifacts(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
         guard let model = availableModels.first(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
@@ -385,7 +547,10 @@ class ModelManager {
         }
     }
     
-    private func downloadWhisperKitModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+    private func downloadWhisperKitModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
         whisperKitDownloadLastLoggedDecile = -1
         let pipelineStart = CFAbsoluteTimeGetCurrent()
         do {
@@ -412,16 +577,23 @@ class ModelManager {
                             self.whisperKitDownloadLastLoggedDecile = max(self.whisperKitDownloadLastLoggedDecile, decile)
                             Log.boot.info("WhisperKit.download progress fraction=\(String(format: "%.3f", fraction)) uiMapped=\(String(format: "%.3f", fraction * 0.8))")
                         }
-                        self.downloadProgress = fraction * 0.8
-                        onProgress?(self.downloadProgress)
+                        self.updateDownloadSnapshot(
+                            Self.whisperDownloadSnapshot(
+                                modelName: modelName,
+                                fileDownloadFraction: fraction
+                            ),
+                            onProgress: onProgress
+                        )
                     }
                 }
             )
             Log.boot.info("WhisperKit.download finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fileDownloadStart))")
             
             Log.model.info("Download complete, prewarming model...")
-            downloadProgress = 0.85
-            onProgress?(0.85)
+            updateDownloadSnapshot(
+                Self.preparingDownloadSnapshot(modelName: modelName),
+                onProgress: onProgress
+            )
             Log.boot.info("Entering prewarm phase (WhisperKitConfig prewarm=true load=false) — UI shows ~85% \"Preparing Model\"")
             
             let prewarmStart = CFAbsoluteTimeGetCurrent()
@@ -437,12 +609,14 @@ class ModelManager {
             Log.boot.info("WhisperKit prewarm (init) completed elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - prewarmStart))")
             
             Log.model.info("Model prewarmed successfully")
-            downloadProgress = 1.0
-            onProgress?(1.0)
+            updateDownloadSnapshot(
+                Self.completedDownloadSnapshot(modelName: modelName),
+                onProgress: onProgress
+            )
             await refreshDownloadedModels()
             Log.boot.info("WhisperKit pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) downloadedModelsCount=\(downloadedModelNames.count)")
         } catch {
-            downloadProgress = 0.0
+            clearDownloadState(resetProgress: true)
             let nsError = error as NSError
             Log.boot.error(
                 "WhisperKit pipeline failed after \(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart)) domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)"
@@ -451,7 +625,10 @@ class ModelManager {
         }
     }
     
-    private func downloadParakeetModel(named modelName: String, onProgress: ((Double) -> Void)? = nil) async throws {
+    private func downloadParakeetModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
         let pipelineStart = CFAbsoluteTimeGetCurrent()
         Log.model.info("Parakeet model download requested: \(modelName)")
         Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
@@ -473,9 +650,7 @@ class ModelManager {
             Log.boot.error("Parakeet mkdir failed: \(error.localizedDescription)")
             throw ModelError.downloadFailed("Failed to create Parakeet models directory: \(error.localizedDescription)")
         }
-        
-        downloadProgress = 0.1
-        onProgress?(0.1)
+
         Log.model.info("Starting Parakeet model download (version: \(version == .v3 ? "v3" : "v2"))")
         Log.boot.info("Parakeet AsrModels.downloadAndLoad starting version=\(version == .v3 ? "v3" : "v2")")
         
@@ -484,25 +659,33 @@ class ModelManager {
                 version == .v3 ? "parakeet-tdt-0.6b-v3-coreml" : "parakeet-tdt-0.6b-v2-coreml",
                 isDirectory: true
             )
-            
-            downloadProgress = 0.3
-            onProgress?(0.3)
-            
+
             let fetchStart = CFAbsoluteTimeGetCurrent()
-            _ = try await AsrModels.downloadAndLoad(to: targetDir, version: version)
+            _ = try await AsrModels.downloadAndLoad(
+                to: targetDir,
+                version: version,
+                progressHandler: { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        self.updateDownloadSnapshot(
+                            Self.parakeetDownloadSnapshot(modelName: modelName, progress: progress),
+                            onProgress: onProgress
+                        )
+                    }
+                }
+            )
             Log.boot.info("Parakeet AsrModels.downloadAndLoad finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fetchStart))")
             
             Log.model.info("Parakeet model download complete")
-            downloadProgress = 0.9
-            onProgress?(0.9)
-            
-            downloadProgress = 1.0
-            onProgress?(1.0)
+            updateDownloadSnapshot(
+                Self.completedDownloadSnapshot(modelName: modelName),
+                onProgress: onProgress
+            )
             
             await refreshDownloadedModels()
             Log.boot.info("Parakeet pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart))")
         } catch {
-            downloadProgress = 0.0
+            clearDownloadState(resetProgress: true)
             let nsError = error as NSError
             Log.boot.error("Parakeet pipeline failed domain=\(nsError.domain) code=\(nsError.code) description=\(error.localizedDescription)")
             Log.model.error("Parakeet model download failed: \(error.localizedDescription)")
@@ -511,6 +694,10 @@ class ModelManager {
     }
     
     func deleteModel(named modelName: String) async throws {
+        guard availableModels.contains(where: { $0.name == modelName }) else {
+            throw ModelError.modelNotFound(modelName)
+        }
+
         #if canImport(PindropSharedTranscription)
         try await localRuntimeBridge.deleteModel(named: modelName)
         await refreshDownloadedModels()

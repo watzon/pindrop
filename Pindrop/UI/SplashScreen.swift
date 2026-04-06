@@ -30,6 +30,12 @@ final class SplashScreenState: ObservableObject {
     func updateProgress(_ value: Double) {
         progress = value
     }
+
+    func updateDownload(text: String, progress value: Double) {
+        loadingText = text
+        progress = value
+        isDownloading = true
+    }
     
     func hideProgress() {
         progress = nil
@@ -177,6 +183,10 @@ final class SplashWindowController {
     
     func updateProgress(_ value: Double) {
         state.updateProgress(value)
+    }
+
+    func updateDownload(text: String, progress value: Double) {
+        state.updateDownload(text: text, progress: value)
     }
     
     func hideProgress() {

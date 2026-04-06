@@ -177,9 +177,37 @@ final class MacOSSettingsSnapshotAdapter: SettingsSnapshotProvider {
 import PindropSharedTranscription
 
 @MainActor
+private final class RuntimeObserverAdapter: NSObject, @preconcurrency RuntimeObserver {
+    var onInstallProgressChange: ((ModelManager.DownloadSnapshot) -> Void)?
+
+    func onStateChanged(state__: LocalRuntimeState) {}
+
+    func onActiveModelChanged(model: ActiveLocalModel?) {}
+
+    func onInstallProgress(progress: ModelInstallProgress?) {
+        guard
+            let progress,
+            let onInstallProgressChange
+        else {
+            return
+        }
+
+        onInstallProgressChange(
+            ModelManager.runtimeInstallSnapshot(
+                modelName: progress.modelId.value,
+                progress: progress
+            )
+        )
+    }
+
+    func onErrorChanged(errorCode: LocalRuntimeErrorCode?, message: String?) {}
+}
+
+@MainActor
 final class KMPTranscriptionRuntimeBridge {
     private let modelManager: ModelManager
     private let backendRegistry: MacOSRuntimeBackendRegistry
+    private let observer: RuntimeObserverAdapter
     private let runtime: LocalTranscriptionRuntime
 
     init(
@@ -188,6 +216,7 @@ final class KMPTranscriptionRuntimeBridge {
     ) {
         self.modelManager = modelManager
         self.backendRegistry = MacOSRuntimeBackendRegistry(engineFactory: engineFactory)
+        self.observer = RuntimeObserverAdapter()
         let installedIndex = MacOSInstalledModelIndexAdapter(modelManager: modelManager)
         let installer = MacOSModelInstallerAdapter(modelManager: modelManager)
         self.runtime = LocalTranscriptionRuntime(
@@ -195,7 +224,7 @@ final class KMPTranscriptionRuntimeBridge {
             installedModelIndex: installedIndex,
             modelInstaller: installer,
             backendRegistry: backendRegistry,
-            observer: nil
+            observer: observer
         )
     }
 
@@ -223,14 +252,29 @@ final class KMPTranscriptionRuntimeBridge {
 
     func installModel(
         named modelName: String,
-        onProgress: ((Double) -> Void)? = nil
+        onProgress: ((ModelManager.DownloadSnapshot) -> Void)? = nil
     ) async throws {
+        var didEmitTerminalProgress = false
+        observer.onInstallProgressChange = { snapshot in
+            if snapshot.phase == .completed {
+                didEmitTerminalProgress = true
+            }
+            onProgress?(snapshot)
+        }
+        defer {
+            observer.onInstallProgressChange = nil
+        }
+
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             runtime.installModel(modelId: TranscriptionModelId(value: modelName)) { _, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
-                    onProgress?(1.0)
+                    if !didEmitTerminalProgress {
+                        Task { @MainActor in
+                            onProgress?(ModelManager.completedDownloadSnapshot(modelName: modelName))
+                        }
+                    }
                     continuation.resume(returning: ())
                 }
             }
@@ -441,13 +485,13 @@ private final class MacOSModelInstallerAdapter: NSObject, @preconcurrency ModelI
     ) {
         Task { @MainActor in
             do {
-                try await modelManager.installModelArtifacts(named: model.id.value) { progress in
+                try await modelManager.installModelArtifacts(named: model.id.value) { snapshot in
                     onProgress(
                         ModelInstallProgress(
                             modelId: model.id,
-                            progress: progress,
-                            state: progress >= 1.0 ? .installed : .installing,
-                            message: nil
+                            progress: snapshot.progress,
+                            state: snapshot.phase == .completed ? .installed : .installing,
+                            message: ModelManager.runtimeProgressMessage(for: snapshot)
                         )
                     )
                 }

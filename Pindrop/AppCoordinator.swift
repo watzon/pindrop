@@ -710,6 +710,32 @@ final class AppCoordinator {
         setActiveModel(modelName)
     }
 
+    private func updateSplashDownloadState(
+        with snapshot: ModelManager.DownloadSnapshot,
+        displayName: String
+    ) {
+        let locale = settingsStore.selectedAppLanguage.locale
+        let loadingText: String
+
+        switch snapshot.phase {
+        case .listing:
+            loadingText = localized("Preparing download...", locale: locale)
+        case .downloading, .idle:
+            loadingText = localized("Downloading %@...", locale: locale)
+                .replacingOccurrences(of: "%@", with: displayName)
+        case .compiling:
+            loadingText = localized("Compiling %@...", locale: locale)
+                .replacingOccurrences(of: "%@", with: displayName)
+        case .preparing:
+            loadingText = localized("Preparing model...", locale: locale)
+        case .completed:
+            splashController.updateProgress(snapshot.progress)
+            return
+        }
+
+        splashController.updateDownload(text: loadingText, progress: snapshot.progress)
+    }
+
     private func attemptWhisperModelRepairAndReload(
         modelName: String,
         displayName: String
@@ -724,9 +750,9 @@ final class AppCoordinator {
         }
 
         splashController.setDownloading("Repairing \(displayName)...")
-        try await modelManager.downloadModel(named: modelName) { [weak self] progress in
+        try await modelManager.downloadModel(named: modelName) { [weak self] snapshot in
             Task { @MainActor in
-                self?.splashController.updateProgress(progress)
+                self?.updateSplashDownloadState(with: snapshot, displayName: displayName)
             }
         }
 
@@ -827,9 +853,12 @@ final class AppCoordinator {
             Log.model.info("Model \(startupModel.resolvedModel.name) not found, downloading...")
 
             do {
-                try await modelManager.downloadModel(named: startupModel.resolvedModel.name) { [weak self] progress in
+                try await modelManager.downloadModel(named: startupModel.resolvedModel.name) { [weak self] snapshot in
                     Task { @MainActor in
-                        self?.splashController.updateProgress(progress)
+                        self?.updateSplashDownloadState(
+                            with: snapshot,
+                            displayName: startupModel.resolvedModel.displayName
+                        )
                     }
                 }
                 splashController.setLoading("Loading model...")
