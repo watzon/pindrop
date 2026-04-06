@@ -8,6 +8,9 @@
 import FluidAudio
 import Testing
 @testable import Pindrop
+#if canImport(PindropSharedTranscription)
+import PindropSharedTranscription
+#endif
 
 @MainActor
 @Suite
@@ -179,6 +182,45 @@ struct ModelManagerTests {
 
         #expect(snapshot.progress == 0.85)
         #expect(snapshot.phase == .preparing)
+    }
+
+    @Test func runtimeProgressMessageRoundTripsListingAndFileCounts() {
+        let downloadingSnapshot = ModelManager.DownloadSnapshot(
+            modelName: "parakeet-tdt-0.6b-v3",
+            progress: 0.42,
+            phase: .downloading(completedFiles: 3, totalFiles: 7)
+        )
+        let listingSnapshot = ModelManager.DownloadSnapshot(
+            modelName: "parakeet-tdt-0.6b-v3",
+            progress: 0.12,
+            phase: .listing
+        )
+
+        let downloadingProgress = ModelInstallProgress(
+            modelId: TranscriptionModelId(value: downloadingSnapshot.modelName),
+            progress: downloadingSnapshot.progress,
+            state: .installing,
+            message: ModelManager.runtimeProgressMessage(for: downloadingSnapshot)
+        )
+        let listingProgress = ModelInstallProgress(
+            modelId: TranscriptionModelId(value: listingSnapshot.modelName),
+            progress: listingSnapshot.progress,
+            state: .installing,
+            message: ModelManager.runtimeProgressMessage(for: listingSnapshot)
+        )
+
+        #expect(
+            ModelManager.runtimeInstallSnapshot(
+                modelName: downloadingSnapshot.modelName,
+                progress: downloadingProgress
+            ).phase == .downloading(completedFiles: 3, totalFiles: 7)
+        )
+        #expect(
+            ModelManager.runtimeInstallSnapshot(
+                modelName: listingSnapshot.modelName,
+                progress: listingProgress
+            ).phase == .listing
+        )
     }
 
     @Test func downloadSnapshotClearsWhenRequested() {

@@ -381,19 +381,19 @@ class ModelManager {
         }
 
         let components = message.split(separator: ":", omittingEmptySubsequences: false)
-        guard components.count >= 3 else {
+        guard components.count >= 2 else {
             return .downloading(completedFiles: nil, totalFiles: nil)
         }
 
-        switch components[2] {
+        switch components[1] {
         case "listing":
             return .listing
         case "downloading":
-            let completedFiles = components.count > 3 ? Int(String(components[3])) : nil
-            let totalFiles = components.count > 4 ? Int(String(components[4])) : nil
+            let completedFiles = components.count > 2 ? Int(String(components[2])) : nil
+            let totalFiles = components.count > 3 ? Int(String(components[3])) : nil
             return .downloading(completedFiles: completedFiles, totalFiles: totalFiles)
         case "compiling":
-            let modelName = components.count > 3 ? String(components[3]) : ""
+            let modelName = components.count > 2 ? String(components[2]) : ""
             return .compiling(modelName: modelName.isEmpty ? nil : modelName)
         case "preparing":
             return .preparing
