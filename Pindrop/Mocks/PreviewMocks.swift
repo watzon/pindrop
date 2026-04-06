@@ -90,6 +90,7 @@ final class PreviewSettingsStore: SettingsStoreProtocol {
 protocol ModelManagerProtocol: AnyObject, Observable {
     var availableModels: [ModelManager.WhisperModel] { get }
     var downloadProgress: Double { get }
+    var downloadSnapshot: ModelManager.DownloadSnapshot? { get }
     var isDownloading: Bool { get }
     var currentDownloadModel: String? { get }
     var downloadedModelNames: Set<String> { get }
@@ -97,7 +98,10 @@ protocol ModelManagerProtocol: AnyObject, Observable {
     func refreshDownloadedModels() async
     func getDownloadedModels() async -> [ModelManager.WhisperModel]
     func isModelDownloaded(_ modelName: String) -> Bool
-    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)?) async throws
+    func downloadModel(
+        named modelName: String,
+        onProgress: ((ModelManager.DownloadSnapshot) -> Void)?
+    ) async throws
     func deleteModel(named modelName: String) async throws
 }
 
@@ -141,6 +145,7 @@ final class PreviewModelManager: ModelManagerProtocol {
     }
     
     private(set) var downloadProgress: Double = 0.0
+    private(set) var downloadSnapshot: ModelManager.DownloadSnapshot?
     private(set) var isDownloading: Bool = false
     private(set) var currentDownloadModel: String? = nil
     private(set) var downloadedModelNames: Set<String> = ["openai_whisper-base"]
@@ -155,8 +160,15 @@ final class PreviewModelManager: ModelManagerProtocol {
         downloadedModelNames.contains(modelName)
     }
     
-    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)?) async throws {
+    func downloadModel(
+        named modelName: String,
+        onProgress: ((ModelManager.DownloadSnapshot) -> Void)?
+    ) async throws {
+        let snapshot = ModelManager.completedDownloadSnapshot(modelName: modelName)
+        downloadSnapshot = snapshot
+        downloadProgress = snapshot.progress
         downloadedModelNames.insert(modelName)
+        onProgress?(snapshot)
     }
     
     func deleteModel(named modelName: String) async throws {

@@ -244,6 +244,7 @@ struct ModelsSettingsView: View {
                             isDownloading: downloadingModel == model.name,
                             isSwitching: switchingToModel == model.name,
                             downloadProgress: modelManager.downloadProgress,
+                            downloadSnapshot: downloadingModel == model.name ? modelManager.downloadSnapshot : nil,
                             onSwitch: { switchModel(model) },
                             onSetDefault: { settings.selectedModel = model.name },
                             onDownload: { downloadModel(model) },
@@ -542,6 +543,7 @@ struct ModelSettingsRow: View {
     let isDownloading: Bool
     let isSwitching: Bool
     let downloadProgress: Double
+    let downloadSnapshot: ModelManager.DownloadSnapshot?
     let onSwitch: () -> Void
     let onSetDefault: () -> Void
     let onDownload: () -> Void
@@ -562,6 +564,28 @@ struct ModelSettingsRow: View {
 
     private var isRowInteractive: Bool {
         isDownloaded && !isComingSoon && !isSwitching && !isActive
+    }
+
+    private var downloadPhaseCaption: String? {
+        guard let downloadSnapshot else { return nil }
+
+        switch downloadSnapshot.phase {
+        case .listing:
+            return localized("Preparing download...", locale: locale)
+        case .downloading(let completedFiles, let totalFiles):
+            guard let completedFiles, let totalFiles else { return nil }
+            return String(
+                format: localized("Files %d/%d", locale: locale),
+                locale: locale,
+                arguments: [completedFiles, totalFiles]
+            )
+        case .compiling:
+            return localized("Compiling...", locale: locale)
+        case .preparing:
+            return localized("Preparing model...", locale: locale)
+        case .idle, .completed:
+            return nil
+        }
     }
     
     var body: some View {
@@ -733,6 +757,14 @@ struct ModelSettingsRow: View {
                 Text("\(Int(downloadProgress * 100))%")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+
+                if let downloadPhaseCaption {
+                    Text(downloadPhaseCaption)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 120, alignment: .trailing)
+                }
             }
         } else if isSwitching {
             ProgressView()

@@ -22,6 +22,13 @@ struct ModelDownloadStepView: View {
         modelManager.availableModels.first { $0.name == modelName }
     }
 
+    private var activeSnapshot: ModelManager.DownloadSnapshot? {
+        guard modelManager.downloadSnapshot?.modelName == modelName else {
+            return nil
+        }
+        return modelManager.downloadSnapshot
+    }
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -94,11 +101,17 @@ struct ModelDownloadStepView: View {
         if downloadError != nil {
             return localized("Download Failed", locale: locale)
         } else if modelManager.isDownloading {
-            if modelManager.downloadProgress > 0.8 {
+            switch activeSnapshot?.phase {
+            case .listing:
+                return localized("Preparing download...", locale: locale)
+            case .downloading, .idle, .none:
+                return localized("Downloading %@...", locale: locale)
+                    .replacingOccurrences(of: "%@", with: selectedModel?.displayName ?? localized("Model", locale: locale))
+            case .compiling, .preparing:
                 return localized("Preparing Model...", locale: locale)
+            case .completed:
+                return localized("Download Complete!", locale: locale)
             }
-            return localized("Downloading %@...", locale: locale)
-                .replacingOccurrences(of: "%@", with: selectedModel?.displayName ?? localized("Model", locale: locale))
         } else {
             return localized("Download Complete!", locale: locale)
         }
@@ -108,15 +121,37 @@ struct ModelDownloadStepView: View {
         if downloadError != nil {
             return localized("Please check your internet connection and try again.", locale: locale)
         } else if modelManager.isDownloading {
-            if let model = selectedModel {
-                let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
-                return String(
-                    format: localized("%d / %d MB", locale: locale),
-                    locale: locale,
-                    arguments: [downloadedMB, model.sizeInMB]
-                )
+            switch activeSnapshot?.phase {
+            case .listing:
+                return localized("Contacting the model registry...", locale: locale)
+            case .downloading(let completedFiles, let totalFiles):
+                if let completedFiles, let totalFiles {
+                    return String(
+                        format: localized("Downloading files %d of %d", locale: locale),
+                        locale: locale,
+                        arguments: [completedFiles, totalFiles]
+                    )
+                }
+                if let model = selectedModel {
+                    let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
+                    return String(
+                        format: localized("%d / %d MB", locale: locale),
+                        locale: locale,
+                        arguments: [downloadedMB, model.sizeInMB]
+                    )
+                }
+                return localized("Please wait...", locale: locale)
+            case .compiling(let modelName):
+                if let modelName {
+                    return localized("Compiling %@...", locale: locale)
+                        .replacingOccurrences(of: "%@", with: modelName)
+                }
+                return localized("Please wait...", locale: locale)
+            case .preparing, .idle, .none:
+                return localized("Please wait...", locale: locale)
+            case .completed:
+                return localized("Your model is ready to use.", locale: locale)
             }
-            return localized("Please wait...", locale: locale)
         } else {
             return localized("Your model is ready to use.", locale: locale)
         }
