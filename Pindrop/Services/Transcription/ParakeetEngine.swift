@@ -151,7 +151,7 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
 
         guard !normalizedWords.isEmpty else {
             if !configuredVocabularyTerms.isEmpty {
-                asrManager.disableVocabularyBoosting()
+                await asrManager.disableVocabularyBoosting()
                 configuredVocabularyTerms = []
             }
             return

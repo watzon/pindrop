@@ -147,6 +147,14 @@ cd pindrop
 brew install just openjdk@21
 ```
 
+Make sure the JDK is available to Gradle in the same shell you use for `just build`:
+
+```bash
+export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
+java -version
+```
+
 If you plan to export releases or build DMGs, also install:
 
 ```bash
@@ -159,7 +167,7 @@ brew install create-dmg gh
 just build
 ```
 
-That builds the macOS app and the shared Kotlin Multiplatform pieces it depends on.
+That builds the macOS app and the shared Kotlin Multiplatform pieces it depends on. If you do not have a signing certificate configured, use `just build-unsigned` instead.
 
 ### Step 4: Open in Xcode
 
@@ -183,7 +191,8 @@ After the first build, Pindrop will appear in your menu bar (look for the microp
 **Common commands:**
 
 ```bash
-just build              # Build for development (Debug)
+just build              # Build for development (Debug, signed)
+just build-unsigned     # Build for development without signing
 just build-release      # Build for release
 just export-app         # Export a signed app for distribution
 just dmg                # Export signed app + create DMG

@@ -8,6 +8,7 @@ Complete guide for building, testing, and distributing Pindrop.
 - **Xcode 15+** with Command Line Tools
 - **macOS 14+** (Sonoma or later)
 - **just** - Command runner (`brew install just`)
+- **JDK 21+** for the shared Kotlin Multiplatform build (`brew install openjdk@21`)
 - **Active developer directory set to full Xcode** (`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`)
 
 ### Optional (for distribution)
@@ -29,12 +30,23 @@ just test
 just run
 ```
 
+`just build` uses Xcode-managed signing. If you do not have a signing certificate configured, use `just build-unsigned` instead.
+
+If the shared Kotlin build cannot find Java, make sure the Homebrew JDK is available in the same shell:
+
+```bash
+export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
+java -version
+```
+
 ## Build Commands
 
 ### Development
 
 ```bash
-just build              # Debug build
+just build              # Debug build with signing
+just build-unsigned     # Debug build without signing
 just test               # Run test suite
 just test-coverage      # Run tests with coverage
 just dev                # Clean + build + test
