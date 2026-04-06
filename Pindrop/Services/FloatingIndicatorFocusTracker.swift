@@ -164,7 +164,12 @@ final class FloatingIndicatorFocusTracker {
 
         lastObservedMouseDisplayNumber = mouseDisplayNumberProvider()
 
-        guard placementContextValue == nil else { return }
+        guard placementContextValue == nil else {
+            if isRestartingInNewMode, mode == .idlePill {
+                seedPlacement(for: mode)
+            }
+            return
+        }
 
         seedPlacement(for: mode)
     }

@@ -242,6 +242,29 @@ struct FloatingIndicatorFocusTrackerTests {
         #expect(activePlacement == idlePlacement)
     }
 
+    @Test func modeTransitionToIdlePillReseedsFromMousePlacement() throws {
+        let fixture = makeFixture(mouseDisplayNumber: 4)
+        let windowRect = CGRect(x: 1600, y: 120, width: 900, height: 700)
+
+        fixture.axProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.axProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedWindow, value: windowRect.origin)
+        fixture.axProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedWindow, value: windowRect.size)
+        fixture.rectDisplayResolver.setDisplayNumber(7, for: windowRect)
+
+        fixture.tracker.start(mode: .activeSession)
+
+        let activePlacement = try #require(fixture.tracker.placementContext)
+        #expect(activePlacement.displayNumber == 7)
+        #expect(activePlacement.source == .focusedWindow)
+
+        fixture.tracker.start(mode: .idlePill)
+        defer { fixture.tracker.stop() }
+
+        let idlePlacement = try #require(fixture.tracker.placementContext)
+        #expect(idlePlacement.displayNumber == 4)
+        #expect(idlePlacement.source == .mouse)
+    }
+
     @Test func mouseDisplayChangeOverridesOlderFocusPlacement() throws {
         let fixture = makeFixture(mouseDisplayNumber: 1)
         let windowRect = CGRect(x: 50, y: 50, width: 640, height: 480)
