@@ -222,6 +222,7 @@ struct FloatingIndicatorActions {
     var selectedInputDeviceUIDProvider: (() -> String)?
     var selectedLanguageProvider: (() -> AppLanguage)?
     var anchorProvider: (() -> CGRect?)?
+    var preferredScreenProvider: (() -> NSScreen?)?
 }
 
 @MainActor

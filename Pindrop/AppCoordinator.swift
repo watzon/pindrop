@@ -220,6 +220,27 @@ final class AppCoordinator {
         )
     }
 
+    static func floatingIndicatorFocusTrackingMode(
+        floatingIndicatorEnabled: Bool,
+        isTemporarilyHidden: Bool,
+        selectedType: FloatingIndicatorType,
+        isRecording: Bool,
+        isProcessing: Bool
+    ) -> FloatingIndicatorTrackingMode? {
+        guard floatingIndicatorEnabled, !isTemporarilyHidden else { return nil }
+
+        if isRecording || isProcessing {
+            switch selectedType {
+            case .pill, .notch:
+                return .activeSession
+            case .bubble:
+                return nil
+            }
+        }
+
+        return selectedType == .pill ? .idlePill : nil
+    }
+
     private enum EventTapKind {
         case escape
         case modifier
@@ -265,6 +286,7 @@ final class AppCoordinator {
     let pillFloatingIndicatorController: PillFloatingIndicatorController
     let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
+    let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
@@ -368,6 +390,9 @@ final class AppCoordinator {
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
         self.contextEngineService = ContextEngineService()
+        self.floatingIndicatorFocusTracker = FloatingIndicatorFocusTracker(
+            contextEngineService: contextEngineService
+        )
         self.toastWindowController = ToastWindowController()
         self.toastService = ToastService(presenter: toastWindowController)
         self.automaticDictionaryLearningService = AutomaticDictionaryLearningService(
@@ -553,6 +578,9 @@ final class AppCoordinator {
             },
             anchorProvider: { [weak self] in
                 self?.contextEngineService.captureFocusedElementAnchorRect()
+            },
+            preferredScreenProvider: { [weak self] in
+                self?.floatingIndicatorFocusTracker.preferredScreen()
             }
         )
 
@@ -1273,15 +1301,18 @@ final class AppCoordinator {
     private func updateFloatingIndicatorVisibility(previousType: FloatingIndicatorType? = nil) {
         guard !isFloatingIndicatorTemporarilyHidden() else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
 
         guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
 
         let selectedType = configuredFloatingIndicatorType()
+        syncFloatingIndicatorFocusTracking()
         
         if isRecording || isProcessing {
             if previousType != selectedType {
@@ -1331,11 +1362,28 @@ final class AppCoordinator {
         }
     }
 
+    private func syncFloatingIndicatorFocusTracking() {
+        let trackingMode = Self.floatingIndicatorFocusTrackingMode(
+            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
+            isTemporarilyHidden: isFloatingIndicatorTemporarilyHidden(),
+            selectedType: configuredFloatingIndicatorType(),
+            isRecording: isRecording,
+            isProcessing: isProcessing
+        )
+
+        if let trackingMode {
+            floatingIndicatorFocusTracker.start(mode: trackingMode)
+        } else {
+            floatingIndicatorFocusTracker.stop()
+        }
+    }
+
     private func startRecordingIndicatorSession() {
-        guard settingsStore.floatingIndicatorEnabled else { return }
+        guard settingsStore.floatingIndicatorEnabled, !isFloatingIndicatorTemporarilyHidden() else { return }
 
         let selectedType = configuredFloatingIndicatorType()
         activeFloatingIndicatorType = selectedType
+        syncFloatingIndicatorFocusTracking()
         hideAllFloatingIndicators(except: selectedType)
         floatingIndicatorPresenters[selectedType]?.startRecording()
     }
@@ -1347,6 +1395,7 @@ final class AppCoordinator {
         }
 
         let activeType = activeFloatingIndicatorType ?? configuredFloatingIndicatorType()
+        syncFloatingIndicatorFocusTracking()
         floatingIndicatorPresenters[activeType]?.transitionToProcessing()
     }
 
@@ -1364,6 +1413,7 @@ final class AppCoordinator {
 
         guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
         updateFloatingIndicatorVisibility()
@@ -3317,6 +3367,7 @@ final class AppCoordinator {
         floatingIndicatorHiddenUntil = Date().addingTimeInterval(hideDuration)
 
         hideAllFloatingIndicators()
+        syncFloatingIndicatorFocusTracking()
 
         floatingIndicatorHiddenTask?.cancel()
         floatingIndicatorHiddenTask = Task { [weak self] in
