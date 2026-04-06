@@ -146,7 +146,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             return
         }
         
-        guard let screen = Optional(NSScreen.screenUnderMouse()) else { return }
+        guard let screen = Optional(preferredScreen()) else { return }
         
         let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
         let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
@@ -215,6 +215,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         stopScreenTracking()
         guard let panel = panel else { return }
         let localPanel = panel
+        let localHostingView = hostingView
 
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = NotchPanelMetrics.hideDuration
@@ -223,8 +224,13 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         }, completionHandler: { [weak self] in
             localPanel.close()
             DispatchQueue.main.async {
-                self?.panel = nil
-                self?.hostingView = nil
+                guard let self else { return }
+                if self.panel === localPanel {
+                    self.panel = nil
+                }
+                if self.hostingView === localHostingView {
+                    self.hostingView = nil
+                }
             }
         })
     }
@@ -249,7 +255,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     
     private func startScreenTracking() {
         screenTrackingTimer?.invalidate()
-        screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.5) { [weak self] _ in
+        screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.05) { [weak self] _ in
             Task { @MainActor in
                 self?.checkAndUpdateScreenPosition()
             }
@@ -264,9 +270,9 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     
     private func checkAndUpdateScreenPosition() {
         guard let panel = panel else { return }
-        guard let currentScreen = Optional(NSScreen.screenUnderMouse()) else { return }
+        guard let currentScreen = Optional(preferredScreen()) else { return }
         
-        if lastScreen !== currentScreen {
+        if lastScreen?.pindrop_isSameDisplay(as: currentScreen) == false || lastScreen == nil {
             lastScreen = currentScreen
             
             let notchWidth = currentScreen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
@@ -302,6 +308,10 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             )
             panel.setFrame(newFrame, display: true, animate: true)
         }
+    }
+
+    private func preferredScreen() -> NSScreen {
+        actions.preferredScreenProvider?() ?? NSScreen.screenUnderMouse()
     }
 }
 

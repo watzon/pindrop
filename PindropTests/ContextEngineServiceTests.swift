@@ -239,6 +239,25 @@ struct ContextEngineServiceTests {
         #expect(rect == CGRect(x: 200, y: 300, width: 420, height: 36))
     }
 
+    @Test func captureFocusedWindowFrameReturnsFocusedWindowRect() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedWindow, value: CGPoint(x: 40, y: 60))
+        fixture.mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedWindow, value: CGSize(width: 1200, height: 800))
+
+        let rect = fixture.sut.captureFocusedWindowFrame()
+        #expect(rect == CGRect(x: 40, y: 60, width: 1200, height: 800))
+    }
+
+    @Test func captureFocusedWindowFrameReturnsNilWithoutWindowGeometry() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedWindow, value: CGPoint(x: 10, y: 10))
+
+        let rect = fixture.sut.captureFocusedWindowFrame()
+        #expect(rect == nil)
+    }
+
     @Test func secureFieldRoleSkipsValueCapture() throws {
         let fixture = makeSUT()
         fixture.mockAXProvider.isTrusted = true

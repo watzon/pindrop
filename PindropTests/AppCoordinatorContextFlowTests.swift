@@ -271,4 +271,80 @@ struct AppCoordinatorContextFlowTests {
             ) == false
         )
     }
+
+    @Test func floatingIndicatorFocusTrackingModeUsesIdlePillOnlyForVisiblePill() {
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: false,
+                selectedType: .pill,
+                isRecording: false,
+                isProcessing: false
+            ) == .idlePill
+        )
+
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: false,
+                selectedType: .notch,
+                isRecording: false,
+                isProcessing: false
+            ) == nil
+        )
+    }
+
+    @Test func floatingIndicatorFocusTrackingModeUsesActiveSessionForPillAndNotchOnly() {
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: false,
+                selectedType: .pill,
+                isRecording: true,
+                isProcessing: false
+            ) == .activeSession
+        )
+
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: false,
+                selectedType: .notch,
+                isRecording: false,
+                isProcessing: true
+            ) == .activeSession
+        )
+
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: false,
+                selectedType: .bubble,
+                isRecording: true,
+                isProcessing: false
+            ) == nil
+        )
+    }
+
+    @Test func floatingIndicatorFocusTrackingModeStopsWhenDisabledOrHidden() {
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: false,
+                isTemporarilyHidden: false,
+                selectedType: .pill,
+                isRecording: true,
+                isProcessing: false
+            ) == nil
+        )
+
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                floatingIndicatorEnabled: true,
+                isTemporarilyHidden: true,
+                selectedType: .pill,
+                isRecording: true,
+                isProcessing: false
+            ) == nil
+        )
+    }
 }

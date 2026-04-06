@@ -115,7 +115,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             return
         }
 
-        guard let screen = Optional(NSScreen.screenUnderMouse()) else { return }
+        guard let screen = Optional(preferredScreen()) else { return }
 
         let state = layoutState
 
@@ -494,7 +494,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func checkAndUpdateScreenPosition() {
         guard isVisible, let panel else { return }
 
-        let currentScreen = NSScreen.screenUnderMouse()
+        let currentScreen = preferredScreen()
         if let last = lastScreen, currentScreen.pindrop_isSameDisplay(as: last) {
             return
         }
@@ -570,6 +570,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     func hide() {
         guard let panel = panel else { return }
         let localPanel = panel
+        let localHostingView = hostingView
 
         stopHoverIntentMonitoring()
         lastScreen = nil
@@ -587,8 +588,13 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         }, completionHandler: { [weak self] in
             localPanel.close()
             DispatchQueue.main.async {
-                self?.panel = nil
-                self?.hostingView = nil
+                guard let self else { return }
+                if self.panel === localPanel {
+                    self.panel = nil
+                }
+                if self.hostingView === localHostingView {
+                    self.hostingView = nil
+                }
             }
         })
     }
@@ -716,9 +722,13 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         Swift.max(min, Swift.min(max, value))
     }
 
+    private func preferredScreen() -> NSScreen {
+        actions.preferredScreenProvider?() ?? NSScreen.screenUnderMouse()
+    }
+
     private func refreshLayout(animated: Bool, duration: TimeInterval = 0.22) {
         guard let panel = panel else { return }
-        let screen = NSScreen.screenUnderMouse()
+        let screen = preferredScreen()
         lastScreen = screen
 
         let state = layoutState
