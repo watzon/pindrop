@@ -133,6 +133,8 @@ class LocalTranscriptionRuntime(
             return
         }
 
+        refreshInstalledModels()
+
         val installedRecord = installedModels.firstOrNull {
             it.modelId == modelId && it.state == ModelInstallState.INSTALLED
         }
