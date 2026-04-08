@@ -58,11 +58,16 @@ final class MockClipboard: ClipboardProtocol {
 
 final class MockKeySimulation: KeySimulationProtocol {
     var keyEvents: [(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool)] = []
+    var characterEvents: [(character: Character, keyDown: Bool)] = []
     var pasteSimulated = false
     var simulatePasteCallCount = 0
 
     func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
         keyEvents.append((keyCode, flags, keyDown))
+    }
+
+    func postCharacterEvent(character: Character, keyDown: Bool) throws {
+        characterEvents.append((character, keyDown))
     }
 
     func simulatePaste() async throws {
@@ -143,7 +148,7 @@ struct OutputManagerTests {
 
         try await fixture.outputManager.updateStreamingInsertion(with: "hello")
 
-        #expect(fixture.mockKeySimulation.keyEvents.count == 10)
+        #expect(fixture.mockKeySimulation.characterEvents.count == 10)
         #expect(fixture.mockKeySimulation.pasteSimulated == false)
     }
 
@@ -153,16 +158,19 @@ struct OutputManagerTests {
 
         try await fixture.outputManager.updateStreamingInsertion(with: "hello")
         fixture.mockKeySimulation.keyEvents.removeAll()
+        fixture.mockKeySimulation.characterEvents.removeAll()
 
         try await fixture.outputManager.updateStreamingInsertion(with: "help")
 
-        #expect(fixture.mockKeySimulation.keyEvents.count == 6)
+        // 2 backspace key events (down+up) to delete "lo", then 1 character event (down+up) to type "p"
+        #expect(fixture.mockKeySimulation.keyEvents.count == 4)
         #expect(fixture.mockKeySimulation.keyEvents[0].keyCode == 51)
         #expect(fixture.mockKeySimulation.keyEvents[1].keyCode == 51)
         #expect(fixture.mockKeySimulation.keyEvents[2].keyCode == 51)
         #expect(fixture.mockKeySimulation.keyEvents[3].keyCode == 51)
-        #expect(fixture.mockKeySimulation.keyEvents[4].keyCode == 35)
-        #expect(fixture.mockKeySimulation.keyEvents[5].keyCode == 35)
+        #expect(fixture.mockKeySimulation.characterEvents.count == 2)
+        #expect(fixture.mockKeySimulation.characterEvents[0].character == "p")
+        #expect(fixture.mockKeySimulation.characterEvents[1].character == "p")
     }
 
     @Test func finishStreamingInsertionAppendsTrailingSpaceWhenRequested() async throws {
@@ -170,13 +178,13 @@ struct OutputManagerTests {
         fixture.outputManager.beginStreamingInsertion()
 
         try await fixture.outputManager.updateStreamingInsertion(with: "hello")
-        fixture.mockKeySimulation.keyEvents.removeAll()
+        fixture.mockKeySimulation.characterEvents.removeAll()
 
         try await fixture.outputManager.finishStreamingInsertion(finalText: "hello", appendTrailingSpace: true)
 
-        #expect(fixture.mockKeySimulation.keyEvents.count == 2)
-        #expect(fixture.mockKeySimulation.keyEvents[0].keyCode == 49)
-        #expect(fixture.mockKeySimulation.keyEvents[1].keyCode == 49)
+        #expect(fixture.mockKeySimulation.characterEvents.count == 2)
+        #expect(fixture.mockKeySimulation.characterEvents[0].character == " ")
+        #expect(fixture.mockKeySimulation.characterEvents[1].character == " ")
     }
 
     @Test func cancelStreamingInsertionPreservesTypedTextWhenRequested() async throws {
@@ -184,11 +192,11 @@ struct OutputManagerTests {
         fixture.outputManager.beginStreamingInsertion()
 
         try await fixture.outputManager.updateStreamingInsertion(with: "keep me")
-        let eventCountBeforeCancel = fixture.mockKeySimulation.keyEvents.count
+        let charEventCountBeforeCancel = fixture.mockKeySimulation.characterEvents.count
 
         await fixture.outputManager.cancelStreamingInsertion(removeInsertedText: false)
 
-        #expect(fixture.mockKeySimulation.keyEvents.count == eventCountBeforeCancel)
+        #expect(fixture.mockKeySimulation.characterEvents.count == charEventCountBeforeCancel)
 
         do {
             try await fixture.outputManager.updateStreamingInsertion(with: "new text")
@@ -231,16 +239,16 @@ struct OutputManagerTests {
         #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
     }
 
-    @Test func directInsertFallsBackToClipboardPasteForUnsupportedText() async throws {
+    @Test func directInsertHandlesEmojiWithoutClipboardFallback() async throws {
         let fixture = makeSUT(outputMode: .directInsert)
         fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
         try await fixture.outputManager.output("hello 😀")
 
-        #expect(fixture.mockKeySimulation.pasteSimulated)
-        #expect(fixture.mockClipboard.restoreCount == 1)
-        #expect(fixture.mockClipboard.copiedText == "Previous clipboard content")
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+        #expect(fixture.mockClipboard.restoreCount == 0)
         #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
+        #expect(fixture.mockKeySimulation.characterEvents.count == 14) // 7 chars × 2 events
     }
 
     @Test func clipboardModeFallsBackToCopyWithoutAccessibility() async throws {
@@ -254,43 +262,18 @@ struct OutputManagerTests {
         #expect(fixture.mockClipboard.restoreCount == 0)
     }
 
-    @Test func getKeyCodeForBasicCharacters() {
-        let fixture = makeSUT()
-        let aKeyCode = fixture.outputManager.getKeyCodeForCharacter("a")
-        #expect(aKeyCode != nil)
-        #expect(aKeyCode?.0 == 0)
-        #expect(aKeyCode?.1.isEmpty == true)
+    @Test func directInsertTypesCharactersViaUnicode() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
 
-        let uppercaseAKeyCode = fixture.outputManager.getKeyCodeForCharacter("A")
-        #expect(uppercaseAKeyCode != nil)
-        #expect(uppercaseAKeyCode?.0 == 0)
-        #expect(uppercaseAKeyCode?.1.contains(.maskShift) == true)
+        try await fixture.outputManager.output("Hi!")
 
-        let oneKeyCode = fixture.outputManager.getKeyCodeForCharacter("1")
-        #expect(oneKeyCode != nil)
-        #expect(oneKeyCode?.0 == 18)
-
-        let spaceKeyCode = fixture.outputManager.getKeyCodeForCharacter(" ")
-        #expect(spaceKeyCode != nil)
-        #expect(spaceKeyCode?.0 == 49)
-    }
-
-    @Test func getKeyCodeForSpecialCharacters() {
-        let fixture = makeSUT()
-        let periodKeyCode = fixture.outputManager.getKeyCodeForCharacter(".")
-        #expect(periodKeyCode != nil)
-
-        let commaKeyCode = fixture.outputManager.getKeyCodeForCharacter(",")
-        #expect(commaKeyCode != nil)
-
-        let exclamationKeyCode = fixture.outputManager.getKeyCodeForCharacter("!")
-        #expect(exclamationKeyCode != nil)
-        #expect(exclamationKeyCode?.1.contains(.maskShift) == true)
-    }
-
-    @Test func getKeyCodeForUnsupportedCharacter() {
-        let fixture = makeSUT()
-        #expect(fixture.outputManager.getKeyCodeForCharacter("😀") == nil)
+        #expect(fixture.mockKeySimulation.characterEvents.count == 6) // 3 chars × 2 events
+        #expect(fixture.mockKeySimulation.characterEvents[0].character == "H")
+        #expect(fixture.mockKeySimulation.characterEvents[0].keyDown == true)
+        #expect(fixture.mockKeySimulation.characterEvents[1].character == "H")
+        #expect(fixture.mockKeySimulation.characterEvents[1].keyDown == false)
+        #expect(fixture.mockKeySimulation.characterEvents[2].character == "i")
+        #expect(fixture.mockKeySimulation.characterEvents[4].character == "!")
     }
 
     @Test func errorDescriptions() {
@@ -323,6 +306,7 @@ struct OutputManagerTests {
     @Test func mockKeySimulationTracksEvents() async throws {
         let mockKeySimulation = MockKeySimulation()
         #expect(mockKeySimulation.keyEvents.count == 0)
+        #expect(mockKeySimulation.characterEvents.count == 0)
         #expect(mockKeySimulation.pasteSimulated == false)
 
         try mockKeySimulation.postKeyEvent(keyCode: 0, flags: [], keyDown: true)
@@ -331,6 +315,10 @@ struct OutputManagerTests {
         #expect(mockKeySimulation.keyEvents.count == 2)
         #expect(mockKeySimulation.keyEvents[0].keyDown)
         #expect(mockKeySimulation.keyEvents[1].keyDown == false)
+
+        try mockKeySimulation.postCharacterEvent(character: "a", keyDown: true)
+        #expect(mockKeySimulation.characterEvents.count == 1)
+        #expect(mockKeySimulation.characterEvents[0].character == "a")
 
         try await mockKeySimulation.simulatePaste()
         #expect(mockKeySimulation.pasteSimulated)
