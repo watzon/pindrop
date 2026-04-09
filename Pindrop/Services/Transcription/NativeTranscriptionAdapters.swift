@@ -286,6 +286,10 @@ final class KMPTranscriptionRuntimeBridge {
         provider: ModelManager.ModelProvider
     ) async throws -> (any TranscriptionEnginePort) {
         let backendProvider = effectiveRuntimeProvider(for: provider)
+        // Refresh installed models before loading so the runtime's internal index
+        // is up-to-date. Without this the runtime always sees an empty list and
+        // returns MODEL_NOT_INSTALLED, which causes a spurious repair/re-download.
+        _ = try? await refreshInstalledModels()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             runtime.loadModel(modelId: TranscriptionModelId(value: modelName)) { error in
                 if let error {
