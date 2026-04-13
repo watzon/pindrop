@@ -78,6 +78,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     private var audioEngine: AVAudioEngine?
     private let audioBuffers = AudioBufferStorage()
     private var preferredInputDeviceUID: String?
+    private var configurationChangeObserver: NSObjectProtocol?
     
     private(set) var isCapturing = false
     
@@ -111,12 +112,18 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         }
         self.targetFormatStorage = format
     }
+
+    deinit {
+        removeConfigurationChangeObserver()
+    }
     
     func startCapture(onBuffer: @escaping (AVAudioPCMBuffer) -> Void, onAudioLevel: @escaping (Float) -> Void) throws {
         _ = audioBuffers.removeAll()
+        removeConfigurationChangeObserver()
         
         let engine = AVAudioEngine()
         self.audioEngine = engine
+        registerConfigurationChangeObserver(for: engine)
         
         let inputNode = engine.inputNode
         applyPreferredInputDevice(to: inputNode)
@@ -168,6 +175,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         engine.stop()
         isCapturing = false
         self.audioEngine = nil
+        removeConfigurationChangeObserver()
         
         let collectedBuffers = audioBuffers.removeAll()
         Log.audio.debug("Stopped capturing, collected \(collectedBuffers.count) buffers")
@@ -184,6 +192,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         engine.stop()
         isCapturing = false
         self.audioEngine = nil
+        removeConfigurationChangeObserver()
         _ = audioBuffers.removeAll()
         
         Log.audio.info("Capture cancelled, audio discarded")
@@ -197,6 +206,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             }
         }
         audioEngine = nil
+        removeConfigurationChangeObserver()
         isCapturing = false
         _ = audioBuffers.removeAll()
         Log.audio.info("Audio engine reset")
@@ -205,6 +215,9 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     func setPreferredInputDeviceUID(_ uid: String) {
         let trimmedUID = uid.trimmingCharacters(in: .whitespacesAndNewlines)
         preferredInputDeviceUID = trimmedUID.isEmpty ? nil : trimmedUID
+
+        guard let engine = audioEngine else { return }
+        applyPreferredInputDevice(to: engine.inputNode)
     }
     
     // MARK: - Private Helpers
@@ -267,6 +280,31 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             return AVAudioFormat()
         }
         return format
+    }
+
+    private func registerConfigurationChangeObserver(for engine: AVAudioEngine) {
+        configurationChangeObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: engine,
+            queue: nil
+        ) { [weak self, weak engine] _ in
+            guard let self, let engine else { return }
+            self.handleEngineConfigurationChange(for: engine)
+        }
+    }
+
+    private func removeConfigurationChangeObserver() {
+        guard let configurationChangeObserver else { return }
+        NotificationCenter.default.removeObserver(configurationChangeObserver)
+        self.configurationChangeObserver = nil
+    }
+
+    private func handleEngineConfigurationChange(for engine: AVAudioEngine) {
+        guard isCapturing, audioEngine === engine else { return }
+
+        // AVAudioEngine can reconfigure its I/O unit mid-session and fall back to a
+        // different input. Re-apply the user's selected device when that happens.
+        applyPreferredInputDevice(to: engine.inputNode)
     }
 
     private func applyPreferredInputDevice(to inputNode: AVAudioInputNode) {

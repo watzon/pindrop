@@ -206,4 +206,25 @@ struct AudioRecorderTests {
         #expect(fixture.sut.isRecording == false)
         #expect(fixture.mockBackend.resetCallCount == 1)
     }
+
+    @Test func setPreferredInputDeviceUIDForwardsSelectionToCaptureBackend() throws {
+        let fixture = try makeFixture()
+
+        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
+        #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
+    }
+
+    @Test func setPreferredInputDeviceUIDCanUpdateActiveCaptureBackend() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        try await fixture.sut.startRecording()
+        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+
+        #expect(fixture.mockBackend.startCaptureCallCount == 1)
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
+        #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
+    }
 }

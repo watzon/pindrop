@@ -22,6 +22,7 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
     var stopCaptureCallCount: Int = 0
     var cancelCaptureCallCount: Int = 0
     var resetCallCount: Int = 0
+    var setPreferredInputDeviceUIDCallCount: Int = 0
     var lastPreferredInputDeviceUID: String?
 
     var capturedOnBuffer: ((AVAudioPCMBuffer) -> Void)?
@@ -72,6 +73,7 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
     }
 
     func setPreferredInputDeviceUID(_ uid: String) {
+        setPreferredInputDeviceUIDCallCount += 1
         lastPreferredInputDeviceUID = uid
     }
 
