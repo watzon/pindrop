@@ -216,6 +216,7 @@ struct ModelsSettingsView: View {
                             isDownloading: downloadingModel == model.name,
                             isSwitching: switchingToModel == model.name,
                             downloadProgress: modelManager.downloadProgress,
+                            downloadSnapshot: downloadingModel == model.name ? modelManager.downloadSnapshot : nil,
                             onSwitch: { switchModel(model) },
                             onSetDefault: { settings.selectedModel = model.name },
                             onDownload: { downloadModel(model) },
@@ -533,6 +534,7 @@ struct ModelSettingsRow: View {
     let isDownloading: Bool
     let isSwitching: Bool
     let downloadProgress: Double
+    let downloadSnapshot: ModelManager.DownloadSnapshot?
     let onSwitch: () -> Void
     let onSetDefault: () -> Void
     let onDownload: () -> Void
@@ -553,6 +555,22 @@ struct ModelSettingsRow: View {
 
     private var isRowInteractive: Bool {
         isDownloaded && !isComingSoon && !isSwitching && !isActive
+    }
+
+    private var downloadPhaseCaption: String? {
+        guard let downloadSnapshot else { return nil }
+
+        switch downloadSnapshot.phase {
+        case .listing:
+            return localized("Please wait...", locale: locale)
+        case .downloading(let completedFiles, let totalFiles):
+            guard let completedFiles, let totalFiles else { return nil }
+            return "\(completedFiles) / \(totalFiles)"
+        case .compiling, .preparing:
+            return localized("Preparing Model...", locale: locale)
+        case .idle, .completed:
+            return nil
+        }
     }
     
     var body: some View {
@@ -724,6 +742,12 @@ struct ModelSettingsRow: View {
                 Text("\(Int(downloadProgress * 100))%")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+
+                if let downloadPhaseCaption {
+                    Text(downloadPhaseCaption)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
         } else if isSwitching {
             ProgressView()

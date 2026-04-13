@@ -9,6 +9,8 @@ Complete guide for building, testing, and distributing Pindrop.
 - **macOS 14+** (Sonoma or later)
 - **just** - Command runner (`brew install just`)
 
+The development pipeline is native macOS only: Xcode builds the app, SwiftPM resolves dependencies, and `just` wraps the common workflows.
+
 ### Optional (for distribution)
 - **create-dmg** - DMG creation (`brew install create-dmg`)
 - **Apple Developer Account** - Required for the default signed release/export workflow and notarization
@@ -28,12 +30,15 @@ just test
 just run
 ```
 
+`just build` uses Xcode-managed signing. If you do not have a signing certificate configured, use `just build-unsigned` instead.
+
 ## Build Commands
 
 ### Development
 
 ```bash
-just build              # Debug build
+just build              # Debug build with signing
+just build-unsigned     # Debug build without signing
 just test               # Run test suite
 just test-coverage      # Run tests with coverage
 just dev                # Clean + build + test

@@ -22,6 +22,14 @@ struct ModelDownloadStepView: View {
         modelManager.availableModels.first { $0.name == modelName }
     }
 
+    private var activeSnapshot: ModelManager.DownloadSnapshot? {
+        guard modelManager.downloadSnapshot?.modelName == modelName else {
+            return nil
+        }
+
+        return modelManager.downloadSnapshot
+    }
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -94,9 +102,13 @@ struct ModelDownloadStepView: View {
         if downloadError != nil {
             return localized("Download Failed", locale: locale)
         } else if modelManager.isDownloading {
-            if modelManager.downloadProgress > 0.8 {
+            switch activeSnapshot?.phase {
+            case .compiling, .preparing, .completed:
                 return localized("Preparing Model...", locale: locale)
+            default:
+                break
             }
+
             return localized("Downloading %@...", locale: locale)
                 .replacingOccurrences(of: "%@", with: selectedModel?.displayName ?? localized("Model", locale: locale))
         } else {
@@ -108,6 +120,21 @@ struct ModelDownloadStepView: View {
         if downloadError != nil {
             return localized("Please check your internet connection and try again.", locale: locale)
         } else if modelManager.isDownloading {
+            if let activeSnapshot {
+                switch activeSnapshot.phase {
+                case .listing, .compiling, .preparing:
+                    return localized("Please wait...", locale: locale)
+                case .downloading(let completedFiles, let totalFiles):
+                    if let completedFiles, let totalFiles {
+                        return "\(completedFiles) / \(totalFiles)"
+                    }
+                case .completed:
+                    return localized("Your model is ready to use.", locale: locale)
+                case .idle:
+                    break
+                }
+            }
+
             if let model = selectedModel {
                 let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
                 return String(

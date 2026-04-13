@@ -9,7 +9,7 @@
 
 ![Pindrop Screenshot](assets/images/screenshot.png)
 
-**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI and powered by WhisperKit for optimal Apple Silicon performance.
+**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI, packaged with Xcode + SwiftPM, and powered by WhisperKit for optimal Apple Silicon performance.
 
 **[Download Latest Release](https://github.com/watzon/pindrop/releases)** · **[Documentation](#documentation)** · **[Contributing](#contributing)** · **[Community](#community)**
 
@@ -67,7 +67,10 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 - **[SwiftUI](https://developer.apple.com/swiftui/)** — Declarative UI framework for truly native Mac apps
 - **[WhisperKit](https://www.argmaxinc.com/whisperkit)** — High-performance Core ML implementation of OpenAI Whisper by Argmax, Inc.
 - **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
-- **Just one external dependency** — WhisperKit. Everything else is Apple's first-party frameworks.
+- **[FluidAudio](https://github.com/FluidInference/FluidAudio)** — Native macOS speech model support for Parakeet
+- **[Sparkle](https://sparkle-project.org/)** — Native macOS update framework
+
+Pindrop is developed as a native macOS app with Xcode, SwiftPM, and SwiftUI. Normal development stays entirely within the Apple toolchain.
 
 ## Requirements
 
@@ -132,7 +135,8 @@ brew install just
 **Common commands:**
 
 ```bash
-just build              # Build for development (Debug)
+just build              # Build for development (Debug, signed)
+just build-unsigned     # Build for development without signing
 just build-release      # Build for release
 just export-app         # Export a signed app for distribution
 just dmg                # Export signed app + create DMG

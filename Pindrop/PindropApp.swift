@@ -124,6 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         PindropThemeController.shared.refresh()
 
         updateDockVisibility()
+        coordinator?.statusBarController.ensureStatusItem()
         setupMainMenu()
         
         NotificationCenter.default.addObserver(
@@ -136,6 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Log.boot.info("Scheduling coordinator.start()")
         Task { @MainActor in
             Log.boot.info("coordinator.start() begin")
+            coordinator?.statusBarController.ensureStatusItem()
             await coordinator?.start()
             Log.boot.info("coordinator.start() returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         }

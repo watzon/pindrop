@@ -224,6 +224,27 @@ final class AppCoordinator {
         )
     }
 
+    static func floatingIndicatorFocusTrackingMode(
+        floatingIndicatorEnabled: Bool,
+        isTemporarilyHidden: Bool,
+        selectedType: FloatingIndicatorType,
+        isRecording: Bool,
+        isProcessing: Bool
+    ) -> FloatingIndicatorTrackingMode? {
+        guard floatingIndicatorEnabled, !isTemporarilyHidden else { return nil }
+
+        if isRecording || isProcessing {
+            switch selectedType {
+            case .pill, .notch:
+                return .activeSession
+            case .bubble:
+                return nil
+            }
+        }
+
+        return selectedType == .pill ? .idlePill : nil
+    }
+
     private enum EventTapKind {
         case escape
         case modifier
@@ -269,6 +290,7 @@ final class AppCoordinator {
     let pillFloatingIndicatorController: PillFloatingIndicatorController
     let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
+    let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
@@ -372,6 +394,9 @@ final class AppCoordinator {
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
         self.contextEngineService = ContextEngineService()
+        self.floatingIndicatorFocusTracker = FloatingIndicatorFocusTracker(
+            contextEngineService: contextEngineService
+        )
         self.toastWindowController = ToastWindowController()
         self.toastService = ToastService(presenter: toastWindowController)
         self.automaticDictionaryLearningService = AutomaticDictionaryLearningService(
@@ -557,6 +582,9 @@ final class AppCoordinator {
             },
             anchorProvider: { [weak self] in
                 self?.contextEngineService.captureFocusedElementAnchorRect()
+            },
+            preferredScreenProvider: { [weak self] in
+                self?.floatingIndicatorFocusTracker.preferredScreen()
             }
         )
 
@@ -714,6 +742,25 @@ final class AppCoordinator {
         setActiveModel(modelName)
     }
 
+    private func updateSplashDownloadState(
+        with snapshot: ModelManager.DownloadSnapshot,
+        displayName: String
+    ) {
+        let loadingText: String
+
+        switch snapshot.phase {
+        case .idle, .listing, .downloading:
+            loadingText = "Downloading \(displayName)..."
+        case .compiling, .preparing:
+            loadingText = "Preparing \(displayName)..."
+        case .completed:
+            splashController.updateProgress(snapshot.progress)
+            return
+        }
+
+        splashController.updateDownload(text: loadingText, progress: snapshot.progress)
+    }
+
     private func attemptWhisperModelRepairAndReload(
         modelName: String,
         displayName: String
@@ -728,9 +775,9 @@ final class AppCoordinator {
         }
 
         splashController.setDownloading("Repairing \(displayName)...")
-        try await modelManager.downloadModel(named: modelName) { [weak self] progress in
+        try await modelManager.downloadModel(named: modelName) { [weak self] snapshot in
             Task { @MainActor in
-                self?.splashController.updateProgress(progress)
+                self?.updateSplashDownloadState(with: snapshot, displayName: displayName)
             }
         }
 
@@ -820,13 +867,13 @@ final class AppCoordinator {
                 }
             } else {
                 // No models available - download the selected one
-                splashController.setDownloading("Downloading \(modelName)...")
+                splashController.setDownloading("Downloading \(selectedDisplayName)...")
                 Log.model.info("Model \(modelName) not found, downloading...")
                 
                 do {
-                    try await modelManager.downloadModel(named: modelName) { [weak self] progress in
+                    try await modelManager.downloadModel(named: modelName) { [weak self] snapshot in
                         Task { @MainActor in
-                            self?.splashController.updateProgress(progress)
+                            self?.updateSplashDownloadState(with: snapshot, displayName: selectedDisplayName)
                         }
                     }
                     splashController.setLoading("Loading model...")
@@ -1239,15 +1286,18 @@ final class AppCoordinator {
     private func updateFloatingIndicatorVisibility(previousType: FloatingIndicatorType? = nil) {
         guard !isFloatingIndicatorTemporarilyHidden() else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
 
         guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
 
         let selectedType = configuredFloatingIndicatorType()
+        syncFloatingIndicatorFocusTracking()
         
         if isRecording || isProcessing {
             if previousType != selectedType {
@@ -1297,11 +1347,28 @@ final class AppCoordinator {
         }
     }
 
+    private func syncFloatingIndicatorFocusTracking() {
+        let trackingMode = Self.floatingIndicatorFocusTrackingMode(
+            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
+            isTemporarilyHidden: isFloatingIndicatorTemporarilyHidden(),
+            selectedType: configuredFloatingIndicatorType(),
+            isRecording: isRecording,
+            isProcessing: isProcessing
+        )
+
+        if let trackingMode {
+            floatingIndicatorFocusTracker.start(mode: trackingMode)
+        } else {
+            floatingIndicatorFocusTracker.stop()
+        }
+    }
+
     private func startRecordingIndicatorSession() {
-        guard settingsStore.floatingIndicatorEnabled else { return }
+        guard settingsStore.floatingIndicatorEnabled, !isFloatingIndicatorTemporarilyHidden() else { return }
 
         let selectedType = configuredFloatingIndicatorType()
         activeFloatingIndicatorType = selectedType
+        syncFloatingIndicatorFocusTracking()
         hideAllFloatingIndicators(except: selectedType)
         floatingIndicatorPresenters[selectedType]?.startRecording()
     }
@@ -1313,6 +1380,7 @@ final class AppCoordinator {
         }
 
         let activeType = activeFloatingIndicatorType ?? configuredFloatingIndicatorType()
+        syncFloatingIndicatorFocusTracking()
         floatingIndicatorPresenters[activeType]?.transitionToProcessing()
     }
 
@@ -1330,6 +1398,7 @@ final class AppCoordinator {
 
         guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
+            syncFloatingIndicatorFocusTracking()
             return
         }
         updateFloatingIndicatorVisibility()
@@ -3268,6 +3337,7 @@ final class AppCoordinator {
         floatingIndicatorHiddenUntil = Date().addingTimeInterval(hideDuration)
 
         hideAllFloatingIndicators()
+        syncFloatingIndicatorFocusTracking()
 
         floatingIndicatorHiddenTask?.cancel()
         floatingIndicatorHiddenTask = Task { [weak self] in

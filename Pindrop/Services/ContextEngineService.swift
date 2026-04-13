@@ -393,6 +393,21 @@ final class ContextEngineService {
         return rect.isEmpty ? nil : rect
     }
 
+    func captureFocusedWindowFrame() -> CGRect? {
+        guard axProvider.isProcessTrusted() else { return nil }
+        guard let appElement = axProvider.copyFrontmostApplication() else { return nil }
+        guard let focusedWindow = axProvider.elementAttribute(kAXFocusedWindowAttribute, of: appElement) else {
+            return nil
+        }
+        guard let position = axProvider.pointAttribute(kAXPositionAttribute, of: focusedWindow),
+              let size = axProvider.sizeAttribute(kAXSizeAttribute, of: focusedWindow) else {
+            return nil
+        }
+
+        let rect = CGRect(origin: position, size: size).standardized
+        return rect.isEmpty ? nil : rect
+    }
+
     func captureFocusedTextSnapshot() -> FocusedTextSnapshot? {
         guard axProvider.isProcessTrusted() else {
             Log.context.infoVisible("Focused text snapshot unavailable: accessibility permission not granted")

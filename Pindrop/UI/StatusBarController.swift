@@ -143,34 +143,70 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     // MARK: - Setup
 
     private func setupStatusItem() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-
-        if let button = statusItem?.button {
-            if let customIcon = NSImage(named: "PindropIcon") {
-                let targetHeight: CGFloat = 18
-                let aspectRatio: CGFloat = 1364.0 / 2000.0
-                let targetWidth = targetHeight * aspectRatio
-
-                let resizedIcon = NSImage(size: NSSize(width: targetWidth, height: targetHeight))
-                resizedIcon.lockFocus()
-                NSGraphicsContext.current?.imageInterpolation = .high
-                customIcon.draw(
-                    in: NSRect(x: 0, y: 0, width: targetWidth, height: targetHeight),
-                    from: NSRect(origin: .zero, size: customIcon.size),
-                    operation: .copy,
-                    fraction: 1.0
-                )
-                resizedIcon.unlockFocus()
-                resizedIcon.isTemplate = true
-
-                button.image = resizedIcon
-            } else {
-                button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
-                button.image?.isTemplate = true
-            }
+        if let existingStatusItem = statusItem {
+            NSStatusBar.system.removeStatusItem(existingStatusItem)
         }
 
-        statusItem?.menu = menu
+        let newStatusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = newStatusItem
+
+        guard let button = newStatusItem.button else {
+            Log.ui.error("Failed to create status bar button; retrying on next run loop")
+            DispatchQueue.main.async { [weak self] in
+                self?.ensureStatusItem()
+            }
+            return
+        }
+
+        configureStatusButton(button)
+        newStatusItem.menu = menu
+    }
+
+    func ensureStatusItem() {
+        guard let statusItem else {
+            setupStatusItem()
+            return
+        }
+
+        guard let button = statusItem.button else {
+            Log.ui.error("Status item exists without a button; recreating")
+            setupStatusItem()
+            return
+        }
+
+        configureStatusButton(button)
+        statusItem.menu = menu
+        updateStatusBarIcon()
+    }
+
+    private func configureStatusButton(_ button: NSStatusBarButton) {
+        button.imagePosition = .imageOnly
+        button.appearsDisabled = false
+
+        if let customIcon = NSImage(named: "PindropIcon") {
+            let targetHeight: CGFloat = 18
+            let aspectRatio: CGFloat = 1364.0 / 2000.0
+            let targetWidth = targetHeight * aspectRatio
+
+            let resizedIcon = NSImage(size: NSSize(width: targetWidth, height: targetHeight))
+            resizedIcon.lockFocus()
+            NSGraphicsContext.current?.imageInterpolation = .high
+            customIcon.draw(
+                in: NSRect(x: 0, y: 0, width: targetWidth, height: targetHeight),
+                from: NSRect(origin: .zero, size: customIcon.size),
+                operation: .copy,
+                fraction: 1.0
+            )
+            resizedIcon.unlockFocus()
+            resizedIcon.isTemplate = true
+
+            button.image = resizedIcon
+        } else {
+            button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
+            button.image?.isTemplate = true
+        }
+
+        button.toolTip = "Pindrop"
     }
 
     private func setupMenu() {

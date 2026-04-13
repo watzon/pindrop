@@ -49,3 +49,6 @@ package-lock.json
 DerivedDataTests/
 
 DerivedDataTests/
+
+# Legacy local residue
+shared/

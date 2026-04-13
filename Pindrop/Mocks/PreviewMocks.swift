@@ -92,12 +92,13 @@ protocol ModelManagerProtocol: AnyObject, Observable {
     var downloadProgress: Double { get }
     var isDownloading: Bool { get }
     var currentDownloadModel: String? { get }
+    var downloadSnapshot: ModelManager.DownloadSnapshot? { get }
     var downloadedModelNames: Set<String> { get }
     
     func refreshDownloadedModels() async
     func getDownloadedModels() async -> [ModelManager.WhisperModel]
     func isModelDownloaded(_ modelName: String) -> Bool
-    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)?) async throws
+    func downloadModel(named modelName: String, onProgress: ((ModelManager.DownloadSnapshot) -> Void)?) async throws
     func deleteModel(named modelName: String) async throws
 }
 
@@ -143,6 +144,7 @@ final class PreviewModelManager: ModelManagerProtocol {
     private(set) var downloadProgress: Double = 0.0
     private(set) var isDownloading: Bool = false
     private(set) var currentDownloadModel: String? = nil
+    private(set) var downloadSnapshot: ModelManager.DownloadSnapshot? = nil
     private(set) var downloadedModelNames: Set<String> = ["openai_whisper-base"]
     
     func refreshDownloadedModels() async {}
@@ -155,7 +157,7 @@ final class PreviewModelManager: ModelManagerProtocol {
         downloadedModelNames.contains(modelName)
     }
     
-    func downloadModel(named modelName: String, onProgress: ((Double) -> Void)?) async throws {
+    func downloadModel(named modelName: String, onProgress: ((ModelManager.DownloadSnapshot) -> Void)?) async throws {
         downloadedModelNames.insert(modelName)
     }
     
