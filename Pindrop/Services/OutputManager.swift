@@ -54,6 +54,7 @@ struct ClipboardSnapshot {
 
 protocol KeySimulationProtocol {
     func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws
+    func postCharacterEvent(character: Character, keyDown: Bool) throws
     func simulatePaste() async throws
 }
 
@@ -122,6 +123,18 @@ final class SystemKeySimulation: KeySimulationProtocol {
         }
         
         event.flags = flags
+        event.post(tap: .cghidEventTap)
+    }
+
+    func postCharacterEvent(character: Character, keyDown: Bool) throws {
+        let source = CGEventSource(stateID: .hidSystemState)
+
+        guard let event = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: keyDown) else {
+            throw OutputManagerError.textInsertionFailed
+        }
+
+        var utf16 = Array(String(character).utf16)
+        event.keyboardSetUnicodeString(stringLength: utf16.count, unicodeString: &utf16)
         event.post(tap: .cghidEventTap)
     }
     
@@ -293,12 +306,7 @@ final class OutputManager {
             return
         }
 
-        if supportsDirectTyping(text) {
-            try await insertTextDirectly(text)
-            return
-        }
-
-        try await pasteViaClipboard(text, restoreClipboard: true)
+        try await insertTextDirectly(text)
     }
 
     private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
@@ -371,15 +379,7 @@ final class OutputManager {
     }
 
     private func insertStreamingSuffix(_ text: String) async throws {
-        if supportsDirectTyping(text) {
-            try await insertTextDirectly(text)
-        } else {
-            try await pasteViaClipboard(text, restoreClipboard: true)
-        }
-    }
-
-    private func supportsDirectTyping(_ text: String) -> Bool {
-        text.allSatisfy { getKeyCodeForCharacter($0) != nil }
+        try await insertTextDirectly(text)
     }
 
     private func deleteBackward(count: Int) async throws {
@@ -400,52 +400,8 @@ final class OutputManager {
     }
     
     private func typeCharacter(_ character: Character) async throws {
-        guard let (keyCode, modifiers) = getKeyCodeForCharacter(character) else {
-            throw OutputManagerError.textInsertionFailed
-        }
-        
-        try keySimulation.postKeyEvent(keyCode: keyCode, flags: modifiers, keyDown: true)
+        try keySimulation.postCharacterEvent(character: character, keyDown: true)
         try await Task.sleep(nanoseconds: 1_000_000)
-        try keySimulation.postKeyEvent(keyCode: keyCode, flags: modifiers, keyDown: false)
-    }
-    
-    func getKeyCodeForCharacter(_ character: Character) -> (CGKeyCode, CGEventFlags)? {
-        // Basic ASCII character mapping
-        // This is a simplified version - a production implementation would need more complete mapping
-        
-        let keyCodeMap: [Character: (CGKeyCode, CGEventFlags)] = [
-            // Lowercase letters
-            "a": (0, []), "b": (11, []), "c": (8, []), "d": (2, []), "e": (14, []),
-            "f": (3, []), "g": (5, []), "h": (4, []), "i": (34, []), "j": (38, []),
-            "k": (40, []), "l": (37, []), "m": (46, []), "n": (45, []), "o": (31, []),
-            "p": (35, []), "q": (12, []), "r": (15, []), "s": (1, []), "t": (17, []),
-            "u": (32, []), "v": (9, []), "w": (13, []), "x": (7, []), "y": (16, []),
-            "z": (6, []),
-            
-            // Uppercase letters (with shift)
-            "A": (0, .maskShift), "B": (11, .maskShift), "C": (8, .maskShift),
-            "D": (2, .maskShift), "E": (14, .maskShift), "F": (3, .maskShift),
-            "G": (5, .maskShift), "H": (4, .maskShift), "I": (34, .maskShift),
-            "J": (38, .maskShift), "K": (40, .maskShift), "L": (37, .maskShift),
-            "M": (46, .maskShift), "N": (45, .maskShift), "O": (31, .maskShift),
-            "P": (35, .maskShift), "Q": (12, .maskShift), "R": (15, .maskShift),
-            "S": (1, .maskShift), "T": (17, .maskShift), "U": (32, .maskShift),
-            "V": (9, .maskShift), "W": (13, .maskShift), "X": (7, .maskShift),
-            "Y": (16, .maskShift), "Z": (6, .maskShift),
-            
-            // Numbers
-            "0": (29, []), "1": (18, []), "2": (19, []), "3": (20, []), "4": (21, []),
-            "5": (23, []), "6": (22, []), "7": (26, []), "8": (28, []), "9": (25, []),
-            
-            // Special characters
-            " ": (49, []), // Space
-            ".": (47, []), ",": (43, []), "!": (18, .maskShift), "?": (44, .maskShift),
-            ":": (41, .maskShift), ";": (41, []), "'": (39, []), "\"": (39, .maskShift),
-            "-": (27, []), "_": (27, .maskShift), "(": (25, .maskShift), ")": (29, .maskShift),
-            "\n": (36, []), // Return/Enter
-            "\t": (48, []), // Tab
-        ]
-        
-        return keyCodeMap[character]
+        try keySimulation.postCharacterEvent(character: character, keyDown: false)
     }
 }
