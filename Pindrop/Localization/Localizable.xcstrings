@@ -36323,6 +36323,77 @@
         }
       }
     },
+    "Streaming transcription currently supports English only, regardless of the selected language.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Streaming-Transkription unterstützt derzeit nur Englisch, unabhängig von der ausgewählten Sprache."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streaming transcription currently supports English only, regardless of the selected language."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La transcripción en streaming actualmente solo admite inglés, independientemente del idioma seleccionado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La transcription en streaming ne prend actuellement en charge que l’anglais, quelle que soit la langue sélectionnée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La trascrizione in streaming attualmente supporta solo l'inglese, indipendentemente dalla lingua selezionata."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A transcrição em streaming atualmente oferece suporte apenas ao inglês, independentemente do idioma selecionado."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流式转录当前仅支持英语，与所选语言无关。"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Akış transkripsiyonu şu anda seçilen dilden bağımsız olarak yalnızca İngilizceyi destekler."
+          }
+        }
+      }
+    },
     "Success!": {
       "extractionState": "stale",
       "localizations": {

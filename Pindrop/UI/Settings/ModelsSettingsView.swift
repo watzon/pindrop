@@ -826,6 +826,10 @@ struct FeatureModelRow: View {
         featureType == .streaming && aiEnhancementEnabled
     }
 
+    private var showsStreamingEnglishOnlyNote: Bool {
+        featureType == .streaming
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: featureType.iconName)
@@ -862,6 +866,18 @@ struct FeatureModelRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+
+                if showsStreamingEnglishOnlyNote {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(localized("Streaming transcription currently supports English only, regardless of the selected language.", locale: locale))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
 
                 if showsStreamingAIWarning {
                     HStack(alignment: .top, spacing: 6) {
