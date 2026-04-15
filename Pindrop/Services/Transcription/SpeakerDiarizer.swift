@@ -56,6 +56,7 @@ public struct DiarizationResult: Sendable, Equatable {
 public struct DiarizedTranscriptSegment: Codable, Sendable, Equatable {
     public let speakerId: String
     public let speakerLabel: String
+    public let speakerEmbedding: [Float]?
     public let startTime: TimeInterval
     public let endTime: TimeInterval
     public let confidence: Float
@@ -64,6 +65,7 @@ public struct DiarizedTranscriptSegment: Codable, Sendable, Equatable {
     public init(
         speakerId: String,
         speakerLabel: String,
+        speakerEmbedding: [Float]? = nil,
         startTime: TimeInterval,
         endTime: TimeInterval,
         confidence: Float,
@@ -71,6 +73,7 @@ public struct DiarizedTranscriptSegment: Codable, Sendable, Equatable {
     ) {
         self.speakerId = speakerId
         self.speakerLabel = speakerLabel
+        self.speakerEmbedding = speakerEmbedding
         self.startTime = startTime
         self.endTime = endTime
         self.confidence = confidence

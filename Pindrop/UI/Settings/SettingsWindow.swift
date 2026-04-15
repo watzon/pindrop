@@ -5,6 +5,7 @@
 //  Created on 2026-01-25.
 //
 
+import SwiftData
 import SwiftUI
 
 enum SettingsTab: String, CaseIterable, Identifiable {
@@ -12,7 +13,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case theme = "Theme"
     case hotkeys = "Hotkeys"
     case ai = "AI Enhancement"
-    case update = "Update"
+    case participants = "Participants"
     case about = "About"
 
     var id: String { rawValue }
@@ -23,7 +24,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .theme: return localized("Theme", locale: locale)
         case .hotkeys: return localized("Hotkeys", locale: locale)
         case .ai: return localized("AI Enhancement", locale: locale)
-        case .update: return localized("Update", locale: locale)
+        case .participants: return localized("Participants", locale: locale)
         case .about: return localized("About", locale: locale)
         }
     }
@@ -34,7 +35,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .theme: return "paintbrush"
         case .hotkeys: return "keyboard"
         case .ai: return "sparkles"
-        case .update: return "arrow.triangle.2.circlepath"
+        case .participants: return "person.2"
         case .about: return "info.circle"
         }
     }
@@ -53,10 +54,10 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             return localized("Configure keyboard shortcuts for recording and note capture", locale: locale)
         case .ai:
             return localized("Providers, prompts, and vibe mode controls", locale: locale)
-        case .update:
-            return localized("Automatic updates and manual update checks", locale: locale)
+        case .participants:
+            return localized("Learned speaker voices and participant profiles", locale: locale)
         case .about:
-            return localized("App info, acknowledgments, support, and logs", locale: locale)
+            return localized("App info, updates, acknowledgments, support, and logs", locale: locale)
         }
     }
 
@@ -83,10 +84,16 @@ enum SettingsTab: String, CaseIterable, Identifiable {
                 "provider", "api key", "endpoint", "prompt", "preset", "vibe mode",
                 "clipboard context", "ui context", "model", "enhancement"
             ]
-        case .update:
-            return ["updates", "automatic updates", "check now", "version"]
+        case .participants:
+            return [
+                "speaker", "voice", "participant", "profile", "diarization",
+                "rename", "learned", "identity", "recognition"
+            ]
         case .about:
-            return ["support", "logs", "github", "license", "system info", "version"]
+            return [
+                "support", "logs", "github", "license", "system info", "version",
+                "updates", "automatic updates", "check now"
+            ]
         }
     }
 
@@ -209,8 +216,8 @@ struct SettingsContainerView: View {
                         HotkeysSettingsView(settings: settings)
                     case .ai:
                         AIEnhancementSettingsView(settings: settings)
-                    case .update:
-                        UpdateSettingsView()
+                    case .participants:
+                        ParticipantsSettingsView()
                     case .about:
                         AboutSettingsView()
                     }
@@ -249,15 +256,13 @@ struct SettingsContainerView: View {
     }
 
     private var tabsBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
-                ForEach(filteredTabs) { tab in
-                    SettingsTabChip(
-                        tab: tab,
-                        isSelected: selectedTab == tab,
-                        action: { selectTab(tab) }
-                    )
-                }
+        FlowLayout(spacing: AppTheme.Spacing.sm) {
+            ForEach(filteredTabs) { tab in
+                SettingsTabChip(
+                    tab: tab,
+                    isSelected: selectedTab == tab,
+                    action: { selectTab(tab) }
+                )
             }
         }
     }
@@ -362,6 +367,272 @@ private extension SettingsTab {
             .lowercased()
             .replacingOccurrences(of: " ", with: "-")
         return "settings.tab.\(slug)"
+    }
+}
+
+// MARK: - Participants Settings View
+
+struct ParticipantsSettingsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.locale) private var locale
+
+    @State private var profiles: [ParticipantProfile] = []
+    @State private var editingProfile: ParticipantProfile?
+    @State private var editedName = ""
+    @State private var showingDeleteAllConfirmation = false
+    @State private var errorMessage: String?
+
+    private var identityService: SpeakerIdentityService {
+        SpeakerIdentityService(modelContext: modelContext)
+    }
+
+    var body: some View {
+        VStack(spacing: AppTheme.Spacing.xl) {
+            profilesCard
+
+            if !profiles.isEmpty {
+                dangerZoneCard
+            }
+        }
+        .task {
+            loadProfiles()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
+            loadProfiles()
+        }
+        .alert(
+            localized("Edit", locale: locale),
+            isPresented: Binding(
+                get: { editingProfile != nil },
+                set: { if !$0 { editingProfile = nil } }
+            )
+        ) {
+            TextField("", text: $editedName)
+            Button(localized("Cancel", locale: locale), role: .cancel) {
+                editingProfile = nil
+            }
+            Button(localized("Save", locale: locale)) {
+                saveEditedProfile()
+            }
+        }
+        .alert(
+            localized("Error", locale: locale),
+            isPresented: Binding(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
+            )
+        ) {
+            Button(localized("OK", locale: locale), role: .cancel) {}
+        } message: {
+            if let errorMessage {
+                Text(errorMessage)
+            }
+        }
+    }
+
+    // MARK: - Profiles Card
+
+    private var profilesCard: some View {
+        SettingsCard(
+            title: localized("Participants", locale: locale),
+            icon: "person.2",
+            detail: localized("Learned speaker voices and participant profiles", locale: locale)
+        ) {
+            if profiles.isEmpty {
+                emptyState
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(profiles.enumerated()), id: \.element.id) { index, profile in
+                        profileRow(profile)
+
+                        if index < profiles.count - 1 {
+                            SettingsDivider()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "person.crop.circle.badge.questionmark")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(AppColors.textTertiary)
+
+            Text(localized("No learned participants yet", locale: locale))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+
+            Text(localized("Rename speakers in transcripts to teach Pindrop to recognize voices automatically.", locale: locale))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textTertiary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AppTheme.Spacing.lg)
+    }
+
+    private func profileRow(_ profile: ParticipantProfile) -> some View {
+        HStack(alignment: .center, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(profile.displayName)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                if profile.evidenceCount == 0 {
+                    Label(
+                        localized("Not enough voice data yet", locale: locale),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textTertiary)
+                } else {
+                    HStack(spacing: AppTheme.Spacing.sm) {
+                        Label(
+                            String(format: localized("%d samples", locale: locale), profile.evidenceCount),
+                            systemImage: "waveform"
+                        )
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+
+                        Text("·")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textTertiary)
+
+                        Text(formattedDuration(profile.totalEvidenceDuration))
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            HStack(spacing: AppTheme.Spacing.xs) {
+                Button {
+                    editedName = profile.displayName
+                    editingProfile = profile
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                .buttonStyle(.borderless)
+                .help(localized("Edit", locale: locale))
+
+                Button(role: .destructive) {
+                    deleteProfile(profile)
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                .buttonStyle(.borderless)
+                .help(localized("Delete", locale: locale))
+            }
+        }
+        .padding(.vertical, AppTheme.Spacing.sm)
+    }
+
+    // MARK: - Danger Zone
+
+    private var dangerZoneCard: some View {
+        SettingsCard(
+            title: localized("Reset", locale: locale),
+            icon: "arrow.counterclockwise",
+            detail: localized("Remove all learned participant data", locale: locale)
+        ) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(localized("Delete all participants", locale: locale))
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textPrimary)
+
+                    Text(localized("This removes all learned voice profiles and training data. This cannot be undone.", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+
+                Button(role: .destructive) {
+                    showingDeleteAllConfirmation = true
+                } label: {
+                    Text(localized("Delete", locale: locale))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+            .confirmationDialog(
+                localized("Delete all participants", locale: locale),
+                isPresented: $showingDeleteAllConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button(localized("Delete", locale: locale), role: .destructive) {
+                    deleteAllProfiles()
+                }
+                Button(localized("Cancel", locale: locale), role: .cancel) {}
+            } message: {
+                Text(localized("This removes all learned voice profiles and training data. This cannot be undone.", locale: locale))
+            }
+        }
+    }
+
+    // MARK: - Actions
+
+    private func loadProfiles() {
+        do {
+            profiles = try identityService.fetchAllProfiles()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func saveEditedProfile() {
+        guard let profile = editingProfile else { return }
+        do {
+            try identityService.renameProfile(profile, to: editedName)
+            loadProfiles()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        editingProfile = nil
+    }
+
+    private func deleteProfile(_ profile: ParticipantProfile) {
+        do {
+            try identityService.deleteProfile(profile)
+            loadProfiles()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func deleteAllProfiles() {
+        do {
+            try identityService.deleteAllProfiles()
+            loadProfiles()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    // MARK: - Formatting
+
+    private func formattedDuration(_ seconds: TimeInterval) -> String {
+        if seconds < 60 {
+            return String(format: "%.0fs", seconds)
+        } else if seconds < 3600 {
+            let minutes = Int(seconds) / 60
+            let secs = Int(seconds) % 60
+            return "\(minutes)m \(secs)s"
+        } else {
+            let hours = Int(seconds) / 3600
+            let minutes = (Int(seconds) % 3600) / 60
+            return "\(hours)h \(minutes)m"
+        }
     }
 }
 

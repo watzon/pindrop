@@ -521,6 +521,9 @@ struct TranscribeView: View {
                         removeRecordFromFolder(record)
                     }
                 },
+                onRenameSpeakers: { labelsBySpeakerID in
+                    renameSpeakerLabels(for: record, labelsBySpeakerID: labelsBySpeakerID)
+                },
                 onDelete: {
                     promptDelete(record)
                 }
@@ -605,6 +608,14 @@ struct TranscribeView: View {
     private func removeRecordFromFolder(_ record: TranscriptionRecord) {
         do {
             try historyStore.removeFromFolder(record: record)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func renameSpeakerLabels(for record: TranscriptionRecord, labelsBySpeakerID: [String: String]) {
+        do {
+            try historyStore.updateSpeakerLabels(record: record, labelsBySpeakerID: labelsBySpeakerID)
         } catch {
             errorMessage = error.localizedDescription
         }

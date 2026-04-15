@@ -18,20 +18,25 @@ struct HistoryStoreTests {
         let modelContainer: ModelContainer
         let modelContext: ModelContext
         let historyStore: HistoryStore
+        let speakerIdentityService: SpeakerIdentityService
     }
 
     private func makeFixture() throws -> Fixture {
         let modelContainer = try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let modelContext = ModelContext(modelContainer)
-        let historyStore = HistoryStore(modelContext: modelContext)
+        let speakerIdentityService = SpeakerIdentityService(modelContext: modelContext)
+        let historyStore = HistoryStore(modelContext: modelContext, speakerIdentityService: speakerIdentityService)
         return Fixture(
             modelContainer: modelContainer,
             modelContext: modelContext,
-            historyStore: historyStore
+            historyStore: historyStore,
+            speakerIdentityService: speakerIdentityService
         )
     }
 
@@ -70,6 +75,8 @@ struct HistoryStoreTests {
         let migratedContainer = try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,
@@ -121,6 +128,8 @@ struct HistoryStoreTests {
         let migratedContainer = try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,
@@ -183,6 +192,200 @@ struct HistoryStoreTests {
         let records = try fixture.historyStore.fetchAll()
         #expect(records.count == 1)
         #expect(records.first?.diarizationSegmentsJSON == nil)
+    }
+
+    @Test func updateSpeakerLabelsUpdatesPersistedDiarizedSegments() throws {
+        let fixture = try makeFixture()
+        let diarizationJSON = """
+        [{"speakerId":"speaker-a","speakerLabel":"Speaker 1","startTime":0,"endTime":1.0,"confidence":0.9,"text":"hello"},{"speakerId":"speaker-b","speakerLabel":"Speaker 2","startTime":1.0,"endTime":2.0,"confidence":0.8,"text":"hi"}]
+        """
+
+        let record = try fixture.historyStore.save(
+            text: "Speaker 1: hello\nSpeaker 2: hi",
+            duration: 2.0,
+            modelUsed: "tiny",
+            diarizationSegmentsJSON: diarizationJSON
+        )
+
+        try fixture.historyStore.updateSpeakerLabels(
+            record: record,
+            labelsBySpeakerID: [
+                "speaker-a": "Alice",
+                "speaker-b": "Bob"
+            ]
+        )
+
+        let fetchedRecord = try #require(try fixture.historyStore.fetchRecord(with: record.id))
+        #expect(fetchedRecord.diarizedSegments.map(\.speakerLabel) == ["Alice", "Bob"])
+    }
+
+    @Test func updateSpeakerLabelsLearnsParticipantProfilesFromRenames() throws {
+        let fixture = try makeFixture()
+
+        let diarizationJSON = """
+        [{"speakerId":"speaker-a","speakerLabel":"Speaker 1","speakerEmbedding":[0.1,0.2,0.3],"startTime":0,"endTime":1.4,"confidence":0.9,"text":"hello"}]
+        """
+
+        let record = try fixture.historyStore.save(
+            text: "Speaker 1: hello",
+            duration: 1.4,
+            modelUsed: "tiny",
+            diarizationSegmentsJSON: diarizationJSON
+        )
+
+        try fixture.historyStore.updateSpeakerLabels(
+            record: record,
+            labelsBySpeakerID: ["speaker-a": "Alice"]
+        )
+
+        let profiles = try fixture.modelContext.fetch(FetchDescriptor<ParticipantProfile>())
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.displayName == "Alice")
+        #expect(profiles.first?.evidenceCount == 1)
+        #expect(profiles.first?.totalEvidenceDuration == 1.4)
+        #expect(evidence.count == 1)
+        #expect(evidence.first?.profile?.displayName == "Alice")
+        #expect(evidence.first?.recordID == record.id)
+    }
+
+    @Test func updateSpeakerLabelsCreatesParticipantProfileWithoutEligibleEvidence() throws {
+        let fixture = try makeFixture()
+
+        let diarizationJSON = """
+        [{"speakerId":"speaker-a","speakerLabel":"Speaker 1","startTime":0,"endTime":0.4,"confidence":0.9,"text":"hi"}]
+        """
+
+        let record = try fixture.historyStore.save(
+            text: "Speaker 1: hi",
+            duration: 0.4,
+            modelUsed: "tiny",
+            diarizationSegmentsJSON: diarizationJSON
+        )
+
+        try fixture.historyStore.updateSpeakerLabels(
+            record: record,
+            labelsBySpeakerID: ["speaker-a": "Alice"]
+        )
+
+        let profiles = try fixture.modelContext.fetch(FetchDescriptor<ParticipantProfile>())
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.displayName == "Alice")
+        #expect(profiles.first?.evidenceCount == 0)
+        #expect(profiles.first?.totalEvidenceDuration == 0)
+        #expect(evidence.isEmpty)
+    }
+
+    @Test func speakerIdentityBestMatchReturnsProfileWhenSimilarityAndMarginPass() throws {
+        let fixture = try makeFixture()
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        fixture.modelContext.insert(alice)
+
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        bob.centroidEmbeddingData = try JSONEncoder().encode([0.0 as Float, 1.0, 0.0])
+        fixture.modelContext.insert(bob)
+        try fixture.modelContext.save()
+
+        let match = try fixture.speakerIdentityService.bestMatch(for: [0.98, 0.02, 0.0])
+
+        #expect(match?.displayName == "Alice")
+        #expect((match?.similarity ?? 0) > 0.72)
+    }
+
+    @Test func speakerIdentityBestMatchReturnsNilWhenMarginIsTooSmall() throws {
+        let fixture = try makeFixture()
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0])
+        fixture.modelContext.insert(alice)
+
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        bob.centroidEmbeddingData = try JSONEncoder().encode([0.99 as Float, 0.01])
+        fixture.modelContext.insert(bob)
+        try fixture.modelContext.save()
+
+        let match = try fixture.speakerIdentityService.bestMatch(for: [1.0, 0.0])
+
+        #expect(match == nil)
+    }
+
+    // MARK: - Profile Management Tests
+
+    @Test func fetchAllProfilesReturnsProfilesSortedByName() throws {
+        let fixture = try makeFixture()
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        fixture.modelContext.insert(bob)
+        fixture.modelContext.insert(alice)
+        try fixture.modelContext.save()
+
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+
+        #expect(profiles.count == 2)
+        #expect(profiles[0].displayName == "Alice")
+        #expect(profiles[1].displayName == "Bob")
+    }
+
+    @Test func renameProfileUpdatesDisplayNameAndNormalizedName() throws {
+        let fixture = try makeFixture()
+        let profile = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        fixture.modelContext.insert(profile)
+        try fixture.modelContext.save()
+
+        try fixture.speakerIdentityService.renameProfile(profile, to: "Alicia")
+
+        let fetched = try fixture.speakerIdentityService.fetchAllProfiles()
+        #expect(fetched.count == 1)
+        #expect(fetched[0].displayName == "Alicia")
+        #expect(fetched[0].normalizedName == "alicia")
+    }
+
+    @Test func deleteProfileRemovesProfileAndEvidence() throws {
+        let fixture = try makeFixture()
+        let profile = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        profile.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        fixture.modelContext.insert(profile)
+        try fixture.modelContext.save()
+
+        let evidence = ParticipantTrainingEvidence(
+            evidenceKey: "test-key",
+            sourceTypeRawValue: "renameFeedback",
+            recordID: UUID(),
+            sourceSpeakerID: "speaker-a",
+            segmentStartTime: 0.0,
+            segmentEndTime: 1.5,
+            segmentDuration: 1.5,
+            confidence: 0.9,
+            embeddingData: try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        )
+        evidence.profile = profile
+        fixture.modelContext.insert(evidence)
+        try fixture.modelContext.save()
+
+        try fixture.speakerIdentityService.deleteProfile(profile)
+
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+        #expect(profiles.isEmpty)
+
+        let allEvidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        #expect(allEvidence.isEmpty)
+    }
+
+    @Test func deleteAllProfilesRemovesEverything() throws {
+        let fixture = try makeFixture()
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        fixture.modelContext.insert(alice)
+        fixture.modelContext.insert(bob)
+        try fixture.modelContext.save()
+
+        try fixture.speakerIdentityService.deleteAllProfiles()
+
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+        #expect(profiles.isEmpty)
     }
 
     @Test func saveMediaTranscriptionPersistsMediaMetadata() throws {
@@ -1158,6 +1361,8 @@ struct HistoryStoreTests {
         return try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,

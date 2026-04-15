@@ -71,7 +71,6 @@
 		D6FEA1BD5772A0BC1316C3A9 /* ModelSelectionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */; };
 		D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */; };
 		DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */; };
-		DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEADBEEF0000000000000002 /* UpdateSettingsView.swift */; };
 		DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */; };
 		DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */; };
 		DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */; };
@@ -237,7 +236,6 @@
 		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
 		DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeysSettingsView.swift; sourceTree = "<group>"; };
-		DEADBEEF0000000000000002 /* UpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsView.swift; sourceTree = "<group>"; };
 		DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryModelsTests.swift; sourceTree = "<group>"; };
 		DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
 		DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
@@ -491,7 +489,6 @@
 				8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
 				FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */,
 				THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */,
-				DEADBEEF0000000000000002 /* UpdateSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
 				44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */,
@@ -899,7 +896,6 @@
 				0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */,
 				FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */,
 				THEMESETTINGSBUILD01A2B3C4D5E6F /* ThemeSettingsView.swift in Sources */,
-				DEADBEEF0000000000000001 /* UpdateSettingsView.swift in Sources */,
 				AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */,
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
 				83556706A5B946DA8E8D1F05 /* AboutSettingsView.swift in Sources */,

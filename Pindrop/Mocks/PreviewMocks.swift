@@ -173,7 +173,7 @@ enum PreviewContainer {
     static func create(with records: [TranscriptionRecord] = [], notes: [NoteSchema.Note] = []) -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
-            for: TranscriptionRecord.self, MediaFolder.self, WordReplacement.self, VocabularyWord.self, NoteSchema.Note.self,
+            for: TranscriptionRecord.self, MediaFolder.self, ParticipantProfile.self, ParticipantTrainingEvidence.self, WordReplacement.self, VocabularyWord.self, NoteSchema.Note.self,
             configurations: config
         )
         for record in records {

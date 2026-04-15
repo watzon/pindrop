@@ -121,6 +121,9 @@ struct HistoryView: View {
                             removeRecordFromFolder(record)
                         }
                     },
+                    onRenameSpeakers: { labelsBySpeakerID in
+                        renameSpeakerLabels(for: record, labelsBySpeakerID: labelsBySpeakerID)
+                    },
                     onDelete: { pendingDeletionRecord = record }
                 )
                 .background(AppColors.contentBackground)
@@ -213,6 +216,14 @@ struct HistoryView: View {
     private func removeRecordFromFolder(_ record: TranscriptionRecord) {
         do {
             try historyStore.removeFromFolder(record: record)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func renameSpeakerLabels(for record: TranscriptionRecord, labelsBySpeakerID: [String: String]) {
+        do {
+            try historyStore.updateSpeakerLabels(record: record, labelsBySpeakerID: labelsBySpeakerID)
         } catch {
             errorMessage = error.localizedDescription
         }

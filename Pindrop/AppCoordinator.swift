@@ -268,6 +268,7 @@ final class AppCoordinator {
     let updateService: UpdateService
     let outputManager: OutputManager
     let historyStore: HistoryStore
+    let speakerIdentityService: SpeakerIdentityService
     let dictionaryStore: DictionaryStore
     let settingsStore: SettingsStore
     let notesStore: NotesStore
@@ -380,7 +381,8 @@ final class AppCoordinator {
             Log.app.error("Failed to initialize AudioRecorder: \(error)")
             fatalError("Failed to initialize AudioRecorder: \(error)")
         }
-        self.transcriptionService = TranscriptionService()
+        self.speakerIdentityService = SpeakerIdentityService(modelContext: modelContext)
+        self.transcriptionService = TranscriptionService(speakerIdentityService: speakerIdentityService)
         self.modelManager = ModelManager()
         self.aiEnhancementService = AIEnhancementService()
         self.hotkeyManager = HotkeyManager()
@@ -391,7 +393,7 @@ final class AppCoordinator {
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
         self.outputManager = OutputManager(outputMode: initialOutputMode)
-        self.historyStore = HistoryStore(modelContext: modelContext)
+        self.historyStore = HistoryStore(modelContext: modelContext, speakerIdentityService: speakerIdentityService)
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()

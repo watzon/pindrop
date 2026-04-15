@@ -22,7 +22,10 @@ struct MediaTranscriptionDetailView: View {
     let onBack: () -> Void
     let onAssignFolder: (MediaFolder) -> Void
     let onRemoveFromFolder: () -> Void
+    let onRenameSpeakers: ([String: String]) -> Void
     let onDelete: () -> Void
+
+    @Environment(\.locale) private var locale
 
     @State private var playbackController = MediaPlaybackController()
     @State private var followPlayback = true
@@ -30,9 +33,55 @@ struct MediaTranscriptionDetailView: View {
     @State private var isDraggingSlider = false
     @State private var playbackRate: Float = 1.0
     @State private var showCopiedToast = false
+    @State private var speakerLabelsByID: [String: String] = [:]
+    @State private var editingSpeakerID: String?
+    @State private var editedSpeakerLabel = ""
 
     private var segments: [DiarizedTranscriptSegment] {
         record.diarizedSegments
+    }
+
+    private var displayedSegments: [DiarizedTranscriptSegment] {
+        segments.map { segment in
+            guard let speakerLabel = speakerLabelsByID[segment.speakerId],
+                  !speakerLabel.isEmpty,
+                  speakerLabel != segment.speakerLabel else {
+                return segment
+            }
+
+            return DiarizedTranscriptSegment(
+                speakerId: segment.speakerId,
+                speakerLabel: speakerLabel,
+                speakerEmbedding: segment.speakerEmbedding,
+                startTime: segment.startTime,
+                endTime: segment.endTime,
+                confidence: segment.confidence,
+                text: segment.text
+            )
+        }
+    }
+
+    private var participants: [(speakerID: String, label: String)] {
+        var seen = Set<String>()
+        return displayedSegments.compactMap { segment in
+            guard !seen.contains(segment.speakerId) else { return nil }
+            seen.insert(segment.speakerId)
+            let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !label.isEmpty else { return nil }
+            return (segment.speakerId, label)
+        }
+    }
+
+    private var isRenameAlertPresented: Binding<Bool> {
+        Binding(
+            get: { editingSpeakerID != nil },
+            set: { isPresented in
+                if !isPresented {
+                    editingSpeakerID = nil
+                    editedSpeakerLabel = ""
+                }
+            }
+        )
     }
 
     private var activeSegmentID: String? {
@@ -79,10 +128,24 @@ struct MediaTranscriptionDetailView: View {
             if let mediaURL = record.managedMediaURL {
                 playbackController.load(url: mediaURL)
             }
+            speakerLabelsByID = currentSpeakerLabelsByID()
+        }
+        .onChange(of: record.diarizationSegmentsJSON) { _, _ in
+            speakerLabelsByID = currentSpeakerLabelsByID()
         }
         .onChange(of: playbackController.currentTime) { _, newValue in
             if !isDraggingSlider {
                 sliderValue = newValue
+            }
+        }
+        .alert(localized("Edit", locale: locale), isPresented: isRenameAlertPresented) {
+            TextField("", text: $editedSpeakerLabel)
+            Button(localized("Cancel", locale: locale), role: .cancel) {
+                editingSpeakerID = nil
+                editedSpeakerLabel = ""
+            }
+            Button(localized("Save", locale: locale)) {
+                saveEditedSpeakerLabel()
             }
         }
         .overlay(alignment: .bottom) {
@@ -204,7 +267,7 @@ struct MediaTranscriptionDetailView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                            ForEach(Array(segments.enumerated()), id: \.offset) { index, segment in
+                            ForEach(Array(displayedSegments.enumerated()), id: \.offset) { index, segment in
                                 segmentRow(segment, index: index)
                                     .id(segmentIdentifier(segment, index: index))
                             }
@@ -391,6 +454,10 @@ struct MediaTranscriptionDetailView: View {
 
             detailsCard
 
+            if !participants.isEmpty {
+                participantsCard
+            }
+
             actionsRow
 
             summaryCard
@@ -556,6 +623,40 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
+    private var participantsCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                ForEach(participants, id: \.speakerID) { participant in
+                    HStack {
+                        Text(participant.label)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .lineLimit(1)
+
+                        Spacer(minLength: AppTheme.Spacing.sm)
+
+                        Button(localized("Edit", locale: locale)) {
+                            editingSpeakerID = participant.speakerID
+                            editedSpeakerLabel = participant.label
+                        }
+                        .buttonStyle(.borderless)
+                        .font(AppTypography.caption)
+                    }
+                }
+            }
+        }
+        .padding(AppTheme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
+                .fill(AppColors.surfaceBackground)
+        )
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+            style: AppColors.border
+        )
+    }
+
     private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             actionButtonLabel(title: title, systemImage: systemImage)
@@ -630,8 +731,8 @@ struct MediaTranscriptionDetailView: View {
     // MARK: - Actions
 
     private func transcriptWithTimestamps() -> String {
-        guard !segments.isEmpty else { return record.text }
-        return segments.map { segment -> String in
+        guard !displayedSegments.isEmpty else { return record.text }
+        return displayedSegments.map { segment -> String in
             let ts = timestampLabel(for: segment.startTime)
             let speaker = segment.speakerLabel.isEmpty ? "" : "\(segment.speakerLabel) "
             return "[\(ts)] \(speaker)\(segment.text)"
@@ -643,9 +744,32 @@ struct MediaTranscriptionDetailView: View {
         panel.allowedContentTypes = [.plainText]
         panel.nameFieldStringValue = (record.sourceDisplayName ?? "transcript") + ".txt"
         if panel.runModal() == .OK, let url = panel.url {
-            let content = segments.isEmpty ? record.text : transcriptWithTimestamps()
+            let content = displayedSegments.isEmpty ? record.text : transcriptWithTimestamps()
             try? content.write(to: url, atomically: true, encoding: .utf8)
         }
+    }
+
+    private func currentSpeakerLabelsByID() -> [String: String] {
+        var labelsByID: [String: String] = [:]
+        for segment in segments {
+            guard labelsByID[segment.speakerId] == nil else { continue }
+            let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !label.isEmpty else { continue }
+            labelsByID[segment.speakerId] = label
+        }
+        return labelsByID
+    }
+
+    private func saveEditedSpeakerLabel() {
+        guard let speakerID = editingSpeakerID else { return }
+        let trimmedLabel = editedSpeakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLabel.isEmpty else { return }
+
+        speakerLabelsByID[speakerID] = trimmedLabel
+        onRenameSpeakers(speakerLabelsByID)
+
+        editingSpeakerID = nil
+        editedSpeakerLabel = ""
     }
 
     private func flashCopied() {

@@ -202,6 +202,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return try ModelContainer(
             for: TranscriptionRecord.self,
             MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
             WordReplacement.self,
             VocabularyWord.self,
             Note.self,
@@ -234,6 +236,7 @@ final class SwiftDataStoreRepairService {
         case v3 = "1.0.2"
         case v4 = "1.0.3"
         case v5 = "1.0.4"
+        case v6 = "1.0.5"
     }
 
     struct RepairOutcome {
@@ -380,6 +383,12 @@ final class SwiftDataStoreRepairService {
                 return nil
             }
 
+            let hasParticipantProfiles = try tableExists(named: "ZPARTICIPANTPROFILE", on: database)
+            let hasParticipantEvidence = try tableExists(named: "ZPARTICIPANTTRAININGEVIDENCE", on: database)
+            if hasParticipantProfiles || hasParticipantEvidence {
+                return .v6
+            }
+
             if try tableExists(named: "ZMEDIAFOLDER", on: database) || columns.contains("ZFOLDER") {
                 return .v5
             }
@@ -483,8 +492,20 @@ final class SwiftDataStoreRepairService {
             )
         case .v5:
             container = try ModelContainer(
+                for: TranscriptionRecordSchemaV5.TranscriptionRecord.self,
+                TranscriptionRecordSchemaV5.MediaFolder.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
+            )
+        case .v6:
+            container = try ModelContainer(
                 for: TranscriptionRecord.self,
                 MediaFolder.self,
+                ParticipantProfile.self,
+                ParticipantTrainingEvidence.self,
                 WordReplacement.self,
                 VocabularyWord.self,
                 Note.self,

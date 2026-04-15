@@ -78,6 +78,7 @@ class TranscriptionService {
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer
     private let streamingEngineFactory: @MainActor () -> any StreamingTranscriptionEngine
+    private let speakerIdentityService: SpeakerIdentityManaging?
 
     init(
         engineFactory: @escaping @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine = {
@@ -88,11 +89,13 @@ class TranscriptionService {
         },
         streamingEngineFactory: @escaping @MainActor () -> any StreamingTranscriptionEngine = {
             ParakeetStreamingEngine()
-        }
+        },
+        speakerIdentityService: SpeakerIdentityManaging? = nil
     ) {
         self.engineFactory = engineFactory
         self.speakerDiarizerFactory = diarizerFactory
         self.streamingEngineFactory = streamingEngineFactory
+        self.speakerIdentityService = speakerIdentityService
     }
 
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
@@ -427,7 +430,7 @@ class TranscriptionService {
         Log.transcription.info("Speaker diarization enabled for current transcription")
 
         do {
-            let diarizer = getOrCreateSpeakerDiarizer()
+            let diarizer = try await prepareSpeakerDiarizer()
             try await diarizer.loadModels()
             let diarizationResult = try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
             let normalizedSegments = normalizedDiarizationSegments(
@@ -477,7 +480,7 @@ class TranscriptionService {
         segments: [SpeakerSegment],
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
-        var speakerLabelsByID: [String: String] = [:]
+        let speakerLabelsByID = try speakerLabelsByID(from: segments)
         var transcriptSegments: [DiarizedTranscriptSegment] = []
         var textLines: [String] = []
 
@@ -496,17 +499,12 @@ class TranscriptionService {
             guard !trimmed.isEmpty else { continue }
 
             let speakerID = segment.speaker.id
-            let speakerLabel: String
-            if let existing = speakerLabelsByID[speakerID] {
-                speakerLabel = existing
-            } else {
-                speakerLabel = "Speaker \(speakerLabelsByID.count + 1)"
-                speakerLabelsByID[speakerID] = speakerLabel
-            }
+            let speakerLabel = speakerLabelsByID[speakerID] ?? "Speaker 1"
 
             let diarizedSegment = DiarizedTranscriptSegment(
                 speakerId: speakerID,
                 speakerLabel: speakerLabel,
+                speakerEmbedding: segment.speaker.embedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
                 confidence: segment.confidence,
@@ -534,6 +532,66 @@ class TranscriptionService {
             text: mergedText,
             diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments
         )
+    }
+
+    private func speakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
+        let knownSpeakerIDs = Set((try speakerIdentityService?.knownSpeakers() ?? []).map(\.id))
+        let matchedLabelsByID = try matchedSpeakerLabelsByID(from: segments)
+        var labelsByID: [String: String] = [:]
+        var fallbackSpeakerIndex = 1
+
+        for segment in segments {
+            let speakerID = segment.speaker.id
+            guard labelsByID[speakerID] == nil else { continue }
+
+            if let matchedLabel = matchedLabelsByID[speakerID] {
+                labelsByID[speakerID] = matchedLabel
+                continue
+            }
+
+            let providedLabel = segment.speaker.label.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !providedLabel.isEmpty && !knownSpeakerIDs.contains(speakerID) {
+                labelsByID[speakerID] = providedLabel
+            } else {
+                labelsByID[speakerID] = "Speaker \(fallbackSpeakerIndex)"
+                fallbackSpeakerIndex += 1
+            }
+        }
+
+        return labelsByID
+    }
+
+    private func matchedSpeakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
+        guard let speakerIdentityService else { return [:] }
+
+        var segmentsBySpeakerID: [String: [SpeakerSegment]] = [:]
+        for segment in segments {
+            segmentsBySpeakerID[segment.speaker.id, default: []].append(segment)
+        }
+
+        var labelsByID: [String: String] = [:]
+        for (speakerID, speakerSegments) in segmentsBySpeakerID {
+            guard let representativeEmbedding = representativeEmbedding(from: speakerSegments),
+                  let match = try speakerIdentityService.bestMatch(for: representativeEmbedding) else {
+                continue
+            }
+
+            labelsByID[speakerID] = match.displayName
+        }
+
+        return labelsByID
+    }
+
+    private func representativeEmbedding(from segments: [SpeakerSegment]) -> [Float]? {
+        segments
+            .sorted { lhs, rhs in
+                if lhs.duration == rhs.duration {
+                    return lhs.confidence > rhs.confidence
+                }
+                return lhs.duration > rhs.duration
+            }
+            .compactMap(\.speaker.embedding)
+            .first(where: { !$0.isEmpty })
     }
 
     private func splitTranscriptSegmentIfNeeded(
@@ -578,6 +636,7 @@ class TranscriptionService {
                 DiarizedTranscriptSegment(
                     speakerId: segment.speakerId,
                     speakerLabel: segment.speakerLabel,
+                    speakerEmbedding: segment.speakerEmbedding,
                     startTime: chunkStart,
                     endTime: chunkEnd,
                     confidence: segment.confidence,
@@ -756,6 +815,21 @@ class TranscriptionService {
         return segmentSamples.withUnsafeBufferPointer { pointer in
             Data(buffer: pointer)
         }
+    }
+
+    private func prepareSpeakerDiarizer() async throws -> any SpeakerDiarizer {
+        let diarizer = getOrCreateSpeakerDiarizer()
+        await diarizer.clearKnownSpeakers()
+
+        guard let speakerIdentityService else {
+            return diarizer
+        }
+
+        for speaker in try speakerIdentityService.knownSpeakers() {
+            try await diarizer.registerKnownSpeaker(speaker)
+        }
+
+        return diarizer
     }
 
     private func getOrCreateSpeakerDiarizer() -> any SpeakerDiarizer {
