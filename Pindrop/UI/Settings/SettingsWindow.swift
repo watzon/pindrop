@@ -120,7 +120,7 @@ struct SettingsWindow: View {
 
             SettingsContainerView(settings: settings, initialTab: initialTab)
                 .padding(.horizontal, AppTheme.Spacing.xxl)
-                .padding(.top, AppTheme.Window.mainContentTopInset)
+                .padding(.top, 32)
                 .padding(.bottom, AppTheme.Spacing.xxl)
         }
         .frame(

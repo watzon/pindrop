@@ -27,6 +27,20 @@ private enum SettingsStoreRuntime {
    }()
 }
 
+public enum SidebarPosition: String, CaseIterable, Identifiable {
+   case leading
+   case trailing
+
+   public var id: String { rawValue }
+
+   var icon: String {
+      switch self {
+      case .leading: return "sidebar.left"
+      case .trailing: return "sidebar.right"
+      }
+   }
+}
+
 public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
    case automatic = "auto"
    case english = "en"
@@ -123,6 +137,7 @@ final class SettingsStore: ObservableObject {
        static let themeMode = PindropThemeMode.system.rawValue
       static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
+      static let sidebarPosition = SidebarPosition.trailing.rawValue
       static let automaticDictionaryLearningEnabled = true
       static let selectedInputDeviceUID = ""
       static let aiModel = "openai/gpt-4o-mini"
@@ -249,6 +264,8 @@ final class SettingsStore: ObservableObject {
    var pillFloatingIndicatorOffsetX: Double = Defaults.pillFloatingIndicatorOffsetX
    @AppStorage("pillFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
    var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
+   @AppStorage("sidebarPosition", store: SettingsStoreRuntime.appStorageStore)
+   var sidebarPosition: String = Defaults.sidebarPosition
    @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool =
       false
    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore)
@@ -362,6 +379,11 @@ final class SettingsStore: ObservableObject {
     var selectedAppLanguage: AppLanguage {
        get { AppLanguage(rawValue: selectedLanguage) ?? .automatic }
        set { selectedLanguage = newValue.rawValue }
+    }
+
+    var selectedSidebarPosition: SidebarPosition {
+       get { SidebarPosition(rawValue: sidebarPosition) ?? .trailing }
+       set { sidebarPosition = newValue.rawValue }
     }
 
    var selectedLightThemePreset: PindropThemePreset {

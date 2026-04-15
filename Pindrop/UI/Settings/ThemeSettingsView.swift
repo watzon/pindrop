@@ -24,13 +24,57 @@ struct ThemeSettingsView: View {
         )
     }
 
+    private var sidebarPositionBinding: Binding<SidebarPosition> {
+        Binding(
+            get: { settings.selectedSidebarPosition },
+            set: { settings.selectedSidebarPosition = $0 }
+        )
+    }
+
     var body: some View {
         VStack(spacing: AppTheme.Spacing.xl) {
+            layoutCard
             modeCard
             presetCard(variant: .light)
             presetCard(variant: .dark)
         }
         .themeRefresh()
+    }
+
+    private var layoutCard: some View {
+        SettingsCard(
+            title: localized("Layout", locale: locale),
+            icon: "sidebar.right",
+            detail: localized("Choose which side the navigation sidebar appears on.", locale: locale)
+        ) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(localized("Sidebar position", locale: locale))
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(localized("Dock the sidebar to the left or right edge of the window.", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Spacer()
+
+                Picker("", selection: sidebarPositionBinding) {
+                    ForEach(SidebarPosition.allCases) { position in
+                        Label(
+                            position == .leading
+                                ? localized("Left", locale: locale)
+                                : localized("Right", locale: locale),
+                            systemImage: position.icon
+                        )
+                        .tag(position)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 160)
+                .accessibilityIdentifier("settings.picker.sidebarPosition")
+            }
+        }
     }
 
     private var modeCard: some View {

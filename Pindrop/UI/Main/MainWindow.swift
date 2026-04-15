@@ -24,8 +24,7 @@ enum MainNavItem: String, Identifiable {
         .history,
         .transcribe,
         .dictionary,
-        .models,
-        .settings
+        .models
     ]
 
     var id: String { rawValue }
@@ -111,6 +110,7 @@ struct MainWindow: View {
     @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
+    @State private var isSidebarExpanded: Bool = true
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
@@ -139,9 +139,14 @@ struct MainWindow: View {
             AppColors.windowBackground
                 .ignoresSafeArea()
 
-            HStack(spacing: AppTheme.Window.sidebarContentGap) {
-                sidebarPanel
+            HStack(spacing: 0) {
+                if settingsStore.selectedSidebarPosition == .leading {
+                    sidebarPanel
+                }
                 detailPanel
+                if settingsStore.selectedSidebarPosition == .trailing {
+                    sidebarPanel
+                }
             }
             .ignoresSafeArea()
         }
@@ -166,36 +171,36 @@ struct MainWindow: View {
     }
 
     private var sidebarPanel: some View {
-        return MainSidebar(
+        MainSidebar(
+            isExpanded: $isSidebarExpanded,
+            position: settingsStore.selectedSidebarPosition,
             selectedNav: selectedNav,
             onSelect: navigateTo
         )
-        .frame(width: AppTheme.Window.sidebarWidth)
         .frame(maxHeight: .infinity, alignment: .top)
-        .padding(.top, AppTheme.Window.sidebarTopInset)
     }
 
     private var detailPanel: some View {
-        let panelShape = UnevenRoundedRectangle(
-            cornerRadii: .init(
-                topLeading: AppTheme.Window.panelCornerRadius / 2,
-                bottomLeading: AppTheme.Window.panelCornerRadius / 2,
-                bottomTrailing: 0,
-                topTrailing: 0
-            ),
-            style: .continuous
-        )
+        return VStack(spacing: 0) {
+            contentTitleBar
+            detailContent
+                .padding(.top, AppTheme.Spacing.md)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.contentBackground)
+        .layoutPriority(1)
+        .zIndex(1)
+    }
 
-        return detailContent
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                panelShape
-                    .fill(AppColors.contentBackground)
-            )
-            .clipShape(panelShape)
-            .hairlineBorder(panelShape, style: AppColors.border.opacity(0.8))
-            .layoutPriority(1)
-            .zIndex(1)
+    private var contentTitleBar: some View {
+        HStack {
+            Spacer()
+            Text("Pindrop")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(AppColors.textTertiary)
+            Spacer()
+        }
+        .frame(height: AppTheme.Window.titleBarHeight)
     }
 
     // MARK: - Detail Content
@@ -269,52 +274,131 @@ struct MainWindow: View {
 
 private struct MainSidebar: View {
     @Environment(\.locale) private var locale
+    @Binding var isExpanded: Bool
+    let position: SidebarPosition
     let selectedNav: MainNavItem
     let onSelect: (MainNavItem) -> Void
 
     @State private var hoveredItem: MainNavItem?
+    @State private var isCollapseHovered: Bool = false
+
+    private var currentWidth: CGFloat {
+        isExpanded ? AppTheme.Window.sidebarWidth : AppTheme.Window.sidebarCollapsedWidth
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             appHeader
 
-            navigationSection(items: MainNavItem.primaryNavigationItems)
+            mainNavSection
                 .padding(.top, AppTheme.Spacing.md)
 
             Spacer()
+
+            bottomSection
         }
+        .frame(width: currentWidth)
+        .background(AppColors.sidebarBackground)
+        .animation(AppTheme.Animation.smooth, value: isExpanded)
     }
+
+    // MARK: - App Header
 
     private var appHeader: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            ZStack {
-                Circle()
-                    .fill(AppColors.accentBackground)
-                    .frame(width: 36, height: 36)
-
-                Image("PindropIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(AppColors.accent)
+        Group {
+            if isExpanded {
+                HStack(spacing: AppTheme.Spacing.md) {
+                    appIconBadge(size: 42)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Pindrop")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(AppColors.textPrimary)
+                        Text("v\(Bundle.main.appShortVersionString)")
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundStyle(AppColors.textTertiary)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, AppTheme.Spacing.md)
+            } else {
+                appIconBadge(size: 32)
+                    .frame(maxWidth: .infinity)
             }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Pindrop")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
-
-                Text("v\(Bundle.main.appShortVersionString)")
-                    .font(AppTypography.tiny)
-                    .foregroundStyle(AppColors.textTertiary)
-            }
-
-            Spacer()
         }
-        .padding(.leading, AppTheme.Spacing.lg)
-        .padding(.trailing, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.bottom, AppTheme.Spacing.lg)
     }
+
+    private func appIconBadge(size: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .fill(AppColors.accentBackground)
+                .frame(width: size, height: size)
+            Image("PindropIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: size * 0.5, height: size * 0.5)
+                .foregroundStyle(AppColors.accent)
+        }
+    }
+
+    // MARK: - Main Navigation
+
+    private var mainNavSection: some View {
+        VStack(spacing: AppTheme.Spacing.xs) {
+            ForEach(MainNavItem.primaryNavigationItems) { item in
+                sidebarItem(item)
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.sm)
+    }
+
+    // MARK: - Bottom Section
+
+    private var bottomSection: some View {
+        VStack(spacing: AppTheme.Spacing.xs) {
+            collapseButton
+            sidebarItem(.settings)
+        }
+        .padding(.horizontal, AppTheme.Spacing.sm)
+        .padding(.bottom, AppTheme.Spacing.lg)
+    }
+
+    private var collapseButton: some View {
+        let icon = position == .trailing
+            ? (isExpanded ? "sidebar.right" : "sidebar.left")
+            : (isExpanded ? "sidebar.left" : "sidebar.right")
+        return Button {
+            withAnimation(AppTheme.Animation.smooth) {
+                isExpanded.toggle()
+            }
+        } label: {
+            Group {
+                if isExpanded {
+                    HStack(spacing: AppTheme.Spacing.md) {
+                        Image(systemName: icon)
+                            .font(.system(size: 14, weight: .medium))
+                            .frame(width: 20)
+                        Text(localized("Collapse", locale: locale))
+                            .font(AppTypography.body)
+                        Spacer()
+                    }
+                    .foregroundStyle(AppColors.textSecondary)
+                } else {
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .medium))
+                        .frame(width: 20)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .sidebarItemStyle(isSelected: false, isHovered: isCollapseHovered)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in isCollapseHovered = hovering }
+    }
+
+    // MARK: - Sidebar Item
 
     private func sidebarItem(_ item: MainNavItem) -> some View {
         let isSelected = selectedNav == item
@@ -322,34 +406,35 @@ private struct MainSidebar: View {
         let isDisabled = item.isComingSoon
 
         return Button {
-            if !isDisabled {
-                onSelect(item)
-            }
+            if !isDisabled { onSelect(item) }
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
-                Image(systemName: item.icon)
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(width: 20)
-
-                Text(item.title(locale: locale))
-                    .font(AppTypography.body)
-
-                Spacer()
-
-                if item.isComingSoon {
-                    Text(localized("Soon", locale: locale))
-                        .font(AppTypography.tiny)
-                        .foregroundStyle(AppColors.textTertiary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(AppColors.border)
-                        )
-                } else if let shortcutHint = item.shortcutHint {
-                    Text(shortcutHint)
-                        .font(AppTypography.monoSmall)
-                        .foregroundStyle(AppColors.textTertiary)
+            Group {
+                if isExpanded {
+                    HStack(spacing: AppTheme.Spacing.md) {
+                        Image(systemName: item.icon)
+                            .font(.system(size: 14, weight: .medium))
+                            .frame(width: 20)
+                        Text(item.title(locale: locale))
+                            .font(AppTypography.body)
+                        Spacer()
+                        if item.isComingSoon {
+                            Text(localized("Soon", locale: locale))
+                                .font(AppTypography.tiny)
+                                .foregroundStyle(AppColors.textTertiary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(AppColors.border))
+                        } else if let hint = item.shortcutHint {
+                            Text(hint)
+                                .font(AppTypography.monoSmall)
+                                .foregroundStyle(AppColors.textTertiary)
+                        }
+                    }
+                } else {
+                    Image(systemName: item.icon)
+                        .font(.system(size: 14, weight: .medium))
+                        .frame(width: 20)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .foregroundStyle(
@@ -360,22 +445,7 @@ private struct MainSidebar: View {
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
-        // Keep hover state local so the detail view is not invalidated on every mouse move.
-        .onHover { hovering in
-            hoveredItem = hovering ? item : nil
-        }
-    }
-
-    private func navigationSection(items: [MainNavItem]) -> some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
-            VStack(spacing: AppTheme.Spacing.xs) {
-                ForEach(items) { item in
-                    sidebarItem(item)
-                }
-            }
-        }
-        .padding(.leading, AppTheme.Spacing.md)
-        .padding(.trailing, AppTheme.Spacing.xs)
+        .onHover { hovering in hoveredItem = hovering ? item : nil }
     }
 }
 
@@ -515,6 +585,7 @@ final class MainWindowController {
         PindropThemeController.shared.apply(to: window)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async { self.positionTrafficLights() }
 
         if let settingsTab {
             DispatchQueue.main.async {
@@ -535,6 +606,30 @@ final class MainWindowController {
         }
     }
     
+    private func positionTrafficLights() {
+        guard let window = window,
+              let close = window.standardWindowButton(.closeButton),
+              let mini  = window.standardWindowButton(.miniaturizeButton),
+              let zoom  = window.standardWindowButton(.zoomButton),
+              let superview = close.superview else { return }
+
+        let pad: CGFloat = 14
+        let gap: CGFloat = 6
+        let bw = close.frame.width
+        let bh = close.frame.height
+        // In NSView coords (origin = bottom-left), place the button top `pad` from superview top.
+        let y = superview.bounds.height - pad - bh
+
+        close.setFrameOrigin(NSPoint(x: pad,                           y: y))
+        mini.setFrameOrigin( NSPoint(x: pad + bw + gap,                y: y))
+        zoom.setFrameOrigin( NSPoint(x: pad + 2 * (bw + gap),          y: y))
+
+        // Keep pinned to top-left when the superview resizes.
+        for btn in [close, mini, zoom] {
+            btn.autoresizingMask = [.minYMargin]
+        }
+    }
+
     func hide() {
         window?.orderOut(nil)
     }

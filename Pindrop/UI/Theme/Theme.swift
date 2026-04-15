@@ -80,9 +80,9 @@ enum AppTheme {
         static let mainDefaultWidth: CGFloat = 1186
         static let mainDefaultHeight: CGFloat = 753
 
-        static let sidebarTopInset: CGFloat = 32
+        static let titleBarHeight: CGFloat = 42
         static let sidebarContentGap: CGFloat = 14
-        static let mainContentTopInset: CGFloat = 32
+        static let mainContentTopInset: CGFloat = 0
         static let panelCornerRadius: CGFloat = 28
 
         static let sidebarWidth: CGFloat = 272
