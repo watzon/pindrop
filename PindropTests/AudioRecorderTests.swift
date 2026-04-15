@@ -15,14 +15,20 @@ struct AudioRecorderTests {
     private typealias Fixture = (
         sut: AudioRecorder,
         mockPermission: MockPermissionProvider,
-        mockBackend: MockAudioCaptureBackend
+        mockBackend: MockAudioCaptureBackend,
+        mockSystemBackend: MockAudioCaptureBackend
     )
 
     private func makeFixture() throws -> Fixture {
         let mockPermission = MockPermissionProvider()
-        let mockBackend = MockAudioCaptureBackend()
-        let sut = try AudioRecorder(permissionManager: mockPermission, captureBackend: mockBackend)
-        return (sut, mockPermission, mockBackend)
+        let mockBackend = MockAudioCaptureBackend(identifier: "microphone")
+        let mockSystemBackend = MockAudioCaptureBackend(identifier: "system")
+        let sut = try AudioRecorder(
+            permissionManager: mockPermission,
+            captureBackend: mockBackend,
+            systemAudioCaptureBackend: mockSystemBackend
+        )
+        return (sut, mockPermission, mockBackend, mockSystemBackend)
     }
 
     @Test func audioRecorderInitialization() throws {
@@ -37,6 +43,27 @@ struct AudioRecorderTests {
         try await fixture.sut.startRecording()
 
         #expect(fixture.mockPermission.requestPermissionCallCount == 1)
+    }
+
+    @Test func startSystemAudioRecordingRequestsSystemPermissionOnly() async throws {
+        let fixture = try makeFixture()
+
+        try await fixture.sut.startRecording(configuration: AudioRecordingConfiguration(mode: .systemAudio))
+
+        #expect(fixture.mockPermission.requestPermissionCallCount == 0)
+        #expect(fixture.mockPermission.requestSystemAudioPermissionCallCount == 1)
+        #expect(fixture.mockSystemBackend.startCaptureCallCount == 1)
+    }
+
+    @Test func startMixedRecordingRequestsBothPermissions() async throws {
+        let fixture = try makeFixture()
+
+        try await fixture.sut.startRecording(configuration: AudioRecordingConfiguration(mode: .microphoneAndSystemAudio))
+
+        #expect(fixture.mockPermission.requestPermissionCallCount == 1)
+        #expect(fixture.mockPermission.requestSystemAudioPermissionCallCount == 1)
+        #expect(fixture.mockBackend.startCaptureCallCount == 1)
+        #expect(fixture.mockSystemBackend.startCaptureCallCount == 1)
     }
 
     @Test func startRecordingSetsIsRecordingFlag() async throws {
@@ -167,6 +194,21 @@ struct AudioRecorderTests {
         #expect(fixture.mockBackend.startCaptureCallCount == 0)
     }
 
+    @Test func startRecordingThrowsWhenSystemAudioPermissionDenied() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantSystemAudioPermission = false
+
+        do {
+            try await fixture.sut.startRecording(configuration: AudioRecordingConfiguration(mode: .systemAudio))
+            Issue.record("Should have thrown systemAudioPermissionDenied")
+        } catch AudioRecorderError.systemAudioPermissionDenied {
+        } catch {
+            Issue.record("Unexpected error: \(error.localizedDescription)")
+        }
+
+        #expect(fixture.mockSystemBackend.startCaptureCallCount == 0)
+    }
+
     @Test func startRecordingThrowsWhenBackendFails() async throws {
         let fixture = try makeFixture()
         fixture.mockPermission.grantPermission = true
@@ -204,7 +246,7 @@ struct AudioRecorderTests {
         fixture.sut.resetAudioEngine()
 
         #expect(fixture.sut.isRecording == false)
-        #expect(fixture.mockBackend.resetCallCount == 1)
+        #expect(fixture.mockBackend.resetCallCount == 2)
     }
 
     @Test func setPreferredInputDeviceUIDForwardsSelectionToCaptureBackend() throws {
@@ -224,7 +266,7 @@ struct AudioRecorderTests {
         fixture.sut.setPreferredInputDeviceUID("usb-mic")
 
         #expect(fixture.mockBackend.startCaptureCallCount == 1)
-        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 2)
         #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
     }
 }

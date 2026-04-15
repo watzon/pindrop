@@ -14,6 +14,11 @@ import Observation
 /// Protocol for permission checking, enabling mock-based testing.
 protocol PermissionProviding: AnyObject {
     func requestPermission() async -> Bool
+    func requestSystemAudioPermission() async -> Bool
+}
+
+extension PermissionProviding {
+    func requestSystemAudioPermission() async -> Bool { true }
 }
 
 extension PermissionManager: PermissionProviding {}
@@ -163,6 +168,14 @@ final class PermissionManager {
         }
 
         permissionStatus = status
+    }
+
+    func requestSystemAudioPermission() async -> Bool {
+        if #available(macOS 14.2, *) {
+            return true
+        }
+
+        return false
     }
 
     func microphoneAuthorizationSnapshot() -> MicrophoneAuthorizationSnapshot {

@@ -9,6 +9,7 @@ import Foundation
 
 enum MediaSourceKind: String, Codable, CaseIterable, Sendable {
     case voiceRecording
+    case manualCapture
     case importedFile
     case webLink
 
@@ -16,7 +17,7 @@ enum MediaSourceKind: String, Codable, CaseIterable, Sendable {
         switch self {
         case .voiceRecording:
             return false
-        case .importedFile, .webLink:
+        case .manualCapture, .importedFile, .webLink:
             return true
         }
     }

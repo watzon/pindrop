@@ -63,6 +63,12 @@ protocol ProcessRunning: Sendable {
 protocol MediaLibraryManaging: AnyObject {
     func makeJobDirectory(for jobID: UUID) throws -> URL
     func importLocalFile(at sourceURL: URL, jobID: UUID) async throws -> ManagedMediaAsset
+    func storeRecordedAudio(
+        _ audioData: Data,
+        jobID: UUID,
+        displayName: String,
+        sourceKind: MediaSourceKind
+    ) throws -> ManagedMediaAsset
     func finalizeDownloadedAsset(
         in directoryURL: URL,
         sourceURL: String,
@@ -275,6 +281,54 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
         )
     }
 
+    func storeRecordedAudio(
+        _ audioData: Data,
+        jobID: UUID,
+        displayName: String,
+        sourceKind: MediaSourceKind
+    ) throws -> ManagedMediaAsset {
+        let directoryURL = try makeJobDirectory(for: jobID)
+        let destinationURL = directoryURL.appendingPathComponent("media").appendingPathExtension("caf")
+
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            try fileManager.removeItem(at: destinationURL)
+        }
+
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1)
+            ?? AVAudioFormat()
+        guard format.sampleRate > 0,
+              let buffer = AVAudioPCMBuffer(
+                pcmFormat: format,
+                frameCapacity: AVAudioFrameCount(audioData.count / MemoryLayout<Float>.size)
+              ),
+              let channelData = buffer.floatChannelData else {
+            throw MediaIngestionError.localFileImportFailed("Unable to prepare recorded audio for storage.")
+        }
+
+        let samples = audioData.count / MemoryLayout<Float>.size
+        buffer.frameLength = AVAudioFrameCount(samples)
+        audioData.withUnsafeBytes { rawBuffer in
+            guard let source = rawBuffer.bindMemory(to: Float.self).baseAddress else { return }
+            channelData[0].update(from: source, count: samples)
+        }
+
+        do {
+            let outputFile = try AVAudioFile(forWriting: destinationURL, settings: format.settings)
+            try outputFile.write(from: buffer)
+        } catch {
+            throw MediaIngestionError.localFileImportFailed(error.localizedDescription)
+        }
+
+        return ManagedMediaAsset(
+            directoryURL: directoryURL,
+            mediaURL: destinationURL,
+            thumbnailURL: nil,
+            sourceKind: sourceKind,
+            displayName: displayName,
+            originalSourceURL: nil
+        )
+    }
+
     func finalizeDownloadedAsset(
         in directoryURL: URL,
         sourceURL: String,
@@ -425,6 +479,20 @@ final class MediaIngestionService {
         return status
     }
 
+    func storeRecordedAudio(
+        _ audioData: Data,
+        jobID: UUID,
+        displayName: String,
+        sourceKind: MediaSourceKind
+    ) throws -> ManagedMediaAsset {
+        try mediaLibrary.storeRecordedAudio(
+            audioData,
+            jobID: jobID,
+            displayName: displayName,
+            sourceKind: sourceKind
+        )
+    }
+
     func ingest(
         request: MediaTranscriptionRequest,
         jobID: UUID,
@@ -445,6 +513,8 @@ final class MediaIngestionService {
                 jobID: jobID,
                 progressHandler: progressHandler
             )
+        case .manualCapture:
+            throw MediaIngestionError.unsupportedInput("Manual capture uses the live recording flow instead of media ingestion.")
         }
     }
 

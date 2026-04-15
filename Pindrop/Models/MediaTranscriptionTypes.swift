@@ -77,6 +77,7 @@ enum MediaTranscriptionRoute: Equatable, Sendable {
 enum MediaTranscriptionRequest: Sendable, Equatable {
     case file(URL)
     case link(String)
+    case manualCapture(AudioRecordingMode)
 
     var sourceKind: MediaSourceKind {
         switch self {
@@ -84,6 +85,8 @@ enum MediaTranscriptionRequest: Sendable, Equatable {
             return .importedFile
         case .link:
             return .webLink
+        case .manualCapture:
+            return .manualCapture
         }
     }
 
@@ -93,7 +96,52 @@ enum MediaTranscriptionRequest: Sendable, Equatable {
             return url.lastPathComponent
         case .link(let string):
             return string
+        case .manualCapture(let mode):
+            return mode.libraryDisplayName
         }
+    }
+}
+
+extension AudioRecordingMode {
+    var title: String {
+        switch self {
+        case .microphone:
+            return "Microphone"
+        case .systemAudio:
+            return "System Audio"
+        case .microphoneAndSystemAudio:
+            return "Both"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .microphone:
+            return "Capture your microphone only."
+        case .systemAudio:
+            return "Capture system audio from the active call or meeting."
+        case .microphoneAndSystemAudio:
+            return "Capture system audio and your microphone into one mixed recording."
+        }
+    }
+
+    var libraryDisplayName: String {
+        switch self {
+        case .microphone:
+            return "Microphone Recording"
+        case .systemAudio:
+            return "System Audio Recording"
+        case .microphoneAndSystemAudio:
+            return "Mixed Recording"
+        }
+    }
+
+    func title(locale: Locale) -> String {
+        localized(title, locale: locale)
+    }
+
+    func description(locale: Locale) -> String {
+        localized(description, locale: locale)
     }
 }
 
@@ -240,5 +288,77 @@ final class MediaTranscriptionFeatureState {
         let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, draftLink != trimmed else { return }
         draftLink = trimmed
+    }
+}
+
+@MainActor
+@Observable
+final class RecordingFeatureState {
+    var selectedCaptureMode: AudioRecordingMode = .systemAudio
+    var isRecording = false
+    var recordingStartedAt: Date?
+    var audioLevel: Float = 0.0
+    var currentJob: MediaTranscriptionJobState?
+    var setupIssue: String?
+    var message: String?
+    var lastCompletedRecordID: UUID?
+
+    func beginRecording(mode: AudioRecordingMode, startedAt: Date = Date()) {
+        selectedCaptureMode = mode
+        isRecording = true
+        recordingStartedAt = startedAt
+        lastCompletedRecordID = nil
+        setupIssue = nil
+        message = nil
+    }
+
+    func endRecording(message: String? = nil) {
+        isRecording = false
+        recordingStartedAt = nil
+        if let message {
+            self.message = message
+        }
+    }
+
+    func beginJob(_ job: MediaTranscriptionJobState) {
+        currentJob = job
+        lastCompletedRecordID = nil
+        setupIssue = nil
+        message = nil
+    }
+
+    func updateJob(
+        stage: MediaTranscriptionStage,
+        progress: Double? = nil,
+        detail: String? = nil,
+        errorMessage: String? = nil
+    ) {
+        guard var job = currentJob else { return }
+        job.stage = stage
+        job.progress = progress
+        if let detail {
+            job.detail = detail
+        }
+        job.errorMessage = errorMessage
+        currentJob = job
+    }
+
+    func clearCurrentJob() {
+        currentJob = nil
+    }
+
+    func completeCurrentJob(with recordID: UUID, message: String) {
+        lastCompletedRecordID = recordID
+        currentJob = nil
+        self.message = message
+    }
+
+    func failCurrentJob(_ message: String) {
+        currentJob = nil
+        self.message = message
+    }
+
+    func setSetupIssue(_ message: String) {
+        setupIssue = message
     }
 }

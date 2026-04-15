@@ -232,6 +232,7 @@ private final class MockMediaLibrary: MediaLibraryManaging {
         displayName: "media.mp4",
         originalSourceURL: nil
     )
+    var storedRecordedAudio: Data?
     var makeJobDirectoryCallCount = 0
     var finalizeDirectoryURL: URL?
     var finalizeSourceURL: String?
@@ -245,6 +246,23 @@ private final class MockMediaLibrary: MediaLibraryManaging {
     func importLocalFile(at sourceURL: URL, jobID: UUID) async throws -> ManagedMediaAsset {
         importedSourceURL = sourceURL
         return importedAsset
+    }
+
+    func storeRecordedAudio(
+        _ audioData: Data,
+        jobID: UUID,
+        displayName: String,
+        sourceKind: MediaSourceKind
+    ) throws -> ManagedMediaAsset {
+        storedRecordedAudio = audioData
+        return ManagedMediaAsset(
+            directoryURL: directoryURL,
+            mediaURL: directoryURL.appendingPathComponent("media.caf"),
+            thumbnailURL: nil,
+            sourceKind: sourceKind,
+            displayName: displayName,
+            originalSourceURL: nil
+        )
     }
 
     func finalizeDownloadedAsset(

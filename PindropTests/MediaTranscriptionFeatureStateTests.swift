@@ -99,4 +99,25 @@ struct MediaTranscriptionFeatureStateTests {
         #expect(sut.librarySortMode == .nameAscending)
         #expect(sut.selectedFolderID == folderID)
     }
+
+    @Test func recordingFeatureBeginRecordingUpdatesCaptureState() {
+        let sut = RecordingFeatureState()
+
+        sut.beginRecording(mode: .systemAudio, startedAt: Date(timeIntervalSince1970: 123))
+
+        #expect(sut.isRecording)
+        #expect(sut.selectedCaptureMode == .systemAudio)
+        #expect(sut.recordingStartedAt == Date(timeIntervalSince1970: 123))
+    }
+
+    @Test func recordingFeatureEndRecordingClearsCaptureState() {
+        let sut = RecordingFeatureState()
+        sut.beginRecording(mode: .microphoneAndSystemAudio)
+
+        sut.endRecording(message: "Done")
+
+        #expect(sut.isRecording == false)
+        #expect(sut.recordingStartedAt == nil)
+        #expect(sut.message == "Done")
+    }
 }

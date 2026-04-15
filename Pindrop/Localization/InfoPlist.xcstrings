@@ -216,6 +216,60 @@
           }
         }
       }
+    },
+    "NSAudioCaptureUsageDescription": {
+      "comment": "Privacy - System Audio Capture Usage Description",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop necesita acceso al audio del sistema para transcribir llamadas, reuniones y otro audio de apps."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindropは通話、会議、その他のアプリ音声を文字起こしするためにシステムオーディオへのアクセスが必要です。"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pindrop precisa de acesso ao áudio do sistema para transcrever chamadas, reuniões e outros áudios de apps."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop ha bisogno dell'accesso all'audio di sistema per trascrivere chiamate, riunioni e altro audio delle app."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop heeft toegang tot systeemaudio nodig om gesprekken, vergaderingen en ander app-audio te transcriberen."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop이 통화, 회의 및 기타 앱 오디오를 텍스트로 변환하려면 시스템 오디오 접근 권한이 필요합니다."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop'un aramaları, toplantıları ve diğer uygulama seslerini yazıya dökebilmesi için sistem sesine erişmesi gerekir."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

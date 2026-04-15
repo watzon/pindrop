@@ -10,6 +10,7 @@ import Foundation
 @testable import Pindrop
 
 final class MockAudioCaptureBackend: AudioCaptureBackend {
+    let identifier: String
     private(set) var isCapturing: Bool = false
 
     let targetFormat: AVAudioFormat
@@ -28,7 +29,8 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
     var capturedOnBuffer: ((AVAudioPCMBuffer) -> Void)?
     var capturedOnAudioLevel: ((Float) -> Void)?
 
-    init() {
+    init(identifier: String = UUID().uuidString) {
+        self.identifier = identifier
         var streamDescription = AudioStreamBasicDescription(
             mSampleRate: 16000.0,
             mFormatID: kAudioFormatLinearPCM,
