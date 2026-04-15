@@ -16,7 +16,6 @@ enum MainNavItem: String, Identifiable {
     case history = "History"
     case transcribe = "Transcribe"
     case models = "Models"
-    case notes = "Notes"
     case dictionary = "Dictionary"
     case settings = "Settings"
 
@@ -24,7 +23,6 @@ enum MainNavItem: String, Identifiable {
         .home,
         .history,
         .transcribe,
-        .notes,
         .dictionary,
         .models,
         .settings
@@ -42,7 +40,6 @@ enum MainNavItem: String, Identifiable {
         case .history: return "clock.fill"
         case .transcribe: return "waveform"
         case .models: return "cpu"
-        case .notes: return "note.text"
         case .dictionary: return "text.book.closed"
         case .settings: return "gearshape"
         }
@@ -65,6 +62,7 @@ enum MainNavItem: String, Identifiable {
 extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
     static let navigateToSettingsTab = Notification.Name("navigateToSettingsTab")
+    static let openHistoryRecord = Notification.Name("openHistoryRecord")
 }
 
 final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
@@ -113,11 +111,15 @@ struct MainWindow: View {
     @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
+    let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
     let onImportMediaFiles: (([URL]) -> Void)?
     let onSubmitMediaLink: ((String) -> Void)?
     let onDownloadDiarizationModel: (() -> Void)?
+    let onNewTranscription: (() -> Void)?
+    let onStartMeetingCapture: (() -> Void)?
+    let onStartNoteCapture: (() -> Void)?
 
     private func navigateTo(_ item: MainNavItem) {
         if item == .transcribe {
@@ -203,8 +205,14 @@ struct MainWindow: View {
         switch selectedNav {
         case .home:
             DashboardView(
+                floatingIndicatorState: floatingIndicatorState,
+                settingsStore: settingsStore,
                 onOpenHotkeys: { navigateToSettings(.hotkeys) },
-                onViewAllHistory: { navigateTo(.history) }
+                onViewAllHistory: { navigateTo(.history) },
+                onNewTranscription: onNewTranscription,
+                onTranscribeFile: { navigateTo(.transcribe) },
+                onRecordMeeting: onStartMeetingCapture,
+                onNewNote: onStartNoteCapture
             )
         case .history:
             HistoryView()
@@ -232,8 +240,6 @@ struct MainWindow: View {
             } else {
                 comingSoonView(for: selectedNav)
             }
-        case .notes:
-            NotesView()
         case .dictionary:
             DictionaryView()
         case .settings:
@@ -380,15 +386,31 @@ final class MainWindowController {
 
     private var window: NSWindow?
     private var modelContainer: ModelContainer?
+    private var floatingIndicatorState: FloatingIndicatorState?
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
     var onImportMediaFiles: (([URL]) -> Void)?
     var onSubmitMediaLink: ((String) -> Void)?
     var onDownloadDiarizationModel: (() -> Void)?
+    var onNewTranscription: (() -> Void)?
+    var onStartMeetingCapture: (() -> Void)?
+    var onStartNoteCapture: (() -> Void)?
 
     func setModelContainer(_ container: ModelContainer) {
         self.modelContainer = container
+    }
+
+    func configureMeetingCapture(
+        floatingIndicatorState: FloatingIndicatorState,
+        onNewTranscription: @escaping () -> Void,
+        onStartMeetingCapture: @escaping () -> Void,
+        onStartNoteCapture: @escaping () -> Void
+    ) {
+        self.floatingIndicatorState = floatingIndicatorState
+        self.onNewTranscription = onNewTranscription
+        self.onStartMeetingCapture = onStartMeetingCapture
+        self.onStartNoteCapture = onStartNoteCapture
     }
 
     func configureTranscribeFeature(
@@ -440,11 +462,15 @@ final class MainWindowController {
         if window == nil {
             let mainView = MainWindow(
                 settingsStore: settingsStore,
+                floatingIndicatorState: floatingIndicatorState,
                 mediaTranscriptionState: mediaTranscriptionState,
                 modelManager: modelManager,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
-                onDownloadDiarizationModel: onDownloadDiarizationModel
+                onDownloadDiarizationModel: onDownloadDiarizationModel,
+                onNewTranscription: onNewTranscription,
+                onStartMeetingCapture: onStartMeetingCapture,
+                onStartNoteCapture: onStartNoteCapture
             )
                 .modelContainer(container)
             let hostingController = TitlebarlessHostingController(rootView: mainView)
@@ -529,11 +555,15 @@ final class MainWindowController {
 #Preview("Main Window - Light") {
     MainWindow(
         settingsStore: SettingsStore(),
+        floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
-        onDownloadDiarizationModel: nil
+        onDownloadDiarizationModel: nil,
+        onNewTranscription: nil,
+        onStartMeetingCapture: nil,
+        onStartNoteCapture: nil
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
@@ -543,11 +573,15 @@ final class MainWindowController {
 #Preview("Main Window - Dark") {
     MainWindow(
         settingsStore: SettingsStore(),
+        floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
-        onDownloadDiarizationModel: nil
+        onDownloadDiarizationModel: nil,
+        onNewTranscription: nil,
+        onStartMeetingCapture: nil,
+        onStartNoteCapture: nil
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)

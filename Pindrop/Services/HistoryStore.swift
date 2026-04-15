@@ -152,6 +152,66 @@ final class HistoryStore {
         }
     }
 
+    // MARK: - Unified fetch (all source kinds with optional filtering)
+
+    enum HistoryFilter: Equatable, Sendable {
+        case all
+        case voice
+        case meetings
+        case media
+        case notes
+    }
+
+    func fetchTranscriptions(
+        limit: Int,
+        offset: Int = 0,
+        query: String = "",
+        filter: HistoryFilter = .all
+    ) throws -> [TranscriptionRecord] {
+        var descriptor = transcriptionsDescriptor(query: query, filter: filter)
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func fetchAllTranscriptions(query: String = "", filter: HistoryFilter = .all) throws -> [TranscriptionRecord] {
+        let descriptor = transcriptionsDescriptor(query: query, filter: filter)
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func countTranscriptions(query: String = "", filter: HistoryFilter = .all) throws -> Int {
+        let descriptor = transcriptionsDescriptor(query: query, filter: filter)
+
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func fetchRecord(with id: UUID) throws -> TranscriptionRecord? {
+        var descriptor = FetchDescriptor<TranscriptionRecord>(
+            predicate: #Predicate<TranscriptionRecord> { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
     func fetchMediaRecords(limit: Int? = nil) throws -> [TranscriptionRecord] {
         let records = try fetchAll().filter(\.isMediaTranscription)
         if let limit {
@@ -535,6 +595,81 @@ final class HistoryStore {
                 && record.text.localizedStandardContains(trimmedQuery)
         }
         return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+    }
+
+    private func transcriptionsDescriptor(
+        query: String,
+        filter: HistoryFilter
+    ) -> FetchDescriptor<TranscriptionRecord> {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sortDescriptors = [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .reverse)]
+
+        let voiceRawValue = MediaSourceKind.voiceRecording.rawValue
+        let manualCaptureRawValue = MediaSourceKind.manualCapture.rawValue
+        let importedFileRawValue = MediaSourceKind.importedFile.rawValue
+        let webLinkRawValue = MediaSourceKind.webLink.rawValue
+
+        switch (filter, trimmedQuery.isEmpty) {
+        case (.all, true):
+            return FetchDescriptor(sortBy: sortDescriptors)
+
+        case (.all, false):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.text.localizedStandardContains(trimmedQuery)
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.voice, true):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.voice, false):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                (record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue)
+                    && record.text.localizedStandardContains(trimmedQuery)
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.meetings, true):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == manualCaptureRawValue
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.meetings, false):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == manualCaptureRawValue
+                    && record.text.localizedStandardContains(trimmedQuery)
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.media, true):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == importedFileRawValue
+                    || record.sourceKindRawValue == webLinkRawValue
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.media, false):
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                (record.sourceKindRawValue == importedFileRawValue
+                    || record.sourceKindRawValue == webLinkRawValue)
+                    && record.text.localizedStandardContains(trimmedQuery)
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+
+        case (.notes, _):
+            // Notes are stored in a separate model — return an empty match so
+            // callers that still run this descriptor under the Notes filter
+            // get no transcription rows.
+            let impossibleID = UUID()
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.id == impossibleID
+            }
+            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+        }
     }
 
     private func sortMediaRecords(

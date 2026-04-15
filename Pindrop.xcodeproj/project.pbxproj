@@ -141,6 +141,9 @@
 		TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */; };
 		TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */; };
 		TRANSCRIBEVIEWBUILD01A2B3C4D5E6F /* TranscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */; };
+		MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */; };
+		HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */; };
+		NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */; };
 		TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */; };
 		TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */; };
 		TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */; };
@@ -305,6 +308,9 @@
 		TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastServiceTests.swift; sourceTree = "<group>"; };
 		TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastWindowController.swift; sourceTree = "<group>"; };
 		TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscribeView.swift; sourceTree = "<group>"; };
+		MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionDetailView.swift; sourceTree = "<group>"; };
+		HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionHistoryRow.swift; sourceTree = "<group>"; };
+		NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteHistoryRow.swift; sourceTree = "<group>"; };
 		TRANSENG01A2B3C4D5E6F /* TranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngine.swift; sourceTree = "<group>"; };
 		TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngineTests.swift; sourceTree = "<group>"; };
 		TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechEngine.swift; sourceTree = "<group>"; };
@@ -596,6 +602,9 @@
 			children = (
 				MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */,
 				TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */,
+				MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */,
+				HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */,
+				NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */,
 				NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */,
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
@@ -926,6 +935,9 @@
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,
 				MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */,
 				TRANSCRIBEVIEWBUILD01A2B3C4D5E6F /* TranscribeView.swift in Sources */,
+				MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */,
+				HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */,
+				NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */,
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,

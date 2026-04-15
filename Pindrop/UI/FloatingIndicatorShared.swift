@@ -127,6 +127,17 @@ struct FloatingIndicatorWaveformStyle {
         color: AppColors.overlayWaveform,
         animationInterval: 0.05
     )
+
+    static let recording = FloatingIndicatorWaveformStyle(
+        layout: .dynamic(minimumCount: 24, edgeAttenuation: 0.35),
+        barWidth: 3,
+        barSpacing: 2.5,
+        minimumHeight: 3,
+        maximumHeight: 40,
+        idleHeight: 3,
+        color: AppColors.recording,
+        animationInterval: 0.05
+    )
 }
 
 struct FloatingIndicatorWaveformView: View {
@@ -183,19 +194,41 @@ struct FloatingIndicatorWaveformView: View {
         guard isRecording else { return style.idleHeight }
 
         let time = date.timeIntervalSinceReferenceDate
-        let phase = Double(index) * 0.85
+        let i = Double(index)
 
-        let waveA = sin(time * 6.8 + phase) * 0.55
-        let waveB = sin(time * 4.1 + phase * 1.7) * 0.35
-        let combinedWave = (waveA + waveB + 1.9) / 2.8
+        // Per-bar pseudo-random seed for individual character
+        let seed = sin(i * 12.9898 + 78.233) * 43758.5453
+        let barRand = seed - seed.rounded(.down) // 0..1 fractional hash
 
-        let amplifiedLevel = min(1.0, max(0.0, CGFloat(audioLevel) * 5.0))
-        let level = 0.12 + (amplifiedLevel * 0.88)
-        var height = (4 + combinedWave * 10) * level
+        // Multiple wave frequencies with per-bar phase offsets for natural variation
+        let phaseA = i * 0.85 + barRand * 3.0
+        let phaseB = i * 1.7 + barRand * 1.5
+        let phaseC = i * 0.42 + barRand * 5.0
+
+        let waveA = sin(time * 7.2 + phaseA) * 0.40
+        let waveB = sin(time * 4.5 + phaseB) * 0.30
+        let waveC = sin(time * 11.3 + phaseC) * 0.20  // fast shimmer
+        let waveD = sin(time * 2.1 + i * 0.3) * 0.10   // slow drift
+
+        // Combined wave normalized to 0..1 range
+        let raw = waveA + waveB + waveC + waveD  // range roughly -1..1
+        let combinedWave = (raw + 1.0) / 2.0      // 0..1
+
+        // Per-bar random baseline offset so bars aren't all the same height at rest
+        let barOffset = 0.8 + barRand * 0.4  // 0.8..1.2
+
+        // Audio level with stronger amplification
+        let amplifiedLevel = min(1.0, max(0.0, CGFloat(audioLevel) * 8.0))
+        let level = 0.08 + (amplifiedLevel * 0.92)
+
+        // Height formula: wider range, audio level drives both base and wave amplitude
+        let baseHeight: CGFloat = 3.0 * barOffset
+        let waveHeight = CGFloat(combinedWave) * style.maximumHeight * 0.85 * barOffset
+        var height = baseHeight + waveHeight * level
 
         if case .dynamic(_, let edgeAttenuation) = style.layout {
             let midpoint = Double(max(1, barCount - 1)) / 2
-            let distance = abs(Double(index) - midpoint) / max(1, midpoint)
+            let distance = abs(i - midpoint) / max(1, midpoint)
             height *= CGFloat(1 - (distance * edgeAttenuation))
         }
 
@@ -241,6 +274,31 @@ protocol FloatingIndicatorPresenting: AnyObject {
 
 @MainActor
 final class FloatingIndicatorState: ObservableObject {
+    enum CompletionKind: Equatable {
+        case transcription
+        case meeting
+        case note
+        case mediaTranscription
+
+        var title: String {
+            switch self {
+            case .transcription: return "Transcription saved"
+            case .meeting: return "Meeting saved"
+            case .note: return "Note saved"
+            case .mediaTranscription: return "Media saved"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .transcription: return "waveform"
+            case .meeting: return "person.2.fill"
+            case .note: return "note.text"
+            case .mediaTranscription: return "headphones"
+            }
+        }
+    }
+
     @Published var isRecording = false
     @Published var recordingDuration: TimeInterval = 0
     @Published var audioLevel: Float = 0.0
@@ -248,10 +306,12 @@ final class FloatingIndicatorState: ObservableObject {
     @Published var escapePrimed = false
     @Published var toggleRecordingHotkey = ""
     @Published var pushToTalkHotkey = ""
+    @Published var recentCompletion: CompletionKind?
 
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
     private var escapePrimedResetTask: Task<Void, Never>?
+    private var completionClearTask: Task<Void, Never>?
 
     func startRecording() {
         isRecording = true
@@ -301,6 +361,20 @@ final class FloatingIndicatorState: ObservableObject {
     func clearEscapePrimed() {
         escapePrimedResetTask?.cancel()
         escapePrimed = false
+    }
+
+    /// Flash a completion badge in any hero/indicator that observes this
+    /// state. The badge clears itself after `holdFor` seconds.
+    func showCompletion(_ kind: CompletionKind, holdFor seconds: TimeInterval = 2.5) {
+        completionClearTask?.cancel()
+        recentCompletion = kind
+        completionClearTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                self?.recentCompletion = nil
+            }
+        }
     }
 
     private func normalize(hotkey: String) -> String {

@@ -280,6 +280,7 @@ final class AppCoordinator {
     let mediaPauseService: MediaPauseService
     let mediaIngestionService: MediaIngestionService
     let mediaPreparationService: MediaPreparationService
+    let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
 
     // MARK: - UI Controllers
@@ -300,6 +301,7 @@ final class AppCoordinator {
     // MARK: - Quick Capture State
     
     private var isQuickCaptureMode = false
+    private var isRecordingFeatureCaptureActive = false
     private var quickCaptureTranscription: String?
     private var isStreamingTranscriptionSessionActive = false
     private var streamingAudioProcessingTask: Task<Void, Never>?
@@ -409,6 +411,7 @@ final class AppCoordinator {
         self.mediaPauseService = MediaPauseService()
         self.mediaIngestionService = MediaIngestionService()
         self.mediaPreparationService = MediaPreparationService()
+        self.recordingState = RecordingFeatureState()
         self.mediaTranscriptionState = MediaTranscriptionFeatureState()
 
         self.statusBarController = StatusBarController(
@@ -434,6 +437,22 @@ final class AppCoordinator {
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
+        self.mainWindowController.configureMeetingCapture(
+            floatingIndicatorState: floatingIndicatorState,
+            onNewTranscription: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleToggleRecording(source: .statusBarMenu)
+                }
+            },
+            onStartMeetingCapture: { [weak self] in
+                self?.handleStartMeetingCapture()
+            },
+            onStartNoteCapture: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleQuickCaptureToggle()
+                }
+            }
+        )
         self.mainWindowController.configureTranscribeFeature(
             state: mediaTranscriptionState,
             modelManager: modelManager,
@@ -532,6 +551,9 @@ final class AppCoordinator {
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
             self?.floatingIndicatorState.updateAudioLevel(level)
+            if self?.isRecordingFeatureCaptureActive == true {
+                self?.recordingState.audioLevel = level
+            }
         }
 
         let floatingIndicatorActions = FloatingIndicatorActions(
@@ -1396,6 +1418,11 @@ final class AppCoordinator {
         }
         activeFloatingIndicatorType = nil
 
+        if let pending = pendingIndicatorCompletion {
+            pendingIndicatorCompletion = nil
+            floatingIndicatorState.showCompletion(pending)
+        }
+
         guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
             syncFloatingIndicatorFocusTracking()
@@ -1403,6 +1430,8 @@ final class AppCoordinator {
         }
         updateFloatingIndicatorVisibility()
     }
+
+    private var pendingIndicatorCompletion: FloatingIndicatorState.CompletionKind?
 
     private func isFloatingIndicatorTemporarilyHidden() -> Bool {
         guard let hiddenUntil = floatingIndicatorHiddenUntil else { return false }
@@ -2030,6 +2059,7 @@ final class AppCoordinator {
         )
 
         noteEditorWindowController.show(note: newNote, isNewNote: true)
+        pendingIndicatorCompletion = .note
 
         Log.app.info("Opened note editor with enhanced note")
     }
@@ -2037,7 +2067,16 @@ final class AppCoordinator {
     private func handleToggleRecording(source: RecordingTriggerSource) async {
         if isRecording {
             do {
-                try await stopRecordingAndTranscribe()
+                if isQuickCaptureMode {
+                    if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
+                        openNoteEditorWithEnhancedNote(enhancedNote)
+                    }
+                    isQuickCaptureMode = false
+                } else if isRecordingFeatureCaptureActive {
+                    try await stopManualTranscriptionRecording()
+                } else {
+                    try await stopRecordingAndTranscribe()
+                }
             } catch {
                 self.error = error
                 audioRecorder.resetAudioEngine()
@@ -2459,6 +2498,7 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: nil
             )
             updateRecentTranscriptsMenu()
+            pendingIndicatorCompletion = .transcription
         } catch {
             Log.app.error("Failed to save streamed transcription to history: \(error)")
         }
@@ -2835,6 +2875,7 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: diarizationSegmentsJSON
             )
             updateRecentTranscriptsMenu()
+            pendingIndicatorCompletion = .transcription
         } catch {
             Log.app.error("Failed to save to history: \(error)")
         }
@@ -3287,6 +3328,8 @@ final class AppCoordinator {
         mediaTranscriptionState.showLibrary()
         mediaTranscriptionState.libraryMessage = "Transcription canceled."
         mediaTranscriptionState.clearCurrentJob()
+        recordingState.endRecording(message: "Recording canceled.")
+        recordingState.clearCurrentJob()
         if hadStreamingSession {
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -3299,6 +3342,7 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         isRecording = false
         isProcessing = false
+        isRecordingFeatureCaptureActive = false
         recordingStartTime = nil
         capturedContext = nil
         capturedSnapshot = nil
@@ -3317,6 +3361,8 @@ final class AppCoordinator {
     private func resetProcessingState() {
         mediaPauseService.endRecordingSession()
         isProcessing = false
+        isRecordingFeatureCaptureActive = false
+        recordingState.endRecording()
         recordingStartTime = nil
         capturedContext = nil
         capturedSnapshot = nil
@@ -3472,9 +3518,165 @@ final class AppCoordinator {
                 try await self.modelManager.downloadFeatureModel(.diarization)
                 self.mediaTranscriptionState.setupIssue = nil
                 self.mediaTranscriptionState.libraryMessage = "Speaker diarization is ready."
+                self.recordingState.setupIssue = nil
+                self.recordingState.message = "Speaker diarization is ready."
             } catch {
                 self.mediaTranscriptionState.setSetupIssue(error.localizedDescription)
+                self.recordingState.setSetupIssue(error.localizedDescription)
             }
+        }
+    }
+
+    private func handleStartMeetingCapture() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.startManualTranscriptionRecording(mode: .microphoneAndSystemAudio)
+            } catch {
+                self.error = error
+                self.audioRecorder.resetAudioEngine()
+                self.isRecordingFeatureCaptureActive = false
+                self.recordingState.endRecording(message: error.localizedDescription)
+                Log.app.error("Failed to start meeting capture: \(error)")
+            }
+        }
+    }
+
+    private func startManualTranscriptionRecording(mode: AudioRecordingMode) async throws {
+        guard !isRecording && !isProcessing else {
+            recordingState.message = "Finish the active transcription before starting another one."
+            return
+        }
+
+        await modelManager.refreshDownloadedFeatureModels()
+        guard modelManager.isFeatureModelDownloaded(.diarization) else {
+            recordingState.setSetupIssue("Download the speaker diarization model before starting recording.")
+            return
+        }
+
+        let didStartRecording = try await audioRecorder.startRecording(
+            configuration: AudioRecordingConfiguration(mode: mode)
+        )
+        guard didStartRecording else { return }
+
+        isRecording = true
+        isRecordingFeatureCaptureActive = true
+        recordingStartTime = Date()
+        recordingState.beginRecording(mode: mode, startedAt: recordingStartTime ?? Date())
+        statusBarController.setRecordingState()
+        statusBarController.updateMenuState()
+        startRecordingIndicatorSession()
+    }
+
+    private func stopManualTranscriptionRecording() async throws {
+        guard isRecordingFeatureCaptureActive else {
+            throw AudioRecorderError.notRecording
+        }
+
+        let mode = recordingState.selectedCaptureMode
+        let duration = recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
+        let audioData = try await audioRecorder.stopRecording()
+
+        isRecording = false
+        isRecordingFeatureCaptureActive = false
+        recordingState.endRecording()
+        statusBarController.setProcessingState()
+        statusBarController.updateMenuState()
+        transitionRecordingIndicatorToProcessing()
+        isProcessing = true
+
+        let job = MediaTranscriptionJobState(
+            request: .manualCapture(mode),
+            destinationFolderID: nil,
+            stage: .preparingAudio,
+            progress: nil,
+            detail: "Preparing captured audio"
+        )
+
+        recordingState.beginJob(job)
+
+        var didResetProcessingState = false
+        defer {
+            if !didResetProcessingState {
+                resetProcessingState()
+            }
+        }
+
+        do {
+            let managedAsset = try mediaIngestionService.storeRecordedAudio(
+                audioData,
+                jobID: job.id,
+                displayName: mode.libraryDisplayName,
+                sourceKind: .manualCapture
+            )
+
+            recordingState.updateJob(
+                stage: .transcribing,
+                progress: nil,
+                detail: "Running diarization and transcription",
+                errorMessage: nil
+            )
+
+            let transcriptionOutput = try await transcriptionService.transcribe(
+                audioData: audioData,
+                diarizationEnabled: true,
+                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+            )
+            let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
+
+            recordingState.updateJob(
+                stage: .saving,
+                progress: nil,
+                detail: "Saving transcript to history",
+                errorMessage: nil
+            )
+
+            let finalText = normalizedTranscriptionText(transcriptionOutput.text)
+            guard !isTranscriptionEffectivelyEmpty(finalText) else {
+                throw MediaPreparationError.readFailed("No speech could be transcribed from this recording.")
+            }
+
+            let record = try historyStore.save(
+                text: finalText,
+                originalText: nil,
+                duration: duration,
+                modelUsed: settingsStore.selectedModel,
+                enhancedWith: nil,
+                diarizationSegmentsJSON: diarizationSegmentsJSON,
+                sourceKind: managedAsset.sourceKind,
+                sourceDisplayName: managedAsset.displayName,
+                originalSourceURL: managedAsset.originalSourceURL,
+                managedMediaPath: managedAsset.mediaURL.path,
+                thumbnailPath: managedAsset.thumbnailURL?.path,
+                folderID: job.destinationFolderID
+            )
+            updateRecentTranscriptsMenu()
+
+            pendingIndicatorCompletion = .meeting
+            resetProcessingState()
+            didResetProcessingState = true
+            recordingState.completeCurrentJob(with: record.id, message: "Meeting recording transcribed successfully.")
+            let meetingRecordID = record.id
+            mainWindowController.showHistory()
+            // Post after nav so HistoryView is mounted and listening.
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 150_000_000)
+                NotificationCenter.default.post(
+                    name: .openHistoryRecord,
+                    object: nil,
+                    userInfo: ["recordID": meetingRecordID.uuidString]
+                )
+            }
+        } catch is CancellationError {
+            resetProcessingState()
+            didResetProcessingState = true
+            recordingState.clearCurrentJob()
+            recordingState.message = "Recording canceled."
+        } catch {
+            Log.app.error("Manual media transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
+            recordingState.failCurrentJob(error.localizedDescription)
         }
     }
 
@@ -3551,7 +3753,11 @@ final class AppCoordinator {
                 detail: "Preparing audio for transcription",
                 errorMessage: nil
             )
-            let preparedAudio = try await mediaPreparationService.prepareAudio(from: managedAsset.mediaURL)
+            let tooling = await mediaIngestionService.checkTooling()
+            let preparedAudio = try await mediaPreparationService.prepareAudio(
+                from: managedAsset.mediaURL,
+                ffmpegPath: tooling.ffmpegPath
+            )
 
             try Task.checkCancellation()
 
@@ -3600,6 +3806,7 @@ final class AppCoordinator {
             updateRecentTranscriptsMenu()
 
             let shouldNavigateToDetail = mediaTranscriptionState.route == .processing(job.id)
+            pendingIndicatorCompletion = .mediaTranscription
             resetProcessingState()
             didResetProcessingState = true
             mediaTranscriptionState.completeCurrentJob(with: record.id, shouldNavigateToDetail: shouldNavigateToDetail)

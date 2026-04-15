@@ -11,121 +11,337 @@ import SwiftData
 import Foundation
 
 struct HistoryView: View {
-    private static let topListPadding: CGFloat = 12
-    private static let pageSize = 50
-    private static let listVerticalPadding: CGFloat = 20
-    private static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM d, yyyy"
-        return formatter
-    }()
-    
     @Environment(\.locale) private var locale
-
     @Environment(\.modelContext) private var modelContext
-    @State private var searchText = ""
+
+    // MARK: - State
+
+    @State private var searchText: String = ""
+    @State private var selectedFilter: HistoryStore.HistoryFilter = .all
     @State private var errorMessage: String?
-    @State private var selectedRecord: TranscriptionRecord?
+    @State private var selectedTranscriptionID: PersistentIdentifier?
+    @State private var detailRecord: TranscriptionRecord?
+    @State private var pendingDeletionRecord: TranscriptionRecord?
+    @State private var isLoading = true
     @State private var visibleTranscriptions: [TranscriptionRecord] = []
-    @State private var totalTranscriptionsCount = 0
-    @State private var nextFetchOffset = 0
-    @State private var isLoadingPage = false
-    @State private var hasLoadedInitialPage = false
+    @State private var totalCount: Int = 0
     @State private var hasMorePages = true
+    @State private var currentOffset = 0
+    @State private var reloadDebounceTask: Task<Void, Never>?
+    @State private var filterCounts: [HistoryStore.HistoryFilter: Int] = [:]
+    @State private var hasDismissedHotkeyReminder = false
+    @State private var visibleNotes: [NoteSchema.Note] = []
+    @State private var pendingDeletionNote: NoteSchema.Note?
+
+    @Query private var mediaFolders: [MediaFolder]
+    @Query(sort: \NoteSchema.Note.updatedAt, order: .reverse) private var allNotes: [NoteSchema.Note]
+
+    private var folders: [MediaFolder] {
+        mediaFolders.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    private let pageSize = 50
 
     private var trimmedSearchText: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
     private var historyStore: HistoryStore {
         HistoryStore(modelContext: modelContext)
     }
-    
-    /// Group transcriptions by date
-    private var groupedTranscriptions: [(String, [TranscriptionRecord])] {
-        let calendar = Calendar.current
-        let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
-            if calendar.isDateInToday(record.timestamp) {
-                return localized("Today", locale: locale)
-            } else if calendar.isDateInYesterday(record.timestamp) {
-                return localized("Yesterday", locale: locale)
-            } else {
-                return Self.dayFormatter.string(from: record.timestamp)
-            }
+
+    private var headerSubtitleText: String {
+        if selectedFilter == .notes {
+            let count = filteredNotes.count
+            return count == 1
+                ? localized("1 note", locale: locale)
+                : "\(count) \(localized("notes", locale: locale))"
         }
-        
-        // Sort by most recent date first
-        return grouped.sorted { first, second in
-            if first.key == "Today" { return true }
-            if second.key == "Today" { return false }
-            if first.key == "Yesterday" { return true }
-            if second.key == "Yesterday" { return false }
-            return first.value.first?.timestamp ?? Date() > second.value.first?.timestamp ?? Date()
+        return totalCount == 1
+            ? localized("1 transcription", locale: locale)
+            : "\(totalCount) \(localized("transcriptions", locale: locale))"
+    }
+
+    private var filteredNotes: [NoteSchema.Note] {
+        let query = trimmedSearchText
+        guard !query.isEmpty else { return allNotes }
+        return allNotes.filter { note in
+            note.title.localizedStandardContains(query)
+                || note.content.localizedStandardContains(query)
+                || note.tags.contains { $0.localizedStandardContains(query) }
         }
     }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Header with search and export
-            headerSection
-            
-            // Content
-            contentArea
+
+    // MARK: - Grouping
+
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .none
+        return f
+    }()
+
+    private var groupedTranscriptions: [(key: String, records: [TranscriptionRecord])] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: visibleTranscriptions) { record -> String in
+            if calendar.isDateInToday(record.timestamp) { return "Today" }
+            if calendar.isDateInYesterday(record.timestamp) { return "Yesterday" }
+            return Self.dayFormatter.string(from: record.timestamp)
         }
-        .background(AppColors.contentBackground)
-        .task(id: trimmedSearchText) {
+
+        let order: [String] = ["Today", "Yesterday"]
+        return grouped.sorted { a, b in
+            let aIndex = order.firstIndex(of: a.key) ?? Int.max
+            let bIndex = order.firstIndex(of: b.key) ?? Int.max
+            if aIndex != bIndex { return aIndex < bIndex }
+            let aDate = a.value.first?.timestamp ?? .distantPast
+            let bDate = b.value.first?.timestamp ?? .distantPast
+            return aDate > bDate
+        }.map { (key: $0.key, records: $0.value) }
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        Group {
+            if let record = detailRecord, record.isMediaTranscription {
+                MediaTranscriptionDetailView(
+                    record: record,
+                    folders: folders,
+                    onBack: {
+                        var transaction = Transaction()
+                        transaction.disablesAnimations = true
+                        withTransaction(transaction) {
+                            detailRecord = nil
+                        }
+                    },
+                    onAssignFolder: { folder in assignRecord(record, to: folder) },
+                    onRemoveFromFolder: {
+                        if record.folder != nil {
+                            removeRecordFromFolder(record)
+                        }
+                    },
+                    onDelete: { pendingDeletionRecord = record }
+                )
+                .background(AppColors.contentBackground)
+            } else {
+                VStack(spacing: 0) {
+                    headerSection
+                        .padding(.horizontal, AppTheme.Spacing.xxl)
+                        .padding(.bottom, AppTheme.Spacing.lg)
+                        .padding(.top, AppTheme.Window.mainContentTopInset)
+                        .background(AppColors.contentBackground)
+
+                    contentArea
+                        .background(AppColors.contentBackground)
+                }
+                .background(AppColors.contentBackground)
+            }
+        }
+        .task(id: "\(trimmedSearchText)_\(selectedFilter)") {
             await reloadTranscriptions()
         }
         .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
-            Task { @MainActor in
-                await refreshVisibleTranscriptions()
+            Task { await refreshVisibleTranscriptions() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openHistoryRecord)) { notification in
+            guard let idString = notification.userInfo?["recordID"] as? String,
+                  let id = UUID(uuidString: idString),
+                  let record = try? historyStore.fetchRecord(with: id),
+                  record.isMediaTranscription else { return }
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                detailRecord = record
             }
         }
+        .confirmationDialog(
+            localized("Delete transcription?", locale: locale),
+            isPresented: Binding(
+                get: { pendingDeletionRecord != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        pendingDeletionRecord = nil
+                    }
+                }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(localized("Delete", locale: locale), role: .destructive) {
+                confirmDeletePendingRecord()
+            }
+            Button(localized("Cancel", locale: locale), role: .cancel) {
+                pendingDeletionRecord = nil
+            }
+        } message: {
+            Text(localized("This will permanently remove the transcript and its managed media file.", locale: locale))
+        }
+        .confirmationDialog(
+            localized("Delete note?", locale: locale),
+            isPresented: Binding(
+                get: { pendingDeletionNote != nil },
+                set: { isPresented in
+                    if !isPresented { pendingDeletionNote = nil }
+                }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(localized("Delete", locale: locale), role: .destructive) {
+                if let note = pendingDeletionNote {
+                    deleteNote(note)
+                }
+                pendingDeletionNote = nil
+            }
+            Button(localized("Cancel", locale: locale), role: .cancel) {
+                pendingDeletionNote = nil
+            }
+        } message: {
+            Text(localized("This will permanently remove this note.", locale: locale))
+        }
     }
-    
+
+    // MARK: - Detail helpers
+
+    private func assignRecord(_ record: TranscriptionRecord, to folder: MediaFolder) {
+        do {
+            try historyStore.assign(record: record, to: folder)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func removeRecordFromFolder(_ record: TranscriptionRecord) {
+        do {
+            try historyStore.removeFromFolder(record: record)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func confirmDeletePendingRecord() {
+        guard let record = pendingDeletionRecord else { return }
+        let deletedID = record.id
+        pendingDeletionRecord = nil
+
+        do {
+            try historyStore.delete(record)
+            if detailRecord?.id == deletedID {
+                detailRecord = nil
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     // MARK: - Header
-    
+
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            HStack {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            // Title row
+            HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                     Text(localized("History", locale: locale))
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
-                    
-                    Text("\(totalTranscriptionsCount) \(localized("transcriptions", locale: locale))")
+
+                    Text(headerSubtitleText)
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                 }
-                
-                Spacer()
-                
+
+                Spacer(minLength: AppTheme.Spacing.lg)
+
                 exportMenu
             }
-            
+
+            // Filter chips
+            filterChips
+
             // Search bar
             searchBar
         }
-        .padding(.horizontal, AppTheme.Spacing.xxl)
-        .padding(.bottom, AppTheme.Spacing.xxl)
-        .padding(.top, AppTheme.Window.mainContentTopInset)
-        .background(AppColors.contentBackground)
     }
-    
+
+    // MARK: - Filter Chips
+
+    private var filterChips: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            filterChip(.all, label: localized("All", locale: locale), icon: "tray.full.fill")
+            filterChip(.voice, label: localized("Voice", locale: locale), icon: "mic.fill")
+            filterChip(.notes, label: localized("Notes", locale: locale), icon: "note.text")
+            filterChip(.meetings, label: localized("Meetings", locale: locale), icon: "person.2.fill")
+            filterChip(.media, label: localized("Media", locale: locale), icon: "headphones")
+
+            Spacer()
+        }
+    }
+
+    private func filterChip(
+        _ filter: HistoryStore.HistoryFilter,
+        label: String,
+        icon: String
+    ) -> some View {
+        let isSelected = selectedFilter == filter
+        let count = filterCounts[filter] ?? 0
+
+        return Button {
+            withAnimation(AppTheme.Animation.fast) {
+                selectedFilter = filter
+            }
+        } label: {
+            HStack(spacing: AppTheme.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.system(size: 10, weight: .semibold))
+
+                Text(label)
+                    .font(AppTypography.caption)
+
+                if count > 0 {
+                    Text("\(count)")
+                        .font(AppTypography.tiny)
+                        .foregroundStyle(isSelected ? AppColors.accent : AppColors.textTertiary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(isSelected ? AppColors.accent.opacity(0.15) : AppColors.mutedSurface)
+                        )
+                }
+            }
+            .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(isSelected ? AppColors.accentBackground : Color.clear)
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(isSelected ? AppColors.accent.opacity(0.3) : AppColors.border, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .contentTransition(.interpolate)
+    }
+
+    // MARK: - Search Bar
+
     private var searchBar: some View {
         HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: "magnifyingglass")
+                .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(AppColors.textTertiary)
-            
-            TextField(localized("Search transcriptions...", locale: locale), text: $searchText)
+
+            TextField(localized("Search transcriptions…", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
-            
+
             if !searchText.isEmpty {
                 Button {
                     searchText = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 13))
                         .foregroundStyle(AppColors.textTertiary)
                 }
                 .buttonStyle(.plain)
@@ -141,620 +357,475 @@ struct HistoryView: View {
             style: AppColors.border
         )
     }
-    
+
+    // MARK: - Export Menu
+
     private var exportMenu: some View {
         Menu {
             Button {
-                exportToPlainText()
+                exportAll(format: "plain")
             } label: {
-                Label(localized("Export as Plain Text", locale: locale), systemImage: "doc.text")
+                Label(localized("Export as Plain Text", locale: locale), systemImage: "doc.plaintext")
             }
-            
+
             Button {
-                exportToJSON()
+                exportAll(format: "json")
             } label: {
                 Label(localized("Export as JSON", locale: locale), systemImage: "curlybraces")
             }
-            
+
             Button {
-                exportToCSV()
+                exportAll(format: "csv")
             } label: {
                 Label(localized("Export as CSV", locale: locale), systemImage: "tablecells")
             }
         } label: {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 12, weight: .medium))
                 Text(localized("Export", locale: locale))
+                    .font(AppTypography.caption)
             }
-            .font(AppTypography.subheadline)
+            .foregroundStyle(AppColors.textSecondary)
             .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(AppColors.surfaceBackground)
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
         }
         .menuStyle(.borderlessButton)
-        .disabled(totalTranscriptionsCount == 0)
+        .fixedSize()
     }
-    
-    // MARK: - Content
-    
+
+    // MARK: - Content Area
+
     @ViewBuilder
     private var contentArea: some View {
-        if let errorMessage = errorMessage {
+        if let errorMessage {
             errorView(errorMessage)
-        } else if !hasLoadedInitialPage {
-            loadingStateView
-        } else if totalTranscriptionsCount == 0 {
-            emptyStateView
+        } else if selectedFilter == .notes {
+            if filteredNotes.isEmpty {
+                emptyView
+            } else {
+                notesList
+            }
+        } else if isLoading {
+            loadingView
+        } else if visibleTranscriptions.isEmpty {
+            emptyView
         } else {
             transcriptionsList
         }
     }
 
-    private var loadingStateView: some View {
+    private var loadingView: some View {
         VStack(spacing: AppTheme.Spacing.lg) {
             ProgressView()
                 .controlSize(.large)
-
-            Text(localized("Loading history...", locale: locale))
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
+                .tint(AppColors.accent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     private func errorView(_ message: String) -> some View {
         VStack(spacing: AppTheme.Spacing.lg) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
+                .font(.system(size: 36))
                 .foregroundStyle(AppColors.warning)
-            
-            Text(localized("Something went wrong", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-            
+
             Text(message)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             Button(localized("Dismiss", locale: locale)) {
                 self.errorMessage = nil
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.bordered)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: searchText.isEmpty ? "waveform.badge.mic" : "magnifyingglass")
-                .font(.system(size: 48))
+
+    private var emptyView: some View {
+        let (icon, title, subtitle) = emptyStateContent
+
+        return VStack(spacing: AppTheme.Spacing.lg) {
+            Image(systemName: icon)
+                .font(.system(size: 40, weight: .light))
                 .foregroundStyle(AppColors.textTertiary)
-            
-            Text(searchText.isEmpty
-                 ? localized("No transcriptions yet", locale: locale)
-                 : localized("No results found", locale: locale))
+
+            Text(title)
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.textPrimary)
-            
-            Text(searchText.isEmpty
-                 ? localized("Start recording to see your transcriptions here", locale: locale)
-                 : localized("Try a different search term", locale: locale))
+
+            Text(subtitle)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 320)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.bottom, AppTheme.Spacing.huge)
     }
-    
+
+    private var emptyStateContent: (icon: String, title: String, subtitle: String) {
+        if !trimmedSearchText.isEmpty {
+            return (
+                "magnifyingglass",
+                localized("No results", locale: locale),
+                localized("Try a different search term or filter.", locale: locale)
+            )
+        }
+
+        switch selectedFilter {
+        case .all:
+            return (
+                "waveform.badge.mic",
+                localized("No transcriptions yet", locale: locale),
+                localized("Start a transcription from the Home page, or import a file.", locale: locale)
+            )
+        case .voice:
+            return (
+                "mic.slash.fill",
+                localized("No voice transcriptions", locale: locale),
+                localized("Voice transcriptions appear here after you use dictation.", locale: locale)
+            )
+        case .meetings:
+            return (
+                "person.2.slash.fill",
+                localized("No meeting recordings", locale: locale),
+                localized("Record a meeting from the Home page to see it here.", locale: locale)
+            )
+        case .media:
+            return (
+                "headphones",
+                localized("No media transcriptions", locale: locale),
+                localized("Import a file or paste a link in the Transcribe section.", locale: locale)
+            )
+        case .notes:
+            return (
+                "note.text",
+                localized("No notes yet", locale: locale),
+                localized("Record a note from the Home page — dictation enhanced into a note.", locale: locale)
+            )
+        }
+    }
+
+    // MARK: - Transcriptions List
+
     private var transcriptionsList: some View {
-        List {
-            listTopInsetRow
+        ScrollView(.vertical, showsIndicators: false) {
+            LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                ForEach(groupedTranscriptions, id: \.key) { group in
+                    dateHeader(group.key)
+                        .padding(.top, AppTheme.Spacing.lg)
+                        .padding(.bottom, AppTheme.Spacing.xs)
 
-            ForEach(Array(groupedTranscriptions.enumerated()), id: \.element.0) { index, group in
-                let dateGroup = group.0
-                let records = group.1
-
-                if index > 0 {
-                    sectionSpacerRow
-                }
-
-                Section {
-                    ForEach(records) { record in
-                        HistoryTranscriptionRow(
+                    ForEach(group.records) { record in
+                        TranscriptionHistoryRow(
                             record: record,
-                            isSelected: selectedRecord?.id == record.id,
-                            onTap: { selectedRecord = (selectedRecord?.id == record.id) ? nil : record }
-                        )
-                        .padding(.horizontal, AppTheme.Spacing.xxl)
-                        .padding(.bottom, AppTheme.Spacing.md)
-                        .listRowInsets(EdgeInsets())
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .onAppear {
-                            Task { @MainActor in
-                                await loadNextPageIfNeeded(currentRecord: record)
-                            }
-                        }
-                    }
-                } header: {
-                    dateHeader(dateGroup)
-                        .padding(.horizontal, AppTheme.Spacing.xxl)
-                }
-            }
-
-            if isLoadingPage && hasLoadedInitialPage && !visibleTranscriptions.isEmpty {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
-                .padding(.vertical, AppTheme.Spacing.md)
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-            }
-
-            listBottomInsetRow
-        }
-        .listStyle(.plain)
-        .contentMargins(.top, 0, for: .scrollContent)
-        .scrollContentBackground(.hidden)
-        .background(AppColors.contentBackground)
-    }
-
-    private var listTopInsetRow: some View {
-        Color.clear
-            .frame(height: Self.topListPadding)
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-    }
-
-    private var sectionSpacerRow: some View {
-        Color.clear
-            .frame(height: AppTheme.Spacing.lg)
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-    }
-
-    private var listBottomInsetRow: some View {
-        Color.clear
-            .frame(height: Self.listVerticalPadding)
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-    }
-    
-    private func dateHeader(_ title: String) -> some View {
-        HStack {
-            Text(title.uppercased())
-                .font(AppTypography.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(AppColors.textTertiary)
-                .tracking(0.5)
-            
-            Spacer()
-        }
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .background(AppColors.contentBackground)
-    }
-    
-    // MARK: - Actions
-
-    @MainActor
-    private func reloadTranscriptions() async {
-        do {
-            try await Task.sleep(for: .milliseconds(250))
-            guard !Task.isCancelled else { return }
-
-            errorMessage = nil
-            selectedRecord = nil
-            visibleTranscriptions = []
-            totalTranscriptionsCount = 0
-            nextFetchOffset = 0
-            hasMorePages = true
-            hasLoadedInitialPage = false
-
-            totalTranscriptionsCount = try historyStore.countVoiceTranscriptions(query: trimmedSearchText)
-            hasMorePages = totalTranscriptionsCount > 0
-
-            guard totalTranscriptionsCount > 0 else {
-                hasLoadedInitialPage = true
-                isLoadingPage = false
-                return
-            }
-
-            await loadNextPage()
-            hasLoadedInitialPage = true
-        } catch is CancellationError {
-            return
-        } catch {
-            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            isLoadingPage = false
-            hasLoadedInitialPage = true
-            hasMorePages = false
-        }
-    }
-
-    @MainActor
-    private func loadNextPageIfNeeded(currentRecord: TranscriptionRecord) async {
-        guard currentRecord.id == visibleTranscriptions.last?.id else { return }
-        await loadNextPage()
-    }
-
-    @MainActor
-    private func loadNextPage() async {
-        guard !isLoadingPage, hasMorePages else { return }
-
-        isLoadingPage = true
-        defer { isLoadingPage = false }
-
-        do {
-            let page = try historyStore.fetchVoiceTranscriptions(
-                limit: Self.pageSize,
-                offset: nextFetchOffset,
-                query: trimmedSearchText
-            )
-
-            visibleTranscriptions.append(contentsOf: page)
-            nextFetchOffset += page.count
-            hasMorePages = nextFetchOffset < totalTranscriptionsCount && !page.isEmpty
-        } catch {
-            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            hasMorePages = false
-        }
-    }
-
-    @MainActor
-    private func refreshVisibleTranscriptions() async {
-        guard hasLoadedInitialPage else { return }
-
-        do {
-            let visibleCount = max(visibleTranscriptions.count, Self.pageSize)
-            totalTranscriptionsCount = try historyStore.countVoiceTranscriptions(query: trimmedSearchText)
-
-            guard totalTranscriptionsCount > 0 else {
-                visibleTranscriptions = []
-                nextFetchOffset = 0
-                hasMorePages = false
-                selectedRecord = nil
-                return
-            }
-
-            let refreshedRecords = try historyStore.fetchVoiceTranscriptions(
-                limit: visibleCount,
-                query: trimmedSearchText
-            )
-
-            visibleTranscriptions = refreshedRecords
-            nextFetchOffset = refreshedRecords.count
-            hasMorePages = nextFetchOffset < totalTranscriptionsCount
-
-            if let selectedRecord,
-               !refreshedRecords.contains(where: { $0.id == selectedRecord.id }) {
-                self.selectedRecord = nil
-            }
-        } catch {
-            errorMessage = localized("Failed to load history: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-        }
-    }
-    
-    private func exportToPlainText() {
-        Task { @MainActor in
-            do {
-                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
-                try historyStore.exportToPlainText(records: records)
-            } catch {
-                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
-        }
-    }
-    
-    private func exportToJSON() {
-        Task { @MainActor in
-            do {
-                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
-                try historyStore.exportToJSON(records: records)
-            } catch {
-                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
-        }
-    }
-    
-    private func exportToCSV() {
-        Task { @MainActor in
-            do {
-                let records = try historyStore.fetchAllVoiceTranscriptions(query: trimmedSearchText)
-                try historyStore.exportToCSV(records: records)
-            } catch {
-                errorMessage = localized("Export failed: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
-        }
-    }
-}
-
-// MARK: - History Transcription Row
-
-struct HistoryTranscriptionRow: View {
-    private static let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter
-    }()
-
-    let record: TranscriptionRecord
-    var isSelected: Bool = false
-    var onTap: () -> Void = {}
-    
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.locale) private var locale
-    @State private var isHovered = false
-    @State private var showingSaveSuccess = false
-
-    private var cardBackground: Color {
-        if isSelected {
-            return AppColors.accentBackground
-        }
-
-        return isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground
-    }
-
-    private var cardBorder: Color {
-        if isSelected {
-            return AppColors.accent.opacity(0.3)
-        }
-
-        return isHovered ? AppColors.border.opacity(0.9) : AppColors.border
-    }
-
-    private var timeString: String {
-        Self.timeFormatter.string(from: record.timestamp)
-    }
-
-    private var formattedDuration: String {
-        String(format: "%.1fs", record.duration)
-    }
-
-    private var hasOriginalText: Bool {
-        record.enhancedWith != nil
-    }
-    
-    private var notesStore: NotesStore {
-        NotesStore(modelContext: modelContext)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Main row content
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
-                // Time column
-                Text(timeString)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textTertiary)
-                    .frame(width: 60, alignment: .leading)
-
-                // Accent bar
-                Rectangle()
-                    .fill(isSelected ? AppColors.accent : AppColors.border)
-                    .frame(width: 3)
-                    .clipShape(Capsule())
-
-                // Content
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                    // Enhanced text (primary)
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                            if hasOriginalText {
-                                Text(localized("Enhanced", locale: locale))
-                                    .font(AppTypography.tiny)
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(AppColors.accent)
-                            }
-
-                            Text(record.text)
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColors.textPrimary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-
-                        CopyButton(text: record.text)
-                            .opacity(isSelected ? 1 : (isHovered ? 0.85 : 0.6))
-                    }
-
-                    // Original text (shown when expanded)
-                    if isSelected, let originalText = record.originalText {
-                        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                            Divider()
-                                .padding(.vertical, AppTheme.Spacing.sm)
-
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                                    Text(localized("Original", locale: locale))
-                                        .font(AppTypography.tiny)
-                                        .fontWeight(.medium)
-                                        .foregroundStyle(AppColors.textSecondary)
-
-                                    Text(originalText)
-                                        .font(AppTypography.body)
-                                        .foregroundStyle(AppColors.textSecondary)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
+                            isSelected: selectedTranscriptionID == record.persistentModelID,
+                            timestampStyle: .absolute,
+                            onTap: {
+                                if record.isMediaTranscription {
+                                    var transaction = Transaction()
+                                    transaction.disablesAnimations = true
+                                    withTransaction(transaction) {
+                                        detailRecord = record
+                                    }
+                                } else {
+                                    withAnimation(AppTheme.Animation.fast) {
+                                        if selectedTranscriptionID == record.persistentModelID {
+                                            selectedTranscriptionID = nil
+                                        } else {
+                                            selectedTranscriptionID = record.persistentModelID
+                                        }
+                                    }
                                 }
-
-                                CopyButton(text: originalText)
-                            }
-                        }
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // Metadata row
-                    HStack(spacing: AppTheme.Spacing.lg) {
-                        metadataItem(icon: "waveform", text: formattedDuration)
-                        metadataItem(icon: "cpu", text: record.modelUsed)
-
-                        if let enhancedWith = record.enhancedWith {
-                            metadataItem(icon: "sparkles", text: localized("via %@", locale: locale).replacingOccurrences(of: "%@", with: enhancedWith))
+                            },
+                            onSaveAsNote: { saveAsNote(record: record) }
+                        )
+                        .task {
+                            loadNextPageIfNeeded(currentRecord: record)
                         }
                     }
                 }
-            }
-            .padding(AppTheme.Spacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(cardBackground)
-            )
-            .hairlineBorder(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
-                style: cardBorder
-            )
-        }
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(AppTheme.Animation.fast) {
-                isHovered = hovering
-            }
-        }
-        .onTapGesture {
-            withAnimation(AppTheme.Animation.fast) {
-                onTap()
-            }
-        }
-        .contextMenu {
-            Button {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(record.text, forType: .string)
-            } label: {
-                Label(localized("Copy Enhanced", locale: locale), systemImage: "doc.on.doc")
-            }
 
-            if let originalText = record.originalText {
-                Button {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(originalText, forType: .string)
-                } label: {
-                    Label(localized("Copy Original", locale: locale), systemImage: "doc.on.doc")
-                }
+                // Bottom padding
+                Color.clear
+                    .frame(height: AppTheme.Spacing.xxl)
             }
-            
-            Divider()
-            
-            Button {
-                saveAsNote()
-            } label: {
-                Label(localized("Save as Note", locale: locale), systemImage: "note.text")
-            }
+            .padding(.horizontal, AppTheme.Spacing.xxl)
         }
-        .overlay(
-            Group {
-                if showingSaveSuccess {
-                    successToast
-                }
-            }
-        )
     }
 
-    private func metadataItem(icon: String, text: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
-            Image(systemName: icon)
-                .font(.system(size: 10))
-            Text(text)
-                .font(AppTypography.tiny)
+    // MARK: - Notes List
+
+    private var groupedNotes: [(key: String, notes: [NoteSchema.Note])] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: filteredNotes) { note -> String in
+            if calendar.isDateInToday(note.updatedAt) { return "Today" }
+            if calendar.isDateInYesterday(note.updatedAt) { return "Yesterday" }
+            return Self.dayFormatter.string(from: note.updatedAt)
         }
-        .foregroundStyle(AppColors.textTertiary)
+        let order: [String] = ["Today", "Yesterday"]
+        return grouped.sorted { a, b in
+            let aIndex = order.firstIndex(of: a.key) ?? Int.max
+            let bIndex = order.firstIndex(of: b.key) ?? Int.max
+            if aIndex != bIndex { return aIndex < bIndex }
+            let aDate = a.value.first?.updatedAt ?? .distantPast
+            let bDate = b.value.first?.updatedAt ?? .distantPast
+            return aDate > bDate
+        }.map { (key: $0.key, notes: $0.value) }
     }
-    
-    private var successToast: some View {
-        VStack {
-            Spacer()
-            HStack(spacing: AppTheme.Spacing.sm) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.white)
-                Text(localized("Saved as Note", locale: locale))
-                    .font(AppTypography.subheadline)
-                    .foregroundStyle(.white)
+
+    private var notesList: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                ForEach(groupedNotes, id: \.key) { group in
+                    dateHeader(group.key)
+                        .padding(.top, AppTheme.Spacing.lg)
+                        .padding(.bottom, AppTheme.Spacing.xs)
+
+                    ForEach(group.notes) { note in
+                        NoteHistoryRow(
+                            note: note,
+                            onTap: { openNoteInEditor(note) },
+                            onDelete: { pendingDeletionNote = note },
+                            onTogglePin: { togglePin(note) }
+                        )
+                    }
+                }
+
+                Color.clear.frame(height: AppTheme.Spacing.xxl)
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.vertical, AppTheme.Spacing.md)
-            .background(AppColors.accent)
-            .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-            Spacer()
+            .padding(.horizontal, AppTheme.Spacing.xxl)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.001))
-        .transition(.opacity.combined(with: .scale))
     }
-    
-    
-    private func saveAsNote() {
-        Task {
-            // Generate title from first 50 chars of transcription
-            let title: String
-            let trimmedText = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedText.count > 50 {
-                title = String(trimmedText.prefix(50)) + "..."
-            } else if trimmedText.isEmpty {
-                let formatter = DateFormatter()
-                formatter.dateStyle = .medium
-                formatter.timeStyle = .short
-                title = "Note from \(formatter.string(from: record.timestamp))"
-            } else {
-                title = trimmedText
-            }
-            
-            // Use enhanced text if available, otherwise original
-            let content = record.text
-            
+
+    private func openNoteInEditor(_ note: NoteSchema.Note) {
+        let controller = NoteEditorWindowController()
+        controller.setModelContainer(modelContext.container)
+        controller.show(note: note, isNewNote: false)
+    }
+
+    private func togglePin(_ note: NoteSchema.Note) {
+        let store = NotesStore(modelContext: modelContext)
+        do {
+            try store.togglePin(note)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func deleteNote(_ note: NoteSchema.Note) {
+        let store = NotesStore(modelContext: modelContext)
+        do {
+            try store.delete(note)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func dateHeader(_ title: String) -> some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Text(title.uppercased())
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(AppColors.textTertiary)
+
+            Rectangle()
+                .fill(AppColors.divider)
+                .frame(height: 1)
+        }
+    }
+
+    // MARK: - Data Loading
+
+    private func reloadTranscriptions() async {
+        reloadDebounceTask?.cancel()
+        reloadDebounceTask = Task {
             do {
-                // Check if AI Enhancement is enabled for metadata generation
-                let settingsStore = SettingsStore()
-                let generateMetadata = settingsStore.aiEnhancementEnabled
-                
-                try await notesStore.create(
-                    title: title,
-                    content: content,
-                    tags: [],
-                    sourceTranscriptionID: record.id,
-                    generateMetadata: generateMetadata
+                try await Task.sleep(nanoseconds: 250_000_000)
+            } catch { return }
+
+            do {
+                let count = try historyStore.countTranscriptions(
+                    query: trimmedSearchText,
+                    filter: selectedFilter
                 )
-                
-                // Show success feedback
+
                 await MainActor.run {
-                    withAnimation(AppTheme.Animation.fast) {
-                        showingSaveSuccess = true
-                    }
+                    totalCount = count
+                    visibleTranscriptions = []
+                    currentOffset = 0
+                    hasMorePages = true
+                    isLoading = count > 0
                 }
-                
-                // Hide after 2 seconds
-                try? await Task.sleep(nanoseconds: 2_000_000_000)
-                await MainActor.run {
-                    withAnimation(AppTheme.Animation.fast) {
-                        showingSaveSuccess = false
-                    }
+
+                if count > 0 {
+                    await loadNextPage()
+                } else {
+                    await MainActor.run { isLoading = false }
                 }
+
+                // Refresh filter counts in parallel
+                await refreshFilterCounts()
             } catch {
-                Log.ui.error("Failed to save transcription as note: \(error)")
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    isLoading = false
+                }
             }
+        }
+        await reloadDebounceTask?.value
+    }
+
+    private func loadNextPage() async {
+        guard hasMorePages else { return }
+
+        do {
+            let records = try historyStore.fetchTranscriptions(
+                limit: pageSize,
+                offset: currentOffset,
+                query: trimmedSearchText,
+                filter: selectedFilter
+            )
+
+            await MainActor.run {
+                visibleTranscriptions.append(contentsOf: records)
+                currentOffset += records.count
+                hasMorePages = records.count == pageSize
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
+        }
+    }
+
+    private func loadNextPageIfNeeded(currentRecord: TranscriptionRecord) {
+        guard let lastRecord = visibleTranscriptions.last,
+              lastRecord.id == currentRecord.id,
+              hasMorePages else { return }
+        Task { await loadNextPage() }
+    }
+
+    private func refreshVisibleTranscriptions() async {
+        do {
+            let count = try historyStore.countTranscriptions(
+                query: trimmedSearchText,
+                filter: selectedFilter
+            )
+
+            let records = try historyStore.fetchTranscriptions(
+                limit: max(currentOffset, pageSize),
+                offset: 0,
+                query: trimmedSearchText,
+                filter: selectedFilter
+            )
+
+            await MainActor.run {
+                totalCount = count
+                visibleTranscriptions = records
+                currentOffset = records.count
+                hasMorePages = records.count < count
+            }
+
+            await refreshFilterCounts()
+        } catch {
+            // Silently refresh; errors here are non-critical
+        }
+    }
+
+    private func refreshFilterCounts() async {
+        do {
+            let allCount = try historyStore.countTranscriptions(query: "", filter: .all)
+            let voiceCount = try historyStore.countTranscriptions(query: "", filter: .voice)
+            let meetingsCount = try historyStore.countTranscriptions(query: "", filter: .meetings)
+            let mediaCount = try historyStore.countTranscriptions(query: "", filter: .media)
+            let notesCount = allNotes.count
+
+            await MainActor.run {
+                filterCounts = [
+                    .all: allCount,
+                    .voice: voiceCount,
+                    .meetings: meetingsCount,
+                    .media: mediaCount,
+                    .notes: notesCount
+                ]
+            }
+        } catch {
+            // Non-critical
+        }
+    }
+
+    // MARK: - Save as Note
+
+    private func saveAsNote(record: TranscriptionRecord) {
+        let notesStore = NotesStore(modelContext: modelContext)
+        Task { @MainActor in
+            let titlePrefix = String(record.text.prefix(50))
+            let title = titlePrefix.count < record.text.count ? "\(titlePrefix)…" : titlePrefix
+
+            var noteContent = record.text
+            if let original = record.originalText, !original.isEmpty, original != record.text {
+                noteContent += "\n\n---\n\nOriginal:\n\(original)"
+            }
+            if let enhancedWith = record.enhancedWith {
+                noteContent += "\n\n---\n\nEnhanced with: \(enhancedWith)"
+            }
+            try? await notesStore.create(title: title, content: noteContent)
+        }
+    }
+
+    // MARK: - Export
+
+    private func exportAll(format: String) {
+        do {
+            let records = try historyStore.fetchAllTranscriptions(
+                query: trimmedSearchText,
+                filter: selectedFilter
+            )
+            guard !records.isEmpty else { return }
+
+            switch format {
+            case "plain":
+                try historyStore.exportToPlainText(records: records)
+            case "json":
+                try historyStore.exportToJSON(records: records)
+            case "csv":
+                try historyStore.exportToCSV(records: records)
+            default:
+                break
+            }
+        } catch {
+            errorMessage = "Export failed: \(error.localizedDescription)"
         }
     }
 }
 
-#Preview("History View - With Data") {
+// MARK: - Previews
+
+#Preview("History") {
     HistoryView()
         .modelContainer(PreviewContainer.withSampleData)
-        .frame(width: 800, height: 600)
-        .preferredColorScheme(.light)
 }
 
-#Preview("History View - Empty") {
+#Preview("History Empty") {
     HistoryView()
         .modelContainer(PreviewContainer.empty)
-        .frame(width: 800, height: 600)
-        .preferredColorScheme(.light)
 }
 
-#Preview("History View - Dark") {
+#Preview("History Dark") {
     HistoryView()
         .modelContainer(PreviewContainer.withSampleData)
-        .frame(width: 800, height: 600)
         .preferredColorScheme(.dark)
 }
