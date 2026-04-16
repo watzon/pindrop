@@ -372,6 +372,8 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
 private struct CaretBubbleIndicatorView: View {
     @ObservedObject var controller: CaretBubbleFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject private var theme = PindropThemeController.shared
+    @State private var idlePulse: Bool = false
 
     private var showsHoverActions: Bool {
         state.isRecording && controller.isHovered
@@ -395,10 +397,18 @@ private struct CaretBubbleIndicatorView: View {
                     x: controller.actionRevealWidth + 48,
                     y: 9
                 )
+
+            if let completion = state.recentCompletion, !state.isRecording, !state.isProcessing {
+                IndicatorCompletionOverlay(completion: completion)
+                    .offset(x: controller.actionRevealWidth, y: -16)
+                    .allowsHitTesting(false)
+                    .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
+            }
         }
         .frame(width: 98, height: 40, alignment: .leading)
         .contentShape(Rectangle())
         .onHover { controller.setHover($0) }
+        .themeRefresh()
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsHoverActions)
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: controller.actionRevealWidth)
         .simultaneousGesture(
@@ -428,9 +438,7 @@ private struct CaretBubbleIndicatorView: View {
                     .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
 
                 if state.isProcessing {
-                    ProgressView()
-                        .controlSize(.mini)
-                        .tint(AppColors.overlayTextPrimary.opacity(0.92))
+                    IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
                 } else {
                     FloatingIndicatorWaveformView(
                         audioLevel: state.audioLevel,
@@ -442,6 +450,12 @@ private struct CaretBubbleIndicatorView: View {
             }
             .frame(width: 42, height: 28)
             .scaleEffect(controller.isHovered && state.isRecording ? 1.03 : 1)
+            .scaleEffect(!state.isRecording && !state.isProcessing ? (idlePulse ? 1.04 : 0.97) : 1.0)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                    idlePulse = true
+                }
+            }
         }
         .buttonStyle(.plain)
     }

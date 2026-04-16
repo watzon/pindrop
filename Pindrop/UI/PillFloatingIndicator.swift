@@ -757,6 +757,7 @@ struct PillIndicatorView: View {
     @ObservedObject var state: FloatingIndicatorState
     let isCompact: Bool
     @Namespace private var pillShellNamespace
+    @ObservedObject private var theme = PindropThemeController.shared
 
     private var showsExpandedState: Bool {
         state.isRecording || state.isProcessing || !isCompact
@@ -770,7 +771,8 @@ struct PillIndicatorView: View {
                 compactView
             }
         }
-        .animation(.easeInOut(duration: 0.18), value: showsExpandedState)
+        .animation(AppTheme.Animation.smooth, value: showsExpandedState)
+        .themeRefresh()
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { _ in
@@ -807,6 +809,13 @@ struct PillIndicatorView: View {
                             removal: .opacity
                         )
                     )
+            }
+
+            if let completion = state.recentCompletion {
+                IndicatorCompletionOverlay(completion: completion)
+                    .offset(y: -34)
+                    .allowsHitTesting(false)
+                    .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -863,9 +872,7 @@ struct PillIndicatorView: View {
                 .padding(.horizontal, 9)
             } else {
                 HStack(spacing: 6) {
-                    ProgressView()
-                        .controlSize(.mini)
-                        .tint(AppColors.overlayTextPrimary.opacity(0.95))
+                    IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
 
                     Text("Processing")
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
@@ -897,7 +904,21 @@ struct PillIndicatorView: View {
             .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(controller.isHovered ? 1 : 0.82))
             .overlay {
                 if controller.isHovered {
-                    PillStaticWaveformGlyph()
+                    FloatingIndicatorWaveformView(
+                        audioLevel: state.audioLevel,
+                        isRecording: true,
+                        style: FloatingIndicatorWaveformStyle(
+                            layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
+                            barWidth: 2,
+                            barSpacing: 2,
+                            minimumHeight: 3,
+                            maximumHeight: 10,
+                            idleHeight: 3,
+                            color: AppColors.overlayTooltipAccent,
+                            animationInterval: 0.05
+                        )
+                    )
+                    .frame(width: 18, height: 10)
                 }
             }
             .frame(width: controller.isHovered ? 86 : 40, height: controller.isHovered ? 22 : 10)
@@ -921,21 +942,6 @@ struct PillIndicatorView: View {
             )
             .shadow(color: AppColors.shadowColor.opacity(0.42), radius: 14, y: 8)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
-    }
-}
-
-private struct PillStaticWaveformGlyph: View {
-    private let barHeights: [CGFloat] = [3, 6, 8, 6, 4]
-
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(Array(barHeights.enumerated()), id: \.offset) { _, height in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(AppColors.overlayTextPrimary.opacity(0.78))
-                    .frame(width: 2, height: height)
-            }
-        }
-        .frame(width: 18, height: 10)
     }
 }
 

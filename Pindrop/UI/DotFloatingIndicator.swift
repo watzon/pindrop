@@ -768,18 +768,29 @@ struct DotIndicatorView: View {
                 .shadow(color: AppColors.shadowColor.opacity(0.36), radius: 12, y: 6)
                 .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(0.6))
 
-            Circle()
-                .fill(LinearGradient(
-                    colors: [AppColors.overlayTooltipAccent, AppColors.accent],
-                    startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(width: sz.pebbleDiameter, height: sz.pebbleDiameter)
-                .opacity(isExpanded ? 0 : 1)
-                .animation(.easeIn(duration: 0.08), value: isExpanded)
+            TimelineView(.animation(minimumInterval: 0.04)) { timeline in
+                let t = timeline.date.timeIntervalSinceReferenceDate
+                let pulse = (sin(t * 1.4) + 1) / 2  // 0..1, ~4.5s period
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [AppColors.overlayTooltipAccent, AppColors.accent],
+                        startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: sz.pebbleDiameter, height: sz.pebbleDiameter)
+                    .scaleEffect(1.0 + pulse * 0.12)
+                    .opacity(isExpanded ? 0 : (0.86 + pulse * 0.14))
+                    .animation(.easeIn(duration: 0.08), value: isExpanded)
+            }
 
             expandedContent
                 .opacity(isExpanded ? 1 : 0)
                 .allowsHitTesting(isExpanded)
                 .animation(.easeOut(duration: 0.16).delay(isExpanded ? 0.14 : 0), value: isExpanded)
+
+            if let completion = state.recentCompletion, !state.isRecording, !state.isProcessing {
+                IndicatorCompletionOverlay(completion: completion)
+                    .allowsHitTesting(false)
+                    .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
+            }
         }
         .frame(width: pillWidth, height: pillHeight)
         .clipShape(Capsule())
@@ -860,6 +871,8 @@ struct DotIndicatorView: View {
                 Text(formattedDuration)
                     .font(.system(size: sz.timerFontSize, weight: .semibold, design: .monospaced))
                     .foregroundStyle(AppColors.overlayTextPrimary)
+                    .contentTransition(.numericText(countsDown: false))
+                    .animation(AppTheme.Animation.fast, value: state.recordingDuration)
                     .fixedSize()
 
                 Button { controller.handleStopTapped() } label: {
@@ -892,31 +905,13 @@ struct DotIndicatorView: View {
                 .foregroundStyle(AppColors.overlayTextPrimary)
                 .frame(maxWidth: .infinity)
 
-            HStack(spacing: 5) {
-                ForEach(0..<3, id: \.self) { DotLoadingDot(index: $0) }
-            }
+            IndicatorProcessingView(dotCount: 3, dotDiameter: 5, spacing: 5)
         }
         .padding(.horizontal, sz.recordingLeadPadding)
     }
 
     private var formattedDuration: String {
         String(format: "%d:%02d", Int(state.recordingDuration) / 60, Int(state.recordingDuration) % 60)
-    }
-}
-
-// MARK: - Animated loading dot
-
-private struct DotLoadingDot: View {
-    let index: Int
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 0.06)) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
-            let phase = (t * 2.2 + Double(index) * 0.45).truncatingRemainder(dividingBy: 3.0)
-            Circle()
-                .fill(AppColors.overlayTextSecondary.opacity(phase < 1.0 ? 0.85 : 0.28))
-                .frame(width: 5, height: 5)
-                .animation(.easeInOut(duration: 0.22), value: phase < 1.0)
-        }
     }
 }
 

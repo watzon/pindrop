@@ -80,6 +80,72 @@ extension Timer {
     }
 }
 
+// MARK: - Shared indicator components
+
+/// Animated three-dot processing indicator using the theme accent color.
+/// Drop-in replacement for `ProgressView()` across all floating indicators.
+struct IndicatorProcessingView: View {
+    var dotCount: Int = 3
+    var dotDiameter: CGFloat = 5
+    var spacing: CGFloat = 4
+
+    var body: some View {
+        HStack(spacing: spacing) {
+            ForEach(0..<dotCount, id: \.self) { index in
+                _IndicatorProcessingDot(index: index, diameter: dotDiameter)
+            }
+        }
+    }
+}
+
+private struct _IndicatorProcessingDot: View {
+    let index: Int
+    let diameter: CGFloat
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.06)) { timeline in
+            let t = timeline.date.timeIntervalSinceReferenceDate
+            let phase = (t * 2.2 + Double(index) * 0.45).truncatingRemainder(dividingBy: 3.0)
+            let isActive = phase < 1.0
+            Circle()
+                .fill(AppColors.overlayTooltipAccent.opacity(isActive ? 0.92 : 0.28))
+                .frame(width: diameter, height: diameter)
+                .scaleEffect(isActive ? 1.0 : 0.76)
+                .animation(AppTheme.Animation.fast, value: isActive)
+        }
+    }
+}
+
+/// Brief animated badge shown when a transcription/session completes.
+/// Displays the completion kind's icon and title, then fades out automatically
+/// when `state.recentCompletion` returns to nil.
+struct IndicatorCompletionOverlay: View {
+    let completion: FloatingIndicatorState.CompletionKind
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: completion.icon)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(AppColors.overlayTooltipAccent)
+            Text(completion.title)
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.overlayTextPrimary)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(
+            Capsule()
+                .fill(AppColors.overlaySurfaceStrong)
+                .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(0.7))
+        )
+        .shadow(color: AppColors.shadowColor.opacity(0.32), radius: 8, y: 4)
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .scale(scale: 0.88, anchor: .center)),
+            removal: .opacity
+        ))
+    }
+}
+
 enum FloatingIndicatorWaveformBarLayout {
     case fixed(count: Int, heightScale: [CGFloat]? = nil)
     case dynamic(minimumCount: Int, edgeAttenuation: CGFloat)

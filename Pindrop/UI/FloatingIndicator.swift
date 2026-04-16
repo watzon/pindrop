@@ -34,12 +34,14 @@ extension NSScreen {
     }
     
     var menuBarHeight: CGFloat {
-        frame.maxY - visibleFrame.maxY
+        // Round to avoid sub-pixel gaps when placing a panel flush with the screen top.
+        (frame.maxY - visibleFrame.maxY).rounded(.up)
     }
-    
+
     var notchPanelHeight: CGFloat {
         let notchHeight = safeAreaInsets.top
-        return notchHeight > 0 ? notchHeight : menuBarHeight
+        // Use ceil so the panel always covers the full hardware notch even on fractional scales.
+        return notchHeight > 0 ? ceil(notchHeight) : menuBarHeight
     }
     
     func notchPanelWidth(fallback: CGFloat = NotchPanelMetrics.fallbackNotchWidth) -> CGFloat {
@@ -161,10 +163,11 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             : max(NotchPanelMetrics.panelHeightMinimum, screen.notchPanelHeight)
         let expandedWidth = notchWidth + (sideWidth * 2)
         let panelWidth = min(expandedWidth, maxPanelWidth)
-        
+
         let xPosition = screen.visibleFrame.midX - (panelWidth / 2)
+        // Anchor the panel to the very top of screen.frame — no rounding that could leave a gap.
         let yPosition = screen.frame.maxY - panelHeight
-        
+
         let clampedXPosition = max(
             screen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
             min(
@@ -179,7 +182,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             height: panelHeight
         )
         let panel = NotchPanel(contentRect: contentRect)
-        
+
         let contentView = NotchIndicatorView(
             state: state,
             notchWidth: notchWidth,
@@ -288,10 +291,10 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
                 : max(NotchPanelMetrics.panelHeightMinimum, currentScreen.notchPanelHeight)
             let expandedWidth = notchWidth + (sideWidth * 2)
             let panelWidth = min(expandedWidth, maxPanelWidth)
-            
+
             let xPosition = currentScreen.visibleFrame.midX - (panelWidth / 2)
             let yPosition = currentScreen.frame.maxY - panelHeight
-            
+
             let clampedXPosition = max(
                 currentScreen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
                 min(
@@ -299,7 +302,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
                     currentScreen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
                 )
             )
-            
+
             let newFrame = NSRect(
                 x: clampedXPosition,
                 y: yPosition,
@@ -317,6 +320,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
 
 struct NotchIndicatorView: View {
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject private var theme = PindropThemeController.shared
     let notchWidth: CGFloat
     let sideWidth: CGFloat
     let height: CGFloat
@@ -336,36 +340,58 @@ struct NotchIndicatorView: View {
                 .frame(width: notchWidth)
             rightSide
         }
-        .frame(maxWidth: .infinity, maxHeight: height)
-        .background(AppColors.overlaySurfaceStrong)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black)
         .clipShape(NotchShape(cornerRadius: NotchPanelMetrics.cornerRadius))
+        .ignoresSafeArea()
         .themeRefresh()
     }
     
     private var leftSide: some View {
-        HStack(spacing: 8) {
-            if state.isRecording {
-                stopButton
-            } else {
-                processingIndicator
-            }
+        ZStack {
+            HStack(spacing: 8) {
+                if state.isRecording {
+                    stopButton
+                } else {
+                    processingIndicator
+                }
 
-            timerDisplay
-            Spacer(minLength: 0)
+                timerDisplay
+                Spacer(minLength: 0)
+            }
+            .opacity(state.recentCompletion != nil ? 0 : 1)
+
+            if let completion = state.recentCompletion {
+                HStack(spacing: 5) {
+                    Image(systemName: completion.icon)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(AppColors.overlayTooltipAccent)
+                    Text(completion.title)
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(AppColors.overlayTextPrimary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.9, anchor: .leading)),
+                    removal: .opacity
+                ))
+            }
         }
         .padding(.leading, NotchPanelMetrics.sidePadding)
         .padding(.trailing, 8)
         .frame(width: sideWidth, height: height)
+        .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
     }
     
     private var centerSection: some View {
         ZStack {
-            AppColors.overlaySurface
+            // Slightly lighter than the side panels to hint at the camera housing area,
+            // but still near-black to blend with the physical notch.
+            Color(white: 0.06)
 
             if state.isProcessing {
-                ProgressView()
-                    .controlSize(.mini)
-                    .tint(AppColors.overlayTextPrimary.opacity(0.9))
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
             }
         }
         .frame(width: notchWidth, height: height)
@@ -417,29 +443,30 @@ struct NotchIndicatorView: View {
     }
     
     private var processingIndicator: some View {
-        ZStack {
-            Circle()
-                .fill(AppColors.overlayWarning)
-                .frame(width: 20, height: 20)
-            
-            ProgressView()
-                .scaleEffect(0.45)
-                .tint(AppColors.overlayTextPrimary)
-        }
+        IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
+            .frame(width: 20, height: 20)
     }
     
     private var timerDisplay: some View {
         HStack(spacing: 6) {
-            Text(state.isProcessing ? "..." : formattedDuration)
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
-                .foregroundStyle(AppColors.overlayTextPrimary)
-            
+            if state.isProcessing {
+                Text("...")
+                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .foregroundStyle(AppColors.overlayTextPrimary)
+            } else {
+                Text(formattedDuration)
+                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .foregroundStyle(AppColors.overlayTextPrimary)
+                    .contentTransition(.numericText(countsDown: false))
+                    .animation(AppTheme.Animation.fast, value: state.recordingDuration)
+            }
+
             if state.escapePrimed {
                 Circle()
                     .fill(AppColors.overlayWarning)
                     .frame(width: 6, height: 6)
                     .transition(.scale.combined(with: .opacity))
-                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(.easeInOut(duration: 0.15), value: state.escapePrimed)
