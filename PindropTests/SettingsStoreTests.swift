@@ -182,7 +182,7 @@ struct SettingsStoreTests {
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
         #expect(store.floatingIndicatorEnabled)
-        #expect(store.floatingIndicatorType == FloatingIndicatorType.pill.rawValue)
+        #expect(store.floatingIndicatorType == FloatingIndicatorType.dot.rawValue)
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)
     }
