@@ -47,8 +47,8 @@ struct TranscriptionHistoryRow: View {
     }
 
     private var displayTitle: String {
-        if let displayName = record.sourceDisplayName, !displayName.isEmpty {
-            return displayName
+        if let preferredTitle = record.preferredTitle, !preferredTitle.isEmpty {
+            return preferredTitle
         }
         let text = record.text
         if text.count > 80 {

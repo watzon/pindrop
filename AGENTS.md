@@ -33,7 +33,7 @@ Last updated: 2026-03-24
 Prefer `just` recipes over ad-hoc shell commands.
 
 ```bash
-just build                 # Debug build
+just build                 # Debug build (ALWAYS use this when testing builds)
 just build-release         # Release build
 just export-app            # Developer ID export for distribution
 just dmg                   # Signed DMG for distribution

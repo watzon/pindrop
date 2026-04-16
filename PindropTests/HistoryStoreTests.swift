@@ -750,6 +750,9 @@ struct HistoryStoreTests {
             modelUsed: "base",
             sourceKind: .webLink,
             sourceDisplayName: "Quarterly Research",
+            generatedTitle: "Roadmap Risk Review",
+            aiSummary: "The product team reviewed roadmap risk areas and identified follow-up work.",
+            sourceTitleOrigin: .fallback,
             originalSourceURL: "https://example.com/research",
             managedMediaPath: "/tmp/research.mp4",
             folderID: folder.id
@@ -765,6 +768,8 @@ struct HistoryStoreTests {
 
         #expect(try fixture.historyStore.fetchMediaLibrary(query: "roadmap").count == 1)
         #expect(try fixture.historyStore.fetchMediaLibrary(query: "Quarterly").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Risk Review").count == 1)
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "follow-up work").count == 1)
         #expect(try fixture.historyStore.fetchMediaLibrary(query: "example.com/research").count == 1)
         #expect(try fixture.historyStore.fetchMediaLibrary(folderID: folder.id, query: "roadmap").count == 1)
         #expect(try fixture.historyStore.fetchMediaLibrary(folderID: folder.id, query: "Design").isEmpty)
@@ -778,6 +783,8 @@ struct HistoryStoreTests {
             modelUsed: "base",
             sourceKind: .webLink,
             sourceDisplayName: "Zulu Call",
+            generatedTitle: "Beta Planning",
+            sourceTitleOrigin: .fallback,
             managedMediaPath: "/tmp/zulu.mp4"
         )
         try fixture.historyStore.save(
@@ -786,6 +793,7 @@ struct HistoryStoreTests {
             modelUsed: "base",
             sourceKind: .webLink,
             sourceDisplayName: "Alpha Call",
+            sourceTitleOrigin: .sourceMetadata,
             managedMediaPath: "/tmp/alpha.mp4"
         )
 
@@ -794,10 +802,10 @@ struct HistoryStoreTests {
         let ascending = try fixture.historyStore.fetchMediaLibrary(sort: .nameAscending)
         let descending = try fixture.historyStore.fetchMediaLibrary(sort: .nameDescending)
 
-        #expect(newest.first?.sourceDisplayName == "Alpha Call")
-        #expect(oldest.first?.sourceDisplayName == "Zulu Call")
-        #expect(ascending.map(\.sourceDisplayName) == ["Alpha Call", "Zulu Call"])
-        #expect(descending.map(\.sourceDisplayName) == ["Zulu Call", "Alpha Call"])
+        #expect(newest.first?.preferredTitle == "Alpha Call")
+        #expect(oldest.first?.preferredTitle == "Beta Planning")
+        #expect(ascending.map(\.preferredTitle) == ["Alpha Call", "Beta Planning"])
+        #expect(descending.map(\.preferredTitle) == ["Beta Planning", "Alpha Call"])
     }
     
     // MARK: - Export Tests

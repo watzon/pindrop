@@ -117,9 +117,14 @@ struct MediaTranscriptionDetailView: View {
                 leftColumn
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
-                sidebar
-                    .frame(width: 340, alignment: .topLeading)
+                ScrollView(.vertical) {
+                    sidebar
+                        .frame(width: 340, alignment: .topLeading)
+                }
+                .frame(width: 340)
+                .scrollIndicators(.hidden)
             }
+            .frame(maxHeight: .infinity)
             .padding(.horizontal, AppTheme.Spacing.xxl)
             .padding(.bottom, AppTheme.Spacing.xxl)
         }
@@ -207,6 +212,10 @@ struct MediaTranscriptionDetailView: View {
     }
 
     private var displayTitle: String {
+        if let preferredTitle = record.preferredTitle,
+           !preferredTitle.isEmpty {
+            return preferredTitle
+        }
         if let name = record.sourceDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines),
            !name.isEmpty {
             return name
@@ -461,8 +470,6 @@ struct MediaTranscriptionDetailView: View {
             actionsRow
 
             summaryCard
-
-            Spacer()
         }
     }
 
@@ -694,6 +701,22 @@ struct MediaTranscriptionDetailView: View {
                 Text("AI Summary")
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.textPrimary)
+
+                Spacer()
+
+                if let summary = record.aiSummary, !summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(summary, forType: .string)
+                        flashCopied()
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(AppColors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Copy summary")
+                }
             }
 
             Text(summaryPreviewText)
@@ -714,18 +737,15 @@ struct MediaTranscriptionDetailView: View {
     }
 
     private var summaryPreviewText: String {
-        // Placeholder until we generate real summaries: show the opening
-        // sentences of the transcript so the card has real content to reveal.
+        if let aiSummary = record.aiSummary?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !aiSummary.isEmpty {
+            return aiSummary
+        }
         let trimmed = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return "A summary will appear here once generated."
         }
-        let sentences = trimmed.split(omittingEmptySubsequences: true) { ".!?".contains($0) }
-        let preview = sentences.prefix(2).joined(separator: ". ")
-        if preview.isEmpty {
-            return String(trimmed.prefix(240))
-        }
-        return preview.count > 240 ? String(preview.prefix(240)) + "…" : preview + "."
+        return "A summary will appear here once generated."
     }
 
     // MARK: - Actions
@@ -742,7 +762,7 @@ struct MediaTranscriptionDetailView: View {
     private func exportTranscript() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.plainText]
-        panel.nameFieldStringValue = (record.sourceDisplayName ?? "transcript") + ".txt"
+        panel.nameFieldStringValue = (record.preferredTitle ?? record.sourceDisplayName ?? "transcript") + ".txt"
         if panel.runModal() == .OK, let url = panel.url {
             let content = displayedSegments.isEmpty ? record.text : transcriptWithTimestamps()
             try? content.write(to: url, atomically: true, encoding: .utf8)

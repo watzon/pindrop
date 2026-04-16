@@ -1353,7 +1353,98 @@ final class AIEnhancementService {
         let title: String
         let tags: [String]
     }
-    
+
+    struct TranscriptionMetadata: Codable {
+        let title: String?
+        let summary: String
+    }
+
+    static func transcriptionMetadataPrompt(includeTitle: Bool) -> String {
+        let titleRule = includeTitle
+            ? "- title: a concise, descriptive title in 4-8 words"
+            : "- title: return an empty string"
+
+        return """
+        You are a transcript analysis assistant. Read the transcript and return ONLY valid JSON in this exact format:
+        {"title":"Title here","summary":"Summary here"}
+
+        Rules:
+        \(titleRule)
+        - summary: 2-4 sentences that capture the main discussion, decisions, and outcomes
+        - Keep names, products, and concrete details when they are present in the transcript
+        - Do not add markdown, bullets, labels, or explanations
+        - Do not invent details that are not grounded in the transcript
+        - Return valid JSON only
+        """
+    }
+
+    func generateTranscriptionMetadata(
+        transcription: String,
+        apiEndpoint: String,
+        apiKey: String?,
+        model: String = "gpt-4o-mini",
+        includeTitle: Bool,
+        provider: AIProvider = .openai
+    ) async throws -> (title: String?, summary: String) {
+        guard !transcription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return (nil, "")
+        }
+
+        guard let url = URL(string: apiEndpoint) else {
+            throw EnhancementError.invalidEndpoint
+        }
+
+        do {
+            let request = buildAPIRequest(
+                url: url,
+                apiKey: apiKey,
+                model: model,
+                systemPrompt: Self.transcriptionMetadataPrompt(includeTitle: includeTitle),
+                userContent: transcription,
+                provider: provider
+            )
+
+            let (data, response) = try await session.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw EnhancementError.invalidResponse
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let error = json["error"] as? [String: Any],
+                   let message = error["message"] as? String {
+                    throw EnhancementError.apiError(message)
+                }
+                throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
+            }
+
+            let content = try parseAPIResponse(data: data, provider: provider)
+            let cleanedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: "```json", with: "")
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard let jsonData = cleanedContent.data(using: .utf8) else {
+                throw EnhancementError.invalidResponse
+            }
+
+            let metadata = try JSONDecoder().decode(TranscriptionMetadata.self, from: jsonData)
+            let cleanTitle = metadata.title?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanSummary = metadata.summary.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard !cleanSummary.isEmpty else {
+                throw EnhancementError.invalidResponse
+            }
+
+            return (cleanTitle?.isEmpty == false ? cleanTitle : nil, cleanSummary)
+        } catch let error as EnhancementError {
+            throw error
+        } catch {
+            throw EnhancementError.apiError(error.localizedDescription)
+        }
+    }
+
     func generateNoteMetadata(
         content: String,
         apiEndpoint: String,

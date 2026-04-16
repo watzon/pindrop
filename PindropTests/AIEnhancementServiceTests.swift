@@ -1289,6 +1289,88 @@ struct AIEnhancementServiceTests {
         #expect(rawOpenCount == 1, "Inner <enhancement_request> should be escaped, only one raw open tag expected")
     }
 
+    // MARK: - Test Transcription Metadata
+    @Test func testGenerateTranscriptionMetadataParsesTitleAndSummary() async throws {
+        let (service, mockSession) = makeSUT()
+
+        mockSession.mockData = #"""
+        {
+            "choices": [{
+                "message": {
+                    "content": "```json\n{\"title\":\"Q1 Planning Review\",\"summary\":\"The team reviewed first quarter priorities and aligned on launch timing. They called out staffing risk and agreed to follow up on hiring needs.\"}\n```"
+                }
+            }]
+        }
+        """#.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let result = try await service.generateTranscriptionMetadata(
+            transcription: "We reviewed first quarter priorities and launch timing.",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            model: "gpt-4o-mini",
+            includeTitle: true
+        )
+
+        #expect(result.title == "Q1 Planning Review")
+        #expect(result.summary == "The team reviewed first quarter priorities and aligned on launch timing. They called out staffing risk and agreed to follow up on hiring needs.")
+
+        if let bodyData = mockSession.lastRequest?.httpBody,
+           let bodyJSON = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any],
+           let messages = bodyJSON["messages"] as? [[String: Any]],
+           let systemPrompt = messages.first?["content"] as? String {
+            #expect(systemPrompt.contains("4-8 words"))
+            #expect(systemPrompt.contains("2-4 sentences"))
+        } else {
+            Issue.record("Failed to inspect transcription metadata request body")
+        }
+    }
+
+    @Test func testGenerateTranscriptionMetadataAllowsSummaryOnlyResponses() async throws {
+        let (service, mockSession) = makeSUT()
+
+        mockSession.mockData = #"""
+        {
+            "choices": [{
+                "message": {
+                    "content": "{\"title\":\"\",\"summary\":\"The meeting focused on release blockers and next steps.\"}"
+                }
+            }]
+        }
+        """#.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let result = try await service.generateTranscriptionMetadata(
+            transcription: "We focused on release blockers and next steps.",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            model: "gpt-4o-mini",
+            includeTitle: false
+        )
+
+        #expect(result.title == nil)
+        #expect(result.summary == "The meeting focused on release blockers and next steps.")
+
+        if let bodyData = mockSession.lastRequest?.httpBody,
+           let bodyJSON = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any],
+           let messages = bodyJSON["messages"] as? [[String: Any]],
+           let systemPrompt = messages.first?["content"] as? String {
+            #expect(systemPrompt.contains("return an empty string"))
+        } else {
+            Issue.record("Failed to inspect transcription metadata summary-only request body")
+        }
+    }
+
     // MARK: - Test Model Capabilities
     @Test func testKnownVisionModels() {
         // OpenAI vision models

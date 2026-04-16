@@ -1,12 +1,44 @@
 import Foundation
 import SwiftData
 
-typealias TranscriptionRecord = TranscriptionRecordSchemaV6.TranscriptionRecord
-typealias MediaFolder = TranscriptionRecordSchemaV6.MediaFolder
-typealias ParticipantProfile = TranscriptionRecordSchemaV6.ParticipantProfile
-typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV6.ParticipantTrainingEvidence
+typealias TranscriptionRecord = TranscriptionRecordSchemaV7.TranscriptionRecord
+typealias MediaFolder = TranscriptionRecordSchemaV7.MediaFolder
+typealias ParticipantProfile = TranscriptionRecordSchemaV7.ParticipantProfile
+typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV7.ParticipantTrainingEvidence
+
+enum TranscriptionTitleOrigin: String {
+    case sourceMetadata
+    case fallback
+}
 
 extension TranscriptionRecord {
+    var sourceTitleOrigin: TranscriptionTitleOrigin? {
+        guard let sourceTitleOriginRawValue else { return nil }
+        return TranscriptionTitleOrigin(rawValue: sourceTitleOriginRawValue)
+    }
+
+    var hasSourceMetadataTitle: Bool {
+        sourceTitleOrigin == .sourceMetadata
+    }
+
+    var preferredTitle: String? {
+        let trimmedSourceDisplayName = sourceDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedGeneratedTitle = generatedTitle?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if hasSourceMetadataTitle, let trimmedSourceDisplayName, !trimmedSourceDisplayName.isEmpty {
+            return trimmedSourceDisplayName
+        }
+        if let trimmedGeneratedTitle, !trimmedGeneratedTitle.isEmpty {
+            return trimmedGeneratedTitle
+        }
+        if let trimmedSourceDisplayName, !trimmedSourceDisplayName.isEmpty {
+            return trimmedSourceDisplayName
+        }
+
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedText.isEmpty ? nil : trimmedText
+    }
+
     var resolvedSourceKind: MediaSourceKind {
         guard let sourceKindRawValue else { return .voiceRecording }
         return MediaSourceKind(rawValue: sourceKindRawValue) ?? .voiceRecording
@@ -40,10 +72,7 @@ extension TranscriptionRecord {
     }
 
     var mediaLibrarySortName: String {
-        let candidate = (sourceDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
-            ? sourceDisplayName
-            : text
-        return candidate ?? text
+        preferredTitle ?? text
     }
 
     func matchesMediaLibrarySearch(_ query: String) -> Bool {
@@ -51,9 +80,12 @@ extension TranscriptionRecord {
         guard !trimmedQuery.isEmpty else { return true }
 
         let searchableFields = [
+            preferredTitle,
             text,
             originalText,
             sourceDisplayName,
+            generatedTitle,
+            aiSummary,
             originalSourceURL
         ]
 
