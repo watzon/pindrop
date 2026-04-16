@@ -23,7 +23,7 @@
           "image-name" : "pindrop 2.svg",
           "name" : "pindrop 2",
           "position" : {
-            "scale" : 0.85,
+            "scale" : 1.0,
             "translation-in-points" : [
               0,
               0

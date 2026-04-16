@@ -47,7 +47,7 @@
 		AIENHTEST01A2B3C4D5E6F /* AIEnhancementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */; };
 		AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
-		APPICON02A2B3C4D5E6F70 /* Pindrop.icon in Resources */ = {isa = PBXBuildFile; fileRef = APPICON01A2B3C4D5E6F71 /* Pindrop.icon */; };
+		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
 		AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */; };
 		AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */; };
@@ -218,7 +218,7 @@
 		AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementServiceTests.swift; sourceTree = "<group>"; };
 		AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
-		APPICON01A2B3C4D5E6F71 /* Pindrop.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Pindrop.icon; sourceTree = "<group>"; };
+		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
 		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningService.swift; sourceTree = "<group>"; };
 		AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningServiceTests.swift; sourceTree = "<group>"; };
@@ -542,7 +542,6 @@
 				01E366552FAA4505B9775ACB /* PindropApp.swift */,
 				1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */,
 				509539AB0B5D433489196E46 /* Assets.xcassets */,
-				APPICON01A2B3C4D5E6F71 /* Pindrop.icon */,
 				LOCALIZATIONGRP01A2B3C4D5E6F /* Localization */,
 				81f50d309b6a44df90efbd5f /* Services */,
 				855E92B9E1094A4A99FE07FF /* Preview Content */,
@@ -667,6 +666,7 @@
 			isa = PBXGroup;
 			children = (
 				BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */,
+				ICNS01A2B3C4D5E6F71 /* Pindrop.icns */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -859,7 +859,7 @@
 				440249066D0941BF82CA74EB /* Preview Assets.xcassets in Resources */,
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
 				6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */,
-				APPICON02A2B3C4D5E6F70 /* Pindrop.icon in Resources */,
+				ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
@@ -1070,9 +1070,9 @@
 		43E6B155CC064EB6B87599AA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = Pindrop;
+
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+
 				CODE_SIGN_ENTITLEMENTS = Pindrop/Pindrop.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1244,9 +1244,9 @@
 		ACFBF317EB984E0B81259D41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = Pindrop;
+
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+
 				CODE_SIGN_ENTITLEMENTS = Pindrop/Pindrop.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
