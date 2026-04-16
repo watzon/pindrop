@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none">
+  <defs>
+    <linearGradient id="rippleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+      <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mark: canonical paths scaled to 60px, centered vertically in 72px -->
+  <!-- transform: scale(0.9375) then translate so mark center lands at (36, 36) -->
+  <g transform="translate(6, 6) scale(0.9375)">
+    <circle cx="32" cy="32" r="3"  fill="#F2B54A"/>
+    <circle cx="32" cy="32" r="10" fill="none" stroke="url(#rippleGrad)" stroke-width="2.5"/>
+    <circle cx="32" cy="32" r="19" fill="none" stroke="url(#rippleGrad)" stroke-width="2"/>
+  </g>
+
+  <!-- Wordmark: baseline at y=47 centers cap-height at y=36 for Inter 600 30px -->
+  <text
+    x="79" y="47"
+    font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
+    font-size="30"
+    font-weight="600"
+    fill="#111111"
+    letter-spacing="-0.5">Pindrop</text>
+</svg>

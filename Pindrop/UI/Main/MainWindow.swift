@@ -339,13 +339,22 @@ private struct MainSidebar: View {
 
     private func appIconBadge(size: CGFloat) -> some View {
         ZStack {
-            Circle()
-                .fill(AppColors.accentBackground)
+            RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.118, green: 0.118, blue: 0.157),
+                            Color(red: 0.078, green: 0.078, blue: 0.090)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .frame(width: size, height: size)
             Image("PindropIcon")
                 .resizable()
                 .scaledToFit()
-                .frame(width: size * 0.5, height: size * 0.5)
+                .frame(width: size * 0.6, height: size * 0.6)
                 .foregroundStyle(AppColors.accent)
         }
     }

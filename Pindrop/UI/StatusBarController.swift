@@ -183,28 +183,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         button.imagePosition = .imageOnly
         button.appearsDisabled = false
 
-        if let customIcon = NSImage(named: "PindropIcon") {
-            let targetHeight: CGFloat = 18
-            let aspectRatio: CGFloat = 1364.0 / 2000.0
-            let targetWidth = targetHeight * aspectRatio
-
-            let resizedIcon = NSImage(size: NSSize(width: targetWidth, height: targetHeight))
-            resizedIcon.lockFocus()
-            NSGraphicsContext.current?.imageInterpolation = .high
-            customIcon.draw(
-                in: NSRect(x: 0, y: 0, width: targetWidth, height: targetHeight),
-                from: NSRect(origin: .zero, size: customIcon.size),
-                operation: .copy,
-                fraction: 1.0
-            )
-            resizedIcon.unlockFocus()
-            resizedIcon.isTemplate = true
-
-            button.image = resizedIcon
-        } else {
-            button.image = NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
-            button.image?.isTemplate = true
-        }
+        button.image = getBaseIcon()
+        button.image?.isTemplate = true
 
         button.toolTip = "Pindrop"
     }
@@ -936,15 +916,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
         }
 
-        let targetHeight: CGFloat = 18
-        let aspectRatio: CGFloat = 1364.0 / 2000.0
-        let targetWidth = targetHeight * aspectRatio
+        let targetSize: CGFloat = 18
 
-        let resizedIcon = NSImage(size: NSSize(width: targetWidth, height: targetHeight))
+        let resizedIcon = NSImage(size: NSSize(width: targetSize, height: targetSize))
         resizedIcon.lockFocus()
         NSGraphicsContext.current?.imageInterpolation = .high
         customIcon.draw(
-            in: NSRect(x: 0, y: 0, width: targetWidth, height: targetHeight),
+            in: NSRect(x: 0, y: 0, width: targetSize, height: targetSize),
             from: NSRect(origin: .zero, size: customIcon.size),
             operation: .copy,
             fraction: 1.0
@@ -956,60 +934,114 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         return resizedIcon
     }
 
+    /// Returns a small center-dot-only image for use during recording/processing
+    /// when the static rings are replaced by animated expanding ones.
+    private var cachedDotIcon: NSImage?
+
+    private func getDotIcon() -> NSImage? {
+        if let cached = cachedDotIcon { return cached }
+
+        let size: CGFloat = 18
+        let dotRadius: CGFloat = 2.0
+
+        let image = NSImage(size: NSSize(width: size, height: size))
+        image.lockFocus()
+        let path = NSBezierPath(ovalIn: NSRect(
+            x: (size - dotRadius * 2) / 2,
+            y: (size - dotRadius * 2) / 2,
+            width: dotRadius * 2,
+            height: dotRadius * 2
+        ))
+        NSColor.black.setFill()
+        path.fill()
+        image.unlockFocus()
+        image.isTemplate = true
+
+        cachedDotIcon = image
+        return image
+    }
+
     private func updateStatusBarIcon() {
         guard let button = statusItem?.button else { return }
 
-        button.layer?.sublayers?.filter { $0.name == "indicatorDot" }.forEach { $0.removeFromSuperlayer() }
-        button.layer?.removeAllAnimations()
+        removeRippleAnimation(from: button)
 
-        button.image = getBaseIcon()
-        button.image?.isTemplate = true
         button.contentTintColor = nil
         button.alphaValue = 1.0
 
         switch currentState {
         case .idle:
-            break
+            button.image = getBaseIcon()
+            button.image?.isTemplate = true
 
         case .recording:
-            addIndicatorDot(to: button, color: .systemRed, pulse: true)
+            button.image = getDotIcon()
+            button.image?.isTemplate = true
+            addRippleAnimation(to: button, color: NSColor.systemOrange)
 
         case .processing:
-            addIndicatorDot(to: button, color: .systemYellow, pulse: true)
+            button.image = getDotIcon()
+            button.image?.isTemplate = true
+            addRippleAnimation(to: button, color: NSColor.systemYellow)
         }
     }
 
-    private func addIndicatorDot(to button: NSStatusBarButton, color: NSColor, pulse: Bool) {
+    // MARK: - Ripple Animation
+
+    private func addRippleAnimation(to button: NSStatusBarButton, color: NSColor) {
         button.wantsLayer = true
         guard let layer = button.layer else { return }
 
-        let dotSize: CGFloat = 5
-        let padding: CGFloat = 1
+        let bounds = button.bounds
+        let center = CGPoint(x: bounds.midX, y: bounds.midY)
+        let maxRadius: CGFloat = bounds.width * 0.48
 
-        let dotLayer = CALayer()
-        dotLayer.name = "indicatorDot"
-        dotLayer.backgroundColor = color.cgColor
-        dotLayer.cornerRadius = dotSize / 2
+        // Two expanding rings offset by half cycle, matching the animated SVG
+        for i in 0..<2 {
+            let ring = CAShapeLayer()
+            ring.name = "rippleRing"
+            ring.fillColor = nil
+            ring.strokeColor = color.cgColor
+            ring.lineWidth = 1.5
+            ring.opacity = 0
 
-        let buttonBounds = button.bounds
-        dotLayer.frame = CGRect(
-            x: buttonBounds.width - dotSize - padding,
-            y: padding,
-            width: dotSize,
-            height: dotSize
-        )
+            let startPath = CGPath(ellipseIn: CGRect(x: center.x - 1, y: center.y - 1, width: 2, height: 2), transform: nil)
+            let endPath = CGPath(ellipseIn: CGRect(x: center.x - maxRadius, y: center.y - maxRadius, width: maxRadius * 2, height: maxRadius * 2), transform: nil)
 
-        layer.addSublayer(dotLayer)
+            ring.path = endPath
+            layer.addSublayer(ring)
 
-        if pulse {
-            let animation = CABasicAnimation(keyPath: "opacity")
-            animation.fromValue = 1.0
-            animation.toValue = 0.3
-            animation.duration = 0.6
-            animation.autoreverses = true
-            animation.repeatCount = .infinity
-            dotLayer.add(animation, forKey: "pulse")
+            let duration: CFTimeInterval = 2.0
+            let beginTime = CACurrentMediaTime() + Double(i) * (duration / 2.0)
+
+            let pathAnim = CABasicAnimation(keyPath: "path")
+            pathAnim.fromValue = startPath
+            pathAnim.toValue = endPath
+
+            let opacityAnim = CAKeyframeAnimation(keyPath: "opacity")
+            opacityAnim.values = [0.0, 0.7, 0.0]
+            opacityAnim.keyTimes = [0.0, 0.15, 1.0]
+
+            let widthAnim = CABasicAnimation(keyPath: "lineWidth")
+            widthAnim.fromValue = 2.0
+            widthAnim.toValue = 0.3
+
+            let group = CAAnimationGroup()
+            group.animations = [pathAnim, opacityAnim, widthAnim]
+            group.duration = duration
+            group.beginTime = beginTime
+            group.repeatCount = .infinity
+            group.timingFunction = CAMediaTimingFunction(controlPoints: 0.15, 0, 0.35, 1)
+
+            ring.add(group, forKey: "ripple")
         }
+    }
+
+    private func removeRippleAnimation(from button: NSStatusBarButton) {
+        button.layer?.sublayers?
+            .filter { $0.name == "rippleRing" }
+            .forEach { $0.removeFromSuperlayer() }
+        button.layer?.removeAllAnimations()
     }
 
     func setRecordingState() {

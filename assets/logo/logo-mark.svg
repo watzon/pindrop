@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Angular stroke gradient — NW bright, SE fades (light catching water surface) -->
+    <linearGradient id="rippleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+      <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- CANONICAL MARK — concentric ripple rings, top-down water drop view -->
+  <!-- Center dot: impact point, solid amber -->
+  <circle cx="32" cy="32" r="3" fill="#F2B54A"/>
+  <!-- Ring 1: innermost, heaviest stroke -->
+  <circle cx="32" cy="32" r="10" fill="none" stroke="url(#rippleGrad)" stroke-width="2.5"/>
+  <!-- Ring 2: middle -->
+  <circle cx="32" cy="32" r="19" fill="none" stroke="url(#rippleGrad)" stroke-width="2"/>
+</svg>

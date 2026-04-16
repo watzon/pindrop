@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pindrop — Brand Identity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0A0A0F;
+      --surface:    #141417;
+      --elevated:   #1E1E28;
+      --border:     rgba(255,255,255,0.08);
+      --muted:      rgba(255,255,255,0.45);
+      --text:       #F7F5F0;
+      --amber:      #F2B54A;
+      --amber-gold: #FFD15C;
+      --amber-dim:  rgba(242,181,74,0.12);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 96px 32px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(242,181,74,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-mark {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 32px;
+      filter: drop-shadow(0 0 24px rgba(255,209,92,0.35)) drop-shadow(0 0 8px rgba(242,181,74,0.2));
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .hero-tagline {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 72px 0;
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 48px;
+      max-width: 560px;
+    }
+
+    /* ── DESIGN CONCEPT ── */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .concept-grid { grid-template-columns: 1fr; } }
+
+    .concept-mark-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .concept-mark-inner {
+      position: relative;
+      width: 160px; height: 160px;
+    }
+    .concept-mark-inner svg { width: 160px; height: 160px; filter: drop-shadow(0 0 20px rgba(255,209,92,0.25)); }
+    .concept-annotation {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+    .concept-annotation::after {
+      content: '';
+      position: absolute;
+      background: var(--amber);
+      opacity: 0.6;
+    }
+    /* Impact point: above center, line drops to center dot */
+    .ann-dot  { bottom: calc(50% + 60px); left: 50%; transform: translateX(-50%); }
+    .ann-dot::after { left: 50%; transform: translateX(-50%); top: 100%; width: 1px; height: 52px; }
+    /* Ring 1: right of inner ring, line reaches left to ring edge */
+    .ann-r1   { top: 50%; transform: translateY(-50%); left: calc(50% + 60px); }
+    .ann-r1::after { right: 100%; top: 50%; transform: translateY(-50%); width: 34px; height: 1px; }
+    /* Ring 2: below-left of outer ring, line reaches up to ring edge */
+    .ann-r2   { top: calc(50% + 60px); right: calc(50% + 24px); }
+    .ann-r2::after { left: 100%; bottom: 100%; width: 1px; height: 18px; }
+
+    .concept-rationale { padding: 8px 0; }
+    .concept-rationale h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em; }
+    .concept-rationale p { font-size: 15px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+    .concept-rationale p:last-child { margin-bottom: 0; }
+
+    /* ── LOGO VARIANTS ── */
+    .variants-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) { .variants-grid { grid-template-columns: 1fr; } }
+
+    .variant-card {
+      border-radius: 16px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 140px;
+      border: 1px solid var(--border);
+      position: relative;
+      transition: transform 0.18s ease;
+    }
+    .variant-card:hover { transform: translateY(-2px); }
+    .variant-card.dark  { background: var(--surface); }
+    .variant-card.light { background: #F7F5F0; }
+    .variant-card.full-width { grid-column: 1 / -1; }
+
+    .variant-label {
+      position: absolute;
+      top: 12px; left: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+    .variant-card.dark  .variant-label { color: #fff; }
+    .variant-card.light .variant-label { color: #000; }
+
+    .variant-filename {
+      position: absolute;
+      bottom: 12px; right: 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      opacity: 0.4;
+    }
+    .variant-card.dark  .variant-filename { color: #fff; }
+    .variant-card.light .variant-filename { color: #000; }
+
+    .variant-card img { max-width: 100%; max-height: 64px; object-fit: contain; }
+    .variant-card img.tall { max-height: 100px; }
+    .variant-card img.small { max-height: 40px; }
+
+    /* ── COLOR PALETTE ── */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .color-chip {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .color-swatch {
+      height: 80px;
+      display: flex;
+      align-items: flex-end;
+      padding: 8px 12px;
+    }
+    .color-hex {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    .color-swatch.light-bg .color-hex { color: rgba(0,0,0,0.5); text-shadow: none; }
+    .color-info {
+      background: var(--surface);
+      padding: 10px 12px;
+    }
+    .color-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .color-role { font-size: 11px; color: var(--muted); }
+
+    /* ── TYPOGRAPHY ── */
+    .type-specimen {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .type-row { margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .type-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .type-meta { font-size: 11px; color: var(--muted); font-family: 'SF Mono', 'Fira Code', monospace; margin-bottom: 8px; }
+    .type-sample-bold   { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
+    .type-sample-semi   { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+    .type-sample-body   { font-size: 16px; font-weight: 400; color: var(--muted); line-height: 1.7; max-width: 520px; }
+
+    /* ── DEVELOPER REFERENCE ── */
+    .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 720px) { .dev-grid { grid-template-columns: 1fr; } }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+    pre .kw  { color: #C678DD; }
+    pre .str { color: var(--amber-gold); }
+    pre .key { color: #61AFEF; }
+    pre .val { color: #98C379; }
+
+    .file-tree {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .file-tree-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+    .file-item { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+    .file-item:last-child { margin-bottom: 0; }
+    .file-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+    .file-name { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; font-weight: 600; color: var(--amber); display: block; margin-bottom: 2px; }
+    .file-desc { font-size: 12px; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 32px;
+      text-align: center;
+    }
+    footer .wordmark { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+    footer .sub { font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="hero">
+  <svg class="hero-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <defs>
+      <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+        <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.05"/>
+      </linearGradient>
+    </defs>
+    <circle cx="32" cy="32" r="3"  fill="#F2B54A"/>
+    <circle cx="32" cy="32" r="10" fill="none" stroke="url(#heroGrad)" stroke-width="2.5"/>
+    <circle cx="32" cy="32" r="19" fill="none" stroke="url(#heroGrad)" stroke-width="2"/>
+  </svg>
+  <p class="hero-label">Brand Identity</p>
+  <h1>Pindrop</h1>
+  <p class="hero-tagline">Ripple of precision — where every word lands clearly.</p>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════ DESIGN CONCEPT ═══════════════════════ -->
+  <section>
+    <p class="section-label">Design Concept</p>
+    <h2 class="section-title">The Ripple Mark</h2>
+    <p class="section-sub">A top-down view of a water drop landing — both literally a "pindrop" and a metaphor for how sound radiates with perfect clarity.</p>
+
+    <div class="concept-grid">
+      <div class="concept-mark-card">
+        <div class="concept-mark-inner">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+            <defs>
+              <linearGradient id="cGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+                <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="3"  fill="#F2B54A"/>
+            <circle cx="32" cy="32" r="10" fill="none" stroke="url(#cGrad)" stroke-width="2.5"/>
+            <circle cx="32" cy="32" r="19" fill="none" stroke="url(#cGrad)" stroke-width="2"/>
+          </svg>
+          <span class="concept-annotation ann-dot">Impact point</span>
+          <span class="concept-annotation ann-r1">Ring 1 — heaviest</span>
+          <span class="concept-annotation ann-r2">Ring 2 — medium</span>
+        </div>
+      </div>
+
+      <div class="concept-rationale">
+        <h3>Why a ripple?</h3>
+        <p>The mark interprets "Pindrop" literally — a drop striking still water, radiating perfect concentric rings outward. This is also the acoustic metaphor: sound propagating from a single precise point.</p>
+        <p>The angular gradient — bright on the north-west arc, fading on the south-east — simulates light grazing a water surface. Three rings of decreasing stroke weight suggest energy dissipating with distance, the outermost nearly silent.</p>
+        <p>The amber accent connects to warmth and precision. It feels analogue — close to vinyl, warm tape, the glow of a vocal booth monitor — while remaining sharp enough for a modern macOS app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ LOGO VARIANTS ═══════════════════════ -->
+  <section>
+    <p class="section-label">Logo Variants</p>
+    <h2 class="section-title">All Seven Files</h2>
+    <p class="section-sub">Every variant derives from the same mark geometry. Only color and presence of wordmark differ.</p>
+
+    <div class="variants-grid">
+
+      <div class="variant-card light full-width">
+        <span class="variant-label">Full Logo</span>
+        <img src="logo-full.svg" alt="Pindrop full logo"/>
+        <span class="variant-filename">logo-full.svg</span>
+      </div>
+
+      <div class="variant-card dark full-width">
+        <span class="variant-label">White (for dark backgrounds)</span>
+        <img src="logo-white.svg" alt="Pindrop white logo"/>
+        <span class="variant-filename">logo-white.svg</span>
+      </div>
+
+      <div class="variant-card dark full-width" style="padding:48px 32px;">
+        <span class="variant-label">Animated (recording indicator)</span>
+        <img src="logo-mark-animated.svg" class="tall" alt="Pindrop animated mark" style="width:80px;height:80px;"/>
+        <span class="variant-filename">logo-mark-animated.svg</span>
+      </div>
+
+      <div class="variant-card dark">
+        <span class="variant-label">Mark</span>
+        <img src="logo-mark.svg" class="tall" alt="Pindrop mark"/>
+        <span class="variant-filename">logo-mark.svg</span>
+      </div>
+
+      <div class="variant-card light">
+        <span class="variant-label">App Icon</span>
+        <img src="logo-icon.svg" class="tall" alt="Pindrop icon"/>
+        <span class="variant-filename">logo-icon.svg</span>
+      </div>
+
+      <div class="variant-card light">
+        <span class="variant-label">Wordmark</span>
+        <img src="logo-wordmark.svg" alt="Pindrop wordmark"/>
+        <span class="variant-filename">logo-wordmark.svg</span>
+      </div>
+
+      <div class="variant-card dark">
+        <span class="variant-label">Favicon (shown at 64px)</span>
+        <img src="favicon.svg" style="width:64px;height:64px;" alt="Pindrop favicon"/>
+        <span class="variant-filename">favicon.svg · 16×16</span>
+      </div>
+
+      <div class="variant-card light full-width">
+        <span class="variant-label">Black (monochrome light)</span>
+        <img src="logo-black.svg" alt="Pindrop black logo"/>
+        <span class="variant-filename">logo-black.svg</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ COLOR PALETTE ═══════════════════════ -->
+  <section>
+    <p class="section-label">Color Palette</p>
+    <h2 class="section-title">Brand Colors</h2>
+    <p class="section-sub">Amber as highlight only — never as background fill. Dark surfaces for depth.</p>
+
+    <div class="palette-grid">
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#F2B54A;">
+          <span class="color-hex">#F2B54A</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Amber</div>
+          <div class="color-role">Primary accent, mark color</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#FFD15C;">
+          <span class="color-hex">#FFD15C</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Gold Highlight</div>
+          <div class="color-role">Gradient light-side, glow</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#141417;">
+          <span class="color-hex">#141417</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Background</div>
+          <div class="color-role">App window, icon bg</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#1E1E28;">
+          <span class="color-hex">#1E1E28</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Surface</div>
+          <div class="color-role">Cards, elevated elements</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08);">
+          <span class="color-hex">rgba(255,255,255,0.08)</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Border</div>
+          <div class="color-role">Cards, dividers</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch light-bg" style="background:#F7F5F0;">
+          <span class="color-hex" style="color:rgba(0,0,0,0.5)">#F7F5F0</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Light Background</div>
+          <div class="color-role">Light-mode, logo backgrounds</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#111111;">
+          <span class="color-hex">#111111</span>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Near-Black</div>
+          <div class="color-role">Wordmark on light, body text</div>
+        </div>
+      </div>
+
+      <div class="color-chip">
+        <div class="color-swatch light-bg" style="background:#F7F5F0; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <div style="width:14px;height:14px;border-radius:50%;background:#EF4444;"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:#F59E0B;"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:#3B82F6;"></div>
+        </div>
+        <div class="color-info">
+          <div class="color-name">Status</div>
+          <div class="color-role">Danger / Warning / Info (text only)</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TYPOGRAPHY ═══════════════════════ -->
+  <section>
+    <p class="section-label">Typography</p>
+    <h2 class="section-title">Inter</h2>
+    <p class="section-sub">A modern humanist sans-serif — precise, legible, widely available.</p>
+
+    <div class="type-specimen">
+      <div class="type-row">
+        <div class="type-meta">Inter · 700 · −0.03em tracking · Used for headlines</div>
+        <div class="type-sample-bold">Pindrop captures every word.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Inter · 600 · −0.02em tracking · Used for wordmark, subheads</div>
+        <div class="type-sample-semi">100% local. 100% private.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Inter · 400 · Default tracking · Used for body copy</div>
+        <div class="type-sample-body">Pure Swift/SwiftUI. Powered by WhisperKit for optimal Apple Silicon performance. Your voice never leaves your Mac.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ DEVELOPER REFERENCE ═══════════════════════ -->
+  <section>
+    <p class="section-label">Developer Reference</p>
+    <h2 class="section-title">Tailwind Config &amp; File Tree</h2>
+    <p class="section-sub">Drop these tokens into your Tailwind config to wire up brand colors.</p>
+
+    <div class="dev-grid">
+      <pre><span class="kw">// tailwind.config.js</span>
+<span class="key">colors</span>: {
+  <span class="key">brand</span>: {
+    <span class="key">amber</span>:    <span class="str">'#F2B54A'</span>, <span class="kw">// primary accent</span>
+    <span class="key">gold</span>:     <span class="str">'#FFD15C'</span>, <span class="kw">// gradient highlight</span>
+    <span class="key">bg</span>:       <span class="str">'#141417'</span>, <span class="kw">// dark background</span>
+    <span class="key">surface</span>:  <span class="str">'#1E1E28'</span>, <span class="kw">// elevated surface</span>
+    <span class="key">light</span>:    <span class="str">'#F7F5F0'</span>, <span class="kw">// light background</span>
+    <span class="key">text</span>:     <span class="str">'#111111'</span>, <span class="kw">// body text / wordmark</span>
+  },
+},</pre>
+
+      <div class="file-tree">
+        <div class="file-tree-title">assets/logo/</div>
+
+        <div class="file-item">
+          <span class="file-icon">⭐</span>
+          <div>
+            <span class="file-name">logo-mark.svg</span>
+            <span class="file-desc">Symbol only — canonical source, 64×64</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">📄</span>
+          <div>
+            <span class="file-name">logo-full.svg</span>
+            <span class="file-desc">Mark + wordmark, light backgrounds, 320×72</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">📄</span>
+          <div>
+            <span class="file-name">logo-wordmark.svg</span>
+            <span class="file-desc">Text only, 180×40</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">📱</span>
+          <div>
+            <span class="file-name">logo-icon.svg</span>
+            <span class="file-desc">App icon, dark rounded square, 512×512</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">🔖</span>
+          <div>
+            <span class="file-name">favicon.svg</span>
+            <span class="file-desc">Browser favicon, simplified, 16×16</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">🌙</span>
+          <div>
+            <span class="file-name">logo-white.svg</span>
+            <span class="file-desc">Full logo in white, dark backgrounds, 320×72</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">🔴</span>
+          <div>
+            <span class="file-name">logo-mark-animated.svg</span>
+            <span class="file-desc">Pulsing ripple, recording indicator, 64×64</span>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">☀️</span>
+          <div>
+            <span class="file-name">logo-black.svg</span>
+            <span class="file-desc">Monochrome dark, light backgrounds, 320×72</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="wordmark">Pindrop</div>
+  <div class="sub">Brand Identity · Chris Watson</div>
+</footer>
+
+</body>
+</html>

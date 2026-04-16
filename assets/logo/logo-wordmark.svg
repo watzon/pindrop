@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" fill="none">
+  <text
+    x="90" y="20"
+    font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
+    font-size="26"
+    font-weight="600"
+    fill="#111111"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="-0.5">Pindrop</text>
+</svg>

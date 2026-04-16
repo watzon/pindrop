@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Angular stroke gradient — same direction as static mark -->
+    <linearGradient id="rippleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+      <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Center dot: gentle breathing pulse -->
+  <circle cx="32" cy="32" r="3" fill="#F2B54A">
+    <animate
+      attributeName="r"
+      values="3;4;3"
+      dur="2s"
+      repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/>
+    <animate
+      attributeName="opacity"
+      values="1;0.7;1"
+      dur="2s"
+      repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/>
+  </circle>
+
+  <!-- Expanding ring 1: grows from center, thins, fades -->
+  <circle cx="32" cy="32" fill="none" stroke="url(#rippleGrad)"
+          r="3" stroke-width="2.5" opacity="0">
+    <animate attributeName="r"
+      values="3;24" dur="2s" begin="0s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+    <animate attributeName="opacity"
+      values="0.8;0" dur="2s" begin="0s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+    <animate attributeName="stroke-width"
+      values="2.5;0.4" dur="2s" begin="0s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+  </circle>
+
+  <!-- Expanding ring 2: same animation, offset by half cycle -->
+  <circle cx="32" cy="32" fill="none" stroke="url(#rippleGrad)"
+          r="3" stroke-width="2.5" opacity="0">
+    <animate attributeName="r"
+      values="3;24" dur="2s" begin="1s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+    <animate attributeName="opacity"
+      values="0.8;0" dur="2s" begin="1s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+    <animate attributeName="stroke-width"
+      values="2.5;0.4" dur="2s" begin="1s" repeatCount="indefinite"
+      calcMode="spline" keySplines="0.15 0 0.35 1"/>
+  </circle>
+</svg>

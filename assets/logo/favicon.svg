@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none">
+  <defs>
+    <linearGradient id="rippleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#FFD15C" stop-opacity="1"/>
+      <stop offset="45%"  stop-color="#F2B54A" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#F2B54A" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Simplified ripple at 16×16: center dot + 2 rings (outermost dropped for clarity) -->
+  <!-- Canonical coords scaled ×0.25, center (32,32)→(8,8) -->
+  <circle cx="8" cy="8" r="0.75" fill="#F2B54A"/>
+  <circle cx="8" cy="8" r="2.5"  fill="none" stroke="url(#rippleGrad)" stroke-width="0.7"/>
+  <circle cx="8" cy="8" r="4.75" fill="none" stroke="url(#rippleGrad)" stroke-width="0.55"/>
+</svg>
