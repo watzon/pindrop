@@ -13,6 +13,7 @@ import FluidAudio
 @Observable
 class ModelManager {
     nonisolated static let englishRecommendedModelNames = [
+        "apple_speech_on_device",
         "openai_whisper-base.en",
         "openai_whisper-small.en",
         "openai_whisper-medium",
@@ -21,6 +22,7 @@ class ModelManager {
     ]
 
     nonisolated static let multilingualRecommendedModelNames = [
+        "apple_speech_on_device",
         "openai_whisper-base",
         "openai_whisper-small",
         "openai_whisper-medium",
@@ -35,21 +37,23 @@ class ModelManager {
     enum ModelProvider: String, CaseIterable, Sendable {
         case whisperKit = "WhisperKit"
         case parakeet = "Parakeet"
+        case appleSpeech = "Apple Speech"
         case openAI = "OpenAI"
         case elevenLabs = "ElevenLabs"
         case groq = "Groq"
-        
+
         var isLocal: Bool {
             switch self {
-            case .whisperKit, .parakeet: return true
+            case .whisperKit, .parakeet, .appleSpeech: return true
             case .openAI, .elevenLabs, .groq: return false
             }
         }
-        
+
         var iconName: String {
             switch self {
             case .whisperKit: return "waveform"
             case .parakeet: return "bird"
+            case .appleSpeech: return "apple.logo"
             case .openAI: return "sparkles"
             case .elevenLabs: return "waveform.circle"
             case .groq: return "bolt"
@@ -222,6 +226,20 @@ class ModelManager {
     }
     
     let availableModels: [WhisperModel] = [
+        // Apple Speech (on-device, uses system models — no download required)
+        WhisperModel(
+            name: "apple_speech_on_device",
+            displayName: "Apple Speech",
+            sizeInMB: 0,
+            description: "Apple's built-in on-device speech recognition. No download required — uses system models.",
+            speedRating: 9.5,
+            accuracyRating: 8.0,
+            language: .multilingual,
+            languageSupport: .fullMultilingual,
+            provider: .appleSpeech,
+            availability: .available
+        ),
+
         // WhisperKit Local Models
         WhisperModel(
             name: "openai_whisper-tiny",
@@ -614,6 +632,9 @@ class ModelManager {
         case .parakeet:
             let folderName = model.name.hasSuffix("-coreml") ? model.name : "\(model.name)-coreml"
             return parakeetModelsURL.appendingPathComponent(folderName, isDirectory: true)
+        case .appleSpeech:
+            // Apple Speech uses system models; no local path to manage.
+            return nil
         case .openAI, .elevenLabs, .groq:
             return nil
         }
@@ -682,7 +703,12 @@ class ModelManager {
     }
     
     func isModelDownloaded(_ modelName: String) -> Bool {
-        downloadedModelNames.contains(modelName)
+        // Apple Speech uses system models — always available, nothing to download.
+        if let model = availableModels.first(where: { $0.name == modelName }),
+           model.provider == .appleSpeech {
+            return true
+        }
+        return downloadedModelNames.contains(modelName)
     }
 
     static func parakeetDownloadSnapshot(

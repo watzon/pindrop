@@ -42,7 +42,8 @@ struct ModelManagerTests {
     @Test func modelSizes() {
         let models = modelManager.availableModels
 
-        for model in models where model.provider.isLocal {
+        // Apple Speech uses on-device system models and reports 0 MB by design.
+        for model in models where model.provider.isLocal && model.provider != .appleSpeech {
             #expect(model.sizeInMB > 0)
         }
 

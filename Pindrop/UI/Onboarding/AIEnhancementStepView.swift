@@ -13,12 +13,15 @@ enum AIProvider: String, CaseIterable, Identifiable {
    case google = "Google"
    case anthropic = "Anthropic"
    case openrouter = "OpenRouter"
+   case apple = "Apple"
    case custom = "Custom"
 
    var id: String { rawValue }
 
    var displayName: String {
       switch self {
+      case .apple:
+         return "Apple Intelligence"
       case .custom:
          return "Custom/Local"
       default:
@@ -32,6 +35,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
       case .google: return .google
       case .anthropic: return .anthropic
       case .openrouter: return .openrouter
+      case .apple: return .sparkles
       case .custom: return .server
       }
    }
@@ -42,6 +46,7 @@ enum AIProvider: String, CaseIterable, Identifiable {
       case .google: return "https://generativelanguage.googleapis.com/v1beta"
       case .anthropic: return "https://api.anthropic.com/v1/messages"
       case .openrouter: return "https://openrouter.ai/api/v1/chat/completions"
+      case .apple: return ""
       case .custom: return ""
       }
    }
@@ -52,13 +57,22 @@ enum AIProvider: String, CaseIterable, Identifiable {
       case .google: return "AIza..."
       case .anthropic: return "sk-ant-..."
       case .openrouter: return "sk-or-..."
+      case .apple: return "Not required"
       case .custom: return "Enter API key"
+      }
+   }
+
+   /// Whether this provider requires API credentials (key + endpoint) to operate.
+   var requiresAPICredentials: Bool {
+      switch self {
+      case .apple: return false
+      default: return true
       }
    }
 
    var isImplemented: Bool {
       switch self {
-      case .openai, .openrouter, .custom, .anthropic: return true
+      case .openai, .openrouter, .custom, .anthropic, .apple: return true
       default: return false
       }
    }
@@ -302,6 +316,8 @@ struct AIEnhancementStepView: View {
        VStack(spacing: 16) {
           if !selectedProvider.isImplemented {
              comingSoonView
+          } else if selectedProvider == .apple {
+             appleIntelligenceConfig
           } else {
              if selectedProvider == .custom {
                 customProviderPicker
@@ -330,6 +346,76 @@ struct AIEnhancementStepView: View {
        .padding(20)
        .frame(maxWidth: .infinity, maxHeight: .infinity)
        .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
+    }
+
+    @ViewBuilder
+    private var appleIntelligenceConfig: some View {
+       VStack(spacing: 16) {
+          if #available(macOS 26, *) {
+             VStack(spacing: 12) {
+                HStack(spacing: 10) {
+                   IconView(icon: .sparkles, size: 20)
+                      .foregroundStyle(.green)
+                   Text(localized("Available on This Mac", locale: locale))
+                      .font(.headline)
+                      .foregroundStyle(.primary)
+                   Spacer()
+                }
+                .padding(14)
+                .background(.green.opacity(0.1), in: .rect(cornerRadius: 10))
+
+                appleIntelligenceFeatureList
+             }
+          } else {
+             VStack(spacing: 12) {
+                HStack(spacing: 10) {
+                   IconView(icon: .warning, size: 20)
+                      .foregroundStyle(.orange)
+                   Text(localized("Requires macOS 26 or Later", locale: locale))
+                      .font(.headline)
+                      .foregroundStyle(.primary)
+                   Spacer()
+                }
+                Text(localized("Apple Intelligence and on-device AI enhancement require macOS 26 with Apple Intelligence enabled. Upgrade your Mac to use this feature.", locale: locale))
+                   .font(.subheadline)
+                   .foregroundStyle(.secondary)
+                   .multilineTextAlignment(.leading)
+             }
+             .padding(14)
+             .background(.orange.opacity(0.1), in: .rect(cornerRadius: 10))
+
+             appleIntelligenceFeatureList
+          }
+
+          Spacer()
+       }
+    }
+
+    private var appleIntelligenceFeatureList: some View {
+       VStack(alignment: .leading, spacing: 8) {
+          Text(localized("Apple Intelligence Enhancement:", locale: locale))
+             .font(.subheadline)
+             .fontWeight(.medium)
+
+          appleFeatureItem(localized("Completely on-device — no data sent anywhere", locale: locale), icon: .shield)
+          appleFeatureItem(localized("No API key or subscription required", locale: locale), icon: .circleCheck)
+          appleFeatureItem(localized("Works offline, no internet needed", locale: locale), icon: .circleCheck)
+          appleFeatureItem(localized("Uses Apple's 3B parameter language model", locale: locale), icon: .circleCheck)
+       }
+       .frame(maxWidth: .infinity, alignment: .leading)
+       .padding(16)
+       .background(AppColors.accent.opacity(0.05))
+       .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+    }
+
+    private func appleFeatureItem(_ text: String, icon: Icon) -> some View {
+       HStack(spacing: 8) {
+          IconView(icon: icon, size: 14)
+             .foregroundStyle(.green)
+          Text(text)
+             .font(.caption)
+             .foregroundStyle(.secondary)
+       }
     }
 
     private var comingSoonView: some View {
@@ -618,6 +704,9 @@ struct AIEnhancementStepView: View {
        selectedModel = settings.aiModel
        customModel = settings.aiModel
        loadCustomEndpointDrafts()
+
+       guard selectedProvider != .apple else { return }
+
        apiKey = settings.loadAPIKey(
           for: selectedProvider,
           customLocalProvider: selectedCustomProvider
@@ -815,6 +904,8 @@ struct AIEnhancementStepView: View {
 
     private var canContinue: Bool {
        guard selectedProvider.isImplemented else { return false }
+       // Apple Intelligence needs no API key, endpoint, or model selection.
+       if selectedProvider == .apple { return true }
        if settings.requiresAPIKey(for: selectedProvider, customLocalProvider: selectedCustomProvider)
           && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
        {
@@ -835,11 +926,25 @@ struct AIEnhancementStepView: View {
     private func saveAndContinue() {
        settings.aiEnhancementEnabled = true
 
-       if selectedProvider == .custom {
+       if selectedProvider == .apple {
+          // Apple Intelligence: persist the provider choice directly; no endpoint or API key needed.
+          settings.aiProvider = AIProvider.apple.rawValue
+          settings.aiModel = "apple_intelligence"
+       } else if selectedProvider == .custom {
           settings.customLocalProviderType = selectedCustomProvider.rawValue
           for type in CustomProviderType.allCases {
              let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
              try? settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
+          }
+          try? settings.saveAPIKey(
+             apiKey,
+             for: selectedProvider,
+             customLocalProvider: selectedCustomProvider
+          )
+          if !selectedCustomProvider.supportsModelListing {
+             settings.aiModel = customModel
+          } else {
+             settings.aiModel = selectedModel
           }
        } else {
           try? settings.saveAPIEndpoint(
@@ -847,20 +952,16 @@ struct AIEnhancementStepView: View {
              for: selectedProvider,
              customLocalProvider: nil
           )
-       }
-       try? settings.saveAPIKey(
-          apiKey,
-          for: selectedProvider,
-          customLocalProvider: selectedCustomProvider
-       )
-       if selectedProvider == .custom && !selectedCustomProvider.supportsModelListing {
-          settings.aiModel = customModel
-       } else {
+          try? settings.saveAPIKey(
+             apiKey,
+             for: selectedProvider,
+             customLocalProvider: selectedCustomProvider
+          )
           settings.aiModel = selectedModel
-      }
+       }
 
-      onContinue()
-   }
+       onContinue()
+    }
 }
 
 private extension AIEnhancementStepView {

@@ -827,6 +827,22 @@ final class AIEnhancementService {
     private let session: URLSessionProtocol
     private let keychainService = "com.pindrop.ai-enhancement"
 
+    // Boxed storage for the @available(macOS 26, *) AppleFoundationModelsEnhancer.
+    // Accessed only through the typed computed property below.
+    private var _appleEnhancerStorage: Any?
+
+#if canImport(FoundationModels)
+    @available(macOS 26, *)
+    private var appleEnhancer: AppleFoundationModelsEnhancer {
+        if let existing = _appleEnhancerStorage as? AppleFoundationModelsEnhancer {
+            return existing
+        }
+        let enhancer = AppleFoundationModelsEnhancer()
+        _appleEnhancerStorage = enhancer
+        return enhancer
+    }
+#endif
+
     init(session: URLSessionProtocol = URLSession.shared) {
         self.session = session
     }
@@ -841,6 +857,18 @@ final class AIEnhancementService {
     ) async throws -> String {
         guard !text.isEmpty else {
             return text
+        }
+
+        // Apple Foundation Models: on-device, no network request needed.
+        if provider == .apple {
+#if canImport(FoundationModels)
+            guard #available(macOS 26, *) else {
+                throw EnhancementError.apiError("Apple Intelligence requires macOS 26 or later.")
+            }
+            return try await appleEnhancer.enhance(text: text, systemPrompt: customPrompt)
+#else
+            throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
+#endif
         }
 
         guard let url = URL(string: apiEndpoint) else {
@@ -892,6 +920,26 @@ final class AIEnhancementService {
     ) async throws -> String {
         guard !text.isEmpty else {
             return text
+        }
+
+        // Apple Foundation Models: on-device, no network request needed.
+        if provider == .apple {
+#if canImport(FoundationModels)
+            guard #available(macOS 26, *) else {
+                throw EnhancementError.apiError("Apple Intelligence requires macOS 26 or later.")
+            }
+            let contextAwarePrompt = AIEnhancementService.buildContextAwareSystemPrompt(
+                basePrompt: customPrompt, context: context
+            )
+            let userPayload = AIEnhancementService.buildTranscriptionEnhancementInput(
+                transcription: text,
+                clipboardText: context.clipboardText,
+                context: context
+            )
+            return try await appleEnhancer.enhance(text: userPayload, systemPrompt: contextAwarePrompt)
+#else
+            throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
+#endif
         }
 
         guard let url = URL(string: apiEndpoint) else {
@@ -1390,6 +1438,21 @@ final class AIEnhancementService {
             return (nil, "")
         }
 
+        // Apple Foundation Models: on-device structured extraction.
+        if provider == .apple {
+#if canImport(FoundationModels)
+            guard #available(macOS 26, *) else {
+                throw EnhancementError.apiError("Apple Intelligence requires macOS 26 or later.")
+            }
+            return try await appleEnhancer.generateTranscriptionMetadata(
+                transcription: transcription,
+                includeTitle: includeTitle
+            )
+#else
+            throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
+#endif
+        }
+
         guard let url = URL(string: apiEndpoint) else {
             throw EnhancementError.invalidEndpoint
         }
@@ -1455,6 +1518,21 @@ final class AIEnhancementService {
     ) async throws -> (title: String, tags: [String]) {
         guard !content.isEmpty else {
             return ("Untitled Note", [])
+        }
+
+        // Apple Foundation Models: on-device structured extraction.
+        if provider == .apple {
+#if canImport(FoundationModels)
+            guard #available(macOS 26, *) else {
+                throw EnhancementError.apiError("Apple Intelligence requires macOS 26 or later.")
+            }
+            return try await appleEnhancer.generateNoteMetadata(
+                content: content,
+                existingTags: existingTags
+            )
+#else
+            throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
+#endif
         }
 
         guard let url = URL(string: apiEndpoint) else {

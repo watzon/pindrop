@@ -850,6 +850,8 @@ class TranscriptionService {
             return WhisperKitEngine()
         case .parakeet:
             return ParakeetEngine()
+        case .appleSpeech:
+            return AppleSpeechEngine()
         default:
             throw TranscriptionError.modelLoadFailed("Provider \(provider.rawValue) not supported locally")
         }

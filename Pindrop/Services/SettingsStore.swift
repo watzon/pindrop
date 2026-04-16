@@ -501,8 +501,13 @@ final class SettingsStore: ObservableObject {
        guard !SettingsStoreRuntime.isPreview else { return }
        migrateLegacyCustomEndpointIfNeeded()
        refreshCachedAPIEndpoint()
-       if let provider = provider(for: apiEndpoint) {
-          aiProvider = provider.rawValue
+       // Only infer provider from the stored endpoint URL if the user hasn't explicitly
+       // chosen a provider that doesn't use an endpoint (e.g. Apple Intelligence).
+       // Without this guard, a stale OpenRouter/OpenAI URL in the keychain would
+       // overwrite the saved "Apple" provider choice on every launch.
+       if AIProvider(rawValue: aiProvider) != .apple,
+          let inferredProvider = provider(for: apiEndpoint) {
+          aiProvider = inferredProvider.rawValue
        }
        if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
           customLocalProviderType = customProvider.rawValue
@@ -717,6 +722,8 @@ final class SettingsStore: ObservableObject {
       customLocalProvider: CustomProviderType? = nil
    ) -> Bool {
       switch provider {
+      case .apple:
+         return false
       case .custom:
          return resolvedCustomLocalProvider(customLocalProvider).requiresAPIKey
       default:

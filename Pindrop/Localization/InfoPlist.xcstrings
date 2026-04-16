@@ -217,6 +217,60 @@
         }
       }
     },
+    "NSSpeechRecognitionUsageDescription": {
+      "comment": "Privacy - Speech Recognition Usage Description",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop usa el reconocimiento de voz local para transcribir tu audio sin enviar datos a ningún servidor."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindropは、データをサーバーに送信することなく音声を文字起こしするためにオンデバイス音声認識を使用します。"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pindrop usa reconhecimento de voz local para transcrever seu áudio sem enviar dados para nenhum servidor."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop usa il riconoscimento vocale locale per trascrivere il tuo audio senza inviare dati a nessun server."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop gebruikt spraakherkenning op het apparaat om je audio te transcriberen zonder gegevens naar een server te sturen."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop은 서버에 데이터를 전송하지 않고 오디오를 텍스트로 변환하기 위해 온디바이스 음성 인식을 사용합니다."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop, herhangi bir sunucuya veri göndermeden sesinizi yazıya dökmek için cihaz üzerinde konuşma tanıma kullanır."
+          }
+        }
+      }
+    },
     "NSAudioCaptureUsageDescription": {
       "comment": "Privacy - System Audio Capture Usage Description",
       "extractionState": "manual",

@@ -521,6 +521,8 @@ struct AIEnhancementSettingsView: View {
    private var providerConfigContent: some View {
       if !selectedProvider.isImplemented {
          comingSoonView
+      } else if selectedProvider == .apple {
+         appleIntelligenceConfig
       } else {
           VStack(spacing: 16) {
             if selectedProvider == .custom {
@@ -554,6 +556,72 @@ struct AIEnhancementSettingsView: View {
 
             keychainNote
          }
+      }
+   }
+
+   @ViewBuilder
+   private var appleIntelligenceConfig: some View {
+      VStack(spacing: 16) {
+         if #available(macOS 26, *) {
+            HStack(spacing: 10) {
+               IconView(icon: .sparkles, size: 16)
+                  .foregroundStyle(.green)
+               Text(localized("Apple Intelligence is available on this Mac", locale: locale))
+                  .font(.subheadline)
+                  .fontWeight(.medium)
+                  .foregroundStyle(.primary)
+               Spacer()
+            }
+            .padding(12)
+            .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+         } else {
+            HStack(spacing: 10) {
+               IconView(icon: .warning, size: 16)
+                  .foregroundStyle(.orange)
+               VStack(alignment: .leading, spacing: 2) {
+                  Text(localized("Requires macOS 26 or Later", locale: locale))
+                     .font(.subheadline)
+                     .fontWeight(.medium)
+                  Text(localized("Apple Intelligence requires macOS 26 with Apple Intelligence enabled.", locale: locale))
+                     .font(AppTypography.caption)
+                     .foregroundStyle(AppColors.textSecondary)
+               }
+               Spacer()
+            }
+            .padding(12)
+            .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+         }
+
+         VStack(alignment: .leading, spacing: 8) {
+            appleFeatureRow(localized("Completely on-device — no data sent anywhere", locale: locale), icon: .shield)
+            appleFeatureRow(localized("No API key or subscription required", locale: locale), icon: .circleCheck)
+            appleFeatureRow(localized("Works offline, no internet connection needed", locale: locale), icon: .circleCheck)
+            appleFeatureRow(localized("Uses Apple's 3B parameter language model", locale: locale), icon: .circleCheck)
+         }
+         .padding(12)
+         .frame(maxWidth: .infinity, alignment: .leading)
+         .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8))
+
+         Button(localized("Save", locale: locale)) {
+            saveCredentials()
+         }
+         .buttonStyle(.borderedProminent)
+         .disabled(!canSave)
+
+         if showingSaveSuccess {
+            successMessage
+         }
+      }
+      .padding(.top, 4)
+   }
+
+   private func appleFeatureRow(_ text: String, icon: Icon) -> some View {
+      HStack(spacing: 8) {
+         IconView(icon: icon, size: 12)
+            .foregroundStyle(.green)
+         Text(text)
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.textSecondary)
       }
    }
 
@@ -1015,6 +1083,8 @@ struct AIEnhancementSettingsView: View {
 
     private var canSave: Bool {
        guard selectedProvider.isImplemented else { return false }
+       // Apple Intelligence needs no credentials or model selection.
+       if selectedProvider == .apple { return true }
        if settings.requiresAPIKey(for: selectedProvider, customLocalProvider: selectedCustomProvider)
           && apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
        {
@@ -1040,13 +1110,15 @@ struct AIEnhancementSettingsView: View {
 
        loadCustomEndpointDrafts()
 
-       if let endpoint = settings.apiEndpoint {
+       if settings.currentAIProvider == .apple {
+          selectedProvider = .apple
+       } else if let endpoint = settings.apiEndpoint {
           if endpoint.contains("openai.com") {
              selectedProvider = .openai
-         } else if endpoint.contains("anthropic.com") {
-            selectedProvider = .anthropic
-         } else if endpoint.contains("googleapis.com") {
-            selectedProvider = .google
+          } else if endpoint.contains("anthropic.com") {
+             selectedProvider = .anthropic
+          } else if endpoint.contains("googleapis.com") {
+             selectedProvider = .google
           } else if endpoint.contains("openrouter.ai") {
              selectedProvider = .openrouter
           } else if !endpoint.isEmpty {
@@ -1056,6 +1128,12 @@ struct AIEnhancementSettingsView: View {
        } else if settings.currentAIProvider == .custom {
           selectedProvider = .custom
        }
+
+       guard selectedProvider != .apple else {
+          noteEnhancementPrompt = localizedNotePrompt(settings.noteEnhancementPrompt)
+          return
+       }
+
        customModel = loadedModel
        apiKey = settings.loadAPIKey(
           for: selectedProvider,
@@ -1098,31 +1176,39 @@ struct AIEnhancementSettingsView: View {
       errorMessage = nil
       showingSaveSuccess = false
 
-       do {
-          if selectedProvider == .custom {
-             settings.customLocalProviderType = selectedCustomProvider.rawValue
-             for type in CustomProviderType.allCases {
-                let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                try settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
-             }
-          } else {
-             try settings.saveAPIEndpoint(
-                selectedProvider.defaultEndpoint,
-                for: selectedProvider,
-                customLocalProvider: nil
-             )
-          }
-
-          try settings.saveAPIKey(
-             apiKey,
-             for: selectedProvider,
-             customLocalProvider: selectedCustomProvider
-          )
-
-          if selectedProvider == .custom && !selectedCustomProvider.supportsModelListing {
-             settings.aiModel = customModel
-          } else {
-             settings.aiModel = selectedModel
+      do {
+         if selectedProvider == .apple {
+            // Apple Intelligence: persist provider choice directly; no endpoint or API key needed.
+            settings.aiProvider = AIProvider.apple.rawValue
+            settings.aiModel = "apple_intelligence"
+         } else if selectedProvider == .custom {
+            settings.customLocalProviderType = selectedCustomProvider.rawValue
+            for type in CustomProviderType.allCases {
+               let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+               try settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
+            }
+            try settings.saveAPIKey(
+               apiKey,
+               for: selectedProvider,
+               customLocalProvider: selectedCustomProvider
+            )
+            if !selectedCustomProvider.supportsModelListing {
+               settings.aiModel = customModel
+            } else {
+               settings.aiModel = selectedModel
+            }
+         } else {
+            try settings.saveAPIEndpoint(
+               selectedProvider.defaultEndpoint,
+               for: selectedProvider,
+               customLocalProvider: nil
+            )
+            try settings.saveAPIKey(
+               apiKey,
+               for: selectedProvider,
+               customLocalProvider: selectedCustomProvider
+            )
+            settings.aiModel = selectedModel
          }
 
          settings.aiEnhancementPrompt = enhancementPrompt
@@ -1134,7 +1220,7 @@ struct AIEnhancementSettingsView: View {
             showingSaveSuccess = false
          }
       } catch {
-          errorMessage = String(format: localized("Failed to save: %@", locale: locale), error.localizedDescription)
+         errorMessage = String(format: localized("Failed to save: %@", locale: locale), error.localizedDescription)
       }
    }
 
