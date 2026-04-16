@@ -194,6 +194,8 @@ struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
     var detail: String
     var errorMessage: String?
     var startedAt: Date
+    /// Set when the job completes successfully; contains the saved TranscriptionRecord's ID.
+    var resultRecordID: UUID?
 
     init(
         id: UUID = UUID(),
@@ -204,7 +206,8 @@ struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
         progress: Double? = nil,
         detail: String = "",
         errorMessage: String? = nil,
-        startedAt: Date = Date()
+        startedAt: Date = Date(),
+        resultRecordID: UUID? = nil
     ) {
         self.id = id
         self.request = request
@@ -215,6 +218,7 @@ struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
         self.detail = detail
         self.errorMessage = errorMessage
         self.startedAt = startedAt
+        self.resultRecordID = resultRecordID
     }
 }
 
@@ -304,6 +308,7 @@ final class MediaTranscriptionFeatureState {
         job.stage = .completed
         job.progress = 1.0
         job.detail = "Finished"
+        job.resultRecordID = recordID
         completedJobs.append(job)
         currentJob = nil
         selectedRecordID = recordID

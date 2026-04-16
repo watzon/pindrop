@@ -165,6 +165,8 @@ struct SettingsObservationSnapshot: Equatable {
     let enableUIContext: Bool
     let vibeLiveSessionEnabled: Bool
     let hotkeys: HotkeySettingsSnapshot
+    let mcpServerEnabled: Bool
+    let mcpServerPort: Int
 }
 
 @MainActor
@@ -285,6 +287,7 @@ final class AppCoordinator {
     let mediaPreparationService: MediaPreparationService
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
+    private(set) var mcpServer: MCPServer?
 
     // MARK: - UI Controllers
     
@@ -929,7 +932,81 @@ final class AppCoordinator {
         updateFloatingIndicatorVisibility()
 
         updateVibeRuntimeStateFromSettings()
+        applyMCPServerSettings()
         Log.boot.info("startNormalOperation complete")
+    }
+
+    // MARK: - MCP Server
+
+    private func applyMCPServerSettings() {
+        if settingsStore.mcpServerEnabled {
+            startMCPServerIfNeeded()
+        } else {
+            stopMCPServerIfRunning()
+        }
+    }
+
+    private func startMCPServerIfNeeded() {
+        let port = UInt16(clamping: settingsStore.mcpServerPort)
+
+        // Reuse existing server if port hasn't changed
+        if let existing = mcpServer, existing.port == port {
+            if !existing.isRunning { existing.start() }
+            return
+        }
+
+        // Stop old server (port changed)
+        mcpServer?.stop()
+
+        let token = resolvedMCPToken()
+        let server = MCPServer(port: port, token: token)
+        server.coordinator = self
+        mcpServer = server
+        server.start()
+    }
+
+    private func stopMCPServerIfRunning() {
+        mcpServer?.stop()
+        mcpServer = nil
+    }
+
+    private func resolvedMCPToken() -> String {
+        if let existing = settingsStore.loadMCPToken(), !existing.isEmpty {
+            return existing
+        }
+        let token = MCPTokenGenerator.generate()
+        try? settingsStore.saveMCPToken(token)
+        return token
+    }
+
+    /// Submits a transcription job from the MCP server (bypasses UI source validation).
+    func submitMCPTranscriptionJob(_ job: MediaTranscriptionJobState) {
+        enqueueOrStart(job)
+    }
+
+    /// Cancels the MCP-submitted job with the given internal state ID.
+    func cancelMCPJob(stateID: UUID) {
+        if mediaTranscriptionState.currentJob?.id == stateID {
+            mediaTranscriptionTask?.cancel()
+            mediaTranscriptionTask = nil
+            mediaTranscriptionState.clearCurrentJob()
+            Log.mcp.info("Cancelled active MCP job \(stateID)")
+        } else {
+            mediaTranscriptionState.pendingJobs.removeAll { $0.id == stateID }
+            Log.mcp.info("Removed pending MCP job \(stateID)")
+        }
+    }
+
+    /// Loads and activates a transcription model by name for MCP callers.
+    func loadAndActivateModelForMCP(named modelName: String) async throws {
+        guard let model = modelManager.availableModels.first(where: { $0.name == modelName }) else {
+            throw ModelManager.ModelError.modelNotFound(modelName)
+        }
+        if !modelManager.isModelDownloaded(modelName) {
+            try await modelManager.downloadModel(named: modelName) { _ in }
+        }
+        try await loadAndActivateModel(named: modelName, provider: model.provider)
+        settingsStore.selectedModel = modelName
     }
 
     // MARK: - Hotkey Setup
@@ -1249,7 +1326,9 @@ final class AppCoordinator {
                     keyCode: settingsStore.quickCaptureToggleHotkeyCode,
                     modifiers: settingsStore.quickCaptureToggleHotkeyModifiers
                 )
-            )
+            ),
+            mcpServerEnabled: settingsStore.mcpServerEnabled,
+            mcpServerPort: settingsStore.mcpServerPort
         )
     }
     private func observeSettings() {
@@ -1300,6 +1379,11 @@ final class AppCoordinator {
                     if previousSnapshot.selectedAppLanguage != snapshot.selectedAppLanguage {
                         self.statusBarController.reloadLocalizedStrings()
                         self.pillFloatingIndicatorController.reloadLocalizedStrings()
+                    }
+
+                    if previousSnapshot.mcpServerEnabled != snapshot.mcpServerEnabled
+                        || previousSnapshot.mcpServerPort != snapshot.mcpServerPort {
+                        self.applyMCPServerSettings()
                     }
 
                     self.statusBarController.updateDynamicItems()

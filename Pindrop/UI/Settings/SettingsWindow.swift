@@ -14,6 +14,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case hotkeys = "Hotkeys"
     case ai = "AI Enhancement"
     case participants = "Participants"
+    case mcp = "MCP Server"
     case about = "About"
 
     var id: String { rawValue }
@@ -25,6 +26,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .hotkeys: return localized("Hotkeys", locale: locale)
         case .ai: return localized("AI Enhancement", locale: locale)
         case .participants: return localized("Participants", locale: locale)
+        case .mcp: return localized("MCP Server", locale: locale)
         case .about: return localized("About", locale: locale)
         }
     }
@@ -36,6 +38,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .hotkeys: return "keyboard"
         case .ai: return "sparkles"
         case .participants: return "person.2"
+        case .mcp: return "network"
         case .about: return "info.circle"
         }
     }
@@ -56,6 +59,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             return localized("Providers, prompts, and vibe mode controls", locale: locale)
         case .participants:
             return localized("Learned speaker voices and participant profiles", locale: locale)
+        case .mcp:
+            return localized("Local HTTP server for AI agent integration", locale: locale)
         case .about:
             return localized("App info, updates, acknowledgments, support, and logs", locale: locale)
         }
@@ -88,6 +93,11 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             return [
                 "speaker", "voice", "participant", "profile", "diarization",
                 "rename", "learned", "identity", "recognition"
+            ]
+        case .mcp:
+            return [
+                "mcp", "agent", "server", "api", "http", "token", "port", "claude code",
+                "cursor", "codex", "opencode", "integration", "automation"
             ]
         case .about:
             return [
@@ -218,6 +228,8 @@ struct SettingsContainerView: View {
                         AIEnhancementSettingsView(settings: settings)
                     case .participants:
                         ParticipantsSettingsView()
+                    case .mcp:
+                        MCPSettingsView(settings: settings)
                     case .about:
                         AboutSettingsView()
                     }

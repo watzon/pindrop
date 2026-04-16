@@ -5,7 +5,19 @@
 //  Created on 2026-03-20.
 //
 
+import AppKit
 import SwiftUI
+
+/// Backs a view with a transparent NSView that opts out of `isMovableByWindowBackground`,
+/// so that click-and-drag in the content area doesn't move the window.
+private struct WindowDragBlocker: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView { DragBlockerView() }
+    func updateNSView(_ view: NSView, context: Context) {}
+
+    private final class DragBlockerView: NSView {
+        override var mouseDownCanMoveWindow: Bool { false }
+    }
+}
 
 struct MainContentPageLayout<Header: View, Content: View>: View {
     let scrollContent: Bool
@@ -44,8 +56,10 @@ struct MainContentPageLayout<Header: View, Content: View>: View {
                 ScrollView(showsIndicators: showsIndicators) {
                     contentContainer
                 }
+                .background(WindowDragBlocker())
             } else {
                 contentContainer
+                    .background(WindowDragBlocker())
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

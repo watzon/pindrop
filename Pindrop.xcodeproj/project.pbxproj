@@ -155,6 +155,13 @@
 		WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */; };
 		WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */; };
 		WORDRPLACEA1B2C3D4 /* WordReplacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */; };
+		MCPTYPESBUILD01A2B3C4D5E6F /* MCPTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPTYPESFILE01A2B3C4D5E6F /* MCPTypes.swift */; };
+		MCPSERVERBUILD01A2B3C4D5E6F /* MCPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPSERVERFILE01A2B3C4D5E6F /* MCPServer.swift */; };
+		MCPHTTPCONNBUILD01A2B3C4D5E6F /* MCPHTTPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPHTTPCONNFILE01A2B3C4D5E6F /* MCPHTTPConnection.swift */; };
+		MCPPROTOHANDBUILD01A2B3C4D5E6 /* MCPProtocolHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPPROTOHANDFILE01A2B3C4D5E6 /* MCPProtocolHandler.swift */; };
+		MCPTOOLDISPBUILD01A2B3C4D5E6 /* MCPToolDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPTOOLDISP01A2B3C4D5E6F /* MCPToolDispatcher.swift */; };
+		MCPJOBREGBUILD01A2B3C4D5E6F /* MCPJobRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPJOBREGFILE01A2B3C4D5E6F /* MCPJobRegistry.swift */; };
+		MCPSETTVIEWBUILD01A2B3C4D5E6 /* MCPSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MCPSETTVIEWFILE01A2B3C4D5E6F /* MCPSettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -325,6 +332,13 @@
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionServiceTests.swift; sourceTree = "<group>"; };
 		f5b1372d4c0e4e96a1ed0b59 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		MCPTYPESFILE01A2B3C4D5E6F /* MCPTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPTypes.swift; sourceTree = "<group>"; };
+		MCPSERVERFILE01A2B3C4D5E6F /* MCPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServer.swift; sourceTree = "<group>"; };
+		MCPHTTPCONNFILE01A2B3C4D5E6F /* MCPHTTPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPHTTPConnection.swift; sourceTree = "<group>"; };
+		MCPPROTOHANDFILE01A2B3C4D5E6 /* MCPProtocolHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPProtocolHandler.swift; sourceTree = "<group>"; };
+		MCPTOOLDISP01A2B3C4D5E6F /* MCPToolDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPToolDispatcher.swift; sourceTree = "<group>"; };
+		MCPJOBREGFILE01A2B3C4D5E6F /* MCPJobRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPJobRegistry.swift; sourceTree = "<group>"; };
+		MCPSETTVIEWFILE01A2B3C4D5E6F /* MCPSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPSettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -412,6 +426,19 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		MCPGRP01A2B3C4D5E6F /* MCP */ = {
+			isa = PBXGroup;
+			children = (
+				MCPTYPESFILE01A2B3C4D5E6F /* MCPTypes.swift */,
+				MCPSERVERFILE01A2B3C4D5E6F /* MCPServer.swift */,
+				MCPHTTPCONNFILE01A2B3C4D5E6F /* MCPHTTPConnection.swift */,
+				MCPPROTOHANDFILE01A2B3C4D5E6 /* MCPProtocolHandler.swift */,
+				MCPTOOLDISP01A2B3C4D5E6F /* MCPToolDispatcher.swift */,
+				MCPJOBREGFILE01A2B3C4D5E6F /* MCPJobRegistry.swift */,
+			);
+			path = MCP;
+			sourceTree = "<group>";
+		};
 		81f50d309b6a44df90efbd5f /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -446,6 +473,7 @@
 				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
 				LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
 				UPDATESVC01A2B3C4D5E6F7 /* UpdateService.swift */,
+				MCPGRP01A2B3C4D5E6F /* MCP */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -496,6 +524,7 @@
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
 				44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */,
 				83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */,
+				MCPSETTVIEWFILE01A2B3C4D5E6F /* MCPSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -976,6 +1005,13 @@
 				AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */,
 				808D93D3AE93C8AC617300D6 /* AppTestMode.swift in Sources */,
 				987212BCF53288AC6E5C81D6 /* TaskScheduler.swift in Sources */,
+				MCPTYPESBUILD01A2B3C4D5E6F /* MCPTypes.swift in Sources */,
+				MCPSERVERBUILD01A2B3C4D5E6F /* MCPServer.swift in Sources */,
+				MCPHTTPCONNBUILD01A2B3C4D5E6F /* MCPHTTPConnection.swift in Sources */,
+				MCPPROTOHANDBUILD01A2B3C4D5E6 /* MCPProtocolHandler.swift in Sources */,
+				MCPTOOLDISPBUILD01A2B3C4D5E6 /* MCPToolDispatcher.swift in Sources */,
+				MCPJOBREGBUILD01A2B3C4D5E6F /* MCPJobRegistry.swift in Sources */,
+				MCPSETTVIEWBUILD01A2B3C4D5E6 /* MCPSettingsView.swift in Sources */,
 			);
 		};
 		80FE3E5F863A7B102C4C03CC /* Sources */ = {

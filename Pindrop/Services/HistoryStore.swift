@@ -330,6 +330,13 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
 
     // MARK: - Profile Management
 
+    /// Creates a named participant profile (without audio evidence). Useful for pre-registering
+    /// known speakers so future diarization can match them by name.
+    @discardableResult
+    func registerParticipant(displayName: String) throws -> ParticipantProfile {
+        try getOrCreateProfile(named: displayName)
+    }
+
     func fetchAllProfiles() throws -> [ParticipantProfile] {
         do {
             let descriptor = FetchDescriptor<ParticipantProfile>(

@@ -319,6 +319,13 @@ final class SettingsStore: ObservableObject {
    @AppStorage("currentOnboardingStep", store: SettingsStoreRuntime.appStorageStore)
    var currentOnboardingStep: Int = 0
 
+   // MARK: - MCP Server
+
+   @AppStorage("mcpServerEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var mcpServerEnabled: Bool = false
+   @AppStorage("mcpServerPort", store: SettingsStoreRuntime.appStorageStore)
+   var mcpServerPort: Int = 46337
+
    // MARK: - Keychain Properties
 
    private let keychainService = "com.pindrop.settings"
@@ -1100,6 +1107,22 @@ final class SettingsStore: ObservableObject {
       guard status == errSecSuccess || status == errSecItemNotFound else {
          throw SettingsError.keychainError("Failed to delete from keychain: \(status)")
       }
+   }
+
+   // MARK: - MCP Token
+
+   private let mcpServerTokenAccount = "mcp-server-token"
+
+   func loadMCPToken() -> String? {
+      try? loadFromKeychain(account: mcpServerTokenAccount)
+   }
+
+   func saveMCPToken(_ token: String) throws {
+      try saveToKeychain(value: token, account: mcpServerTokenAccount)
+   }
+
+   func deleteMCPToken() throws {
+      try deleteFromKeychain(account: mcpServerTokenAccount)
    }
 
    func isFeatureEnabled(_ type: FeatureModelType) -> Bool {
