@@ -57,6 +57,7 @@
 		B2C3D4E5F6789012345678AB /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */; };
 		BC44C77F1DDD43BFAD8A88BD /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDC77E732664A859279FEC9 /* HistoryStore.swift */; };
 		BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */; };
+		DOTINDBUILD001A2B3C4D5E6F70 /* DotFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */; };
 		BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */; };
 		C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6BA5D6DB40F25222D224E /* StatusBarController.swift */; };
 		C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */; };
@@ -221,6 +222,7 @@
 		BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
 		BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaretBubbleFloatingIndicator.swift; sourceTree = "<group>"; };
+		DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotFloatingIndicator.swift; sourceTree = "<group>"; };
 		BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInPresets.swift; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB05E1BC11534652810B091F /* OutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManager.swift; sourceTree = "<group>"; };
@@ -399,6 +401,7 @@
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
 				96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
 				BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */,
+				DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */,
 				FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
 				PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
 				TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */,
@@ -907,6 +910,7 @@
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 				C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
 				BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */,
+				DOTINDBUILD001A2B3C4D5E6F70 /* DotFloatingIndicator.swift in Sources */,
 				FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */,
 				PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
 				TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */,

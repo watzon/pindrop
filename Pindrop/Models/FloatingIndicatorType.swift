@@ -11,6 +11,7 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
     case notch = "notch"
     case pill = "pill"
     case bubble = "bubble"
+    case dot = "dot"
 
     var id: String { rawValue }
 
@@ -26,6 +27,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return localized("Pill", locale: locale)
         case .bubble:
             return localized("Bubble", locale: locale)
+        case .dot:
+            return localized("Dot", locale: locale)
         }
     }
 
@@ -41,6 +44,8 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
             return localized("Shows as a pill at the bottom of the screen", locale: locale)
         case .bubble:
             return localized("Shows beside the focused text field/caret", locale: locale)
+        case .dot:
+            return localized("Shows as a dot in the corner of the screen", locale: locale)
         }
     }
 }

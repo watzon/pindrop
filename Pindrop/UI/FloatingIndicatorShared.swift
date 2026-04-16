@@ -138,6 +138,17 @@ struct FloatingIndicatorWaveformStyle {
         color: AppColors.recording,
         animationInterval: 0.05
     )
+
+    static let dot = FloatingIndicatorWaveformStyle(
+        layout: .fixed(count: 7, heightScale: [0.37, 0.74, 1.0, 0.53, 0.84, 0.42, 0.63]),
+        barWidth: 5,
+        barSpacing: 5,
+        minimumHeight: 4,
+        maximumHeight: 38,
+        idleHeight: 4,
+        color: AppColors.overlayRecording,
+        animationInterval: 0.05
+    )
 }
 
 struct FloatingIndicatorWaveformView: View {

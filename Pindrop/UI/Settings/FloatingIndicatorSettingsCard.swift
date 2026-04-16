@@ -145,6 +145,8 @@ private struct FloatingIndicatorPreviewGlyph: View {
                 PillIndicatorSelectionGlyph()
             case .bubble:
                 CaretBubbleIndicatorSelectionGlyph()
+            case .dot:
+                DotIndicatorSelectionGlyph()
             }
         }
         .frame(height: 92)
@@ -298,6 +300,28 @@ private struct CaretBubbleIndicatorSelectionGlyph: View {
                 .shadow(color: AppColors.overlayRecording.opacity(0.22), radius: 4)
         }
         .padding(.top, 6)
+    }
+}
+
+private struct DotIndicatorSelectionGlyph: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(AppColors.overlaySurfaceStrong)
+                .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 10, y: 5)
+                .hairlineStroke(Circle(), style: AppColors.overlayLine.opacity(0.6))
+
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [AppColors.overlayTooltipAccent, AppColors.accent],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 16, height: 16)
+        }
+        .frame(width: 40, height: 40)
     }
 }
 

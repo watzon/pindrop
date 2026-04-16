@@ -188,6 +188,8 @@ final class AppCoordinator {
         case pillIndicatorStart = "pill-indicator-start"
         case bubbleIndicatorStart = "bubble-indicator-start"
         case bubbleIndicatorStop = "bubble-indicator-stop"
+        case dotIndicatorStart = "dot-indicator-start"
+        case dotIndicatorStop = "dot-indicator-stop"
     }
 
     enum EventTapRecoveryAction: Equatable {
@@ -235,14 +237,14 @@ final class AppCoordinator {
 
         if isRecording || isProcessing {
             switch selectedType {
-            case .pill, .notch:
+            case .pill, .notch, .dot:
                 return .activeSession
             case .bubble:
                 return nil
             }
         }
 
-        return selectedType == .pill ? .idlePill : nil
+        return (selectedType == .pill || selectedType == .dot) ? .idlePill : nil
     }
 
     private enum EventTapKind {
@@ -291,6 +293,7 @@ final class AppCoordinator {
     let floatingIndicatorController: FloatingIndicatorController
     let pillFloatingIndicatorController: PillFloatingIndicatorController
     let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
+    let dotFloatingIndicatorController: DotFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
@@ -428,10 +431,15 @@ final class AppCoordinator {
             settingsStore: settingsStore
         )
         self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(state: floatingIndicatorState)
+        self.dotFloatingIndicatorController = DotFloatingIndicatorController(
+            state: floatingIndicatorState,
+            settingsStore: settingsStore
+        )
         self.floatingIndicatorPresenters = [
             .notch: floatingIndicatorController,
             .pill: pillFloatingIndicatorController,
-            .bubble: caretBubbleFloatingIndicatorController
+            .bubble: caretBubbleFloatingIndicatorController,
+            .dot: dotFloatingIndicatorController
         ]
         self.onboardingController = OnboardingWindowController()
         let splashState = SplashScreenState()
@@ -1355,6 +1363,8 @@ final class AppCoordinator {
             .floatingIndicatorStart
         case .bubble:
             .bubbleIndicatorStart
+        case .dot:
+            .dotIndicatorStart
         }
     }
 
@@ -1366,6 +1376,8 @@ final class AppCoordinator {
             .floatingIndicatorStop
         case .bubble:
             .bubbleIndicatorStop
+        case .dot:
+            .dotIndicatorStop
         }
     }
 

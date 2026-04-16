@@ -11635,6 +11635,77 @@
         }
       }
     },
+    "Dot": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dot"
+          }
+        }
+      }
+    },
     "Download": {
       "extractionState": "stale",
       "localizations": {
@@ -27529,6 +27600,22 @@
         }
       }
     },
+    "Pindrop Dot": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "nl": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Pindrop Dot" } }
+      }
+    },
     "Pindrop Pill": {
       "extractionState": "stale",
       "localizations": {
@@ -28943,6 +29030,77 @@
         }
       }
     },
+    "Processing transcript": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing transcript"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Processing transcript"
+          }
+        }
+      }
+    },
     "Processing...": {
       "extractionState": "stale",
       "localizations": {
@@ -29791,6 +29949,77 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hazır"
+          }
+        }
+      }
+    },
+    "Ready to record": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to record"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ready to record"
           }
         }
       }
@@ -34407,6 +34636,77 @@
         }
       }
     },
+    "Shows as a dot in the corner of the screen": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shows as a dot in the corner of the screen"
+          }
+        }
+      }
+    },
     "Shows as a pill at the bottom of the screen": {
       "extractionState": "stale",
       "localizations": {
@@ -34760,6 +35060,38 @@
             "value": "Basitleştirilmiş Çince"
           }
         }
+      }
+    },
+    "Size": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "en": { "stringUnit": { "state": "translated",   "value": "Size" } },
+        "es": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "fr": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "it": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "ja": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "ko": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "nl": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "pt-BR": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "zh-Hans": { "stringUnit": { "state": "needs_review", "value": "Size" } },
+        "tr": { "stringUnit": { "state": "needs_review", "value": "Size" } }
+      }
+    },
+    "Small": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "nl": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Small" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Small" } }
       }
     },
     "Skip for Now": {
@@ -43133,6 +43465,22 @@
             "value": "Daralt"
           }
         }
+      }
+    },
+    "Large": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "nl": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Large" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Large" } }
       }
     },
     "Left": {

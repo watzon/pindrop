@@ -144,9 +144,12 @@ final class SettingsStore: ObservableObject {
       static let aiEnhancementPrompt =
          "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
       static let floatingIndicatorEnabled = true
-      static let floatingIndicatorType = FloatingIndicatorType.pill.rawValue
+      static let floatingIndicatorType = FloatingIndicatorType.dot.rawValue
       static let pillFloatingIndicatorOffsetX = 0.0
       static let pillFloatingIndicatorOffsetY = 0.0
+      static let dotFloatingIndicatorOffsetX = 0.0
+      static let dotFloatingIndicatorOffsetY = 0.0
+      static let dotFloatingIndicatorSize = "large"
       static let noteEnhancementPrompt = """
          You are a note formatting assistant. Transform the transcribed text into a well-structured note.
 
@@ -264,6 +267,12 @@ final class SettingsStore: ObservableObject {
    var pillFloatingIndicatorOffsetX: Double = Defaults.pillFloatingIndicatorOffsetX
    @AppStorage("pillFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
    var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
+   @AppStorage("dotFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
+   var dotFloatingIndicatorOffsetX: Double = Defaults.dotFloatingIndicatorOffsetX
+   @AppStorage("dotFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
+   var dotFloatingIndicatorOffsetY: Double = Defaults.dotFloatingIndicatorOffsetY
+   @AppStorage("dotFloatingIndicatorSize", store: SettingsStoreRuntime.appStorageStore)
+   var dotFloatingIndicatorSize: String = Defaults.dotFloatingIndicatorSize
    @AppStorage("sidebarPosition", store: SettingsStoreRuntime.appStorageStore)
    var sidebarPosition: String = Defaults.sidebarPosition
    @AppStorage("sidebarExpanded", store: SettingsStoreRuntime.appStorageStore)
@@ -413,6 +422,26 @@ final class SettingsStore: ObservableObject {
       pillFloatingIndicatorOffset = CGSize(
          width: Defaults.pillFloatingIndicatorOffsetX,
          height: Defaults.pillFloatingIndicatorOffsetY
+      )
+   }
+
+   var dotFloatingIndicatorOffset: CGSize {
+      get {
+         CGSize(
+            width: dotFloatingIndicatorOffsetX,
+            height: dotFloatingIndicatorOffsetY
+         )
+      }
+      set {
+         dotFloatingIndicatorOffsetX = newValue.width
+         dotFloatingIndicatorOffsetY = newValue.height
+      }
+   }
+
+   func resetDotFloatingIndicatorOffset() {
+      dotFloatingIndicatorOffset = CGSize(
+         width: Defaults.dotFloatingIndicatorOffsetX,
+         height: Defaults.dotFloatingIndicatorOffsetY
       )
    }
 
