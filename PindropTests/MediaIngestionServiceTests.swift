@@ -36,6 +36,7 @@ struct MediaIngestionServiceTests {
             thumbnailURL: nil,
             sourceKind: .importedFile,
             displayName: "media.mp4",
+            hasSourceMetadataTitle: false,
             originalSourceURL: nil
         )
         let library = MockMediaLibrary()
@@ -78,7 +79,7 @@ struct MediaIngestionServiceTests {
             Issue.record("Expected toolingUnavailable error")
         } catch {
             if case MediaIngestionError.toolingUnavailable(let message) = error {
-                #expect(message == "To transcribe web links, install ffmpeg.")
+                #expect(message == "This link requires yt-dlp to download. To transcribe web links, install ffmpeg.")
             } else {
                 Issue.record("Expected toolingUnavailable error, got \(error)")
             }
@@ -93,6 +94,7 @@ struct MediaIngestionServiceTests {
             thumbnailURL: directoryURL.appendingPathComponent("thumbnail.png"),
             sourceKind: .webLink,
             displayName: "Example title",
+            hasSourceMetadataTitle: true,
             originalSourceURL: "https://example.com/video"
         )
         let processRunner = MockProcessRunner()
@@ -154,6 +156,7 @@ struct MediaIngestionServiceTests {
             thumbnailURL: directoryURL.appendingPathComponent("thumbnail.png"),
             sourceKind: .webLink,
             displayName: "Example video",
+            hasSourceMetadataTitle: true,
             originalSourceURL: youtubeURL
         )
 
@@ -221,6 +224,7 @@ private final class MockMediaLibrary: MediaLibraryManaging {
         thumbnailURL: nil,
         sourceKind: .importedFile,
         displayName: "media.mp4",
+        hasSourceMetadataTitle: false,
         originalSourceURL: nil
     )
     var directoryURL = URL(fileURLWithPath: "/tmp/job", isDirectory: true)
@@ -230,6 +234,7 @@ private final class MockMediaLibrary: MediaLibraryManaging {
         thumbnailURL: nil,
         sourceKind: .webLink,
         displayName: "media.mp4",
+        hasSourceMetadataTitle: false,
         originalSourceURL: nil
     )
     var storedRecordedAudio: Data?
@@ -261,6 +266,7 @@ private final class MockMediaLibrary: MediaLibraryManaging {
             thumbnailURL: nil,
             sourceKind: sourceKind,
             displayName: displayName,
+            hasSourceMetadataTitle: false,
             originalSourceURL: nil
         )
     }

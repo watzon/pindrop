@@ -38,9 +38,10 @@ struct MediaTranscriptionFeatureStateTests {
 
         #expect(sut.route == .detail(recordID))
         #expect(sut.selectedRecordID == recordID)
-        #expect(sut.currentJob?.stage == .completed)
-        #expect(sut.currentJob?.progress == 1.0)
-        #expect(sut.currentJob?.detail == "Saved transcription")
+        #expect(sut.currentJob == nil)
+        #expect(sut.completedJobs.last?.stage == .completed)
+        #expect(sut.completedJobs.last?.progress == 1.0)
+        #expect(sut.completedJobs.last?.detail == "Finished")
     }
 
     @Test func completeCurrentJobReturnsToLibraryWhenProcessingViewExited() {
@@ -59,7 +60,9 @@ struct MediaTranscriptionFeatureStateTests {
 
         #expect(sut.route == .library)
         #expect(sut.selectedRecordID == recordID)
-        #expect(sut.libraryMessage == "Transcription finished.")
+        #expect(sut.libraryMessage == nil)
+        #expect(sut.currentJob == nil)
+        #expect(sut.completedJobs.last?.stage == .completed)
     }
 
     @Test func selectedFolderPersistsAcrossRouteChanges() {

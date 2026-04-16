@@ -8,6 +8,42 @@
 import Foundation
 import Observation
 
+// MARK: - Output Format
+
+enum TranscribeOutputFormat: String, CaseIterable, Sendable, Equatable {
+    case plainText
+    case subtitles   // .srt
+    case timestamps  // .json
+
+    var displayName: String {
+        switch self {
+        case .plainText:  return "Plain Text (.txt)"
+        case .subtitles:  return "Subtitles (.srt)"
+        case .timestamps: return "Timestamps (.json)"
+        }
+    }
+}
+
+// MARK: - Per-job Options
+
+struct TranscriptionJobOptions: Sendable, Equatable {
+    var modelName: String
+    var language: AppLanguage
+    var outputFormat: TranscribeOutputFormat
+
+    init(
+        modelName: String,
+        language: AppLanguage = .automatic,
+        outputFormat: TranscribeOutputFormat = .plainText
+    ) {
+        self.modelName = modelName
+        self.language = language
+        self.outputFormat = outputFormat
+    }
+}
+
+// MARK: -
+
 enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
     case newest
     case oldest
@@ -34,6 +70,7 @@ enum MediaLibrarySortMode: String, CaseIterable, Equatable, Sendable {
 
 enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
     case preflight
+    case preparingModel
     case importing
     case downloading
     case preparingAudio
@@ -46,6 +83,8 @@ enum MediaTranscriptionStage: String, CaseIterable, Equatable, Sendable {
         switch self {
         case .preflight:
             return "Checking setup"
+        case .preparingModel:
+            return "Loading model"
         case .importing:
             return "Importing media"
         case .downloading:
@@ -148,6 +187,7 @@ extension AudioRecordingMode {
 struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
     let id: UUID
     var request: MediaTranscriptionRequest
+    var options: TranscriptionJobOptions
     var destinationFolderID: UUID?
     var stage: MediaTranscriptionStage
     var progress: Double?
@@ -158,6 +198,7 @@ struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
     init(
         id: UUID = UUID(),
         request: MediaTranscriptionRequest,
+        options: TranscriptionJobOptions = TranscriptionJobOptions(modelName: ""),
         destinationFolderID: UUID? = nil,
         stage: MediaTranscriptionStage = .preflight,
         progress: Double? = nil,
@@ -167,6 +208,7 @@ struct MediaTranscriptionJobState: Identifiable, Equatable, Sendable {
     ) {
         self.id = id
         self.request = request
+        self.options = options
         self.destinationFolderID = destinationFolderID
         self.stage = stage
         self.progress = progress
@@ -183,6 +225,8 @@ final class MediaTranscriptionFeatureState {
     var selectedRecordID: UUID?
     var selectedFolderID: UUID?
     var currentJob: MediaTranscriptionJobState?
+    var pendingJobs: [MediaTranscriptionJobState] = []
+    var completedJobs: [MediaTranscriptionJobState] = []
     var draftLink: String = ""
     var hasUserEditedDraftLink = false
     var librarySearchText: String = ""
@@ -256,26 +300,52 @@ final class MediaTranscriptionFeatureState {
     }
 
     func completeCurrentJob(with recordID: UUID, shouldNavigateToDetail: Bool) {
-        updateJob(stage: .completed, progress: 1.0, detail: "Saved transcription")
+        guard var job = currentJob else { return }
+        job.stage = .completed
+        job.progress = 1.0
+        job.detail = "Finished"
+        completedJobs.append(job)
+        currentJob = nil
         selectedRecordID = recordID
         if shouldNavigateToDetail {
             route = .detail(recordID)
         } else {
             route = .library
-            libraryMessage = "Transcription finished."
         }
     }
 
     func failCurrentJob(_ message: String, returnToLibrary: Bool) {
-        updateJob(stage: .failed, progress: nil, errorMessage: message)
+        guard var job = currentJob else { return }
+        job.stage = .failed
+        job.progress = nil
+        job.errorMessage = message
+        completedJobs.append(job)
+        currentJob = nil
         if returnToLibrary {
             route = .library
-            libraryMessage = message
         }
     }
 
     func clearCurrentJob() {
         currentJob = nil
+    }
+
+    // MARK: - Queue management
+
+    func enqueue(_ job: MediaTranscriptionJobState) {
+        pendingJobs.append(job)
+    }
+
+    func dequeueNextJob() -> MediaTranscriptionJobState? {
+        guard !pendingJobs.isEmpty else { return nil }
+        return pendingJobs.removeFirst()
+    }
+
+    func clearAllJobs() {
+        currentJob = nil
+        pendingJobs.removeAll()
+        completedJobs.removeAll()
+        route = .library
     }
 
     func setSetupIssue(_ message: String) {

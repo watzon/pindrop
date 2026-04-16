@@ -308,7 +308,8 @@ final class AppCoordinator {
     private var streamingAudioProcessingTask: Task<Void, Never>?
     private var streamingInsertionUpdateTask: Task<Void, Never>?
     private var mediaTranscriptionTask: Task<Void, Never>?
-    
+    private var queueOriginalModelName: String?
+
     // MARK: - State
     
     private(set) var activeModelName: String?
@@ -459,11 +460,14 @@ final class AppCoordinator {
             state: mediaTranscriptionState,
             modelManager: modelManager,
             settingsStore: settingsStore,
-            onImportMediaFiles: { [weak self] urls in
-                self?.handleImportMediaFiles(urls)
+            onImportMediaFiles: { [weak self] urls, options in
+                self?.handleImportMediaFiles(urls, options: options)
             },
-            onSubmitMediaLink: { [weak self] link in
-                self?.handleSubmitMediaLink(link)
+            onSubmitMediaLink: { [weak self] link, options in
+                self?.handleSubmitMediaLink(link, options: options)
+            },
+            onClearMediaQueue: { [weak self] in
+                self?.clearTranscriptionQueue()
             },
             onDownloadDiarizationModel: { [weak self] in
                 self?.handleDownloadDiarizationModel()
@@ -3320,16 +3324,18 @@ final class AppCoordinator {
             Log.app.debug("Double-escape pressed but no operation in progress")
             return
         }
-        
+
+        // Background media transcription jobs are long-running and were explicitly
+        // queued by the user — don't cancel them via keyboard shortcut.
+        guard mediaTranscriptionTask == nil else {
+            Log.app.debug("Double-escape pressed during background media transcription — ignoring")
+            return
+        }
+
         Log.app.info("Cancelling current operation via double-escape")
         let hadStreamingSession = isStreamingTranscriptionSessionActive
         clearStreamingSessionBindings(cancelPendingWork: true)
         isStreamingTranscriptionSessionActive = false
-        mediaTranscriptionTask?.cancel()
-        mediaTranscriptionTask = nil
-        mediaTranscriptionState.showLibrary()
-        mediaTranscriptionState.libraryMessage = "Transcription canceled."
-        mediaTranscriptionState.clearCurrentJob()
         recordingState.endRecording(message: "Recording canceled.")
         recordingState.clearCurrentJob()
         if hadStreamingSession {
@@ -3504,13 +3510,37 @@ final class AppCoordinator {
 
     // MARK: - Media Transcription
 
-    private func handleImportMediaFiles(_ urls: [URL]) {
-        guard let firstURL = urls.first else { return }
-        startMediaTranscriptionTask(from: .file(firstURL))
+    private func handleImportMediaFiles(_ urls: [URL], options: TranscriptionJobOptions) {
+        for url in urls {
+            let job = MediaTranscriptionJobState(request: .file(url), options: options)
+            enqueueOrStart(job)
+        }
     }
 
-    private func handleSubmitMediaLink(_ link: String) {
-        startMediaTranscriptionTask(from: .link(link))
+    private func handleSubmitMediaLink(_ link: String, options: TranscriptionJobOptions) {
+        let job = MediaTranscriptionJobState(request: .link(link), options: options)
+        enqueueOrStart(job)
+    }
+
+    private func enqueueOrStart(_ job: MediaTranscriptionJobState) {
+        if mediaTranscriptionTask == nil {
+            startMediaTranscriptionTask(for: job)
+        } else {
+            mediaTranscriptionState.enqueue(job)
+        }
+    }
+
+    private func clearTranscriptionQueue() {
+        mediaTranscriptionTask?.cancel()
+        mediaTranscriptionTask = nil
+        mediaTranscriptionState.clearAllJobs()
+        if let original = queueOriginalModelName {
+            queueOriginalModelName = nil
+            Task { [weak self] in
+                guard let self else { return }
+                try? await self.loadAndActivateModel(named: original, provider: .whisperKit)
+            }
+        }
     }
 
     private func handleDownloadDiarizationModel() {
@@ -3519,7 +3549,7 @@ final class AppCoordinator {
             do {
                 try await self.modelManager.downloadFeatureModel(.diarization)
                 self.mediaTranscriptionState.setupIssue = nil
-                self.mediaTranscriptionState.libraryMessage = "Speaker diarization is ready."
+                self.toastService.show(ToastPayload(message: "Speaker diarization is ready."))
                 self.recordingState.setupIssue = nil
                 self.recordingState.message = "Speaker diarization is ready."
             } catch {
@@ -3638,6 +3668,11 @@ final class AppCoordinator {
                 throw MediaPreparationError.readFailed("No speech could be transcribed from this recording.")
             }
 
+            let transcriptionMetadata = await generateTranscriptionMetadataIfNeeded(
+                from: finalText,
+                managedAsset: managedAsset
+            )
+
             let record = try historyStore.save(
                 text: finalText,
                 originalText: nil,
@@ -3647,6 +3682,9 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 sourceKind: managedAsset.sourceKind,
                 sourceDisplayName: managedAsset.displayName,
+                generatedTitle: transcriptionMetadata.generatedTitle,
+                aiSummary: transcriptionMetadata.summary,
+                sourceTitleOrigin: managedAsset.hasSourceMetadataTitle ? .sourceMetadata : .fallback,
                 originalSourceURL: managedAsset.originalSourceURL,
                 managedMediaPath: managedAsset.mediaURL.path,
                 thumbnailPath: managedAsset.thumbnailURL?.path,
@@ -3682,22 +3720,33 @@ final class AppCoordinator {
         }
     }
 
-    private func startMediaTranscriptionTask(from request: MediaTranscriptionRequest) {
-        guard mediaTranscriptionTask == nil else {
-            mediaTranscriptionState.libraryMessage = "Another transcription is already in progress."
-            return
-        }
-
+    private func startMediaTranscriptionTask(for job: MediaTranscriptionJobState) {
         mediaTranscriptionTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.performMediaTranscription(request)
+            await self.performMediaTranscription(job)
             self.mediaTranscriptionTask = nil
+            if let next = self.mediaTranscriptionState.dequeueNextJob() {
+                self.startMediaTranscriptionTask(for: next)
+            } else {
+                await self.restoreOriginalModelAfterQueueIfNeeded()
+            }
         }
     }
 
-    private func performMediaTranscription(_ request: MediaTranscriptionRequest) async {
+    private func restoreOriginalModelAfterQueueIfNeeded() async {
+        guard let original = queueOriginalModelName else { return }
+        queueOriginalModelName = nil
+        do {
+            try await loadAndActivateModel(named: original, provider: .whisperKit)
+            toastService.show(ToastPayload(message: "Queue complete — restored \(modelManager.availableModels.first(where: { $0.name == original })?.displayName ?? original)", style: .standard))
+        } catch {
+            Log.model.error("Failed to restore original model after queue: \(error)")
+        }
+    }
+
+    private func performMediaTranscription(_ jobIn: MediaTranscriptionJobState) async {
         guard !isRecording && !isProcessing else {
-            mediaTranscriptionState.libraryMessage = "Finish the active transcription before starting another one."
+            toastService.show(ToastPayload(message: "Finish the active recording before starting a transcription.", style: .error))
             return
         }
 
@@ -3707,9 +3756,14 @@ final class AppCoordinator {
             return
         }
 
-        let job = MediaTranscriptionJobState(
+        let request = jobIn.request
+        let options = jobIn.options
+
+        var job = MediaTranscriptionJobState(
+            id: jobIn.id,
             request: request,
-            destinationFolderID: mediaTranscriptionState.selectedFolderID,
+            options: options,
+            destinationFolderID: mediaTranscriptionState.selectedFolderID ?? jobIn.destinationFolderID,
             stage: request.sourceKind == .webLink ? .preflight : .importing,
             progress: nil,
             detail: request.sourceKind == .webLink ? "Checking yt-dlp and ffmpeg" : "Importing local media"
@@ -3732,6 +3786,25 @@ final class AppCoordinator {
         }
 
         do {
+            // --- Model preparation ---
+            let requestedModel = options.modelName.isEmpty ? settingsStore.selectedModel : options.modelName
+            if requestedModel != activeModelName {
+                if queueOriginalModelName == nil {
+                    queueOriginalModelName = activeModelName
+                    let displayName = modelManager.availableModels.first(where: { $0.name == requestedModel })?.displayName ?? requestedModel
+                    toastService.show(ToastPayload(message: "Switching to \(displayName) for this queue", style: .standard))
+                }
+                mediaTranscriptionState.updateJob(
+                    stage: .preparingModel,
+                    progress: nil,
+                    detail: "Loading \(requestedModel)…",
+                    errorMessage: nil
+                )
+                try await loadAndActivateModel(named: requestedModel, provider: .whisperKit)
+            }
+
+            try Task.checkCancellation()
+
             let managedAsset = try await mediaIngestionService.ingest(
                 request: request,
                 jobID: job.id,
@@ -3773,7 +3846,7 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
                 diarizationEnabled: true,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: TranscriptionOptions(language: options.language)
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 
@@ -3786,20 +3859,29 @@ final class AppCoordinator {
                 errorMessage: nil
             )
 
-            let finalText = normalizedTranscriptionText(transcriptionOutput.text)
+            let renderedText = renderTranscriptionOutput(transcriptionOutput, format: options.outputFormat)
+            let finalText = normalizedTranscriptionText(renderedText)
             guard !isTranscriptionEffectivelyEmpty(finalText) else {
                 throw MediaPreparationError.readFailed("No speech could be transcribed from this media.")
             }
+
+            let transcriptionMetadata = await generateTranscriptionMetadataIfNeeded(
+                from: finalText,
+                managedAsset: managedAsset
+            )
 
             let record = try historyStore.save(
                 text: finalText,
                 originalText: nil,
                 duration: preparedAudio.duration,
-                modelUsed: settingsStore.selectedModel,
+                modelUsed: activeModelName ?? settingsStore.selectedModel,
                 enhancedWith: nil,
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 sourceKind: managedAsset.sourceKind,
                 sourceDisplayName: managedAsset.displayName,
+                generatedTitle: transcriptionMetadata.generatedTitle,
+                aiSummary: transcriptionMetadata.summary,
+                sourceTitleOrigin: managedAsset.hasSourceMetadataTitle ? .sourceMetadata : .fallback,
                 originalSourceURL: managedAsset.originalSourceURL,
                 managedMediaPath: managedAsset.mediaURL.path,
                 thumbnailPath: managedAsset.thumbnailURL?.path,
@@ -3811,12 +3893,12 @@ final class AppCoordinator {
             pendingIndicatorCompletion = .mediaTranscription
             resetProcessingState()
             didResetProcessingState = true
+            toastService.show(ToastPayload(message: "Transcribed: \(managedAsset.displayName)"))
             mediaTranscriptionState.completeCurrentJob(with: record.id, shouldNavigateToDetail: shouldNavigateToDetail)
         } catch is CancellationError {
             resetProcessingState()
             didResetProcessingState = true
             mediaTranscriptionState.showLibrary()
-            mediaTranscriptionState.libraryMessage = "Transcription canceled."
             mediaTranscriptionState.clearCurrentJob()
         } catch let error as MediaIngestionError {
             Log.app.error("Media ingestion failed: \(error.localizedDescription)")
@@ -3826,7 +3908,7 @@ final class AppCoordinator {
             if case .toolingUnavailable(let message) = error {
                 mediaTranscriptionState.setSetupIssue(message)
             } else {
-                mediaTranscriptionState.libraryMessage = error.localizedDescription
+                toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
             }
         } catch {
             Log.app.error("Media transcription failed: \(error)")
@@ -3834,6 +3916,93 @@ final class AppCoordinator {
             didResetProcessingState = true
             let shouldReturnToLibrary = mediaTranscriptionState.route != .processing(job.id)
             mediaTranscriptionState.failCurrentJob(error.localizedDescription, returnToLibrary: shouldReturnToLibrary)
+        }
+    }
+
+    // MARK: - Output format rendering
+
+    private func renderTranscriptionOutput(_ output: TranscriptionOutput, format: TranscribeOutputFormat) -> String {
+        switch format {
+        case .plainText:
+            return output.text
+        case .subtitles:
+            guard let segments = output.diarizedSegments, !segments.isEmpty else {
+                return output.text
+            }
+            return formatAsSRT(segments)
+        case .timestamps:
+            guard let segments = output.diarizedSegments, !segments.isEmpty else {
+                return output.text
+            }
+            return formatAsTimestampedJSON(segments, plainText: output.text)
+        }
+    }
+
+    private func formatAsSRT(_ segments: [DiarizedTranscriptSegment]) -> String {
+        segments.enumerated().map { idx, seg in
+            let start = srtTimestamp(seg.startTime)
+            let end = srtTimestamp(seg.endTime)
+            let speaker = seg.speakerLabel.isEmpty ? "" : "\(seg.speakerLabel): "
+            return "\(idx + 1)\n\(start) --> \(end)\n\(speaker)\(seg.text)"
+        }.joined(separator: "\n\n")
+    }
+
+    private func srtTimestamp(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600
+        let m = (Int(t) % 3600) / 60
+        let s = Int(t) % 60
+        let ms = Int((t - Double(Int(t))) * 1000)
+        return String(format: "%02d:%02d:%02d,%03d", h, m, s, ms)
+    }
+
+    private func formatAsTimestampedJSON(_ segments: [DiarizedTranscriptSegment], plainText: String) -> String {
+        struct Seg: Encodable {
+            let start: Double
+            let end: Double
+            let speaker: String
+            let text: String
+        }
+        let mapped = segments.map { Seg(start: $0.startTime, end: $0.endTime, speaker: $0.speakerLabel, text: $0.text) }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        guard let data = try? encoder.encode(mapped),
+              let string = String(data: data, encoding: .utf8) else {
+            return plainText
+        }
+        return string
+    }
+
+    private func generateTranscriptionMetadataIfNeeded(
+        from transcription: String,
+        managedAsset: ManagedMediaAsset
+    ) async -> (generatedTitle: String?, summary: String?) {
+        guard settingsStore.aiEnhancementEnabled else {
+            return (nil, nil)
+        }
+
+        let apiEndpoint = (settingsStore.apiEndpoint ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !apiEndpoint.isEmpty,
+              settingsStore.currentAIProviderHasRequiredAPIKey() else {
+            return (nil, nil)
+        }
+
+        do {
+            let metadata = try await aiEnhancementService.generateTranscriptionMetadata(
+                transcription: transcription,
+                apiEndpoint: apiEndpoint,
+                apiKey: settingsStore.configuredAPIKeyForCurrentAIProvider(),
+                model: settingsStore.aiModel,
+                includeTitle: !managedAsset.hasSourceMetadataTitle,
+                provider: settingsStore.currentAIProvider
+            )
+            let trimmedSummary = metadata.summary.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            return (
+                managedAsset.hasSourceMetadataTitle ? nil : metadata.title,
+                trimmedSummary.isEmpty ? nil : trimmedSummary
+            )
+        } catch {
+            Log.aiEnhancement.warning("Transcription metadata generation failed: \(error.localizedDescription)")
+            return (nil, nil)
         }
     }
 

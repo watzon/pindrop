@@ -23,14 +23,24 @@ struct TranscribeView: View {
     @Bindable var modelManager: ModelManager
     @ObservedObject var settingsStore: SettingsStore
 
-    let onImportFiles: ([URL]) -> Void
-    let onSubmitLink: (String) -> Void
+    let onImportFiles: ([URL], TranscriptionJobOptions) -> Void
+    let onSubmitLink: (String, TranscriptionJobOptions) -> Void
+    let onClearQueue: () -> Void
     let onDownloadDiarizationModel: () -> Void
     let onOpenModels: (() -> Void)?
 
     @State private var isTargeted = false
     @State private var pendingDeletionRecord: TranscriptionRecord?
     @State private var errorMessage: String?
+
+    // Quick Options (front-end only; wired up in a follow-up pass)
+    @State private var selectedJobModel: String = ""
+    @State private var selectedJobLanguage: String = AppLanguage.automatic.rawValue
+    @State private var outputFormat: TranscribeOutputFormat = .plainText
+
+    // Batch import sheet
+    @State private var showBatchImport = false
+    @State private var batchInputText = ""
 
     private var folders: [MediaFolder] {
         mediaFolders.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -44,12 +54,34 @@ struct TranscribeView: View {
         HistoryStore(modelContext: modelContext)
     }
 
+    private var currentJobOptions: TranscriptionJobOptions {
+        TranscriptionJobOptions(
+            modelName: selectedJobModel.isEmpty ? settingsStore.selectedModel : selectedJobModel,
+            language: AppLanguage(rawValue: selectedJobLanguage) ?? .automatic,
+            outputFormat: outputFormat
+        )
+    }
+
+    private var downloadedModelOptions: [SelectFieldOption] {
+        modelManager.availableModels
+            .filter { modelManager.downloadedModelNames.contains($0.name) }
+            .map { SelectFieldOption(id: $0.name, displayName: $0.displayName) }
+    }
+
+    private var languageOptions: [SelectFieldOption] {
+        AppLanguage.allCases
+            .filter { $0.isSelectable }
+            .map { lang in
+                let name = lang == .automatic
+                    ? localized("Auto-detect", locale: locale)
+                    : lang.displayName(locale: locale)
+                return SelectFieldOption(id: lang.rawValue, displayName: name)
+            }
+    }
+
     var body: some View {
         Group {
             switch featureState.route {
-            // `.library` now renders the importer screen — the library UI has
-            // moved to HistoryView. We keep the case name to avoid churning
-            // MediaTranscriptionFeatureState and its call sites.
             case .library:
                 importerView
             case .processing(let jobID):
@@ -62,18 +94,40 @@ struct TranscribeView: View {
         .task {
             await modelManager.refreshDownloadedFeatureModels()
             prefillClipboardLinkIfNeeded()
+            if selectedJobModel.isEmpty {
+                selectedJobModel = settingsStore.selectedModel
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             prefillClipboardLinkIfNeeded()
+        }
+        .sheet(isPresented: $showBatchImport) {
+            BatchImportSheet(
+                inputText: $batchInputText,
+                onImport: { [self] urls, filePaths in
+                    let opts = currentJobOptions
+                    for url in urls {
+                        onSubmitLink(url, opts)
+                    }
+                    let fileURLs = filePaths.compactMap { path -> URL? in
+                        let expanded = (path as NSString).expandingTildeInPath
+                        let url = URL(fileURLWithPath: expanded)
+                        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+                    }
+                    if !fileURLs.isEmpty {
+                        onImportFiles(fileURLs, opts)
+                    }
+                    showBatchImport = false
+                },
+                onCancel: { showBatchImport = false }
+            )
         }
         .confirmationDialog(
             localized("Delete transcription?", locale: locale),
             isPresented: Binding(
                 get: { pendingDeletionRecord != nil },
                 set: { isPresented in
-                    if !isPresented {
-                        pendingDeletionRecord = nil
-                    }
+                    if !isPresented { pendingDeletionRecord = nil }
                 }
             ),
             titleVisibility: .visible
@@ -92,9 +146,7 @@ struct TranscribeView: View {
             isPresented: Binding(
                 get: { errorMessage != nil },
                 set: { isPresented in
-                    if !isPresented {
-                        errorMessage = nil
-                    }
+                    if !isPresented { errorMessage = nil }
                 }
             ),
             actions: {
@@ -108,6 +160,8 @@ struct TranscribeView: View {
         )
     }
 
+    // MARK: - Main importer layout
+
     private var importerView: some View {
         VStack(spacing: 0) {
             headerSection
@@ -116,42 +170,45 @@ struct TranscribeView: View {
                 .padding(.bottom, AppTheme.Spacing.lg)
                 .background(AppColors.contentBackground)
 
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-                    diarizationGate
-
-                    if let setupIssue = featureState.setupIssue {
-                        MessageCardView(
-                            title: "Setup required",
-                            message: setupIssue,
-                            icon: "exclamationmark.triangle.fill",
-                            tint: AppColors.warning
-                        )
-                    }
-                    if let libraryMessage = featureState.libraryMessage {
-                        MessageCardView(
-                            title: "Transcription update",
-                            message: libraryMessage,
-                            icon: "info.circle.fill",
-                            tint: AppColors.accent
-                        )
-                    }
-                    if let job = featureState.currentJob,
-                       job.stage != .completed,
-                       job.stage != .failed {
-                        backgroundJobCard(job)
-                    }
-
-                    dropZone
-
-                    linkInputCard
+            HStack(alignment: .top, spacing: AppTheme.Spacing.xl) {
+                ScrollView(showsIndicators: false) {
+                    leftColumnContent
+                        .padding(.top, AppTheme.Spacing.sm)
+                        .padding(.bottom, AppTheme.Spacing.xxl)
                 }
-                .padding(.horizontal, AppTheme.Spacing.xxl)
-                .padding(.top, AppTheme.Spacing.sm)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+
+                quickOptionsPanel
+                    .padding(.top, AppTheme.Spacing.sm)
+                    .padding(.bottom, AppTheme.Spacing.xxl)
             }
+            .padding(.horizontal, AppTheme.Spacing.xxl)
         }
         .background(AppColors.contentBackground)
+    }
+
+    // MARK: - Left column
+
+    private var leftColumnContent: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            diarizationGate
+
+            if let setupIssue = featureState.setupIssue {
+                MessageCardView(
+                    title: localized("Setup required", locale: locale),
+                    message: setupIssue,
+                    icon: "exclamationmark.triangle.fill",
+                    tint: AppColors.warning
+                )
+            }
+
+            dropZone
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(maxWidth: .infinity, maxHeight: hairlineWidth)
+
+            queueSection
+        }
     }
 
     // MARK: - Header
@@ -218,7 +275,6 @@ struct TranscribeView: View {
                         Text(localized("Speaker diarization is required", locale: locale))
                             .font(AppTypography.headline)
                             .foregroundStyle(AppColors.textPrimary)
-
                         Text(localized("Download the diarization model before starting media transcription.", locale: locale))
                             .font(AppTypography.body)
                             .foregroundStyle(AppColors.textSecondary)
@@ -253,7 +309,6 @@ struct TranscribeView: View {
 
     private var dropZone: some View {
         ZStack {
-            // Ambient glow when targeted
             if isTargeted {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
                     .fill(
@@ -341,93 +396,322 @@ struct TranscribeView: View {
         }
     }
 
-    // MARK: - Link input
+    // MARK: - Queue section
 
-    private var linkInputCard: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            ZStack {
-                RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous)
-                    .fill(AppColors.processing.opacity(0.12))
-                    .frame(width: 36, height: 36)
-                Image(systemName: "link")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(AppColors.processing)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(localized("Paste a link", locale: locale))
-                    .font(AppTypography.subheadline)
-                    .foregroundStyle(AppColors.textPrimary)
-                Text(localized("YouTube, podcast episodes, or any yt-dlp supported URL.", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textTertiary)
-            }
-
-            Spacer(minLength: AppTheme.Spacing.md)
-
-            HStack(spacing: AppTheme.Spacing.sm) {
-                TextField(localized("https://…", locale: locale), text: $featureState.draftLink)
-                    .textFieldStyle(.plain)
-                    .font(AppTypography.body)
-                    .frame(minWidth: 220, maxWidth: 320)
-                    .onChange(of: featureState.draftLink) { _, _ in
-                        featureState.hasUserEditedDraftLink = true
-                    }
-                    .onSubmit(submitCurrentLink)
-
-                Button {
-                    submitCurrentLink()
-                } label: {
-                    Text(localized("Transcribe", locale: locale))
-                        .font(AppTypography.subheadline)
-                        .padding(.horizontal, AppTheme.Spacing.sm)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
-                .disabled(featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                    .fill(AppColors.elevatedSurface)
-            )
-            .hairlineStroke(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
-                style: AppColors.border
-            )
-        }
-        .padding(AppTheme.Spacing.lg)
-        .cardStyle()
-    }
-
-
-    private func backgroundJobCard(_ job: MediaTranscriptionJobState) -> some View {
+    private var queueSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            HStack {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text(localized("Transcription in progress", locale: locale))
-                        .font(AppTypography.headline)
-                        .foregroundStyle(AppColors.textPrimary)
+            let totalCount = featureState.completedJobs.count
+                + (featureState.currentJob != nil ? 1 : 0)
+                + featureState.pendingJobs.count
 
-                    Text(job.request.displayName)
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
-                }
+            HStack(spacing: AppTheme.Spacing.xs) {
+                Text(localized("Queue", locale: locale))
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text("\(totalCount)")
+                    .font(AppTypography.tiny)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .monospacedDigit()
+                    .padding(.horizontal, AppTheme.Spacing.xs)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(AppColors.mutedSurface))
 
                 Spacer()
 
-                Button(localized("Open progress", locale: locale)) {
-                    featureState.route = .processing(job.id)
+                if totalCount > 0 {
+                    Button(localized("Clear", locale: locale)) {
+                        onClearQueue()
+                    }
+                    .buttonStyle(.borderless)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
                 }
-                .buttonStyle(.bordered)
             }
 
-            MediaProcessingProgressView(job: job)
+            if totalCount == 0 {
+                Text(localized("No items in queue. Drop a file or use Import to get started.", locale: locale))
+                    .font(AppTypography.bodySmall)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, AppTheme.Spacing.lg)
+            } else {
+                // Completed jobs (oldest first, already done)
+                ForEach(featureState.completedJobs) { completed in
+                    queueItemRow(for: completed)
+                }
+
+                // Active job
+                if let job = featureState.currentJob {
+                    queueItemRow(for: job)
+
+                    // Pending jobs
+                    ForEach(featureState.pendingJobs) { pending in
+                        pendingJobRow(for: pending)
+                    }
+
+                    if job.stage != .completed, job.stage != .failed {
+                        HStack {
+                            HStack(spacing: AppTheme.Spacing.xxs) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 11))
+                                let remaining = featureState.pendingJobs.count
+                                Text(remaining > 0
+                                     ? localized("\(remaining + 1) items remaining", locale: locale)
+                                     : localized("Processing", locale: locale))
+                                    .font(AppTypography.caption)
+                            }
+                            .foregroundStyle(AppColors.textTertiary)
+
+                            Spacer()
+
+                            Button(localized("View Progress", locale: locale)) {
+                                featureState.route = .processing(job.id)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.small)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func queueItemRow(for job: MediaTranscriptionJobState) -> some View {
+        let isFailed = job.stage == .failed
+        let isComplete = job.stage == .completed
+        let isActive = !isFailed && !isComplete
+
+        return HStack(spacing: AppTheme.Spacing.md) {
+            ZStack {
+                Circle()
+                    .fill(
+                        isFailed ? AppColors.error.opacity(0.12)
+                        : isComplete ? AppColors.success.opacity(0.12)
+                        : AppColors.accent.opacity(0.12)
+                    )
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: isFailed ? "xmark.circle.fill" : isComplete ? "checkmark.circle.fill" : "waveform")
+                    .font(.system(size: 14, weight: isFailed || isComplete ? .regular : .medium))
+                    .foregroundStyle(isFailed ? AppColors.error : isComplete ? AppColors.success : AppColors.accent)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(job.request.displayName)
+                    .font(AppTypography.bodySmall)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+
+                Text(job.stage.title(locale: locale))
+                    .font(AppTypography.tiny)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            Spacer(minLength: 0)
+
+            if let progress = job.progress, isActive {
+                Text("\(Int(progress * 100))%")
+                    .font(AppTypography.tiny)
+                    .foregroundStyle(AppColors.accent)
+                    .monospacedDigit()
+            }
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                .fill(AppColors.surfaceBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                .strokeBorder(
+                    isFailed ? AppColors.error.opacity(0.4)
+                    : isComplete ? AppColors.success.opacity(0.4)
+                    : AppColors.accent.opacity(0.35),
+                    lineWidth: 1.5
+                )
+        )
+    }
+
+    private func pendingJobRow(for job: MediaTranscriptionJobState) -> some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            ZStack {
+                Circle()
+                    .fill(AppColors.border.opacity(0.5))
+                    .frame(width: 36, height: 36)
+                Image(systemName: "clock")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppColors.textTertiary)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(job.request.displayName)
+                    .font(AppTypography.bodySmall)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text(localized("Waiting…", locale: locale))
+                    .font(AppTypography.tiny)
+                    .foregroundStyle(AppColors.textTertiary)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                .fill(AppColors.surfaceBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
+    }
+
+    // MARK: - Quick options panel
+
+    private var quickOptionsPanel: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            Text(localized("Quick Options", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            optionGroup(label: localized("Model", locale: locale)) {
+                if downloadedModelOptions.isEmpty {
+                    Button { onOpenModels?() } label: {
+                        HStack {
+                            Text(localized("No models downloaded", locale: locale))
+                                .font(AppTypography.bodySmall)
+                                .foregroundStyle(AppColors.textTertiary)
+                            Spacer(minLength: 0)
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 10))
+                                .foregroundStyle(AppColors.textTertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .aiSettingsInputChrome()
+                } else {
+                    SelectField(
+                        options: downloadedModelOptions,
+                        selection: $selectedJobModel,
+                        placeholder: localized("Select model", locale: locale)
+                    )
+                }
+            }
+
+            optionGroup(label: localized("Language", locale: locale)) {
+                SelectField(
+                    options: languageOptions,
+                    selection: $selectedJobLanguage,
+                    placeholder: localized("Auto-detect", locale: locale)
+                )
+            }
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(maxWidth: .infinity, maxHeight: hairlineWidth)
+
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                Text(localized("Output Format", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textSecondary)
+
+                let diarizationAvailable = modelManager.isFeatureModelDownloaded(.diarization)
+                ForEach(TranscribeOutputFormat.allCases, id: \.rawValue) { format in
+                    outputFormatRow(format, diarizationAvailable: diarizationAvailable)
+                }
+            }
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(maxWidth: .infinity, maxHeight: hairlineWidth)
+
+            Button {
+                if !featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                   batchInputText.isEmpty {
+                    batchInputText = featureState.draftLink
+                }
+                showBatchImport = true
+            } label: {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(localized("Import Audio / Video", locale: locale))
+                        .font(AppTypography.subheadline)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
         }
         .padding(AppTheme.Spacing.xl)
-        .cardStyle(elevated: true)
+        .frame(width: 280)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
+                .fill(AppColors.surfaceBackground)
+        )
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+            style: AppColors.border
+        )
     }
+
+    @ViewBuilder
+    private func optionGroup<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            Text(label)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textSecondary)
+            content()
+        }
+    }
+
+    private func outputFormatRow(_ format: TranscribeOutputFormat, diarizationAvailable: Bool) -> some View {
+        let requiresDiarization = format != .plainText
+        let isDisabled = requiresDiarization && !diarizationAvailable
+
+        return Button {
+            if !isDisabled { outputFormat = format }
+        } label: {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                ZStack {
+                    if outputFormat == format && !isDisabled {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(AppColors.accent)
+                            .frame(width: 18, height: 18)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                    } else {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .strokeBorder(isDisabled ? AppColors.border.opacity(0.4) : AppColors.border, lineWidth: 1.5)
+                            .frame(width: 18, height: 18)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(format.displayName)
+                        .font(AppTypography.bodySmall)
+                        .foregroundStyle(isDisabled ? AppColors.textTertiary : AppColors.textPrimary)
+                    if isDisabled {
+                        Text(localized("Requires diarization model", locale: locale))
+                            .font(.system(size: 10))
+                            .foregroundStyle(AppColors.textTertiary)
+                    }
+                }
+
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
+    }
+
+    // MARK: - Processing view
 
     @ViewBuilder
     private func processingView(jobID: UUID) -> some View {
@@ -504,6 +788,8 @@ struct TranscribeView: View {
         }
     }
 
+    // MARK: - Detail view
+
     @ViewBuilder
     private func detailView(recordID: UUID) -> some View {
         if let record = try? historyStore.fetchRecord(with: recordID), record.isMediaTranscription {
@@ -540,6 +826,8 @@ struct TranscribeView: View {
         }
     }
 
+    // MARK: - Actions
+
     private func importFilesViaOpenPanel() {
         let panel = NSOpenPanel()
         let currentLocale = SettingsStore().selectedAppLanguage.locale
@@ -561,13 +849,7 @@ struct TranscribeView: View {
             return type.conforms(to: .audio) || type.conforms(to: .movie) || type.conforms(to: .video)
         }
         guard !supported.isEmpty else { return }
-        onImportFiles(supported)
-    }
-
-    private func submitCurrentLink() {
-        let trimmed = featureState.draftLink.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        onSubmitLink(trimmed)
+        onImportFiles(supported, currentJobOptions)
     }
 
     private func prefillClipboardLinkIfNeeded() {
@@ -622,6 +904,146 @@ struct TranscribeView: View {
     }
 }
 
+// MARK: - Batch Import Sheet
+
+private struct BatchImportSheet: View {
+    @Binding var inputText: String
+    let onImport: (_ urls: [String], _ filePaths: [String]) -> Void
+    let onCancel: () -> Void
+
+    @Environment(\.locale) private var locale
+
+    private var parsedLines: [String] {
+        inputText
+            .components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    private var urlLines: [String] {
+        parsedLines.filter { line in
+            guard let url = URL(string: line),
+                  let scheme = url.scheme?.lowercased() else { return false }
+            return ["http", "https"].contains(scheme)
+        }
+    }
+
+    private var filePathLines: [String] {
+        parsedLines.filter { line in
+            line.hasPrefix("/") || line.hasPrefix("~")
+        }
+    }
+
+    private var canImport: Bool {
+        !urlLines.isEmpty || !filePathLines.isEmpty
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                    Text(localized("Batch Import", locale: locale))
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(localized("Import multiple files, URLs, or paths at once", locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Spacer()
+
+                Button { onCancel() } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous)
+                                .fill(AppColors.mutedSurface)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(AppTheme.Spacing.xl)
+
+            Divider()
+
+            // Body
+            VStack(alignment: .leading, spacing: 0) {
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $inputText)
+                        .font(AppTypography.bodySmall)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .scrollContentBackground(.hidden)
+                        .frame(height: 180)
+                        .padding(8)
+                        .background(AppColors.inputBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous)
+                                .strokeBorder(AppColors.inputBorder, lineWidth: 1)
+                        )
+
+                    if inputText.isEmpty {
+                        Text("Paste URLs or file paths here, one per line…\ne.g. https://youtube.com/watch?v=abc123\n     /Users/me/recordings/meeting.mp3")
+                            .font(AppTypography.bodySmall)
+                            .foregroundStyle(AppColors.textTertiary)
+                            .padding(16)
+                            .allowsHitTesting(false)
+                    }
+                }
+            }
+            .padding(AppTheme.Spacing.xl)
+
+            Divider()
+
+            // Footer
+            HStack {
+                if !parsedLines.isEmpty {
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        Text("\(parsedLines.count)")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.accent)
+                            .monospacedDigit()
+                            .padding(.horizontal, AppTheme.Spacing.sm)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(AppColors.accent.opacity(0.12)))
+
+                        Text(parsedLines.count == 1
+                             ? localized("item ready", locale: locale)
+                             : localized("items ready", locale: locale))
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                }
+
+                Spacer()
+
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Button(localized("Cancel", locale: locale)) {
+                        onCancel()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+
+                    Button(localized("Import All", locale: locale)) {
+                        onImport(urlLines, filePathLines)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .disabled(!canImport)
+                }
+            }
+            .padding(AppTheme.Spacing.xl)
+        }
+        .background(AppColors.elevatedSurface)
+        .frame(width: 560)
+    }
+}
+
+// MARK: - Message card
+
 struct MessageCardView: View {
     let title: String
     let message: String
@@ -649,10 +1071,12 @@ struct MessageCardView: View {
     }
 }
 
+// MARK: - Media processing progress
+
 private struct MediaProcessingProgressView: View {
     let job: MediaTranscriptionJobState
 
-    private let orderedStages: [MediaTranscriptionStage] = [.preflight, .importing, .downloading, .preparingAudio, .transcribing, .saving]
+    private let orderedStages: [MediaTranscriptionStage] = [.preflight, .preparingModel, .importing, .downloading, .preparingAudio, .transcribing, .saving]
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {

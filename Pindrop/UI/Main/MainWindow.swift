@@ -114,8 +114,9 @@ struct MainWindow: View {
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
-    let onImportMediaFiles: (([URL]) -> Void)?
-    let onSubmitMediaLink: ((String) -> Void)?
+    let onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
+    let onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
+    let onClearMediaQueue: (() -> Void)?
     let onDownloadDiarizationModel: (() -> Void)?
     let onNewTranscription: (() -> Void)?
     let onStartMeetingCapture: (() -> Void)?
@@ -233,6 +234,7 @@ struct MainWindow: View {
                     settingsStore: settingsStore,
                     onImportFiles: onImportMediaFiles,
                     onSubmitLink: onSubmitMediaLink,
+                    onClearQueue: onClearMediaQueue ?? {},
                     onDownloadDiarizationModel: onDownloadDiarizationModel,
                     onOpenModels: { navigateTo(.models) }
                 )
@@ -460,8 +462,9 @@ final class MainWindowController {
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
-    var onImportMediaFiles: (([URL]) -> Void)?
-    var onSubmitMediaLink: ((String) -> Void)?
+    var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
+    var onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
+    var onClearMediaQueue: (() -> Void)?
     var onDownloadDiarizationModel: (() -> Void)?
     var onNewTranscription: (() -> Void)?
     var onStartMeetingCapture: (() -> Void)?
@@ -487,8 +490,9 @@ final class MainWindowController {
         state: MediaTranscriptionFeatureState,
         modelManager: ModelManager,
         settingsStore: SettingsStore,
-        onImportMediaFiles: @escaping ([URL]) -> Void,
-        onSubmitMediaLink: @escaping (String) -> Void,
+        onImportMediaFiles: @escaping ([URL], TranscriptionJobOptions) -> Void,
+        onSubmitMediaLink: @escaping (String, TranscriptionJobOptions) -> Void,
+        onClearMediaQueue: @escaping () -> Void,
         onDownloadDiarizationModel: @escaping () -> Void
     ) {
         self.mediaTranscriptionState = state
@@ -496,6 +500,7 @@ final class MainWindowController {
         self.settingsStore = settingsStore
         self.onImportMediaFiles = onImportMediaFiles
         self.onSubmitMediaLink = onSubmitMediaLink
+        self.onClearMediaQueue = onClearMediaQueue
         self.onDownloadDiarizationModel = onDownloadDiarizationModel
     }
 
@@ -537,6 +542,7 @@ final class MainWindowController {
                 modelManager: modelManager,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
+                onClearMediaQueue: onClearMediaQueue,
                 onDownloadDiarizationModel: onDownloadDiarizationModel,
                 onNewTranscription: onNewTranscription,
                 onStartMeetingCapture: onStartMeetingCapture,
@@ -655,6 +661,7 @@ final class MainWindowController {
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
+        onClearMediaQueue: nil,
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
@@ -673,6 +680,7 @@ final class MainWindowController {
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
+        onClearMediaQueue: nil,
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,

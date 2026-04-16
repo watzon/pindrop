@@ -16,6 +16,7 @@ struct ManagedMediaAsset: Equatable, Sendable {
     let thumbnailURL: URL?
     let sourceKind: MediaSourceKind
     let displayName: String
+    let hasSourceMetadataTitle: Bool
     let originalSourceURL: String?
 }
 
@@ -277,6 +278,7 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
             thumbnailURL: thumbnailURL,
             sourceKind: .importedFile,
             displayName: sourceURL.lastPathComponent,
+            hasSourceMetadataTitle: false,
             originalSourceURL: sourceURL.absoluteString
         )
     }
@@ -325,6 +327,7 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
             thumbnailURL: nil,
             sourceKind: sourceKind,
             displayName: displayName,
+            hasSourceMetadataTitle: false,
             originalSourceURL: nil
         )
     }
@@ -345,12 +348,15 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
             thumbnailURL = try? await generateThumbnailIfPossible(for: mediaURL, in: directoryURL)
         }
 
+        let resolvedTitle = suggestedTitle?.trimmingCharacters(in: .whitespacesAndNewlines)
+
         return ManagedMediaAsset(
             directoryURL: directoryURL,
             mediaURL: mediaURL,
             thumbnailURL: thumbnailURL,
             sourceKind: .webLink,
-            displayName: (suggestedTitle?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? suggestedTitle! : mediaURL.lastPathComponent),
+            displayName: (resolvedTitle?.isEmpty == false ? resolvedTitle! : mediaURL.lastPathComponent),
+            hasSourceMetadataTitle: resolvedTitle?.isEmpty == false,
             originalSourceURL: sourceURL
         )
     }
@@ -439,6 +445,49 @@ private struct YTDLPMetadata: Decodable {
     }
 }
 
+// MARK: - URLSession delegate for direct downloads
+
+private final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {
+    private var continuation: CheckedContinuation<URL, Error>?
+    private let onProgress: (Int64, Int64) -> Void
+
+    init(onProgress: @escaping (Int64, Int64) -> Void) {
+        self.onProgress = onProgress
+    }
+
+    func waitForCompletion() async throws -> URL {
+        try await withCheckedThrowingContinuation { self.continuation = $0 }
+    }
+
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        // URLSession deletes the temp file when this method returns, so move it first.
+        let safeURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(location.pathExtension)
+        try? FileManager.default.moveItem(at: location, to: safeURL)
+        continuation?.resume(returning: safeURL)
+        continuation = nil
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard let error else { return }
+        continuation?.resume(throwing: error)
+        continuation = nil
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        onProgress(totalBytesWritten, totalBytesExpectedToWrite)
+    }
+}
+
+// MARK: -
+
 private struct MediaDownloadAttempt {
     let format: String
     let extractorArgs: String?
@@ -502,17 +551,30 @@ final class MediaIngestionService {
         case .file(let url):
             return try await mediaLibrary.importLocalFile(at: url, jobID: jobID)
         case .link(let string):
-            let tooling = await checkTooling()
-            guard tooling.isReady else {
-                throw MediaIngestionError.toolingUnavailable(tooling.missingToolsDescription)
+            guard let url = URL(string: string),
+                  let scheme = url.scheme?.lowercased(),
+                  ["http", "https"].contains(scheme) else {
+                throw MediaIngestionError.unsupportedInput("Only http and https links are supported.")
             }
-            let resolvedTooling = try resolvedTooling(from: tooling)
-            return try await downloadLinkedMedia(
-                from: string,
-                tooling: resolvedTooling,
-                jobID: jobID,
-                progressHandler: progressHandler
-            )
+
+            if Self.isDirectMediaURL(url) {
+                let directoryURL = try mediaLibrary.makeJobDirectory(for: jobID)
+                return try await downloadDirectMedia(from: url, to: directoryURL, progressHandler: progressHandler)
+            } else {
+                let tooling = await checkTooling()
+                guard tooling.isReady else {
+                    throw MediaIngestionError.toolingUnavailable(
+                        "This link requires yt-dlp to download. \(tooling.missingToolsDescription)"
+                    )
+                }
+                let resolvedTooling = try resolvedTooling(from: tooling)
+                return try await downloadLinkedMedia(
+                    from: string,
+                    tooling: resolvedTooling,
+                    jobID: jobID,
+                    progressHandler: progressHandler
+                )
+            }
         case .manualCapture:
             throw MediaIngestionError.unsupportedInput("Manual capture uses the live recording flow instead of media ingestion.")
         }
@@ -553,16 +615,73 @@ final class MediaIngestionService {
         }
     }
 
+    // MARK: - Direct media URL detection
+
+    private static let directMediaExtensions: Set<String> = [
+        "mp3", "mp4", "m4a", "wav", "aac", "flac", "ogg", "webm",
+        "mov", "m4v", "mkv", "avi", "opus", "wma", "aiff", "aif", "mp2"
+    ]
+
+    private static func isDirectMediaURL(_ url: URL) -> Bool {
+        Self.directMediaExtensions.contains(url.pathExtension.lowercased())
+    }
+
+    // MARK: - Direct HTTP download (no yt-dlp)
+
+    private func downloadDirectMedia(
+        from url: URL,
+        to directoryURL: URL,
+        progressHandler: @escaping @MainActor (Double?, String) -> Void
+    ) async throws -> ManagedMediaAsset {
+        await progressHandler(nil, "Connecting…")
+
+        let ext = url.pathExtension.lowercased()
+        let destURL = directoryURL.appendingPathComponent("media.\(ext)")
+
+        let delegate = DirectDownloadDelegate { written, total in
+            let progress: Double? = total > 0 ? Double(written) / Double(total) : nil
+            let byteStr = ByteCountFormatter.string(fromByteCount: written, countStyle: .file)
+            Task { @MainActor in progressHandler(progress, "Downloading \(byteStr)…") }
+        }
+        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
+        let downloadTask = session.downloadTask(with: url)
+        downloadTask.resume()
+
+        let tempURL = try await withTaskCancellationHandler {
+            try await delegate.waitForCompletion()
+        } onCancel: {
+            downloadTask.cancel()
+        }
+
+        session.finishTasksAndInvalidate()
+
+        guard let httpResponse = downloadTask.response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            let status = (downloadTask.response as? HTTPURLResponse)?.statusCode ?? -1
+            throw MediaIngestionError.downloadFailed("Server returned HTTP \(status).")
+        }
+
+        try FileManager.default.moveItem(at: tempURL, to: destURL)
+
+        // Reuse the library's finalization path, which generates a thumbnail
+        // and builds the ManagedMediaAsset from whatever is in the directory.
+        return try await mediaLibrary.finalizeDownloadedAsset(
+            in: directoryURL,
+            sourceURL: url.absoluteString,
+            suggestedTitle: url.deletingPathExtension().lastPathComponent
+        )
+    }
+
+    // MARK: - yt-dlp download
+
     private func downloadLinkedMedia(
         from urlString: String,
         tooling: ResolvedMediaTooling,
         jobID: UUID,
         progressHandler: @escaping @MainActor (Double?, String) -> Void
     ) async throws -> ManagedMediaAsset {
-        guard let url = URL(string: urlString), let scheme = url.scheme?.lowercased(), ["http", "https"].contains(scheme) else {
-            throw MediaIngestionError.unsupportedInput("Only http and https links are supported.")
-        }
-
+        // URL is pre-validated by ingest() before reaching this path.
+        let url = URL(string: urlString)!
         let directoryURL = try mediaLibrary.makeJobDirectory(for: jobID)
         let metadata = try await fetchMetadata(for: urlString, tooling: tooling)
         let progressParser = MediaDownloadProgressParser()
