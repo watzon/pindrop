@@ -266,6 +266,8 @@ final class SettingsStore: ObservableObject {
    var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
    @AppStorage("sidebarPosition", store: SettingsStoreRuntime.appStorageStore)
    var sidebarPosition: String = Defaults.sidebarPosition
+   @AppStorage("sidebarExpanded", store: SettingsStoreRuntime.appStorageStore)
+   var sidebarExpanded: Bool = true
    @AppStorage("showInDock", store: SettingsStoreRuntime.appStorageStore) var showInDock: Bool =
       false
    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore)

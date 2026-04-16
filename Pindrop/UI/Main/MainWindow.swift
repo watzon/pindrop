@@ -62,6 +62,7 @@ extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
     static let navigateToSettingsTab = Notification.Name("navigateToSettingsTab")
     static let openHistoryRecord = Notification.Name("openHistoryRecord")
+    static let sidebarStateChanged = Notification.Name("sidebarStateChanged")
 }
 
 final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
@@ -110,7 +111,6 @@ struct MainWindow: View {
     @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
     @State private var selectedSettingsTab: SettingsTab = .general
-    @State private var isSidebarExpanded: Bool = true
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
@@ -169,11 +169,17 @@ struct MainWindow: View {
                 navigateToSettings(tab)
             }
         }
+        .onChange(of: settingsStore.sidebarExpanded) { _, _ in
+            NotificationCenter.default.post(name: .sidebarStateChanged, object: nil)
+        }
+        .onChange(of: settingsStore.sidebarPosition) { _, _ in
+            NotificationCenter.default.post(name: .sidebarStateChanged, object: nil)
+        }
     }
 
     private var sidebarPanel: some View {
         MainSidebar(
-            isExpanded: $isSidebarExpanded,
+            isExpanded: $settingsStore.sidebarExpanded,
             position: settingsStore.selectedSidebarPosition,
             selectedNav: selectedNav,
             onSelect: navigateTo
@@ -327,7 +333,7 @@ private struct MainSidebar: View {
                     .frame(maxWidth: .infinity)
             }
         }
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, position == .leading ? AppTheme.Spacing.xl + 18 : AppTheme.Spacing.xl)
         .padding(.bottom, AppTheme.Spacing.lg)
     }
 
@@ -462,6 +468,7 @@ final class MainWindowController {
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
+    private var sidebarObserver: Any?
     var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     var onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
     var onClearMediaQueue: (() -> Void)?
@@ -586,6 +593,12 @@ final class MainWindowController {
             PindropThemeController.shared.apply(to: window)
 
             self.window = window
+
+            sidebarObserver = NotificationCenter.default.addObserver(
+                forName: .sidebarStateChanged,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in self?.updateZoomButton() }
         }
 
         PindropThemeController.shared.apply(to: window)
@@ -626,14 +639,24 @@ final class MainWindowController {
         // In NSView coords (origin = bottom-left), place the button top `pad` from superview top.
         let y = superview.bounds.height - pad - bh
 
-        close.setFrameOrigin(NSPoint(x: pad,                           y: y))
-        mini.setFrameOrigin( NSPoint(x: pad + bw + gap,                y: y))
-        zoom.setFrameOrigin( NSPoint(x: pad + 2 * (bw + gap),          y: y))
+        close.setFrameOrigin(NSPoint(x: pad,                  y: y))
+        mini.setFrameOrigin( NSPoint(x: pad + bw + gap,       y: y))
+        zoom.setFrameOrigin( NSPoint(x: pad + 2 * (bw + gap), y: y))
 
         // Keep pinned to top-left when the superview resizes.
         for btn in [close, mini, zoom] {
             btn.autoresizingMask = [.minYMargin]
         }
+
+        updateZoomButton()
+    }
+
+    private func updateZoomButton() {
+        guard let zoom = window?.standardWindowButton(.zoomButton),
+              let settingsStore else { return }
+        let shouldHide = settingsStore.selectedSidebarPosition == .leading
+            && !settingsStore.sidebarExpanded
+        zoom.isHidden = shouldHide
     }
 
     func hide() {
