@@ -745,6 +745,38 @@ final class AppCoordinator {
         } catch {
             Log.app.error("Failed to seed built-in presets: \(error)")
         }
+
+        applyDefaultPromptPresetIfNeeded()
+    }
+
+    /// One-shot migration: select the "Clean Transcript" built-in preset as the
+    /// default for users who never explicitly chose a preset and never
+    /// customized the generic fallback prompt.
+    private func applyDefaultPromptPresetIfNeeded() {
+        guard !settingsStore.didMigrateToCleanTranscriptDefault else { return }
+        guard settingsStore.selectedPresetId == nil else {
+            settingsStore.didMigrateToCleanTranscriptDefault = true
+            return
+        }
+        guard settingsStore.aiEnhancementPrompt == SettingsStore.Defaults.aiEnhancementPrompt else {
+            settingsStore.didMigrateToCleanTranscriptDefault = true
+            return
+        }
+
+        do {
+            let builtIns = try promptPresetStore.fetchBuiltIn()
+            let target = BuiltInPresets.defaultPreset.identifier
+            if let preset = builtIns.first(where: { $0.builtInIdentifier == target }) {
+                settingsStore.selectedPresetId = preset.id.uuidString
+                Log.app.info("Applied default prompt preset '\(preset.name)' for new user")
+            } else {
+                Log.app.error("Default prompt preset '\(target)' not found after seeding")
+            }
+        } catch {
+            Log.app.error("Failed to apply default prompt preset: \(error)")
+        }
+
+        settingsStore.didMigrateToCleanTranscriptDefault = true
     }
 
     private func refreshStatusBarPresets() {

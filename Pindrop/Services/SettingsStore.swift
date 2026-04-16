@@ -259,6 +259,8 @@ final class SettingsStore: ObservableObject {
    var aiEnhancementPrompt: String = Defaults.aiEnhancementPrompt
    @AppStorage("noteEnhancementPrompt", store: SettingsStoreRuntime.appStorageStore)
    var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
+   @AppStorage("didMigrateToCleanTranscriptDefault", store: SettingsStoreRuntime.appStorageStore)
+   var didMigrateToCleanTranscriptDefault: Bool = false
    @AppStorage("floatingIndicatorEnabled", store: SettingsStoreRuntime.appStorageStore)
    var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore)
@@ -794,6 +796,9 @@ final class SettingsStore: ObservableObject {
       selectedLanguage = Defaults.selectedLanguage
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID
       aiEnhancementEnabled = false
+      aiEnhancementPrompt = Defaults.aiEnhancementPrompt
+      selectedPresetId = nil
+      didMigrateToCleanTranscriptDefault = false
       aiProvider = AIProvider.openai.rawValue
       customLocalProviderType = CustomProviderType.custom.rawValue
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
