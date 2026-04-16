@@ -104,29 +104,29 @@ enum PindropThemePresetCatalog {
         PindropThemePreset(
             id: "pindrop",
             title: "Pindrop",
-            summary: "Warm editorial surfaces with a copper signal accent.",
+            summary: "Dark precision surfaces with an amber signal accent.",
             badgeText: "Pd",
-            badgeBackgroundHex: "#F7F1E8",
-            badgeForegroundHex: "#C56E42",
+            badgeBackgroundHex: "#141417",
+            badgeForegroundHex: "#F2B54A",
             lightTheme: PindropThemeProfile(
-                accentHex: "#C56E42",
-                backgroundHex: "#F7F1E8",
-                foregroundHex: "#221A14",
+                accentHex: "#D4952E",
+                backgroundHex: "#F7F5F0",
+                foregroundHex: "#111111",
                 contrast: 50,
                 successHex: "#2E8B67",
                 warningHex: "#A9692D",
                 dangerHex: "#C95452",
-                processingHex: "#4D78D6"
+                processingHex: "#3B82F6"
             ),
             darkTheme: PindropThemeProfile(
-                accentHex: "#E19260",
-                backgroundHex: "#15120F",
-                foregroundHex: "#F2E5D8",
+                accentHex: "#F2B54A",
+                backgroundHex: "#0A0A0F",
+                foregroundHex: "#F7F5F0",
                 contrast: 66,
                 successHex: "#53B48A",
-                warningHex: "#D09049",
-                dangerHex: "#E5726E",
-                processingHex: "#74A2FF"
+                warningHex: "#F59E0B",
+                dangerHex: "#EF4444",
+                processingHex: "#3B82F6"
             )
         ),
         PindropThemePreset(

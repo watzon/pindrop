@@ -340,16 +340,7 @@ private struct MainSidebar: View {
     private func appIconBadge(size: CGFloat) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.118, green: 0.118, blue: 0.157),
-                            Color(red: 0.078, green: 0.078, blue: 0.090)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .fill(AppColors.accentBackground)
                 .frame(width: size, height: size)
             Image("PindropIcon")
                 .resizable()
