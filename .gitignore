@@ -54,3 +54,14 @@ DerivedDataTests/
 shared/
 .gitnexus
 .soulforge
+
+# Local agent / tooling state
+.agents/
+.claude/
+
+# Node tooling (gitnexus etc.)
+node_modules/
+package.json
+
+# Local test recordings / captures
+video/
