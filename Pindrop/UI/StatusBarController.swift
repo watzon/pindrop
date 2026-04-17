@@ -409,7 +409,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         aiModelMenu = NSMenu()
         currentAIModelItem = NSMenuItem(
-            title: String(format: localized("Current: %@", locale: locale), settingsStore.aiModel),
+            title: String(format: localized("Current: %@", locale: locale), settingsStore.assignment(for: .transcriptionEnhancement)?.modelID ?? ""),
             action: nil,
             keyEquivalent: ""
         )
@@ -518,7 +518,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         outputModeItem?.title = String(format: localized("Mode: %@", locale: locale), outputModeText)
 
         // Update AI enhancement
-        let aiText = settingsStore.aiEnhancementEnabled ? localized("On", locale: locale) : localized("Off", locale: locale)
+        let aiText = settingsStore.assignment(for: .transcriptionEnhancement) != nil ? localized("On", locale: locale) : localized("Off", locale: locale)
         aiEnhancementItem?.title = String(format: localized("AI Enhancement: %@", locale: locale), aiText)
 
         // Update prompt preset checkmarks
@@ -582,10 +582,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             aiModelMenu.removeItem(at: 2)
         }
 
-        let provider = settingsStore.currentAIProvider
+        let assignment = settingsStore.assignment(for: .transcriptionEnhancement)
+        let currentModelID = assignment?.modelID ?? ""
+        let provider: AIProvider = assignment
+            .flatMap { settingsStore.provider(withID: $0.providerID)?.kind }
+            ?? .openai
 
         // Update current model display
-        currentAIModelItem?.title = String(format: localized("Current: %@", locale: locale), settingsStore.aiModel)
+        currentAIModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModelID)
 
         guard provider == .openai || provider == .openrouter else {
             let noModelsItem = NSMenuItem(title: localized("No models available", locale: locale), action: nil, keyEquivalent: "")
@@ -609,7 +613,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             )
             item.target = self
             item.representedObject = model.id
-            item.state = settingsStore.aiModel == model.id ? NSControl.StateValue.on : NSControl.StateValue.off
+            item.state = currentModelID == model.id ? NSControl.StateValue.on : NSControl.StateValue.off
             aiModelMenu.addItem(item)
         }
     }
@@ -875,7 +879,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func selectAIModel(_ sender: NSMenuItem) {
         guard let modelId = sender.representedObject as? String else { return }
-        settingsStore.aiModel = modelId
+        if let existing = settingsStore.assignment(for: .transcriptionEnhancement) {
+            var updated = existing
+            updated.modelID = modelId
+            settingsStore.setAssignment(updated, for: .transcriptionEnhancement)
+        }
         onSelectAIModel?(modelId)
         refreshAIModelMenuItems()
     }

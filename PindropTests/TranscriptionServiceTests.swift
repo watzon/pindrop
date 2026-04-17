@@ -648,7 +648,7 @@ struct TranscriptionServiceTests {
 
     @Test func streamingLifecycleTransitions() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
-        let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
 
         try await service.prepareStreamingEngine()
         #expect(service.state == .ready)
@@ -669,7 +669,7 @@ struct TranscriptionServiceTests {
 
     @Test func streamingCallbacksForwardPartialAndFinalUtterance() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
-        let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
         let collector = StreamingCallbackCollector()
 
         service.setStreamingCallbacks(
@@ -703,7 +703,7 @@ struct TranscriptionServiceTests {
     @Test func prepareStreamingEngineThrowsModelNotAvailableWhenLoadFails() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         mockStreamingEngine.loadError = MockStreamingTranscriptionEngine.MockError.modelMissing
-        let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
 
         do {
             try await service.prepareStreamingEngine()
@@ -721,7 +721,7 @@ struct TranscriptionServiceTests {
 
     @Test func unloadModelClearsStreamingEngine() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
-        let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
 
         try await service.prepareStreamingEngine()
         try await service.startStreaming()
@@ -736,7 +736,7 @@ struct TranscriptionServiceTests {
 
     @Test func cancelStreamingReturnsServiceToReadyState() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
-        let service = TranscriptionService(streamingEngineFactory: { mockStreamingEngine })
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
 
         try await service.prepareStreamingEngine()
         try await service.startStreaming()

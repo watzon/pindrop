@@ -196,47 +196,90 @@ struct AppCoordinatorContextFlowTests {
     }
 
     @Test func shouldUseStreamingTranscriptionTruthTable() {
+        // Baseline: streaming enabled, directInsert, no AI work → stream.
         #expect(
             AppCoordinator.shouldUseStreamingTranscription(
                 streamingFeatureEnabled: true,
                 outputMode: .directInsert,
-                aiEnhancementEnabled: false,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: false,
                 isQuickCaptureMode: false
             )
         )
 
+        // Feature flag off → no streaming.
         #expect(
             AppCoordinator.shouldUseStreamingTranscription(
                 streamingFeatureEnabled: false,
                 outputMode: .directInsert,
-                aiEnhancementEnabled: false,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: false,
                 isQuickCaptureMode: false
             ) == false
         )
 
+        // Clipboard output mode → no streaming.
         #expect(
             AppCoordinator.shouldUseStreamingTranscription(
                 streamingFeatureEnabled: true,
                 outputMode: .clipboard,
-                aiEnhancementEnabled: false,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: false,
                 isQuickCaptureMode: false
             ) == false
         )
 
+        // Post-stop enhancement assigned without streaming refinement → stream. The
+        // finalize path runs runBasicPostStopEnhance after stop and diffs the enhanced
+        // text against the streamed raw via finishStreamingInsertion.
         #expect(
             AppCoordinator.shouldUseStreamingTranscription(
                 streamingFeatureEnabled: true,
                 outputMode: .directInsert,
-                aiEnhancementEnabled: true,
+                postStopEnhancementAssigned: true,
+                streamingRefinementAssigned: false,
                 isQuickCaptureMode: false
-            ) == false
+            )
         )
 
+        // Streaming refinement assigned (with or without post-stop enhancement) → streaming
+        // proceeds. The coordinator owns mid-utterance replacement and suppresses the
+        // post-stop pass for that session.
         #expect(
             AppCoordinator.shouldUseStreamingTranscription(
                 streamingFeatureEnabled: true,
                 outputMode: .directInsert,
-                aiEnhancementEnabled: false,
+                postStopEnhancementAssigned: true,
+                streamingRefinementAssigned: true,
+                isQuickCaptureMode: false
+            )
+        )
+        #expect(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: true,
+                isQuickCaptureMode: false
+            )
+        )
+
+        // Quick-capture mode → never stream, irrespective of assignments.
+        #expect(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: false,
+                isQuickCaptureMode: true
+            ) == false
+        )
+        #expect(
+            AppCoordinator.shouldUseStreamingTranscription(
+                streamingFeatureEnabled: true,
+                outputMode: .directInsert,
+                postStopEnhancementAssigned: false,
+                streamingRefinementAssigned: true,
                 isQuickCaptureMode: true
             ) == false
         )

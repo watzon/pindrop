@@ -215,6 +215,11 @@ struct AboutSettingsView: View {
                .font(AppTypography.body)
                .foregroundStyle(AppColors.textSecondary)
                .padding(.top, AppTheme.Spacing.xs)
+
+             Text(localized("Streaming transcription model (Parakeet Realtime EOU) licensed by NVIDIA Corporation under the NVIDIA Open Model License.", locale: locale))
+               .font(AppTypography.caption)
+               .foregroundStyle(AppColors.textTertiary)
+               .fixedSize(horizontal: false, vertical: true)
          }
       }
    }

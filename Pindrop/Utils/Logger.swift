@@ -123,7 +123,16 @@ final class AppLogCategory {
         file: StaticString,
         line: UInt
     ) {
-        let redactedMessage = LogRedactor.redact(message: message, category: category)
+        // Visible log lines (from *Visible callers) skip the heuristic redactor entirely
+        // — they're chosen per-call-site because the author wants the diagnostic content
+        // to appear verbatim. The default path still redacts.
+        let redactedMessage: String
+        switch visibility {
+        case .visible:
+            redactedMessage = message
+        case .hashedPrivate:
+            redactedMessage = LogRedactor.redact(message: message, category: category)
+        }
 
         switch level {
         case .debug:

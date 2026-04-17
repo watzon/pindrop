@@ -288,14 +288,18 @@ struct ModelsSettingsView: View {
                         featureType: featureType,
                         isDownloaded: modelManager.isFeatureModelDownloaded(featureType),
                         isEnabled: settings.isFeatureEnabled(featureType),
-                        aiEnhancementEnabled: settings.aiEnhancementEnabled,
                         isDownloading: modelManager.currentDownloadingFeature == featureType,
                         downloadProgress: modelManager.featureDownloadProgress,
                         onToggle: { enabled in toggleFeature(featureType, enabled: enabled) },
                         onDownload: { downloadFeatureModel(featureType) }
                     )
                     .padding(.horizontal, modelListItemInset)
-                    
+
+                    if featureType == .streaming {
+                        streamingLowLatencyRow
+                            .padding(.horizontal, modelListItemInset)
+                    }
+
                     if index < FeatureModelType.allCases.count - 1 {
                         Divider()
                             .padding(.horizontal, modelListItemInset)
@@ -304,7 +308,110 @@ struct ModelsSettingsView: View {
             }
         }
     }
-    
+
+    private var streamingLowLatencyRow: some View {
+        let streamingEnabled = settings.isFeatureEnabled(.streaming)
+        let activeVariantMissing =
+            !modelManager.isStreamingChunkVariantDownloaded(settings.streamingChunkProfile)
+        let isDownloadingStreaming = modelManager.currentDownloadingFeature == .streaming
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "hare")
+                    .font(.system(size: 16))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(localized("Low-latency mode (less accurate)", locale: locale))
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    Text(localized("Uses the 160ms Parakeet variant for snappier partials at the cost of ~70% more word errors. Default is the 320ms variant.", locale: locale))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: Binding(
+                    get: { settings.streamingLowLatencyMode },
+                    set: { newValue in
+                        settings.streamingLowLatencyMode = newValue
+                        // Ensure the matching chunk variant is on disk. If not, kick off a
+                        // download — no-op if one is already in flight.
+                        let needed: StreamingChunkProfile = newValue ? .lowLatency : .standard
+                        if streamingEnabled && !modelManager.isStreamingChunkVariantDownloaded(needed) {
+                            downloadFeatureModel(.streaming)
+                        }
+                    }
+                ))
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                .labelsHidden()
+                .disabled(!streamingEnabled || isDownloadingStreaming)
+            }
+
+            if streamingEnabled && activeVariantMissing && !isDownloadingStreaming {
+                Text(localized("The selected chunk variant isn't downloaded yet. Toggling will start a download.", locale: locale))
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+                    .padding(.leading, 40)
+            }
+
+            streamingBackendPicker
+                .padding(.top, 8)
+        }
+        .padding(.horizontal, 14)
+        .padding(.bottom, 10)
+        .opacity(streamingEnabled ? 1 : 0.5)
+    }
+
+    private var streamingBackendPicker: some View {
+        let streamingEnabled = settings.isFeatureEnabled(.streaming)
+        let appleAvailable = SettingsStore.appleSpeechTranscriberAvailable
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "cpu")
+                .font(.system(size: 16))
+                .foregroundStyle(.secondary)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(localized("Transcription backend", locale: locale))
+                    .font(.caption)
+                    .fontWeight(.medium)
+                Text(localized("Choose between Parakeet (cross-version, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS).", locale: locale))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !appleAvailable {
+                    Text(localized("Apple SpeechTranscriber requires macOS 26.", locale: locale))
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            Spacer()
+
+            Picker(
+                selection: Binding(
+                    get: { settings.selectedTranscriptionBackend },
+                    set: { settings.selectedTranscriptionBackend = $0 }
+                ),
+                label: EmptyView()
+            ) {
+                Text(localized("Parakeet (default)", locale: locale))
+                    .tag(TranscriptionBackend.parakeet)
+                Text(localized("Apple SpeechTranscriber (macOS 26+)", locale: locale))
+                    .tag(TranscriptionBackend.appleSpeechTranscriber)
+            }
+            .pickerStyle(.menu)
+            .labelsHidden()
+            .controlSize(.small)
+            .frame(maxWidth: 260)
+            .disabled(!streamingEnabled)
+        }
+    }
+
     private func toggleFeature(_ type: FeatureModelType, enabled: Bool) {
         if enabled && !modelManager.isFeatureModelDownloaded(type) {
             downloadFeatureModel(type)
@@ -312,13 +419,16 @@ struct ModelsSettingsView: View {
             settings.setFeatureEnabled(type, enabled: enabled)
         }
     }
-    
+
     private func downloadFeatureModel(_ type: FeatureModelType) {
         errorMessage = nil
-        
+
         Task {
             do {
-                try await modelManager.downloadFeatureModel(type)
+                try await modelManager.downloadFeatureModel(
+                    type,
+                    streamingChunkProfile: settings.streamingChunkProfile
+                )
                 settings.setFeatureEnabled(type, enabled: true)
             } catch {
                 errorMessage = "Failed to download \(type.displayName): \(error.localizedDescription)"
@@ -816,15 +926,10 @@ struct FeatureModelRow: View {
     let featureType: FeatureModelType
     let isDownloaded: Bool
     let isEnabled: Bool
-    let aiEnhancementEnabled: Bool
     let isDownloading: Bool
     let downloadProgress: Double
     let onToggle: (Bool) -> Void
     let onDownload: () -> Void
-
-    private var showsStreamingAIWarning: Bool {
-        featureType == .streaming && aiEnhancementEnabled
-    }
 
     private var showsStreamingEnglishOnlyNote: Bool {
         featureType == .streaming
@@ -875,18 +980,6 @@ struct FeatureModelRow: View {
                         Text(localized("Streaming transcription currently supports English only, regardless of the selected language.", locale: locale))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-
-                if showsStreamingAIWarning {
-                    HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                        Text(localized("Streaming transcription is disabled while AI Enhancement is enabled.", locale: locale))
-                            .font(.caption)
-                            .foregroundStyle(.orange)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

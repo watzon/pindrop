@@ -77,8 +77,16 @@ class TranscriptionService {
 
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer
-    private let streamingEngineFactory: @MainActor () -> any StreamingTranscriptionEngine
+    private let streamingEngineFactory: @MainActor (StreamingChunkProfile) -> any StreamingTranscriptionEngine
+    private let appleSpeechEngineFactory: @MainActor () -> (any StreamingTranscriptionEngine)?
+    private var streamingChunkProfileProvider: @MainActor () -> StreamingChunkProfile
+    private var streamingBackendProvider: @MainActor () -> TranscriptionBackend
     private let speakerIdentityService: SpeakerIdentityManaging?
+
+    /// True once this service substituted Parakeet for a user-requested Apple backend
+    /// that couldn't be provisioned this run. AppCoordinator reads it to surface a
+    /// one-time toast. Consumed and reset by `consumeAppleBackendFallbackFlag()`.
+    private(set) var appleBackendFellBackToParakeet: Bool = false
 
     init(
         engineFactory: @escaping @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine = {
@@ -87,15 +95,47 @@ class TranscriptionService {
         diarizerFactory: @escaping @MainActor () -> any SpeakerDiarizer = {
             FluidSpeakerDiarizer()
         },
-        streamingEngineFactory: @escaping @MainActor () -> any StreamingTranscriptionEngine = {
-            ParakeetStreamingEngine()
+        streamingEngineFactory: @escaping @MainActor (StreamingChunkProfile) -> any StreamingTranscriptionEngine = {
+            ParakeetStreamingEngine(chunkProfile: $0)
         },
+        appleSpeechEngineFactory: @escaping @MainActor () -> (any StreamingTranscriptionEngine)? = {
+            if #available(macOS 26, *) {
+                return AppleSpeechTranscriberEngine()
+            }
+            return nil
+        },
+        streamingChunkProfileProvider: @escaping @MainActor () -> StreamingChunkProfile = { .standard },
+        streamingBackendProvider: @escaping @MainActor () -> TranscriptionBackend = { .parakeet },
         speakerIdentityService: SpeakerIdentityManaging? = nil
     ) {
         self.engineFactory = engineFactory
         self.speakerDiarizerFactory = diarizerFactory
         self.streamingEngineFactory = streamingEngineFactory
+        self.appleSpeechEngineFactory = appleSpeechEngineFactory
+        self.streamingChunkProfileProvider = streamingChunkProfileProvider
+        self.streamingBackendProvider = streamingBackendProvider
         self.speakerIdentityService = speakerIdentityService
+    }
+
+    /// Replace the provider that resolves which streaming chunk profile to use. Safe to
+    /// call post-init (AppCoordinator composes the TranscriptionService before the
+    /// SettingsStore exists in its own init ordering).
+    func setStreamingChunkProfileProvider(_ provider: @escaping @MainActor () -> StreamingChunkProfile) {
+        self.streamingChunkProfileProvider = provider
+    }
+
+    /// Replace the provider that resolves which streaming backend to use (Parakeet vs
+    /// Apple SpeechTranscriber).
+    func setStreamingBackendProvider(_ provider: @escaping @MainActor () -> TranscriptionBackend) {
+        self.streamingBackendProvider = provider
+    }
+
+    /// Read-and-clear the Apple fallback flag. Returns true exactly once after a
+    /// fallback happens.
+    func consumeAppleBackendFallbackFlag() -> Bool {
+        let value = appleBackendFellBackToParakeet
+        appleBackendFellBackToParakeet = false
+        return value
     }
 
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
@@ -305,8 +345,56 @@ class TranscriptionService {
     }
 
     func prepareStreamingEngine() async throws {
+        let profile = streamingChunkProfileProvider()
+        let requestedBackend = streamingBackendProvider()
+
+        // Resolve the backend we can actually run. Apple's SpeechTranscriber only exists
+        // on macOS 26+; on older hosts fall back to Parakeet and remember to surface a
+        // toast to the user.
+        let effectiveBackend: TranscriptionBackend
+        if requestedBackend == .appleSpeechTranscriber, appleSpeechEngineFactory() == nil {
+            effectiveBackend = .parakeet
+            appleBackendFellBackToParakeet = true
+            Log.transcription.warning(
+                "Apple SpeechTranscriber requested but unavailable on this host; falling back to Parakeet"
+            )
+        } else {
+            effectiveBackend = requestedBackend
+        }
+
+        // Recreate the engine when the backend changes or, for Parakeet, when the chunk
+        // profile changes.
+        if let existing = streamingEngine {
+            let existingBackend = Self.backendFor(engine: existing)
+            var recreate = existingBackend != effectiveBackend
+            if !recreate, effectiveBackend == .parakeet,
+               let parakeet = existing as? ParakeetStreamingEngine,
+               parakeet.chunkProfile != profile
+            {
+                await parakeet.updateChunkProfile(profile)
+                recreate = true
+            }
+            if recreate {
+                await existing.unloadModel()
+                streamingEngine = nil
+            }
+        }
+
         if streamingEngine == nil {
-            streamingEngine = streamingEngineFactory()
+            let created: any StreamingTranscriptionEngine
+            switch effectiveBackend {
+            case .parakeet:
+                created = streamingEngineFactory(profile)
+            case .appleSpeechTranscriber:
+                guard let apple = appleSpeechEngineFactory() else {
+                    // Shouldn't happen — handled above — but stay defensive.
+                    appleBackendFellBackToParakeet = true
+                    created = streamingEngineFactory(profile)
+                    break
+                }
+                created = apple
+            }
+            streamingEngine = created
             applyStreamingCallbacks()
         }
 
@@ -326,21 +414,50 @@ class TranscriptionService {
             break
         }
 
-        let modelPath = FeatureModelType.streaming.repoFolderName
+        // Model path is only relevant for Parakeet; the Apple engine ignores `name`.
+        let modelPath: String
+        switch effectiveBackend {
+        case .parakeet:
+            modelPath = FeatureModelType.streamingRepoFolderName(for: profile)
+        case .appleSpeechTranscriber:
+            modelPath = ""
+        }
         do {
             try await streamingEngine.loadModel(name: modelPath)
             if state == .unloaded || state == .error {
                 state = .ready
             }
         } catch {
-            let path = getStreamingModelBase()
-                .appendingPathComponent(modelPath, isDirectory: true)
-                .path
-            let streamingError = TranscriptionError.streamingModelNotAvailable(path)
-            self.error = streamingError
-            state = .error
-            throw streamingError
+            switch effectiveBackend {
+            case .parakeet:
+                let path = getStreamingModelBase()
+                    .appendingPathComponent(modelPath, isDirectory: true)
+                    .path
+                let streamingError = TranscriptionError.streamingModelNotAvailable(path)
+                self.error = streamingError
+                state = .error
+                throw streamingError
+            case .appleSpeechTranscriber:
+                let streamingError = TranscriptionError.streamingStartFailed(
+                    error.localizedDescription)
+                self.error = streamingError
+                state = .error
+                throw streamingError
+            }
         }
+    }
+
+    /// Map an existing engine instance back to the `TranscriptionBackend` that produced it.
+    private static func backendFor(engine: any StreamingTranscriptionEngine) -> TranscriptionBackend {
+        if engine is ParakeetStreamingEngine {
+            return .parakeet
+        }
+        if #available(macOS 26, *) {
+            if engine is AppleSpeechTranscriberEngine {
+                return .appleSpeechTranscriber
+            }
+        }
+        return .parakeet
     }
 
     func startStreaming() async throws {

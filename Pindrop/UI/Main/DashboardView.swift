@@ -480,10 +480,10 @@ struct DashboardView: View {
                 icon: "note.text.badge.plus",
                 iconColor: AppColors.accent,
                 title: localized("New Note", locale: locale),
-                subtitle: settingsStore.aiEnhancementEnabled
+                subtitle: settingsStore.assignment(for: .transcriptionEnhancement) != nil
                     ? localized("Dictate and enhance into a note", locale: locale)
                     : localized("Requires AI Enhancement (Settings › AI)", locale: locale),
-                isDisabled: !settingsStore.aiEnhancementEnabled
+                isDisabled: settingsStore.assignment(for: .transcriptionEnhancement) == nil
             ) {
                 showingActionMenu = false
                 onNewNote?()

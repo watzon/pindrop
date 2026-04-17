@@ -30,6 +30,13 @@ protocol SettingsStoreProtocol: ObservableObject {
     var aiEnhancementPrompt: String { get set }
     var apiEndpoint: String? { get }
     var apiKey: String? { get }
+
+    // MARK: V2 AI config
+    var providers: [ProviderConfig] { get set }
+    var assignments: [EnhancementPurpose: ModelAssignment] { get set }
+    func assignment(for purpose: EnhancementPurpose) -> ModelAssignment?
+    func setAssignment(_ assignment: ModelAssignment?, for purpose: EnhancementPurpose)
+    func provider(withID id: UUID) -> ProviderConfig?
     
     var floatingIndicatorEnabled: Bool { get set }
     var showInDock: Bool { get set }
@@ -51,7 +58,7 @@ extension SettingsStore: SettingsStoreProtocol {}
 @MainActor
 final class PreviewSettingsStore: SettingsStoreProtocol {
     @Published var selectedModel = "openai_whisper-base"
-    
+
     @Published var toggleHotkey = "⌥Space"
     @Published var toggleHotkeyCode = 49
     @Published var toggleHotkeyModifiers = 0x800
@@ -61,27 +68,83 @@ final class PreviewSettingsStore: SettingsStoreProtocol {
     @Published var copyLastTranscriptHotkey = "⇧⌘C"
     @Published var copyLastTranscriptHotkeyCode = 8
     @Published var copyLastTranscriptHotkeyModifiers = 0x300
-    
+
     @Published var outputMode = "clipboard"
     @Published var addTrailingSpace = true
-    
+
     @Published var aiEnhancementEnabled = false
     @Published var aiModel = "openai/gpt-4o-mini"
     @Published var aiEnhancementPrompt = "You are a text enhancement assistant."
     @Published private(set) var apiEndpoint: String? = "https://api.openai.com/v1"
     @Published private(set) var apiKey: String? = nil
-    
+
+    // V2 state: one OpenAI provider + a transcription enhancement assignment so previews
+    // reflect an "AI Enhancement configured" state.
+    @Published var providers: [ProviderConfig]
+    @Published var assignments: [EnhancementPurpose: ModelAssignment]
+
     @Published var floatingIndicatorEnabled = false
     @Published var showInDock = false
-    
+
     @Published var hasCompletedOnboarding = true
     @Published var currentOnboardingStep = 0
-    
+
+    init() {
+        let openAIID = UUID()
+        let openAI = ProviderConfig(
+            id: openAIID,
+            kind: .openai,
+            displayName: "OpenAI"
+        )
+        let appleID = UUID()
+        let apple = ProviderConfig(
+            id: appleID,
+            kind: .apple,
+            displayName: "Apple Intelligence"
+        )
+        let ollamaID = UUID()
+        let ollama = ProviderConfig(
+            id: ollamaID,
+            kind: .custom,
+            customKind: .ollama,
+            displayName: "Ollama (local)"
+        )
+        self.providers = [openAI, apple, ollama]
+        self.assignments = [
+            .transcriptionEnhancement: ModelAssignment(
+                providerID: openAIID,
+                modelID: "gpt-4o-mini",
+                promptPresetID: BuiltInPresetID.cleanTranscript
+            ),
+            .streamingRefinement: ModelAssignment(
+                providerID: appleID,
+                modelID: "apple_intelligence",
+                promptPresetID: BuiltInPresetID.liveStreamingRefinement
+            )
+        ]
+    }
+
     func saveAPIEndpoint(_ endpoint: String) throws { apiEndpoint = endpoint }
     func saveAPIKey(_ key: String) throws { apiKey = key }
     func deleteAPIEndpoint() throws { apiEndpoint = nil }
     func deleteAPIKey() throws { apiKey = nil }
     func resetAllSettings() {}
+
+    func assignment(for purpose: EnhancementPurpose) -> ModelAssignment? {
+        assignments[purpose]
+    }
+
+    func setAssignment(_ assignment: ModelAssignment?, for purpose: EnhancementPurpose) {
+        if let assignment {
+            assignments[purpose] = assignment
+        } else {
+            assignments.removeValue(forKey: purpose)
+        }
+    }
+
+    func provider(withID id: UUID) -> ProviderConfig? {
+        providers.first { $0.id == id }
+    }
 }
 
 // MARK: - ModelManager Protocol

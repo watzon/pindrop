@@ -79,6 +79,15 @@
 		E165F5F47804463DB0238E36 /* TranscriptionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */; };
 		E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 563D563B8CE142449E7030FB /* WhisperKit */; };
 		E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D120A62260BDECC9467BE609 /* AIEnhancementService.swift */; };
+		AICONFIGV2BUILD01A2B3C4D /* AIConfigurationV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = AICONFIGV2FILE01A2B3C4D5 /* AIConfigurationV2.swift */; };
+		TREDITBUILD01A2B3C4D5E6F /* TranscriptEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = TREDITFILE01A2B3C4D5E6F /* TranscriptEdit.swift */; };
+		TREDITAPPLIERBUILD01A2B3 /* TranscriptEditApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = TREDITAPPLIERFILE01A2B3 /* TranscriptEditApplier.swift */; };
+		TREDITAPPLIERTESTBUILD01 /* TranscriptEditApplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */; };
+		AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */; };
+		STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */; };
+		STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */; };
+		DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */; };
+		SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */; };
 		APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */; };
 		APPLESPEECHENG02A2B3C4D5 /* AppleSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */; };
 		E8633ECAF9DFD1A3383E702C /* PindropUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F65084073F3C8D42F7A5D1B /* PindropUITests.swift */; };
@@ -120,6 +129,7 @@
 		PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */; };
 		PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */; };
 		PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */; };
+		APPLESPEECHTRANS02A2B3C4 /* AppleSpeechTranscriberEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */; };
 		PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */; };
 		PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */; };
 		PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */; };
@@ -132,6 +142,13 @@
 		SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */; };
 		SETTINGSCOMPBUILD01A2B3C4D5E6F /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */; };
 		SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */; };
+		AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */; };
+		PRESETSEEDBUILD1A2B3C4D5E /* PromptPresetStoreSeedingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */; };
+		STREAMREFTESTBUILD1A2B3C4 /* StreamingRefinementCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */; };
+		STABMETRICSTESTBUILD1A2B3 /* StreamingStabilityMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */; };
+		DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */; };
+		TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */; };
+		SANITIZERTESTBUILD1A2B3C /* AIEnhancementResponseSanitizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SANITIZERTESTFILE1A2B3C /* AIEnhancementResponseSanitizerTests.swift */; };
 		SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = SPARKLEDEP01A2B3C4D5E6F /* Sparkle */; };
 		SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */; };
 		SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */; };
@@ -244,6 +261,15 @@
 		CTXENGN02A2B3C4D5E6F /* ContextEngineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEngineService.swift; sourceTree = "<group>"; };
 		CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEngineServiceTests.swift; sourceTree = "<group>"; };
 		D120A62260BDECC9467BE609 /* AIEnhancementService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIEnhancementService.swift; sourceTree = "<group>"; };
+		AICONFIGV2FILE01A2B3C4D5 /* AIConfigurationV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIConfigurationV2.swift; sourceTree = "<group>"; };
+		TREDITFILE01A2B3C4D5E6F /* TranscriptEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEdit.swift; sourceTree = "<group>"; };
+		TREDITAPPLIERFILE01A2B3 /* TranscriptEditApplier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEditApplier.swift; sourceTree = "<group>"; };
+		TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEditApplierTests.swift; sourceTree = "<group>"; };
+		AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIEnhancementService+ResolvedAssignment.swift"; sourceTree = "<group>"; };
+		STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingRefinementCoordinator.swift; sourceTree = "<group>"; };
+		STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetrics.swift; sourceTree = "<group>"; };
+		DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicTranscriptCleaner.swift; sourceTree = "<group>"; };
+		SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIConfigV2.swift"; sourceTree = "<group>"; };
 		APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleFoundationModelsEnhancer.swift; sourceTree = "<group>"; };
 		APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechEngine.swift; sourceTree = "<group>"; };
 		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
@@ -297,6 +323,7 @@
 		PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngine.swift; sourceTree = "<group>"; };
 		PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngineTests.swift; sourceTree = "<group>"; };
 		PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetStreamingEngine.swift; sourceTree = "<group>"; };
+		APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechTranscriberEngine.swift; sourceTree = "<group>"; };
 		PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMentionResolver.swift; sourceTree = "<group>"; };
 		PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManagerTests.swift; sourceTree = "<group>"; };
 		PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillFloatingIndicator.swift; sourceTree = "<group>"; };
@@ -309,6 +336,13 @@
 		SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchableDropdown.swift; sourceTree = "<group>"; };
 		SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
+		AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreAIConfigTests.swift; sourceTree = "<group>"; };
+		PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptPresetStoreSeedingTests.swift; sourceTree = "<group>"; };
+		STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingRefinementCoordinatorTests.swift; sourceTree = "<group>"; };
+		STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetricsTests.swift; sourceTree = "<group>"; };
+		DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicTranscriptCleanerTests.swift; sourceTree = "<group>"; };
+		TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionBackendTests.swift; sourceTree = "<group>"; };
+		SANITIZERTESTFILE1A2B3C /* AIEnhancementResponseSanitizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementResponseSanitizerTests.swift; sourceTree = "<group>"; };
 		SPKDIARIZ01A2B3C4D5E6F /* SpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiarizer.swift; sourceTree = "<group>"; };
 		SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		STREAMASR01A2B3C4D5E6F /* StreamingTranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingTranscriptionEngine.swift; sourceTree = "<group>"; };
@@ -471,8 +505,16 @@
 				MEDIAINGESTFILE01A2B3C4D5E6F /* MediaIngestionService.swift */,
 				MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */,
 				F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */,
+				SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */,
+				AICONFIGV2FILE01A2B3C4D5 /* AIConfigurationV2.swift */,
+				TREDITFILE01A2B3C4D5E6F /* TranscriptEdit.swift */,
+				TREDITAPPLIERFILE01A2B3 /* TranscriptEditApplier.swift */,
 				E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */,
 				D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
+				AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */,
+				STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */,
+				STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */,
+				DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */,
 				APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */,
 				AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */,
 				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
@@ -573,6 +615,14 @@
 				D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */,
 				PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */,
 				SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */,
+				AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */,
+				PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */,
+				STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */,
+				STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */,
+				DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */,
+				TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */,
+				SANITIZERTESTFILE1A2B3C /* AIEnhancementResponseSanitizerTests.swift */,
+				TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */,
 				MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */,
 				LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */,
 				DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */,
@@ -703,6 +753,7 @@
 				PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
 				PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */,
 				APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */,
+				APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */,
 			);
 			path = Transcription;
 			sourceTree = "<group>";
@@ -884,6 +935,14 @@
 				UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 				PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */,
 				SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */,
+				AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */,
+				PRESETSEEDBUILD1A2B3C4D5E /* PromptPresetStoreSeedingTests.swift in Sources */,
+				STREAMREFTESTBUILD1A2B3C4 /* StreamingRefinementCoordinatorTests.swift in Sources */,
+				STABMETRICSTESTBUILD1A2B3 /* StreamingStabilityMetricsTests.swift in Sources */,
+				DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */,
+				TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */,
+				SANITIZERTESTBUILD1A2B3C /* AIEnhancementResponseSanitizerTests.swift in Sources */,
+				TREDITAPPLIERTESTBUILD01 /* TranscriptEditApplierTests.swift in Sources */,
 				MODELMGRTESTBUILD1A2B3C4D5E6F70 /* ModelManagerTests.swift in Sources */,
 				LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */,
 				DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
@@ -939,9 +998,17 @@
 				83556706A5B946DA8E8D1F05 /* AboutSettingsView.swift in Sources */,
 				9AD845AB6A464CB0A312F1F8 /* AIEnhancementSettingsView.swift in Sources */,
 				A1B2C3D4E5F6789012345679 /* SettingsStore.swift in Sources */,
+				SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */,
+				AICONFIGV2BUILD01A2B3C4D /* AIConfigurationV2.swift in Sources */,
+				TREDITBUILD01A2B3C4D5E6F /* TranscriptEdit.swift in Sources */,
+				TREDITAPPLIERBUILD01A2B3 /* TranscriptEditApplier.swift in Sources */,
 				B2C3D4E5F6789012345678AB /* ModelManager.swift in Sources */,
 				4C6B0181BA512555942717CB /* AppCoordinator.swift in Sources */,
 				E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */,
+				AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */,
+				STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */,
+				STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */,
+				DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */,
 				APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */,
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 				C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
@@ -995,6 +1062,7 @@
 				FLUIDDIARBUILD01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift in Sources */,
 				STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */,
 				PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */,
+				APPLESPEECHTRANS02A2B3C4 /* AppleSpeechTranscriberEngine.swift in Sources */,
 				TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */,
 				CTXCAPT02A2B3C4D5E6F /* ContextCaptureService.swift in Sources */,
 				CTXCNTR02A2B3C4D5E6F /* ContextEngineContracts.swift in Sources */,

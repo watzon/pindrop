@@ -86,7 +86,7 @@ struct ReadyStepView: View {
         VStack(spacing: 12) {
             summaryRow(icon: .cpu, label: localized("Model", locale: locale), value: selectedModel?.displayName ?? localized("Base", locale: locale))
             summaryRow(icon: .keyboard, label: localized("Toggle", locale: locale), value: settings.toggleHotkey.isEmpty ? localized("Not set", locale: locale) : settings.toggleHotkey)
-            summaryRow(icon: .sparkles, label: localized("AI Enhancement", locale: locale), value: settings.aiEnhancementEnabled ? localized("Enabled", locale: locale) : localized("Disabled", locale: locale))
+            summaryRow(icon: .sparkles, label: localized("AI Enhancement", locale: locale), value: settings.assignment(for: .transcriptionEnhancement) != nil ? localized("Enabled", locale: locale) : localized("Disabled", locale: locale))
         }
         .padding(20)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))

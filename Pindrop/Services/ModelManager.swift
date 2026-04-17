@@ -969,74 +969,101 @@ class ModelManager {
     }
     
     // MARK: - Feature Models
-    
+
     func isFeatureModelDownloaded(_ type: FeatureModelType) -> Bool {
         downloadedFeatureModels.contains(type)
     }
-    
+
+    /// True when the specific streaming chunk variant matching `profile` is present on
+    /// disk. `isFeatureModelDownloaded(.streaming)` answers the broader "any variant is
+    /// present" question; this helper is for code paths that care which one.
+    func isStreamingChunkVariantDownloaded(_ profile: StreamingChunkProfile) -> Bool {
+        let folder = fluidAudioModelsURL.appendingPathComponent(profile.repoFolderName)
+        var isDirectory: ObjCBool = false
+        return fileManager.fileExists(atPath: folder.path, isDirectory: &isDirectory)
+            && isDirectory.boolValue
+    }
+
     func refreshDownloadedFeatureModels() async {
         var downloaded: Set<FeatureModelType> = []
-        
+
         for type in FeatureModelType.allCases {
-            let repoFolder = fluidAudioModelsURL.appendingPathComponent(type.repoFolderName)
-            var isDirectory: ObjCBool = false
-            if fileManager.fileExists(atPath: repoFolder.path, isDirectory: &isDirectory),
-               isDirectory.boolValue {
-                downloaded.insert(type)
+            switch type {
+            case .streaming:
+                // Either chunk variant counts as "streaming downloaded" so toggling the
+                // low-latency setting doesn't silently mark the feature as missing.
+                if isStreamingChunkVariantDownloaded(.standard)
+                    || isStreamingChunkVariantDownloaded(.lowLatency) {
+                    downloaded.insert(type)
+                }
+            default:
+                let repoFolder = fluidAudioModelsURL.appendingPathComponent(type.repoFolderName)
+                var isDirectory: ObjCBool = false
+                if fileManager.fileExists(atPath: repoFolder.path, isDirectory: &isDirectory),
+                   isDirectory.boolValue {
+                    downloaded.insert(type)
+                }
             }
         }
-        
+
         if downloaded != downloadedFeatureModels {
             Log.model.debug("Found \(downloaded.count) downloaded feature models: \(downloaded)")
         }
         downloadedFeatureModels = downloaded
     }
-    
+
     func downloadFeatureModel(
         _ type: FeatureModelType,
+        streamingChunkProfile: StreamingChunkProfile = .standard,
         onProgress: ((Double) -> Void)? = nil
     ) async throws {
         guard !isDownloadingFeature else {
             throw ModelError.downloadFailed("Another feature download is in progress")
         }
-        
+
         isDownloadingFeature = true
         currentDownloadingFeature = type
         featureDownloadProgress = 0.0
-        
+
         defer {
             isDownloadingFeature = false
             currentDownloadingFeature = nil
         }
-        
+
         Log.model.info("Downloading feature model: \(type.displayName)")
-        
+
         do {
             switch type {
             case .vad:
                 featureDownloadProgress = 0.1
                 onProgress?(0.1)
                 let _ = try await VadManager(config: .default)
-                
+
             case .diarization:
                 featureDownloadProgress = 0.1
                 onProgress?(0.1)
                 let _ = try await DiarizerModels.download()
-                
+
             case .streaming:
                 featureDownloadProgress = 0.1
                 onProgress?(0.1)
                 featureDownloadProgress = 0.3
                 onProgress?(0.3)
+                let repo: Repo = {
+                    switch streamingChunkProfile {
+                    case .standard: return .parakeetEou320
+                    case .lowLatency: return .parakeetEou160
+                    }
+                }()
                 try await DownloadUtils.downloadRepo(
-                    .parakeetEou160,
+                    repo,
                     to: fluidAudioModelsURL
                 )
             }
-            
+
             featureDownloadProgress = 1.0
             onProgress?(1.0)
-            
+
             Log.model.info("Feature model download complete: \(type.displayName)")
             await refreshDownloadedFeatureModels()
         } catch {

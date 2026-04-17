@@ -199,6 +199,11 @@ struct ModelManagerTests {
     @Test func featureModelRepoFolderNamesMatchDownloaderCacheLayout() {
         #expect(FeatureModelType.vad.repoFolderName == "silero-vad-coreml")
         #expect(FeatureModelType.diarization.repoFolderName == "speaker-diarization-coreml")
-        #expect(FeatureModelType.streaming.repoFolderName == "parakeet-eou-streaming/160ms")
+        // Default streaming variant is now 320ms (Phase 1 of the live refinement shape-up).
+        // The 160ms variant lives under a sibling folder and is reachable through the
+        // lowLatency StreamingChunkProfile.
+        #expect(FeatureModelType.streaming.repoFolderName == "parakeet-eou-streaming/320ms")
+        #expect(FeatureModelType.streamingRepoFolderName(for: .standard) == "parakeet-eou-streaming/320ms")
+        #expect(FeatureModelType.streamingRepoFolderName(for: .lowLatency) == "parakeet-eou-streaming/160ms")
     }
 }

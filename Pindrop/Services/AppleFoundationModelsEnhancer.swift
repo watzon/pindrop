@@ -32,32 +32,106 @@ struct AppleNoteMetadata {
     var tags: [String]
 }
 
+// MARK: - Live streaming edit-list schema (L2)
+//
+// `@Generable` requires FoundationModels, so these types live behind the same guard as
+// the rest of the file. The coordinator consumes a plain `TranscriptEdit` (declared in
+// `TranscriptEdit.swift`) so it doesn't need to be gated. `refineAsEdits` converts.
+
+@available(macOS 26, *)
+@Generable
+struct AppleTranscriptEditList {
+    @Guide(description: """
+        Ordered list of small find-and-replace edits to clean up the transcript. Each edit \
+        applies to the result of the previous ones. Prefer many small edits over one big \
+        edit. Return an empty list when the transcript is already clean.
+        """)
+    var edits: [AppleTranscriptEdit]
+}
+
+@available(macOS 26, *)
+@Generable
+struct AppleTranscriptEdit {
+    @Guide(description: """
+        Exact substring from the transcript to replace. MUST match the input verbatim, \
+        including spaces and punctuation. If the target word or phrase could appear in \
+        multiple places in the transcript, include 2-3 surrounding words (or a unique \
+        preceding/following word) so that this `find` string only matches the intended \
+        occurrence.
+        """)
+    var find: String
+
+    @Guide(description: """
+        Replacement for `find`. May be an empty string to delete. Keep replacements \
+        minimal: fix capitalization, insert punctuation, remove filler words, merge \
+        split words (e.g. `correct ly` -> `correctly`). Do NOT restructure sentences \
+        or paraphrase. Do NOT add content that the speaker did not say.
+        """)
+    var replacement: String
+}
+
 // MARK: - Enhancer
 
 @available(macOS 26, *)
 @MainActor
 final class AppleFoundationModelsEnhancer {
 
-    private var enhancementSession: LanguageModelSession?
-    private var lastEnhancementPrompt: String?
-
     // MARK: - Text Enhancement
 
     func enhance(text: String, systemPrompt: String) async throws -> String {
         try checkAvailability()
 
-        if enhancementSession == nil || lastEnhancementPrompt != systemPrompt {
-            enhancementSession = LanguageModelSession(instructions: systemPrompt)
-            lastEnhancementPrompt = systemPrompt
-        }
+        // Strip any `${transcription}` placeholder from the instructions. The cloud
+        // provider path normalizes this via `normalizeTranscriptionInstructions`, but
+        // the Apple path bypasses that — if we don't strip here the model sees
+        // `${transcription}` as literal text in its instructions, which confuses it.
+        let normalizedInstructions = systemPrompt
+            .replacingOccurrences(of: "${transcription}", with: "")
+            .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard let session = enhancementSession else {
-            throw AIEnhancementService.EnhancementError.apiError("Failed to create Apple Intelligence session.")
-        }
+        // Fresh session per call. Caching the session across calls (as earlier
+        // versions did) caused Foundation Models to treat each refinement as a
+        // continuation of a multi-turn conversation and echo the input verbatim
+        // instead of applying the cleanup instructions. `generateTranscriptionMetadata`
+        // below always uses a fresh session and worked correctly for that reason.
+        let session = LanguageModelSession(instructions: normalizedInstructions)
 
         return try await runWithErrorMapping {
             let response = try await session.respond(to: text)
             return response.content
+        }
+    }
+
+    // MARK: - Live Streaming Refinement (edit list)
+
+    /// Returns a list of find/replace edits the coordinator can apply to the transcript
+    /// to clean it up. Structured output via `@Generable` constrains the model to
+    /// grounded edits — it cannot hallucinate unspoken trailing content because any
+    /// `find` that isn't actually present in the transcript would be skipped by the
+    /// applier. Fresh session per call, same contract as `enhance(...)`.
+    func refineAsEdits(
+        transcript: String,
+        systemPrompt: String
+    ) async throws -> [TranscriptEdit] {
+        try checkAvailability()
+
+        let normalizedInstructions = systemPrompt
+            .replacingOccurrences(of: "${transcription}", with: "")
+            .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let session = LanguageModelSession(instructions: normalizedInstructions)
+
+        let result = try await runWithErrorMapping {
+            let response = try await session.respond(
+                to: transcript,
+                generating: AppleTranscriptEditList.self
+            )
+            return response.content
+        }
+        return result.edits.map {
+            TranscriptEdit(find: $0.find, replacement: $0.replacement)
         }
     }
 
@@ -157,16 +231,10 @@ final class AppleFoundationModelsEnhancer {
                 "Apple Intelligence content policy prevented this enhancement."
             )
         } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
-            // Reset session and retry once with fresh context
-            enhancementSession = nil
-            lastEnhancementPrompt = nil
-            do {
-                return try await body()
-            } catch {
-                throw AIEnhancementService.EnhancementError.apiError(
-                    "Content too long for Apple Intelligence: \(error.localizedDescription)"
-                )
-            }
+            // Fresh sessions now, so nothing to reset — just surface the error.
+            throw AIEnhancementService.EnhancementError.apiError(
+                "Content too long for Apple Intelligence."
+            )
         } catch LanguageModelSession.GenerationError.unsupportedLanguageOrLocale {
             throw AIEnhancementService.EnhancementError.apiError(
                 "Apple Intelligence does not support the current language or locale."

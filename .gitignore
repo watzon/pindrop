@@ -53,3 +53,4 @@ DerivedDataTests/
 # Legacy local residue
 shared/
 .gitnexus
+.soulforge

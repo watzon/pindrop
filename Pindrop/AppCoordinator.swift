@@ -313,6 +313,12 @@ final class AppCoordinator {
     private var isStreamingTranscriptionSessionActive = false
     private var streamingAudioProcessingTask: Task<Void, Never>?
     private var streamingInsertionUpdateTask: Task<Void, Never>?
+    /// The refinement coordinator for the current streaming session, if a
+    /// `streamingRefinement` assignment resolved at session start. When non-nil, partial
+    /// and final streaming callbacks are routed through the coordinator rather than
+    /// straight to OutputManager, and the post-stop holistic enhancement pass is
+    /// suppressed when it lands at least one refinement.
+    private var streamingRefinementCoordinator: StreamingRefinementCoordinator?
     private var mediaTranscriptionTask: Task<Void, Never>?
     private var queueOriginalModelName: String?
 
@@ -389,13 +395,25 @@ final class AppCoordinator {
             fatalError("Failed to initialize AudioRecorder: \(error)")
         }
         self.speakerIdentityService = SpeakerIdentityService(modelContext: modelContext)
-        self.transcriptionService = TranscriptionService(speakerIdentityService: speakerIdentityService)
         self.modelManager = ModelManager()
         self.aiEnhancementService = AIEnhancementService()
         self.hotkeyManager = HotkeyManager()
         self.launchAtLoginManager = LaunchAtLoginManager()
         self.updateService = UpdateService()
         self.settingsStore = SettingsStore()
+        // TranscriptionService is built after SettingsStore so the streaming chunk
+        // profile and backend providers can read the user's toggles when the engine
+        // is (re)loaded.
+        let settingsRef = self.settingsStore
+        self.transcriptionService = TranscriptionService(
+            streamingChunkProfileProvider: { [weak settingsRef] in
+                settingsRef?.streamingChunkProfile ?? .standard
+            },
+            streamingBackendProvider: { [weak settingsRef] in
+                settingsRef?.resolvedTranscriptionBackend ?? .parakeet
+            },
+            speakerIdentityService: speakerIdentityService
+        )
         self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
@@ -755,6 +773,13 @@ final class AppCoordinator {
     private func applyDefaultPromptPresetIfNeeded() {
         guard !settingsStore.didMigrateToCleanTranscriptDefault else { return }
         guard settingsStore.selectedPresetId == nil else {
+            settingsStore.didMigrateToCleanTranscriptDefault = true
+            return
+        }
+        // The v2 AI config migrator already seeds transcriptionEnhancement with a
+        // promptPresetID (defaulting to "clean"), so this legacy default-prompt migration
+        // is a no-op once v2 migration has completed.
+        guard !settingsStore.aiConfigV2Migrated else {
             settingsStore.didMigrateToCleanTranscriptDefault = true
             return
         }
@@ -1328,7 +1353,7 @@ final class AppCoordinator {
             selectedAppLanguage: settingsStore.selectedAppLanguage,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
-            aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
+            aiEnhancementEnabled: settingsStore.assignment(for: .transcriptionEnhancement) != nil,
             enableUIContext: settingsStore.enableUIContext,
             vibeLiveSessionEnabled: settingsStore.vibeLiveSessionEnabled,
             hotkeys: HotkeySettingsSnapshot(
@@ -1585,13 +1610,13 @@ final class AppCoordinator {
     // MARK: - Live Session Context
 
     private func shouldRunLiveContextSession() -> Bool {
-        settingsStore.aiEnhancementEnabled &&
+        settingsStore.assignment(for: .transcriptionEnhancement) != nil &&
             settingsStore.enableUIContext &&
             settingsStore.vibeLiveSessionEnabled
     }
 
     private func updateVibeRuntimeStateFromSettings() {
-        guard settingsStore.aiEnhancementEnabled else {
+        guard settingsStore.assignment(for: .transcriptionEnhancement) != nil else {
             settingsStore.updateVibeRuntimeState(.degraded, detail: "AI enhancement is disabled.")
             return
         }
@@ -2126,12 +2151,9 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
 
-        if settingsStore.aiEnhancementEnabled,
-           let apiEndpoint = settingsStore.apiEndpoint,
-           settingsStore.currentAIProviderHasRequiredAPIKey() {
+        if let noteAssignment = settingsStore.resolveAssignment(for: .noteEnhancement) {
             do {
-                let apiKey = settingsStore.configuredAPIKeyForCurrentAIProvider()
-                let notePrompt = settingsStore.noteEnhancementPrompt
+                let notePrompt = noteAssignment.prompt ?? SettingsStore.Defaults.noteEnhancementPrompt
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
                 let replacementCorrections = appliedReplacements.map {
                     AIEnhancementService.ContextMetadata.ReplacementCorrection(
@@ -2151,14 +2173,14 @@ final class AppCoordinator {
                 let existingTags = (try? notesStore.getAllUniqueTags()) ?? []
                 let enhancedNote = try await aiEnhancementService.enhanceNote(
                     content: textAfterReplacements,
-                    apiEndpoint: apiEndpoint,
-                    apiKey: apiKey,
-                    model: settingsStore.aiModel,
+                    apiEndpoint: noteAssignment.endpoint ?? "",
+                    apiKey: noteAssignment.apiKey,
+                    model: noteAssignment.modelID,
                     contentPrompt: notePrompt,
                     generateMetadata: true,
                     existingTags: existingTags,
                     context: enhancementContext,
-                    provider: settingsStore.currentAIProvider
+                    provider: noteAssignment.kind
                 )
                 Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
                 let normalizedEnhancedContent = normalizedTranscriptionText(enhancedNote.content)
@@ -2370,16 +2392,31 @@ final class AppCoordinator {
         diarizationFeatureEnabled && !isStreamingSessionActive
     }
 
+    /// The v2 streaming gate. Streaming transcription runs whenever the user's streaming
+    /// preference says so, independent of any AI-enhancement assignment. The streaming
+    /// finalize path handles the three enhancement-state combinations:
+    ///
+    ///   - streamingRefinement assigned → the coordinator drives mid-utterance replacement
+    ///     and owns the final text at stop.
+    ///   - transcriptionEnhancement assigned, streamingRefinement not → streamed raw is
+    ///     typed as-is during dictation; at stop, runBasicPostStopEnhance produces the
+    ///     enhanced text and finishStreamingInsertion diffs it against the raw, backspacing
+    ///     and retyping only the divergent suffix.
+    ///   - neither assigned → streamed raw is the final output.
+    ///
+    /// Gates that still matter: feature flag, output mode, quick-capture mode.
     static func shouldUseStreamingTranscription(
         streamingFeatureEnabled: Bool,
         outputMode: OutputMode,
-        aiEnhancementEnabled: Bool,
+        postStopEnhancementAssigned: Bool,
+        streamingRefinementAssigned: Bool,
         isQuickCaptureMode: Bool
     ) -> Bool {
-        streamingFeatureEnabled &&
-            outputMode == .directInsert &&
-            !aiEnhancementEnabled &&
-            !isQuickCaptureMode
+        _ = postStopEnhancementAssigned  // retained in the signature for explicitness and
+        _ = streamingRefinementAssigned  // symmetry with callers/tests; no longer gates.
+        return streamingFeatureEnabled
+            && outputMode == .directInsert
+            && !isQuickCaptureMode
     }
 
     private func encodeDiarizationSegmentsJSON(_ segments: [DiarizedTranscriptSegment]?) -> String? {
@@ -2402,7 +2439,10 @@ final class AppCoordinator {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
             outputMode: outputManager.outputMode,
-            aiEnhancementEnabled: settingsStore.aiEnhancementEnabled,
+            postStopEnhancementAssigned:
+                settingsStore.assignment(for: .transcriptionEnhancement) != nil,
+            streamingRefinementAssigned:
+                settingsStore.assignment(for: .streamingRefinement) != nil,
             isQuickCaptureMode: isQuickCaptureMode
         )
     }
@@ -2440,7 +2480,6 @@ final class AppCoordinator {
             let reasons = [
                 settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
                 outputManager.outputMode == .directInsert ? nil : "output-mode-not-directInsert",
-                settingsStore.aiEnhancementEnabled ? "ai-enhancement-enabled" : nil,
                 isQuickCaptureMode ? "quick-capture-mode" : nil
             ].compactMap { $0 }
             Log.transcription.info("Streaming transcription disabled for session: \(reasons.joined(separator: ","))")
@@ -2453,7 +2492,39 @@ final class AppCoordinator {
             setStreamingTranscriptionCallbacks()
             try await transcriptionService.prepareStreamingEngine()
             try await transcriptionService.startStreaming()
-            outputManager.beginStreamingInsertion()
+
+            // Surface a one-time toast if the Apple backend was requested but we had to
+            // fall back to Parakeet (e.g. running on macOS < 26 or unsupported locale).
+            if transcriptionService.consumeAppleBackendFallbackFlag() {
+                toastService.show(
+                    ToastPayload(
+                        message: localized(
+                            "Apple SpeechTranscriber unavailable — using Parakeet",
+                            locale: .autoupdatingCurrent
+                        ),
+                        style: .standard
+                    )
+                )
+            }
+
+            // Phase 2: the coordinator always stands up now. It owns the committed/
+            // tentative split, LocalAgreement-2 commit rules, and deterministic cleanup —
+            // none of which need an LLM. Live LLM refinement has been removed (see
+            // StreamingRefinementCoordinator.swift header). Post-stop holistic enhancement
+            // still runs via `runBasicPostStopEnhance`.
+            let coord = StreamingRefinementCoordinator()
+            coord.beginSession(outputSink: outputManager)
+            streamingRefinementCoordinator = coord
+            if let refinementAssignment = settingsStore.resolveAssignment(for: .streamingRefinement) {
+                Log.transcription.info(
+                    "Streaming refinement coordinator engaged (provider=\(refinementAssignment.kind.rawValue), model=\(refinementAssignment.modelID)) — live LLM refinement disabled in Phase 2, post-stop path unchanged"
+                )
+            } else {
+                Log.transcription.info(
+                    "Streaming refinement coordinator engaged with deterministic cleanup only"
+                )
+            }
+
             attachStreamingAudioForwarding()
             isStreamingTranscriptionSessionActive = true
             Log.transcription.info("Streaming transcription enabled for current session")
@@ -2467,12 +2538,22 @@ final class AppCoordinator {
         transcriptionService.setStreamingCallbacks(
             onPartial: { [weak self] text in
                 Task { @MainActor in
-                    self?.enqueueStreamingInsertionUpdate(text, source: "partial")
+                    guard let self else { return }
+                    if let coord = self.streamingRefinementCoordinator {
+                        await coord.ingestPartial(text)
+                    } else {
+                        self.enqueueStreamingInsertionUpdate(text, source: "partial")
+                    }
                 }
             },
             onFinalUtterance: { [weak self] text in
                 Task { @MainActor in
-                    self?.enqueueStreamingInsertionUpdate(text, source: "final-utterance")
+                    guard let self else { return }
+                    if let coord = self.streamingRefinementCoordinator {
+                        await coord.ingestFinal(text)
+                    } else {
+                        self.enqueueStreamingInsertionUpdate(text, source: "final-utterance")
+                    }
                 }
             }
         )
@@ -2538,10 +2619,70 @@ final class AppCoordinator {
         }
     }
 
+    /// Runs the post-stop transcriptionEnhancement assignment on `text` using the simple
+    /// enhance() overload (no rich ContextMetadata). Used exclusively by the streaming
+    /// finalize path — the non-streaming path constructs its own context-aware enhance
+    /// call with clipboard, app snapshot, mentions, and routing signals.
+    ///
+    /// Returns nil when no assignment resolves, the text is empty, or the call fails.
+    private func runBasicPostStopEnhance(
+        text: String
+    ) async -> (enhancedText: String, modelID: String)? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        guard let assignment = settingsStore.resolveAssignment(for: .transcriptionEnhancement)
+        else { return nil }
+
+        let basePrompt: String
+        if let presetId = settingsStore.selectedPresetId,
+           let presetUUID = UUID(uuidString: presetId),
+           let allPresets = try? promptPresetStore.fetchAll(),
+           let selectedPreset = allPresets.first(where: { $0.id == presetUUID })
+        {
+            basePrompt = selectedPreset.prompt
+        } else {
+            basePrompt = assignment.prompt ?? SettingsStore.Defaults.aiEnhancementPrompt
+        }
+
+        do {
+            // Route through the context-aware overload so the call site picks up the
+            // `<output_contract>` block that forbids preamble ("Here is…"), conversational
+            // replies, and meta commentary. Context is intentionally empty — streaming
+            // dictation doesn't need clipboard/UI snapshots piped in.
+            let enhanced = try await aiEnhancementService.enhance(
+                text: text,
+                apiEndpoint: assignment.endpoint ?? "",
+                apiKey: assignment.apiKey,
+                model: assignment.modelID,
+                customPrompt: basePrompt,
+                imageBase64: nil,
+                context: .none,
+                provider: assignment.kind
+            )
+            let sanitized = AIEnhancementService.stripResponsePreamble(enhanced)
+            return (sanitized, assignment.modelID)
+        } catch {
+            Log.aiEnhancement.warning(
+                "Streaming post-stop enhance failed: \(error.localizedDescription)")
+            toastService.show(
+                ToastPayload(
+                    message: "AI enhancement failed. Streamed text kept as-is.",
+                    style: .error
+                )
+            )
+            return nil
+        }
+    }
+
     private func cancelStreamingSession(preserveInsertedText: Bool) async {
         clearStreamingSessionBindings(cancelPendingWork: true)
         await transcriptionService.cancelStreaming()
-        await outputManager.cancelStreamingInsertion(removeInsertedText: !preserveInsertedText)
+        if let coord = streamingRefinementCoordinator {
+            await coord.cancelSession(removeInsertedText: !preserveInsertedText)
+            streamingRefinementCoordinator = nil
+        } else {
+            await outputManager.cancelStreamingInsertion(removeInsertedText: !preserveInsertedText)
+        }
         isStreamingTranscriptionSessionActive = false
     }
 
@@ -2598,10 +2739,52 @@ final class AppCoordinator {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
 
+        // If the refinement coordinator is active, it owns the authoritative final text:
+        // fold dictionary replacements onto its refined output rather than the raw stream.
+        // The coordinator's drained text is the currently-displayed string; dictionary
+        // replacements run on top, and the outer finishStreamingInsertion below performs
+        // one final diff/retype that lands the post-replacement text.
+        let coord = streamingRefinementCoordinator
+        if let coord {
+            let coordText = await coord.awaitFinalTextAndDrain()
+            let (coordAfterReplacements, coordReplacements) = try dictionaryStore.applyReplacements(
+                to: coordText
+            )
+            textAfterReplacements = normalizedTranscriptionText(coordAfterReplacements)
+            self.lastAppliedReplacements = coordReplacements
+            if !coordReplacements.isEmpty {
+                Log.app.info(
+                    "Applied \(coordReplacements.count) dictionary replacements to refined stream")
+            }
+        }
+
         guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
             handleNoSpeechDetected(context: "streaming recording")
             try? await outputManager.finishStreamingInsertion(finalText: "", appendTrailingSpace: false)
+            streamingRefinementCoordinator = nil
             return
+        }
+
+        // Post-stop holistic enhancement for streaming sessions. Gated by the
+        // `streamingPostStopEnhancementEnabled` setting (default OFF): the deterministic
+        // cleaner is strong enough to stand on its own for most dictation, and the LLM
+        // path has failure modes (preamble, conversational replies, rate-limit stalls)
+        // we don't want as the default experience. Users who want LLM polish can enable
+        // the toggle and configure a `transcriptionEnhancement` assignment.
+        var originalStreamedText: String? = nil
+        var enhancedWithModel: String? = nil
+        let liveRefinementLanded = coord?.didLandAnyRefinement == true
+        let enhanceEnabled = settingsStore.streamingPostStopEnhancementEnabled
+        if enhanceEnabled,
+           !liveRefinementLanded,
+           let result = await runBasicPostStopEnhance(text: textAfterReplacements)
+        {
+            originalStreamedText = textAfterReplacements
+            textAfterReplacements = result.enhancedText
+            enhancedWithModel = result.modelID
+            Log.transcription.info(
+                "Streaming post-stop enhancement applied: \(originalStreamedText?.count ?? 0) → \(result.enhancedText.count) chars (model=\(result.modelID))"
+            )
         }
 
         var outputSucceeded = false
@@ -2617,6 +2800,9 @@ final class AppCoordinator {
             await outputManager.cancelStreamingInsertion(removeInsertedText: false)
         }
 
+        coord?.endSession()
+        streamingRefinementCoordinator = nil
+
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: textAfterReplacements) else {
             return
         }
@@ -2625,10 +2811,10 @@ final class AppCoordinator {
         do {
             try historyStore.save(
                 text: textAfterReplacements,
-                originalText: nil,
+                originalText: originalStreamedText,
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
-                enhancedWith: nil,
+                enhancedWith: enhancedWithModel,
                 diarizationSegmentsJSON: nil
             )
             updateRecentTranscriptsMenu()
@@ -2751,9 +2937,8 @@ final class AppCoordinator {
             routingSignal: capturedRoutingSignal,
             snapshot: capturedSnapshot
         )
-        let shouldUsePlaceholderMentions = settingsStore.aiEnhancementEnabled &&
-            settingsStore.apiEndpoint != nil &&
-            settingsStore.currentAIProviderHasRequiredAPIKey()
+        let shouldUsePlaceholderMentions =
+            settingsStore.resolveAssignment(for: .transcriptionEnhancement) != nil
         if let capabilities = capturedAdapterCapabilities,
            capabilities.supportsFileMentions {
             let resolvedMentionFormatting = settingsStore.resolveMentionFormatting(
@@ -2805,14 +2990,13 @@ final class AppCoordinator {
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
 
-        if settingsStore.aiEnhancementEnabled,
-           let apiEndpoint = settingsStore.apiEndpoint,
-           settingsStore.currentAIProviderHasRequiredAPIKey() {
+        if let transcriptionAssignment = settingsStore.resolveAssignment(
+            for: .transcriptionEnhancement)
+        {
             do {
-                let apiKey = settingsStore.configuredAPIKeyForCurrentAIProvider()
                 originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
-                
+
                 var basePrompt: String
                 if let presetId = settingsStore.selectedPresetId,
                    let presetUUID = UUID(uuidString: presetId),
@@ -2820,7 +3004,8 @@ final class AppCoordinator {
                    let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
                     basePrompt = selectedPreset.prompt
                 } else {
-                    basePrompt = settingsStore.aiEnhancementPrompt
+                    basePrompt = transcriptionAssignment.prompt
+                        ?? SettingsStore.Defaults.aiEnhancementPrompt
                 }
 
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
@@ -2907,13 +3092,13 @@ final class AppCoordinator {
 
                 finalText = try await aiEnhancementService.enhance(
                     text: textAfterMentions,
-                    apiEndpoint: apiEndpoint,
-                    apiKey: apiKey,
-                    model: settingsStore.aiModel,
+                    apiEndpoint: transcriptionAssignment.endpoint ?? "",
+                    apiKey: transcriptionAssignment.apiKey,
+                    model: transcriptionAssignment.modelID,
                     customPrompt: basePrompt,
                     imageBase64: nil,
                     context: contextMetadata,
-                    provider: settingsStore.currentAIProvider
+                    provider: transcriptionAssignment.kind
                 )
                 if let capabilities = mentionFormattingCapabilities,
                    capabilities.supportsFileMentions,
@@ -2944,7 +3129,7 @@ final class AppCoordinator {
                 capturedAdapterCapabilities = nil
                 capturedRoutingSignal = nil
                 stopLiveContextSession()
-                enhancedWithModel = settingsStore.aiModel
+                enhancedWithModel = transcriptionAssignment.modelID
                 Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 Log.app.error("AI enhancement failed: \(error)")
@@ -2957,13 +3142,7 @@ final class AppCoordinator {
                 // Keep originalText so the unenhanced transcription is saved to history
             }
         } else {
-            if !settingsStore.aiEnhancementEnabled {
-                Log.app.debug("AI enhancement disabled, no original text to save")
-            } else if settingsStore.apiEndpoint == nil {
-                Log.app.debug("AI enhancement enabled but no API endpoint configured")
-            } else if settingsStore.requiresAPIKey(for: settingsStore.currentAIProvider) {
-                Log.app.debug("AI enhancement enabled but no API key configured")
-            }
+            Log.app.debug("AI enhancement skipped: no transcriptionEnhancement assignment resolves")
         }
 
         finalText = normalizedTranscriptionText(finalText)
@@ -4104,24 +4283,15 @@ final class AppCoordinator {
         from transcription: String,
         managedAsset: ManagedMediaAsset
     ) async -> (generatedTitle: String?, summary: String?) {
-        guard settingsStore.aiEnhancementEnabled else {
-            return (nil, nil)
-        }
-
-        let apiEndpoint = (settingsStore.apiEndpoint ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !apiEndpoint.isEmpty,
-              settingsStore.currentAIProviderHasRequiredAPIKey() else {
+        guard let assignment = settingsStore.resolveAssignment(for: .transcriptionMetadata) else {
             return (nil, nil)
         }
 
         do {
             let metadata = try await aiEnhancementService.generateTranscriptionMetadata(
                 transcription: transcription,
-                apiEndpoint: apiEndpoint,
-                apiKey: settingsStore.configuredAPIKeyForCurrentAIProvider(),
-                model: settingsStore.aiModel,
-                includeTitle: !managedAsset.hasSourceMetadataTitle,
-                provider: settingsStore.currentAIProvider
+                assignment: assignment,
+                includeTitle: !managedAsset.hasSourceMetadataTitle
             )
             let trimmedSummary = metadata.summary.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             return (
@@ -4218,17 +4388,34 @@ final class AppCoordinator {
 
     // MARK: - Toggle AI Enhancement
 
+    /// Stashed assignment from the last "disable" toggle. Lives in-memory only so that the
+    /// hotkey and menu toggle keep a friendly on/off semantic under v2 — removing the
+    /// transcriptionEnhancement assignment effectively disables enhancement, but we hold on
+    /// to the configuration so the user can flip it back without re-entering everything.
+    /// Not persisted: a fresh launch re-reads whatever assignment exists in settings.
+    private var transcriptionEnhancementStash: ModelAssignment?
+
     private func handleToggleAIEnhancement() {
-        settingsStore.aiEnhancementEnabled.toggle()
-        let status = settingsStore.aiEnhancementEnabled ? "enabled" : "disabled"
-        Log.app.info("AI enhancement \(status)")
-
-        if !settingsStore.aiEnhancementEnabled {
+        if let current = settingsStore.assignment(for: .transcriptionEnhancement) {
+            transcriptionEnhancementStash = current
+            settingsStore.setAssignment(nil, for: .transcriptionEnhancement)
+            Log.app.info("AI enhancement disabled (transcriptionEnhancement assignment removed)")
             stopLiveContextSession()
-        } else if isRecording, shouldRunLiveContextSession() {
-            startLiveContextSessionIfNeeded(initialSnapshot: capturedSnapshot)
+        } else if let stashed = transcriptionEnhancementStash {
+            settingsStore.setAssignment(stashed, for: .transcriptionEnhancement)
+            Log.app.info("AI enhancement re-enabled from stashed assignment")
+            if isRecording, shouldRunLiveContextSession() {
+                startLiveContextSessionIfNeeded(initialSnapshot: capturedSnapshot)
+            }
+        } else {
+            toastService.show(
+                ToastPayload(
+                    message:
+                        "No AI provider configured for transcription enhancement. Open Pindrop Settings → AI Enhancement.",
+                    style: .error
+                )
+            )
         }
-
         updateVibeRuntimeStateFromSettings()
     }
 
@@ -4241,7 +4428,16 @@ final class AppCoordinator {
            let presetUUID = UUID(uuidString: presetId),
            let allPresets = try? promptPresetStore.fetchAll(),
            let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-            settingsStore.aiEnhancementPrompt = selectedPreset.prompt
+            // Update the transcriptionEnhancement assignment's prompt metadata so the
+            // v2 resolver returns the newly-selected preset on the next call. We store
+            // the built-in identifier as the preset ID (when available) and clear any
+            // override so the preset text is used verbatim.
+            if var assignment = settingsStore.assignment(for: .transcriptionEnhancement) {
+                assignment.promptPresetID =
+                    selectedPreset.builtInIdentifier ?? presetUUID.uuidString
+                assignment.promptOverride = nil
+                settingsStore.setAssignment(assignment, for: .transcriptionEnhancement)
+            }
             Log.app.info("Prompt preset changed to: \(selectedPreset.name)")
         } else {
             Log.app.info("Prompt preset changed to: Custom")

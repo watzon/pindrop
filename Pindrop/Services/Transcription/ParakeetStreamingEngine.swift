@@ -38,7 +38,23 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
     private var transcriptionCallback: StreamingTranscriptionCallback?
     private var endOfUtteranceCallback: EndOfUtteranceCallback?
 
-    public init() {}
+    /// Chunk-size variant to use when loading the model. Changing this after load has no
+    /// effect until the manager is unloaded and reloaded.
+    public private(set) var chunkProfile: StreamingChunkProfile
+
+    public init(chunkProfile: StreamingChunkProfile = .standard) {
+        self.chunkProfile = chunkProfile
+    }
+
+    /// Update the chunk profile and, if a manager is already loaded under a different
+    /// profile, unload it so the next `loadModel(name:)` picks the new variant.
+    public func updateChunkProfile(_ newProfile: StreamingChunkProfile) async {
+        guard newProfile != chunkProfile else { return }
+        chunkProfile = newProfile
+        if manager != nil {
+            await unloadModel()
+        }
+    }
 
     public func loadModel(name: String) async throws {
         guard state != .loading else { return }
@@ -53,7 +69,7 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
                 throw EngineError.modelNotFound(modelDirectory.path)
             }
 
-            let streamingManager = StreamingEouAsrManager(chunkSize: .ms160)
+            let streamingManager = StreamingEouAsrManager(chunkSize: chunkProfile.fluidAudioChunkSize)
             await streamingManager.setPartialCallback { [weak self] text in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
@@ -190,7 +206,7 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
             return URL(fileURLWithPath: trimmed, isDirectory: true)
         }
 
-        let relativePath = trimmed.isEmpty ? FeatureModelType.streaming.repoFolderName : trimmed
+        let relativePath = trimmed.isEmpty ? chunkProfile.repoFolderName : trimmed
         return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("FluidAudio", isDirectory: true)
             .appendingPathComponent("Models", isDirectory: true)

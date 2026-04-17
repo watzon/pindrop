@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import Security
+import Speech
 import SwiftUI
 
 private enum SettingsStoreRuntime {
@@ -37,6 +38,28 @@ public enum SidebarPosition: String, CaseIterable, Identifiable {
       switch self {
       case .leading: return "sidebar.left"
       case .trailing: return "sidebar.right"
+      }
+   }
+}
+
+/// Which streaming transcription engine the user prefers. Availability at runtime may
+/// force the service to substitute a different backend — see
+/// `SettingsStore.resolvedTranscriptionBackend` for the effective value.
+public enum TranscriptionBackend: String, CaseIterable, Sendable, Identifiable {
+   /// Parakeet Realtime EOU via FluidAudio. Available on all supported macOS versions;
+   /// requires a ~150 MB model download.
+   case parakeet = "parakeet"
+
+   /// Apple's on-device `Speech.SpeechTranscriber` (macOS 26+). Ships with the OS,
+   /// zero download, but locale coverage follows Apple's supported-locales list.
+   case appleSpeechTranscriber = "apple"
+
+   public var id: String { rawValue }
+
+   var displayNameKey: String {
+      switch self {
+      case .parakeet: return "Parakeet (default)"
+      case .appleSpeechTranscriber: return "Apple SpeechTranscriber (macOS 26+)"
       }
    }
 }
@@ -303,12 +326,45 @@ final class SettingsStore: ObservableObject {
    @AppStorage("vibeLiveSessionEnabled", store: SettingsStoreRuntime.appStorageStore)
    var vibeLiveSessionEnabled: Bool = true
 
+   // MARK: V2 AI Configuration (providers + per-purpose assignments)
+   //
+   // These AppStorage blobs store non-secret v2 config. Secrets (API keys, endpoint
+   // overrides) live in Keychain keyed by each ProviderConfig's UUID. Legacy
+   // `aiProvider` / `aiModel` / `aiEnhancementEnabled` / `aiEnhancementPrompt` /
+   // `noteEnhancementPrompt` / `customLocalProviderType` remain readable for one release
+   // behind the `aiConfigV2Migrated` flag; after migration they are no longer consulted.
+   @AppStorage("aiConfigProvidersJSON", store: SettingsStoreRuntime.appStorageStore)
+   var aiConfigProvidersJSON: String = "[]"
+   @AppStorage("aiConfigAssignmentsJSON", store: SettingsStoreRuntime.appStorageStore)
+   var aiConfigAssignmentsJSON: String = "{}"
+   @AppStorage("aiConfigV2Migrated", store: SettingsStoreRuntime.appStorageStore)
+   var aiConfigV2Migrated: Bool = false
+
    @AppStorage("vadFeatureEnabled", store: SettingsStoreRuntime.appStorageStore)
    var vadFeatureEnabled: Bool = false
    @AppStorage("diarizationFeatureEnabled", store: SettingsStoreRuntime.appStorageStore)
    var diarizationFeatureEnabled: Bool = false
    @AppStorage("streamingFeatureEnabled", store: SettingsStoreRuntime.appStorageStore)
    var streamingFeatureEnabled: Bool = false
+   /// Picks the Parakeet EOU chunk variant used by the streaming backend. OFF (default)
+   /// maps to the 320ms variant — lower WER, ~160ms extra latency on partials. ON maps
+   /// to the 160ms variant — snappier partials, noisier text.
+   @AppStorage("streamingLowLatencyMode", store: SettingsStoreRuntime.appStorageStore)
+   var streamingLowLatencyMode: Bool = false
+
+   /// Which streaming transcription backend to use. Default is Parakeet (cross-platform,
+   /// 150MB model download). `.apple` uses Apple's SpeechTranscriber (macOS 26+, zero
+   /// download) but falls back to Parakeet when unavailable on the host.
+   @AppStorage("transcriptionBackend", store: SettingsStoreRuntime.appStorageStore)
+   var transcriptionBackend: String = TranscriptionBackend.parakeet.rawValue
+
+   /// Whether to run the post-stop LLM cleanup pass on streaming transcripts. OFF by
+   /// default (Phase 3 update): the deterministic cleaner handles filler removal,
+   /// capitalization, spoken punctuation, word-number normalization, and split-word
+   /// merges on its own. Users can opt back in if they've configured a
+   /// `transcriptionEnhancement` assignment and want the LLM to polish the final text.
+   @AppStorage("streamingPostStopEnhancementEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var streamingPostStopEnhancementEnabled: Bool = false
 
    @Published private(set) var vibeRuntimeState: VibeRuntimeState = .degraded
    @Published private(set) var vibeRuntimeDetail: String = "Vibe mode is disabled."
@@ -399,6 +455,41 @@ final class SettingsStore: ObservableObject {
     var selectedAppLanguage: AppLanguage {
        get { AppLanguage(rawValue: selectedLanguage) ?? .automatic }
        set { selectedLanguage = newValue.rawValue }
+    }
+
+    /// Streaming chunk profile derived from `streamingLowLatencyMode`. OFF (the default)
+    /// resolves to `.standard` (320ms); ON resolves to `.lowLatency` (160ms).
+    var streamingChunkProfile: StreamingChunkProfile {
+       streamingLowLatencyMode ? .lowLatency : .standard
+    }
+
+    /// User-selected transcription backend. Reads the raw storage string. Use
+    /// `resolvedTranscriptionBackend` when you need the backend actually in use after
+    /// availability checks.
+    var selectedTranscriptionBackend: TranscriptionBackend {
+       get { TranscriptionBackend(rawValue: transcriptionBackend) ?? .parakeet }
+       set { transcriptionBackend = newValue.rawValue }
+    }
+
+    /// Backend actually usable on this host. Mirrors `selectedTranscriptionBackend` unless
+    /// Apple SpeechTranscriber was chosen but is unavailable (e.g., < macOS 26), in which
+    /// case we fall back to Parakeet.
+    var resolvedTranscriptionBackend: TranscriptionBackend {
+       switch selectedTranscriptionBackend {
+       case .parakeet:
+          return .parakeet
+       case .appleSpeechTranscriber:
+          return Self.appleSpeechTranscriberAvailable ? .appleSpeechTranscriber : .parakeet
+       }
+    }
+
+    /// True when the current host can run Apple SpeechTranscriber. Checked synchronously;
+    /// deeper locale/asset checks happen at engine load time.
+    static var appleSpeechTranscriberAvailable: Bool {
+       if #available(macOS 26, *) {
+          return Speech.SpeechTranscriber.isAvailable
+       }
+       return false
     }
 
     var selectedSidebarPosition: SidebarPosition {
@@ -514,6 +605,10 @@ final class SettingsStore: ObservableObject {
        if let customProvider = inferredCustomLocalProvider(for: apiEndpoint), currentAIProvider == .custom {
           customLocalProviderType = customProvider.rawValue
        }
+       // v2 AI configuration migration (providers + per-purpose assignments). Idempotent;
+       // gated on `aiConfigV2Migrated`. Legacy properties are left readable behind the flag
+       // for one release as a rollback path.
+       migrateToAIConfigV2IfNeeded()
     }
 
    // MARK: - Keychain Methods
@@ -797,10 +892,21 @@ final class SettingsStore: ObservableObject {
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID
       aiEnhancementEnabled = false
       aiEnhancementPrompt = Defaults.aiEnhancementPrompt
+      noteEnhancementPrompt = Defaults.noteEnhancementPrompt
       selectedPresetId = nil
       didMigrateToCleanTranscriptDefault = false
       aiProvider = AIProvider.openai.rawValue
       customLocalProviderType = CustomProviderType.custom.rawValue
+      // v2 AI config: clear persisted blobs so tests (and user-initiated resets) start with
+      // a clean slate and re-run the migrator on next init.
+      let previousProviders = providers
+      aiConfigProvidersJSON = "[]"
+      aiConfigAssignmentsJSON = "{}"
+      aiConfigV2Migrated = false
+      for config in previousProviders {
+         try? deleteProviderAPIKey(forProviderID: config.id)
+         try? deleteProviderEndpoint(forProviderID: config.id)
+      }
       floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
       floatingIndicatorType = Defaults.floatingIndicatorType
       resetPillFloatingIndicatorOffset()
@@ -1042,9 +1148,9 @@ final class SettingsStore: ObservableObject {
       return Self.mentionTemplateOverrideProviderPrefix + terminalProviderIdentifier.lowercased()
    }
 
-   // MARK: - Private Keychain Helpers
+   // MARK: - Keychain Helpers (module-internal so SettingsStore+AIConfigV2 can reuse them)
 
-   private func saveToKeychain(value: String, account: String) throws {
+   func saveToKeychain(value: String, account: String) throws {
       if Self.shouldUseInMemoryKeychain {
          Self.inMemoryKeychainStorage[account] = value
          return
@@ -1070,7 +1176,7 @@ final class SettingsStore: ObservableObject {
       }
    }
 
-   private func loadFromKeychain(account: String) throws -> String? {
+   func loadFromKeychain(account: String) throws -> String? {
       if Self.shouldUseInMemoryKeychain {
          return Self.inMemoryKeychainStorage[account]
       }
@@ -1102,7 +1208,7 @@ final class SettingsStore: ObservableObject {
       return value
    }
 
-   private func deleteFromKeychain(account: String) throws {
+   func deleteFromKeychain(account: String) throws {
       if Self.shouldUseInMemoryKeychain {
          Self.inMemoryKeychainStorage.removeValue(forKey: account)
          return

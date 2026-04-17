@@ -461,14 +461,18 @@ enum MCPToolDispatcher {
 
     private static func configureGetSettings(coordinator: AppCoordinator) -> MCPToolResult {
         let s = coordinator.settingsStore
+        // v2 config: "ai_enhancement_enabled" now reflects whether the transcription
+        // enhancement purpose resolves to something usable. "ai_model" surfaces that
+        // assignment's model when present.
+        let transcription = s.resolveAssignment(for: .transcriptionEnhancement)
         return .success(.object([
             "model": .string(s.selectedModel),
             "language": .string(s.selectedLanguage),
             "diarization_enabled": .bool(s.diarizationFeatureEnabled),
             "streaming_enabled": .bool(s.streamingFeatureEnabled),
             "vad_enabled": .bool(s.vadFeatureEnabled),
-            "ai_enhancement_enabled": .bool(s.aiEnhancementEnabled),
-            "ai_model": .string(s.aiModel),
+            "ai_enhancement_enabled": .bool(transcription != nil),
+            "ai_model": .string(transcription?.modelID ?? ""),
             "output_mode": .string(s.outputMode),
             "mcp_port": .int(s.mcpServerPort)
         ]))
@@ -507,21 +511,22 @@ enum MCPToolDispatcher {
             return .error("Missing required parameter: text")
         }
         let s = coordinator.settingsStore
-        guard s.aiEnhancementEnabled else {
-            return .error("AI enhancement is disabled. Enable it in Pindrop Settings → AI Enhancement.")
+        guard let assignment = s.resolveAssignment(for: .transcriptionEnhancement) else {
+            return .error(
+                "AI enhancement is not configured. Open Pindrop Settings → AI Enhancement and assign a provider + model for Transcription Enhancement."
+            )
         }
-        guard let endpoint = s.apiEndpoint, !endpoint.isEmpty else {
-            return .error("AI endpoint not configured. Set it in Pindrop Settings → AI Enhancement.")
-        }
-        let prompt = arguments["prompt"]?.stringValue ?? s.aiEnhancementPrompt
+        let customPrompt = arguments["prompt"]?.stringValue
+            ?? assignment.prompt
+            ?? AIEnhancementService.defaultSystemPrompt
         do {
             let enhanced = try await coordinator.aiEnhancementService.enhance(
                 text: text,
-                apiEndpoint: endpoint,
-                apiKey: s.loadAPIKey(for: s.currentAIProvider),
-                model: s.aiModel,
-                customPrompt: prompt,
-                provider: s.currentAIProvider
+                apiEndpoint: assignment.endpoint ?? "",
+                apiKey: assignment.apiKey,
+                model: assignment.modelID,
+                customPrompt: customPrompt,
+                provider: assignment.kind
             )
             return .success(.object(["enhanced_text": .string(enhanced)]))
         } catch {

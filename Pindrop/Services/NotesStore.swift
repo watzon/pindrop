@@ -60,38 +60,33 @@ final class NotesStore {
         var finalTitle = title
         var finalTags = tags
         
-        // Generate metadata if requested and AI enhancement is enabled
+        // Generate metadata if requested and a noteMetadata assignment resolves.
         if generateMetadata,
            let settings = settingsStore,
-           settings.aiEnhancementEnabled,
-           let aiService = aiEnhancementService {
-            if let endpoint = settings.apiEndpoint,
-               settings.currentAIProviderHasRequiredAPIKey() {
-                do {
-                    let apiKey = settings.configuredAPIKeyForCurrentAIProvider()
-                    let existingTags = (try? getAllUniqueTags()) ?? []
-                    let metadata = try await aiService.generateNoteMetadata(
-                        content: content,
-                        apiEndpoint: endpoint,
-                        apiKey: apiKey,
-                        model: settings.aiModel,
-                        existingTags: existingTags,
-                        provider: settings.currentAIProvider
-                    )
-                    
-                    // Use generated title if no explicit title provided
-                    if finalTitle == nil {
-                        finalTitle = metadata.title
-                    }
-                    
-                    // Use generated tags if no explicit tags provided
-                    if finalTags == nil {
-                        finalTags = metadata.tags
-                    }
-                } catch {
-                    Log.aiEnhancement.warning("Failed to generate note metadata: \(error.localizedDescription)")
-                    // Fall back to default behavior on AI failure
+           let aiService = aiEnhancementService,
+           let assignment = settings.resolveAssignment(for: .noteMetadata)
+        {
+            do {
+                let existingTags = (try? getAllUniqueTags()) ?? []
+                let metadata = try await aiService.generateNoteMetadata(
+                    content: content,
+                    apiEndpoint: assignment.endpoint ?? "",
+                    apiKey: assignment.apiKey,
+                    model: assignment.modelID,
+                    existingTags: existingTags,
+                    provider: assignment.kind
+                )
+
+                if finalTitle == nil {
+                    finalTitle = metadata.title
                 }
+                if finalTags == nil {
+                    finalTags = metadata.tags
+                }
+            } catch {
+                Log.aiEnhancement.warning(
+                    "Failed to generate note metadata: \(error.localizedDescription)")
+                // Fall back to default behavior on AI failure
             }
         }
         

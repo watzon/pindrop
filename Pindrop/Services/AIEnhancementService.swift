@@ -489,6 +489,64 @@ final class AIEnhancementService {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Belt-and-suspenders stripper for common model preambles that slip past the
+    /// `<output_contract>` instruction. Idempotent: if the response has no preamble,
+    /// returns the input verbatim (modulo trimming). Applied by callers that want a
+    /// final safety net before handing text to the user — typically the streaming
+    /// post-stop path, where an LLM "Here is your updated transcription:" leak shows up
+    /// directly in the target app.
+    static func stripResponsePreamble(_ text: String) -> String {
+        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Drop a surrounding pair of matching quotes — some models wrap the whole
+        // output even when we told them not to.
+        if let first = result.first, let last = result.last,
+           first == last,
+           first == "\"" || first == "'" || first == "\u{201C}",
+           result.count > 2
+        {
+            result = String(result.dropFirst().dropLast()).trimmingCharacters(
+                in: .whitespacesAndNewlines)
+        }
+
+        // Preamble patterns. We match case-insensitively at the start, allow optional
+        // leading bullet/asterisk markers, and consume up to the first newline or colon
+        // so we don't chew into the transcript itself.
+        let preamblePatterns: [String] = [
+            // "Here is the cleaned transcript:" / "Here's your transcription:" etc.
+            #"^\s*(?:here\s+is|here\s*'\s*s|here\s+are)\s+(?:the|your|a|an)?\s*[^\n:]{0,60}:\s*"#,
+            // "Below is the cleaned text:"
+            #"^\s*below\s+is\s+[^\n:]{0,60}:\s*"#,
+            // "Cleaned transcript:" / "Updated transcription:" / "Corrected:" (label-style)
+            #"^\s*(?:cleaned|corrected|updated|final|revised|polished)\s+(?:transcript(?:ion)?|text|version)?\s*:\s*"#,
+            // Plain "Transcript:" / "Transcription:" labels
+            #"^\s*transcript(?:ion)?\s*:\s*"#,
+            // "Sure!" / "Okay!" / "Certainly!" acknowledgment openers
+            #"^\s*(?:sure|ok(?:ay)?|certainly|absolutely|of\s+course|got\s+it)[\.!,]?\s*"#,
+            // "The cleaned text is:" / "The result is:"
+            #"^\s*the\s+(?:cleaned|corrected|updated|final|result)[^\n:]{0,60}:\s*"#,
+        ]
+
+        var changed = true
+        while changed {
+            changed = false
+            for pattern in preamblePatterns {
+                if let range = result.range(
+                    of: pattern, options: [.regularExpression, .caseInsensitive])
+                {
+                    result = String(result[range.upperBound...])
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    changed = true
+                }
+            }
+        }
+
+        // If after stripping we're left with an empty response, the model almost certainly
+        // answered conversationally. Return the whole original text so the caller can
+        // decide how to surface it (we'd rather keep the raw transcript than ship a reply).
+        return result.isEmpty ? text : result
+    }
+
     private static func buildClipboardContextBlock(context: ContextMetadata) -> String? {
         guard let clipboardText = context.clipboardText,
               !clipboardText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -840,6 +898,14 @@ final class AIEnhancementService {
         let enhancer = AppleFoundationModelsEnhancer()
         _appleEnhancerStorage = enhancer
         return enhancer
+    }
+
+    /// Returns the memoized Apple enhancer for streaming-refinement callers. Kept
+    /// internal (not private) so `ResolvedAssignmentEnhancer` can reach the structured
+    /// edit-list path without duplicating the Apple FM dispatch logic.
+    @available(macOS 26, *)
+    func appleEnhancerForStreamingRefinement() -> AppleFoundationModelsEnhancer {
+        appleEnhancer
     }
 #endif
 

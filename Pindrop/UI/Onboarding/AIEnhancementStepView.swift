@@ -226,7 +226,7 @@ struct AIEnhancementStepView: View {
               applyCustomEndpointDefault(forceReset: oldValue != .custom)
            }
 
-           apiKey = settings.loadAPIKey(for: newValue, customLocalProvider: selectedCustomProvider) ?? ""
+           apiKey = loadKeyForCurrentSelection()
            onPreferredContentSizeChange(preferredContentSize)
            Task {
               await loadModelsIfNeeded(
@@ -242,7 +242,7 @@ struct AIEnhancementStepView: View {
            Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
         }
         .onChange(of: selectedCustomProvider) { _, newValue in
-           apiKey = settings.loadAPIKey(for: .custom, customLocalProvider: newValue) ?? ""
+           apiKey = loadKeyForCurrentSelection()
 
            if newValue == .custom {
               if customModel.isEmpty {
@@ -663,7 +663,10 @@ struct AIEnhancementStepView: View {
 
     private func loadCustomEndpointDrafts() {
        for type in CustomProviderType.allCases {
-          if let stored = settings.storedAPIEndpoint(forCustomLocalProvider: type) {
+          if let provider = settings.providers.first(where: { $0.kind == .custom && $0.customKind == type }),
+             let stored = settings.loadProviderEndpoint(forProviderID: provider.id),
+             !stored.isEmpty
+          {
              customEndpointDrafts[type] = stored
           } else if !type.defaultEndpoint.isEmpty {
              customEndpointDrafts[type] = type.defaultEndpoint
@@ -671,6 +674,20 @@ struct AIEnhancementStepView: View {
              customEndpointDrafts[type] = ""
           }
        }
+    }
+
+    /// Looks up a stored API key for the currently-selected provider (by kind/customKind).
+    /// Returns empty string if no matching provider exists or no key is stored.
+    private func loadKeyForCurrentSelection() -> String {
+       let matching = settings.providers.first { candidate in
+          guard candidate.kind == selectedProvider else { return false }
+          if selectedProvider == .custom {
+             return candidate.customKind == selectedCustomProvider
+          }
+          return true
+       }
+       guard let provider = matching else { return "" }
+       return settings.loadProviderAPIKey(forProviderID: provider.id) ?? ""
     }
 
     private var currentCustomEndpointText: String {
@@ -699,24 +716,43 @@ struct AIEnhancementStepView: View {
     }
 
     private func loadSavedConfiguration() {
-       selectedProvider = settings.currentAIProvider
-       selectedCustomProvider = settings.currentCustomLocalProvider
-       selectedModel = settings.aiModel
-       customModel = settings.aiModel
        loadCustomEndpointDrafts()
 
-       guard selectedProvider != .apple else { return }
+       // Prefer the currently-assigned transcription-enhancement provider; fall back to the
+       // first configured provider; otherwise defaults.
+       let sourceProvider: ProviderConfig? = {
+          if let assignment = settings.assignment(for: .transcriptionEnhancement),
+             let provider = settings.provider(withID: assignment.providerID)
+          {
+             return provider
+          }
+          return settings.providers.first
+       }()
 
-       apiKey = settings.loadAPIKey(
-          for: selectedProvider,
-          customLocalProvider: selectedCustomProvider
-       ) ?? ""
-
-       if let endpoint = settings.apiEndpoint,
-          selectedProvider == .custom {
-          selectedCustomProvider = settings.inferredCustomLocalProvider(for: endpoint)
-             ?? settings.currentCustomLocalProvider
+       if let provider = sourceProvider {
+          selectedProvider = provider.kind
+          if provider.kind == .custom {
+             selectedCustomProvider = provider.customKind ?? .custom
+          }
+          if let assignment = settings.assignment(for: .transcriptionEnhancement),
+             assignment.providerID == provider.id
+          {
+             selectedModel = assignment.modelID
+             customModel = assignment.modelID
+          }
+          // Seed the draft endpoint from stored per-provider endpoint (custom only).
+          if provider.kind == .custom,
+             let storedEndpoint = settings.loadProviderEndpoint(forProviderID: provider.id),
+             !storedEndpoint.isEmpty
+          {
+             customEndpointDrafts[provider.customKind ?? .custom] = storedEndpoint
+          }
+          if provider.kind != .apple {
+             apiKey = settings.loadProviderAPIKey(forProviderID: provider.id) ?? ""
+          }
        }
+
+       guard selectedProvider != .apple else { return }
 
        Task {
           await loadModelsIfNeeded(
@@ -804,10 +840,7 @@ struct AIEnhancementStepView: View {
         do {
            let models = try await modelService.refreshModels(
              for: provider,
-             apiKey: settings.configuredAPIKey(
-                for: provider,
-                customLocalProvider: resolvedCustomProvider
-             ) ?? apiKey,
+             apiKey: apiKey,
              endpointOverride: provider == .custom ? (customEndpointDrafts[selectedCustomProvider] ?? "") : nil,
              customLocalProvider: resolvedCustomProvider
           )
@@ -924,41 +957,73 @@ struct AIEnhancementStepView: View {
     }
 
     private func saveAndContinue() {
-       settings.aiEnhancementEnabled = true
+       // Resolve/create the ProviderConfig corresponding to the current selection.
+       let customKind: CustomProviderType? =
+          selectedProvider == .custom ? selectedCustomProvider : nil
+       let providerConfig: ProviderConfig = {
+          if let existing = settings.providers.first(where: {
+             $0.kind == selectedProvider && $0.customKind == customKind
+          }) {
+             return existing
+          }
+          let displayName: String = {
+             switch selectedProvider {
+             case .openai: return "OpenAI"
+             case .anthropic: return "Anthropic"
+             case .google: return "Google"
+             case .openrouter: return "OpenRouter"
+             case .apple: return "Apple Intelligence"
+             case .custom:
+                switch customKind ?? .custom {
+                case .ollama: return "Ollama"
+                case .lmStudio: return "LM Studio"
+                case .custom: return "Custom"
+                }
+             }
+          }()
+          return ProviderConfig(
+             kind: selectedProvider,
+             customKind: customKind,
+             displayName: displayName
+          )
+       }()
+       settings.upsertProvider(providerConfig)
 
-       if selectedProvider == .apple {
-          // Apple Intelligence: persist the provider choice directly; no endpoint or API key needed.
-          settings.aiProvider = AIProvider.apple.rawValue
-          settings.aiModel = "apple_intelligence"
-       } else if selectedProvider == .custom {
-          settings.customLocalProviderType = selectedCustomProvider.rawValue
-          for type in CustomProviderType.allCases {
-             let raw = (customEndpointDrafts[type] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-             try? settings.saveAPIEndpoint(raw, for: .custom, customLocalProvider: type)
-          }
-          try? settings.saveAPIKey(
-             apiKey,
-             for: selectedProvider,
-             customLocalProvider: selectedCustomProvider
-          )
-          if !selectedCustomProvider.supportsModelListing {
-             settings.aiModel = customModel
-          } else {
-             settings.aiModel = selectedModel
-          }
-       } else {
-          try? settings.saveAPIEndpoint(
-             selectedProvider.defaultEndpoint,
-             for: selectedProvider,
-             customLocalProvider: nil
-          )
-          try? settings.saveAPIKey(
-             apiKey,
-             for: selectedProvider,
-             customLocalProvider: selectedCustomProvider
-          )
-          settings.aiModel = selectedModel
+       // Persist credentials into UUID-keyed Keychain slots.
+       if selectedProvider != .apple {
+          try? settings.saveProviderAPIKey(apiKey, forProviderID: providerConfig.id)
        }
+       if selectedProvider == .custom {
+          let endpoint = (customEndpointDrafts[selectedCustomProvider] ?? "")
+             .trimmingCharacters(in: .whitespacesAndNewlines)
+          try? settings.saveProviderEndpoint(endpoint, forProviderID: providerConfig.id)
+       }
+
+       // Resolve the model ID to assign.
+       let resolvedModelID: String = {
+          if selectedProvider == .apple { return "apple_intelligence" }
+          if selectedProvider == .custom && !selectedCustomProvider.supportsModelListing {
+             return customModel
+          }
+          return selectedModel
+       }()
+
+       // Write the transcription + note enhancement assignments.
+       settings.setAssignment(
+          ModelAssignment(
+             providerID: providerConfig.id,
+             modelID: resolvedModelID,
+             promptPresetID: BuiltInPresetID.cleanTranscript
+          ),
+          for: .transcriptionEnhancement
+       )
+       settings.setAssignment(
+          ModelAssignment(
+             providerID: providerConfig.id,
+             modelID: resolvedModelID
+          ),
+          for: .noteEnhancement
+       )
 
        onContinue()
     }
