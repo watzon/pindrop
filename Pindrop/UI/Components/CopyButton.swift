@@ -7,19 +7,17 @@ struct CopyButton: View {
     var label: String? = nil
     var size: CGFloat = 12
     var showBackground: Bool = false
+
+    @Environment(\.locale) private var locale
     
     @State private var isCopied = false
     
-    private var currentLocale: Locale {
-        SettingsStore().selectedAppLanguage.locale
-    }
-    
     private var copiedText: String {
-        localized("Copied!", locale: currentLocale)
+        localized("Copied!", locale: locale)
     }
     
     private var copyTooltip: String {
-        localized("Copy to clipboard", locale: currentLocale)
+        localized("Copy to clipboard", locale: locale)
     }
     
     var body: some View {
@@ -75,19 +73,17 @@ struct CopyButtonWithCallback: View {
     var size: CGFloat = 12
     var showBackground: Bool = false
     let onCopy: () -> Void
+
+    @Environment(\.locale) private var locale
     
     @State private var isCopied = false
     
-    private var currentLocale: Locale {
-        SettingsStore().selectedAppLanguage.locale
-    }
-    
     private var copiedText: String {
-        localized("Copied!", locale: currentLocale)
+        localized("Copied!", locale: locale)
     }
     
     private var copyTooltip: String {
-        localized("Copy to clipboard", locale: currentLocale)
+        localized("Copy to clipboard", locale: locale)
     }
     
     var body: some View {

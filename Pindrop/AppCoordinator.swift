@@ -158,6 +158,7 @@ struct SettingsObservationSnapshot: Equatable {
     let outputMode: String
     let automaticDictionaryLearningEnabled: Bool
     let selectedInputDeviceUID: String
+    let selectedAppLocale: AppLocale
     let selectedAppLanguage: AppLanguage
     let floatingIndicatorEnabled: Bool
     let floatingIndicatorType: FloatingIndicatorType
@@ -1350,6 +1351,7 @@ final class AppCoordinator {
             outputMode: settingsStore.outputMode,
             automaticDictionaryLearningEnabled: settingsStore.automaticDictionaryLearningEnabled,
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
+            selectedAppLocale: settingsStore.selectedAppLocale,
             selectedAppLanguage: settingsStore.selectedAppLanguage,
             floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
@@ -1433,7 +1435,19 @@ final class AppCoordinator {
                         self.automaticDictionaryLearningService.cancelObservation()
                     }
 
-                    if previousSnapshot.selectedAppLanguage != snapshot.selectedAppLanguage {
+                    if previousSnapshot.selectedAppLocale != snapshot.selectedAppLocale
+                        || previousSnapshot.selectedAppLanguage != snapshot.selectedAppLanguage {
+                        if previousSnapshot.selectedAppLocale != snapshot.selectedAppLocale {
+                            Log.app.infoVisible(
+                                "Interface locale changed \(previousSnapshot.selectedAppLocale.rawValue) -> \(snapshot.selectedAppLocale.rawValue)"
+                            )
+                        }
+                        if previousSnapshot.selectedAppLanguage != snapshot.selectedAppLanguage {
+                            Log.app.infoVisible(
+                                "Dictation language changed \(previousSnapshot.selectedAppLanguage.rawValue) -> \(snapshot.selectedAppLanguage.rawValue)"
+                            )
+                        }
+                        Log.app.infoVisible("Reloading localized strings after settings change")
                         self.statusBarController.reloadLocalizedStrings()
                         self.pillFloatingIndicatorController.reloadLocalizedStrings()
                     }

@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop'un aramaları, toplantıları ve diğer uygulama seslerini yazıya dökebilmesi için sistem sesine erişmesi gerekir."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop'un sesinizi yazıya dökebilmesi için mikrofona erişmesi gerekiyor."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop, herhangi bir sunucuya veri göndermeden sesinizi yazıya dökmek için cihaz üzerinde konuşma tanıma kullanır."

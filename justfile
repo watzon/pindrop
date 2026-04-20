@@ -138,17 +138,18 @@ test-coverage:
         -enableCodeCoverage YES
     @echo "✅ Tests with coverage complete"
 
-# Machine-translate String Catalog entries (optional dev tool; requires: pip install deep-translator)
-# Usage: just translate-xcstrings ja
-# Add --only-missing via translate-xcstrings-missing when you only want gaps filled
-translate-xcstrings lang:
-    @python3 scripts/translate_xcstrings.py --target "{{lang}}"
+# Localization pipeline
+l10n-import-current:
+    @python3 scripts/localization.py import-current
 
-translate-xcstrings-missing lang:
-    @python3 scripts/translate_xcstrings.py --target "{{lang}}" --only-missing
+l10n-sync:
+    @python3 scripts/localization.py sync
 
-translate-infoplist lang:
-    @python3 scripts/translate_xcstrings.py --file Pindrop/Localization/InfoPlist.xcstrings --target "{{lang}}" --only-missing
+l10n-lint:
+    @python3 scripts/localization.py lint
+
+l10n-add-locale locale:
+    @python3 scripts/localization.py add-locale "{{locale}}"
 
 # Type check only (no build)
 typecheck:

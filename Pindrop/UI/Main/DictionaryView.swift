@@ -719,7 +719,7 @@ struct DictionaryView: View {
             let savePanel = NSSavePanel()
             savePanel.allowedContentTypes = [.json]
             savePanel.nameFieldStringValue = "dictionary.json"
-            let currentLocale = SettingsStore().selectedAppLanguage.locale
+            let currentLocale = locale
             savePanel.title = localized("Export Dictionary", locale: currentLocale)
             savePanel.message = localized("Choose a location to save the dictionary", locale: currentLocale)
             
@@ -734,7 +734,7 @@ struct DictionaryView: View {
     private func handleImport() {
         let openPanel = NSOpenPanel()
         openPanel.allowedContentTypes = [.json]
-        let currentLocale = SettingsStore().selectedAppLanguage.locale
+        let currentLocale = locale
         openPanel.title = localized("Import Dictionary", locale: currentLocale)
         openPanel.message = localized("Select a dictionary JSON file to import", locale: currentLocale)
         

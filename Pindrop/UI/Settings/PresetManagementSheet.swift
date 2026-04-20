@@ -471,7 +471,7 @@ struct PresetManagementSheet: View {
             let savePanel = NSSavePanel()
             savePanel.allowedContentTypes = [.json]
             savePanel.nameFieldStringValue = "presets.json"
-            let currentLocale = SettingsStore().selectedAppLanguage.locale
+            let currentLocale = locale
             savePanel.title = localized("Export Presets", locale: currentLocale)
             savePanel.message = localized("Choose a location to save the presets", locale: currentLocale)
 
@@ -485,7 +485,7 @@ struct PresetManagementSheet: View {
 
     private func handleImport() {
         let openPanel = NSOpenPanel()
-        let currentLocale = SettingsStore().selectedAppLanguage.locale
+        let currentLocale = locale
         openPanel.allowedContentTypes = [.json]
         openPanel.title = localized("Import Presets", locale: currentLocale)
         openPanel.message = localized("Select a presets JSON file to import", locale: currentLocale)

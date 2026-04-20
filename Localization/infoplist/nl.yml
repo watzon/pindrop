@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop heeft toegang tot systeemaudio nodig om gesprekken, vergaderingen en ander app-audio te transcriberen."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop heeft toegang tot de microfoon nodig om je stem te kunnen transcriberen."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop gebruikt spraakherkenning op het apparaat om je audio te transcriberen zonder gegevens naar een server te sturen."

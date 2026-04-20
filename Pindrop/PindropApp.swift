@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let storeRepairService = SwiftDataStoreRepairService()
 
     private var currentLocale: Locale {
-        settingsStore?.selectedAppLanguage.locale ?? .autoupdatingCurrent
+        settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -144,6 +144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func setupMainMenu() {
+        Log.app.infoVisible("Rebuilding main menu for locale=\(currentLocale.identifier)")
         let mainMenu = NSMenu()
         
         let appMenu = NSMenu()

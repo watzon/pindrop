@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop이 통화, 회의 및 기타 앱 오디오를 텍스트로 변환하려면 시스템 오디오 접근 권한이 필요합니다."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop이 귀하의 음성을 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop은 서버에 데이터를 전송하지 않고 오디오를 텍스트로 변환하기 위해 온디바이스 음성 인식을 사용합니다."

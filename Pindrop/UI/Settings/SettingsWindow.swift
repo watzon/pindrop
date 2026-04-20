@@ -137,7 +137,7 @@ struct SettingsWindow: View {
             minWidth: AppTheme.Window.settingsMinWidth,
             minHeight: AppTheme.Window.settingsMinHeight
         )
-        .environment(\.locale, settings.selectedAppLanguage.locale)
+        .environment(\.locale, settings.selectedAppLocale.locale)
         .themeRefresh()
     }
 }

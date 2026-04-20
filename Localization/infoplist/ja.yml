@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindropは通話、会議、その他のアプリ音声を文字起こしするためにシステムオーディオへのアクセスが必要です。"
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindropは音声を文字起こしするためにマイクへのアクセスが必要です。"
+nsspeechrecognitionusagedescription:
+  _self: "Pindropは、データをサーバーに送信することなく音声を文字起こしするためにオンデバイス音声認識を使用します。"

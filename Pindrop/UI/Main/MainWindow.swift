@@ -155,7 +155,7 @@ struct MainWindow: View {
             minWidth: AppTheme.Window.mainMinWidth,
             minHeight: AppTheme.Window.mainMinHeight
         )
-        .environment(\.locale, settingsStore.selectedAppLanguage.locale)
+        .environment(\.locale, settingsStore.selectedAppLocale.locale)
         .themeRefresh()
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
             if let rawValue = notification.userInfo?["navItem"] as? String,
@@ -266,7 +266,7 @@ struct MainWindow: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
             
-            Text(item.title(locale: settingsStore.selectedAppLanguage.locale))
+            Text(item.title(locale: settingsStore.selectedAppLocale.locale))
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.textPrimary)
             

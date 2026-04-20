@@ -84,13 +84,13 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 
 ## Localization
 
-- **String Catalogs**: `Pindrop/Localization/Localizable.xcstrings` (in-app copy) and `Pindrop/Localization/InfoPlist.xcstrings` (privacy strings, bundle display name). Both are in the app target’s **Copy Bundle Resources**.
-- **Runtime API**: `localized("English key", locale: locale)` in `Pindrop/AppLocalization.swift` resolves against `Bundle` for `SettingsStore.selectedAppLanguage` (see `MainWindow`, `SettingsWindow`, menu bar). The catalog **key is usually the English default string**; if you add UI text in Swift but **omit** the key from `Localizable.xcstrings`, every locale falls back to that English key and nothing appears translated.
-- **New user-facing strings**: Add an entry to `Localizable.xcstrings` with **en** plus every shipped locale (**es**, **fr**, **de**, **zh-Hans**, **ja**, …). Xcode can export/import; hand-editing JSON is fine if you mirror an existing entry’s shape (`localizations` → `stringUnit` → `state` / `value`).
-- **New language (locale)**: Add the locale to **Project → Info → Localizations** (or `knownRegions` in `Pindrop.xcodeproj/project.pbxproj`), add `localizations` blocks for that code in both `.xcstrings` files, and if it should appear in **Settings → General → Language**, set `AppLanguage.isSelectable` in `SettingsStore.swift` and ensure `AppLanguage` has a matching `locale` identifier.
-- **Single “Language” setting**: The General settings picker drives **both** UI locale (`\.locale`) and transcription language (`TranscriptionOptions` / Whisper). Copy in that section should stay accurate when you change behavior.
+- **String Catalogs**: `Pindrop/Localization/Localizable.xcstrings` (in-app copy) and `Pindrop/Localization/InfoPlist.xcstrings` (privacy strings, bundle display name). Both are in the app target’s **Copy Bundle Resources**. The top-level `Localization/` tree is the source of truth for the YAML-first pipeline.
+- **Runtime API**: `localized("English key", locale: locale)` in `Pindrop/AppLocalization.swift` now resolves through generated stable-key metadata before falling back to `Bundle`; `SettingsStore.selectedAppLocale` drives UI locale and `SettingsStore.selectedAppLanguage` drives dictation/transcription language.
+- **New user-facing strings**: Add an entry to the YAML source tree under `Localization/`, then run `just l10n-sync` so the catalogs and generated Swift stay in sync.
+- **New language (locale)**: Add the locale with `just l10n-add-locale <locale>` (or edit `Localization/locales.yml`), then populate the relevant `Localization/app/*.yml` and `Localization/infoplist/*.yml` files before syncing.
+- **Interface vs dictation language**: The General settings UI now separates interface language from dictation language. Keep `AppLocale`-driven UI locale changes away from `AppLanguage`/transcription behavior.
 - **AI enhancement prompts**: `AIEnhancementSettingsView` localizes default prompts for display; if the user saves without editing, the **localized** prompt text can be persisted and sent to the API—expect models to follow non-English system prompts, or keep defaults in English if you change that flow.
-- **Machine translation helper** (optional, not CI): `scripts/translate_xcstrings.py` fills a target locale from English using `deep-translator` and preserves `%@`, `%lld`, `${transcription}`, etc. Examples: `just translate-xcstrings ja`, `just translate-xcstrings-missing ja`, `just translate-infoplist ja`. Always **review** MT output before release.
+- **Localization tooling**: Use `just l10n-import-current`, `just l10n-sync`, and `just l10n-lint`. The old `scripts/translate_xcstrings.py` helper is obsolete.
 
 ## Logging
 
@@ -152,8 +152,8 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Audio capture core: `Pindrop/Services/AudioRecorder.swift`
 - Transcription orchestration: `Pindrop/Services/TranscriptionService.swift`
 - Logging facade: `Pindrop/Utils/Logger.swift`
-- Localization: `Pindrop/AppLocalization.swift`, `Pindrop/Localization/Localizable.xcstrings`, `Pindrop/Localization/InfoPlist.xcstrings`
-- MT helper (optional): `scripts/translate_xcstrings.py`
+- Localization: `Pindrop/AppLocalization.swift`, `Pindrop/Generated/LocalizationMetadata.swift`, `Pindrop/Generated/L10nKeys.swift`, `Pindrop/Localization/Localizable.xcstrings`, `Pindrop/Localization/InfoPlist.xcstrings`, `Localization/`
+- Localization tooling: `scripts/localization.py`, `justfile`
 - Build recipes: `justfile`
 - Contributor docs: `README.md`, `CONTRIBUTING.md`, `BUILD.md`
 
@@ -169,7 +169,7 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **pindrop** (626 symbols, 611 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **pindrop** (642 symbols, 628 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

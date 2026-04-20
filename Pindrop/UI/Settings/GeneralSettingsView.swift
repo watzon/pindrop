@@ -16,7 +16,8 @@ struct GeneralSettingsView: View {
     var body: some View {
         VStack(spacing: AppTheme.Spacing.xl) {
             outputSection
-            languageSection
+            interfaceLanguageSection
+            dictationLanguageSection
             audioInputSection
             floatingIndicatorSection
             dictionarySection
@@ -25,18 +26,36 @@ struct GeneralSettingsView: View {
         }
     }
 
-    private var languageSection: some View {
+    private var interfaceLanguageSection: some View {
         SettingsCard(
-            title: localized("Language", locale: locale),
+            title: localized(L10nKeys.interface, locale: locale),
             icon: "globe",
             detail: localized(
-                "Choose languages for the interface and for dictation. Automatic follows the system.",
+                L10nKeys.chooseLanguagesForTheInterfaceAndForDicta,
                 locale: locale
             )
         ) {
             SelectField(
-                options: languageOptions,
-                selection: selectedLanguageSelection,
+                options: interfaceLanguageOptions,
+                selection: selectedAppLocaleSelection,
+                placeholder: AppLocale.automatic.displayName(locale: locale)
+            )
+            .frame(maxWidth: 320, alignment: .leading)
+        }
+    }
+
+    private var dictationLanguageSection: some View {
+        SettingsCard(
+            title: localized(L10nKeys.language, locale: locale),
+            icon: "mic.fill",
+            detail: localized(
+                L10nKeys.chooseLanguagesForTheInterfaceAndForDicta,
+                locale: locale
+            )
+        ) {
+            SelectField(
+                options: dictationLanguageOptions,
+                selection: selectedAppLanguageSelection,
                 placeholder: AppLanguage.automatic.displayName(locale: locale)
             )
             .frame(maxWidth: 320, alignment: .leading)
@@ -45,9 +64,9 @@ struct GeneralSettingsView: View {
     
     private var outputSection: some View {
         SettingsCard(
-            title: localized("Output", locale: locale),
+            title: localized(L10nKeys.output, locale: locale),
             icon: "doc.on.clipboard",
-            detail: localized("Choose how dictated text lands, then tune the final insertion behavior.", locale: locale)
+            detail: localized(L10nKeys.chooseHowDictatedTextLandsThenTuneTheFin, locale: locale)
         ) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
                 ForEach(OutputOption.allCases) { option in
@@ -61,14 +80,14 @@ struct GeneralSettingsView: View {
                 SettingsDivider()
 
                 SettingsToggleRow(
-                    title: localized("Add trailing space", locale: locale),
-                    detail: localized("Append a space after each transcription for seamless dictation.", locale: locale),
+                    title: localized(L10nKeys.addTrailingSpace, locale: locale),
+                    detail: localized(L10nKeys.appendASpaceAfterEachTranscriptionForSeam, locale: locale),
                     isOn: $settings.addTrailingSpace,
                     accessibilityIdentifier: "settings.toggle.addTrailingSpace"
                 )
 
                 if AppTestMode.isRunningUITests {
-                    Text(settings.addTrailingSpace ? localized("On", locale: locale) : localized("Off", locale: locale))
+                    Text(settings.addTrailingSpace ? localized(L10nKeys.on, locale: locale) : localized(L10nKeys.off, locale: locale))
                         .font(AppTypography.tiny)
                         .foregroundStyle(AppColors.textTertiary)
                         .accessibilityIdentifier("settings.toggle.addTrailingSpace.state")
@@ -79,14 +98,14 @@ struct GeneralSettingsView: View {
     
     private var interfaceSection: some View {
         SettingsCard(
-            title: localized("Interface", locale: locale),
+            title: localized(L10nKeys.interface, locale: locale),
             icon: "macwindow",
-            detail: localized("Control how Pindrop appears in macOS and whether it starts with your desktop session.", locale: locale)
+            detail: localized(L10nKeys.controlHowPindropAppearsInMacosAndWhether, locale: locale)
         ) {
             VStack(spacing: AppTheme.Spacing.lg) {
                 SettingsToggleRow(
-                    title: localized("Launch at login", locale: locale),
-                    detail: localized("Automatically start Pindrop when you sign in.", locale: locale),
+                    title: localized(L10nKeys.launchAtLogin, locale: locale),
+                    detail: localized(L10nKeys.automaticallyStartPindropWhenYouSignIn, locale: locale),
                     isOn: $settings.launchAtLogin,
                     accessibilityIdentifier: "settings.toggle.launchAtLogin"
                 )
@@ -94,8 +113,8 @@ struct GeneralSettingsView: View {
                 SettingsDivider()
 
                 SettingsToggleRow(
-                    title: localized("Show in Dock", locale: locale),
-                    detail: localized("Display Pindrop in the Dock instead of running only as a menu bar app.", locale: locale),
+                    title: localized(L10nKeys.showInDock, locale: locale),
+                    detail: localized(L10nKeys.displayPindropInTheDockInsteadOfRunningO, locale: locale),
                     isOn: $settings.showInDock,
                     accessibilityIdentifier: "settings.toggle.showInDock"
                 )
@@ -109,13 +128,13 @@ struct GeneralSettingsView: View {
 
     private var dictionarySection: some View {
         SettingsCard(
-            title: localized("Dictionary", locale: locale),
+            title: localized(L10nKeys.dictionary, locale: locale),
             icon: "text.book.closed",
-            detail: localized("Let Pindrop quietly learn vocabulary from the corrections you make over time.", locale: locale)
+            detail: localized(L10nKeys.letPindropQuietlyLearnVocabularyFromTheCo, locale: locale)
         ) {
             SettingsToggleRow(
-                title: localized("Learn corrected words automatically", locale: locale),
-                detail: localized("Add words you manually correct into your vocabulary for future transcriptions.", locale: locale),
+                title: localized(L10nKeys.learnCorrectedWordsAutomatically, locale: locale),
+                detail: localized(L10nKeys.addWordsYouManuallyCorrectIntoYourVocabul, locale: locale),
                 isOn: $settings.automaticDictionaryLearningEnabled,
                 accessibilityIdentifier: "settings.toggle.automaticDictionaryLearningEnabled"
             )
@@ -124,20 +143,20 @@ struct GeneralSettingsView: View {
 
     private var audioInputSection: some View {
         SettingsCard(
-            title: localized("Audio Input", locale: locale),
+            title: localized(L10nKeys.audioInput, locale: locale),
             icon: "mic",
-            detail: localized("Choose which microphone Pindrop should use for dictation and how it behaves while recording.", locale: locale)
+            detail: localized(L10nKeys.chooseWhichMicrophonePindropShouldUseForD, locale: locale)
         ) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
                 HStack(spacing: AppTheme.Spacing.sm) {
                     SelectField(
                         options: audioInputOptions,
                         selection: selectedAudioInputSelection,
-                        placeholder: localized("System Default", locale: locale)
+                        placeholder: localized(L10nKeys.systemDefault, locale: locale)
                     )
                     .frame(maxWidth: 300, alignment: .leading)
 
-                    Button(localized("Refresh", locale: locale)) {
+                    Button(localized(L10nKeys.refresh, locale: locale)) {
                         refreshInputDevices()
                     }
                     .buttonStyle(.bordered)
@@ -149,8 +168,8 @@ struct GeneralSettingsView: View {
                 SettingsDivider()
 
                 SettingsToggleRow(
-                    title: localized("Pause media during transcription", locale: locale),
-                    detail: localized("Temporarily pause active media playback while dictation is recording.", locale: locale),
+                    title: localized(L10nKeys.pauseMediaDuringTranscription, locale: locale),
+                    detail: localized(L10nKeys.temporarilyPauseActiveMediaPlaybackWhileDi, locale: locale),
                     isOn: $settings.pauseMediaOnRecording,
                     accessibilityIdentifier: "settings.toggle.pauseMediaOnRecording"
                 )
@@ -158,8 +177,8 @@ struct GeneralSettingsView: View {
                 SettingsDivider()
 
                 SettingsToggleRow(
-                    title: localized("Mute system audio during recording", locale: locale),
-                    detail: localized("Temporarily mute speaker output while dictation is recording.", locale: locale),
+                    title: localized(L10nKeys.muteSystemAudioDuringRecording, locale: locale),
+                    detail: localized(L10nKeys.temporarilyMuteSpeakerOutputWhileDictation, locale: locale),
                     isOn: $settings.muteAudioDuringRecording,
                     accessibilityIdentifier: "settings.toggle.muteAudioDuringRecording"
                 )
@@ -185,16 +204,16 @@ struct GeneralSettingsView: View {
     
     private var resetSection: some View {
         SettingsCard(
-            title: localized("Reset", locale: locale),
+            title: localized(L10nKeys.reset, locale: locale),
             icon: "arrow.counterclockwise",
-            detail: localized("Start fresh when you want to clear preferences, onboarding state, and saved credentials.", locale: locale)
+            detail: localized(L10nKeys.startFreshWhenYouWantToClearPreferencesO, locale: locale)
         ) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(localized("Reset all settings", locale: locale))
+                    Text(localized(L10nKeys.resetAllSettings, locale: locale))
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textPrimary)
-                    Text(localized("Clears preferences and restarts onboarding", locale: locale))
+                    Text(localized(L10nKeys.clearsPreferencesAndRestartsOnboarding, locale: locale))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textSecondary)
                 }
@@ -204,19 +223,19 @@ struct GeneralSettingsView: View {
                 Button(role: .destructive) {
                     showingResetConfirmation = true
                 } label: {
-                    Text(localized("Reset", locale: locale))
+                    Text(localized(L10nKeys.reset, locale: locale))
                 }
                 .buttonStyle(.bordered)
             }
         }
-        .alert(localized("Reset All Settings?", locale: locale), isPresented: $showingResetConfirmation) {
-            Button(localized("Cancel", locale: locale), role: .cancel) { }
-            Button(localized("Reset", locale: locale), role: .destructive) {
+        .alert(localized(L10nKeys.resetAllSettings7262c7b7, locale: locale), isPresented: $showingResetConfirmation) {
+            Button(localized(L10nKeys.cancel, locale: locale), role: .cancel) { }
+            Button(localized(L10nKeys.reset, locale: locale), role: .destructive) {
                 settings.resetAllSettings()
                 NSApplication.shared.terminate(nil)
             }
         } message: {
-            Text(localized("This will clear all your settings, including API keys, hotkeys, and model preferences. The app will quit and show onboarding again on next launch.", locale: locale))
+            Text(localized(L10nKeys.thisWillClearAllYourSettingsIncludingApi, locale: locale))
         }
     }
 
@@ -227,14 +246,14 @@ struct GeneralSettingsView: View {
 
 private extension GeneralSettingsView {
     var audioInputOptions: [SelectFieldOption] {
-        var options = [SelectFieldOption(id: "", displayName: localized("System Default", locale: locale))]
+        var options = [SelectFieldOption(id: "", displayName: localized(L10nKeys.systemDefault, locale: locale))]
 
         if !settings.selectedInputDeviceUID.isEmpty,
            !availableInputDevices.contains(where: { $0.uid == settings.selectedInputDeviceUID }) {
             options.append(
                 SelectFieldOption(
                     id: settings.selectedInputDeviceUID,
-                    displayName: localized("Unavailable device", locale: locale)
+                    displayName: localized(L10nKeys.unavailableDevice, locale: locale)
                 )
             )
         }
@@ -249,7 +268,17 @@ private extension GeneralSettingsView {
         return options
     }
 
-    var languageOptions: [SelectFieldOption] {
+    var interfaceLanguageOptions: [SelectFieldOption] {
+        AppLocale.allCases.map {
+            SelectFieldOption(
+                id: $0.rawValue,
+                displayName: $0.pickerLabel(locale: locale),
+                isEnabled: $0.isSelectable
+            )
+        }
+    }
+
+    var dictationLanguageOptions: [SelectFieldOption] {
         AppLanguage.allCases.map {
             SelectFieldOption(
                 id: $0.rawValue,
@@ -266,7 +295,14 @@ private extension GeneralSettingsView {
         )
     }
 
-    var selectedLanguageSelection: Binding<String> {
+    var selectedAppLocaleSelection: Binding<String> {
+        Binding(
+            get: { settings.selectedAppLocale.rawValue },
+            set: { settings.selectedAppLocale = AppLocale(rawValue: $0) ?? .automatic }
+        )
+    }
+
+    var selectedAppLanguageSelection: Binding<String> {
         Binding(
             get: { settings.selectedAppLanguage.rawValue },
             set: { settings.selectedAppLanguage = AppLanguage(rawValue: $0) ?? .automatic }
@@ -282,15 +318,15 @@ enum OutputOption: String, CaseIterable, Identifiable {
  
     func title(locale: Locale) -> String {
         switch self {
-        case .clipboard: return localized("Clipboard", locale: locale)
-        case .directInsert: return localized("Direct Insert", locale: locale)
+        case .clipboard: return localized(L10nKeys.clipboard, locale: locale)
+        case .directInsert: return localized(L10nKeys.directInsert, locale: locale)
         }
     }
 
     func description(locale: Locale) -> String {
         switch self {
-        case .clipboard: return localized("Temporarily copy text, paste it, then restore your clipboard", locale: locale)
-        case .directInsert: return localized("Type text directly into the active app when possible", locale: locale)
+        case .clipboard: return localized(L10nKeys.temporarilyCopyTextPasteItThenRestoreYour, locale: locale)
+        case .directInsert: return localized(L10nKeys.typeTextDirectlyIntoTheActiveAppWhenPoss, locale: locale)
         }
     }
     

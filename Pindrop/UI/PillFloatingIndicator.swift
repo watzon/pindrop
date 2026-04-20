@@ -195,7 +195,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func makeContextMenu() -> NSMenu {
-        let locale = settingsStore.selectedAppLanguage.locale
+        let locale = settingsStore.selectedAppLocale.locale
         let menu = NSMenu(title: localized("Pindrop Pill", locale: locale))
         menu.delegate = self
 
@@ -278,7 +278,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         let availableDevices = actions.availableInputDevicesProvider?() ?? []
 
         let systemDefaultItem = NSMenuItem(
-            title: localized("System Default", locale: settingsStore.selectedAppLanguage.locale),
+            title: localized("System Default", locale: settingsStore.selectedAppLocale.locale),
             action: #selector(handleSelectInputDeviceMenuItem(_:)),
             keyEquivalent: ""
         )
@@ -306,7 +306,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         if !selectedUID.isEmpty, !availableDevices.contains(where: { $0.uid == selectedUID }) {
             microphoneMenu.addItem(.separator())
 
-            let unavailableItem = NSMenuItem(title: localized("Unavailable device", locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
+            let unavailableItem = NSMenuItem(title: localized("Unavailable device", locale: settingsStore.selectedAppLocale.locale), action: nil, keyEquivalent: "")
             unavailableItem.isEnabled = false
             unavailableItem.state = NSControl.StateValue.on
             microphoneMenu.addItem(unavailableItem)
@@ -326,7 +326,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         for language in tier1Languages {
             let item = NSMenuItem(
-                title: language.displayName(locale: settingsStore.selectedAppLanguage.locale),
+                title: language.displayName(locale: settingsStore.selectedAppLocale.locale),
                 action: #selector(handleSelectLanguageMenuItem(_:)),
                 keyEquivalent: ""
             )
@@ -339,12 +339,12 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         if !tier2Languages.isEmpty {
             languageMenu.addItem(.separator())
 
-            let upcomingItem = NSMenuItem(title: localized("Coming Soon", locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
+            let upcomingItem = NSMenuItem(title: localized("Coming Soon", locale: settingsStore.selectedAppLocale.locale), action: nil, keyEquivalent: "")
             upcomingItem.isEnabled = false
             languageMenu.addItem(upcomingItem)
 
             for language in tier2Languages {
-                let item = NSMenuItem(title: language.pickerLabel(locale: settingsStore.selectedAppLanguage.locale), action: nil, keyEquivalent: "")
+                let item = NSMenuItem(title: language.pickerLabel(locale: settingsStore.selectedAppLocale.locale), action: nil, keyEquivalent: "")
                 item.isEnabled = false
                 languageMenu.addItem(item)
             }

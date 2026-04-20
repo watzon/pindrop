@@ -373,7 +373,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
     // MARK: Context menu
 
     private func makeContextMenu() -> NSMenu {
-        let locale = settingsStore.selectedAppLanguage.locale
+        let locale = settingsStore.selectedAppLocale.locale
         let menu = NSMenu(title: localized("Pindrop Dot", locale: locale))
         menu.delegate = self
 
@@ -440,7 +440,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
     private func refreshSizeMenuItems() {
         guard let sizeMenu else { return }
         sizeMenu.removeAllItems()
-        let locale = settingsStore.selectedAppLanguage.locale
+        let locale = settingsStore.selectedAppLocale.locale
         for size in DotFloatingIndicatorSize.allCases {
             let item = NSMenuItem(title: size.displayName(locale: locale),
                                   action: #selector(handleSizeMenuItem(_:)), keyEquivalent: "")
@@ -457,7 +457,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
         microphoneMenu.removeAllItems()
         let selectedUID = actions.selectedInputDeviceUIDProvider?() ?? ""
         let devices = actions.availableInputDevicesProvider?() ?? []
-        let locale = settingsStore.selectedAppLanguage.locale
+        let locale = settingsStore.selectedAppLocale.locale
 
         let sysItem = NSMenuItem(title: localized("System Default", locale: locale),
                                  action: #selector(handleSelectInputDeviceMenuItem(_:)), keyEquivalent: "")
@@ -487,7 +487,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard let languageMenu else { return }
         languageMenu.removeAllItems()
         let selected = actions.selectedLanguageProvider?() ?? .automatic
-        let locale = settingsStore.selectedAppLanguage.locale
+        let locale = settingsStore.selectedAppLocale.locale
         for language in AppLanguage.allCases.filter(\.isSelectable) {
             let item = NSMenuItem(title: language.displayName(locale: locale),
                                   action: #selector(handleSelectLanguageMenuItem(_:)), keyEquivalent: "")

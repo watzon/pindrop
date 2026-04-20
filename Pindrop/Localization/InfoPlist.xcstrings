@@ -1,283 +1,164 @@
 {
   "sourceLanguage": "en",
+  "version": "1.0",
   "strings": {
-    "CFBundleDisplayName": {
-      "comment": "Bundle display name",
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Pindrop"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        }
-      }
-    },
-    "CFBundleName": {
-      "comment": "Bundle name",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Pindrop"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop"
-          }
-        }
-      }
-    },
-    "NSHumanReadableCopyright": {
-      "comment": "Copyright (human-readable)",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": ""
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": ""
-          }
-        }
-      }
-    },
-    "NSMicrophoneUsageDescription": {
-      "comment": "Privacy - Microphone Usage Description",
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Pindrop needs microphone access to transcribe your voice."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop necesita acceso al micrófono para transcribir tu voz."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindropは音声を文字起こしするためにマイクへのアクセスが必要です。"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop precisa de acesso ao microfone para transcrever sua voz."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop necessita dell'accesso al microfono per trascrivere la tua voce."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop heeft toegang tot de microfoon nodig om je stem te kunnen transcriberen."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop이 귀하의 음성을 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pindrop'un sesinizi yazıya dökebilmesi için mikrofona erişmesi gerekiyor."
-          }
-        }
-      }
-    },
-    "NSSpeechRecognitionUsageDescription": {
-      "comment": "Privacy - Speech Recognition Usage Description",
+    "cfbundledisplayname": {
+      "comment": "cfbundledisplayname",
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "en": {
           "stringUnit": {
-            "state": "new",
-            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+            "state": "translated",
+            "value": "Pindrop"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop usa el reconocimiento de voz local para transcribir tu audio sin enviar datos a ningún servidor."
+            "value": "Pindrop"
           }
         },
-        "ja": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindropは、データをサーバーに送信することなく音声を文字起こしするためにオンデバイス音声認識を使用します。"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O Pindrop usa reconhecimento de voz local para transcrever seu áudio sem enviar dados para nenhum servidor."
+            "value": "Pindrop"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop usa il riconoscimento vocale locale per trascrivere il tuo audio senza inviare dati a nessun server."
+            "value": "Pindrop"
           }
         },
-        "nl": {
+        "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop gebruikt spraakherkenning op het apparaat om je audio te transcriberen zonder gegevens naar een server te sturen."
+            "value": "Pindrop"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop은 서버에 데이터를 전송하지 않고 오디오를 텍스트로 변환하기 위해 온디바이스 음성 인식을 사용합니다."
+            "value": "Pindrop"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop, herhangi bir sunucuya veri göndermeden sesinizi yazıya dökmek için cihaz üzerinde konuşma tanıma kullanır."
+            "value": "Pindrop"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
           }
         }
       }
     },
-    "NSAudioCaptureUsageDescription": {
-      "comment": "Privacy - System Audio Capture Usage Description",
+    "cfbundlename": {
+      "comment": "cfbundlename",
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "en": {
           "stringUnit": {
-            "state": "new",
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        }
+      }
+    },
+    "nsaudiocaptureusagedescription": {
+      "comment": "nsaudiocaptureusagedescription",
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
             "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
           }
         },
@@ -287,16 +168,10 @@
             "value": "Pindrop necesita acceso al audio del sistema para transcribir llamadas, reuniones y otro audio de apps."
           }
         },
-        "ja": {
+        "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindropは通話、会議、その他のアプリ音声を文字起こしするためにシステムオーディオへのアクセスが必要です。"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O Pindrop precisa de acesso ao áudio do sistema para transcrever chamadas, reuniões e outros áudios de apps."
+            "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
           }
         },
         "it": {
@@ -305,10 +180,10 @@
             "value": "Pindrop ha bisogno dell'accesso all'audio di sistema per trascrivere chiamate, riunioni e altro audio delle app."
           }
         },
-        "nl": {
+        "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop heeft toegang tot systeemaudio nodig om gesprekken, vergaderingen en ander app-audio te transcriberen."
+            "value": "Pindropは通話、会議、その他のアプリ音声を文字起こしするためにシステムオーディオへのアクセスが必要です。"
           }
         },
         "ko": {
@@ -317,14 +192,247 @@
             "value": "Pindrop이 통화, 회의 및 기타 앱 오디오를 텍스트로 변환하려면 시스템 오디오 접근 권한이 필요합니다."
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop heeft toegang tot systeemaudio nodig om gesprekken, vergaderingen en ander app-audio te transcriberen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pindrop precisa de acesso ao áudio do sistema para transcrever chamadas, reuniões e outros áudios de apps."
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop'un aramaları, toplantıları ve diğer uygulama seslerini yazıya dökebilmesi için sistem sesine erişmesi gerekir."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
+          }
+        }
+      }
+    },
+    "nshumanreadablecopyright": {
+      "comment": "nshumanreadablecopyright",
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        }
+      }
+    },
+    "nsmicrophoneusagedescription": {
+      "comment": "nsmicrophoneusagedescription",
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs microphone access to transcribe your voice."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs microphone access to transcribe your voice."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop necesita acceso al micrófono para transcribir tu voz."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs microphone access to transcribe your voice."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop necessita dell'accesso al microfono per trascrivere la tua voce."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindropは音声を文字起こしするためにマイクへのアクセスが必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop이 귀하의 음성을 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop heeft toegang tot de microfoon nodig om je stem te kunnen transcriberen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop precisa de acesso ao microfone para transcrever sua voz."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop'un sesinizi yazıya dökebilmesi için mikrofona erişmesi gerekiyor."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop needs microphone access to transcribe your voice."
+          }
+        }
+      }
+    },
+    "nsspeechrecognitionusagedescription": {
+      "comment": "nsspeechrecognitionusagedescription",
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop usa el reconocimiento de voz local para transcribir tu audio sin enviar datos a ningún servidor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop usa il riconoscimento vocale locale per trascrivere il tuo audio senza inviare dati a nessun server."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindropは、データをサーバーに送信することなく音声を文字起こしするためにオンデバイス音声認識を使用します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop은 서버에 데이터를 전송하지 않고 오디오를 텍스트로 변환하기 위해 온디바이스 음성 인식을 사용합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop gebruikt spraakherkenning op het apparaat om je audio te transcriberen zonder gegevens naar een server te sturen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pindrop usa reconhecimento de voz local para transcrever seu áudio sem enviar dados para nenhum servidor."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop, herhangi bir sunucuya veri göndermeden sesinizi yazıya dökmek için cihaz üzerinde konuşma tanıma kullanır."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
         }
       }
     }
-  },
-  "version": "1.1"
+  }
 }

@@ -114,6 +114,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     func reloadLocalizedStrings() {
+        Log.ui.infoVisible("Rebuilding status bar menu for locale=\(locale.identifier)")
         setupMenu()
         updateRecentTranscriptsMenu()
         updateDynamicItems()
@@ -137,7 +138,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     private var locale: Locale {
-        settingsStore.selectedAppLanguage.locale
+        settingsStore.selectedAppLocale.locale
     }
 
     // MARK: - Setup

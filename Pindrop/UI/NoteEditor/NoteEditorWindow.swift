@@ -66,7 +66,8 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         let hostingController = NSHostingController(rootView: AnyView(contentView))
         
         let window = NSWindow(contentViewController: hostingController)
-        let locale = SettingsStore().selectedAppLanguage.locale
+        let locale = SettingsStore().selectedAppLocale.locale
+        Log.ui.infoVisible("Creating note editor window for locale=\(locale.identifier) isNewNote=\(isNewNote)")
         window.title = isNewNote ? localized("New Note", locale: locale) : (note?.title ?? localized("Note", locale: locale))
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.titleVisibility = .visible

@@ -135,6 +135,8 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
 }
 
+public typealias AppLocale = AppLanguage
+
 @MainActor
 final class SettingsStore: ObservableObject {
 
@@ -153,11 +155,12 @@ final class SettingsStore: ObservableObject {
 
    // MARK: - Default Values (Single Source of Truth)
 
-   enum Defaults {
-      static let selectedModel = "openai_whisper-base"
-       static let outputMode = "clipboard"
-       static let selectedLanguage = AppLanguage.automatic.rawValue
-       static let themeMode = PindropThemeMode.system.rawValue
+    enum Defaults {
+       static let selectedModel = "openai_whisper-base"
+        static let outputMode = "clipboard"
+        static let selectedAppLocale = AppLocale.automatic.rawValue
+        static let selectedLanguage = AppLanguage.automatic.rawValue
+        static let themeMode = PindropThemeMode.system.rawValue
       static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let sidebarPosition = SidebarPosition.trailing.rawValue
@@ -247,9 +250,11 @@ final class SettingsStore: ObservableObject {
    @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
-       Defaults.outputMode
-    @AppStorage("selectedLanguage", store: SettingsStoreRuntime.appStorageStore)
-    var selectedLanguage: String = Defaults.selectedLanguage
+        Defaults.outputMode
+     @AppStorage("selectedAppLocale", store: SettingsStoreRuntime.appStorageStore)
+     var selectedAppLocaleRawValue: String = Defaults.selectedAppLocale
+     @AppStorage("selectedLanguage", store: SettingsStoreRuntime.appStorageStore)
+     var selectedLanguage: String = Defaults.selectedLanguage
     @AppStorage(PindropThemeStorageKeys.themeMode, store: SettingsStoreRuntime.appStorageStore)
     var themeMode: String = Defaults.themeMode {
       didSet { notifyThemeDidChange() }
@@ -452,10 +457,30 @@ final class SettingsStore: ObservableObject {
        set { themeMode = newValue.rawValue }
     }
 
-    var selectedAppLanguage: AppLanguage {
-       get { AppLanguage(rawValue: selectedLanguage) ?? .automatic }
-       set { selectedLanguage = newValue.rawValue }
-    }
+      var selectedAppLocale: AppLocale {
+         get { AppLocale(rawValue: selectedAppLocaleRawValue) ?? .automatic }
+         set {
+            guard selectedAppLocaleRawValue != newValue.rawValue else { return }
+            objectWillChange.send()
+            Log.app.infoVisible(
+               "Interface language changing to \(newValue.rawValue) (locale=\(newValue.locale.identifier))"
+            )
+            selectedAppLocaleRawValue = newValue.rawValue
+         }
+      }
+
+      /// Dictation/transcription language.
+      var selectedAppLanguage: AppLanguage {
+         get { AppLanguage(rawValue: selectedLanguage) ?? .automatic }
+         set {
+            guard selectedLanguage != newValue.rawValue else { return }
+            objectWillChange.send()
+            Log.app.infoVisible(
+               "Dictation language changing to \(newValue.rawValue) (whisper=\(newValue.whisperLanguageCode ?? "auto"))"
+            )
+            selectedLanguage = newValue.rawValue
+         }
+      }
 
     /// Streaming chunk profile derived from `streamingLowLatencyMode`. OFF (the default)
     /// resolves to `.standard` (320ms); ON resolves to `.lowLatency` (160ms).
@@ -888,6 +913,7 @@ final class SettingsStore: ObservableObject {
       quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
       quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
       outputMode = Defaults.outputMode
+      selectedAppLocaleRawValue = Defaults.selectedAppLocale
       selectedLanguage = Defaults.selectedLanguage
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID
       aiEnhancementEnabled = false

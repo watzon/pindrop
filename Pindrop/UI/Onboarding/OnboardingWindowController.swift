@@ -40,7 +40,7 @@ final class OnboardingWindowController {
                 self?.ensureWindowCanFitContentSize(size)
             }
         )
-        .environment(\.locale, settings.selectedAppLanguage.locale)
+        .environment(\.locale, settings.selectedAppLocale.locale)
         
         let hosting = NSHostingController(rootView: AnyView(onboardingView))
         hostingController = hosting

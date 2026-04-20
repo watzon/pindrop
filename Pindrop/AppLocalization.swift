@@ -8,14 +8,25 @@
 import Foundation
 
 nonisolated func localized(_ key: String, locale: Locale) -> String {
+    let resolvedKey = LocalizationMetadata.stableKey(for: key)
     let bundle = localizationBundle(for: locale)
-    let localizedValue = bundle.localizedString(forKey: key, value: nil, table: nil)
+    let localizedValue = bundle.localizedString(forKey: resolvedKey, value: nil, table: nil)
 
-    if localizedValue != key || bundle == Bundle.main {
-        return localizedValue
+    if bundle == Bundle.main {
+        Log.ui.warningVisible(
+            "No localization bundle found for locale=\(locale.identifier); key=\(resolvedKey)"
+        )
+        return Bundle.main.localizedString(forKey: resolvedKey, value: key, table: nil)
     }
 
-    return Bundle.main.localizedString(forKey: key, value: key, table: nil)
+    if localizedValue == resolvedKey {
+        Log.ui.warningVisible(
+            "Missing localized string for key=\(resolvedKey) locale=\(locale.identifier)"
+        )
+        return Bundle.main.localizedString(forKey: resolvedKey, value: key, table: nil)
+    }
+
+    return localizedValue
 }
 
 private nonisolated func localizationBundle(for locale: Locale) -> Bundle {

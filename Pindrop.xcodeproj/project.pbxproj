@@ -14,6 +14,8 @@
 		1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AED90D301B14DA19D138987 /* OutputManagerTests.swift */; };
 		14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05E1BC11534652810B091F /* OutputManager.swift */; };
 		1A2B3C4D5E6F708192A3B4C5 /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */; };
+		GENLOCMETA01A2B3C4D5E6F1 /* LocalizationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = GENLOCMETA01A2B3C4D5E6F0 /* LocalizationMetadata.swift */; };
+		GENL10NKEYS01A2B3C4D5E6F1 /* L10nKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = GENL10NKEYS01A2B3C4D5E6F0 /* L10nKeys.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
 		299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */; };
 		2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */; };
@@ -204,6 +206,8 @@
 		009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskScheduler.swift; path = TaskScheduler.swift; sourceTree = "<group>"; };
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
+		GENLOCMETA01A2B3C4D5E6F0 /* LocalizationMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationMetadata.swift; sourceTree = "<group>"; };
+		GENL10NKEYS01A2B3C4D5E6F0 /* L10nKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10nKeys.swift; sourceTree = "<group>"; };
 		049276EAC4FEBCA2F91F807E /* CopyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyButton.swift; sourceTree = "<group>"; };
 		05406A418EF343BAA525028E /* Pindrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pindrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FB6B47275B6AF92C5E6FDED /* OnboardingWindowController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
@@ -585,6 +589,7 @@
 				1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */,
 				509539AB0B5D433489196E46 /* Assets.xcassets */,
 				LOCALIZATIONGRP01A2B3C4D5E6F /* Localization */,
+				GENERATEDGRP01A2B3C4D5E6F /* Generated */,
 				81f50d309b6a44df90efbd5f /* Services */,
 				855E92B9E1094A4A99FE07FF /* Preview Content */,
 				38268D286F644C93A216D0F4 /* Models */,
@@ -605,6 +610,15 @@
 				6EA189DAD2FC954E2AA5B6B7 /* InfoPlist.xcstrings */,
 			);
 			path = Localization;
+			sourceTree = "<group>";
+		};
+		GENERATEDGRP01A2B3C4D5E6F /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				GENLOCMETA01A2B3C4D5E6F0 /* LocalizationMetadata.swift */,
+				GENL10NKEYS01A2B3C4D5E6F0 /* L10nKeys.swift */,
+			);
+			path = Generated;
 			sourceTree = "<group>";
 		};
 		AA285F0FC951498CA7AEFEDE /* PindropTests */ = {
@@ -965,6 +979,8 @@
 			files = (
 				PRESETMANGSHEETBUILD /* PresetManagementSheet.swift in Sources */,
 				1A2B3C4D5E6F708192A3B4C5 /* AppLocalization.swift in Sources */,
+				GENLOCMETA01A2B3C4D5E6F1 /* LocalizationMetadata.swift in Sources */,
+				GENL10NKEYS01A2B3C4D5E6F1 /* L10nKeys.swift in Sources */,
 				01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */,
 				068e6590ab3f41c7a2a40bbb /* AudioRecorder.swift in Sources */,
 				A9D8C7B6E5F40123456789AB /* AudioDeviceManager.swift in Sources */,

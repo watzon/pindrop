@@ -830,7 +830,7 @@ struct TranscribeView: View {
 
     private func importFilesViaOpenPanel() {
         let panel = NSOpenPanel()
-        let currentLocale = SettingsStore().selectedAppLanguage.locale
+        let currentLocale = locale
         panel.title = localized("Import media", locale: currentLocale)
         panel.message = localized("Choose an audio or video file to transcribe", locale: currentLocale)
         panel.allowsMultipleSelection = true

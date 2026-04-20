@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100% lokale verwerking"
+1:
+  folder: "1 map"
+  transcription: "1 transcriptie"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Een native macOS-dicteerapp voor de menubalk die lokale spraak-naar-tekst gebruikt met WhisperKit. Standaard 100% lokale verwerking met optionele AI-verbetering."
+about:
+  _self: "Over"
+  pindrop: "Over Pindrop"
+accessibility:
+  _self: "Toegankelijkheid"
+  permission_is_enabled_full_ui_cont: "Toegankelijkheidsrechten zijn ingeschakeld. Volledige UI-context is beschikbaar."
+  permission_is_not_granted_vibe_mod: "Toegankelijkheidstoestemming wordt niet verleend. De Vibe-modus blijft niet-blokkerend met beperkte context."
+  permission_recommended: "Toegankelijkheidstoestemming aanbevolen"
+  permission_required: "Toegankelijkheidstoestemming vereist"
+accuracy:
+  _self: "Nauwkeurigheid"
+acknowledgments:
+  _self: "Dankbetuigingen"
+active:
+  _self: "Actief"
+add:
+  _self: "Toevoegen"
+  a_provider_to_start_using_ai_enhancement: "Voeg een provider toe om AI-verbetering te gaan gebruiken."
+  custom_words_to_improve_transcription_accura: "Voeg aangepaste woorden toe om de nauwkeurigheid van de transcriptie voor gespecialiseerde termen, namen of jargon te verbeteren."
+  provider: "Aanbieder toevoegen"
+  tag: "Label toevoegen..."
+  to_existing: "Toevoegen aan bestaand"
+  trailing_space: "Voeg volgspatie toe"
+  word_replacements_to_automatically_correct_c: "Voeg woordvervangingen toe om veelvoorkomende transcriptiefouten automatisch te corrigeren."
+  words_to_help_pindrop_recognize_them_properl: "Voeg woorden toe zodat Pindrop ze goed kan herkennen"
+  words_you_manually_correct_into_your_vocabul: "Voeg woorden die u handmatig corrigeert toe aan uw vocabulaire voor toekomstige transcripties."
+ai:
+  enhancement: "AI-verbetering"
+  enhancement_529f5583: "AI-verbetering: %@"
+  enhancement_failed: "AI-verbetering mislukt"
+  enhancement_is_disabled: "AI-verbetering is uitgeschakeld."
+  enhancement_will: "AI-verbetering zal:"
+  model: "AI-model"
+all:
+  _self: "Alle"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Er is een fout opgetreden bij het verbeteren van uw transcriptie:
+    
+    %@
+    
+    De originele transcriptie is zonder verbeteringen opgeslagen.
+    U kunt proberen AI-verbetering opnieuw in te schakelen in Instellingen.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Er is een fout opgetreden bij het verbeteren van uw transcriptie:nn%@nnDe oorspronkelijke transcriptie is zonder verbeteringen opgeslagen.nU kunt proberen AI-verbetering opnieuw in te schakelen in Instellingen."
+anthropic:
+  _self: "Anthropic"
+api:
+  endpoint: "API-eindpunt"
+  key: "API-sleutel"
+  key_saved: "API-sleutel opgeslagen"
+  key_saved_endpoint: "API-sleutel opgeslagen • Eindpunt: %@"
+app:
+  info_acknowledgments_support_and_logs: "App-info, bevestigingen, ondersteuning en logboeken"
+append:
+  a_space_after_each_transcription_for_seam: "Voeg na elke transcriptie een spatie toe voor naadloos dicteren."
+apple:
+  foundation_models_on_device: "Apple Foundation-modellen (op apparaat)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence is niet beschikbaar op dit systeem. Deze toewijzing wordt pas opgelost als Apple Intelligence is ingeschakeld."
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence draait op het apparaat en vereist geen inloggegevens."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber vereist macOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber niet beschikbaar — Parakeet wordt gebruikt"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Weet u zeker dat u '%@' wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+assignments:
+  _self: "Opdrachten"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Voeg logboeken uit deze map toe wanneer u een GitHub-probleem indient."
+audio:
+  input: "Audio-invoer"
+automatic:
+  follow_system: "Automatisch (volgsysteem)"
+  updates: "Automatische updates"
+  updates_and_manual_update_checks: "Automatische updates en handmatige updatecontroles"
+automatically:
+  check_for_new_versions_in_the_back: "Controleer automatisch op nieuwe versies op de achtergrond."
+  start_pindrop_when_you_sign_in: "Start Pindrop automatisch wanneer u zich aanmeldt."
+available:
+  models: "Beschikbare modellen"
+avg:
+  speed: "Gem. snelheid"
+back:
+  _self: "Rug"
+  to_library: "Terug naar bibliotheek"
+base:
+  _self: "Baseren"
+best:
+  _self: "Best"
+better:
+  _self: "Beter"
+bubble:
+  _self: "Bel"
+built:
+  in_presets: "Ingebouwde voorinstellingen"
+  in_read_only: "Ingebouwd (alleen-lezen)"
+cancel:
+  _self: "Annuleren"
+  operation: "Annuleer bewerking"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Leg direct vast in de notitie-editor met een hold-to-record-stroom."
+change:
+  microphone: "Microfoon wijzigen"
+  microphone_ac9970f4: "Microfoon wisselen"
+check:
+  for_updates: "Controleer op updates..."
+  for_updates_736b9062: "Controleer op updates"
+  now: "Controleer nu"
+checking:
+  _self: "Controleren..."
+choose:
+  a_location_to_save_the_dictionary: "Kies een locatie om het woordenboek op te slaan"
+  a_location_to_save_the_presets: "Kies een locatie om de presets op te slaan"
+  a_model: "Kies een model"
+  a_provider_first: "Kies eerst een aanbieder"
+  an_audio_or_video_file_to_transcribe: "Kies een audio- of videobestand om te transcriberen"
+  between_parakeet_cross_version_downloaded: "Kies tussen Parakeet (meerdere versies, gedownload model) en Apple SpeechTranscriber (macOS 26+, meegeleverd met het besturingssysteem)."
+  file: "Kies bestand"
+  how_dictated_text_lands_then_tune_the_fin: "Kies hoe gedicteerde tekst terechtkomt en stem vervolgens het uiteindelijke invoeggedrag af."
+  how_pindrop_follows_system_appearance_the: "Kies hoe Pindrop het uiterlijk van het systeem volgt en meng vervolgens samengestelde lichte en donkere paletten."
+  how_to_import_the_dictionary_data: "Kies hoe u de woordenboekgegevens wilt importeren"
+  how_to_import_the_preset_data: "Kies hoe u de vooraf ingestelde gegevens wilt importeren"
+  languages_for_the_interface_and_for_dicta: "Kies talen voor de interface en voor dicteren. Automatisch volgt het systeem."
+  location_to_save_presets: "Kies een locatie om voorinstellingen op te slaan"
+  the_daytime_shell_used_in_light_mode: "Kies de dagschaal die in de lichtmodus wordt gebruikt."
+  the_low_glare_shell_used_in_dark_mode: "Kies de laag-reflecterende behuizing die in de donkere modus wordt gebruikt."
+  which_floating_indicator_style_appears_wh: "Kies welke zwevende indicatorstijl wordt weergegeven wanneer de overlay is ingeschakeld."
+  which_microphone_pindrop_should_use_for_d: "Kies welke microfoon Pindrop moet gebruiken voor dicteren en hoe deze zich gedraagt ​​tijdens het opnemen."
+  which_side_the_navigation_sidebar_appears: "Kies aan welke kant de navigatiebalk verschijnt."
+clean:
+  up_filler_words: "Ruim opvulwoorden op"
+clear:
+  audio_buffer: "Duidelijke audiobuffer"
+  hotkey: "Sneltoets wissen"
+clears:
+  preferences_and_restarts_onboarding: "Wist voorkeuren en start de onboarding opnieuw"
+click:
+  or_hold: "Klik of houd vast"
+  or_press: "Klik of druk"
+  or_set_a_hotkey_to_start_talking: "Klik of stel een sneltoets in om te beginnen met praten"
+  this_icon_anytime_to: "Klik op elk gewenst moment op dit pictogram om:"
+clipboard:
+  _self: "Klembord"
+cloud:
+  _self: "Wolk"
+  model: "Wolkenmodel"
+collapse:
+  _self: "Inklappen"
+coming:
+  soon: "%@ Binnenkort beschikbaar"
+  soon_04d2fd85: "Binnenkort beschikbaar"
+configure:
+  ai_providers_and_credentials_apple_int: "Configureer AI-providers en inloggegevens. Apple Intelligence draait op het apparaat; andere providers hebben API-sleutels nodig."
+  keyboard_shortcuts_for_recording_and_n: "Configureer sneltoetsen voor het opnemen en vastleggen van notities"
+continue:
+  _self: "Doorgaan"
+  with_default: "Ga verder met Standaard"
+  without: "Ga verder zonder"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Bepaal hoe Pindrop verschijnt in macOS en of het begint met uw desktopsessie."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Bepaalt hoe het live-dicteerpad transcripties bijwerkt. De deterministische opschoner (verwijdering van stopwoorden, hoofdletters, uitgesproken interpunctie, getalsnormalisatie, samenvoegen van gesplitste woorden) loopt hoe dan ook — deze schakelaar regelt de optionele LLM-polijststap die start zodra het dicteren stopt."
+copied:
+  _self: "Gekopieerd!"
+copy:
+  _self: "Kopiëren"
+  enhanced: "Kopieer verbeterd"
+  last_transcript: "Kopieer laatste transcript"
+  original: "Kopieer origineel"
+  system_info_for_bug_report: "Kopieer systeeminformatie voor bugrapport"
+  the_most_recent_transcript_to_the_clipboard: "Kopieer het meest recente transcript naar het klembord"
+  to_clipboard: "Kopiëren naar klembord"
+  transcript: "Kopieer transcript"
+correct:
+  grammar_mistakes: "Corrigeer grammaticafouten"
+create:
+  _self: "Creëren"
+  new_note: "Nieuwe notitie maken"
+  new_preset: "Nieuwe voorinstelling maken"
+  your_first_note_to_get_started: "Maak uw eerste notitie om aan de slag te gaan"
+  your_first_preset_or_duplicate_a_built_in: "Maak uw eerste voorinstelling of dupliceer een ingebouwde voorinstelling om deze aan te passen."
+  your_own_presets_or_duplicate_built_in_on: "Maak uw eigen voorinstellingen of dupliceer ingebouwde voorinstellingen om ze aan te passen."
+credentials:
+  are_stored_securely_in_keychain: "Inloggegevens worden veilig opgeslagen in Keychain"
+  saved_successfully: "Inloggegevens zijn succesvol opgeslagen"
+current:
+  _self: "Huidig: %@"
+custom:
+  _self: "Aangepast"
+  local: "Aangepast / Lokaal"
+  openai_compatible: "Aangepast (OpenAI-compatibel)"
+  presets: "Aangepaste voorinstellingen"
+customize:
+  hotkey: "Sneltoets aanpassen"
+cut:
+  _self: "Snee"
+d:
+  characters: "%d characters"
+dark:
+  _self: "Donker"
+  preview: "Donker voorbeeld"
+  theme: "Donker thema"
+database:
+  error: "Databasefout"
+date:
+  _self: "Datum"
+  7f823513: "Datum %@"
+default:
+  _self: "Standaard"
+  model: "Standaardmodel"
+define:
+  word_replacements_to_automatically_replac: "Definieer woordvervangingen om automatisch specifieke woorden of zinsdelen te vervangen"
+degraded:
+  _self: "Gedegradeerd"
+delete:
+  _self: "Verwijderen"
+  folder: "Map verwijderen"
+  folder_e556e7c2: "Map verwijderen?"
+  model: "Model verwijderen"
+  preset: "Voorinstelling verwijderen"
+  preset_4f6cfe36: "Voorinstelling verwijderen?"
+  transcription: "Transcriptie verwijderen"
+  transcription_f82187c4: "Transcriptie verwijderen?"
+dictionary:
+  _self: "Woordenboek"
+direct:
+  insert: "Directe invoeging"
+disabled:
+  _self: "Gehandicapt"
+dismiss:
+  _self: "Afwijzen"
+display:
+  name: "Weergavenaam"
+  name_c7874aaa: "Weergavenaam"
+  pindrop_in_the_dock_instead_of_running_o: "Geef Pindrop weer in het Dock in plaats van alleen als menubalk-app te draaien."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Dock de zijbalk aan de linker- of rechterrand van het venster."
+dot:
+  _self: "Dot"
+download:
+  _self: "Downloaden"
+  complete: "Downloaden voltooid!"
+  continue: "Downloaden en doorgaan"
+  failed: "Downloaden mislukt"
+  model: "Model downloaden"
+  the_diarization_model_before_starting_m: "Download het dagboekregistratiemodel voordat u de mediatranscriptie start."
+downloaded:
+  _self: "Gedownload"
+downloading:
+  _self: "%@ downloaden..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Zet een bestand neer of plak een link om een ​​transcript met een dagboek en een tijdstempel te maken."
+  audio_or_video_here: "Zet hier audio of video neer"
+duplicate:
+  preset: "Dubbele voorinstelling"
+dutch:
+  _self: "Nederlands"
+edit:
+  _self: "Bewerking"
+  preset: "Voorinstelling bewerken"
+  provider: "Aanbieder bewerken"
+empty:
+  _self: "(Leeg)"
+enable:
+  ai_enhancement: "Schakel AI-verbetering in"
+  live_session_updates_during_recording: "Schakel live sessie-updates in tijdens het opnemen"
+  the_floating_indicator_to_choose_a_style: "Schakel de zwevende indicator in om een ​​stijl te kiezen."
+  vibe_mode_ui_context: "Schakel sfeermodus in (UI-context)"
+enabled:
+  _self: "Ingeschakeld"
+endpoint:
+  _self: "Eindpunt: %@"
+english:
+  _self: "Engels"
+  only: "Alleen Engels"
+enhanced:
+  _self: "Versterkt"
+enhancement:
+  prompts: "Verbeteringsprompts"
+enter:
+  an_openai_api_key_to_load_models: "Voer een OpenAI API-sleutel in om modellen te laden."
+  api_key: "Voer de API-sleutel in"
+  word_to_add: "Voer het woord in dat u wilt toevoegen"
+error:
+  _self: "Fout"
+european:
+  multilingual: "Europees meertalig"
+excellent:
+  _self: "Uitstekend"
+export:
+  _self: "Exporteren"
+  as_csv: "Exporteren als CSV"
+  as_json: "Exporteren als JSON"
+  as_plain_text: "Exporteren als platte tekst"
+  dictionary: "Woordenboek exporteren"
+  failed: "Exporteren mislukt: %@"
+  last_transcript: "Laatste transcript exporteren..."
+  presets: "Voorinstellingen exporteren"
+failed:
+  to_add_replacement: "Kan vervanging niet toevoegen: %@"
+  to_add_word: "Kan woord niet toevoegen: %@"
+  to_delete_folder: "Kan map niet verwijderen: %@"
+  to_delete_note: "Kan notitie niet verwijderen: %@"
+  to_delete_preset: "Kan voorinstelling niet verwijderen: %@"
+  to_delete_replacement: "Kan vervanging niet verwijderen: %@"
+  to_delete_transcription: "Kan transcriptie niet verwijderen: %@"
+  to_delete_word: "Kan woord niet verwijderen: %@"
+  to_export_dictionary: "Kan woordenboek niet exporteren: %@"
+  to_export_presets: "Kan voorinstellingen niet exporteren: %@"
+  to_import_dictionary: "Kan woordenboek niet importeren: %@"
+  to_import_presets: "Kan voorinstellingen niet importeren: %@"
+  to_initialize_the_database_nnthe_app_will: "Kan de database niet initialiseren: %@nnDe app wordt nu afgesloten. Probeer opnieuw op te starten of neem contact op met de ondersteuning als het probleem zich blijft voordoen."
+  to_load_data: "Kan gegevens niet laden: %@"
+  to_load_history: "Kan geschiedenis niet laden: %@"
+  to_read_import_file: "Kan importbestand niet lezen: %@"
+  to_save: "Kan niet opslaan: %@"
+  to_save_preset: "Kan voorinstelling niet opslaan: %@"
+  to_switch_model: "Kan niet van model wisselen: %@"
+  to_update_preset: "Kan voorinstelling niet updaten: %@"
+  to_update_replacement: "Kan vervanging niet updaten: %@"
+  to_update_word: "Kan woord niet updaten: %@"
+fast:
+  _self: "Snel"
+feature:
+  models: "Functiemodellen"
+fetch:
+  models_in_models: "Haal modellen op in Modellen"
+fix:
+  punctuation_and_capitalization: "Corrigeer interpunctie en hoofdlettergebruik"
+floating:
+  indicator: "%@ zwevende indicator"
+  indicator_3bad78a5: "Zwevende indicator: %@"
+  indicator_e0349402: "Zwevende indicator"
+folder:
+  deleted: "Map verwijderd."
+  name: "Mapnaam"
+follow:
+  playback: "Volg het afspelen"
+format:
+  text_appropriately: "Maak de tekst op de juiste manier op"
+french:
+  _self: "Frans"
+general:
+  _self: "Algemeen"
+german:
+  _self: "Duits"
+get:
+  started: "Aan de slag"
+global:
+  keyboard_shortcuts: "Algemene sneltoetsen"
+go:
+  back: "Ga terug"
+  to_settings: "Ga naar instellingen"
+good:
+  _self: "Goed"
+  afternoon: "Goedemiddag"
+  evening: "Goedeavond"
+  morning: "Goedemorgen"
+  night: "Welterusten"
+google:
+  _self: "Google"
+got:
+  it: "Ik heb het"
+grant:
+  _self: "Studiebeurs"
+great:
+  _self: "Geweldig"
+hide:
+  this_for_1_hour: "Verberg dit gedurende 1 uur"
+history:
+  _self: "Geschiedenis"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Houd de sneltoets ingedrukt om op te nemen en laat vervolgens los om te transcriberen."
+  to_record_release_to_open_note_editor_with: "Houd ingedrukt om op te nemen, laat los om de notitie-editor met transcriptie te openen"
+  to_record_release_to_stop_and_transcribe: "Houd ingedrukt om op te nemen, laat los om te stoppen en te transcriberen"
+  to_record_release_to_transcribe: "Houd ingedrukt om op te nemen, laat los om te transcriberen"
+hotkey:
+  conflict: "Sneltoetsconflict"
+hotkeys:
+  _self: "Sneltoetsen"
+import:
+  dictionary: "Woordenboek importeren"
+  error: "Importfout"
+  export: "Importeren/exporteren"
+  media: "Media importeren"
+  or_transcribe_media_while_this_folder_is: "Importeer of transcribeer media terwijl deze map is geselecteerd om items hier op te slaan."
+  presets: "Voorinstellingen importeren"
+  strategy: "Importstrategie"
+imported:
+  files_and_web_links_will_appear_here_on: "Geïmporteerde bestanden en weblinks verschijnen hier zodra de verwerking is voltooid."
+improve:
+  transcription_quality_using_ai: "Verbeter de transcriptiekwaliteit met behulp van AI"
+include:
+  clipboard_text: "Inclusief klembordtekst"
+interface:
+  _self: "Interface"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ is toegewezen aan zowel %@ als %@. Alleen de eerste actie is actief. Update uw sneltoetsen in Instellingen om dit conflict op te lossen."
+italian:
+  _self: "Italiaans"
+items:
+  _self: "artikelen"
+japanese:
+  _self: "Japanse"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Houd Pindrop automatisch actueel of activeer een handmatige controle wanneer u maar wilt."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Sneltoetsen"
+korean:
+  _self: "Koreaans"
+language:
+  _self: "Taal"
+large:
+  _self: "Large"
+launch:
+  at_login: "Start bij inloggen: %@"
+  at_login_0b36c78f: "Start bij inloggen"
+layout:
+  _self: "Indeling"
+learn:
+  corrected_words_automatically: "Leer automatisch gecorrigeerde woorden"
+left:
+  _self: "Links"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Laat Pindrop rustig de woordenschat leren van de correcties die u in de loop van de tijd aanbrengt."
+light:
+  _self: "Licht"
+  dark_and_curated_palette_presets: "Lichte, donkere en samengestelde paletvoorinstellingen"
+  preview: "Licht voorbeeld"
+  theme: "Licht thema"
+limited:
+  _self: "Beperkt"
+live:
+  streaming_refinement: "Verfijning van livestreaming"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld tekens"
+  complete: "%lld%% voltooid"
+  items: "%lld artikelen"
+  notes: "%lld noten"
+  transcriptions: "%lld transcripties"
+lm:
+  studio: "LM Studio"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio heeft alleen een token nodig als lokale serverauthenticatie is ingeschakeld."
+load:
+  models: "Modellen laden"
+loaded:
+  d_models: "Loaded %d models"
+loading:
+  history: "Geschiedenis laden..."
+  models: "Modellen laden..."
+local:
+  _self: "Lokaal"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Lokale spraak-naar-tekst, rechtstreeks vanuit uw menubalk.
+    Snel, privé en altijd beschikbaar.
+  speech_to_text_right_from_your_menu_bar_nf: "Lokale spraak-naar-tekst, rechtstreeks vanuit uw menubalk.nSnel, privé en altijd beschikbaar."
+  speech_to_text_with_whisperkit: "Lokale spraak-naar-tekst met WhisperKit"
+  voice_to_text: "Lokale spraak-naar-tekst"
+low:
+  latency_mode_less_accurate: "Lage-latentiemodus (minder nauwkeurig)"
+manage:
+  local_speech_models_feature_models_and_th: "Beheer lokale spraakmodellen, functiemodellen en de standaardengine die Pindrop gebruikt voor transcriptie."
+  models: "Beheer modellen"
+  presets: "Beheer voorinstellingen"
+  presets_ab87986d: "Voorinstellingen beheren..."
+manually:
+  check_for_new_versions_now: "Controleer nu handmatig op nieuwe versies."
+media:
+  library: "Mediabibliotheek"
+  transcription: "Mediatranscriptie"
+  unavailable: "Media niet beschikbaar"
+medium:
+  _self: "Medium"
+microphone:
+  _self: "Microfoon"
+  permission_is_required_to_continue: "Microfoontoestemming is vereist om door te gaan"
+  permission_is_required_to_continue_dc: "Microfoontoestemming is vereist om door te gaan."
+  permission_required: "Microfoontoestemming vereist"
+mit:
+  license: "MIT-licentie"
+mode:
+  _self: "Modus: %@"
+model:
+  _self: "Model"
+  loading_failed: "Laden van model mislukt"
+  loading_timed_out: "Er is een time-out opgetreden bij het laden van modellen"
+models:
+  _self: "Modellen"
+move:
+  to_folder: "Verplaatsen naar map"
+multilingual:
+  _self: "Meertalig"
+must:
+  be_openai_compatible: "Moet OpenAI-compatibel zijn"
+mute:
+  system_audio_during_recording: "Systeemaudio dempen tijdens opname"
+new:
+  folder: "Nieuwe map"
+  note: "Nieuwe notitie"
+  preset: "Nieuwe voorinstelling"
+next:
+  _self: "Volgende"
+no:
+  api_key: "Geen API-sleutel"
+  api_key_endpoint: "Geen API-sleutel • Eindpunt: %@"
+  custom_presets: "Geen aangepaste voorinstellingen"
+  downloaded_models: "Geen gedownloade modellen"
+  folders_yet: "Nog geen mappen"
+  items_in: "Geen items in %@"
+  media_transcriptions_yet: "Nog geen mediatranscripties"
+  model_loaded: "Geen model geladen"
+  model_selected: "Geen model geselecteerd"
+  models_available: "Geen modellen beschikbaar"
+  models_available_ae9dbd29: "Geen modellen beschikbaar."
+  models_available_try_refresh_or_enter_a_model: "Geen modellen beschikbaar. Probeer Vernieuwen of voer handmatig een model-ID in."
+  models_found: "Geen modellen gevonden."
+  models_loaded_open_edit_to_fetch_models: "No models loaded. Open Bewerken om modellen op te halen."
+  models_match: "Er komen geen modellen overeen met '%@'"
+  notes_yet: "Nog geen opmerkingen"
+  providers_configured_yet: "Nog geen providers geconfigureerd."
+  replacements: "Geen vervangingen"
+  results_found: "Geen resultaten gevonden"
+  settings_found: "Geen instellingen gevonden"
+  transcriptions_yet: "Nog geen transcripties"
+  vocabulary_words: "Geen woordenschatwoorden"
+not:
+  assigned: "Niet toegewezen"
+  selected: "Niet geselecteerd"
+  set: "Niet ingesteld"
+  set_93039e60: "Niet ingesteld"
+notch:
+  _self: "Inkeping"
+note:
+  _self: "Opmerking"
+  capture_push_to_talk: "Notitie vastleggen (Push-to-Talk)"
+  capture_toggle: "Notitie vastleggen (schakelen)"
+  enhancement: "Opmerking Verbetering"
+  from: "Opmerking van"
+  metadata: "Let op Metagegevens"
+  title: "Opmerking Titel"
+notes:
+  _self: "Opmerkingen"
+  3add7b96: "notities"
+off:
+  _self: "Uit"
+ok:
+  _self: "OK"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama vereist meestal geen authenticatie voor lokale verzoeken."
+on:
+  _self: "Op"
+  device_no_credentials_required: "Op het apparaat, geen inloggegevens vereist"
+open:
+  _self: "Open"
+  history: "Geschiedenis openen"
+  logs_in_finder: "Open Logboeken in Finder"
+  original_link: "Originele link openen"
+  progress: "Voortgang openen"
+  settings: "Instellingen openen"
+  settings_fd7108f8: "Instellingen openen"
+  system_settings: "Open Systeeminstellingen"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "OpenAI-compatibele lokale server"
+  whisper: "OpenAI-fluisteren"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Optioneel"
+  insert_text_directly_into_apps: "Optioneel: voeg tekst rechtstreeks in apps in"
+  used_for_auto_generated_titles_and_summ: "Optioneel: wordt gebruikt voor automatisch gegenereerde titels en samenvattingen bij het importeren van mediatranscripties."
+optionally:
+  clean_up_transcriptions_with_ai: "Eventueel transcripties opschonen met AI"
+or:
+  _self: "of"
+  just_use_your_hotkey: "Of gebruik gewoon uw sneltoets!"
+original:
+  _self: "Origineel"
+  text_use_commas_for_multiple: "Originele tekst (gebruik komma's voor meerdere)"
+originals:
+  comma_separated: "Originelen (door komma's gescheiden)"
+output:
+  _self: "Uitvoer"
+  audio_interface_and_everyday_behavior: "Uitvoer, audio, interface en alledaags gedrag"
+parakeet:
+  default: "Parakeet (standaard)"
+paste:
+  _self: "Plakken"
+  a_video_or_audio_link: "Plak een video- of audiolink"
+  last_transcript: "Plak het laatste transcript"
+  last_transcript_v: "Plak het laatste transcript ⌃⌘V"
+pause:
+  _self: "Pauze"
+  media_during_transcription: "Pauzeer media tijdens transcriptie"
+permissions:
+  _self: "Machtigingen"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Kies welke provider en welk model elke AI-taak afhandelt. Laat het staan ​​op 'Niet toegewezen' om een ​​doel over te slaan."
+pill:
+  _self: "Pil"
+pin:
+  to_screen_always_on_top: "Vastzetten op scherm (altijd bovenaan)"
+pindrop:
+  _self: "Pindrop"
+  dot: "Pindrop Dot"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop is klaar voor gebruik.
+    Klik op het menubalkpictogram om aan de slag te gaan.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop is klaar voor gebruik.nKlik op het menubalkpictogram om aan de slag te gaan."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop heeft een aantal machtigingen nodig om te kunnen werken.nUw privacy wordt altijd gerespecteerd."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop heeft een paar machtigingen nodig om te werken.
+    Uw privacy wordt altijd gerespecteerd.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop heeft toegankelijkheidstoestemming nodig om tekst bij uw cursor in te voegen.                          Om toestemming te verlenen: 1. Klik hieronder op \"Systeeminstellingen openen\" 2. Klik op de knop + 3. Navigeer naar de app die wordt weergegeven in Finder 4. Start Pindrop opnieuw op nadat u toestemming hebt verleend Zonder deze toestemming wordt tekst alleen naar uw klembord gekopieerd.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.nnVerleen toestemming in Systeeminstellingen."
+  on_github: "Pindrop op GitHub"
+  pill: "Pindrop-pil"
+  theme: "Pindrop-thema"
+play:
+  _self: "Toneelstuk"
+please:
+  check_your_internet_connection_and_try_ag: "Controleer uw internetverbinding en probeer het opnieuw."
+  download_a_whisper_model_in_settings_befo: |-
+    Download een Whisper-model in Instellingen voordat u gaat opnemen.
+    
+    Ga naar Instellingen → Modellen om een ​​model te downloaden.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Download een Whisper-model in Instellingen voordat u gaat opnemen.nnGa naar Instellingen → Modellen om een ​​model te downloaden."
+  wait: "Even geduld a.u.b...."
+portuguese:
+  brazil: "Portugees (Brazilië)"
+powered:
+  by_whisperkit: "Mogelijk gemaakt door WhisperKit"
+preparing:
+  model: "Model voorbereiden..."
+preset:
+  name: "Vooraf ingestelde naam"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Houd ingedrukt om in elke app te dicteren. Pindrop zal uw toespraak transcriberen en de tekst invoegen waar uw cursor zich bevindt."
+  esc_to_cancel: "Druk op Esc om te annuleren"
+  keys: "Toetsen indrukken..."
+  once_to_start_again_to_stop: "Druk één keer om te starten, nogmaals om te stoppen"
+  once_to_start_recording_press_again_to_sto: "Druk één keer om de opname te starten, druk nogmaals om te stoppen en te transcriberen"
+  once_to_start_recording_then_press_again_t: "Druk één keer om de opname te starten en druk vervolgens nogmaals om te stoppen en te transcriberen."
+  to_start_recording_press_again_to_open_not: "Druk hierop om de opname te starten, druk nogmaals om de notitie-editor te openen"
+primary:
+  text: "Primaire tekst"
+processing:
+  _self: "Verwerking"
+  272bc02e: "Verwerken..."
+  5aa377e2: "⏳ Verwerking"
+  transcript: "Processing transcript"
+prompt:
+  _self: "Snel"
+  preset: "Snelle voorinstelling"
+provider:
+  _self: "Aanbieder"
+  kind: "Soort aanbieder"
+  type: "Type aanbieder"
+providers:
+  _self: "Aanbieders"
+  prompts_and_vibe_mode_controls: "Providers, prompts en bedieningselementen voor de sfeermodus"
+push:
+  to_talk: "Push-to-talk"
+quickly:
+  copy_your_last_transcription: "Kopieer snel uw laatste transcriptie"
+  pull_your_latest_transcript_back_to_the: "Trek uw laatste transcript snel terug naar het klembord."
+quit:
+  _self: "Ontslag nemen"
+  pindrop: "Sluit Pindrop af"
+ready:
+  _self: "Klaar"
+  ec1296e1: "● Klaar"
+  to_record: "Ready to record"
+  to_transcribe: "Klaar om te transcriberen"
+recent:
+  _self: "Recent"
+  transcriptions: "Recente transcripties"
+  transcripts: "Recente transcripties"
+recommended:
+  _self: "Aanbevolen"
+  the_deterministic_cleaner_handles_mo: "Aanbevolen: de deterministische opschoner handelt de meeste dicteren prima af. Schakel de LLM-stap alleen in als je extra politoer wilt en af en toe modelkwalen (inleidingen, gespreksantwoorden) accepteert."
+record:
+  _self: "Dossier"
+recording:
+  _self: "Opname"
+  3f8fd48c: "🔴Opname"
+recordings:
+  _self: "opnames"
+redo:
+  _self: "Opnieuw uitvoeren"
+refresh:
+  _self: "Vernieuwen"
+remove:
+  _self: "Verwijderen"
+  and_clear_any_assignments_that_reference: "'%@' verwijderen en alle toewijzingen wissen die ernaar verwijzen? Opgeslagen inloggegevens worden verwijderd."
+  from_folder: "Verwijderen uit map"
+  provider: "Aanbieder verwijderen"
+rename:
+  _self: "Hernoemen"
+  folder: "Hernoem map"
+replace:
+  all: "Vervang alles"
+  words_and_phrases: "Vervang woorden en zinnen"
+replacement:
+  _self: "Vervanging"
+  text: "Vervangende tekst"
+report:
+  an_issue: "Rapporteer een probleem"
+  an_issue_bd7b4f00: "Rapporteer een probleem"
+required:
+  _self: "Vereist"
+  for_recording_your_voice: "Vereist voor het opnemen van uw stem"
+requires:
+  a_fast_provider_apple_foundation_models: "Vereist een snelle provider (Apple Foundation Models aanbevolen). Cloudproviders zullen één API-oproep per pauze doen."
+reset:
+  _self: "Opnieuw instellen"
+  all_settings: "Alle instellingen resetten?"
+  all_settings_7262c7b7: "Reset alle instellingen"
+  to_default: "Terugzetten naar standaard"
+retry:
+  _self: "Opnieuw proberen"
+right:
+  _self: "Rechts"
+run:
+  llm_polish_after_dictation_stops: "LLM-polijsten uitvoeren nadat het dicteren stopt"
+runtime:
+  _self: "Looptijd: %@"
+save:
+  _self: "Redden"
+  as_note: "Opslaan als notitie"
+  continue: "Opslaan en doorgaan"
+  credentials: "Bewaar referenties"
+  prompt: "Bewaar prompt"
+saved:
+  _self: "Opgeslagen"
+  as_note: "Opgeslagen als notitie"
+  transcription: "Opgeslagen transcriptie"
+search:
+  media_transcripts: "Mediatranscripties zoeken..."
+  models: "Zoek modellen"
+  models_61c1b9fe: "Modellen zoeken..."
+  notes: "Zoek notities..."
+  settings: "Zoekinstellingen"
+  settings_or_jump_between_sections_without: "Zoek naar instellingen of spring tussen secties zonder de hoofdwerkruimte te verlaten."
+  transcriptions: "Transcripties zoeken..."
+secondary:
+  text: "Secundaire tekst"
+select:
+  a_dictionary_json_file_to_import: "Selecteer een woordenboek-JSON-bestand om te importeren"
+  a_model: "Selecteer een model"
+  a_presets_json_file_to_import: "Selecteer een JSON-bestand met voorinstellingen om te importeren"
+  a_provider_kind: "Selecteer een soort provider"
+  a_provider_type: "Selecteer een providertype"
+  ai_model: "Selecteer AI-model"
+  all: "Selecteer Alles"
+  language: "Selecteer Taal"
+  language_daea52c9: "Selecteer taal"
+  this_floating_indicator_style: "Selecteer deze zwevende indicatorstijl."
+  voice_model: "Selecteer Spraakmodel"
+selected:
+  _self: "Gekozen"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Verzonden naar het AI-model bij het verwerken van dictaat voor directe tekstinvoeging."
+sessions:
+  _self: "Sessies"
+  781791f5: "sessies"
+set:
+  as_default: "Instellen als standaard"
+settings:
+  _self: "Instellingen"
+  bf83f07f: "Instellingen..."
+  fa67a397: "Instellingen…"
+setup:
+  required: "Instelling vereist"
+show:
+  app: "Toon app"
+  app_in_finder: "Toon app in Finder"
+  floating_indicator: "Zwevende indicator weergeven"
+  in_dock: "Weergeven in Dock"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
+  as_a_pill_at_the_bottom_of_the_screen: "Wordt weergegeven als een pil onder aan het scherm"
+  beside_the_focused_text_field_caret: "Wordt weergegeven naast het gefocuste tekstveld/caret"
+  in_the_menu_bar_notch_area: "Wordt weergegeven in de menubalk/notch-gebied"
+  recording_state_in_a_lightweight_overlay_w: "Toont de opnamestatus in een lichtgewicht overlayvenster."
+sidebar:
+  position: "Zijbalkpositie"
+simplified:
+  chinese: "Vereenvoudigd Chinees"
+size:
+  _self: "Size"
+skip:
+  for_now: "Overslaan voor nu"
+slow:
+  _self: "Langzaam"
+slower:
+  _self: "Langzamer"
+slowest:
+  _self: "Langzaamst"
+small:
+  _self: "Small"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Kleinere modellen zijn sneller maar minder nauwkeurig.nBegin met Base voor de beste balans."
+  models_are_faster_but_less_accurate_star: |-
+    Kleinere modellen zijn sneller maar minder nauwkeurig.
+    Begin met Base voor de beste balans.
+something:
+  went_wrong: "Er is iets misgegaan"
+soon:
+  _self: "Spoedig"
+sort:
+  by: "Sorteer op"
+source:
+  _self: "Bron"
+spanish:
+  _self: "Spaans"
+speaker:
+  diarization_and_timestamps_are_attached: "Sprekersdialoog en tijdstempels zijn aan het afspelen gekoppeld."
+  diarization_is_required: "Sprekersdagboek is vereist"
+speed:
+  _self: "Snelheid"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Begin opnieuw als u voorkeuren, onboardingstatus en opgeslagen inloggegevens wilt wissen."
+  recording: "Begin met opnemen"
+  recording_to_see_your_transcriptions_here: "Begin met opnemen om hier uw transcripties te bekijken"
+  stop_recording: "Opname starten/stoppen"
+  using_pindrop: "Begin met het gebruik van Pindrop"
+status:
+  _self: "Status"
+stop:
+  recording: "Stop met opnemen"
+streaming:
+  enhancement: "Streamingverbetering"
+  transcription_currently_supports_engli: "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
+  transcription_is_disabled_while_ai_enh: "Streamingtranscriptie is uitgeschakeld terwijl AI Enhancement is ingeschakeld."
+  transcription_model_parakeet_realtime: "Het streamingtranscriptiemodel (Parakeet Realtime EOU) is in licentie gegeven door NVIDIA Corporation onder de NVIDIA Open Model License."
+success:
+  _self: "Succes!"
+support:
+  _self: "Steun"
+  coming_soon: "%@ Ondersteuning binnenkort beschikbaar"
+supports:
+  local_media_files_and_web_links_resolve: "Ondersteunt lokale mediabestanden en weblinks opgelost met yt-dlp."
+switch:
+  to_model: "Schakel over naar Model"
+system:
+  _self: "Systeem"
+  default: "Systeemstandaard"
+teach:
+  custom_words: "Leer aangepaste woorden"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Kopieer tijdelijk tekst, plak deze en herstel vervolgens uw klembord"
+  mute_speaker_output_while_dictation: "Demp tijdelijk de luidsprekeruitvoer terwijl het dictaat wordt opgenomen."
+  pause_active_media_playback_while_di: "Pauzeer tijdelijk het actieve afspelen van media terwijl het dictaat wordt opgenomen."
+tertiary:
+  text: "Tertiaire tekst"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Het model kon niet binnen 60 seconden worden geladen. Dit betekent meestal dat de modelbestanden beschadigd of incompatibel zijn.                          Om dit op te lossen: 1. Open Instellingen → Modellen 2. Verwijder het problematische model 3. Download het model opnieuw. Als het probleem zich blijft voordoen, probeer dan een kleiner model (Tiny of Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "De geselecteerde chunk-variant is nog niet gedownload. Omschakelen start een download."
+theme:
+  _self: "Thema"
+  changes_apply_live_across_the_workspace_se: "Themawijzigingen zijn live van toepassing op de werkruimte, instellingen, notitie-editor en zwevende indicatoren."
+  mode: "Thema-modus"
+this:
+  preset_name_is_already_in_use: "Deze vooraf ingestelde naam is al in gebruik."
+  provider_will_be_available_in_a_future_upda: |-
+    Deze provider zal beschikbaar zijn in een toekomstige update.
+    Probeer voorlopig OpenAI of gebruik een aangepast eindpunt.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Deze provider zal beschikbaar zijn in een toekomstige update.
+    Probeer OpenAI of gebruik een aangepast eindpunt.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Deze provider zal beschikbaar zijn in een toekomstige update.nProbeer nu OpenAI of gebruik een aangepast eindpunt."
+  transcription_could_not_be_found: "Deze transcriptie kon niet worden gevonden."
+  will_clear_all_your_settings_including_api: "Hiermee worden al uw instellingen gewist, inclusief API-sleutels, sneltoetsen en modelvoorkeuren. De app wordt afgesloten en wordt bij de volgende lancering opnieuw onboarding weergegeven."
+  will_permanently_remove_the_transcript_and: "Hierdoor worden het transcript en het beheerde mediabestand permanent verwijderd."
+time:
+  saved: "Tijd bespaard"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "om te dicteren en Pindrop voor u te laten transcriberen"
+  start_talking: "om te beginnen praten"
+today:
+  _self: "Vandaag"
+toggle:
+  _self: "Schakelaar"
+  recording: "Schakel opname in"
+  sort_order: "Sorteervolgorde wijzigen"
+transcribe:
+  _self: "Transcriberen"
+  media: "Media transcriberen"
+transcribed:
+  _self: "getranscribeerd"
+transcription:
+  _self: "Transcriptie"
+  backend: "Transcriptie-backend"
+  deleted: "Transcriptie verwijderd."
+  enhancement: "Transcriptieverbetering"
+  failed: "Transcriptie mislukt"
+  finished: "Transcriptie voltooid."
+  in_progress: "Transcriptie wordt uitgevoerd"
+  metadata: "Metagegevens van transcriptie"
+  update: "Transcriptie-update"
+transcriptions:
+  _self: "Transcripties"
+  f0972acc: "transcripties"
+  in_this_folder_will_be_kept_and_m: "Transcripties in deze map worden bewaard en terug naar de bibliotheek verplaatst."
+transcripts:
+  _self: "Afschriften"
+try:
+  a_different_search_term: "Probeer een andere zoekterm"
+  a_different_search_term_0ba628a3: "Probeer een andere zoekterm."
+  a_different_search_term_in_this_folder: "Probeer een andere zoekterm in deze map."
+  searching_for_terms_like_hotkeys_microphone: "Probeer te zoeken naar termen als sneltoetsen, microfoon, updates of sfeermodus."
+turkish:
+  _self: "Turks"
+type:
+  text_directly_into_the_active_app_when_poss: "Typ indien mogelijk tekst rechtstreeks in de actieve app"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Kan geen verbinding maken met de AI-verbeteringsservice.                                  Controleer het volgende: 1. Uw internetverbinding 2. De API-eindpunt-URL is correct 3. De service ondervindt geen storing De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
+  to_finish_transcription: "Kan transcriptie niet voltooien"
+  to_load_history: "Kan geschiedenis niet laden: %@"
+  to_load_models_try_refresh: "Kan modellen niet laden. Probeer te vernieuwen."
+  to_update_media_library: "Kan de mediabibliotheek niet updaten"
+unavailable:
+  device: "Niet beschikbaar apparaat"
+undo:
+  _self: "Ongedaan maken"
+unfiled:
+  _self: "Niet-gearchiveerd"
+unpin:
+  from_screen: "Losmaken van het scherm"
+update:
+  _self: "Update"
+updates:
+  _self: "Updates"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Gebruik een sneltoets om te beginnen en te eindigen om notities vast te leggen."
+  clipboard_only: "Gebruik alleen Klembord"
+  the_hotkey_to_start_your_first_recording: "Gebruik de sneltoets om uw eerste opname te starten"
+  transcription_as_a_placeholder_for_the_trans: "Gebruik ${transcription} als tijdelijke aanduiding voor de getranscribeerde tekst."
+  transcription_as_placeholder: "Gebruik ${transcription} als tijdelijke aanduiding"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Wordt gebruikt bij het vastleggen van notities via een sneltoets. Kan markdown-opmaak toevoegen voor langere inhoud."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Gebruikt een ingebouwde prompt die is afgestemd op deze taak."
+  the_160ms_parakeet_variant_for_snappier_par: "Gebruikt de 160 ms-variant van Parakeet voor snellere voorlopige resultaten, ten koste van ~70 % meer woordfouten. Standaard is de 320 ms-variant."
+  the_transcription_enhancement_assignment_if: "Gebruikt de toewijzing voor Transcriptieverbetering. Als er geen is ingesteld, blijft de output van de deterministische opschoner ongewijzigd."
+v:
+  _self: "v%@"
+version:
+  _self: "Versie %@ (%@)"
+very:
+  fast: "Zeer snel"
+via:
+  _self: "via %@"
+vibe:
+  mode: "Vibe-modus"
+  mode_captures_structured_ui_context_when_re: "De Vibe-modus legt de gestructureerde UI-context vast wanneer de opname start, zodat AI-verbetering uw actieve app-status als referentie kan gebruiken."
+  mode_works_best_with_accessibility_permissi: "De Vibe-modus werkt het beste met Toegankelijkheidstoestemming. Zonder dit valt Pindrop terug op beperkte app-metagegevens en werkt transcriptie nog steeds normaal."
+view:
+  _self: "Weergave"
+  all: "Bekijk alles"
+  transcript_history: "Bekijk de transcriptiegeschiedenis"
+  transcription_history: "Transcriptiegeschiedenis bekijken"
+vocabulary:
+  _self: "Vocabulaire"
+vs:
+  typing: "versus typen"
+welcome:
+  to_pindrop: "Welkom bij Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Woord"
+  replacements: "Woordvervangingen"
+words:
+  _self: "Woorden"
+  efb89361: "woorden"
+  min: "woorden/min"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Gisteren"
+you:
+  are_a_note_formatting_assistant_transform_th: "Je bent een assistent voor het opmaken van notities. Transformeer de getranscribeerde tekst in een goed gestructureerde notitie.nnRegels:n- Corrigeer grammatica-, interpunctie- en spelfoutenn- Voeg voor langere inhoud (3+ paragrafen) markdown-opmaak toe:n - Gebruik kopteksten (## of ###) om secties te ordenenn - Gebruik waar nodig opsommingstekens of genummerde lijstenn - Gebruik **vet** om de nadruk te leggen op belangrijke termenn- Houd het voor kortere inhoud simpel met minimale opmaakn- Behoud de oorspronkelijke betekenis en toon- Voeg geen inhoud toe die stond niet in het origineel. Geef alleen de opgemaakte notitie terug zonder enig commentaar"
+  are_a_text_enhancement_assistant_improve_the: "Je bent een tekstverbeteringsassistent. Verbeter de grammatica, interpunctie en opmaak van de aangeboden tekst met behoud van de oorspronkelijke betekenis en toon. Geef alleen de verbeterde tekst terug, zonder aanvullend commentaar."
+  can_change_these_anytime_from_the_menu_bar_s: "U kunt deze op elk gewenst moment wijzigen via de menubalk → Instellingen → Sneltoetsen"
+  re_all_set: "Je bent helemaal klaar!"
+  re_all_set_058a8130: "Je bent helemaal klaar!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" U heeft uw API-limiet of quotum overschreden.                                  Om dit op te lossen: 1. Wacht een paar minuten en probeer het opnieuw 2. Controleer de gebruikslimieten van uw API-provider 3. Overweeg een upgrade van uw API-abonnement De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Uw API-sleutel lijkt ongeldig of verlopen te zijn.                                  Om dit op te lossen: 1. Open Instellingen → AI-verbetering 2. Controleer of uw API-sleutel correct is 3. Controleer of uw API-eindpunt correct is De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Uw sneltoetsen zijn klaar voor gebruik.nU kunt ze later aanpassen in Instellingen."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Uw sneltoetsen zijn klaar voor gebruik.
+    Je kunt ze later aanpassen in Instellingen.
+  model_is_ready_to_use: "Uw model is klaar voor gebruik."
+  stats: "Jouw statistieken"
