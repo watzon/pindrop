@@ -44,6 +44,8 @@ Carthage/Build/
 
 # Temporary scripts and build artifacts
 *.py
+!scripts/augment_appcast_release_notes.py
+!scripts/render_release_notes_html.py
 package-lock.json
 
 DerivedDataTests/

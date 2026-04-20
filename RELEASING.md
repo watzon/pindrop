@@ -32,7 +32,7 @@ If you need to regenerate the signing keys (e.g., if the private key is lost):
 
 1. Download the Sparkle release:
    ```bash
-   curl -L -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz"
+   curl -L -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.8.1/Sparkle-2.8.1.tar.xz"
    tar -xf Sparkle.tar.xz
    ```
 
@@ -68,7 +68,7 @@ If you need to regenerate the signing keys (e.g., if the private key is lost):
 
 2. **Build and sign the release**:
 ```bash
-just release
+just release 1.0.0
 ```
 This will:
 - Clean build artifacts
@@ -77,11 +77,13 @@ This will:
 - Create a DMG in `dist/Pindrop.dmg`
 - Notarize the DMG with Apple
 - Staple the notarization ticket to the DMG
-- Generate `appcast.xml` from the final stapled DMG
+- Render version-specific release notes HTML from `release-notes/vX.Y.Z.md`
+- Generate `appcast.xml` from the final stapled DMG and attach release-notes links
 
 3. **Upload the release**:
 - Upload `dist/Pindrop.dmg` to GitHub Releases
 - Upload `appcast.xml` as a GitHub Release asset (or host it at your feed URL)
+- Upload the rendered `dist/release-notes-vX.Y.Z.html` asset so Sparkle can show notes in the update window
 
 4. **Tag the release**:
 ```bash
@@ -97,12 +99,14 @@ The `just appcast` command automates the appcast generation process:
 
 1. **Validates the DMG** exists at the specified path
 2. **Downloads Sparkle tools** (if not already present):
-   - Downloads Sparkle 2.6.4 release
+   - Downloads Sparkle 2.8.1 release
    - Extracts `generate_appcast` and `sign_update` to `bin/`
-3. **Generates the appcast**:
-   - Copies DMG to a temporary directory
-   - Runs `generate_appcast` to create signatures
-   - Outputs `appcast.xml` in the project root
+3. **Renders release notes HTML** from `release-notes/vX.Y.Z.md` into `dist/release-notes-vX.Y.Z.html`
+4. **Generates the appcast**:
+    - Copies DMG to a temporary directory
+    - Runs `generate_appcast` to create signatures
+    - Injects `sparkle:releaseNotesLink` and `sparkle:fullReleaseNotesLink`
+    - Outputs `appcast.xml` in the project root
 
 ### Usage
 
@@ -124,8 +128,11 @@ The generated `appcast.xml` follows Sparkle's RSS format:
     <title>Pindrop Updates</title>
     <item>
       <title>Version 1.0.0</title>
+      <link>https://github.com/watzon/pindrop/releases/tag/v1.0.0</link>
       <sparkle:version>100</sparkle:version>
       <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>https://github.com/watzon/pindrop/releases/download/v1.0.0/release-notes-v1.0.0.html</sparkle:releaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/watzon/pindrop/releases/tag/v1.0.0</sparkle:fullReleaseNotesLink>
       <enclosure url="..."
                  sparkle:edSignature="SIGNATURE"
                  length="SIZE"
@@ -140,7 +147,7 @@ The generated `appcast.xml` follows Sparkle's RSS format:
 If you need to manually edit `appcast.xml`:
 
 1. Use a generated appcast file as a starting point
-2. Update version numbers, release notes, and download URL
+2. Update version numbers, release notes links, and download URL
 3. Generate the EdDSA signature using:
    ```bash
    ./bin/sign_update /path/to/Pindrop.dmg

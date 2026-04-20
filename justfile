@@ -12,6 +12,7 @@ build_dir := "DerivedData/Build/Products"
 release_dir := build_dir / "Release"
 app_bundle := release_dir / app_name + ".app"
 dmg_dir := "dist"
+sparkle_tools_version := "2.8.1"
 
 # Build configuration
 xcode_project := "Pindrop.xcodeproj"
@@ -261,6 +262,8 @@ release version:
 	DMG_PATH="{{dmg_dir}}/{{app_name}}.dmg"
 	APPCAST_PATH="appcast.xml"
 	NOTES_PATH="release-notes/${TAG}.md"
+	NOTES_HTML_ASSET="release-notes-${TAG}.html"
+	NOTES_HTML_PATH="{{dmg_dir}}/${NOTES_HTML_ASSET}"
 	
 	# Validate version format (X.Y.Z)
 	if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -316,15 +319,28 @@ release version:
 	# Get current version
 	CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
 	CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+	LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+	LATEST_RELEASE_BUILD=""
+	if [ -n "${LATEST_TAG}" ]; then
+		LATEST_RELEASE_BUILD=$(git show "${LATEST_TAG}:Pindrop.xcodeproj/project.pbxproj" 2>/dev/null | grep 'CURRENT_PROJECT_VERSION = ' | head -1 | sed 's/.*= \(.*\);/\1/' || true)
+	fi
+	BASE_BUILD=${CURRENT_BUILD}
+	if [ -n "${LATEST_RELEASE_BUILD}" ] && [ "${LATEST_RELEASE_BUILD}" -gt "${BASE_BUILD}" ]; then
+		BASE_BUILD=${LATEST_RELEASE_BUILD}
+	fi
 	echo "📋 Current version: ${CURRENT_VERSION}"
 	echo "📋 Current build: ${CURRENT_BUILD}"
+	echo "📋 Latest release tag: ${LATEST_TAG:-none}"
+	if [ -n "${LATEST_RELEASE_BUILD}" ]; then
+		echo "📋 Latest released build: ${LATEST_RELEASE_BUILD}"
+	fi
 	echo "📋 New version: ${VERSION}"
 	echo ""
 
 	if [ "$CURRENT_VERSION" = "$VERSION" ]; then
 		echo "ℹ️  Version already set to ${VERSION}; keeping build ${CURRENT_BUILD}."
 	else
-		NEXT_BUILD=$((CURRENT_BUILD + 1))
+		NEXT_BUILD=$((BASE_BUILD + 1))
 		echo "📋 New build: ${NEXT_BUILD}"
 		echo ""
 		
@@ -369,6 +385,10 @@ release version:
 	# Step 4: Update appcast using the final stapled DMG bytes
 	echo "📡 Generating appcast.xml..."
 	just appcast "${DMG_PATH}"
+	if [ ! -f "${NOTES_HTML_PATH}" ]; then
+		echo "❌ Expected rendered release notes asset was not generated: ${NOTES_HTML_PATH}"
+		exit 1
+	fi
 
 	# Step 5: Validate release notes
 	echo "📝 Using release notes: ${NOTES_PATH}"
@@ -390,8 +410,8 @@ release version:
 	fi
 
 	# Step 8: Create GitHub release and attach assets
-	echo "📤 Creating GitHub release with DMG + appcast + notes..."
-	gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" \
+	echo "📤 Creating GitHub release with DMG + appcast + release notes..."
+	gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" "${NOTES_HTML_PATH}" \
 		--title "Pindrop ${TAG}" \
 		--notes-file "${NOTES_PATH}"
 	
@@ -401,6 +421,7 @@ release version:
 	echo "📋 Uploaded assets:"
 	echo "  - ${DMG_PATH}"
 	echo "  - ${APPCAST_PATH}"
+	echo "  - ${NOTES_HTML_PATH}"
 	echo "📝 Release notes:"
 	echo "  - ${NOTES_PATH}"
 	echo ""
@@ -463,6 +484,30 @@ release-notes version:
 	echo "✅ Draft release notes created: ${NOTES_PATH}"
 	echo "✏️  Review/edit the file, remove TODO markers, then run: just release ${VERSION}"
 
+# Render versioned release notes HTML from the markdown source
+# Usage: just release-notes-html 1.9.0
+release-notes-html version:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	VERSION="{{version}}"
+	TAG="v${VERSION}"
+	NOTES_PATH="release-notes/${TAG}.md"
+	NOTES_HTML_PATH="{{dmg_dir}}/release-notes-${TAG}.html"
+
+	if [ ! -f "${NOTES_PATH}" ]; then
+		echo "❌ Release notes not found: ${NOTES_PATH}"
+		exit 1
+	fi
+
+	mkdir -p "{{dmg_dir}}"
+	python3 scripts/render_release_notes_html.py \
+		--input "${NOTES_PATH}" \
+		--output "${NOTES_HTML_PATH}" \
+		--version "${TAG}"
+
+	echo "✅ Rendered release notes HTML: ${NOTES_HTML_PATH}"
+
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg
 appcast dmg_path:
@@ -474,7 +519,7 @@ appcast dmg_path:
 	fi
 	@if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
 		echo "⚠️  Sparkle tools not found. Downloading..."; \
-		curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz"; \
+		curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/{{sparkle_tools_version}}/Sparkle-{{sparkle_tools_version}}.tar.xz"; \
 		mkdir -p /tmp/sparkle-extract; \
 		tar -xf /tmp/Sparkle.tar.xz -C /tmp/sparkle-extract; \
 		mkdir -p bin; \
@@ -484,9 +529,21 @@ appcast dmg_path:
 		echo "✅ Sparkle tools downloaded to bin/"; \
 	fi
 	@TAG_VERSION="v$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
+	NOTES_PATH="release-notes/${TAG_VERSION}.md"; \
+	NOTES_ASSET="release-notes-${TAG_VERSION}.html"; \
+	NOTES_OUTPUT="{{dmg_dir}}/${NOTES_ASSET}"; \
+	RELEASE_NOTES_URL="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/${NOTES_ASSET}"; \
+	RELEASE_PAGE_URL="https://github.com/watzon/pindrop/releases/tag/${TAG_VERSION}"; \
 	DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/"; \
 	echo "🔏 Signing DMG and generating appcast for ${TAG_VERSION}..."; \
 	echo "🔗 Download prefix: ${DOWNLOAD_PREFIX}"; \
+	mkdir -p "{{dmg_dir}}"; \
+	if [ -f "${NOTES_PATH}" ]; then \
+		echo "📝 Rendering release notes HTML asset..."; \
+		python3 scripts/render_release_notes_html.py --input "${NOTES_PATH}" --output "${NOTES_OUTPUT}" --version "${TAG_VERSION}"; \
+	else \
+		echo "⚠️  Release notes markdown not found for ${TAG_VERSION}; appcast will not include release notes"; \
+	fi; \
 	mkdir -p updates; \
 	cp "{{dmg_path}}" updates/; \
 	if ./bin/generate_appcast --help 2>&1 | grep -q -- '--download-url-prefix'; then \
@@ -498,12 +555,15 @@ appcast dmg_path:
 	if [ -f "updates/appcast.xml" ]; then \
 		cp updates/appcast.xml appcast.xml; \
 	fi; \
+	if [ -f "${NOTES_OUTPUT}" ]; then \
+		python3 scripts/augment_appcast_release_notes.py --appcast appcast.xml --release-notes-url "${RELEASE_NOTES_URL}" --full-release-notes-url "${RELEASE_PAGE_URL}" --download-page-url "${RELEASE_PAGE_URL}"; \
+	fi; \
 	rm -rf updates/
 	@echo "✅ Appcast generated: appcast.xml"
 	@echo ""
 	@echo "Next steps:"
 	@echo "  1. Review appcast.xml"
-	@echo "  2. Attach {{dmg_path}} and appcast.xml to the matching GitHub release tag"
+	@echo "  2. Attach {{dmg_path}}, appcast.xml, and the rendered release notes HTML to the matching GitHub release tag"
 
 # Install dependencies (if any)
 deps:
