@@ -273,6 +273,7 @@ private extension GeneralSettingsView {
             SelectFieldOption(
                 id: $0.rawValue,
                 displayName: $0.pickerLabel(locale: locale),
+                secondaryText: $0.nativeDisplayName(currentLocale: locale),
                 isEnabled: $0.isSelectable
             )
         }
@@ -283,6 +284,7 @@ private extension GeneralSettingsView {
             SelectFieldOption(
                 id: $0.rawValue,
                 displayName: $0.pickerLabel(locale: locale),
+                secondaryText: $0.nativeDisplayName(currentLocale: locale),
                 isEnabled: $0.isSelectable
             )
         }

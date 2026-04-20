@@ -122,6 +122,17 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
       return String(format: localized("%@ (Coming Soon)", locale: locale), name)
    }
 
+   /// The language name rendered in its own locale (e.g. "Français" for French).
+   /// Returns `nil` for `.automatic` since there is no single native representation.
+   func nativeDisplayName(currentLocale: Locale) -> String? {
+      guard self != .automatic else { return nil }
+      let native = displayName(locale: self.locale)
+      let current = displayName(locale: currentLocale)
+      // Only show the native label when it actually differs from the current-locale label.
+      guard native != current else { return nil }
+      return native
+   }
+
    var isSelectable: Bool { metadata.selectable }
 
    var isEnglish: Bool { self == .english }

@@ -21,11 +21,13 @@ public extension SearchableDropdownItem {
 public struct SelectFieldOption: Identifiable, Hashable {
    public let id: String
    public let displayName: String
+   public let secondaryText: String?
    public let isEnabled: Bool
 
-   public init(id: String, displayName: String, isEnabled: Bool = true) {
+   public init(id: String, displayName: String, secondaryText: String? = nil, isEnabled: Bool = true) {
       self.id = id
       self.displayName = displayName
+      self.secondaryText = secondaryText
       self.isEnabled = isEnabled
    }
 }
@@ -107,6 +109,13 @@ public struct SelectField: View {
                   .foregroundStyle(option.isEnabled ? AppColors.textPrimary : AppColors.textSecondary)
 
                Spacer(minLength: 0)
+
+               if let secondary = option.secondaryText {
+                  Text(secondary)
+                     .font(.body)
+                     .foregroundStyle(AppColors.textSecondary.opacity(0.7))
+                     .padding(.trailing, option.id == selection ? 8 : 0)
+               }
 
                if option.id == selection {
                   Image(systemName: "checkmark")
