@@ -146,7 +146,71 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
 }
 
-public typealias AppLocale = AppLanguage
+public enum AppLocale: String, CaseIterable, Sendable, Identifiable {
+   case automatic = "auto"
+   case arabic = "ar"
+   case bengali = "bn"
+   case czech = "cs"
+   case danish = "da"
+   case german = "de"
+   case english = "en"
+   case greek = "el"
+   case spanish = "es"
+   case finnish = "fi"
+   case french = "fr"
+   case hebrew = "he"
+   case hindi = "hi"
+   case hungarian = "hu"
+   case indonesian = "id"
+   case italian = "it"
+   case japanese = "ja"
+   case korean = "ko"
+   case malay = "ms"
+   case norwegianBokmal = "nb"
+   case dutch = "nl"
+   case polish = "pl"
+   case portugueseBrazil = "pt-BR"
+   case romanian = "ro"
+   case russian = "ru"
+   case swedish = "sv"
+   case thai = "th"
+   case turkish = "tr"
+   case ukrainian = "uk"
+   case vietnamese = "vi"
+   case traditionalChinese = "zh-Hant"
+   case simplifiedChinese = "zh-Hans"
+
+   public var id: String { rawValue }
+
+   func displayName(locale: Locale) -> String {
+      guard self != .automatic else {
+         return localized("Automatic (Follow System)", locale: locale)
+      }
+
+      return locale.localizedString(forIdentifier: rawValue)
+         ?? locale.localizedString(forLanguageCode: rawValue)
+         ?? rawValue
+   }
+
+   func pickerLabel(locale: Locale) -> String {
+      displayName(locale: locale)
+   }
+
+   func nativeDisplayName(currentLocale: Locale) -> String? {
+      guard self != .automatic else { return nil }
+      let native = displayName(locale: self.locale)
+      let current = displayName(locale: currentLocale)
+      guard native != current else { return nil }
+      return native
+   }
+
+   var isSelectable: Bool { true }
+
+   var locale: Locale {
+      guard self != .automatic else { return .autoupdatingCurrent }
+      return Locale(identifier: rawValue)
+   }
+}
 
 @MainActor
 final class SettingsStore: ObservableObject {

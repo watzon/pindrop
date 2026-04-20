@@ -207,6 +207,22 @@ struct SettingsStoreTests {
         #expect(settingsStore.selectedAppLanguage == .german)
     }
 
+    @Test func testSelectedAppLocaleBridgesStoredValue() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.selectedAppLocale = .arabic
+
+        #expect(settingsStore.selectedAppLocaleRawValue == AppLocale.arabic.rawValue)
+        #expect(settingsStore.selectedAppLocale == .arabic)
+    }
+
+    @Test func testAppLocaleIncludesShippedLocalesBeyondDictationList() {
+        #expect(AppLocale.allCases.contains(.arabic))
+        #expect(AppLocale.allCases.contains(.traditionalChinese))
+        #expect(!AppLanguage.allCases.map(\.rawValue).contains(AppLocale.arabic.rawValue))
+    }
+
     @Test func testLocalizedResolvesSelectedLocaleStrings() {
         #expect(localized("Settings", locale: Locale(identifier: "de")) == "Einstellungen")
         #expect(localized("Settings", locale: Locale(identifier: "tr")) == "Ayarlar")

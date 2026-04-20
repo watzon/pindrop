@@ -16,8 +16,8 @@ final class AlertManager {
     private init() {}
 
     private var locale: Locale {
-        let rawValue = UserDefaults.standard.string(forKey: "selectedLanguage") ?? AppLanguage.automatic.rawValue
-        return AppLanguage(rawValue: rawValue)?.locale ?? .autoupdatingCurrent
+        let rawValue = UserDefaults.standard.string(forKey: "selectedAppLocale") ?? AppLocale.automatic.rawValue
+        return AppLocale(rawValue: rawValue)?.locale ?? .autoupdatingCurrent
     }
     
     func showAccessibilityPermissionAlert() {
