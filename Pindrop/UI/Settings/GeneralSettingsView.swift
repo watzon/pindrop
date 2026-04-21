@@ -17,7 +17,6 @@ struct GeneralSettingsView: View {
         VStack(spacing: AppTheme.Spacing.xl) {
             outputSection
             interfaceLanguageSection
-            dictationLanguageSection
             audioInputSection
             floatingIndicatorSection
             dictionarySection
@@ -28,35 +27,14 @@ struct GeneralSettingsView: View {
 
     private var interfaceLanguageSection: some View {
         SettingsCard(
-            title: localized(L10nKeys.interface, locale: locale),
+            title: localized(L10nKeys.language, locale: locale),
             icon: "globe",
-            detail: localized(
-                L10nKeys.chooseLanguagesForTheInterfaceAndForDicta,
-                locale: locale
-            )
+            detail: nil
         ) {
             SelectField(
                 options: interfaceLanguageOptions,
                 selection: selectedAppLocaleSelection,
                 placeholder: AppLocale.automatic.displayName(locale: locale)
-            )
-            .frame(maxWidth: 320, alignment: .leading)
-        }
-    }
-
-    private var dictationLanguageSection: some View {
-        SettingsCard(
-            title: localized(L10nKeys.language, locale: locale),
-            icon: "mic.fill",
-            detail: localized(
-                L10nKeys.chooseLanguagesForTheInterfaceAndForDicta,
-                locale: locale
-            )
-        ) {
-            SelectField(
-                options: dictationLanguageOptions,
-                selection: selectedAppLanguageSelection,
-                placeholder: AppLanguage.automatic.displayName(locale: locale)
             )
             .frame(maxWidth: 320, alignment: .leading)
         }
@@ -279,17 +257,6 @@ private extension GeneralSettingsView {
         }
     }
 
-    var dictationLanguageOptions: [SelectFieldOption] {
-        AppLanguage.allCases.map {
-            SelectFieldOption(
-                id: $0.rawValue,
-                displayName: $0.pickerLabel(locale: locale),
-                secondaryText: $0.nativeDisplayName(currentLocale: locale),
-                isEnabled: $0.isSelectable
-            )
-        }
-    }
-
     var selectedAudioInputSelection: Binding<String> {
         Binding(
             get: { settings.selectedInputDeviceUID },
@@ -301,13 +268,6 @@ private extension GeneralSettingsView {
         Binding(
             get: { settings.selectedAppLocale.rawValue },
             set: { settings.selectedAppLocale = AppLocale(rawValue: $0) ?? .automatic }
-        )
-    }
-
-    var selectedAppLanguageSelection: Binding<String> {
-        Binding(
-            get: { settings.selectedAppLanguage.rawValue },
-            set: { settings.selectedAppLanguage = AppLanguage(rawValue: $0) ?? .automatic }
         )
     }
 }
