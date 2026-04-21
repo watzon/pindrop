@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100%-ban helyi feldolgozás"
+1:
+  folder: "1 mappa"
+  transcription: "1 átírás"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Natív macOS-menüsoros diktálóalkalmazás, amely helyi beszéd-szövegké alakítást használ a WhisperKit funkcióval. Alapértelmezés szerint 100%-ban helyi feldolgozás opcionális AI-javítással."
+about:
+  _self: "Körülbelül"
+  pindrop: "Körülbelül Pindrop"
+accessibility:
+  _self: "Megközelíthetőség"
+  permission_is_enabled_full_ui_cont: "A kisegítő lehetőségek engedélyezve vannak. A teljes felhasználói felület kontextus elérhető."
+  permission_is_not_granted_vibe_mod: "A kisegítő lehetőségek nem engedélyezettek. A Vibe mód továbbra is nem blokkol, korlátozott környezettel."
+  permission_recommended: "Hozzáférhetőségi engedély ajánlott"
+  permission_required: "Hozzáférhetőségi engedély szükséges"
+accuracy:
+  _self: "Pontosság"
+acknowledgments:
+  _self: "Köszönetnyilvánítás"
+active:
+  _self: "Aktív"
+add:
+  _self: "Hozzáadás"
+  a_provider_to_start_using_ai_enhancement: "Adjon hozzá egy szolgáltatót az AI-javítás használatának megkezdéséhez."
+  custom_words_to_improve_transcription_accura: "Adjon hozzá egyéni szavakat a speciális kifejezések, nevek vagy szakzsargonok átírási pontosságának javítása érdekében."
+  provider: "Szolgáltató hozzáadása"
+  tag: "Címke hozzáadása..."
+  to_existing: "Hozzáadás a meglévőhöz"
+  trailing_space: "Adjon hozzá záró szóközt"
+  word_replacements_to_automatically_correct_c: "Szóhelyettesítések hozzáadása a gyakori átírási hibák automatikus kijavításához."
+  words_to_help_pindrop_recognize_them_properl: "Adjon hozzá szavakat, hogy segítsen Pindrop helyesen felismerni őket"
+  words_you_manually_correct_into_your_vocabul: "Adjon hozzá kézzel javított szavakat szókincséhez a későbbi átírásokhoz."
+ai:
+  enhancement: "AI fejlesztés"
+  enhancement_529f5583: "AI továbbfejlesztés: %@"
+  enhancement_failed: "Az AI javítása sikertelen"
+  enhancement_is_disabled: "Az AI javítás le van tiltva."
+  enhancement_will: "Az AI Enhancement:"
+  model: "AI modell"
+all:
+  _self: "Minden"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Hiba történt az átírás javítása közben:
+    
+    %@
+    
+    Az eredeti átírást javítás nélkül elmentettük.
+    Megpróbálhatja újra engedélyezni az AI-javítást a Beállításokban.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Hiba történt az átírás javítása közben:nn%@nnAz eredeti átírást javítás nélkül mentette.nMegpróbálhatja újra engedélyezni az AI-javítást a Beállításokban."
+anthropic:
+  _self: "Antropikus"
+api:
+  endpoint: "API végpont"
+  key: "API kulcs"
+  key_saved: "API-kulcs mentve"
+  key_saved_endpoint: "API-kulcs mentve • Végpont: %@"
+app:
+  info_acknowledgments_support_and_logs: "Alkalmazásinformációk, visszaigazolások, támogatás és naplók"
+append:
+  a_space_after_each_transcription_for_seam: "Tegyen szóközt minden átírás után a zökkenőmentes diktálás érdekében."
+apple:
+  foundation_models_on_device: "Apple Foundation modellek (eszközön)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "A Apple Intelligence nem érhető el ezen a rendszeren. Ez a hozzárendelés addig nem oldódik meg, amíg a Apple Intelligence nem engedélyezett."
+  intelligence_runs_on_device_and_requires_n: "Az Apple Intelligence az eszközön fut, és nem igényel hitelesítő adatokat."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Az Apple SpeechTranscriber macOS 26-ot igényel."
+  speechtranscriber_unavailable_using_parake: "Az Apple SpeechTranscriber nem érhető el – a Parakeet használatával"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Biztosan törli a következőt: '%@'? Ez a művelet nem vonható vissza."
+assignments:
+  _self: "Feladatok"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Csatoljon naplókat ebből a mappából, amikor GitHub-problémát jelent be."
+audio:
+  input: "Audio bemenet"
+automatic:
+  follow_system: "Automatikus (rendszerkövetés)"
+  updates: "Automatikus frissítések"
+  updates_and_manual_update_checks: "Automatikus frissítések és kézi frissítés-ellenőrzések"
+automatically:
+  check_for_new_versions_in_the_back: "Az új verziók automatikus keresése a háttérben."
+  start_pindrop_when_you_sign_in: "A Pindrop automatikus indítása bejelentkezéskor."
+available:
+  models: "Elérhető modellek"
+avg:
+  speed: "Átl. sebesség"
+back:
+  _self: "Vissza"
+  to_library: "Vissza a könyvtárba"
+base:
+  _self: "Bázis"
+best:
+  _self: "Legjobb"
+better:
+  _self: "Jobb"
+bubble:
+  _self: "Buborék"
+built:
+  in_presets: "Beépített előbeállítások"
+  in_read_only: "Beépített (csak olvasható)"
+cancel:
+  _self: "Mégsem"
+  operation: "A művelet megszakítása"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Rögzítse közvetlenül a jegyzetszerkesztőbe a rögzítés tartása folyamattal."
+change:
+  microphone: "Mikrofon váltás"
+  microphone_ac9970f4: "Mikrofon csere"
+check:
+  for_updates: "Frissítések keresése..."
+  for_updates_736b9062: "Ellenőrizze a frissítéseket"
+  now: "Ellenőrizze most"
+checking:
+  _self: "Ellenőrzés..."
+choose:
+  a_location_to_save_the_dictionary: "Válasszon helyet a szótár mentéséhez"
+  a_location_to_save_the_presets: "Válasszon egy helyet az előre beállított értékek mentéséhez"
+  a_model: "Válasszon egy modellt"
+  a_provider_first: "Először válasszon szolgáltatót"
+  an_audio_or_video_file_to_transcribe: "Válasszon egy hang- vagy videofájlt az átíráshoz"
+  between_parakeet_cross_version_downloaded: "Válasszon a Parakeet (több verzió, letöltött modell) és az Apple SpeechTranscriber (macOS 26+, az operációs rendszerrel együtt) közül."
+  file: "Válasszon fájlt"
+  how_dictated_text_lands_then_tune_the_fin: "Válassza ki a diktált szöveg érkezési módját, majd hangolja be a végső beillesztési viselkedést."
+  how_pindrop_follows_system_appearance_the: "Válassza ki, hogy a Pindrop hogyan kövesse a rendszer megjelenését, majd keverje össze a világos és sötét palettákat."
+  how_to_import_the_dictionary_data: "Válassza ki a szótári adatok importálásának módját"
+  how_to_import_the_preset_data: "Válassza ki az előre beállított adatok importálásának módját"
+  languages_for_the_interface_and_for_dicta: "Válassza ki a kezelőfelület és a diktálás nyelveit. Az automatikus követi a rendszert."
+  location_to_save_presets: "Válasszon helyet az előre beállított értékek mentéséhez"
+  the_daytime_shell_used_in_light_mode: "Válassza ki a világos módban használt nappali kagylót."
+  the_low_glare_shell_used_in_dark_mode: "Válassza a sötét módban használt alacsony vakító héjat."
+  which_floating_indicator_style_appears_wh: "Válassza ki, hogy melyik lebegő jelzőstílus jelenjen meg, ha az átfedés engedélyezve van."
+  which_microphone_pindrop_should_use_for_d: "Válassza ki, hogy a Pindrop melyik mikrofont használja a diktáláshoz, és hogyan viselkedjen felvétel közben."
+  which_side_the_navigation_sidebar_appears: "Válassza ki, hogy a navigációs oldalsáv melyik oldalon jelenjen meg."
+clean:
+  up_filler_words: "Tisztítsa meg a töltelékszavakat"
+clear:
+  audio_buffer: "Hangpuffer törlése"
+  hotkey: "Gyorsbillentyű törlése"
+clears:
+  preferences_and_restarts_onboarding: "Törli a beállításokat, és újraindítja a csatlakozást"
+click:
+  or_hold: "Kattintson vagy tartsa lenyomva"
+  or_press: "Kattintson vagy nyomja meg"
+  or_set_a_hotkey_to_start_talking: "Kattintson vagy állítson be egy gyorsbillentyűt a beszélgetés megkezdéséhez"
+  this_icon_anytime_to: "Kattintson erre az ikonra bármikor, hogy:"
+clipboard:
+  _self: "Vágólap"
+cloud:
+  _self: "Felhő"
+  model: "Felhő modell"
+collapse:
+  _self: "Összeomlás"
+coming:
+  soon: "%@ Hamarosan"
+  soon_04d2fd85: "Hamarosan"
+configure:
+  ai_providers_and_credentials_apple_int: "Konfigurálja az AI-szolgáltatókat és a hitelesítési adatokat. Az Apple Intelligence az eszközön fut; más szolgáltatók API-kulcsokat igényelnek."
+  keyboard_shortcuts_for_recording_and_n: "Konfigurálja a billentyűparancsokat a rögzítéshez és a jegyzetek rögzítéséhez"
+continue:
+  _self: "Folytatás"
+  with_default: "Folytatás az Alapértelmezettel"
+  without: "Folytatás nélkül"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Szabályozza, hogy a Pindrop hogyan jelenjen meg a macOS rendszerben, és hogy elinduljon-e az asztali munkamenettel."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Azt szabályozza, hogy az élő diktálási útvonal hogyan csiszolja az átiratokat. A determinisztikus tisztító (kitöltés eltávolítása, nagybetűk írása, kimondott írásjelek, számnormalizálás, felosztott szavak összevonása) mindkét irányban fut – ez a kapcsoló az opcionális LLM-fényezési lépést állítja be, amely a diktálás leállása után indul el."
+copied:
+  _self: "Másolva!"
+copy:
+  _self: "Másolat"
+  enhanced: "Továbbfejlesztett másolás"
+  last_transcript: "Utolsó átirat másolása"
+  original: "Eredeti másolása"
+  system_info_for_bug_report: "Rendszerinformációk másolása a hibajelentéshez"
+  the_most_recent_transcript_to_the_clipboard: "Másolja a legutóbbi átiratot a vágólapra"
+  to_clipboard: "Másolás a vágólapra"
+  transcript: "Átirat másolása"
+correct:
+  grammar_mistakes: "Javítsa ki a nyelvtani hibákat"
+create:
+  _self: "Teremt"
+  new_note: "Új jegyzet létrehozása"
+  new_preset: "Új előbeállítás létrehozása"
+  your_first_note_to_get_started: "A kezdéshez hozza létre az első jegyzetét"
+  your_first_preset_or_duplicate_a_built_in: "A testreszabáshoz hozza létre az első előre beállított beállítást, vagy duplikáljon egy beépítettet."
+  your_own_presets_or_duplicate_built_in_on: "Hozzon létre saját előbeállításokat, vagy duplikáljon beépítetteket a testreszabáshoz."
+credentials:
+  are_stored_securely_in_keychain: "A hitelesítő adatokat biztonságosan tárolja a Keychain"
+  saved_successfully: "A hitelesítési adatok sikeresen mentve"
+current:
+  _self: "Jelenlegi: %@"
+custom:
+  _self: "Szokás"
+  local: "Egyedi / Helyi"
+  openai_compatible: "Egyéni (OpenAI-kompatibilis)"
+  presets: "Egyéni előbeállítások"
+customize:
+  hotkey: "A gyorsbillentyű testreszabása"
+cut:
+  _self: "Vágott"
+d:
+  characters: "%d karakter"
+dark:
+  _self: "Sötét"
+  preview: "Sötét előnézet"
+  theme: "Sötét téma"
+database:
+  error: "Adatbázis hiba"
+date:
+  _self: "Dátum"
+  7f823513: "Dátum %@"
+default:
+  _self: "Alapértelmezett"
+  model: "Alapértelmezett modell"
+define:
+  word_replacements_to_automatically_replac: "Határozzon meg szócseréket bizonyos szavak vagy kifejezések automatikus helyettesítéséhez"
+degraded:
+  _self: "Leépült"
+delete:
+  _self: "Töröl"
+  folder: "Mappa törlése"
+  folder_e556e7c2: "Törli a mappát?"
+  model: "Modell törlése"
+  preset: "Előbeállítás törlése"
+  preset_4f6cfe36: "Törli az előbeállítást?"
+  transcription: "Az átírás törlése"
+  transcription_f82187c4: "Törli az átírást?"
+dictionary:
+  _self: "Szótár"
+direct:
+  insert: "Közvetlen beillesztés"
+disabled:
+  _self: "Letiltva"
+dismiss:
+  _self: "Elvetés"
+display:
+  name: "Megjelenítési név"
+  name_c7874aaa: "Megjelenítési név"
+  pindrop_in_the_dock_instead_of_running_o: "A Pindrop megjelenítése a Dockban, ahelyett, hogy csak menüsor-alkalmazásként futna."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Rögzítse az oldalsávot az ablak bal vagy jobb széléhez."
+dot:
+  _self: "Pont"
+download:
+  _self: "Letöltés"
+  complete: "Letöltés kész!"
+  continue: "Letöltés és folytatás"
+  failed: "Letöltés sikertelen"
+  model: "Modell letöltése"
+  the_diarization_model_before_starting_m: "A médiaátírás megkezdése előtt töltse le a naplózási modellt."
+downloaded:
+  _self: "Letöltve"
+downloading:
+  _self: "%@ letöltése..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Húzzon egy fájlt vagy illesszen be egy hivatkozást naplózott, időbélyegzett átirat létrehozásához."
+  audio_or_video_here: "Húzza ide a hangot vagy a videót"
+duplicate:
+  preset: "Duplicate Preset"
+dutch:
+  _self: "holland"
+edit:
+  _self: "Szerkesztés"
+  preset: "Előbeállítás szerkesztése"
+  provider: "Szolgáltató szerkesztése"
+empty:
+  _self: "(Üres)"
+enable:
+  ai_enhancement: "AI Enhancement engedélyezése"
+  live_session_updates_during_recording: "Élő munkamenet-frissítés engedélyezése felvétel közben"
+  the_floating_indicator_to_choose_a_style: "Stílus kiválasztásához engedélyezze a lebegő jelzőt."
+  vibe_mode_ui_context: "Vibe mód engedélyezése (UI kontextus)"
+enabled:
+  _self: "Engedélyezve"
+endpoint:
+  _self: "Végpont: %@"
+english:
+  _self: "angol"
+  only: "csak angol nyelven"
+enhanced:
+  _self: "Továbbfejlesztett"
+enhancement:
+  prompts: "Javítási felszólítások"
+enter:
+  an_openai_api_key_to_load_models: "A modellek betöltéséhez írjon be egy OpenAI API-kulcsot."
+  api_key: "Írja be az API kulcsot"
+  word_to_add: "Írja be a hozzáadni kívánt szót"
+error:
+  _self: "Hiba"
+european:
+  multilingual: "európai többnyelvű"
+excellent:
+  _self: "Kiváló"
+export:
+  _self: "Export"
+  as_csv: "Exportálás CSV-ként"
+  as_json: "Exportálás JSON-ként"
+  as_plain_text: "Exportálás egyszerű szövegként"
+  dictionary: "Szótár exportálása"
+  failed: "Az exportálás sikertelen: %@"
+  last_transcript: "Utolsó átirat exportálása..."
+  presets: "Előbeállítások exportálása"
+failed:
+  to_add_replacement: "Csere hozzáadása sikertelen: %@"
+  to_add_word: "Nem sikerült hozzáadni a szót: %@"
+  to_delete_folder: "Nem sikerült törölni a mappát: %@"
+  to_delete_note: "Nem sikerült törölni a jegyzetet: %@"
+  to_delete_preset: "Nem sikerült törölni az előre beállított értéket: %@"
+  to_delete_replacement: "A csere törlése nem sikerült: %@"
+  to_delete_transcription: "Nem sikerült törölni az átírást: %@"
+  to_delete_word: "Nem sikerült törölni a szót: %@"
+  to_export_dictionary: "Nem sikerült a szótár exportálása: %@"
+  to_export_presets: "Nem sikerült exportálni az előre beállított értékeket: %@"
+  to_import_dictionary: "Nem sikerült a szótár importálása: %@"
+  to_import_presets: "Nem sikerült importálni az előre beállított értékeket: %@"
+  to_initialize_the_database_nnthe_app_will: "Nem sikerült inicializálni az adatbázist: %@nnAz alkalmazás most kilép. Kérjük, próbálja meg újraindítani, vagy forduljon az ügyfélszolgálathoz, ha a probléma továbbra is fennáll."
+  to_load_data: "Nem sikerült betölteni az adatokat: %@"
+  to_load_history: "Nem sikerült betölteni az előzményeket: %@"
+  to_read_import_file: "Nem sikerült beolvasni az importfájlt: %@"
+  to_save: "Nem sikerült menteni: %@"
+  to_save_preset: "Nem sikerült menteni az előre beállított értéket: %@"
+  to_switch_model: "Nem sikerült váltani a modellt: %@"
+  to_update_preset: "Nem sikerült frissíteni az előre beállított értéket: %@"
+  to_update_replacement: "A csere frissítése nem sikerült: %@"
+  to_update_word: "Nem sikerült frissíteni a szót: %@"
+fast:
+  _self: "Gyors"
+feature:
+  models: "Funkciós modellek"
+fetch:
+  models_in_models: "Modellek lekérése a Modellekben"
+fix:
+  punctuation_and_capitalization: "Javítsa ki az írásjeleket és a nagybetűket"
+floating:
+  indicator: "%@ lebegő indikátor"
+  indicator_3bad78a5: "Lebegő jelző: %@"
+  indicator_e0349402: "Lebegő jelző"
+folder:
+  deleted: "Mappa törölve."
+  name: "Mappa neve"
+follow:
+  playback: "Kövesse a lejátszást"
+format:
+  text_appropriately: "Formázza a szöveget megfelelően"
+french:
+  _self: "francia"
+general:
+  _self: "Általános"
+german:
+  _self: "német"
+get:
+  started: "Kezdje el"
+global:
+  keyboard_shortcuts: "Globális billentyűparancsok"
+go:
+  back: "Menj vissza"
+  to_settings: "Menjen a beállításokhoz"
+good:
+  _self: "Jó"
+  afternoon: "Jó napot"
+  evening: "Jó estét"
+  morning: "Jó reggelt"
+  night: "Jó éjszakát"
+google:
+  _self: "Google"
+got:
+  it: "Értem"
+grant:
+  _self: "Grant"
+great:
+  _self: "Nagy"
+hide:
+  this_for_1_hour: "Rejtse el ezt 1 órán keresztül"
+history:
+  _self: "Történelem"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Tartsa lenyomva a parancsikont a rögzítéshez, majd engedje fel az átíráshoz."
+  to_record_release_to_open_note_editor_with: "Tartsa lenyomva a rögzítéshez, engedje fel a jegyzetszerkesztő megnyitásához az átírással"
+  to_record_release_to_stop_and_transcribe: "Tartsa lenyomva a rögzítéshez, engedje fel a leállításhoz és átíráshoz"
+  to_record_release_to_transcribe: "Tartsa lenyomva a rögzítéshez, engedje fel az átíráshoz"
+hotkey:
+  conflict: "Gyorsbillentyű konfliktus"
+hotkeys:
+  _self: "Gyorsbillentyűk"
+import:
+  dictionary: "Szótár importálása"
+  error: "Importálási hiba"
+  export: "Import/Export"
+  media: "Média importálása"
+  or_transcribe_media_while_this_folder_is: "Amíg ez a mappa ki van választva, importáljon vagy írjon át médiát az elemek ide mentéséhez."
+  presets: "Előbeállítások importálása"
+  strategy: "Import Stratégia"
+imported:
+  files_and_web_links_will_appear_here_on: "Az importált fájlok és webes hivatkozások itt jelennek meg, amint a feldolgozás befejeződött."
+improve:
+  transcription_quality_using_ai: "Javítsa az átírás minőségét az AI segítségével"
+include:
+  clipboard_text: "Vágólapszöveg szerepeltetése"
+interface:
+  _self: "Felület"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "A %@ a %@ és a %@ számára is hozzá van rendelve. Csak az első művelet lesz aktív. Az ütközés feloldásához frissítse a gyorsbillentyűket a Beállításokban."
+italian:
+  _self: "olasz"
+items:
+  _self: "tételeket"
+japanese:
+  _self: "japán"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Tartsa Pindrop automatikusan aktuális, vagy indítson el egy kézi ellenőrzést, amikor csak akarja."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Billentyűparancsok"
+korean:
+  _self: "koreai"
+language:
+  _self: "Nyelv"
+large:
+  _self: "Nagy"
+launch:
+  at_login: "Indítás bejelentkezéskor: %@"
+  at_login_0b36c78f: "Indítsa el bejelentkezéskor"
+layout:
+  _self: "Elrendezés"
+learn:
+  corrected_words_automatically: "Tanulja meg automatikusan a javított szavakat"
+left:
+  _self: "Balra"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Hagyja, hogy Pindrop csendesen tanulja meg a szókincset az idők során elvégzett javításokból."
+light:
+  _self: "Fény"
+  dark_and_curated_palette_presets: "Világos, sötét és válogatott paletta-előbeállítások"
+  preview: "Könnyű előnézet"
+  theme: "Fény téma"
+limited:
+  _self: "Korlátozott"
+live:
+  streaming_refinement: "Élő közvetítés finomítása"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld karakter"
+  complete: "%lld%% kész"
+  items: "%lld elem"
+  notes: "%lld jegyzetek"
+  transcriptions: "%lld átiratok"
+lm:
+  studio: "LM Stúdió"
+  studio_only_needs_a_token_if_local_server_aut: "Az LM Studionak csak akkor van szüksége tokenre, ha a helyi szerver hitelesítés engedélyezve van."
+load:
+  models: "Modellek betöltése"
+loaded:
+  d_models: "%d modell betöltve"
+loading:
+  history: "Előzmények betöltése..."
+  models: "Modellek betöltése..."
+local:
+  _self: "Helyi"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Helyi beszéd-szöveg, közvetlenül a menüsorból.
+    Gyors, privát és mindig elérhető.
+  speech_to_text_right_from_your_menu_bar_nf: "Helyi beszéd-szöveg, közvetlenül a menüsorból.nGyors, privát és mindig elérhető."
+  speech_to_text_with_whisperkit: "Helyi beszéd-szöveg a következővel: WhisperKit"
+  voice_to_text: "Helyi hang-szöveg"
+low:
+  latency_mode_less_accurate: "Alacsony késleltetésű mód (kevésbé pontos)"
+manage:
+  local_speech_models_feature_models_and_th: "Kezelheti a helyi beszédmodelleket, funkciómodelleket és az átíráshoz használt Pindrop alapértelmezett motort."
+  models: "Modellek kezelése"
+  presets: "Előbeállítások kezelése"
+  presets_ab87986d: "Előbeállítások kezelése..."
+manually:
+  check_for_new_versions_now: "Most manuálisan ellenőrizze az új verziókat."
+media:
+  library: "Médiatár"
+  transcription: "Médiaátírás"
+  unavailable: "A média nem érhető el"
+medium:
+  _self: "Közepes"
+microphone:
+  _self: "Mikrofon"
+  permission_is_required_to_continue: "A folytatáshoz mikrofonengedély szükséges"
+  permission_is_required_to_continue_dc: "A folytatáshoz mikrofonengedély szükséges."
+  permission_required: "Mikrofon engedély szükséges"
+mit:
+  license: "MIT licenc"
+mode:
+  _self: "Mód: %@"
+model:
+  _self: "Modell"
+  loading_failed: "A modell betöltése nem sikerült"
+  loading_timed_out: "A modell betöltési időtúllépése"
+models:
+  _self: "Modellek"
+move:
+  to_folder: "Ugrás a mappába"
+multilingual:
+  _self: "Többnyelvű"
+must:
+  be_openai_compatible: "OpenAI-kompatibilisnek kell lennie"
+mute:
+  system_audio_during_recording: "A rendszer hangjának némítása felvétel közben"
+new:
+  folder: "Új mappa"
+  note: "Új megjegyzés"
+  preset: "Új előbeállítás"
+next:
+  _self: "Következő"
+no:
+  api_key: "Nincs API kulcs"
+  api_key_endpoint: "Nincs API-kulcs • Végpont: %@"
+  custom_presets: "Nincsenek egyéni beállítások"
+  downloaded_models: "Nincsenek letöltött modellek"
+  folders_yet: "Még nincsenek mappák"
+  items_in: "Nincsenek tételek itt: %@"
+  media_transcriptions_yet: "Még nincsenek médiaátiratok"
+  model_loaded: "Nincs modell betöltve"
+  model_selected: "Nincs kiválasztott modell"
+  models_available: "Nincsenek elérhető modellek"
+  models_available_ae9dbd29: "Nincsenek elérhető modellek."
+  models_available_try_refresh_or_enter_a_model: "Nincsenek elérhető modellek. Próbálja meg a Frissítést, vagy adja meg manuálisan a modellazonosítót."
+  models_found: "Nem található modell."
+  models_loaded_open_edit_to_fetch_models: "Nincs betöltött modell. A modellek lekéréséhez nyissa meg a Szerkesztést."
+  models_match: "Egyetlen modell sem felel meg a következőnek: \"%@\""
+  notes_yet: "Még nincsenek jegyzetek"
+  providers_configured_yet: "Még nincs beállítva szolgáltató."
+  replacements: "Nincs csere"
+  results_found: "Nincs találat"
+  settings_found: "Nem találhatók beállítások"
+  transcriptions_yet: "Még nincsenek átiratok"
+  vocabulary_words: "Nincs szótár"
+not:
+  assigned: "Nincs hozzárendelve"
+  selected: "Nincs kiválasztva"
+  set: "Nincs beállítva"
+  set_93039e60: "Nincs beállítva"
+notch:
+  _self: "Bemetszés"
+note:
+  _self: "Jegyzet"
+  capture_push_to_talk: "Jegyzetrögzítés (push-to-Talk)"
+  capture_toggle: "Jegyzetrögzítés (váltás)"
+  enhancement: "Megjegyzés Javítás"
+  from: "Megjegyzés tőle"
+  metadata: "Megjegyzés Metaadatok"
+  title: "Megjegyzés Cím"
+notes:
+  _self: "Megjegyzések"
+  3add7b96: "jegyzetek"
+off:
+  _self: "Le"
+ok:
+  _self: "RENDBEN"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Az Ollama általában nem igényel hitelesítést a helyi kérésekhez."
+on:
+  _self: "On"
+  device_no_credentials_required: "Az eszközön, nincs szükség hitelesítő adatokra"
+open:
+  _self: "Nyitott"
+  history: "Nyissa meg az Előzményeket"
+  logs_in_finder: "Nyissa meg a Naplókat a Finderben"
+  original_link: "Nyissa meg az eredeti linket"
+  progress: "Nyitott haladás"
+  settings: "Nyissa meg a Beállítások lehetőséget"
+  settings_fd7108f8: "Nyissa meg a beállításokat"
+  system_settings: "Nyissa meg a Rendszerbeállítások"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "OpenAI-kompatibilis helyi szerver"
+  whisper: "OpenAI Suttogj"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Választható"
+  insert_text_directly_into_apps: "Nem kötelező: Szöveg beszúrása közvetlenül az alkalmazásokba"
+  used_for_auto_generated_titles_and_summ: "Nem kötelező – automatikusan generált címekhez és összefoglalókhoz használják a médiaátiratok importálásakor."
+optionally:
+  clean_up_transcriptions_with_ai: "Opcionálisan tisztítsa meg az átiratokat mesterséges intelligencia segítségével"
+or:
+  _self: "vagy"
+  just_use_your_hotkey: "Vagy csak használja a gyorsbillentyűt!"
+original:
+  _self: "Eredeti"
+  text_use_commas_for_multiple: "Eredeti szöveg (többször használjon vesszőt)"
+originals:
+  comma_separated: "Eredeti (vesszővel elválasztva)"
+output:
+  _self: "Kimenet"
+  audio_interface_and_everyday_behavior: "Kimenet, hang, interfész és mindennapi viselkedés"
+parakeet:
+  default: "Papagáj (alapértelmezett)"
+paste:
+  _self: "Paszta"
+  a_video_or_audio_link: "Illesszen be egy videó- ​​vagy hanglinket"
+  last_transcript: "Utolsó átirat beillesztése"
+  last_transcript_v: "Utolsó átirat beillesztése ⌃⌘V"
+pause:
+  _self: "Szünet"
+  media_during_transcription: "A média szüneteltetése átírás közben"
+permissions:
+  _self: "Engedélyek"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Válassza ki, hogy melyik szolgáltató és modell kezeli az egyes AI-feladatokat. Hagyja \"Nincs hozzárendelve\"ként, hogy kihagyjon egy célt."
+pill:
+  _self: "Tabletta"
+pin:
+  to_screen_always_on_top: "Rögzítés a képernyőn (mindig felül)"
+pindrop:
+  _self: "Pindrop"
+  dot: "Pindrop Pont"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop használatra kész.
+    A kezdéshez kattintson a menüsor ikonjára.
+  is_ready_to_use_nclick_the_menu_bar_icon: "A Pindrop használatra kész.nKattintson a menüsor ikonjára a kezdéshez."
+  needs_a_few_permissions_to_work_nyour_pr: "A Pindrop működéséhez néhány engedélyre van szüksége.nA magánéletét mindig tiszteletben tartják."
+  needs_a_few_permissions_to_work_your_pri: |-
+    A Pindrop működéséhez néhány engedélyre van szüksége.
+    Az Ön személyes adatait mindig tiszteletben tartják.
+  needs_accessibility_permission_to_insert: "\"\" A Pindrop kisegítő lehetőségeket igényel, hogy szöveget illesszen be a kurzorba.                          Engedély megadása: 1. Kattintson az alábbi \"Rendszerbeállítások megnyitása\" lehetőségre. 2. Kattintson a + gombra 3. Navigáljon a Finderben látható alkalmazáshoz 4. Indítsa újra a Pindrop alkalmazást az engedély megadása után Ezen engedély nélkül a szöveg csak a vágólapra kerül.             \"\""
+  needs_microphone_access_to_record_and_tr: "A Pindrop-nak mikrofon-hozzáférésre van szüksége a hang rögzítéséhez és átírásához.nnKérjük, adjon engedélyt a rendszerbeállításokban."
+  on_github: "Pindrop a GitHubon"
+  pill: "Pindrop Tabletta"
+  theme: "Pindrop téma"
+play:
+  _self: "Játék"
+please:
+  check_your_internet_connection_and_try_ag: "Kérjük, ellenőrizze internetkapcsolatát, és próbálja újra."
+  download_a_whisper_model_in_settings_befo: |-
+    Felvétel előtt töltsön le egy Whisper modellt a Beállításokban.
+    
+    A modell letöltéséhez lépjen a Beállítások → Modellek menüpontba.
+  download_a_whisper_model_in_settings_befo_a71d286e: "A rögzítés előtt töltsön le egy Whisper-modellt a Beállításokban.nnA modell letöltéséhez lépjen a Beállítások → Modellek menüpontra."
+  wait: "Kérem, várjon..."
+portuguese:
+  brazil: "portugál (Brazília)"
+powered:
+  by_whisperkit: "Üzemeltető: WhisperKit"
+preparing:
+  model: "Modell előkészítése..."
+preset:
+  name: "Előre beállított név"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Nyomja meg és tartsa lenyomva a diktáláshoz bármely alkalmazásban. A Pindrop átírja a beszédet, és beszúrja a szöveget oda, ahol a kurzor van."
+  esc_to_cancel: "A törléshez nyomja meg az Esc billentyűt"
+  keys: "Nyomd meg a gombokat..."
+  once_to_start_again_to_stop: "Nyomja meg egyszer az indításhoz, újra a leállításhoz"
+  once_to_start_recording_press_again_to_sto: "Nyomja meg egyszer a felvétel elindításához, nyomja meg újra a leállításhoz és az átíráshoz"
+  once_to_start_recording_then_press_again_t: "Nyomja meg egyszer a felvétel elindításához, majd nyomja meg újra a leállításhoz és az átíráshoz."
+  to_start_recording_press_again_to_open_not: "Nyomja meg a felvétel elindításához, nyomja meg újra a jegyzetszerkesztő megnyitásához"
+primary:
+  text: "Elsődleges szöveg"
+processing:
+  _self: "Feldolgozás"
+  272bc02e: "Feldolgozás..."
+  5aa377e2: "⏳ Feldolgozás"
+  transcript: "Átirat feldolgozása"
+prompt:
+  _self: "Gyors"
+  preset: "Prompt Preset"
+provider:
+  _self: "Szolgáltató"
+  kind: "Szolgáltató fajtája"
+  type: "Szolgáltató típusa"
+providers:
+  _self: "Szolgáltatók"
+  prompts_and_vibe_mode_controls: "Szolgáltatók, felszólítások és hangulatmód vezérlők"
+push:
+  to_talk: "Push-to-Talk"
+quickly:
+  copy_your_last_transcription: "Gyorsan másolja át az utolsó átiratot"
+  pull_your_latest_transcript_back_to_the: "Gyorsan húzza vissza legújabb átiratát a vágólapra."
+quit:
+  _self: "Kilép"
+  pindrop: "Kilépés: Pindrop"
+ready:
+  _self: "Kész"
+  ec1296e1: "● Kész"
+  to_record: "Felvételre kész"
+  to_transcribe: "Átírásra kész"
+recent:
+  _self: "Legutóbbi"
+  transcriptions: "Legutóbbi átiratok"
+  transcripts: "Legutóbbi átiratok"
+recommended:
+  _self: "Ajánlott"
+  the_deterministic_cleaner_handles_mo: "Javasolt: a determinisztikus tisztító tisztán kezeli a legtöbb diktálást. Csak akkor engedélyezze az LLM-bérletet, ha extra fényezést szeretne, és elfogadja az alkalmi modell furcsaságokat (preambulum, beszélgetési válaszok)."
+record:
+  _self: "Rekord"
+recording:
+  _self: "Felvétel"
+  3f8fd48c: "🔴 Felvétel"
+recordings:
+  _self: "felvételeket"
+redo:
+  _self: "Újra"
+refresh:
+  _self: "Frissítés"
+remove:
+  _self: "Távolítsa el"
+  and_clear_any_assignments_that_reference: "Eltávolítja a(z) \"%@\" elemet, és töröl minden olyan hozzárendelést, amely erre hivatkozik? A tárolt hitelesítő adatok törlődnek."
+  from_folder: "Eltávolítás a mappából"
+  provider: "Távolítsa el a szolgáltatót"
+rename:
+  _self: "Átnevezés"
+  folder: "Mappa átnevezése"
+replace:
+  all: "Cserélje ki az összeset"
+  words_and_phrases: "Cserélje ki a szavakat és kifejezéseket"
+replacement:
+  _self: "Csere"
+  text: "Csere szöveg"
+report:
+  an_issue: "Probléma bejelentése"
+  an_issue_bd7b4f00: "Probléma bejelentése"
+required:
+  _self: "Kívánt"
+  for_recording_your_voice: "A hang rögzítéséhez szükséges"
+requires:
+  a_fast_provider_apple_foundation_models: "Gyors szolgáltatót igényel (Apple Foundation Models ajánlott). A felhőszolgáltatók szünetenként egy API-hívást adnak ki."
+reset:
+  _self: "Reset"
+  all_settings: "Visszaállítja az összes beállítást?"
+  all_settings_7262c7b7: "Állítsa vissza az összes beállítást"
+  to_default: "Visszaállítás alapértelmezettre"
+retry:
+  _self: "Próbálja újra"
+right:
+  _self: "Jobbra"
+run:
+  llm_polish_after_dictation_stops: "Futtassa az LLM-fényezést a diktálás leállása után"
+runtime:
+  _self: "Futásidő: %@"
+save:
+  _self: "Megtakarítás"
+  as_note: "Mentés megjegyzésként"
+  continue: "Mentés és folytatás"
+  credentials: "Hitelesítési adatok mentése"
+  prompt: "Mentés Prompt"
+saved:
+  _self: "Mentve"
+  as_note: "Jegyzetként mentve"
+  transcription: "Mentett átírás"
+search:
+  media_transcripts: "Médiaátiratok keresése..."
+  models: "Modellek keresése"
+  models_61c1b9fe: "Modellek keresése..."
+  notes: "Jegyzetek keresése..."
+  settings: "Keresési beállítások"
+  settings_or_jump_between_sections_without: "Keresés a beállításokban vagy ugrás a szakaszok között anélkül, hogy elhagyná a fő munkaterületet."
+  transcriptions: "Keresés az átiratokban..."
+secondary:
+  text: "Másodlagos szöveg"
+select:
+  a_dictionary_json_file_to_import: "Válassza ki az importálni kívánt szótári JSON-fájlt"
+  a_model: "Válasszon ki egy modellt"
+  a_presets_json_file_to_import: "Válassza ki az importálandó előre beállított JSON-fájlt"
+  a_provider_kind: "Válasszon szolgáltató típust"
+  a_provider_type: "Válassza ki a szolgáltató típusát"
+  ai_model: "Válassza ki az AI modellt"
+  all: "Válassza az Összes lehetőséget"
+  language: "Válassza a Nyelv lehetőséget"
+  language_daea52c9: "Válasszon nyelvet"
+  this_floating_indicator_style: "Válassza ezt a lebegő indikátorstílust."
+  voice_model: "Válassza a Hangmodell lehetőséget"
+selected:
+  _self: "Kiválasztott"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Elküldve az AI-modellnek a diktálás feldolgozása során a közvetlen szövegbeillesztéshez."
+sessions:
+  _self: "Munkamenetek"
+  781791f5: "üléseken"
+set:
+  as_default: "Beállítás alapértelmezettként"
+settings:
+  _self: "Beállítások elemre"
+  bf83f07f: "Beállítások..."
+  fa67a397: "Beállítások…"
+setup:
+  required: "Beállítás szükséges"
+show:
+  app: "Alkalmazás megjelenítése"
+  app_in_finder: "Alkalmazás megjelenítése a Finderben"
+  floating_indicator: "Lebegő indikátor megjelenítése"
+  in_dock: "Megjelenítés a Dockban"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Pontként jelenik meg a képernyő sarkában"
+  as_a_pill_at_the_bottom_of_the_screen: "Tablettaként jelenik meg a képernyő alján"
+  beside_the_focused_text_field_caret: "A fókuszált szövegmező/karet mellett jelenik meg"
+  in_the_menu_bar_notch_area: "Megjelenik a menüsorban/bevágási területen"
+  recording_state_in_a_lightweight_overlay_w: "A felvétel állapotát egy könnyű átfedő ablakban mutatja."
+sidebar:
+  position: "Oldalsáv helyzete"
+simplified:
+  chinese: "Egyszerűsített kínai"
+size:
+  _self: "Méret"
+skip:
+  for_now: "Most hagyd ki"
+slow:
+  _self: "Lassú"
+slower:
+  _self: "Lassabban"
+slowest:
+  _self: "Leglassabb"
+small:
+  _self: "Kicsi"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "A kisebb modellek gyorsabbak, de kevésbé pontosak.nKezdje a Base-szal a legjobb egyensúly érdekében."
+  models_are_faster_but_less_accurate_star: |-
+    A kisebb modellek gyorsabbak, de kevésbé pontosak.
+    Kezdje a Base-szal a legjobb egyensúly érdekében.
+something:
+  went_wrong: "Valami elromlott"
+soon:
+  _self: "Hamar"
+sort:
+  by: "Rendezés"
+source:
+  _self: "Forrás"
+spanish:
+  _self: "spanyol"
+speaker:
+  diarization_and_timestamps_are_attached: "A hangszóró naplózása és az időbélyegek a lejátszáshoz vannak csatolva."
+  diarization_is_required: "Előadói naplózás szükséges"
+speed:
+  _self: "Sebesség"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Kezdje újra, ha törölni szeretné a beállításokat, a belépési állapotot és a mentett hitelesítő adatokat."
+  recording: "Indítsa el a Felvételt"
+  recording_to_see_your_transcriptions_here: "Kezdje el a rögzítést, hogy itt lássa az átiratokat"
+  stop_recording: "Felvétel indítása/leállítása"
+  using_pindrop: "Kezdje el használni a Pindrop"
+status:
+  _self: "Állapot"
+stop:
+  recording: "Felvétel leállítása"
+streaming:
+  enhancement: "Streaming Javítás"
+  transcription_currently_supports_engli: "A streaming átírás jelenleg csak az angol nyelvet támogatja, függetlenül a kiválasztott nyelvtől."
+  transcription_is_disabled_while_ai_enh: "A streamelési átírás le van tiltva, amíg az AI Enhancement engedélyezve van."
+  transcription_model_parakeet_realtime: "Streaming átírási modell (Parakeet Realtime EOU), amelyet az NVIDIA Corporation licencelt az NVIDIA Open Model License alapján."
+success:
+  _self: "Siker!"
+support:
+  _self: "Támogatás"
+  coming_soon: "%@ Támogatás hamarosan"
+supports:
+  local_media_files_and_web_links_resolve: "Támogatja a helyi médiafájlokat és az yt-dlp-vel megoldott webes hivatkozásokat."
+switch:
+  to_model: "Váltson modellre"
+system:
+  _self: "Rendszer"
+  default: "Rendszer alapértelmezett"
+teach:
+  custom_words: "Taníts egyedi szavakat"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Ideiglenesen másolja ki a szöveget, illessze be, majd állítsa vissza a vágólapot"
+  mute_speaker_output_while_dictation: "A hangszórókimenet ideiglenes némítása diktálás közben."
+  pause_active_media_playback_while_di: "Átmenetileg szünetelteti az aktív médialejátszást diktálás közben."
+tertiary:
+  text: "Harmadlagos szöveg"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" A modell betöltése nem sikerült 60 másodpercen belül. Ez általában azt jelenti, hogy a modellfájlok sérültek vagy nem kompatibilisek.                          A probléma megoldása: 1. Nyissa meg a Beállítások → Modellek menüpontot. 2. Törölje a problémás modellt 3. Töltse le újra a modellt. Ha a probléma továbbra is fennáll, próbáljon ki egy kisebb modellt (Tiny vagy Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "A kiválasztott darabváltozat még nincs letöltve. A váltás elindítja a letöltést."
+theme:
+  _self: "Téma"
+  changes_apply_live_across_the_workspace_se: "A téma módosításai élőben érvényesek a munkaterületen, a beállításokon, a jegyzetszerkesztőben és a lebegő indikátorokon."
+  mode: "Téma mód"
+this:
+  preset_name_is_already_in_use: "Ez az előre beállított név már használatban van."
+  provider_will_be_available_in_a_future_upda: |-
+    Ez a szolgáltató egy jövőbeli frissítésben lesz elérhető.
+    Egyelőre próbálkozzon a OpenAI lehetőséggel, vagy használjon egyéni végpontot.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Ez a szolgáltató egy jövőbeli frissítésben lesz elérhető.
+    Próbálja ki a következőt: OpenAI, vagy használjon egyéni végpontot.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Ez a szolgáltató egy jövőbeli frissítésben lesz elérhető.nEgyelőre próbálkozzon a OpenAI lehetőséggel, vagy használjon egyéni végpontot."
+  transcription_could_not_be_found: "Ez az átírás nem található."
+  will_clear_all_your_settings_including_api: "Ezzel törli az összes beállítást, beleértve az API-kulcsokat, gyorsbillentyűket és a modellbeállításokat. Az alkalmazás kilép, és a következő indításkor ismét megjelenik a bekapcsolódás."
+  will_permanently_remove_the_transcript_and: "Ezzel véglegesen eltávolítja az átiratot és a kezelt médiafájlt."
+time:
+  saved: "Megtakarított idő"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "diktálni, és hagyni, hogy Pindrop átírja helyetted"
+  start_talking: "hogy elkezdjen beszélni"
+today:
+  _self: "Ma"
+toggle:
+  _self: "Váltás"
+  recording: "Kapcsolja be a Felvételt"
+  sort_order: "Váltsd át a rendezési sorrendet"
+transcribe:
+  _self: "Lemásol"
+  media: "Média átírása"
+transcribed:
+  _self: "átírva"
+transcription:
+  _self: "Átírás"
+  backend: "Átírási háttér"
+  deleted: "Az átírás törölve."
+  enhancement: "Átírás javítása"
+  failed: "Az átírás nem sikerült"
+  finished: "Az átírás befejeződött."
+  in_progress: "Átírás folyamatban"
+  metadata: "Átírási metaadatok"
+  update: "Átírás frissítése"
+transcriptions:
+  _self: "Átiratok"
+  f0972acc: "átiratok"
+  in_this_folder_will_be_kept_and_m: "Az ebben a mappában lévő átiratok megmaradnak, és visszakerülnek a könyvtárba."
+transcripts:
+  _self: "Átiratok"
+try:
+  a_different_search_term: "Próbálkozzon másik keresési kifejezéssel"
+  a_different_search_term_0ba628a3: "Próbálkozzon másik keresési kifejezéssel."
+  a_different_search_term_in_this_folder: "Próbáljon ki egy másik keresési kifejezést ebben a mappában."
+  searching_for_terms_like_hotkeys_microphone: "Próbáljon olyan kifejezésekre keresni, mint a gyorsbillentyűk, mikrofon, frissítések vagy hangulatmód."
+turkish:
+  _self: "török"
+type:
+  text_directly_into_the_active_app_when_poss: "Ha lehetséges, írjon be szöveget közvetlenül az aktív alkalmazásba"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Nem lehet csatlakozni az AI-bővítő szolgáltatáshoz.                                  Kérjük, ellenőrizze a következőket: 1. Internetkapcsolata 2. Az API végpont URL-címe helyes 3. A szolgáltatás nem tapasztal kimaradást Az átírást javítás nélkül mentette.                 \"\""
+  to_finish_transcription: "Nem sikerült befejezni az átírást"
+  to_load_history: "Nem sikerült betölteni az előzményeket: %@"
+  to_load_models_try_refresh: "Nem sikerült betölteni a modelleket. Próbálja meg frissíteni."
+  to_update_media_library: "Nem sikerült frissíteni a médiakönyvtárat"
+unavailable:
+  device: "Nem elérhető eszköz"
+undo:
+  _self: "Visszavonás"
+unfiled:
+  _self: "Nincs irattár"
+unpin:
+  from_screen: "Oldja fel a rögzítést a képernyőről"
+update:
+  _self: "Frissítés"
+updates:
+  _self: "Frissítések"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "A jegyzetek rögzítéséhez használjon koppintással indítható, érintéssel befejezhető parancsikont."
+  clipboard_only: "Csak a vágólap használata"
+  the_hotkey_to_start_your_first_recording: "Használja a gyorsbillentyűt az első felvétel elindításához"
+  transcription_as_a_placeholder_for_the_trans: "Használja a ${transcription} helyőrzőt az átírt szöveghez."
+  transcription_as_placeholder: "A ${transcription} használata helyőrzőként"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Jegyzetek gyorsbillentyűvel történő rögzítésekor használatos. Lecsökkenthető formázást adhat hozzá a hosszabb tartalomhoz."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "A feladathoz hangolt beépített promptot használ."
+  the_160ms_parakeet_variant_for_snappier_par: "A 160 ms-os Parakeet változatot használja a frappánsabb részekre, ~70%-kal több szóhibával. Az alapértelmezett a 320 ms-os változat."
+  the_transcription_enhancement_assignment_if: "A Transzkripció javítása hozzárendelést használja. Ha egyik sincs beállítva, akkor a determinisztikus tisztító kimenet változatlan marad."
+v:
+  _self: "v%@"
+version:
+  _self: "%@ verzió (%@)"
+very:
+  fast: "Nagyon gyors"
+via:
+  _self: "ezen keresztül: %@"
+vibe:
+  mode: "Vibe mód"
+  mode_captures_structured_ui_context_when_re: "A Vibe mód rögzíti a strukturált felhasználói felület kontextusát a felvétel indításakor, így az AI-javítás referenciaként használhatja az aktív alkalmazásállapotot."
+  mode_works_best_with_accessibility_permissi: "A Vibe mód a Kisegítő lehetőségek engedéllyel működik a legjobban. Enélkül a Pindrop korlátozott alkalmazás-metaadatokra tér vissza, és az átírás továbbra is normálisan működik."
+view:
+  _self: "Kilátás"
+  all: "Az összes megtekintése"
+  transcript_history: "Átírási előzmények megtekintése"
+  transcription_history: "Átírási előzmények megtekintése"
+vocabulary:
+  _self: "Szójegyzék"
+vs:
+  typing: "vs gépelés"
+welcome:
+  to_pindrop: "Üdvözli a Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Szó"
+  replacements: "Szóhelyettesítések"
+words:
+  _self: "Szavak"
+  efb89361: "szavak"
+  min: "szó/perc"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Tegnap"
+you:
+  are_a_note_formatting_assistant_transform_th: "Ön jegyzetformázási asszisztens. Alakítsa át az átírt szöveget jól strukturált jegyzetté.nnRules:n- Nyelvtani, írásjelek és helyesírási hibák javításan- Hosszabb tartalom (3+ bekezdés) esetén adjon hozzá markdown formázást:n - Használjon fejléceket (## vagy ###) a szakaszok rendszerezéséhezn - Ha szükséges, használjon felsorolásjeleket vagy számozott listákat formázásn- Az eredeti jelentés és hang megőrzése- Ne adjon hozzá olyan tartalmat, amely nem volt az eredetiben- Csak a formázott jegyzetet adja vissza kommentár nélkül"
+  are_a_text_enhancement_assistant_improve_the: "Ön szövegjavító asszisztens. Javítsa a megadott szöveg nyelvtanát, írásjeleit és formázását, miközben megőrzi eredeti jelentését és hangját. Csak a továbbfejlesztett szöveget adja vissza további megjegyzések nélkül."
+  can_change_these_anytime_from_the_menu_bar_s: "Ezeket bármikor módosíthatja a menüsorban → Beállítások → Gyorsbillentyűk"
+  re_all_set: "Minden készen áll!"
+  re_all_set_058a8130: "Minden készen áll!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Túllépte az API-rátakorlátot vagy -kvótát.                                  A probléma megoldása: 1. Várjon néhány percet, majd próbálja újra 2. Ellenőrizze API-szolgáltatója használati korlátait. 3. Fontolja meg API-tervének frissítését. Az átírást javítás nélkül mentettük.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Úgy tűnik, hogy az API-kulcs érvénytelen vagy lejárt.                                  A hiba javítása: 1. Nyissa meg a Beállítások → AI-bővítés menüpontot. 2. Ellenőrizze, hogy az API-kulcs helyes-e.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Gyorsbillentyűi használatra készek.nKésőbb személyre szabhatja őket a Beállításokban."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Gyorsbillentyűi használatra készek.
+    Később személyre szabhatja őket a Beállításokban.
+  model_is_ready_to_use: "A modell használatra kész."
+  stats: "Az Ön statisztikái"

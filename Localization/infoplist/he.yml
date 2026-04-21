@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop זקוק לגישה לאודיו של המערכת כדי לתמלל שיחות, פגישות ואודיו אחר של אפליקציות."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop זקוק לגישה למיקרופון כדי לתמלל את הקול שלך."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop משתמש בזיהוי דיבור במכשיר כדי לתמלל את האודיו שלך מבלי לשלוח נתונים לאף שרת."

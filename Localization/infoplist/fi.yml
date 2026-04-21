@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop tarvitsee järjestelmän äänen pääsyn puheluiden, kokousten ja muiden sovellusten äänien litterointiin."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop tarvitsee mikrofonin pääsyn äänesi litteroimiseen."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop käyttää laitteen puheentunnistusta äänen litteroimiseen lähettämättä tietoja millekään palvelimelle."

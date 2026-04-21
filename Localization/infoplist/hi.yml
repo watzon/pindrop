@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "पिंड्रोप"
+cfbundlename:
+  _self: "पिंड्रोप"
+nsaudiocaptureusagedescription:
+  _self: "कॉल, मीटिंग और अन्य ऐप ऑडियो को ट्रांसक्राइब करने के लिए पिनड्रॉप को सिस्टम ऑडियो एक्सेस की आवश्यकता होती है।"
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "आपकी आवाज़ को ट्रांसक्रिप्ट करने के लिए पिनड्रॉप को माइक्रोफ़ोन एक्सेस की आवश्यकता होती है।"
+nsspeechrecognitionusagedescription:
+  _self: "पिनड्रॉप किसी भी सर्वर पर डेटा भेजे बिना आपके ऑडियो को ट्रांसक्रिप्ट करने के लिए ऑन-डिवाइस वाक् पहचान का उपयोग करता है।"

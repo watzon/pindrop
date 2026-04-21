@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "ghim"
+cfbundlename:
+  _self: "ghim"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop cần quyền truy cập vào âm thanh hệ thống để chép lời cuộc gọi, cuộc họp và âm thanh ứng dụng khác."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop cần quyền truy cập micrô để ghi lại giọng nói của bạn."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop sử dụng tính năng nhận dạng giọng nói trên thiết bị để chép lại âm thanh của bạn mà không gửi dữ liệu đến bất kỳ máy chủ nào."

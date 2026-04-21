@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "พินดรอป"
+cfbundlename:
+  _self: "พินดรอป"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop ต้องการการเข้าถึงเสียงของระบบเพื่อถอดเสียงการโทร การประชุม และเสียงอื่นๆ ของแอป"
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop จำเป็นต้องเข้าถึงไมโครโฟนเพื่อถอดเสียงของคุณ"
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop ใช้การรู้จำคำพูดบนอุปกรณ์เพื่อถอดเสียงของคุณโดยไม่ต้องส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ"

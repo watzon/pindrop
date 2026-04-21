@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop potrzebuje dostępu do dźwięku systemowego, aby transkrybować rozmowy, spotkania i inne dźwięki z aplikacji."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop potrzebuje dostępu do mikrofonu, aby dokonać transkrypcji Twojego głosu."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop korzysta z rozpoznawania mowy na urządzeniu, aby transkrybować dźwięk bez wysyłania danych na jakikolwiek serwer."

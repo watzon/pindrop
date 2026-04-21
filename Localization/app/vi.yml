@@ -1,0 +1,1012 @@
+100:
+  local_processing: "Xử lý cục bộ 100%"
+1:
+  folder: "1 thư mục"
+  transcription: "1 bản phiên âm"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
+about:
+  _self: "Về"
+  pindrop: "Giới thiệu về Pindrop"
+accessibility:
+  _self: "Khả năng tiếp cận"
+  permission_is_enabled_full_ui_cont: "Quyền truy cập được bật. Bối cảnh giao diện người dùng đầy đủ có sẵn."
+  permission_is_not_granted_vibe_mod: "Quyền truy cập không được cấp. Chế độ Vibe vẫn không bị chặn với bối cảnh hạn chế."
+  permission_recommended: "Đề xuất quyền truy cập"
+  permission_required: "Cần có quyền truy cập"
+accuracy:
+  _self: "Sự chính xác"
+acknowledgments:
+  _self: "Lời cảm ơn"
+active:
+  _self: "Tích cực"
+add:
+  _self: "Thêm vào"
+  a_provider_to_start_using_ai_enhancement: "Thêm nhà cung cấp để bắt đầu sử dụng tính năng nâng cao AI."
+  custom_words_to_improve_transcription_accura: "Thêm các từ tùy chỉnh để cải thiện độ chính xác của bản ghi cho các thuật ngữ, tên hoặc biệt ngữ chuyên ngành."
+  provider: "Thêm nhà cung cấp"
+  tag: "Thêm thẻ..."
+  to_existing: "Thêm vào hiện có"
+  trailing_space: "Thêm dấu cách"
+  word_replacements_to_automatically_correct_c: "Thêm từ thay thế để tự động sửa các lỗi phiên âm phổ biến."
+  words_to_help_pindrop_recognize_them_properl: "Thêm từ để giúp Pindrop nhận biết chúng đúng cách"
+  words_you_manually_correct_into_your_vocabul: "Thêm các từ bạn sửa theo cách thủ công vào từ vựng của mình để phiên âm trong tương lai."
+ai:
+  enhancement: "Cải tiến AI"
+  enhancement_529f5583: "Cải tiến AI: %@"
+  enhancement_failed: "Cải tiến AI không thành công"
+  enhancement_is_disabled: "Tính năng nâng cao AI bị vô hiệu hóa."
+  enhancement_will: "Cải tiến AI sẽ:"
+  model: "Mô hình AI"
+all:
+  _self: "Tất cả"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Đã xảy ra lỗi khi nâng cao bản chép lời của bạn:
+    
+    %@
+    
+    Bản phiên âm gốc đã được lưu mà không cần cải tiến.
+    Bạn có thể thử bật lại tính năng nâng cao AI trong Cài đặt.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Đã xảy ra lỗi khi nâng cao bản chép lại của bạn:nn%@nnBản chép lại ban đầu đã được lưu mà không nâng cao.nBạn có thể thử bật lại tính năng nâng cao AI trong Cài đặt."
+anthropic:
+  _self: "nhân loại"
+api:
+  endpoint: "Điểm cuối API"
+  key: "Khóa API"
+  key_saved: "Đã lưu khóa API"
+  key_saved_endpoint: "Đã lưu khóa API • Điểm cuối: %@"
+app:
+  info_acknowledgments_support_and_logs: "Thông tin ứng dụng, xác nhận, hỗ trợ và nhật ký"
+append:
+  a_space_after_each_transcription_for_seam: "Thêm một khoảng trắng sau mỗi lần phiên âm để đọc chính tả liền mạch."
+apple:
+  foundation_models_on_device: "Mô hình Apple Foundation (trên thiết bị)"
+  intelligence: "Apple thông minh"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence không có sẵn trên hệ thống này. Nhiệm vụ này sẽ không được giải quyết cho đến khi Apple Intelligence được bật."
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence chạy trên thiết bị và không yêu cầu thông tin xác thực."
+  speechtranscriber_macos_26: "Trình chuyển lời nói của Apple (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber yêu cầu macOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber không khả dụng — sử dụng Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Bạn có chắc chắn muốn xóa '%@' không? Không thể hoàn tác hành động này."
+assignments:
+  _self: "Bài tập"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Đính kèm nhật ký từ thư mục này khi gửi vấn đề về GitHub."
+audio:
+  input: "Đầu vào âm thanh"
+automatic:
+  follow_system: "Tự động (Theo hệ thống)"
+  updates: "Cập nhật tự động"
+  updates_and_manual_update_checks: "Cập nhật tự động và kiểm tra cập nhật thủ công"
+automatically:
+  check_for_new_versions_in_the_back: "Tự động kiểm tra các phiên bản mới trong nền."
+  start_pindrop_when_you_sign_in: "Tự động khởi động Pindrop khi bạn đăng nhập."
+available:
+  models: "Các mẫu có sẵn"
+avg:
+  speed: "Tốc độ trung bình"
+back:
+  _self: "Mặt sau"
+  to_library: "Quay lại thư viện"
+base:
+  _self: "Căn cứ"
+best:
+  _self: "Tốt nhất"
+better:
+  _self: "Tốt hơn"
+bubble:
+  _self: "bong bóng"
+built:
+  in_presets: "Cài đặt sẵn tích hợp"
+  in_read_only: "Tích hợp (chỉ đọc)"
+cancel:
+  _self: "Hủy bỏ"
+  operation: "Hủy thao tác"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Ghi trực tiếp vào trình chỉnh sửa ghi chú bằng quy trình giữ để ghi."
+change:
+  microphone: "Thay đổi micrô"
+  microphone_ac9970f4: "Thay đổi micrô"
+check:
+  for_updates: "Kiểm tra cập nhật..."
+  for_updates_736b9062: "Kiểm tra các bản cập nhật"
+  now: "Kiểm tra ngay"
+checking:
+  _self: "Đang kiểm tra..."
+choose:
+  a_location_to_save_the_dictionary: "Chọn nơi lưu từ điển"
+  a_location_to_save_the_presets: "Chọn vị trí để lưu cài đặt trước"
+  a_model: "Chọn một mẫu"
+  a_provider_first: "Chọn nhà cung cấp trước"
+  an_audio_or_video_file_to_transcribe: "Chọn tệp âm thanh hoặc video để chép lời"
+  between_parakeet_cross_version_downloaded: "Chọn giữa Parakeet (phiên bản chéo, mẫu đã tải xuống) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
+  file: "Chọn tập tin"
+  how_dictated_text_lands_then_tune_the_fin: "Chọn cách hiển thị văn bản chính tả, sau đó điều chỉnh hành vi chèn cuối cùng."
+  how_pindrop_follows_system_appearance_the: "Chọn cách Pindrop theo dõi giao diện của hệ thống, sau đó trộn các bảng màu sáng và tối được tuyển chọn."
+  how_to_import_the_dictionary_data: "Chọn cách nhập dữ liệu từ điển"
+  how_to_import_the_preset_data: "Chọn cách nhập dữ liệu đặt trước"
+  languages_for_the_interface_and_for_dicta: "Chọn ngôn ngữ cho giao diện và cho chính tả. Tự động theo hệ thống."
+  location_to_save_presets: "Chọn vị trí để lưu cài đặt trước"
+  the_daytime_shell_used_in_light_mode: "Chọn vỏ ban ngày được sử dụng ở chế độ ánh sáng."
+  the_low_glare_shell_used_in_dark_mode: "Chọn lớp vỏ có độ chói thấp được sử dụng ở chế độ tối."
+  which_floating_indicator_style_appears_wh: "Chọn kiểu chỉ báo nổi sẽ xuất hiện khi lớp phủ được bật."
+  which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Pindrop sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
+  which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
+clean:
+  up_filler_words: "Làm sạch các từ đệm"
+clear:
+  audio_buffer: "Xóa bộ đệm âm thanh"
+  hotkey: "Xóa phím nóng"
+clears:
+  preferences_and_restarts_onboarding: "Xóa tùy chọn và khởi động lại quá trình triển khai"
+click:
+  or_hold: "Bấm hoặc giữ"
+  or_press: "Bấm hoặc nhấn"
+  or_set_a_hotkey_to_start_talking: "Bấm hoặc đặt phím nóng để bắt đầu nói chuyện"
+  this_icon_anytime_to: "Nhấp vào biểu tượng này bất cứ lúc nào để:"
+clipboard:
+  _self: "Bảng nhớ tạm"
+cloud:
+  _self: "Đám mây"
+  model: "Mô hình đám mây"
+collapse:
+  _self: "Sụp đổ"
+coming:
+  soon: "%@ Sắp ra mắt"
+  soon_04d2fd85: "Sắp ra mắt"
+configure:
+  ai_providers_and_credentials_apple_int: "Định cấu hình nhà cung cấp và thông tin xác thực AI. Apple Intelligence chạy trên thiết bị; các nhà cung cấp khác yêu cầu khóa API."
+  keyboard_shortcuts_for_recording_and_n: "Định cấu hình phím tắt để ghi và ghi chú"
+continue:
+  _self: "Tiếp tục"
+  with_default: "Tiếp tục với mặc định"
+  without: "Tiếp tục mà không có"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Kiểm soát cách Pindrop xuất hiện trong macOS và liệu nó có bắt đầu bằng phiên trên máy tính để bàn của bạn hay không."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Kiểm soát cách đường dẫn chính tả trực tiếp đánh bóng bản ghi. Trình dọn dẹp xác định (loại bỏ phụ, viết hoa, chấm câu nói, chuẩn hóa số, hợp nhất từ ​​tách) chạy theo một trong hai cách — nút chuyển đổi này sẽ chặn đường đánh bóng LLM tùy chọn sẽ kích hoạt sau khi dừng đọc chính tả."
+copied:
+  _self: "Đã sao chép!"
+copy:
+  _self: "Sao chép"
+  enhanced: "Sao chép nâng cao"
+  last_transcript: "Sao chép bản ghi cuối cùng"
+  original: "Sao chép bản gốc"
+  system_info_for_bug_report: "Sao chép thông tin hệ thống để báo cáo lỗi"
+  the_most_recent_transcript_to_the_clipboard: "Sao chép bản ghi gần đây nhất vào bảng nhớ tạm"
+  to_clipboard: "Sao chép vào bảng nhớ tạm"
+  transcript: "Sao chép bảng điểm"
+correct:
+  grammar_mistakes: "Sửa lỗi ngữ pháp"
+create:
+  _self: "Tạo nên"
+  new_note: "Tạo ghi chú mới"
+  new_preset: "Tạo cài đặt trước mới"
+  your_first_note_to_get_started: "Tạo ghi chú đầu tiên của bạn để bắt đầu"
+  your_first_preset_or_duplicate_a_built_in: "Tạo cài đặt trước đầu tiên của bạn hoặc sao chép cài đặt sẵn để tùy chỉnh nó."
+  your_own_presets_or_duplicate_built_in_on: "Tạo các cài đặt trước của riêng bạn hoặc sao chép các cài đặt sẵn để tùy chỉnh chúng."
+credentials:
+  are_stored_securely_in_keychain: "Thông tin xác thực được lưu trữ an toàn trong Chuỗi khóa"
+  saved_successfully: "Thông tin xác thực đã được lưu thành công"
+current:
+  _self: "Hiện tại: %@"
+custom:
+  _self: "Phong tục"
+  local: "Tùy chỉnh / Địa phương"
+  openai_compatible: "Tùy chỉnh (tương thích với OpenAI)"
+  presets: "Cài đặt trước tùy chỉnh"
+customize:
+  hotkey: "Tùy chỉnh phím nóng"
+cut:
+  _self: "Cắt"
+d:
+  characters: "%d ký tự"
+dark:
+  _self: "Tối tăm"
+  preview: "Xem trước tối"
+  theme: "Chủ đề tối"
+database:
+  error: "Lỗi cơ sở dữ liệu"
+date:
+  _self: "Ngày"
+  7f823513: "Ngày %@"
+default:
+  _self: "Mặc định"
+  model: "Mẫu mặc định"
+define:
+  word_replacements_to_automatically_replac: "Xác định thay thế từ để tự động thay thế các từ hoặc cụm từ cụ thể"
+degraded:
+  _self: "xuống cấp"
+delete:
+  _self: "Xóa bỏ"
+  folder: "Xóa thư mục"
+  folder_e556e7c2: "Xóa thư mục?"
+  model: "Xóa mô hình"
+  preset: "Xóa cài sẵn"
+  preset_4f6cfe36: "Xóa cài đặt trước?"
+  transcription: "Xóa bản chép lời"
+  transcription_f82187c4: "Xóa bản chép lời?"
+dictionary:
+  _self: "Từ điển"
+direct:
+  insert: "Chèn trực tiếp"
+disabled:
+  _self: "Tàn tật"
+dismiss:
+  _self: "Miễn nhiệm"
+display:
+  name: "Tên hiển thị"
+  name_c7874aaa: "Tên hiển thị"
+  pindrop_in_the_dock_instead_of_running_o: "Hiển thị Pindrop trong Dock thay vì chỉ chạy dưới dạng ứng dụng trên thanh menu."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Gắn thanh bên vào cạnh trái hoặc phải của cửa sổ."
+dot:
+  _self: "chấm"
+download:
+  _self: "Tải xuống"
+  complete: "Tải xuống hoàn tất!"
+  continue: "Tải xuống và tiếp tục"
+  failed: "Tải xuống không thành công"
+  model: "Tải xuống mô hình"
+  the_diarization_model_before_starting_m: "Tải xuống mô hình nhật ký trước khi bắt đầu sao chép phương tiện."
+downloaded:
+  _self: "Đã tải xuống"
+downloading:
+  _self: "Đang tải xuống %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Thả tệp hoặc dán liên kết để tạo bản ghi được đánh dấu thời gian, được ghi nhật ký."
+  audio_or_video_here: "Thả âm thanh hoặc video vào đây"
+duplicate:
+  preset: "Đặt trước trùng lặp"
+dutch:
+  _self: "tiếng Hà Lan"
+edit:
+  _self: "Biên tập"
+  preset: "Chỉnh sửa cài đặt trước"
+  provider: "Chỉnh sửa nhà cung cấp"
+empty:
+  _self: "(Trống)"
+enable:
+  ai_enhancement: "Kích hoạt tính năng nâng cao AI"
+  live_session_updates_during_recording: "Bật cập nhật phiên trực tiếp trong khi ghi"
+  the_floating_indicator_to_choose_a_style: "Bật chỉ báo nổi để chọn kiểu."
+  vibe_mode_ui_context: "Bật chế độ rung cảm (ngữ cảnh giao diện người dùng)"
+enabled:
+  _self: "Đã bật"
+endpoint:
+  _self: "Điểm cuối: %@"
+english:
+  _self: "Tiếng Anh"
+  only: "chỉ có tiếng Anh"
+enhanced:
+  _self: "nâng cao"
+enhancement:
+  prompts: "Lời nhắc nâng cao"
+enter:
+  an_openai_api_key_to_load_models: "Nhập khóa API OpenAI để tải mô hình."
+  api_key: "Nhập khóa API"
+  word_to_add: "Nhập từ cần thêm"
+error:
+  _self: "Lỗi"
+european:
+  multilingual: "đa ngôn ngữ châu Âu"
+excellent:
+  _self: "Xuất sắc"
+export:
+  _self: "Xuất khẩu"
+  as_csv: "Xuất dưới dạng CSV"
+  as_json: "Xuất dưới dạng JSON"
+  as_plain_text: "Xuất dưới dạng văn bản thuần túy"
+  dictionary: "Xuất từ ​​điển"
+  failed: "Xuất không thành công: %@"
+  last_transcript: "Xuất bản ghi cuối cùng..."
+  presets: "Xuất cài đặt trước"
+failed:
+  to_add_replacement: "Không thể thêm thay thế: %@"
+  to_add_word: "Không thêm được từ: %@"
+  to_delete_folder: "Không xóa được thư mục: %@"
+  to_delete_note: "Không xóa được ghi chú: %@"
+  to_delete_preset: "Không xóa được giá trị đặt trước: %@"
+  to_delete_replacement: "Không thể xóa thay thế: %@"
+  to_delete_transcription: "Không xóa được bản ghi: %@"
+  to_delete_word: "Không xóa được từ: %@"
+  to_export_dictionary: "Không xuất được từ điển: %@"
+  to_export_presets: "Không thể xuất giá trị đặt trước: %@"
+  to_import_dictionary: "Không nhập được từ điển: %@"
+  to_import_presets: "Không thể nhập giá trị đặt trước: %@"
+  to_initialize_the_database_nnthe_app_will: "Không thể khởi tạo cơ sở dữ liệu: %@nnỨng dụng bây giờ sẽ thoát. Vui lòng thử khởi động lại hoặc liên hệ với bộ phận hỗ trợ nếu sự cố vẫn tiếp diễn."
+  to_load_data: "Không tải được dữ liệu: %@"
+  to_load_history: "Không tải được lịch sử: %@"
+  to_read_import_file: "Không đọc được tệp nhập: %@"
+  to_save: "Không lưu được: %@"
+  to_save_preset: "Không lưu được giá trị đặt trước: %@"
+  to_switch_model: "Không thể chuyển đổi kiểu máy: %@"
+  to_update_preset: "Không cập nhật được giá trị đặt trước: %@"
+  to_update_replacement: "Không thể cập nhật thay thế: %@"
+  to_update_word: "Không cập nhật được từ: %@"
+fast:
+  _self: "Nhanh"
+feature:
+  models: "Mô hình tính năng"
+fetch:
+  models_in_models: "Tìm nạp mô hình trong Models"
+fix:
+  punctuation_and_capitalization: "Sửa dấu câu và viết hoa"
+floating:
+  indicator: "%@ chỉ báo nổi"
+  indicator_3bad78a5: "Chỉ báo nổi: %@"
+  indicator_e0349402: "Chỉ báo nổi"
+folder:
+  deleted: "Đã xóa thư mục."
+  name: "Tên thư mục"
+follow:
+  playback: "Theo dõi phát lại"
+format:
+  text_appropriately: "Định dạng văn bản phù hợp"
+french:
+  _self: "người Pháp"
+general:
+  _self: "Tổng quan"
+german:
+  _self: "tiếng Đức"
+get:
+  started: "Bắt đầu"
+global:
+  keyboard_shortcuts: "Phím tắt chung"
+go:
+  back: "Quay lại"
+  to_settings: "Đi tới cài đặt"
+good:
+  _self: "Tốt"
+  afternoon: "Chào buổi chiều"
+  evening: "Buổi tối vui vẻ"
+  morning: "Chào buổi sáng"
+  night: "Chúc ngủ ngon"
+google:
+  _self: "Google"
+got:
+  it: "Hiểu rồi"
+grant:
+  _self: "Khoản trợ cấp"
+great:
+  _self: "Tuyệt"
+hide:
+  this_for_1_hour: "Ẩn cái này trong 1 giờ"
+history:
+  _self: "Lịch sử"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Giữ phím tắt để ghi, sau đó thả ra để chép lời."
+  to_record_release_to_open_note_editor_with: "Giữ để ghi, nhả để mở trình chỉnh sửa ghi chú có phiên âm"
+  to_record_release_to_stop_and_transcribe: "Giữ để ghi, thả ra để dừng và chép lại"
+  to_record_release_to_transcribe: "Giữ để ghi, thả ra để chép lời"
+hotkey:
+  conflict: "Xung đột phím nóng"
+hotkeys:
+  _self: "Phím nóng"
+import:
+  dictionary: "Nhập từ điển"
+  error: "Lỗi nhập"
+  export: "Nhập/Xuất"
+  media: "Nhập phương tiện"
+  or_transcribe_media_while_this_folder_is: "Nhập hoặc chép lại phương tiện trong khi thư mục này được chọn để lưu các mục tại đây."
+  presets: "Nhập cài đặt trước"
+  strategy: "Chiến lược nhập khẩu"
+imported:
+  files_and_web_links_will_appear_here_on: "Các tệp và liên kết web đã nhập sẽ xuất hiện ở đây sau khi quá trình xử lý hoàn tất."
+improve:
+  transcription_quality_using_ai: "Cải thiện chất lượng phiên âm bằng AI"
+include:
+  clipboard_text: "Bao gồm văn bản clipboard"
+interface:
+  _self: "Giao diện"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ được gán cho cả %@ và %@. Chỉ hành động đầu tiên sẽ được kích hoạt. Cập nhật các phím nóng của bạn trong Cài đặt để giải quyết xung đột này."
+italian:
+  _self: "người Ý"
+items:
+  _self: "mặt hàng"
+japanese:
+  _self: "tiếng Nhật"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Pindrop hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
+key:
+  _self: "#%@"
+  a979ef10: null
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Phím tắt"
+korean:
+  _self: "Tiếng Hàn"
+language:
+  _self: "Ngôn ngữ"
+large:
+  _self: "Lớn"
+launch:
+  at_login: "Khởi chạy khi đăng nhập: %@"
+  at_login_0b36c78f: "Khởi chạy khi đăng nhập"
+layout:
+  _self: "Cách trình bày"
+learn:
+  corrected_words_automatically: "Tự động học các từ đã sửa"
+left:
+  _self: "Bên trái"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Hãy để Pindrop lặng lẽ học từ vựng từ những chỉnh sửa mà bạn thực hiện theo thời gian."
+light:
+  _self: "Ánh sáng"
+  dark_and_curated_palette_presets: "Cài đặt trước bảng màu sáng, tối và giám tuyển"
+  preview: "Xem trước ánh sáng"
+  theme: "Chủ đề nhẹ nhàng"
+limited:
+  _self: "Giới hạn"
+live:
+  streaming_refinement: "Tinh chỉnh phát trực tiếp"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld ký tự"
+  complete: "%lld%% hoàn thành"
+  items: "%lld mục"
+  notes: "%lld ghi chú"
+  transcriptions: "%lld bản chép lời"
+lm:
+  studio: "Studio LM"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio chỉ cần mã thông báo nếu xác thực máy chủ cục bộ được bật."
+load:
+  models: "Tải mô hình"
+loaded:
+  d_models: "Đã tải mô hình %d"
+loading:
+  history: "Đang tải lịch sử..."
+  models: "Đang tải mô hình..."
+local:
+  _self: "Địa phương"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Chuyển lời nói thành văn bản cục bộ, ngay từ thanh menu của bạn.
+    Nhanh chóng, riêng tư và luôn có sẵn.
+  speech_to_text_right_from_your_menu_bar_nf: "Chuyển giọng nói thành văn bản cục bộ, ngay từ thanh menu của bạn.nNhanh chóng, riêng tư và luôn khả dụng."
+  speech_to_text_with_whisperkit: "Chuyển giọng nói thành văn bản cục bộ với WhisperKit"
+  voice_to_text: "Chuyển giọng nói thành văn bản cục bộ"
+low:
+  latency_mode_less_accurate: "Chế độ độ trễ thấp (kém chính xác)"
+manage:
+  local_speech_models_feature_models_and_th: "Quản lý các mẫu giọng nói cục bộ, các mẫu tính năng và công cụ mặc định mà Pindrop sử dụng để phiên âm."
+  models: "Quản lý mô hình"
+  presets: "Quản lý cài đặt trước"
+  presets_ab87986d: "Quản lý cài đặt trước..."
+manually:
+  check_for_new_versions_now: "Kiểm tra thủ công các phiên bản mới ngay bây giờ."
+media:
+  library: "Thư viện phương tiện"
+  transcription: "Phiên âm phương tiện"
+  unavailable: "Phương tiện không có sẵn"
+medium:
+  _self: "Trung bình"
+microphone:
+  _self: "Micrô"
+  permission_is_required_to_continue: "Cần có quyền sử dụng micrô để tiếp tục"
+  permission_is_required_to_continue_dc: "Cần có sự cho phép của micrô để tiếp tục."
+  permission_required: "Cần có quyền của micrô"
+mit:
+  license: "Giấy phép MIT"
+mode:
+  _self: "Chế độ: %@"
+model:
+  _self: "Người mẫu"
+  loading_failed: "Tải mô hình không thành công"
+  loading_timed_out: "Đã hết thời gian tải mô hình"
+models:
+  _self: "Người mẫu"
+move:
+  to_folder: "Di chuyển đến thư mục"
+multilingual:
+  _self: "Đa ngôn ngữ"
+must:
+  be_openai_compatible: "Phải tương thích với OpenAI"
+mute:
+  system_audio_during_recording: "Tắt âm thanh hệ thống trong khi ghi"
+new:
+  folder: "Thư mục mới"
+  note: "Ghi chú mới"
+  preset: "Cài đặt trước mới"
+next:
+  _self: "Kế tiếp"
+no:
+  api_key: "Không có khóa API"
+  api_key_endpoint: "Không có khóa API • Điểm cuối: %@"
+  custom_presets: "Không có cài đặt trước tùy chỉnh"
+  downloaded_models: "Không có mô hình nào được tải xuống"
+  folders_yet: "Chưa có thư mục nào"
+  items_in: "Không có mục nào trong %@"
+  media_transcriptions_yet: "Chưa có bản ghi phương tiện nào"
+  model_loaded: "Không có mô hình nào được tải"
+  model_selected: "Không có mô hình nào được chọn"
+  models_available: "Không có mẫu nào có sẵn"
+  models_available_ae9dbd29: "Không có mô hình có sẵn."
+  models_available_try_refresh_or_enter_a_model: "Không có mô hình có sẵn. Hãy thử Làm mới hoặc nhập ID mẫu máy theo cách thủ công."
+  models_found: "Không tìm thấy mô hình nào."
+  models_loaded_open_edit_to_fetch_models: "Không có mô hình nào được tải. Mở Chỉnh sửa để tìm nạp mô hình."
+  models_match: "Không có mô hình nào khớp với \"%@\""
+  notes_yet: "Chưa có ghi chú nào"
+  providers_configured_yet: "Chưa có nhà cung cấp nào được định cấu hình."
+  replacements: "Không thay thế"
+  results_found: "Không tìm thấy kết quả nào"
+  settings_found: "Không tìm thấy cài đặt nào"
+  transcriptions_yet: "Chưa có phiên âm"
+  vocabulary_words: "Không có từ vựng"
+not:
+  assigned: "Chưa được chỉ định"
+  selected: "Không được chọn"
+  set: "Chưa đặt"
+  set_93039e60: "Chưa đặt"
+notch:
+  _self: "Notch"
+note:
+  _self: "Ghi chú"
+  capture_push_to_talk: "Ghi chú (Nhấn để nói)"
+  capture_toggle: "Ghi chú (Chuyển đổi)"
+  enhancement: "Cải tiến ghi chú"
+  from: "Lưu ý từ"
+  metadata: "Siêu dữ liệu ghi chú"
+  title: "Tiêu đề ghi chú"
+notes:
+  _self: "Ghi chú"
+  3add7b96: "ghi chú"
+off:
+  _self: "Tắt"
+ok:
+  _self: "ĐƯỢC RỒI"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama thường không yêu cầu xác thực đối với các yêu cầu cục bộ."
+on:
+  _self: "TRÊN"
+  device_no_credentials_required: "Trên thiết bị, không cần thông tin xác thực"
+open:
+  _self: "Mở"
+  history: "Lịch sử mở"
+  logs_in_finder: "Mở nhật ký trong Finder"
+  original_link: "Mở liên kết gốc"
+  progress: "Tiến trình mở"
+  settings: "Mở Cài đặt"
+  settings_fd7108f8: "Mở cài đặt"
+  system_settings: "Mở cài đặt hệ thống"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "Máy chủ cục bộ tương thích với OpenAI"
+  whisper: "OpenAI thì thầm"
+openrouter:
+  _self: "Bộ định tuyến mở"
+optional:
+  _self: "Không bắt buộc"
+  insert_text_directly_into_apps: "Tùy chọn: Chèn văn bản trực tiếp vào ứng dụng"
+  used_for_auto_generated_titles_and_summ: "Tùy chọn — được sử dụng cho các tiêu đề và tóm tắt được tạo tự động khi nhập bản chép lại phương tiện."
+optionally:
+  clean_up_transcriptions_with_ai: "Tùy chọn dọn dẹp bản phiên âm bằng AI"
+or:
+  _self: "hoặc"
+  just_use_your_hotkey: "Hoặc chỉ cần sử dụng phím nóng của bạn!"
+original:
+  _self: "Nguyên bản"
+  text_use_commas_for_multiple: "Văn bản gốc (sử dụng dấu phẩy cho nhiều văn bản)"
+originals:
+  comma_separated: "Bản gốc (được phân tách bằng dấu phẩy)"
+output:
+  _self: "đầu ra"
+  audio_interface_and_everyday_behavior: "Đầu ra, âm thanh, giao diện và hành vi hàng ngày"
+parakeet:
+  default: "Vẹt đuôi dài (mặc định)"
+paste:
+  _self: "Dán"
+  a_video_or_audio_link: "Dán liên kết video hoặc âm thanh"
+  last_transcript: "Dán bản ghi cuối cùng"
+  last_transcript_v: "Dán bản ghi cuối cùng ⌃⌘V"
+pause:
+  _self: "Tạm dừng"
+  media_during_transcription: "Tạm dừng phương tiện trong khi phiên âm"
+permissions:
+  _self: "Quyền"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Chọn nhà cung cấp và mô hình nào xử lý từng nhiệm vụ AI. Để lại là \"Chưa được chỉ định\" để bỏ qua mục đích."
+pill:
+  _self: "Thuốc viên"
+pin:
+  to_screen_always_on_top: "Ghim vào màn hình (luôn ở trên cùng)"
+pindrop:
+  _self: "ghim"
+  dot: "chấm ghim"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop đã sẵn sàng để sử dụng.
+    Nhấp vào biểu tượng thanh menu để bắt đầu.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop đã sẵn sàng để sử dụng.nNhấp vào biểu tượng thanh menu để bắt đầu."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop cần một số quyền để hoạt động. Quyền riêng tư của bạn luôn được tôn trọng."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop cần một số quyền để hoạt động.
+    Sự riêng tư của bạn luôn được tôn trọng.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop cần có quyền Trợ năng để chèn văn bản vào con trỏ của bạn.                          Để cấp quyền: 1. Nhấp vào \"Mở cài đặt hệ thống\" bên dưới 2. Nhấp vào nút + 3. Điều hướng đến ứng dụng được hiển thị trong Finder 4. Khởi động lại Pindrop sau khi cấp quyền Nếu không có quyền này, văn bản sẽ chỉ được sao chép vào khay nhớ tạm của bạn.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.nnVui lòng cấp quyền trong Cài đặt hệ thống."
+  on_github: "Ghim trên GitHub"
+  pill: "Thuốc nhỏ giọt"
+  theme: "Chủ đề ghim"
+play:
+  _self: "Chơi"
+please:
+  check_your_internet_connection_and_try_ag: "Vui lòng kiểm tra kết nối internet của bạn và thử lại."
+  download_a_whisper_model_in_settings_befo: |-
+    Vui lòng tải xuống mẫu Whisper trong Cài đặt trước khi ghi.
+    
+    Vào Cài đặt → Kiểu máy để tải xuống kiểu máy.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.nnVào Cài đặt → Mô hình để tải xuống mô hình."
+  wait: "Vui lòng chờ..."
+portuguese:
+  brazil: "Tiếng Bồ Đào Nha (Brazil)"
+powered:
+  by_whisperkit: "Được cung cấp bởi WhisperKit"
+preparing:
+  model: "Đang chuẩn bị mô hình..."
+preset:
+  name: "Tên đặt trước"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Nhấn và giữ để đọc chính tả trong bất kỳ ứng dụng nào. Pindrop sẽ phiên âm lời nói của bạn và chèn văn bản vào vị trí con trỏ của bạn."
+  esc_to_cancel: "Nhấn Esc để hủy"
+  keys: "Nhấn phím..."
+  once_to_start_again_to_stop: "Nhấn một lần để bắt đầu, nhấn lần nữa để dừng"
+  once_to_start_recording_press_again_to_sto: "Nhấn một lần để bắt đầu ghi, nhấn lần nữa để dừng và chép lại"
+  once_to_start_recording_then_press_again_t: "Nhấn một lần để bắt đầu ghi, sau đó nhấn lại để dừng và chép lại."
+  to_start_recording_press_again_to_open_not: "Nhấn để bắt đầu ghi, nhấn lại để mở trình chỉnh sửa ghi chú"
+primary:
+  text: "Văn bản chính"
+processing:
+  _self: "Xử lý"
+  272bc02e: "Xử lý..."
+  5aa377e2: "⏳ Đang xử lý"
+  transcript: "Đang xử lý bảng điểm"
+prompt:
+  _self: "Lời nhắc"
+  preset: "Đặt trước nhắc nhở"
+provider:
+  _self: "nhà cung cấp"
+  kind: "Loại nhà cung cấp"
+  type: "Loại nhà cung cấp"
+providers:
+  _self: "Nhà cung cấp"
+  prompts_and_vibe_mode_controls: "Nhà cung cấp, lời nhắc và điều khiển chế độ rung cảm"
+push:
+  to_talk: "Nhấn để nói"
+quickly:
+  copy_your_last_transcription: "Sao chép nhanh bản phiên âm cuối cùng của bạn"
+  pull_your_latest_transcript_back_to_the: "Nhanh chóng kéo bản ghi mới nhất của bạn trở lại bảng tạm."
+quit:
+  _self: "Từ bỏ"
+  pindrop: "Thoát khỏi Pindrop"
+ready:
+  _self: "Sẵn sàng"
+  ec1296e1: "● Sẵn sàng"
+  to_record: "Sẵn sàng ghi lại"
+  to_transcribe: "Sẵn sàng phiên âm"
+recent:
+  _self: "Gần đây"
+  transcriptions: "Phiên âm gần đây"
+  transcripts: "Bảng điểm gần đây"
+recommended:
+  _self: "Khuyến khích"
+  the_deterministic_cleaner_handles_mo: "Khuyến nghị: trình dọn dẹp xác định xử lý hầu hết các lệnh chính tả một cách rõ ràng. Chỉ bật thẻ LLM nếu bạn muốn trau chuốt thêm và chấp nhận các yêu cầu không thường xuyên của mô hình (lời mở đầu, câu trả lời hội thoại)."
+record:
+  _self: "Ghi"
+recording:
+  _self: "ghi âm"
+  3f8fd48c: "🔴 Ghi âm"
+recordings:
+  _self: "bản ghi âm"
+redo:
+  _self: "Làm lại"
+refresh:
+  _self: "Làm cho khỏe lại"
+remove:
+  _self: "Di dời"
+  and_clear_any_assignments_that_reference: "Xóa \"%@\" và xóa mọi bài tập tham chiếu đến nó? Thông tin đăng nhập được lưu trữ sẽ bị xóa."
+  from_folder: "Xóa khỏi thư mục"
+  provider: "Xóa nhà cung cấp"
+rename:
+  _self: "Đổi tên"
+  folder: "Đổi tên thư mục"
+replace:
+  all: "Thay thế tất cả"
+  words_and_phrases: "Thay thế các từ và cụm từ"
+replacement:
+  _self: "thay thế"
+  text: "Văn bản thay thế"
+report:
+  an_issue: "Báo cáo sự cố"
+  an_issue_bd7b4f00: "Báo cáo sự cố"
+required:
+  _self: "Yêu cầu"
+  for_recording_your_voice: "Cần thiết để ghi âm giọng nói của bạn"
+requires:
+  a_fast_provider_apple_foundation_models: "Yêu cầu nhà cung cấp nhanh (khuyến nghị sử dụng Apple Foundation Models). Các nhà cung cấp đám mây sẽ thực hiện một lệnh gọi API cho mỗi lần tạm dừng."
+reset:
+  _self: "Cài lại"
+  all_settings: "Đặt lại tất cả cài đặt?"
+  all_settings_7262c7b7: "Đặt lại tất cả cài đặt"
+  to_default: "Đặt lại về mặc định"
+retry:
+  _self: "Thử lại"
+right:
+  _self: "Phải"
+run:
+  llm_polish_after_dictation_stops: "Chạy đánh bóng LLM sau khi dừng đọc chính tả"
+runtime:
+  _self: "Thời gian chạy: %@"
+save:
+  _self: "Cứu"
+  as_note: "Lưu dưới dạng ghi chú"
+  continue: "Lưu & Tiếp tục"
+  credentials: "Lưu thông tin xác thực"
+  prompt: "Lưu lời nhắc"
+saved:
+  _self: "Đã lưu"
+  as_note: "Đã lưu dưới dạng Ghi chú"
+  transcription: "Bản chép lời đã lưu"
+search:
+  media_transcripts: "Tìm kiếm bản ghi phương tiện..."
+  models: "Tìm kiếm mô hình"
+  models_61c1b9fe: "Tìm kiếm mô hình..."
+  notes: "Tìm kiếm ghi chú..."
+  settings: "Cài đặt tìm kiếm"
+  settings_or_jump_between_sections_without: "Tìm kiếm cài đặt hoặc chuyển giữa các phần mà không cần rời khỏi không gian làm việc chính."
+  transcriptions: "Tìm kiếm phiên âm..."
+secondary:
+  text: "Văn bản phụ"
+select:
+  a_dictionary_json_file_to_import: "Chọn tệp JSON từ điển để nhập"
+  a_model: "Chọn một mô hình"
+  a_presets_json_file_to_import: "Chọn tệp JSON đặt trước để nhập"
+  a_provider_kind: "Chọn loại nhà cung cấp"
+  a_provider_type: "Chọn loại nhà cung cấp"
+  ai_model: "Chọn mô hình AI"
+  all: "Chọn tất cả"
+  language: "Chọn ngôn ngữ"
+  language_daea52c9: "Chọn ngôn ngữ"
+  this_floating_indicator_style: "Chọn kiểu chỉ báo nổi này."
+  voice_model: "Chọn mẫu giọng nói"
+selected:
+  _self: "Đã chọn"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Gửi đến mô hình AI khi xử lý chính tả để chèn văn bản trực tiếp."
+sessions:
+  _self: "Phiên"
+  781791f5: "phiên"
+set:
+  as_default: "Đặt làm mặc định"
+settings:
+  _self: "Cài đặt"
+  bf83f07f: "Cài đặt..."
+  fa67a397: "Cài đặt…"
+setup:
+  required: "Yêu cầu thiết lập"
+show:
+  app: "Hiển thị ứng dụng"
+  app_in_finder: "Hiển thị ứng dụng trong Finder"
+  floating_indicator: "Hiển thị chỉ báo nổi"
+  in_dock: "Hiển thị trong Dock"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Hiển thị dưới dạng dấu chấm ở góc màn hình"
+  as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
+  beside_the_focused_text_field_caret: "Hiển thị bên cạnh trường văn bản/dấu mũ tập trung"
+  in_the_menu_bar_notch_area: "Hiển thị trong thanh menu/khu vực khía cạnh"
+  recording_state_in_a_lightweight_overlay_w: "Hiển thị trạng thái ghi trong cửa sổ lớp phủ nhẹ."
+sidebar:
+  position: "Vị trí thanh bên"
+simplified:
+  chinese: "Tiếng Trung giản thể"
+size:
+  _self: "Kích cỡ"
+skip:
+  for_now: "Bỏ qua bây giờ"
+slow:
+  _self: "Chậm"
+slower:
+  _self: "Chậm hơn"
+slowest:
+  _self: "Chậm nhất"
+small:
+  _self: "Bé nhỏ"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Các mô hình nhỏ hơn sẽ nhanh hơn nhưng kém chính xác hơn.nHãy bắt đầu với Base để có độ cân bằng tốt nhất."
+  models_are_faster_but_less_accurate_star: |-
+    Các mô hình nhỏ hơn thì nhanh hơn nhưng kém chính xác hơn.
+    Bắt đầu với Base để có sự cân bằng tốt nhất.
+something:
+  went_wrong: "Đã xảy ra lỗi"
+soon:
+  _self: "Sớm"
+sort:
+  by: "Sắp xếp theo"
+source:
+  _self: "Nguồn"
+spanish:
+  _self: "tiếng Tây Ban Nha"
+speaker:
+  diarization_and_timestamps_are_attached: "Nhật ký loa và dấu thời gian được đính kèm để phát lại."
+  diarization_is_required: "Cần phải ghi nhật ký loa"
+speed:
+  _self: "Tốc độ"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Bắt đầu mới khi bạn muốn xóa tùy chọn, trạng thái giới thiệu và thông tin xác thực đã lưu."
+  recording: "Bắt đầu ghi"
+  recording_to_see_your_transcriptions_here: "Bắt đầu ghi để xem bản chép lời của bạn tại đây"
+  stop_recording: "Bắt đầu/dừng ghi âm"
+  using_pindrop: "Bắt đầu sử dụng Pindrop"
+status:
+  _self: "Trạng thái"
+stop:
+  recording: "Dừng ghi"
+streaming:
+  enhancement: "Cải tiến phát trực tuyến"
+  transcription_currently_supports_engli: "Phiên âm trực tuyến hiện chỉ hỗ trợ tiếng Anh, bất kể ngôn ngữ đã chọn."
+  transcription_is_disabled_while_ai_enh: "Tính năng chép lời trực tuyến bị vô hiệu hóa khi tính năng Cải tiến AI được bật."
+  transcription_model_parakeet_realtime: "Mô hình sao chép trực tuyến (Parakeet Realtime EOU) được NVIDIA Corporation cấp phép theo Giấy phép mô hình mở NVIDIA."
+success:
+  _self: "Thành công!"
+support:
+  _self: "Ủng hộ"
+  coming_soon: "%@ Hỗ trợ sắp ra mắt"
+supports:
+  local_media_files_and_web_links_resolve: "Hỗ trợ các tệp phương tiện cục bộ và liên kết web được giải quyết bằng yt-dlp."
+switch:
+  to_model: "Chuyển sang mô hình"
+system:
+  _self: "Hệ thống"
+  default: "Mặc định hệ thống"
+teach:
+  custom_words: "Dạy từ tùy chỉnh"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Tạm thời sao chép văn bản, dán nó, sau đó khôi phục bảng nhớ tạm của bạn"
+  mute_speaker_output_while_dictation: "Tạm thời tắt tiếng đầu ra của loa trong khi đang ghi chính tả."
+  pause_active_media_playback_while_di: "Tạm dừng phát lại phương tiện đang hoạt động trong khi đang ghi chính tả."
+tertiary:
+  text: "Văn bản cấp ba"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Mô hình không tải được trong vòng 60 giây. Điều này thường có nghĩa là các tệp mô hình bị hỏng hoặc không tương thích.                          Để khắc phục điều này: 1. Mở Cài đặt → Kiểu máy 2. Xóa mô hình có vấn đề 3. Tải lại mô hình xuống Nếu sự cố vẫn tiếp diễn, hãy thử một mô hình nhỏ hơn (Tiny hoặc Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "Biến thể đoạn đã chọn chưa được tải xuống. Chuyển đổi sẽ bắt đầu tải xuống."
+theme:
+  _self: "chủ đề"
+  changes_apply_live_across_the_workspace_se: "Các thay đổi về chủ đề áp dụng trực tiếp trên không gian làm việc, cài đặt, trình chỉnh sửa ghi chú và chỉ báo nổi."
+  mode: "Chế độ chủ đề"
+this:
+  preset_name_is_already_in_use: "Tên đặt trước này đã được sử dụng."
+  provider_will_be_available_in_a_future_upda: |-
+    Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.
+    Hiện tại, hãy thử OpenAI hoặc sử dụng điểm cuối tùy chỉnh.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.
+    Hãy thử OpenAI hoặc sử dụng điểm cuối tùy chỉnh.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.nBây giờ, hãy thử OpenAI hoặc sử dụng điểm cuối Tùy chỉnh."
+  transcription_could_not_be_found: "Không thể tìm thấy phiên âm này."
+  will_clear_all_your_settings_including_api: "Thao tác này sẽ xóa tất cả cài đặt của bạn, bao gồm khóa API, phím nóng và tùy chọn kiểu máy. Ứng dụng sẽ thoát và hiển thị lại phần giới thiệu trong lần khởi chạy tiếp theo."
+  will_permanently_remove_the_transcript_and: "Thao tác này sẽ xóa vĩnh viễn bản ghi và tệp phương tiện được quản lý của nó."
+time:
+  saved: "Thời gian đã lưu"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "ra lệnh và để Pindrop chép lời cho bạn"
+  start_talking: "bắt đầu nói chuyện"
+today:
+  _self: "Hôm nay"
+toggle:
+  _self: "Chuyển đổi"
+  recording: "Chuyển đổi ghi âm"
+  sort_order: "Chuyển đổi thứ tự sắp xếp"
+transcribe:
+  _self: "Phiên âm"
+  media: "Phiên âm phương tiện"
+transcribed:
+  _self: "phiên âm"
+transcription:
+  _self: "Phiên âm"
+  backend: "Phần phụ trợ phiên âm"
+  deleted: "Đã xóa bản ghi."
+  enhancement: "Tăng cường phiên mã"
+  failed: "Phiên âm không thành công"
+  finished: "Phiên âm xong."
+  in_progress: "Đang phiên âm"
+  metadata: "Siêu dữ liệu phiên mã"
+  update: "Cập nhật phiên âm"
+transcriptions:
+  _self: "Phiên âm"
+  f0972acc: "phiên âm"
+  in_this_folder_will_be_kept_and_m: "Các bản ghi trong thư mục này sẽ được lưu giữ và chuyển trở lại thư viện."
+transcripts:
+  _self: "bảng điểm"
+try:
+  a_different_search_term: "Hãy thử một cụm từ tìm kiếm khác"
+  a_different_search_term_0ba628a3: "Hãy thử một cụm từ tìm kiếm khác."
+  a_different_search_term_in_this_folder: "Hãy thử một cụm từ tìm kiếm khác trong thư mục này."
+  searching_for_terms_like_hotkeys_microphone: "Hãy thử tìm kiếm các thuật ngữ như phím nóng, micrô, cập nhật hoặc chế độ rung."
+turkish:
+  _self: "tiếng Thổ Nhĩ Kỳ"
+type:
+  text_directly_into_the_active_app_when_poss: "Nhập văn bản trực tiếp vào ứng dụng đang hoạt động khi có thể"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Không thể kết nối với dịch vụ nâng cao AI.                                  Vui lòng kiểm tra: 1. Kết nối internet của bạn 2. URL điểm cuối API chính xác 3. Dịch vụ không bị ngừng hoạt động Bản phiên âm đã được lưu mà không cần cải tiến.                 \"\""
+  to_finish_transcription: "Không thể hoàn tất phiên âm"
+  to_load_history: "Không thể tải lịch sử: %@"
+  to_load_models_try_refresh: "Không thể tải mô hình. Hãy thử làm mới."
+  to_update_media_library: "Không thể cập nhật thư viện phương tiện"
+unavailable:
+  device: "Thiết bị không khả dụng"
+undo:
+  _self: "Hoàn tác"
+unfiled:
+  _self: "Chưa nộp hồ sơ"
+unpin:
+  from_screen: "Bỏ ghim khỏi màn hình"
+update:
+  _self: "Cập nhật"
+updates:
+  _self: "Cập nhật"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Sử dụng phím tắt nhấn để bắt đầu, nhấn để kết thúc để ghi chú."
+  clipboard_only: "Chỉ sử dụng bảng nhớ tạm"
+  the_hotkey_to_start_your_first_recording: "Sử dụng phím nóng để bắt đầu ghi âm đầu tiên của bạn"
+  transcription_as_a_placeholder_for_the_trans: "Sử dụng ${transcription} làm phần giữ chỗ cho văn bản được phiên âm."
+  transcription_as_placeholder: "Sử dụng ${transcription} làm phần giữ chỗ"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Được sử dụng khi ghi chú bằng phím nóng. Có thể thêm định dạng đánh dấu cho nội dung dài hơn."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Sử dụng lời nhắc tích hợp được điều chỉnh cho tác vụ này."
+  the_160ms_parakeet_variant_for_snappier_par: "Sử dụng biến thể Parakeet 160ms cho các phần nhanh hơn với chi phí mắc lỗi từ nhiều hơn ~ 70%. Mặc định là biến thể 320ms."
+  the_transcription_enhancement_assignment_if: "Sử dụng bài tập Tăng cường phiên âm. Nếu không được đặt, đầu ra của trình dọn dẹp xác định sẽ được giữ nguyên."
+v:
+  _self: "v%@"
+version:
+  _self: "Phiên bản %@ (%@)"
+very:
+  fast: "Rất nhanh"
+via:
+  _self: "qua %@"
+vibe:
+  mode: "Chế độ rung cảm"
+  mode_captures_structured_ui_context_when_re: "Chế độ Vibe ghi lại bối cảnh giao diện người dùng có cấu trúc khi quá trình ghi bắt đầu để tính năng nâng cao AI có thể sử dụng trạng thái ứng dụng đang hoạt động của bạn làm tham chiếu."
+  mode_works_best_with_accessibility_permissi: "Chế độ Vibe hoạt động tốt nhất với quyền Trợ năng. Nếu không có nó, Pindrop sẽ quay trở lại với siêu dữ liệu ứng dụng hạn chế và quá trình phiên âm vẫn hoạt động bình thường."
+view:
+  _self: "Xem"
+  all: "Xem tất cả"
+  transcript_history: "Xem lịch sử bản ghi"
+  transcription_history: "Xem lịch sử phiên âm"
+vocabulary:
+  _self: "Từ vựng"
+vs:
+  typing: "vs đánh máy"
+welcome:
+  to_pindrop: "Chào mừng đến với Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Từ"
+  replacements: "Thay thế từ"
+words:
+  _self: "Từ"
+  efb89361: "từ"
+  min: "từ/phút"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Hôm qua"
+you:
+  are_a_note_formatting_assistant_transform_th: "Bạn là trợ lý định dạng ghi chú. Chuyển văn bản được chép lại thành một ghi chú có cấu trúc tốt.nnQuy tắc:n- Sửa lỗi ngữ pháp, dấu câu và chính tản- Đối với nội dung dài hơn (từ 3 đoạn trở lên), thêm định dạng đánh dấu:n - Sử dụng tiêu đề (## hoặc ###) để sắp xếp các phầnn - Sử dụng dấu đầu dòng hoặc danh sách đánh số khi thích hợp - Sử dụng **in đậm** để nhấn mạnh các thuật ngữ chínhn- Đối với nội dung ngắn hơn, hãy giữ nội dung đơn giản với định dạng tối thiểun- Giữ nguyên ý nghĩa và âm điệu ban đầu- Không thêm nội dung mà không có trong bản gốc- Chỉ trả lại ghi chú đã định dạng mà không có bất kỳ bình luận nào"
+  are_a_text_enhancement_assistant_improve_the: "Bạn là một trợ lý nâng cao văn bản. Cải thiện ngữ pháp, dấu câu và định dạng của văn bản được cung cấp trong khi vẫn giữ nguyên ý nghĩa và giọng điệu ban đầu của nó. Chỉ trả lại văn bản nâng cao mà không có bất kỳ bình luận bổ sung nào."
+  can_change_these_anytime_from_the_menu_bar_s: "Bạn có thể thay đổi những điều này bất cứ lúc nào từ thanh menu → Cài đặt → Phím nóng"
+  re_all_set: "Bạn đã hoàn tất!"
+  re_all_set_058a8130: "Bạn đã hoàn tất!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Bạn đã vượt quá giới hạn hoặc hạn ngạch tốc độ API của mình.                                  Để khắc phục điều này: 1. Đợi vài phút và thử lại 2. Kiểm tra giới hạn sử dụng của nhà cung cấp API của bạn 3. Cân nhắc nâng cấp gói API của bạn Bản ghi đã được lưu mà không cần cải tiến.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Khóa API của bạn có vẻ không hợp lệ hoặc đã hết hạn.                                  Để khắc phục điều này: 1. Mở Cài đặt → Cải tiến AI 2. Xác minh khóa API của bạn là chính xác 3. Kiểm tra xem điểm cuối API của bạn có đúng không. Bản chép lời đã được lưu mà không cần cải tiến.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Phím nóng của bạn đã sẵn sàng để sử dụng.nBạn có thể tùy chỉnh chúng sau trong Cài đặt."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Phím nóng của bạn đã sẵn sàng để sử dụng.
+    Bạn có thể tùy chỉnh chúng sau trong Cài đặt.
+  model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
+  stats: "Số liệu thống kê của bạn"

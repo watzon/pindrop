@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "__TETAPKAN_PINDROP__"
+cfbundlename:
+  _self: "__TETAPKAN_PINDROP__"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop memerlukan akses audio sistem untuk menyalin panggilan, rapat, dan audio aplikasi lainnya."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop memerlukan akses mikrofon untuk menyalin suara Anda."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop menggunakan pengenalan ucapan pada perangkat untuk menyalin audio Anda tanpa mengirim data ke server mana pun."

@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Το Pindrop χρειάζεται πρόσβαση στον ήχο του συστήματος για τη μεταγραφή κλήσεων, συσκέψεων και άλλου ήχου εφαρμογών."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Το Pindrop χρειάζεται πρόσβαση στο μικρόφωνο για να μεταγράψει τη φωνή σας."
+nsspeechrecognitionusagedescription:
+  _self: "Το Pindrop χρησιμοποιεί αναγνώριση ομιλίας στη συσκευή για να μεταγράψει τον ήχο σας χωρίς να στείλει δεδομένα σε κανένα διακομιστή."

@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop potřebuje systémový přístup ke zvuku, aby mohl přepisovat hovory, schůzky a další zvuky aplikací."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop potřebuje přístup k mikrofonu, aby mohl přepsat váš hlas."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop používá rozpoznávání řeči na zařízení k přepisu vašeho zvuku bez odesílání dat na jakýkoli server."

@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100% עיבוד מקומי"
+1:
+  folder: "תיקיה 1"
+  transcription: "תמלול 1"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "אפליקציית הכתבה מקורית של שורת התפריט של macOS המשתמשת בדיבור לטקסט מקומי עם WhisperKit. עיבוד מקומי של 100% כברירת מחדל עם שיפור AI אופציונלי."
+about:
+  _self: "אוֹדוֹת"
+  pindrop: "על פינדרופ"
+accessibility:
+  _self: "נְגִישׁוּת"
+  permission_is_enabled_full_ui_cont: "הרשאת נגישות מופעלת. ההקשר המלא של ממשק המשתמש זמין."
+  permission_is_not_granted_vibe_mod: "הרשאת נגישות אינה ניתנת. מצב אווירה נשאר לא חוסם עם הקשר מוגבל."
+  permission_recommended: "הרשאת נגישות מומלצת"
+  permission_required: "נדרשת הרשאת נגישות"
+accuracy:
+  _self: "דִיוּק"
+acknowledgments:
+  _self: "תודות"
+active:
+  _self: "פָּעִיל"
+add:
+  _self: "לְהוֹסִיף"
+  a_provider_to_start_using_ai_enhancement: "הוסף ספק כדי להתחיל להשתמש בשיפור AI."
+  custom_words_to_improve_transcription_accura: "הוסף מילים מותאמות אישית כדי לשפר את דיוק התמלול עבור מונחים, שמות או ז'רגון מיוחדים."
+  provider: "הוסף ספק"
+  tag: "הוסף תג..."
+  to_existing: "הוסף לקיים"
+  trailing_space: "הוסף שטח נגרר"
+  word_replacements_to_automatically_correct_c: "הוסף החלפות מילים כדי לתקן אוטומטית שגיאות תעתיק נפוצות."
+  words_to_help_pindrop_recognize_them_properl: "הוסף מילים כדי לעזור לפינדרופ לזהות אותן כראוי"
+  words_you_manually_correct_into_your_vocabul: "הוסף מילים שאתה מתקן באופן ידני לאוצר המילים שלך לתמלולים עתידיים."
+ai:
+  enhancement: "שיפור AI"
+  enhancement_529f5583: "שיפור בינה מלאכותית: %@"
+  enhancement_failed: "שיפור AI נכשל"
+  enhancement_is_disabled: "שיפור AI מושבת."
+  enhancement_will: "שיפור בינה מלאכותית יעשה:"
+  model: "דגם AI"
+all:
+  _self: "כֹּל"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    אירעה שגיאה בעת שיפור התמלול שלך:
+
+    %@
+
+    התמלול המקורי נשמר ללא שיפור.
+    אתה יכול לנסות להפעיל שוב שיפור AI בהגדרות.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "אירעה שגיאה בעת שיפור התמלול שלך:nn%@nnהתמלול המקורי נשמר ללא שיפור.nתוכל לנסות להפעיל שוב שיפור בינה מלאכותית בהגדרות."
+anthropic:
+  _self: "אנתרופית"
+api:
+  endpoint: "נקודת קצה API"
+  key: "מפתח API"
+  key_saved: "מפתח API נשמר"
+  key_saved_endpoint: "מפתח API נשמר • נקודת קצה: %@"
+app:
+  info_acknowledgments_support_and_logs: "מידע על אפליקציה, תודות, תמיכה ויומנים"
+append:
+  a_space_after_each_transcription_for_seam: "הוסף רווח לאחר כל תמלול להכתבה חלקה."
+apple:
+  foundation_models_on_device: "דגמי קרן אפל (במכשיר)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence אינו זמין במערכת זו. משימה זו לא תיפתר עד להפעלת Apple Intelligence."
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence פועל במכשיר ואינו דורש אישורים."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber דורש macOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber לא זמין - באמצעות Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "האם אתה בטוח שברצונך למחוק את '%@'? לא ניתן לבטל פעולה זו."
+assignments:
+  _self: "מטלות"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "צרף יומנים מתיקיה זו בעת הגשת בעיית GitHub."
+audio:
+  input: "קלט שמע"
+automatic:
+  follow_system: "אוטומטי (עקוב אחרי המערכת)"
+  updates: "עדכונים אוטומטיים"
+  updates_and_manual_update_checks: "עדכונים אוטומטיים ובדיקות עדכונים ידניות"
+automatically:
+  check_for_new_versions_in_the_back: "בדוק אוטומטית אם יש גרסאות חדשות ברקע."
+  start_pindrop_when_you_sign_in: "הפעל באופן אוטומטי את Pindrop כשאתה נכנס."
+available:
+  models: "דגמים זמינים"
+avg:
+  speed: "מהירות ממוצעת"
+back:
+  _self: "בְּחֲזָרָה"
+  to_library: "חזרה לספרייה"
+base:
+  _self: "בָּסִיס"
+best:
+  _self: "טוֹב בִּיוֹתֵר"
+better:
+  _self: "לְשַׁפֵּר"
+bubble:
+  _self: "בּוּעָה"
+built:
+  in_presets: "הגדרות מובנות מראש"
+  in_read_only: "מובנה (לקריאה בלבד)"
+cancel:
+  _self: "לְבַטֵל"
+  operation: "בטל פעולה"
+capture:
+  directly_into_the_note_editor_with_a_hol: "לכוד ישירות לתוך עורך ההערות עם זרימת החזקה להקלטה."
+change:
+  microphone: "החלף מיקרופון"
+  microphone_ac9970f4: "החלף מיקרופון"
+check:
+  for_updates: "בדוק אם יש עדכונים..."
+  for_updates_736b9062: "בדוק אם יש עדכונים"
+  now: "בדוק עכשיו"
+checking:
+  _self: "בודק..."
+choose:
+  a_location_to_save_the_dictionary: "בחר מיקום לשמירת המילון"
+  a_location_to_save_the_presets: "בחר מיקום לשמירת ההגדרות המוגדרות מראש"
+  a_model: "בחר דגם"
+  a_provider_first: "תחילה בחר ספק"
+  an_audio_or_video_file_to_transcribe: "בחר קובץ אודיו או וידאו לתמלול"
+  between_parakeet_cross_version_downloaded: "בחר בין Parakeet (גרסה צולבת, דגם שהורד) לבין Apple SpeechTranscriber (macOS 26+, נשלח עם מערכת ההפעלה)."
+  file: "בחר קובץ"
+  how_dictated_text_lands_then_tune_the_fin: "בחר כיצד נוחת הטקסט המוכתב ולאחר מכן כוונן את התנהגות ההוספה הסופית."
+  how_pindrop_follows_system_appearance_the: "בחר כיצד Pindrop עוקב אחר מראה המערכת, ולאחר מכן ערבב פלטות בהירות וכהות."
+  how_to_import_the_dictionary_data: "בחר כיצד לייבא את נתוני המילון"
+  how_to_import_the_preset_data: "בחר כיצד לייבא את הנתונים המוגדרים מראש"
+  languages_for_the_interface_and_for_dicta: "בחר שפות לממשק ולהכתבה. אוטומטי עוקב אחר המערכת."
+  location_to_save_presets: "בחר מיקום לשמירת הגדרות קבועות מראש"
+  the_daytime_shell_used_in_light_mode: "בחר את מעטפת היום המשמשת במצב אור."
+  the_low_glare_shell_used_in_dark_mode: "בחר את המעטפת הזוהרת נמוכה המשמשת במצב כהה."
+  which_floating_indicator_style_appears_wh: "בחר איזה סגנון מחוון צף יופיע כאשר שכבת העל מופעלת."
+  which_microphone_pindrop_should_use_for_d: "בחר באיזה מיקרופון Pindrop צריך להשתמש להכתבה וכיצד הוא מתנהג בזמן ההקלטה."
+  which_side_the_navigation_sidebar_appears: "בחר באיזה צד יופיע סרגל הניווט."
+clean:
+  up_filler_words: "נקה מילות מילוי"
+clear:
+  audio_buffer: "נקה מאגר אודיו"
+  hotkey: "נקה מקש קיצור"
+clears:
+  preferences_and_restarts_onboarding: "מנקה העדפות ומפעיל מחדש את ההטמעה"
+click:
+  or_hold: "לחץ או החזק"
+  or_press: "לחץ או לחץ"
+  or_set_a_hotkey_to_start_talking: "לחץ או הגדר מקש קיצור כדי להתחיל לדבר"
+  this_icon_anytime_to: "לחץ על סמל זה בכל עת כדי:"
+clipboard:
+  _self: "לוח כתיבה"
+cloud:
+  _self: "עָנָן"
+  model: "דגם ענן"
+collapse:
+  _self: "הִתמוֹטְטוּת"
+coming:
+  soon: "%@ בקרוב"
+  soon_04d2fd85: "בקרוב"
+configure:
+  ai_providers_and_credentials_apple_int: "הגדר ספקי AI ואישורים. Apple Intelligence פועל במכשיר; ספקים אחרים דורשים מפתחות API."
+  keyboard_shortcuts_for_recording_and_n: "הגדר קיצורי מקשים להקלטה ולכידת הערות"
+continue:
+  _self: "לְהַמשִׁיך"
+  with_default: "המשך עם ברירת מחדל"
+  without: "המשך בלי"
+control:
+  how_pindrop_appears_in_macos_and_whether: "שלוט כיצד Pindrop יופיע ב-macOS והאם הוא מתחיל בהפעלת שולחן העבודה שלך."
+controls:
+  how_the_live_dictation_path_polishes_tr: "שולט כיצד נתיב ההכתבה החיה ללטש תמלילים. מנקה הדטרמיניסטי (הסרת חומרי מילוי, שימוש באותיות רישיות, סימני פיסוק מדוברים, נורמליזציה של מספרים, מיזוג של פיצול מילים) פועל לשני הכיוונים - החלפה זו משדרת את מעבר הפוליש האופציונלי של LLM שנפתח ברגע שההכתבה נפסקת."
+copied:
+  _self: "מוּעֲתָק!"
+copy:
+  _self: "לְהַעְתִיק"
+  enhanced: "העתקה משופרת"
+  last_transcript: "העתק את התמליל האחרון"
+  original: "העתק מקורי"
+  system_info_for_bug_report: "העתק את פרטי המערכת עבור דוח באגים"
+  the_most_recent_transcript_to_the_clipboard: "העתק את התמליל האחרון ללוח"
+  to_clipboard: "העתק ללוח"
+  transcript: "העתק תמליל"
+correct:
+  grammar_mistakes: "תקן טעויות דקדוק"
+create:
+  _self: "לִיצוֹר"
+  new_note: "צור הערה חדשה"
+  new_preset: "צור הגדרה חדשה מראש"
+  your_first_note_to_get_started: "צור את ההערה הראשונה שלך כדי להתחיל"
+  your_first_preset_or_duplicate_a_built_in: "צור את הקביעה מראש הראשונה שלך או שכפל הגדרה מובנית כדי להתאים אותה."
+  your_own_presets_or_duplicate_built_in_on: "צור הגדרות קבועות מראש משלך או שכפל הגדרות מובנות כדי להתאים אותן."
+credentials:
+  are_stored_securely_in_keychain: "אישורים מאוחסנים בצורה מאובטחת במחזיק מפתחות"
+  saved_successfully: "האישורים נשמרו בהצלחה"
+current:
+  _self: "נוכחי: %@"
+custom:
+  _self: "מִנְהָג"
+  local: "מותאם אישית / מקומי"
+  openai_compatible: "מותאם אישית (תואם OpenAI)"
+  presets: "הגדרות מותאמות אישית"
+customize:
+  hotkey: "התאמה אישית של מקש קיצור"
+cut:
+  _self: "גְזִירָה"
+d:
+  characters: "%d תווים"
+dark:
+  _self: "כֵּהֶה"
+  preview: "תצוגה מקדימה כהה"
+  theme: "נושא אפל"
+database:
+  error: "שגיאת מסד נתונים"
+date:
+  _self: "תַאֲרִיך"
+  7f823513: "תאריך %@"
+default:
+  _self: "בְּרִירַת מֶחדָל"
+  model: "דגם ברירת מחדל"
+define:
+  word_replacements_to_automatically_replac: "הגדר החלפות מילים כדי להחליף אוטומטית מילים או ביטויים ספציפיים"
+degraded:
+  _self: "מוּשׁפָל"
+delete:
+  _self: "לִמְחוֹק"
+  folder: "מחק תיקייה"
+  folder_e556e7c2: "למחוק תיקייה?"
+  model: "מחק דגם"
+  preset: "מחק הגדרה מראש"
+  preset_4f6cfe36: "למחוק הגדרה מראש?"
+  transcription: "מחק תמלול"
+  transcription_f82187c4: "למחוק תמלול?"
+dictionary:
+  _self: "מילון"
+direct:
+  insert: "הכנס ישיר"
+disabled:
+  _self: "נָכֶה"
+dismiss:
+  _self: "לְפַטֵר"
+display:
+  name: "שם תצוגה"
+  name_c7874aaa: "שם תצוגה"
+  pindrop_in_the_dock_instead_of_running_o: "הצג Pindrop ב-Dock במקום לפעול רק כאפליקציה של שורת תפריטים."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "עגן את סרגל הצד לקצה השמאלי או הימני של החלון."
+dot:
+  _self: "נְקוּדָה"
+download:
+  _self: "הורד"
+  complete: "ההורדה הושלמה!"
+  continue: "הורד והמשך"
+  failed: "ההורדה נכשלה"
+  model: "הורד דגם"
+  the_diarization_model_before_starting_m: "הורד את מודל היומן לפני התחלת תמלול מדיה."
+downloaded:
+  _self: "הורד"
+downloading:
+  _self: "מוריד %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "שחרר קובץ או הדבק קישור כדי ליצור תמליל יומן עם חותמת זמן."
+  audio_or_video_here: "שחרר כאן אודיו או וידאו"
+duplicate:
+  preset: "שכפול הגדרה מראש"
+dutch:
+  _self: "הוֹלַנדִי"
+edit:
+  _self: "לַעֲרוֹך"
+  preset: "ערוך הגדרה מראש"
+  provider: "ערוך ספק"
+empty:
+  _self: "(רֵיק)"
+enable:
+  ai_enhancement: "אפשר שיפור AI"
+  live_session_updates_during_recording: "אפשר עדכוני הפעלה חיים במהלך ההקלטה"
+  the_floating_indicator_to_choose_a_style: "אפשר את המחוון הצף כדי לבחור סגנון."
+  vibe_mode_ui_context: "הפעל מצב אווירה (הקשר של ממשק משתמש)"
+enabled:
+  _self: "מופעל"
+endpoint:
+  _self: "נקודת קצה: %@"
+english:
+  _self: "אַנגְלִית"
+  only: "באנגלית בלבד"
+enhanced:
+  _self: "משופר"
+enhancement:
+  prompts: "הנחיות לשיפור"
+enter:
+  an_openai_api_key_to_load_models: "הזן מפתח API של OpenAI כדי לטעון מודלים."
+  api_key: "הזן מפתח API"
+  word_to_add: "הזן מילה להוספה"
+error:
+  _self: "שְׁגִיאָה"
+european:
+  multilingual: "אירופאי רב לשוני"
+excellent:
+  _self: "מְעוּלֶה"
+export:
+  _self: "יְצוּא"
+  as_csv: "ייצא כ-CSV"
+  as_json: "ייצא כ-JSON"
+  as_plain_text: "ייצא כטקסט רגיל"
+  dictionary: "ייצוא מילון"
+  failed: "הייצוא נכשל: %@"
+  last_transcript: "ייצוא תמלול אחרון..."
+  presets: "ייצא הגדרות קבועות מראש"
+failed:
+  to_add_replacement: "הוספת החלפה נכשלה: %@"
+  to_add_word: "הוספת המילה נכשלה: %@"
+  to_delete_folder: "מחיקת התיקייה: %@ נכשלה"
+  to_delete_note: "מחיקת ההערה נכשלה: %@"
+  to_delete_preset: "מחיקת הקביעה מראש נכשלה: %@"
+  to_delete_replacement: "מחיקת החלפה נכשלה: %@"
+  to_delete_transcription: "מחיקת התמלול נכשלה: %@"
+  to_delete_word: "מחיקת המילה נכשלה: %@"
+  to_export_dictionary: "ייצוא המילון נכשל: %@"
+  to_export_presets: "נכשל לייצא הגדרות מוגדרות מראש: %@"
+  to_import_dictionary: "ייבוא ​​המילון נכשל: %@"
+  to_import_presets: "נכשל לייבא הגדרות מוגדרות מראש: %@"
+  to_initialize_the_database_nnthe_app_will: "אתחול מסד הנתונים נכשל: %@nnהאפליקציה תיסגר כעת. אנא נסה להפעיל מחדש או צור קשר עם התמיכה אם הבעיה נמשכת."
+  to_load_data: "טעינת הנתונים נכשלה: %@"
+  to_load_history: "טעינת ההיסטוריה נכשלה: %@"
+  to_read_import_file: "קריאת קובץ הייבוא ​​נכשלה: %@"
+  to_save: "השמירה נכשלה: %@"
+  to_save_preset: "שמירת הקביעה מראש נכשלה: %@"
+  to_switch_model: "החלפת הדגם נכשלה: %@"
+  to_update_preset: "נכשל עדכון ההגדרה מראש: %@"
+  to_update_replacement: "נכשל עדכון ההחלפה: %@"
+  to_update_word: "נכשל עדכון המילה: %@"
+fast:
+  _self: "מָהִיר"
+feature:
+  models: "דגמים תכונה"
+fetch:
+  models_in_models: "אחזר דגמים במודלים"
+fix:
+  punctuation_and_capitalization: "תקן סימני פיסוק ואותיות רישיות"
+floating:
+  indicator: "%@ מחוון צף"
+  indicator_3bad78a5: "מחוון צף: %@"
+  indicator_e0349402: "מחוון צף"
+folder:
+  deleted: "התיקיה נמחקה."
+  name: "שם התיקיה"
+follow:
+  playback: "עקוב אחר השמעה"
+format:
+  text_appropriately: "עיצוב טקסט מתאים"
+french:
+  _self: "צָרְפָתִית"
+general:
+  _self: "כְּלָלִי"
+german:
+  _self: "גֶרמָנִיָת"
+get:
+  started: "התחל"
+global:
+  keyboard_shortcuts: "קיצורי מקשים גלובליים"
+go:
+  back: "לַחֲזוֹר"
+  to_settings: "עבור להגדרות"
+good:
+  _self: "טוֹב"
+  afternoon: "צהריים טובים"
+  evening: "ערב טוב"
+  morning: "בוקר טוב"
+  night: "לילה טוב"
+google:
+  _self: "גוגל"
+got:
+  it: "הבנתי"
+grant:
+  _self: "מַעֲנָק"
+great:
+  _self: "גָדוֹל"
+hide:
+  this_for_1_hour: "הסתר את זה למשך שעה"
+history:
+  _self: "הִיסטוֹרִיָה"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "החזק את קיצור הדרך להקלטה ולאחר מכן שחרר כדי לתמלל."
+  to_record_release_to_open_note_editor_with: "החזק כדי להקליט, שחרר כדי לפתוח את עורך הערות עם תמלול"
+  to_record_release_to_stop_and_transcribe: "החזק כדי להקליט, שחרר כדי לעצור ולתמלל"
+  to_record_release_to_transcribe: "החזק כדי להקליט, שחרר כדי לתמלל"
+hotkey:
+  conflict: "קונפליקט מקשי קיצור"
+hotkeys:
+  _self: "מקשי קיצור"
+import:
+  dictionary: "ייבוא ​​מילון"
+  error: "שגיאת ייבוא"
+  export: "ייבוא/ייצוא"
+  media: "ייבוא ​​מדיה"
+  or_transcribe_media_while_this_folder_is: "ייבא או תמלול מדיה בזמן שהתיקיה הזו נבחרת כדי לשמור פריטים כאן."
+  presets: "ייבוא ​​הגדרות קבועות מראש"
+  strategy: "אסטרטגיית ייבוא"
+imported:
+  files_and_web_links_will_appear_here_on: "קבצים מיובאים וקישורי אינטרנט יופיעו כאן לאחר השלמת העיבוד."
+improve:
+  transcription_quality_using_ai: "שפר את איכות התמלול באמצעות AI"
+include:
+  clipboard_text: "כלול טקסט בלוח"
+interface:
+  _self: "מִמְשָׁק"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ מוקצה גם ל-%@ וגם ל-%@. רק הפעולה הראשונה תהיה פעילה. עדכן את מקשי הקיצור שלך בהגדרות כדי לפתור את ההתנגשות."
+italian:
+  _self: "אִיטַלְקִית"
+items:
+  _self: "פריטים"
+japanese:
+  _self: "יַפָּנִית"
+keep:
+  pindrop_current_automatically_or_trigger_a: "שמור על עדכניות של Pindrop באופן אוטומטי, או הפעל בדיקה ידנית מתי שתרצה."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "קיצורי מקלדת"
+korean:
+  _self: "קוריאנית"
+language:
+  _self: "שָׂפָה"
+large:
+  _self: "גָדוֹל"
+launch:
+  at_login: "השקה בכניסה: %@"
+  at_login_0b36c78f: "הפעלה בעת הכניסה"
+layout:
+  _self: "מַעֲרָך"
+learn:
+  corrected_words_automatically: "למד מילים מתוקנות באופן אוטומטי"
+left:
+  _self: "שְׁמֹאל"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "תן לפינדרופ ללמוד בשקט אוצר מילים מהתיקונים שאתה מבצע לאורך זמן."
+light:
+  _self: "אוֹר"
+  dark_and_curated_palette_presets: "הגדרות קבועות מראש של פלטת צבעים בהירות, כהות ואצורות"
+  preview: "תצוגה מקדימה קלה"
+  theme: "נושא קל"
+limited:
+  _self: "מוּגבָּל"
+live:
+  streaming_refinement: "חידוד סטרימינג בשידור חי"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld תווים"
+  complete: "%lld%% הושלם"
+  items: "%lld פריטים"
+  notes: "%lld הערות"
+  transcriptions: "%lld תעתיקים"
+lm:
+  studio: "סטודיו LM"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio צריך אסימון רק אם אימות שרת מקומי מופעל."
+load:
+  models: "טען דגמים"
+loaded:
+  d_models: "טעונים %d דגמים"
+loading:
+  history: "טוען היסטוריה..."
+  models: "טוען דגמים..."
+local:
+  _self: "מְקוֹמִי"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    דיבור מקומי לטקסט, ישירות משורת התפריטים שלך.
+    מהיר, פרטי וזמין תמיד.
+  speech_to_text_right_from_your_menu_bar_nf: "דיבור מקומי לטקסט, ישירות מסרגל התפריטים שלך. nמהיר, פרטי וזמין תמיד."
+  speech_to_text_with_whisperkit: "דיבור מקומי לטקסט עם WhisperKit"
+  voice_to_text: "קול לטקסט מקומי"
+low:
+  latency_mode_less_accurate: "מצב אחזור נמוך (פחות מדויק)"
+manage:
+  local_speech_models_feature_models_and_th: "נהל מודלים מקומיים של דיבור, דגמי תכונה ומנוע ברירת המחדל ש-Pindrop משתמש בו לתמלול."
+  models: "ניהול דגמים"
+  presets: "נהל הגדרות קבועות מראש"
+  presets_ab87986d: "נהל הגדרות מוגדרות מראש..."
+manually:
+  check_for_new_versions_now: "בדוק ידנית אם יש גרסאות חדשות עכשיו."
+media:
+  library: "ספריית מדיה"
+  transcription: "תמלול מדיה"
+  unavailable: "המדיה לא זמינה"
+medium:
+  _self: "בֵּינוֹנִי"
+microphone:
+  _self: "מִיקרוֹפוֹן"
+  permission_is_required_to_continue: "נדרשת הרשאת מיקרופון כדי להמשיך"
+  permission_is_required_to_continue_dc: "נדרשת הרשאת מיקרופון כדי להמשיך."
+  permission_required: "נדרשת הרשאת מיקרופון"
+mit:
+  license: "רישיון MIT"
+mode:
+  _self: "מצב: %@"
+model:
+  _self: "דֶגֶם"
+  loading_failed: "טעינת הדגם נכשלה"
+  loading_timed_out: "הזמן הקצוב לטעינת הדגם"
+models:
+  _self: "דגמים"
+move:
+  to_folder: "העבר לתיקיה"
+multilingual:
+  _self: "רב לשוני"
+must:
+  be_openai_compatible: "חייב להיות תואם OpenAI"
+mute:
+  system_audio_during_recording: "השתקת אודיו של המערכת במהלך ההקלטה"
+new:
+  folder: "תיקיה חדשה"
+  note: "הערה חדשה"
+  preset: "הגדרה חדשה מראש"
+next:
+  _self: "הַבָּא"
+no:
+  api_key: "אין מפתח API"
+  api_key_endpoint: "ללא מפתח API • נקודת קצה: %@"
+  custom_presets: "אין הגדרות מותאמות אישית"
+  downloaded_models: "אין דגמים שהורדו"
+  folders_yet: "עדיין אין תיקיות"
+  items_in: "אין פריטים ב-%@"
+  media_transcriptions_yet: "עדיין אין תמלול מדיה"
+  model_loaded: "לא נטען דגם"
+  model_selected: "לא נבחר דגם"
+  models_available: "אין דגמים זמינים"
+  models_available_ae9dbd29: "אין דגמים זמינים."
+  models_available_try_refresh_or_enter_a_model: "אין דגמים זמינים. נסה לרענן או הזן מזהה דגם באופן ידני."
+  models_found: "לא נמצאו דגמים."
+  models_loaded_open_edit_to_fetch_models: "לא נטענו דגמים. פתח את עריכה כדי להביא דגמים."
+  models_match: "אין דגמים שתואמים את \"%@\""
+  notes_yet: "עדיין אין הערות"
+  providers_configured_yet: "עדיין לא הוגדרו ספקים."
+  replacements: "אין תחליפים"
+  results_found: "לא נמצאו תוצאות"
+  settings_found: "לא נמצאו הגדרות"
+  transcriptions_yet: "עדיין אין תעתיקים"
+  vocabulary_words: "אין מילים אוצר מילים"
+not:
+  assigned: "לא מוקצה"
+  selected: "לא נבחר"
+  set: "לא מוגדר"
+  set_93039e60: "לא מוגדר"
+notch:
+  _self: "לַחֲרוֹץ"
+note:
+  _self: "פֶּתֶק"
+  capture_push_to_talk: "לכידת הערות (Push-to-Talk)"
+  capture_toggle: "לכידת הערות (החלפה)"
+  enhancement: "הערה שיפור"
+  from: "הערה מ"
+  metadata: "הערה מטא נתונים"
+  title: "הערה כותרת"
+notes:
+  _self: "הערות"
+  3add7b96: "הערות"
+off:
+  _self: "כבוי"
+ok:
+  _self: "בְּסֵדֶר"
+ollama:
+  _self: "אולמה"
+  usually_does_not_require_authentication_f: "אולמה בדרך כלל אינה דורשת אימות עבור בקשות מקומיות."
+on:
+  _self: "עַל"
+  device_no_credentials_required: "במכשיר, אין צורך באישורים"
+open:
+  _self: "לִפְתוֹחַ"
+  history: "פתח את ההיסטוריה"
+  logs_in_finder: "פתח יומנים ב-Finder"
+  original_link: "פתח את הקישור המקורי"
+  progress: "פתח התקדמות"
+  settings: "פתח את ההגדרות"
+  settings_fd7108f8: "פתח את ההגדרות"
+  system_settings: "פתח את הגדרות מערכת"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "שרת מקומי תואם OpenAI"
+  whisper: "OpenAI Whisper"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "אופציונלי"
+  insert_text_directly_into_apps: "אופציונלי: הוסף טקסט ישירות לאפליקציות"
+  used_for_auto_generated_titles_and_summ: "אופציונלי - משמש עבור כותרות וסיכומים שנוצרו אוטומטית על ייבוא ​​של תמלול מדיה."
+optionally:
+  clean_up_transcriptions_with_ai: "אופציונלי לנקות תמלילים עם AI"
+or:
+  _self: "אוֹ"
+  just_use_your_hotkey: "או פשוט השתמש במקש החם שלך!"
+original:
+  _self: "מְקוֹרִי"
+  text_use_commas_for_multiple: "טקסט מקורי (השתמש בפסיקים עבור ריבוי)"
+originals:
+  comma_separated: "מקוריים (מופרדים בפסיק)"
+output:
+  _self: "תְפוּקָה"
+  audio_interface_and_everyday_behavior: "פלט, שמע, ממשק והתנהגות יומיומית"
+parakeet:
+  default: "תוכי (ברירת מחדל)"
+paste:
+  _self: "לְהַדבִּיק"
+  a_video_or_audio_link: "הדבק קישור וידאו או אודיו"
+  last_transcript: "הדבק את התמליל האחרון"
+  last_transcript_v: "הדבק את התמליל האחרון ⌃⌘V"
+pause:
+  _self: "הַפסָקָה"
+  media_during_transcription: "השהה מדיה במהלך התמלול"
+permissions:
+  _self: "הרשאות"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "בחר איזה ספק ודגם מטפלים בכל משימת AI. השאר בתור \"לא מוקצה\" כדי לדלג על מטרה."
+pill:
+  _self: "כַּדוּר"
+pin:
+  to_screen_always_on_top: "הצמד למסך (תמיד למעלה)"
+pindrop:
+  _self: "Pindrop"
+  dot: "Pindrop Dot"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop מוכן לשימוש.
+    לחץ על סמל שורת התפריטים כדי להתחיל.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop מוכן לשימוש. nלחץ על סמל שורת התפריטים כדי להתחיל."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop זקוק לכמה הרשאות כדי לעבוד. nהפרטיות שלך תמיד מכבדת."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop זקוק לכמה הרשאות כדי לעבוד.
+    הפרטיות שלך תמיד מכבדת.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop זקוק להרשאת נגישות כדי להוסיף טקסט ליד הסמן.                          כדי להעניק הרשאה: 1. לחץ על \"פתח הגדרות מערכת\" למטה 2. לחץ על כפתור + 3. נווט אל האפליקציה המוצגת ב-Finder 4. הפעל מחדש את Pindrop לאחר מתן הרשאה ללא הרשאה זו, הטקסט יועתק רק ללוח שלך.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop זקוק לגישה למיקרופון כדי להקליט ולתמלל את הקול שלך.nnאנא הענק הרשאה בהגדרות המערכת."
+  on_github: "Pindrop ב-GitHub"
+  pill: "גלולת פינדרופ"
+  theme: "נושא Pindrop"
+play:
+  _self: "לְשַׂחֵק"
+please:
+  check_your_internet_connection_and_try_ag: "אנא בדוק את חיבור האינטרנט שלך ונסה שוב."
+  download_a_whisper_model_in_settings_befo: |-
+    אנא הורד דגם Whisper בהגדרות לפני ההקלטה.
+
+    עבור אל הגדרות ← דגמים כדי להוריד דגם.
+  download_a_whisper_model_in_settings_befo_a71d286e: "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.nnעבור להגדרות ← דגמים כדי להוריד דגם."
+  wait: "אנא המתן..."
+portuguese:
+  brazil: "פורטוגזית (ברזיל)"
+powered:
+  by_whisperkit: "מופעל על ידי WhisperKit"
+preparing:
+  model: "מכין דגם..."
+preset:
+  name: "שם מוגדר מראש"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "לחץ והחזק כדי להכתיב בכל אפליקציה. Pindrop תעתיק את הנאום שלך ותוסיף את הטקסט במקום שבו הסמן שלך נמצא."
+  esc_to_cancel: "הקש Esc כדי לבטל"
+  keys: "לחץ על מקשים..."
+  once_to_start_again_to_stop: "לחץ פעם אחת כדי להתחיל, שוב כדי לעצור"
+  once_to_start_recording_press_again_to_sto: "לחץ פעם אחת כדי להתחיל בהקלטה, לחץ שוב כדי לעצור ולתמלל"
+  once_to_start_recording_then_press_again_t: "לחץ פעם אחת כדי להתחיל בהקלטה, ולאחר מכן לחץ שוב כדי לעצור ולתמלל."
+  to_start_recording_press_again_to_open_not: "לחץ כדי להתחיל בהקלטה, לחץ שוב כדי לפתוח את עורך ההערות"
+primary:
+  text: "טקסט ראשי"
+processing:
+  _self: "עיבוד"
+  272bc02e: "מעבד..."
+  5aa377e2: "⏳ עיבוד"
+  transcript: "עיבוד תמליל"
+prompt:
+  _self: "לְעוֹרֵר"
+  preset: "הנחה מראש"
+provider:
+  _self: "ספק"
+  kind: "סוג ספק"
+  type: "סוג ספק"
+providers:
+  _self: "ספקים"
+  prompts_and_vibe_mode_controls: "ספקים, הנחיות ופקדי מצב אווירה"
+push:
+  to_talk: "דחיפה-לדבר"
+quickly:
+  copy_your_last_transcription: "העתק במהירות את התמלול האחרון שלך"
+  pull_your_latest_transcript_back_to_the: "משוך במהירות את התמליל האחרון שלך בחזרה ללוח."
+quit:
+  _self: "לְהַפְסִיק"
+  pindrop: "צא מפינדרופ"
+ready:
+  _self: "מוּכָן"
+  ec1296e1: "● מוכן"
+  to_record: "מוכן להקלטה"
+  to_transcribe: "מוכן לתמלול"
+recent:
+  _self: "לאחרונה"
+  transcriptions: "תעתיקים אחרונים"
+  transcripts: "תמלולים אחרונים"
+recommended:
+  _self: "מוּמלָץ"
+  the_deterministic_cleaner_handles_mo: "מומלץ: המנקה הדטרמיניסטי מתמודד עם רוב ההכתבות בצורה נקייה. אפשר את כרטיס ה-LLM רק אם אתה רוצה ליטוש נוסף וקבל מוזרויות דוגמניות מדי פעם (הקדמה, תשובות לשיחה)."
+record:
+  _self: "רְשׁוּמָה"
+recording:
+  _self: "הַקלָטָה"
+  3f8fd48c: "🔴 הקלטה"
+recordings:
+  _self: "הקלטות"
+redo:
+  _self: "לַעֲשׂוֹת שׁוּב"
+refresh:
+  _self: "לְרַעֲנֵן"
+remove:
+  _self: "לְהַסִיר"
+  and_clear_any_assignments_that_reference: "האם להסיר את \"%@\" ולנקות את כל המטלות שמתייחסות אליו? אישורים מאוחסנים יימחקו."
+  from_folder: "הסר מהתיקיה"
+  provider: "הסר ספק"
+rename:
+  _self: "שנה שם"
+  folder: "שנה את שם התיקיה"
+replace:
+  all: "החלף הכל"
+  words_and_phrases: "החלף מילים וביטויים"
+replacement:
+  _self: "תַחֲלִיף"
+  text: "טקסט חלופי"
+report:
+  an_issue: "דווח על בעיה"
+  an_issue_bd7b4f00: "דווח על בעיה"
+required:
+  _self: "דָרוּשׁ"
+  for_recording_your_voice: "נדרש להקלטת הקול שלך"
+requires:
+  a_fast_provider_apple_foundation_models: "דורש ספק מהיר (מומלצים דגמי Apple Foundation). ספקי ענן יוציאו קריאת API אחת לכל הפסקה."
+reset:
+  _self: "אִתחוּל"
+  all_settings: "לאפס את כל ההגדרות?"
+  all_settings_7262c7b7: "אפס את כל ההגדרות"
+  to_default: "אפס לברירת מחדל"
+retry:
+  _self: "נסה שוב"
+right:
+  _self: "יָמִינָה"
+run:
+  llm_polish_after_dictation_stops: "הפעל פוליש LLM לאחר הפסקת ההכתבה"
+runtime:
+  _self: "זמן ריצה: %@"
+save:
+  _self: "לְהַצִיל"
+  as_note: "שמור כהערה"
+  continue: "שמור והמשך"
+  credentials: "שמור אישורים"
+  prompt: "שמור הנחיה"
+saved:
+  _self: "נשמר"
+  as_note: "נשמר כהערה"
+  transcription: "תמלול שמור"
+search:
+  media_transcripts: "חפש תמלילי מדיה..."
+  models: "חפש דגמים"
+  models_61c1b9fe: "חפש דגמים..."
+  notes: "חפש הערות..."
+  settings: "הגדרות חיפוש"
+  settings_or_jump_between_sections_without: "חפש בהגדרות או דלג בין מקטעים מבלי לצאת מסביבת העבודה הראשית."
+  transcriptions: "חפש תמלילים..."
+secondary:
+  text: "טקסט משני"
+select:
+  a_dictionary_json_file_to_import: "בחר קובץ JSON של מילון לייבא"
+  a_model: "בחר דגם"
+  a_presets_json_file_to_import: "בחר קובץ JSON מוגדר מראש לייבוא"
+  a_provider_kind: "בחר סוג ספק"
+  a_provider_type: "בחר סוג ספק"
+  ai_model: "בחר דגם AI"
+  all: "בחר הכל"
+  language: "בחר שפה"
+  language_daea52c9: "בחר שפה"
+  this_floating_indicator_style: "בחר בסגנון המחוון הצף הזה."
+  voice_model: "בחר דגם קול"
+selected:
+  _self: "נִבחָר"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "נשלח למודל AI בעת עיבוד הכתבה להכנסת טקסט ישירה."
+sessions:
+  _self: "הפעלות"
+  781791f5: "הפעלות"
+set:
+  as_default: "הגדר כברירת מחדל"
+settings:
+  _self: "הגדרות"
+  bf83f07f: "הגדרות..."
+  fa67a397: "הגדרות..."
+setup:
+  required: "נדרשת הגדרה"
+show:
+  app: "הצג אפליקציה"
+  app_in_finder: "הצג את האפליקציה ב-Finder"
+  floating_indicator: "הצג מחוון צף"
+  in_dock: "הצג ב-Dock"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "מוצג כנקודה בפינת המסך"
+  as_a_pill_at_the_bottom_of_the_screen: "מוצג כגלולה בתחתית המסך"
+  beside_the_focused_text_field_caret: "מוצג לצד שדה הטקסט/הקארט הממוקד"
+  in_the_menu_bar_notch_area: "מופיע בשורת התפריטים/אזור החריץ"
+  recording_state_in_a_lightweight_overlay_w: "מציג מצב הקלטה בחלון כיסוי קל משקל."
+sidebar:
+  position: "מיקום סרגל הצד"
+simplified:
+  chinese: "סינית פשוטה"
+size:
+  _self: "גוֹדֶל"
+skip:
+  for_now: "דלג לעת עתה"
+slow:
+  _self: "לְהַאֵט"
+slower:
+  _self: "לאט יותר"
+slowest:
+  _self: "הכי איטי"
+small:
+  _self: "קָטָן"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "דגמים קטנים יותר מהירים יותר אך פחות מדויקים. nהתחל עם Base לקבלת האיזון הטוב ביותר."
+  models_are_faster_but_less_accurate_star: |-
+    דגמים קטנים יותר מהירים יותר אך פחות מדויקים.
+    התחל עם Base לקבלת האיזון הטוב ביותר.
+something:
+  went_wrong: "משהו השתבש"
+soon:
+  _self: "בְּקָרוּב"
+sort:
+  by: "מיין לפי"
+source:
+  _self: "מָקוֹר"
+spanish:
+  _self: "סְפָרַדִית"
+speaker:
+  diarization_and_timestamps_are_attached: "יומן רמקול וחותמות זמן מצורפות להשמעה."
+  diarization_is_required: "נדרש יומן דובר"
+speed:
+  _self: "מְהִירוּת"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "התחל מחדש כאשר אתה רוצה לנקות העדפות, מצב הצטרפות ואישורים שמורים."
+  recording: "התחל להקליט"
+  recording_to_see_your_transcriptions_here: "התחל להקליט כדי לראות את התמלילים שלך כאן"
+  stop_recording: "התחל/הפסק הקלטה"
+  using_pindrop: "התחל להשתמש ב-Pindrop"
+status:
+  _self: "סטָטוּס"
+stop:
+  recording: "עצור את ההקלטה"
+streaming:
+  enhancement: "שיפור סטרימינג"
+  transcription_currently_supports_engli: "תמלול סטרימינג תומך כרגע באנגלית בלבד, ללא קשר לשפה שנבחרה."
+  transcription_is_disabled_while_ai_enh: "תמלול סטרימינג מושבת בזמן ששיפור בינה מלאכותית מופעל."
+  transcription_model_parakeet_realtime: "מודל תמלול סטרימינג (Parakeet Realtime EOU) ברישיון NVIDIA Corporation תחת רישיון NVIDIA Open Model."
+success:
+  _self: "הַצלָחָה!"
+support:
+  _self: "תְמִיכָה"
+  coming_soon: "%@ תמיכה בקרוב"
+supports:
+  local_media_files_and_web_links_resolve: "תומך בקבצי מדיה מקומיים וקישורי אינטרנט שנפתרו באמצעות yt-dlp."
+switch:
+  to_model: "עבור לדגם"
+system:
+  _self: "מַעֲרֶכֶת"
+  default: "מערכת ברירת מחדל"
+teach:
+  custom_words: "למד מילים מותאמות אישית"
+temporarily:
+  copy_text_paste_it_then_restore_your: "העתק טקסט באופן זמני, הדבק אותו ואז שחזר את הלוח שלך"
+  mute_speaker_output_while_dictation: "השתקה זמנית של פלט הרמקול בזמן ההקלטה."
+  pause_active_media_playback_while_di: "השהה זמנית את השמעת מדיה פעילה בזמן ההקלטה."
+tertiary:
+  text: "טקסט שלישוני"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" הדגם לא הצליח להיטען בתוך 60 שניות. זה בדרך כלל אומר שקובצי הדגם פגומים או לא תואמים.                          כדי לתקן זאת: 1. פתח את הגדרות ← דגמים 2. מחק את הדגם הבעייתי 3. הורד מחדש את הדגם אם הבעיה נמשכת, נסה דגם קטן יותר (Tiny או Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "גרסת הנתח שנבחרה עדיין לא הורדה. החלפה תתחיל הורדה."
+theme:
+  _self: "נוֹשֵׂא"
+  changes_apply_live_across_the_workspace_se: "שינויי ערכת נושא חלים בשידור חי על פני סביבת העבודה, ההגדרות, עורך הערות ומחוונים צפים."
+  mode: "מצב ערכת נושא"
+this:
+  preset_name_is_already_in_use: "שם מוגדר מראש זה כבר בשימוש."
+  provider_will_be_available_in_a_future_upda: |-
+    ספק זה יהיה זמין בעדכון עתידי.
+    לעת עתה, נסה את OpenAI או השתמש בנקודת קצה מותאמת אישית.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    ספק זה יהיה זמין בעדכון עתידי.
+    נסה את OpenAI או השתמש בנקודת קצה מותאמת אישית.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "ספק זה יהיה זמין בעדכון עתידי.nבינתיים, נסה את OpenAI או השתמש בנקודת קצה מותאמת אישית."
+  transcription_could_not_be_found: "לא ניתן היה למצוא את התעתיק הזה."
+  will_clear_all_your_settings_including_api: "פעולה זו תנקה את כל ההגדרות שלך, כולל מפתחות API, מקשי קיצור והעדפות דגם. האפליקציה תסגר ותציג את ההטמעה שוב בהשקה הבאה."
+  will_permanently_remove_the_transcript_and: "פעולה זו תסיר לצמיתות את התמליל ואת קובץ המדיה המנוהל שלו."
+time:
+  saved: "זמן נשמר"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "להכתיב ולתת לפינדרופ לתמלל עבורך"
+  start_talking: "להתחיל לדבר"
+today:
+  _self: "הַיוֹם"
+toggle:
+  _self: "לְמַתֵג"
+  recording: "החלף הקלטה"
+  sort_order: "החלף את סדר המיון"
+transcribe:
+  _self: "לְתַעֲתֵק"
+  media: "תמלול מדיה"
+transcribed:
+  _self: "מתומלל"
+transcription:
+  _self: "תַעֲתוּק"
+  backend: "קצה אחורי של תמלול"
+  deleted: "התמלול נמחק."
+  enhancement: "שיפור תמלול"
+  failed: "התמלול נכשל"
+  finished: "התמלול הסתיים."
+  in_progress: "תמלול מתבצע"
+  metadata: "מטא נתונים של תמלול"
+  update: "עדכון תמלול"
+transcriptions:
+  _self: "תעתיקים"
+  f0972acc: "תעתיקים"
+  in_this_folder_will_be_kept_and_m: "התמלולים בתיקייה זו יישמרו ויעברו חזרה לספרייה."
+transcripts:
+  _self: "תמלילים"
+try:
+  a_different_search_term: "נסה מונח חיפוש אחר"
+  a_different_search_term_0ba628a3: "נסה מונח חיפוש אחר."
+  a_different_search_term_in_this_folder: "נסה מונח חיפוש אחר בתיקייה זו."
+  searching_for_terms_like_hotkeys_microphone: "נסה לחפש מונחים כמו מקשי קיצור, מיקרופון, עדכונים או מצב אווירה."
+turkish:
+  _self: "טוּרקִית"
+type:
+  text_directly_into_the_active_app_when_poss: "הקלד טקסט ישירות באפליקציה הפעילה במידת האפשר"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" לא ניתן להתחבר לשירות שיפור הבינה המלאכותית.                                  אנא בדוק: 1. חיבור האינטרנט שלך 2. כתובת האתר של נקודת הקצה של ה-API נכונה 3. השירות אינו חווה הפסקה התמלול נשמר ללא שיפור.                 \"\""
+  to_finish_transcription: "לא ניתן לסיים את התמלול"
+  to_load_history: "לא ניתן לטעון את ההיסטוריה: %@"
+  to_load_models_try_refresh: "לא ניתן לטעון דגמים. נסה לרענן."
+  to_update_media_library: "לא ניתן לעדכן את ספריית המדיה"
+unavailable:
+  device: "מכשיר לא זמין"
+undo:
+  _self: "לְבַטֵל"
+unfiled:
+  _self: "לא מתויק"
+unpin:
+  from_screen: "בטל את ההצמדה מהמסך"
+update:
+  _self: "לְעַדְכֵּן"
+updates:
+  _self: "עדכונים"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "השתמש בקיצור דרך הקש כדי להתחיל, הקש לסיום ללכידת הערות."
+  clipboard_only: "השתמש בלוח בלבד"
+  the_hotkey_to_start_your_first_recording: "השתמש במקש הקיצור כדי להתחיל את ההקלטה הראשונה שלך"
+  transcription_as_a_placeholder_for_the_trans: "השתמש ב-${transcription} כמציין מיקום עבור הטקסט המתועתק."
+  transcription_as_placeholder: "השתמש ב-${transcription} כמציין מיקום"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "משמש בעת לכידת הערות באמצעות מקש קיצור. יכול להוסיף עיצוב סימון לתוכן ארוך יותר."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "משתמש בהנחיה מובנית המכווננת למשימה זו."
+  the_160ms_parakeet_variant_for_snappier_par: "משתמש בגרסה של 160ms Parakeet עבור חלקים חלקים יותר במחיר של ~70% יותר שגיאות מילים. ברירת המחדל היא גרסת 320ms."
+  the_transcription_enhancement_assignment_if: "משתמש במשימת שיפור תמלול. אם לא מוגדר, פלט מנקה דטרמיניסטי נשמר כפי שהוא."
+v:
+  _self: "v%@"
+version:
+  _self: "גרסה %@ (%@)"
+very:
+  fast: "מהיר מאוד"
+via:
+  _self: "דרך %@"
+vibe:
+  mode: "מצב וייב"
+  mode_captures_structured_ui_context_when_re: "מצב Vibe לוכד הקשר מובנה של ממשק המשתמש כאשר ההקלטה מתחילה כך ששיפור בינה מלאכותית יכול להשתמש במצב האפליקציה הפעילה שלך כעיון."
+  mode_works_best_with_accessibility_permissi: "מצב Vibe עובד בצורה הטובה ביותר עם הרשאת נגישות. בלעדיו, Pindrop חוזר למטא נתונים מוגבלים של אפליקציה והתמלול עדיין עובד כרגיל."
+view:
+  _self: "נוֹף"
+  all: "הצג הכל"
+  transcript_history: "הצג היסטוריית תמלול"
+  transcription_history: "הצג היסטוריית תמלול"
+vocabulary:
+  _self: "אוֹצָר מִילִים"
+vs:
+  typing: "לעומת הקלדה"
+welcome:
+  to_pindrop: "ברוכים הבאים ל-Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "מִלָה"
+  replacements: "החלפות מילים"
+words:
+  _self: "מילים"
+  efb89361: "מילים"
+  min: "מילים/דקה"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "אֶתמוֹל"
+you:
+  are_a_note_formatting_assistant_transform_th: "אתה עוזר עיצוב הערות. הפוך את הטקסט המתועתק להערה מובנית היטב. nnכללים: n- תקן שגיאות דקדוק, פיסוק וכתיב n- עבור תוכן ארוך יותר (3 פסקאות ומעלה), הוסף עיצוב סימון: n - השתמש בכותרות (## או ###) כדי לארגן חלקים n - השתמש בנקודות תבליטים או רשימות ממוספרות היכן שמתאים - השתמש בפורמט **מודגש קצר יותר** לפורמט מינימלי של מפתח, n שמור על המשמעות המקורית והצג- אל תוסיף תוכן שלא היה במקור- החזר רק את ההערה המעוצבת ללא כל פרשנות"
+  are_a_text_enhancement_assistant_improve_the: "אתה עוזר לשיפור טקסט. שפר את הדקדוק, הפיסוק והעיצוב של הטקסט שסופק תוך שמירה על המשמעות והטון המקוריים שלו. החזר רק את הטקסט המשופר ללא כל פרשנות נוספת."
+  can_change_these_anytime_from_the_menu_bar_s: "אתה יכול לשנות אותם בכל עת משורת התפריטים ← הגדרות ← מקשי קיצור"
+  re_all_set: "אתה מוכן!"
+  re_all_set_058a8130: "אתה מוכן!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" חרגת ממגבלת התעריף או ממכסת ה-API שלך.                                  כדי לתקן זאת: 1. המתן מספר דקות ונסה שוב 2. בדוק את מגבלות השימוש של ספק ה-API שלך 3. שקול לשדרג את תוכנית ה-API שלך התמלול נשמר ללא שיפור.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" נראה שמפתח ה-API שלך אינו חוקי או שפג תוקפו.                                  כדי לתקן זאת: 1. פתח את הגדרות ← שיפור AI 2. ודא שמפתח ה-API שלך נכון 3. בדוק שנקודת הקצה של ה-API שלך נכונה התמלול נשמר ללא שיפור.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "המקשים החמים שלך מוכנים לשימוש. nתוכל להתאים אותם מאוחר יותר בהגדרות."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    המקשים החמים שלך מוכנים לשימוש.
+    תוכל להתאים אותם מאוחר יותר בהגדרות.
+  model_is_ready_to_use: "הדגם שלך מוכן לשימוש."
+  stats: "הסטטיסטיקה שלך"

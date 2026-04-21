@@ -1,0 +1,1012 @@
+100:
+  local_processing: "معالجة محلية 100%"
+1:
+  folder: "1 مجلد"
+  transcription: "1 النسخ"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "تطبيق إملاء شريط قوائم macOS أصلي يستخدم تحويل الكلام إلى نص محلي مع WhisperKit. معالجة محلية بنسبة 100% بشكل افتراضي مع تحسين الذكاء الاصطناعي الاختياري."
+about:
+  _self: "عن"
+  pindrop: "حول بيندروب"
+accessibility:
+  _self: "إمكانية الوصول"
+  permission_is_enabled_full_ui_cont: "تم تمكين إذن الوصول. سياق واجهة المستخدم الكامل متاح."
+  permission_is_not_granted_vibe_mod: "لم يتم منح إذن الوصول. يظل وضع Vibe غير محظور مع سياق محدود."
+  permission_recommended: "يوصى باستخدام إذن الوصول"
+  permission_required: "إذن الوصول مطلوب"
+accuracy:
+  _self: "دقة"
+acknowledgments:
+  _self: "شكر وتقدير"
+active:
+  _self: "نشيط"
+add:
+  _self: "يضيف"
+  a_provider_to_start_using_ai_enhancement: "أضف موفرًا لبدء استخدام تحسين الذكاء الاصطناعي."
+  custom_words_to_improve_transcription_accura: "أضف كلمات مخصصة لتحسين دقة النسخ للمصطلحات أو الأسماء أو المصطلحات المتخصصة."
+  provider: "إضافة موفر"
+  tag: "إضافة علامة..."
+  to_existing: "إضافة إلى الموجود"
+  trailing_space: "أضف مسافة زائدة"
+  word_replacements_to_automatically_correct_c: "أضف بدائل الكلمات لتصحيح أخطاء النسخ الشائعة تلقائيًا."
+  words_to_help_pindrop_recognize_them_properl: "أضف كلمات لمساعدة Pindrop في التعرف عليها بشكل صحيح"
+  words_you_manually_correct_into_your_vocabul: "أضف الكلمات التي تقوم بتصحيحها يدويًا إلى مفرداتك لعمليات النسخ المستقبلية."
+ai:
+  enhancement: "تعزيز الذكاء الاصطناعي"
+  enhancement_529f5583: "تحسين الذكاء الاصطناعي: %@"
+  enhancement_failed: "فشل تحسين الذكاء الاصطناعي"
+  enhancement_is_disabled: "تم تعطيل تحسين الذكاء الاصطناعي."
+  enhancement_will: "سوف يقوم تحسين الذكاء الاصطناعي بما يلي:"
+  model: "نموذج الذكاء الاصطناعي"
+all:
+  _self: "الجميع"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    حدث خطأ أثناء تحسين تحويل الصوت إلى نص:
+    
+    %@
+    
+    تم حفظ النسخ الأصلي دون تحسين.
+    يمكنك محاولة تمكين تحسين الذكاء الاصطناعي مرة أخرى في الإعدادات.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "حدث خطأ أثناء تحسين النسخ:nn%@nn تم حفظ النسخ الأصلي بدون تحسين. يمكنك محاولة تمكين تحسين الذكاء الاصطناعي مرة أخرى في الإعدادات."
+anthropic:
+  _self: "أنثروبي"
+api:
+  endpoint: "نقطة نهاية واجهة برمجة التطبيقات"
+  key: "مفتاح واجهة برمجة التطبيقات"
+  key_saved: "تم حفظ مفتاح API"
+  key_saved_endpoint: "تم حفظ مفتاح واجهة برمجة التطبيقات • نقطة النهاية: %@"
+app:
+  info_acknowledgments_support_and_logs: "معلومات التطبيق والإقرارات والدعم والسجلات"
+append:
+  a_space_after_each_transcription_for_seam: "أضف مسافة بعد كل نسخة للإملاء السلس."
+apple:
+  foundation_models_on_device: "نماذج مؤسسة Apple (على الجهاز)"
+  intelligence: "ذكاء أبل"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence غير متوفر في هذا النظام. لن يتم حل هذه المهمة حتى يتم تمكين Apple Intelligence."
+  intelligence_runs_on_device_and_requires_n: "تعمل خدمة Apple Intelligence على الجهاز ولا تتطلب أي بيانات اعتماد."
+  speechtranscriber_macos_26: "برنامج Apple SpeechTranscriber (نظام التشغيل MacOS 26+)"
+  speechtranscriber_requires_macos_26: "تتطلب Apple SpeechTranscriber نظام التشغيل MacOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber غير متوفر — باستخدام Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "هل أنت متأكد أنك تريد حذف '%@'؟ لا يمكن التراجع عن هذا الإجراء."
+assignments:
+  _self: "المهام"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "قم بإرفاق السجلات من هذا المجلد عند تقديم مشكلة GitHub."
+audio:
+  input: "إدخال الصوت"
+automatic:
+  follow_system: "تلقائي (نظام المتابعة)"
+  updates: "التحديثات التلقائية"
+  updates_and_manual_update_checks: "التحديثات التلقائية والتحقق من التحديث اليدوي"
+automatically:
+  check_for_new_versions_in_the_back: "التحقق تلقائيًا من وجود إصدارات جديدة في الخلفية."
+  start_pindrop_when_you_sign_in: "قم بتشغيل Pindrop تلقائيًا عند تسجيل الدخول."
+available:
+  models: "النماذج المتاحة"
+avg:
+  speed: "متوسط ​​السرعة"
+back:
+  _self: "خلف"
+  to_library: "العودة إلى المكتبة"
+base:
+  _self: "قاعدة"
+best:
+  _self: "أفضل"
+better:
+  _self: "أحسن"
+bubble:
+  _self: "فقاعة"
+built:
+  in_presets: "الإعدادات المسبقة المضمنة"
+  in_read_only: "مدمج (للقراءة فقط)"
+cancel:
+  _self: "يلغي"
+  operation: "إلغاء العملية"
+capture:
+  directly_into_the_note_editor_with_a_hol: "التقط الصور مباشرة في محرر الملاحظات من خلال تدفق التثبيت للتسجيل."
+change:
+  microphone: "تغيير الميكروفون"
+  microphone_ac9970f4: "تغيير الميكروفون"
+check:
+  for_updates: "التحقق من وجود تحديثات..."
+  for_updates_736b9062: "التحقق من وجود تحديثات"
+  now: "تحقق الآن"
+checking:
+  _self: "جارٍ التحقق..."
+choose:
+  a_location_to_save_the_dictionary: "اختر موقعًا لحفظ القاموس"
+  a_location_to_save_the_presets: "اختر موقعًا لحفظ الإعدادات المسبقة"
+  a_model: "اختر نموذجًا"
+  a_provider_first: "اختر مزودًا أولاً"
+  an_audio_or_video_file_to_transcribe: "اختر ملف صوت أو فيديو لنسخه"
+  between_parakeet_cross_version_downloaded: "اختر بين Parakeet (الإصدار المشترك، النموذج الذي تم تنزيله) وApple SpeechTranscriber (macOS 26+، يأتي مع نظام التشغيل)."
+  file: "اختر الملف"
+  how_dictated_text_lands_then_tune_the_fin: "اختر كيفية وصول النص الذي تم إملاؤه، ثم قم بضبط سلوك الإدراج النهائي."
+  how_pindrop_follows_system_appearance_the: "اختر كيفية اتباع Pindrop لمظهر النظام، ثم قم بمزج اللوحات الفاتحة والداكنة المنسقة."
+  how_to_import_the_dictionary_data: "اختر كيفية استيراد بيانات القاموس"
+  how_to_import_the_preset_data: "اختر كيفية استيراد البيانات المعدة مسبقًا"
+  languages_for_the_interface_and_for_dicta: "اختر اللغات للواجهة والإملاء. التلقائي يتبع النظام."
+  location_to_save_presets: "اختر الموقع لحفظ الإعدادات المسبقة"
+  the_daytime_shell_used_in_light_mode: "اختر الغلاف النهاري المستخدم في الوضع الخفيف."
+  the_low_glare_shell_used_in_dark_mode: "اختر الغلاف منخفض الوهج المستخدم في الوضع المظلم."
+  which_floating_indicator_style_appears_wh: "اختر نمط المؤشر العائم الذي يظهر عند تمكين التراكب."
+  which_microphone_pindrop_should_use_for_d: "اختر الميكروفون الذي يجب أن يستخدمه Pindrop للإملاء وكيف يتصرف أثناء التسجيل."
+  which_side_the_navigation_sidebar_appears: "اختر الجانب الذي يظهر عليه شريط التنقل الجانبي."
+clean:
+  up_filler_words: "تنظيف الكلمات الحشو"
+clear:
+  audio_buffer: "مسح المخزن المؤقت للصوت"
+  hotkey: "مسح مفتاح التشغيل السريع"
+clears:
+  preferences_and_restarts_onboarding: "مسح التفضيلات وإعادة تشغيل الإعداد"
+click:
+  or_hold: "انقر أو اضغط باستمرار"
+  or_press: "انقر أو اضغط"
+  or_set_a_hotkey_to_start_talking: "انقر أو قم بتعيين مفتاح التشغيل السريع لبدء التحدث"
+  this_icon_anytime_to: "انقر فوق هذا الرمز في أي وقت للقيام بما يلي:"
+clipboard:
+  _self: "الحافظة"
+cloud:
+  _self: "سحاب"
+  model: "نموذج السحابة"
+collapse:
+  _self: "ينهار"
+coming:
+  soon: "%@ قريبًا"
+  soon_04d2fd85: "قريباً"
+configure:
+  ai_providers_and_credentials_apple_int: "قم بتكوين موفري الذكاء الاصطناعي وبيانات الاعتماد. تعمل خدمة Apple Intelligence على الجهاز؛ ويتطلب مقدمو الخدمة الآخرون مفاتيح واجهة برمجة التطبيقات (API)."
+  keyboard_shortcuts_for_recording_and_n: "قم بتكوين اختصارات لوحة المفاتيح للتسجيل والتقاط الملاحظات"
+continue:
+  _self: "يكمل"
+  with_default: "تابع مع الافتراضي"
+  without: "الاستمرار بدون"
+control:
+  how_pindrop_appears_in_macos_and_whether: "تحكم في كيفية ظهور Pindrop في نظام التشغيل macOS وما إذا كان سيبدأ بجلسة سطح المكتب لديك."
+controls:
+  how_the_live_dictation_path_polishes_tr: "يتحكم في كيفية تحسين مسار الإملاء المباشر للنصوص. يعمل المنظف الحتمي (إزالة الحشو، الكتابة بالأحرف الكبيرة، علامات الترقيم المنطوقة، تطبيع الأرقام، دمج الكلمات المنقسمة) في كلا الاتجاهين - يؤدي هذا التبديل إلى تمرير تمرير تلميع LLM الاختياري الذي يتم تشغيله بمجرد توقف الإملاء."
+copied:
+  _self: "منسوخ!"
+copy:
+  _self: "ينسخ"
+  enhanced: "نسخة محسنة"
+  last_transcript: "نسخ النص الأخير"
+  original: "نسخ الأصل"
+  system_info_for_bug_report: "انسخ معلومات النظام لتقرير الأخطاء"
+  the_most_recent_transcript_to_the_clipboard: "انسخ أحدث نسخة إلى الحافظة"
+  to_clipboard: "نسخ إلى الحافظة"
+  transcript: "نسخ النص"
+correct:
+  grammar_mistakes: "تصحيح الأخطاء النحوية"
+create:
+  _self: "يخلق"
+  new_note: "إنشاء ملاحظة جديدة"
+  new_preset: "إنشاء إعداد مسبق جديد"
+  your_first_note_to_get_started: "قم بإنشاء ملاحظتك الأولى للبدء"
+  your_first_preset_or_duplicate_a_built_in: "قم بإنشاء أول إعداد مسبق لك أو قم بتكرار إعداد مضمن لتخصيصه."
+  your_own_presets_or_duplicate_built_in_on: "قم بإنشاء الإعدادات المسبقة الخاصة بك أو نسخ الإعدادات المضمنة لتخصيصها."
+credentials:
+  are_stored_securely_in_keychain: "يتم تخزين بيانات الاعتماد بشكل آمن في Keychain"
+  saved_successfully: "تم حفظ بيانات الاعتماد بنجاح"
+current:
+  _self: "الحالي: %@"
+custom:
+  _self: "مخصص"
+  local: "مخصص / محلي"
+  openai_compatible: "مخصص (متوافق مع OpenAI)"
+  presets: "الإعدادات المسبقة المخصصة"
+customize:
+  hotkey: "تخصيص مفتاح التشغيل السريع"
+cut:
+  _self: "يقطع"
+d:
+  characters: "%d حرفًا"
+dark:
+  _self: "مظلم"
+  preview: "معاينة الظلام"
+  theme: "موضوع الظلام"
+database:
+  error: "خطأ في قاعدة البيانات"
+date:
+  _self: "تاريخ"
+  7f823513: "التاريخ %@"
+default:
+  _self: "تقصير"
+  model: "النموذج الافتراضي"
+define:
+  word_replacements_to_automatically_replac: "تحديد بدائل الكلمات لاستبدال كلمات أو عبارات محددة تلقائيًا"
+degraded:
+  _self: "متدهورة"
+delete:
+  _self: "يمسح"
+  folder: "حذف المجلد"
+  folder_e556e7c2: "هل تريد حذف المجلد؟"
+  model: "حذف النموذج"
+  preset: "حذف الإعداد المسبق"
+  preset_4f6cfe36: "هل تريد حذف الإعداد المسبق؟"
+  transcription: "حذف النسخ"
+  transcription_f82187c4: "هل تريد حذف تحويل الصوت إلى نص؟"
+dictionary:
+  _self: "قاموس"
+direct:
+  insert: "إدراج مباشر"
+disabled:
+  _self: "عاجز"
+dismiss:
+  _self: "رفض"
+display:
+  name: "اسم العرض"
+  name_c7874aaa: "اسم العرض"
+  pindrop_in_the_dock_instead_of_running_o: "قم بعرض Pindrop في Dock بدلاً من تشغيله كتطبيق شريط قوائم فقط."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "قم بإرساء الشريط الجانبي على الحافة اليسرى أو اليمنى من النافذة."
+dot:
+  _self: "نقطة"
+download:
+  _self: "تحميل"
+  complete: "اكتمل التنزيل!"
+  continue: "تحميل ومتابعة"
+  failed: "فشل التنزيل"
+  model: "تحميل النموذج"
+  the_diarization_model_before_starting_m: "قم بتنزيل نموذج diarization قبل البدء في نسخ الوسائط."
+downloaded:
+  _self: "تم التنزيل"
+downloading:
+  _self: "جاري التحميل %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "قم بإسقاط ملف أو لصق رابط لإنشاء نسخة يومية ومختومة بالوقت."
+  audio_or_video_here: "قم بإسقاط الصوت أو الفيديو هنا"
+duplicate:
+  preset: "تكرار الإعداد المسبق"
+dutch:
+  _self: "هولندي"
+edit:
+  _self: "يحرر"
+  preset: "تحرير الإعداد المسبق"
+  provider: "تحرير الموفر"
+empty:
+  _self: "(فارغ)"
+enable:
+  ai_enhancement: "تمكين تعزيز الذكاء الاصطناعي"
+  live_session_updates_during_recording: "تمكين تحديثات الجلسة المباشرة أثناء التسجيل"
+  the_floating_indicator_to_choose_a_style: "تمكين المؤشر العائم لاختيار النمط."
+  vibe_mode_ui_context: "تمكين وضع vibe (سياق واجهة المستخدم)"
+enabled:
+  _self: "ممكّن"
+endpoint:
+  _self: "نقطة النهاية: %@"
+english:
+  _self: "إنجليزي"
+  only: "الإنجليزية فقط"
+enhanced:
+  _self: "معزز"
+enhancement:
+  prompts: "مطالبات التحسين"
+enter:
+  an_openai_api_key_to_load_models: "أدخل مفتاح OpenAI API لتحميل النماذج."
+  api_key: "أدخل مفتاح API"
+  word_to_add: "أدخل كلمة لإضافتها"
+error:
+  _self: "خطأ"
+european:
+  multilingual: "أوروبية متعددة اللغات"
+excellent:
+  _self: "ممتاز"
+export:
+  _self: "يصدّر"
+  as_csv: "تصدير كملف CSV"
+  as_json: "تصدير كـ JSON"
+  as_plain_text: "تصدير كنص عادي"
+  dictionary: "قاموس التصدير"
+  failed: "فشل التصدير: %@"
+  last_transcript: "تصدير النص الأخير..."
+  presets: "تصدير الإعدادات المسبقة"
+failed:
+  to_add_replacement: "فشلت إضافة البديل: %@"
+  to_add_word: "فشلت إضافة الكلمة: %@"
+  to_delete_folder: "فشل حذف المجلد: %@"
+  to_delete_note: "فشل حذف الملاحظة: %@"
+  to_delete_preset: "فشل حذف الإعداد المسبق: %@"
+  to_delete_replacement: "فشل حذف الاستبدال: %@"
+  to_delete_transcription: "فشل حذف النص: %@"
+  to_delete_word: "فشل حذف الكلمة: %@"
+  to_export_dictionary: "فشل تصدير القاموس: %@"
+  to_export_presets: "فشل تصدير الإعدادات المسبقة: %@"
+  to_import_dictionary: "فشل استيراد القاموس: %@"
+  to_import_presets: "فشل استيراد الإعدادات المسبقة: %@"
+  to_initialize_the_database_nnthe_app_will: "فشل في تهيئة قاعدة البيانات: %@nnسيتم إنهاء التطبيق الآن. يرجى محاولة إعادة التشغيل أو الاتصال بالدعم إذا استمرت المشكلة."
+  to_load_data: "فشل تحميل البيانات: %@"
+  to_load_history: "فشل تحميل السجل: %@"
+  to_read_import_file: "فشلت قراءة ملف الاستيراد: %@"
+  to_save: "فشل الحفظ: %@"
+  to_save_preset: "فشل حفظ الإعداد المسبق: %@"
+  to_switch_model: "فشل في تبديل النموذج: %@"
+  to_update_preset: "فشل تحديث الإعداد المسبق: %@"
+  to_update_replacement: "فشل تحديث الاستبدال: %@"
+  to_update_word: "فشل تحديث الكلمة: %@"
+fast:
+  _self: "سريع"
+feature:
+  models: "نماذج مميزة"
+fetch:
+  models_in_models: "جلب النماذج في النماذج"
+fix:
+  punctuation_and_capitalization: "إصلاح علامات الترقيم والأحرف الكبيرة"
+floating:
+  indicator: "%@ مؤشر عائم"
+  indicator_3bad78a5: "المؤشر العائم: %@"
+  indicator_e0349402: "المؤشر العائم"
+folder:
+  deleted: "تم حذف المجلد."
+  name: "اسم المجلد"
+follow:
+  playback: "اتبع التشغيل"
+format:
+  text_appropriately: "تنسيق النص بشكل مناسب"
+french:
+  _self: "فرنسي"
+general:
+  _self: "عام"
+german:
+  _self: "الألمانية"
+get:
+  started: "ابدأ"
+global:
+  keyboard_shortcuts: "اختصارات لوحة المفاتيح العالمية"
+go:
+  back: "عُد"
+  to_settings: "انتقل إلى الإعدادات"
+good:
+  _self: "جيد"
+  afternoon: "مساء الخير"
+  evening: "مساء الخير"
+  morning: "صباح الخير"
+  night: "طاب مساؤك"
+google:
+  _self: "جوجل"
+got:
+  it: "فهمتها"
+grant:
+  _self: "منحة"
+great:
+  _self: "عظيم"
+hide:
+  this_for_1_hour: "إخفاء هذا لمدة 1 ساعة"
+history:
+  _self: "تاريخ"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "اضغط مع الاستمرار على الاختصار للتسجيل، ثم حرره للنسخ."
+  to_record_release_to_open_note_editor_with: "اضغط مع الاستمرار للتسجيل، ثم حرره لفتح محرر الملاحظات مع النسخ"
+  to_record_release_to_stop_and_transcribe: "اضغط باستمرار للتسجيل، ثم حرر للإيقاف والنسخ"
+  to_record_release_to_transcribe: "اضغط للتسجيل، ثم حرر للنسخ"
+hotkey:
+  conflict: "الصراع هوتكي"
+hotkeys:
+  _self: "مفاتيح الاختصار"
+import:
+  dictionary: "استيراد القاموس"
+  error: "خطأ في الاستيراد"
+  export: "استيراد/تصدير"
+  media: "استيراد الوسائط"
+  or_transcribe_media_while_this_folder_is: "قم باستيراد الوسائط أو نسخها أثناء تحديد هذا المجلد لحفظ العناصر هنا."
+  presets: "استيراد الإعدادات المسبقة"
+  strategy: "استراتيجية الاستيراد"
+imported:
+  files_and_web_links_will_appear_here_on: "ستظهر الملفات المستوردة وروابط الويب هنا بمجرد اكتمال المعالجة."
+improve:
+  transcription_quality_using_ai: "تحسين جودة النسخ باستخدام الذكاء الاصطناعي"
+include:
+  clipboard_text: "تضمين نص الحافظة"
+interface:
+  _self: "واجهة"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "تم تعيين %@ لكل من %@ و%@. سيكون الإجراء الأول فقط نشطًا. قم بتحديث مفاتيح التشغيل السريع في الإعدادات لحل هذا التعارض."
+italian:
+  _self: "ايطالي"
+items:
+  _self: "أغراض"
+japanese:
+  _self: "اليابانية"
+keep:
+  pindrop_current_automatically_or_trigger_a: "حافظ على تحديث Pindrop تلقائيًا، أو قم بإجراء فحص يدوي وقتما تشاء."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "اختصارات لوحة المفاتيح"
+korean:
+  _self: "كوري"
+language:
+  _self: "لغة"
+large:
+  _self: "كبير"
+launch:
+  at_login: "الإطلاق عند تسجيل الدخول: %@"
+  at_login_0b36c78f: "إطلاق عند تسجيل الدخول"
+layout:
+  _self: "تَخطِيط"
+learn:
+  corrected_words_automatically: "تعلم الكلمات المصححة تلقائيا"
+left:
+  _self: "غادر"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "اسمح لـ Pindrop بتعلم المفردات بهدوء من التصحيحات التي تجريها مع مرور الوقت."
+light:
+  _self: "ضوء"
+  dark_and_curated_palette_presets: "الإعدادات المسبقة للوحة الفاتحة والداكنة والمنسقة"
+  preview: "معاينة الضوء"
+  theme: "موضوع الضوء"
+limited:
+  _self: "محدود"
+live:
+  streaming_refinement: "تحسين البث المباشر"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld حرفًا"
+  complete: "%lld%% اكتمل"
+  items: "%lld العناصر"
+  notes: "%lld ملاحظات"
+  transcriptions: "%lld النسخ"
+lm:
+  studio: "ستوديو إل إم"
+  studio_only_needs_a_token_if_local_server_aut: "يحتاج LM Studio إلى رمز مميز فقط إذا تم تمكين مصادقة الخادم المحلي."
+load:
+  models: "تحميل النماذج"
+loaded:
+  d_models: "تم تحميل نماذج %d"
+loading:
+  history: "جارٍ تحميل السجل..."
+  models: "جارٍ تحميل النماذج..."
+local:
+  _self: "محلي"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    تحويل الكلام المحلي إلى نص، مباشرة من شريط القائمة.
+    سريع وخاص ومتاح دائمًا.
+  speech_to_text_right_from_your_menu_bar_nf: "تحويل الكلام المحلي إلى نص، مباشرةً من شريط القائمة لديك. سريع، خاص، ومتاح دائمًا."
+  speech_to_text_with_whisperkit: "تحويل الكلام المحلي إلى نص باستخدام WhisperKit"
+  voice_to_text: "تحويل الصوت إلى نص محلي"
+low:
+  latency_mode_less_accurate: "وضع الكمون المنخفض (أقل دقة)"
+manage:
+  local_speech_models_feature_models_and_th: "إدارة نماذج الكلام المحلية ونماذج الميزات والمحرك الافتراضي الذي يستخدمه Pindrop للنسخ."
+  models: "إدارة النماذج"
+  presets: "إدارة الإعدادات المسبقة"
+  presets_ab87986d: "إدارة الإعدادات المسبقة..."
+manually:
+  check_for_new_versions_now: "تحقق يدويًا من وجود إصدارات جديدة الآن."
+media:
+  library: "مكتبة الوسائط"
+  transcription: "نسخ الوسائط"
+  unavailable: "الوسائط غير متوفرة"
+medium:
+  _self: "واسطة"
+microphone:
+  _self: "ميكروفون"
+  permission_is_required_to_continue: "مطلوب إذن الميكروفون للمتابعة"
+  permission_is_required_to_continue_dc: "مطلوب إذن الميكروفون للمتابعة."
+  permission_required: "مطلوب إذن الميكروفون"
+mit:
+  license: "رخصة معهد ماساتشوستس للتكنولوجيا"
+mode:
+  _self: "الوضع: %@"
+model:
+  _self: "نموذج"
+  loading_failed: "فشل تحميل النموذج"
+  loading_timed_out: "انتهت مهلة تحميل النموذج"
+models:
+  _self: "نماذج"
+move:
+  to_folder: "الانتقال إلى المجلد"
+multilingual:
+  _self: "متعدد اللغات"
+must:
+  be_openai_compatible: "يجب أن يكون متوافقًا مع OpenAI"
+mute:
+  system_audio_during_recording: "كتم صوت النظام أثناء التسجيل"
+new:
+  folder: "مجلد جديد"
+  note: "ملاحظة جديدة"
+  preset: "إعداد مسبق جديد"
+next:
+  _self: "التالي"
+no:
+  api_key: "لا يوجد مفتاح API"
+  api_key_endpoint: "لا يوجد مفتاح API • نقطة النهاية: %@"
+  custom_presets: "لا توجد إعدادات مسبقة مخصصة"
+  downloaded_models: "لا توجد نماذج تم تنزيلها"
+  folders_yet: "لا توجد مجلدات حتى الآن"
+  items_in: "لا توجد عناصر في %@"
+  media_transcriptions_yet: "لا يوجد تدوينات الوسائط حتى الآن"
+  model_loaded: "لم يتم تحميل أي نموذج"
+  model_selected: "لم يتم تحديد أي نموذج"
+  models_available: "لا توجد نماذج متاحة"
+  models_available_ae9dbd29: "لا توجد نماذج متاحة."
+  models_available_try_refresh_or_enter_a_model: "لا توجد نماذج متاحة. حاول التحديث أو أدخل معرف النموذج يدويًا."
+  models_found: "لم يتم العثور على نماذج."
+  models_loaded_open_edit_to_fetch_models: "لم يتم تحميل أي نماذج. افتح تحرير لجلب النماذج."
+  models_match: "لا توجد نماذج متطابقة مع \"%@\""
+  notes_yet: "لا توجد ملاحظات حتى الآن"
+  providers_configured_yet: "لم يتم تكوين أي مقدمي خدمات حتى الآن."
+  replacements: "لا بدائل"
+  results_found: "لم يتم العثور على نتائج"
+  settings_found: "لم يتم العثور على إعدادات"
+  transcriptions_yet: "لا يوجد نسخ بعد"
+  vocabulary_words: "لا توجد كلمات المفردات"
+not:
+  assigned: "لم يتم تعيينه"
+  selected: "لم يتم التحديد"
+  set: "غير محدد"
+  set_93039e60: "لم يتم ضبطه"
+notch:
+  _self: "الشق"
+note:
+  _self: "ملحوظة"
+  capture_push_to_talk: "التقاط الملاحظات (اضغط لتتحدث)"
+  capture_toggle: "التقاط الملاحظة (تبديل)"
+  enhancement: "تعزيز الملاحظة"
+  from: "ملاحظة من"
+  metadata: "ملاحظة البيانات الوصفية"
+  title: "ملاحظة العنوان"
+notes:
+  _self: "ملحوظات"
+  3add7b96: "ملحوظات"
+off:
+  _self: "عن"
+ok:
+  _self: "نعم"
+ollama:
+  _self: "أولاما"
+  usually_does_not_require_authentication_f: "لا يتطلب Olma عادةً المصادقة للطلبات المحلية."
+on:
+  _self: "على"
+  device_no_credentials_required: "على الجهاز، لا توجد بيانات اعتماد مطلوبة"
+open:
+  _self: "يفتح"
+  history: "افتح التاريخ"
+  logs_in_finder: "افتح السجلات في Finder"
+  original_link: "فتح الرابط الأصلي"
+  progress: "فتح التقدم"
+  settings: "افتح الإعدادات"
+  settings_fd7108f8: "افتح الإعدادات"
+  system_settings: "افتح إعدادات النظام"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "خادم محلي متوافق مع OpenAI"
+  whisper: "OpenAI الهمس"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "خياري"
+  insert_text_directly_into_apps: "اختياري: أدخل النص مباشرة في التطبيقات"
+  used_for_auto_generated_titles_and_summ: "اختياري - يُستخدم للعناوين والملخصات التي يتم إنشاؤها تلقائيًا عند استيراد نسخ الوسائط."
+optionally:
+  clean_up_transcriptions_with_ai: "يمكنك اختياريًا تنظيف النسخ باستخدام الذكاء الاصطناعي"
+or:
+  _self: "أو"
+  just_use_your_hotkey: "أو مجرد استخدام مفتاح التشغيل السريع الخاص بك!"
+original:
+  _self: "إبداعي"
+  text_use_commas_for_multiple: "النص الأصلي (استخدم الفواصل لعدة)"
+originals:
+  comma_separated: "النسخ الأصلية (مفصولة بفواصل)"
+output:
+  _self: "الإخراج"
+  audio_interface_and_everyday_behavior: "الإخراج والصوت والواجهة والسلوك اليومي"
+parakeet:
+  default: "ببغاء (افتراضي)"
+paste:
+  _self: "لصق"
+  a_video_or_audio_link: "الصق رابط الفيديو أو الصوت"
+  last_transcript: "لصق النص الأخير"
+  last_transcript_v: "لصق النص الأخير ⌃⌘V"
+pause:
+  _self: "يوقف"
+  media_during_transcription: "إيقاف الوسائط مؤقتًا أثناء النسخ"
+permissions:
+  _self: "الأذونات"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "اختر الموفر والنموذج الذي يتعامل مع كل مهمة من مهام الذكاء الاصطناعي. اتركه كـ \"غير معين\" لتخطي أحد الأغراض."
+pill:
+  _self: "حبة"
+pin:
+  to_screen_always_on_top: "تثبيت على الشاشة (دائما في الأعلى)"
+pindrop:
+  _self: "بيندروب"
+  dot: "نقطة بيندروب"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop جاهز للاستخدام.
+    انقر على أيقونة شريط القائمة للبدء.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop جاهز للاستخدام. انقر فوق رمز شريط القائمة للبدء."
+  needs_a_few_permissions_to_work_nyour_pr: "يحتاج Pindrop إلى بعض الأذونات للعمل. خصوصيتك تُحترم دائمًا."
+  needs_a_few_permissions_to_work_your_pri: |-
+    يحتاج Pindrop إلى بعض الأذونات للعمل.
+    خصوصيتك تحترم دائما.
+  needs_accessibility_permission_to_insert: "\" \"يحتاج Pindrop إلى إذن الوصول لإدراج نص في المؤشر.                          لمنح الإذن: 1. انقر فوق \"فتح إعدادات النظام\" أدناه 2. انقر فوق الزر + 3. انتقل إلى التطبيق الموضح في Finder 4. أعد تشغيل Pindrop بعد منح الإذن. بدون هذا الإذن، سيتم نسخ النص إلى الحافظة الخاصة بك فقط.             \"\""
+  needs_microphone_access_to_record_and_tr: "يحتاج Pindrop إلى الوصول إلى الميكروفون لتسجيل صوتك ونسخه. يرجى منح الإذن في إعدادات النظام."
+  on_github: "Pindrop على جيثب"
+  pill: "حبة بيندروب"
+  theme: "موضوع بيندروب"
+play:
+  _self: "يلعب"
+please:
+  check_your_internet_connection_and_try_ag: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى."
+  download_a_whisper_model_in_settings_befo: |-
+    يرجى تنزيل نموذج Whisper في الإعدادات قبل التسجيل.
+    
+    انتقل إلى الإعدادات → النماذج لتنزيل نموذج.
+  download_a_whisper_model_in_settings_befo_a71d286e: "يرجى تنزيل نموذج Whisper في الإعدادات قبل التسجيل. انتقل إلى الإعدادات → النماذج لتنزيل النموذج."
+  wait: "انتظر من فضلك..."
+portuguese:
+  brazil: "البرتغالية (البرازيل)"
+powered:
+  by_whisperkit: "مدعوم من WhisperKit"
+preparing:
+  model: "تحضير النموذج..."
+preset:
+  name: "الاسم المحدد مسبقًا"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "اضغط مع الاستمرار للإملاء في أي تطبيق. سوف يقوم Pindrop بنسخ كلامك وإدراج النص حيث يوجد المؤشر."
+  esc_to_cancel: "اضغط على Esc للإلغاء"
+  keys: "اضغط على المفاتيح..."
+  once_to_start_again_to_stop: "اضغط مرة واحدة للبدء، ومرة ​​أخرى للتوقف"
+  once_to_start_recording_press_again_to_sto: "اضغط مرة واحدة لبدء التسجيل، واضغط مرة أخرى للإيقاف والنسخ"
+  once_to_start_recording_then_press_again_t: "اضغط مرة واحدة لبدء التسجيل، ثم اضغط مرة أخرى للإيقاف والنسخ."
+  to_start_recording_press_again_to_open_not: "اضغط لبدء التسجيل، ثم اضغط مرة أخرى لفتح محرر الملاحظات"
+primary:
+  text: "النص الأساسي"
+processing:
+  _self: "يعالج"
+  272bc02e: "يعالج..."
+  5aa377e2: "⏳ المعالجة"
+  transcript: "معالجة النص"
+prompt:
+  _self: "اِسْتَدْعَى"
+  preset: "موجه مسبقا"
+provider:
+  _self: "مزود"
+  kind: "نوع المزود"
+  type: "نوع المزود"
+providers:
+  _self: "مقدمي الخدمات"
+  prompts_and_vibe_mode_controls: "الموفرون والمطالبات وعناصر التحكم في وضع vibe"
+push:
+  to_talk: "اضغط لتتحدث"
+quickly:
+  copy_your_last_transcription: "انسخ نسختك الأخيرة بسرعة"
+  pull_your_latest_transcript_back_to_the: "قم بسحب أحدث نسخة بسرعة إلى الحافظة."
+quit:
+  _self: "يترك"
+  pindrop: "قم بإنهاء بيندروب"
+ready:
+  _self: "مستعد"
+  ec1296e1: "● جاهز"
+  to_record: "جاهز للتسجيل"
+  to_transcribe: "جاهز للنسخ"
+recent:
+  _self: "مؤخرًا"
+  transcriptions: "النسخ الأخيرة"
+  transcripts: "النصوص الأخيرة"
+recommended:
+  _self: "مُستَحسَن"
+  the_deterministic_cleaner_handles_mo: "موصى به: يتعامل المنظف الحتمي مع معظم الإملاء بشكل نظيف. قم بتمكين تمرير LLM فقط إذا كنت تريد تحسينًا إضافيًا وقبول المراوغات النموذجية العرضية (الديباجة والردود المحادثة)."
+record:
+  _self: "سِجِلّ"
+recording:
+  _self: "تسجيل"
+  3f8fd48c: "🔴 التسجيل"
+recordings:
+  _self: "التسجيلات"
+redo:
+  _self: "إعادة"
+refresh:
+  _self: "ينعش"
+remove:
+  _self: "يزيل"
+  and_clear_any_assignments_that_reference: "هل تريد إزالة \"%@\" ومسح أي مهام تشير إليه؟ سيتم حذف بيانات الاعتماد المخزنة."
+  from_folder: "إزالة من المجلد"
+  provider: "إزالة الموفر"
+rename:
+  _self: "إعادة تسمية"
+  folder: "إعادة تسمية المجلد"
+replace:
+  all: "استبدال الكل"
+  words_and_phrases: "استبدال الكلمات والعبارات"
+replacement:
+  _self: "استبدال"
+  text: "نص بديل"
+report:
+  an_issue: "الإبلاغ عن مشكلة"
+  an_issue_bd7b4f00: "الإبلاغ عن مشكلة"
+required:
+  _self: "مطلوب"
+  for_recording_your_voice: "مطلوب لتسجيل صوتك"
+requires:
+  a_fast_provider_apple_foundation_models: "يتطلب مزودًا سريعًا (يُوصى باستخدام نماذج Apple Foundation). سيقوم موفرو السحابة بإصدار استدعاء API واحد لكل توقف مؤقت."
+reset:
+  _self: "إعادة ضبط"
+  all_settings: "إعادة ضبط كافة الإعدادات؟"
+  all_settings_7262c7b7: "إعادة ضبط جميع الإعدادات"
+  to_default: "إعادة التعيين إلى الافتراضي"
+retry:
+  _self: "أعد المحاولة"
+right:
+  _self: "يمين"
+run:
+  llm_polish_after_dictation_stops: "قم بتشغيل LLM Polish بعد توقف الإملاء"
+runtime:
+  _self: "وقت التشغيل: %@"
+save:
+  _self: "يحفظ"
+  as_note: "حفظ كملاحظة"
+  continue: "حفظ ومتابعة"
+  credentials: "حفظ بيانات الاعتماد"
+  prompt: "حفظ المطالبة"
+saved:
+  _self: "أنقذ"
+  as_note: "تم الحفظ كملاحظة"
+  transcription: "النسخ المحفوظ"
+search:
+  media_transcripts: "البحث في نصوص الوسائط..."
+  models: "نماذج البحث"
+  models_61c1b9fe: "نماذج البحث..."
+  notes: "ملاحظات البحث..."
+  settings: "إعدادات البحث"
+  settings_or_jump_between_sections_without: "ابحث في الإعدادات أو انتقل بين الأقسام دون مغادرة مساحة العمل الرئيسية."
+  transcriptions: "بحث في النسخ..."
+secondary:
+  text: "النص الثانوي"
+select:
+  a_dictionary_json_file_to_import: "حدد ملف قاموس JSON لاستيراده"
+  a_model: "اختر نموذجا"
+  a_presets_json_file_to_import: "حدد ملف JSON المُعد مسبقًا لاستيراده"
+  a_provider_kind: "حدد نوع المزود"
+  a_provider_type: "حدد نوع الموفر"
+  ai_model: "حدد نموذج الذكاء الاصطناعي"
+  all: "حدد الكل"
+  language: "اختر اللغة"
+  language_daea52c9: "اختر اللغة"
+  this_floating_indicator_style: "حدد نمط المؤشر العائم هذا."
+  voice_model: "حدد النموذج الصوتي"
+selected:
+  _self: "مختارة"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "يتم إرساله إلى نموذج الذكاء الاصطناعي عند معالجة الإملاء لإدراج النص المباشر."
+sessions:
+  _self: "الجلسات"
+  781791f5: "جلسات"
+set:
+  as_default: "تعيين كافتراضي"
+settings:
+  _self: "إعدادات"
+  bf83f07f: "إعدادات..."
+  fa67a397: "إعدادات…"
+setup:
+  required: "الإعداد مطلوب"
+show:
+  app: "عرض التطبيق"
+  app_in_finder: "إظهار التطبيق في Finder"
+  floating_indicator: "عرض المؤشر العائم"
+  in_dock: "عرض في قفص الاتهام"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "يظهر كنقطة في زاوية الشاشة"
+  as_a_pill_at_the_bottom_of_the_screen: "يظهر على شكل حبة في أسفل الشاشة"
+  beside_the_focused_text_field_caret: "يظهر بجانب حقل/علامة الإقحام التي تم التركيز عليها"
+  in_the_menu_bar_notch_area: "يظهر في شريط القائمة/منطقة الشق"
+  recording_state_in_a_lightweight_overlay_w: "يظهر حالة التسجيل في نافذة تراكب خفيفة الوزن."
+sidebar:
+  position: "موقف الشريط الجانبي"
+simplified:
+  chinese: "الصينية المبسطة"
+size:
+  _self: "مقاس"
+skip:
+  for_now: "تخطي الآن"
+slow:
+  _self: "بطيء"
+slower:
+  _self: "أبطأ"
+slowest:
+  _self: "الأبطأ"
+small:
+  _self: "صغير"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "تعتبر الموديلات الأصغر حجمًا أسرع ولكنها أقل دقة. ابدأ باستخدام القاعدة للحصول على أفضل توازن."
+  models_are_faster_but_less_accurate_star: |-
+    النماذج الأصغر حجمًا أسرع ولكنها أقل دقة.
+    ابدأ بالقاعدة للحصول على أفضل توازن.
+something:
+  went_wrong: "حدث خطأ ما"
+soon:
+  _self: "قريباً"
+sort:
+  by: "الترتيب حسب"
+source:
+  _self: "مصدر"
+spanish:
+  _self: "الأسبانية"
+speaker:
+  diarization_and_timestamps_are_attached: "يتم إرفاق مذكرات المتحدث والطوابع الزمنية بالتشغيل."
+  diarization_is_required: "مطلوب مذكرات المتحدث"
+speed:
+  _self: "سرعة"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "ابدأ من جديد عندما تريد مسح التفضيلات وحالة الإعداد وبيانات الاعتماد المحفوظة."
+  recording: "ابدأ التسجيل"
+  recording_to_see_your_transcriptions_here: "ابدأ التسجيل لترى نسختك الصوتية هنا"
+  stop_recording: "بدء/إيقاف التسجيل"
+  using_pindrop: "البدء في استخدام Pindrop"
+status:
+  _self: "حالة"
+stop:
+  recording: "إيقاف التسجيل"
+streaming:
+  enhancement: "تعزيز الجري"
+  transcription_currently_supports_engli: "يدعم النسخ المتدفق حاليًا اللغة الإنجليزية فقط، بغض النظر عن اللغة المحددة."
+  transcription_is_disabled_while_ai_enh: "يتم تعطيل النسخ المتدفق أثناء تمكين تحسين الذكاء الاصطناعي."
+  transcription_model_parakeet_realtime: "نموذج النسخ المتدفق (Parakeet Realtime EOU) المرخص من قبل شركة NVIDIA بموجب ترخيص NVIDIA Open Model License."
+success:
+  _self: "نجاح!"
+support:
+  _self: "يدعم"
+  coming_soon: "%@ الدعم قريبًا"
+supports:
+  local_media_files_and_web_links_resolve: "يدعم ملفات الوسائط المحلية وروابط الويب التي تم حلها باستخدام yt-dlp."
+switch:
+  to_model: "التبديل إلى النموذج"
+system:
+  _self: "نظام"
+  default: "النظام الافتراضي"
+teach:
+  custom_words: "تعليم الكلمات المخصصة"
+temporarily:
+  copy_text_paste_it_then_restore_your: "انسخ النص مؤقتًا، والصقه، ثم قم باستعادة الحافظة الخاصة بك"
+  mute_speaker_output_while_dictation: "كتم صوت مكبر الصوت مؤقتًا أثناء تسجيل الإملاء."
+  pause_active_media_playback_while_di: "قم بإيقاف تشغيل الوسائط النشطة مؤقتًا أثناء تسجيل الإملاء."
+tertiary:
+  text: "النص الثالثي"
+the:
+  model_failed_to_load_within_60_seconds_this: "\" \"فشل تحميل النموذج خلال 60 ثانية. وهذا يعني عادةً أن ملفات النموذج تالفة أو غير متوافقة.                          لإصلاح ذلك: 1. افتح الإعدادات → النماذج 2. احذف النموذج الذي به مشكلة 3. أعد تنزيل النموذج إذا استمرت المشكلة، فجرّب نموذجًا أصغر (Tiny أو Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "لم يتم تنزيل متغير القطعة المحدد بعد. سيؤدي التبديل إلى بدء التنزيل."
+theme:
+  _self: "سمة"
+  changes_apply_live_across_the_workspace_se: "يتم تطبيق تغييرات السمات مباشرة عبر مساحة العمل والإعدادات ومحرر الملاحظات والمؤشرات العائمة."
+  mode: "وضع الموضوع"
+this:
+  preset_name_is_already_in_use: "هذا الاسم المحدد مسبقًا قيد الاستخدام بالفعل."
+  provider_will_be_available_in_a_future_upda: |-
+    سيكون هذا الموفر متاحًا في التحديث المستقبلي.
+    في الوقت الحالي، جرب OpenAI أو استخدم نقطة نهاية مخصصة.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    سيكون هذا الموفر متاحًا في التحديث المستقبلي.
+    جرب OpenAI أو استخدم نقطة نهاية مخصصة.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "سيكون هذا الموفر متاحًا في التحديث المستقبلي. في الوقت الحالي، جرب OpenAI أو استخدم نقطة نهاية مخصصة."
+  transcription_could_not_be_found: "لا يمكن العثور على هذا النسخ."
+  will_clear_all_your_settings_including_api: "سيؤدي هذا إلى مسح جميع إعداداتك، بما في ذلك مفاتيح API ومفاتيح التشغيل السريع وتفضيلات الطراز. سيتم إنهاء التطبيق وسيظهر الإعداد مرة أخرى عند الإطلاق التالي."
+  will_permanently_remove_the_transcript_and: "سيؤدي هذا إلى إزالة النص وملف الوسائط المُدار الخاص به نهائيًا."
+time:
+  saved: "الوقت المحفوظ"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "للإملاء والسماح لـ Pindrop بالنسخ لك"
+  start_talking: "لبدء الحديث"
+today:
+  _self: "اليوم"
+toggle:
+  _self: "تبديل"
+  recording: "تبديل التسجيل"
+  sort_order: "تبديل ترتيب الفرز"
+transcribe:
+  _self: "نسخ"
+  media: "نسخ الوسائط"
+transcribed:
+  _self: "مكتوب"
+transcription:
+  _self: "النسخ"
+  backend: "الخلفية النسخ"
+  deleted: "تم حذف النص."
+  enhancement: "تعزيز النسخ"
+  failed: "فشل النسخ"
+  finished: "انتهى النسخ."
+  in_progress: "النسخ قيد التقدم"
+  metadata: "البيانات الوصفية للنسخ"
+  update: "تحديث النسخ"
+transcriptions:
+  _self: "النسخ"
+  f0972acc: "النسخ"
+  in_this_folder_will_be_kept_and_m: "سيتم الاحتفاظ بالنسخ الموجودة في هذا المجلد وإعادتها إلى المكتبة."
+transcripts:
+  _self: "النصوص"
+try:
+  a_different_search_term: "حاول استخدام مصطلح بحث مختلف"
+  a_different_search_term_0ba628a3: "حاول استخدام مصطلح بحث مختلف."
+  a_different_search_term_in_this_folder: "حاول استخدام مصطلح بحث مختلف في هذا المجلد."
+  searching_for_terms_like_hotkeys_microphone: "حاول البحث عن مصطلحات مثل مفاتيح التشغيل السريع أو الميكروفون أو التحديثات أو الوضع الحيوي."
+turkish:
+  _self: "تركي"
+type:
+  text_directly_into_the_active_app_when_poss: "اكتب النص مباشرةً في التطبيق النشط عندما يكون ذلك ممكنًا"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\" \"غير قادر على الاتصال بخدمة تحسين الذكاء الاصطناعي.                                  يرجى التحقق مما يلي: 1. اتصالك بالإنترنت 2. عنوان URL لنقطة نهاية واجهة برمجة التطبيقات صحيح 3. الخدمة لا تواجه انقطاعًا تم حفظ النسخ دون تحسين.                 \"\""
+  to_finish_transcription: "غير قادر على إنهاء النسخ"
+  to_load_history: "غير قادر على تحميل السجل: %@"
+  to_load_models_try_refresh: "غير قادر على تحميل النماذج. حاول التحديث."
+  to_update_media_library: "غير قادر على تحديث مكتبة الوسائط"
+unavailable:
+  device: "جهاز غير متوفر"
+undo:
+  _self: "تراجع"
+unfiled:
+  _self: "غير مصنف"
+unpin:
+  from_screen: "قم بإلغاء التثبيت من الشاشة"
+update:
+  _self: "تحديث"
+updates:
+  _self: "التحديثات"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "استخدم اختصار النقر للبدء والنقر للإنهاء لالتقاط الملاحظات."
+  clipboard_only: "استخدم الحافظة فقط"
+  the_hotkey_to_start_your_first_recording: "استخدم مفتاح التشغيل السريع لبدء التسجيل الأول"
+  transcription_as_a_placeholder_for_the_trans: "استخدم ${transcription} كعنصر نائب للنص المكتوب."
+  transcription_as_placeholder: "استخدم ${transcription} كعنصر نائب"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "يستخدم عند التقاط الملاحظات عبر مفتاح التشغيل السريع. يمكن إضافة تنسيق تخفيض السعر لمحتوى أطول."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "يستخدم موجهًا مدمجًا تم ضبطه لهذه المهمة."
+  the_160ms_parakeet_variant_for_snappier_par: "يستخدم متغير Parakeet الذي تبلغ مدته 160 مللي ثانية للأجزاء الجزئية الأكثر سرعة على حساب زيادة في أخطاء الكلمات بنسبة 70% تقريبًا. الافتراضي هو البديل 320 مللي ثانية."
+  the_transcription_enhancement_assignment_if: "يستخدم مهمة تحسين النسخ. إذا لم يتم تعيين أي شيء، فسيتم الاحتفاظ بمخرجات التنظيف الحتمية كما هي."
+v:
+  _self: "v%@"
+version:
+  _self: "الإصدار %@ (%@)"
+very:
+  fast: "سريع جدًا"
+via:
+  _self: "عبر %@"
+vibe:
+  mode: "وضع فيبي"
+  mode_captures_structured_ui_context_when_re: "يلتقط وضع Vibe سياق واجهة المستخدم المنظم عند بدء التسجيل حتى يتمكن تحسين الذكاء الاصطناعي من استخدام حالة التطبيق النشطة كمرجع."
+  mode_works_best_with_accessibility_permissi: "يعمل وضع Vibe بشكل أفضل مع إذن الوصول. وبدون ذلك، يعود Pindrop إلى البيانات الوصفية المحدودة للتطبيق ويظل النسخ يعمل بشكل طبيعي."
+view:
+  _self: "منظر"
+  all: "عرض الكل"
+  transcript_history: "عرض تاريخ النسخ"
+  transcription_history: "عرض تاريخ النسخ"
+vocabulary:
+  _self: "مفردات"
+vs:
+  typing: "مقابل الكتابة"
+welcome:
+  to_pindrop: "مرحبا بكم في بيندروب"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "كلمة"
+  replacements: "استبدال الكلمات"
+words:
+  _self: "كلمات"
+  efb89361: "كلمات"
+  min: "الكلمات / دقيقة"
+wpm:
+  _self: "وبم"
+yesterday:
+  _self: "أمس"
+you:
+  are_a_note_formatting_assistant_transform_th: "أنت مساعد تنسيق الملاحظات. قم بتحويل النص المكتوب إلى ملاحظة جيدة التنظيم. القواعد: ن - إصلاح الأخطاء النحوية وعلامات الترقيم والأخطاء الإملائية - بالنسبة للمحتوى الأطول (أكثر من 3 فقرات)، قم بإضافة تنسيق تخفيض السعر: - استخدم الرؤوس (## أو ###) لتنظيم الأقسام - استخدم النقاط النقطية أو القوائم المرقمة حيثما كان ذلك مناسبًا - استخدم **غامق** للتأكيد على المصطلحات الرئيسية - بالنسبة للمحتوى الأقصر، اجعل الأمر بسيطًا مع الحد الأدنى من التنسيق - حافظ على المعنى الأصلي و نغمة - لا تضف محتوى غير موجود في النص الأصلي - قم بإرجاع الملاحظة المنسقة فقط دون أي تعليق"
+  are_a_text_enhancement_assistant_improve_the: "أنت مساعد تحسين النص. تحسين القواعد النحوية وعلامات الترقيم والتنسيق للنص المقدم مع الحفاظ على معناه الأصلي ونغمته. قم بإرجاع النص المحسن فقط دون أي تعليق إضافي."
+  can_change_these_anytime_from_the_menu_bar_s: "يمكنك تغيير هذه الإعدادات في أي وقت من شريط القائمة → الإعدادات → مفاتيح التشغيل السريع"
+  re_all_set: "أنت جاهز تمامًا!"
+  re_all_set_058a8130: "أنت جاهز تمامًا!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" لقد تجاوزت حد معدل واجهة برمجة التطبيقات (API) أو حصتها.                                  لحل هذه المشكلة: 1. انتظر بضع دقائق وحاول مرة أخرى 2. تحقق من حدود استخدام موفر واجهة برمجة التطبيقات (API) 3. فكر في ترقية خطة واجهة برمجة التطبيقات (API) الخاصة بك تم حفظ النسخ بدون تحسين.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\" \"يبدو أن مفتاح API الخاص بك غير صالح أو منتهي الصلاحية.                                  لإصلاح ذلك: 1. افتح الإعدادات → تحسين الذكاء الاصطناعي 2. تحقق من صحة مفتاح واجهة برمجة التطبيقات (API) الخاص بك 3. تأكد من صحة نقطة نهاية واجهة برمجة التطبيقات (API) الخاصة بك تم حفظ النسخ بدون تحسين.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "مفاتيح التشغيل السريع الخاصة بك جاهزة للاستخدام. ويمكنك تخصيصها لاحقًا في الإعدادات."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    مفاتيح التشغيل السريع الخاصة بك جاهزة للاستخدام.
+    ويمكنك تخصيصها لاحقًا في الإعدادات.
+  model_is_ready_to_use: "النموذج الخاص بك جاهز للاستخدام."
+  stats: "احصائياتك"

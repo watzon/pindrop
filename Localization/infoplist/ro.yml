@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop are nevoie de acces audio la sistem pentru a transcrie apeluri, întâlniri și alte aplicații audio."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop are nevoie de acces la microfon pentru a vă transcrie vocea."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop folosește recunoașterea vorbirii de pe dispozitiv pentru a vă transcrie sunetul fără a trimite date către niciun server."

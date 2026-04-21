@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100% 本地處理"
+1:
+  folder: "1 個資料夾"
+  transcription: "1 個轉錄"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "一款使用 WhisperKit 進行本地語音轉文字的原生 macOS 選單欄聽寫應用。預設 100% 本地處理，可選 AI 增強。"
+about:
+  _self: "關於"
+  pindrop: "關於 Pindrop"
+accessibility:
+  _self: "輔助功能"
+  permission_is_enabled_full_ui_cont: "輔助功能許可權已啟用。完整的 UI 上下文可用。"
+  permission_is_not_granted_vibe_mod: "未授予輔助功能許可權。Vibe 模式保持非阻塞狀態，但上下文有限。"
+  permission_recommended: "建議啟用輔助功能許可權"
+  permission_required: "需要輔助功能許可權"
+accuracy:
+  _self: "準確性"
+acknowledgments:
+  _self: "致謝"
+active:
+  _self: "活躍"
+add:
+  _self: "新增"
+  a_provider_to_start_using_ai_enhancement: "新增提供商以開始使用 AI 增強功能。"
+  custom_words_to_improve_transcription_accura: "新增自定義詞彙以提高專業術語、名稱或行話的轉錄準確性。"
+  provider: "新增提供商"
+  tag: "新增標籤..."
+  to_existing: "新增到現有"
+  trailing_space: "新增尾隨空格"
+  word_replacements_to_automatically_correct_c: "新增詞彙替換以自動糾正常見的轉錄錯誤。"
+  words_to_help_pindrop_recognize_them_properl: "新增詞彙以幫助 Pindrop 正確識別它們"
+  words_you_manually_correct_into_your_vocabul: "將您手動更正的詞彙新增到詞彙表中，以供將來的轉錄使用。"
+ai:
+  enhancement: "AI 增強"
+  enhancement_529f5583: "AI 增強：%@"
+  enhancement_failed: "AI 增強失敗"
+  enhancement_is_disabled: "AI 增強已禁用。"
+  enhancement_will: "AI 增強將："
+  model: "AI 模型"
+all:
+  _self: "全部"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    增強您的轉錄時發生錯誤：
+    
+    %@
+    
+    原始轉錄已儲存，未進行增強。
+    您可以嘗試在設定中再次啟用 AI 增強。
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "增強您的轉錄時發生錯誤：nn%@nn原始轉錄已儲存，未進行增強。n您可以嘗試在設定中再次啟用 AI 增強。"
+anthropic:
+  _self: "Anthropic"
+api:
+  endpoint: "API 端點"
+  key: "API 金鑰"
+  key_saved: "API 金鑰已儲存"
+  key_saved_endpoint: "API 金鑰已儲存 • 端點：%@"
+app:
+  info_acknowledgments_support_and_logs: "應用資訊、致謝、支援和日誌"
+append:
+  a_space_after_each_transcription_for_seam: "在每次轉錄後附加一個空格，以實現無縫聽寫。"
+apple:
+  foundation_models_on_device: "Apple Foundation 模型（裝置上）"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence 在此係統上不可用。在啟用 Apple Intelligence 之前，此分配不會得到解決。"
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence 在裝置上執行，無需憑據。"
+  speechtranscriber_macos_26: "Apple SpeechTranscriber（macOS 26+）"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber 需要 macOS 26。"
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber 不可用 — 使用 Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "您確定要刪除'%@'嗎？此操作無法撤銷。"
+assignments:
+  _self: "作業"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "在提交 GitHub 問題時，請附上此資料夾中的日誌。"
+audio:
+  input: "音訊輸入"
+automatic:
+  follow_system: "自動（跟隨系統）"
+  updates: "自動更新"
+  updates_and_manual_update_checks: "自動更新和手動更新檢查"
+automatically:
+  check_for_new_versions_in_the_back: "自動在後臺檢查新版本。"
+  start_pindrop_when_you_sign_in: "登入時自動啟動 Pindrop。"
+available:
+  models: "可用模型"
+avg:
+  speed: "平均速度"
+back:
+  _self: "返回"
+  to_library: "返回庫"
+base:
+  _self: "基礎"
+best:
+  _self: "最佳"
+better:
+  _self: "更好"
+bubble:
+  _self: "氣泡"
+built:
+  in_presets: "內建預設"
+  in_read_only: "內建（只讀）"
+cancel:
+  _self: "取消"
+  operation: "取消操作"
+capture:
+  directly_into_the_note_editor_with_a_hol: "透過按住錄製流程直接捕獲到筆記編輯器中。"
+change:
+  microphone: "更改麥克風"
+  microphone_ac9970f4: "更改麥克風"
+check:
+  for_updates: "檢查更新..."
+  for_updates_736b9062: "檢查更新"
+  now: "立即檢查"
+checking:
+  _self: "檢查中..."
+choose:
+  a_location_to_save_the_dictionary: "選擇儲存詞典的位置"
+  a_location_to_save_the_presets: "選擇儲存預設的位置"
+  a_model: "選擇模型"
+  a_provider_first: "首先選擇供應商"
+  an_audio_or_video_file_to_transcribe: "選擇要轉錄的音訊或影片檔案"
+  between_parakeet_cross_version_downloaded: "在 Parakeet（跨版本，需下載模型）和 Apple SpeechTranscriber（macOS 26 及以上，系統自帶）之間進行選擇。"
+  file: "選擇檔案"
+  how_dictated_text_lands_then_tune_the_fin: "選擇聽寫文字的插入方式，然後調整最終插入行為。"
+  how_pindrop_follows_system_appearance_the: "選擇 Pindrop 如何跟隨系統外觀，然後混合精選的淺色和深色調色盤。"
+  how_to_import_the_dictionary_data: "選擇如何匯入詞典資料"
+  how_to_import_the_preset_data: "選擇如何匯入預設資料"
+  languages_for_the_interface_and_for_dicta: "選擇介面語言和聽寫語言。“自動”選項跟隨系統。"
+  location_to_save_presets: "選擇儲存預設的位置"
+  the_daytime_shell_used_in_light_mode: "選擇在淺色模式下使用的日間外觀。"
+  the_low_glare_shell_used_in_dark_mode: "選擇在深色模式下使用的低眩光外觀。"
+  which_floating_indicator_style_appears_wh: "選擇在啟用疊加層時顯示的浮動指示器樣式。"
+  which_microphone_pindrop_should_use_for_d: "選擇 Pindrop 用於聽寫的麥克風以及錄製時的行為。"
+  which_side_the_navigation_sidebar_appears: "選擇導航側邊欄顯示在哪一側。"
+clean:
+  up_filler_words: "清理填充詞"
+clear:
+  audio_buffer: "清除音訊緩衝區"
+  hotkey: "清除快捷鍵"
+clears:
+  preferences_and_restarts_onboarding: "清除首選項並重新啟動引導"
+click:
+  or_hold: "點選或按住"
+  or_press: "點選或按下"
+  or_set_a_hotkey_to_start_talking: "點選或設定快捷鍵開始說話"
+  this_icon_anytime_to: "隨時點選此圖示以："
+clipboard:
+  _self: "剪貼簿"
+cloud:
+  _self: "雲端"
+  model: "雲端模型"
+collapse:
+  _self: "收起"
+coming:
+  soon: "%@ 即將推出"
+  soon_04d2fd85: "即將推出"
+configure:
+  ai_providers_and_credentials_apple_int: "配置 AI 提供商和憑據。Apple Intelligence 在裝置上執行；其他提供商需要 API 金鑰。"
+  keyboard_shortcuts_for_recording_and_n: "配置錄製和筆記捕獲的鍵盤快捷鍵"
+continue:
+  _self: "繼續"
+  with_default: "使用預設繼續"
+  without: "繼續不使用"
+control:
+  how_pindrop_appears_in_macos_and_whether: "控制 Pindrop 在 macOS 中的顯示方式以及是否隨桌面會話啟動。"
+controls:
+  how_the_live_dictation_path_polishes_tr: "控制實時聽寫路徑如何修飾轉錄內容。確定性清理（填充詞移除、首字母大寫、口頭標點、數字規範化、拆分詞合併）始終執行——此開關控制可選的 LLM 潤色步驟，該步驟在聽寫停止後觸發。"
+copied:
+  _self: "已複製！"
+copy:
+  _self: "複製"
+  enhanced: "複製增強版"
+  last_transcript: "複製上次轉錄"
+  original: "複製原版"
+  system_info_for_bug_report: "複製系統資訊以提交錯誤報告"
+  the_most_recent_transcript_to_the_clipboard: "將最新的轉錄複製到剪貼簿"
+  to_clipboard: "複製到剪貼簿"
+  transcript: "複製轉錄"
+correct:
+  grammar_mistakes: "糾正語法錯誤"
+create:
+  _self: "建立"
+  new_note: "建立新筆記"
+  new_preset: "建立新預設"
+  your_first_note_to_get_started: "建立您的第一個筆記以開始使用"
+  your_first_preset_or_duplicate_a_built_in: "建立您的第一個預設或複製內建預設以進行自定義。"
+  your_own_presets_or_duplicate_built_in_on: "建立您自己的預設或複製內建預設以進行自定義。"
+credentials:
+  are_stored_securely_in_keychain: "憑證安全儲存在鑰匙串中"
+  saved_successfully: "憑證儲存成功"
+current:
+  _self: "當前：%@"
+custom:
+  _self: "自定義"
+  local: "定製/本地"
+  openai_compatible: "自定義（相容 OpenAI）"
+  presets: "自定義預設"
+customize:
+  hotkey: "自定義快捷鍵"
+cut:
+  _self: "剪下"
+d:
+  characters: "%d characters"
+dark:
+  _self: "深色"
+  preview: "深色預覽"
+  theme: "深色主題"
+database:
+  error: "資料庫錯誤"
+date:
+  _self: "日期"
+  7f823513: "日期 %@"
+default:
+  _self: "預設"
+  model: "預設模型"
+define:
+  word_replacements_to_automatically_replac: "定義詞彙替換以自動替換特定詞彙或短語"
+degraded:
+  _self: "已降級"
+delete:
+  _self: "刪除"
+  folder: "刪除資料夾"
+  folder_e556e7c2: "刪除資料夾？"
+  model: "刪除模型"
+  preset: "刪除預設"
+  preset_4f6cfe36: "刪除預設？"
+  transcription: "刪除轉錄"
+  transcription_f82187c4: "刪除轉錄？"
+dictionary:
+  _self: "詞典"
+direct:
+  insert: "直接插入"
+disabled:
+  _self: "已禁用"
+dismiss:
+  _self: "忽略"
+display:
+  name: "顯示名稱"
+  name_c7874aaa: "顯示名稱"
+  pindrop_in_the_dock_instead_of_running_o: "在 Dock 中顯示 Pindrop，而不是僅作為選單欄應用執行。"
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "將側邊欄固定到視窗的左側或右側邊緣。"
+dot:
+  _self: "Dot"
+download:
+  _self: "下載"
+  complete: "下載完成！"
+  continue: "下載並繼續"
+  failed: "下載失敗"
+  model: "下載模型"
+  the_diarization_model_before_starting_m: "在開始媒體轉錄之前下載說話人分離模型。"
+downloaded:
+  _self: "已下載"
+downloading:
+  _self: "正在下載 %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "拖放檔案或貼上連結以建立帶說話人分離和時間戳的轉錄。"
+  audio_or_video_here: "在此處拖放音訊或影片"
+duplicate:
+  preset: "複製預設"
+dutch:
+  _self: "荷蘭語"
+edit:
+  _self: "編輯"
+  preset: "編輯預設"
+  provider: "編輯提供商"
+empty:
+  _self: "（空）"
+enable:
+  ai_enhancement: "啟用 AI 增強"
+  live_session_updates_during_recording: "啟用錄製期間的實時會話更新"
+  the_floating_indicator_to_choose_a_style: "啟用浮動指示器以選擇樣式。"
+  vibe_mode_ui_context: "啟用 vibe 模式（UI 上下文）"
+enabled:
+  _self: "已啟用"
+endpoint:
+  _self: "端點：%@"
+english:
+  _self: "英語"
+  only: "僅英語"
+enhanced:
+  _self: "已增強"
+enhancement:
+  prompts: "增強提示詞"
+enter:
+  an_openai_api_key_to_load_models: "輸入 OpenAI API 金鑰以載入模型。"
+  api_key: "輸入 API 金鑰"
+  word_to_add: "輸入要新增的詞彙"
+error:
+  _self: "錯誤"
+european:
+  multilingual: "歐洲多語言"
+excellent:
+  _self: "優秀"
+export:
+  _self: "匯出"
+  as_csv: "匯出為 CSV"
+  as_json: "匯出為 JSON"
+  as_plain_text: "匯出為純文字"
+  dictionary: "匯出詞典"
+  failed: "匯出失敗：%@"
+  last_transcript: "匯出上次轉錄..."
+  presets: "匯出預設"
+failed:
+  to_add_replacement: "新增替換失敗：%@"
+  to_add_word: "新增詞彙失敗：%@"
+  to_delete_folder: "刪除資料夾失敗：%@"
+  to_delete_note: "刪除筆記失敗：%@"
+  to_delete_preset: "刪除預設失敗：%@"
+  to_delete_replacement: "刪除替換失敗：%@"
+  to_delete_transcription: "刪除轉錄失敗：%@"
+  to_delete_word: "刪除詞彙失敗：%@"
+  to_export_dictionary: "匯出詞典失敗：%@"
+  to_export_presets: "匯出預設失敗：%@"
+  to_import_dictionary: "匯入詞典失敗：%@"
+  to_import_presets: "匯入預設失敗：%@"
+  to_initialize_the_database_nnthe_app_will: "初始化資料庫失敗：%@nn應用現在將退出。如果問題仍然存在，請嘗試重新啟動或聯絡支援。"
+  to_load_data: "載入資料失敗：%@"
+  to_load_history: "載入歷史失敗：%@"
+  to_read_import_file: "讀取匯入檔案失敗：%@"
+  to_save: "儲存失敗：%@"
+  to_save_preset: "儲存預設失敗：%@"
+  to_switch_model: "切換模型失敗：%@"
+  to_update_preset: "更新預設失敗：%@"
+  to_update_replacement: "更新替換失敗：%@"
+  to_update_word: "更新詞彙失敗：%@"
+fast:
+  _self: "快速"
+feature:
+  models: "功能模型"
+fetch:
+  models_in_models: "在模型中獲取模型"
+fix:
+  punctuation_and_capitalization: "修正標點和大小寫"
+floating:
+  indicator: "%@ 浮動指示器"
+  indicator_3bad78a5: "浮動指示器：%@"
+  indicator_e0349402: "浮動指示器"
+folder:
+  deleted: "資料夾已刪除。"
+  name: "資料夾名稱"
+follow:
+  playback: "跟隨播放"
+format:
+  text_appropriately: "適當格式化文字"
+french:
+  _self: "法語"
+general:
+  _self: "通用"
+german:
+  _self: "德語"
+get:
+  started: "開始使用"
+global:
+  keyboard_shortcuts: "全域性鍵盤快捷鍵"
+go:
+  back: "返回"
+  to_settings: "前往設定"
+good:
+  _self: "良好"
+  afternoon: "下午好"
+  evening: "晚上好"
+  morning: "早上好"
+  night: "晚安"
+google:
+  _self: "Google"
+got:
+  it: "明白了"
+grant:
+  _self: "授予"
+great:
+  _self: "很好"
+hide:
+  this_for_1_hour: "隱藏 1 小時"
+history:
+  _self: "歷史"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "按住快捷鍵錄製，然後釋放以轉錄。"
+  to_record_release_to_open_note_editor_with: "按住錄製，釋放以開啟帶轉錄的筆記編輯器"
+  to_record_release_to_stop_and_transcribe: "按住錄製，釋放以停止並轉錄"
+  to_record_release_to_transcribe: "按住錄製，釋放以轉錄"
+hotkey:
+  conflict: "快捷鍵衝突"
+hotkeys:
+  _self: "快捷鍵"
+import:
+  dictionary: "匯入詞典"
+  error: "匯入錯誤"
+  export: "匯入/匯出"
+  media: "匯入媒體"
+  or_transcribe_media_while_this_folder_is: "選擇此資料夾時匯入或轉錄媒體以將專案儲存在此處。"
+  presets: "匯入預設"
+  strategy: "匯入策略"
+imported:
+  files_and_web_links_will_appear_here_on: "匯入的檔案和網頁連結將在處理完成後顯示在此處。"
+improve:
+  transcription_quality_using_ai: "使用 AI 提高轉錄質量"
+include:
+  clipboard_text: "包含剪貼簿文字"
+interface:
+  _self: "介面"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ 同時分配給 %@ 和 %@。只有第一個操作將處於活動狀態。在設定中更新您的快捷鍵以解決此衝突。"
+italian:
+  _self: "義大利語"
+items:
+  _self: "專案"
+japanese:
+  _self: "日語"
+keep:
+  pindrop_current_automatically_or_trigger_a: "自動保持 Pindrop 最新，或隨時觸發手動檢查。"
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "鍵盤快捷鍵"
+korean:
+  _self: "韓語"
+language:
+  _self: "語言"
+large:
+  _self: "Large"
+launch:
+  at_login: "登入時啟動：%@"
+  at_login_0b36c78f: "登入時啟動"
+layout:
+  _self: "佈局"
+learn:
+  corrected_words_automatically: "自動學習更正的詞彙"
+left:
+  _self: "左側"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "讓 Pindrop 悄悄地從您隨時間做出的更正中學習詞彙。"
+light:
+  _self: "淺色"
+  dark_and_curated_palette_presets: "淺色、深色和精選調色盤預設"
+  preview: "淺色預覽"
+  theme: "淺色主題"
+limited:
+  _self: "有限"
+live:
+  streaming_refinement: "直播最佳化"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld 個字元"
+  complete: "%lld%% 完成"
+  items: "%lld 個專案"
+  notes: "%lld 個筆記"
+  transcriptions: "%lld 個轉錄"
+lm:
+  studio: "LM Studio"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio 僅在啟用本地伺服器身份驗證時才需要令牌。"
+load:
+  models: "載入模型"
+loaded:
+  d_models: "Loaded %d models"
+loading:
+  history: "正在載入歷史..."
+  models: "正在載入模型..."
+local:
+  _self: "本地"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    直接從選單欄進行本地語音轉文字。
+    快速、私密且始終可用。
+  speech_to_text_right_from_your_menu_bar_nf: "直接從選單欄進行本地語音轉文字。n快速、私密且始終可用。"
+  speech_to_text_with_whisperkit: "使用 WhisperKit 進行本地語音轉文字"
+  voice_to_text: "本地語音轉文字"
+low:
+  latency_mode_less_accurate: "低延遲模式（準確度較低）"
+manage:
+  local_speech_models_feature_models_and_th: "管理本地語音模型、功能模型和 Pindrop 用於轉錄的預設引擎。"
+  models: "管理模型"
+  presets: "管理預設"
+  presets_ab87986d: "管理預設..."
+manually:
+  check_for_new_versions_now: "立即手動檢查新版本。"
+media:
+  library: "媒體庫"
+  transcription: "媒體轉錄"
+  unavailable: "媒體不可用"
+medium:
+  _self: "中"
+microphone:
+  _self: "麥克風"
+  permission_is_required_to_continue: "需要麥克風許可權才能繼續"
+  permission_is_required_to_continue_dc: "需要麥克風許可權才能繼續。"
+  permission_required: "需要麥克風許可權"
+mit:
+  license: "MIT 許可證"
+mode:
+  _self: "模式：%@"
+model:
+  _self: "模型"
+  loading_failed: "模型載入失敗"
+  loading_timed_out: "模型載入超時"
+models:
+  _self: "模型"
+move:
+  to_folder: "移動到資料夾"
+multilingual:
+  _self: "多語言"
+must:
+  be_openai_compatible: "必須與 OpenAI 相容"
+mute:
+  system_audio_during_recording: "錄製期間靜音系統音訊"
+new:
+  folder: "新建資料夾"
+  note: "新建筆記"
+  preset: "新建預設"
+next:
+  _self: "下一個"
+no:
+  api_key: "沒有 API 金鑰"
+  api_key_endpoint: "無 API 金鑰 • 端點：%@"
+  custom_presets: "無自定義預設"
+  downloaded_models: "無下載的模型"
+  folders_yet: "尚無資料夾"
+  items_in: "%@ 中無專案"
+  media_transcriptions_yet: "尚無媒體轉錄"
+  model_loaded: "未載入模型"
+  model_selected: "未選擇模型"
+  models_available: "無可用模型"
+  models_available_ae9dbd29: "無可用模型。"
+  models_available_try_refresh_or_enter_a_model: "無可用模型。嘗試重新整理或手動輸入模型 ID。"
+  models_found: "未找到模型。"
+  models_loaded_open_edit_to_fetch_models: "沒有載入模型。開啟編輯以獲取模型。"
+  models_match: "沒有模型匹配 \"%@\""
+  notes_yet: "尚無筆記"
+  providers_configured_yet: "尚未配置提供商。"
+  replacements: "無替換"
+  results_found: "未找到結果"
+  settings_found: "未找到設定"
+  transcriptions_yet: "尚無轉錄"
+  vocabulary_words: "無詞彙詞"
+not:
+  assigned: "未分配"
+  selected: "未選擇"
+  set: "未設定"
+  set_93039e60: "未設定"
+notch:
+  _self: "劉海"
+note:
+  _self: "筆記"
+  capture_push_to_talk: "筆記捕獲（按鍵通話）"
+  capture_toggle: "筆記捕獲（切換）"
+  enhancement: "筆記增強"
+  from: "來自的筆記"
+  metadata: "註釋後設資料"
+  title: "筆記標題"
+notes:
+  _self: "筆記"
+  3add7b96: "筆記"
+off:
+  _self: "關閉"
+ok:
+  _self: "確定"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama 通常不需要本地請求的身份驗證。"
+on:
+  _self: "開啟"
+  device_no_credentials_required: "在裝置上，無需憑據"
+open:
+  _self: "開啟"
+  history: "開啟歷史"
+  logs_in_finder: "在 Finder 中開啟日誌"
+  original_link: "開啟原始連結"
+  progress: "開啟進度"
+  settings: "開啟設定"
+  settings_fd7108f8: "開啟設定"
+  system_settings: "開啟系統設定"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "與 OpenAI 相容的本地伺服器"
+  whisper: "OpenAI Whisper"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "可選"
+  insert_text_directly_into_apps: "可選：直接將文字插入應用"
+  used_for_auto_generated_titles_and_summ: "可選 - 用於自動生成媒體轉錄匯入的標題和摘要。"
+optionally:
+  clean_up_transcriptions_with_ai: "可選：使用 AI 清理轉錄"
+or:
+  _self: "或"
+  just_use_your_hotkey: "或者只需使用您的快捷鍵！"
+original:
+  _self: "原始"
+  text_use_commas_for_multiple: "原始文字（多個用逗號分隔）"
+originals:
+  comma_separated: "原文（逗號分隔）"
+output:
+  _self: "輸出"
+  audio_interface_and_everyday_behavior: "輸出、音訊、介面和日常行為"
+parakeet:
+  default: "Parakeet（預設）"
+paste:
+  _self: "貼上"
+  a_video_or_audio_link: "貼上影片或音訊連結"
+  last_transcript: "貼上上次轉錄"
+  last_transcript_v: "貼上上次轉錄 ⌃⌘V"
+pause:
+  _self: "暫停"
+  media_during_transcription: "轉錄期間暫停媒體"
+permissions:
+  _self: "許可權"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "選擇哪個提供商和模型來處理每個人工智慧任務。保留為“未分配”以跳過目的。"
+pill:
+  _self: "膠囊"
+pin:
+  to_screen_always_on_top: "固定到螢幕（始終置頂）"
+pindrop:
+  _self: "Pindrop"
+  dot: "Pindrop Dot"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop 已準備好使用。
+    點選選單欄圖示開始使用。
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop 已準備好使用。n點選選單欄圖示開始使用。"
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop 需要一些許可權才能工作。n您的隱私始終受到尊重。"
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop 需要一些許可權才能工作。
+    您的隱私始終受到尊重。
+  needs_accessibility_permission_to_insert: "\"\"             Pindrop 需要輔助功能許可權才能在您的游標處插入文字。                          授予許可權：             1. 點選下方\"開啟系統設定\"             2. 點選 + 按鈕             3. 導航到 Finder 中顯示的應用             4. 授予許可權後重新啟動 Pindrop                          沒有此許可權，文字將只複製到您的剪貼簿。             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop 需要麥克風訪問許可權來錄製和轉錄您的語音。nn請在系統設定中授予許可權。"
+  on_github: "GitHub 上的 Pindrop"
+  pill: "Pindrop 膠囊"
+  theme: "Pindrop 主題"
+play:
+  _self: "播放"
+please:
+  check_your_internet_connection_and_try_ag: "請檢查您的網際網路連線，然後重試。"
+  download_a_whisper_model_in_settings_befo: |-
+    請在錄製前在設定中下載 Whisper 模型。
+    
+    前往設定 → 模型下載模型。
+  download_a_whisper_model_in_settings_befo_a71d286e: "請在錄製前在設定中下載 Whisper 模型。nn前往設定 → 模型下載模型。"
+  wait: "請稍候..."
+portuguese:
+  brazil: "葡萄牙語（巴西）"
+powered:
+  by_whisperkit: "由 WhisperKit 提供支援"
+preparing:
+  model: "正在準備模型..."
+preset:
+  name: "預設名稱"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "按住以在任何應用中聽寫。Pindrop 將轉錄您的語音並在游標位置插入文字。"
+  esc_to_cancel: "按 Esc 取消"
+  keys: "按按鍵..."
+  once_to_start_again_to_stop: "按一次開始，再按一次停止"
+  once_to_start_recording_press_again_to_sto: "按一次開始錄製，再按一次停止並轉錄"
+  once_to_start_recording_then_press_again_t: "按一次開始錄製，然後再按一次停止並轉錄。"
+  to_start_recording_press_again_to_open_not: "按開始錄製，再按開啟筆記編輯器"
+primary:
+  text: "主要文字"
+processing:
+  _self: "處理中"
+  272bc02e: "處理中..."
+  5aa377e2: "⏳ 處理中"
+  transcript: "Processing transcript"
+prompt:
+  _self: "提示詞"
+  preset: "提示詞預設"
+provider:
+  _self: "提供商"
+  kind: "提供者種類"
+  type: "提供商型別"
+providers:
+  _self: "供應商"
+  prompts_and_vibe_mode_controls: "提供商、提示詞和 vibe 模式控制"
+push:
+  to_talk: "按鍵通話"
+quickly:
+  copy_your_last_transcription: "快速複製您的上次轉錄"
+  pull_your_latest_transcript_back_to_the: "快速將您最新的轉錄拉回剪貼簿。"
+quit:
+  _self: "退出"
+  pindrop: "退出 Pindrop"
+ready:
+  _self: "就緒"
+  ec1296e1: "● 就緒"
+  to_record: "Ready to record"
+  to_transcribe: "準備轉錄"
+recent:
+  _self: "最近"
+  transcriptions: "最近轉錄"
+  transcripts: "最近轉錄"
+recommended:
+  _self: "推薦"
+  the_deterministic_cleaner_handles_mo: "建議：確定性清理器已經能妥善處理大多數聽寫。僅當你想要額外潤色，並能接受模型偶發的怪癖（開頭語、對話式回覆）時，再啟用 LLM 步驟。"
+record:
+  _self: "錄製"
+recording:
+  _self: "錄音中"
+  3f8fd48c: "🔴 錄音中"
+recordings:
+  _self: "錄音"
+redo:
+  _self: "重做"
+refresh:
+  _self: "重新整理"
+remove:
+  _self: "消除"
+  and_clear_any_assignments_that_reference: "刪除“%@”並清除引用它的所有作業？儲存的憑據將被刪除。"
+  from_folder: "從資料夾移除"
+  provider: "刪除提供商"
+rename:
+  _self: "重新命名"
+  folder: "重新命名資料夾"
+replace:
+  all: "全部替換"
+  words_and_phrases: "替換詞彙和短語"
+replacement:
+  _self: "替換"
+  text: "替換文字"
+report:
+  an_issue: "報告問題"
+  an_issue_bd7b4f00: "報告問題"
+required:
+  _self: "必需"
+  for_recording_your_voice: "錄製您的語音所需"
+requires:
+  a_fast_provider_apple_foundation_models: "需要快速提供者（推薦 Apple Foundation Models）。雲提供商將在每次暫停時發出一次 API 呼叫。"
+reset:
+  _self: "已重置"
+  all_settings: "重置所有設定？"
+  all_settings_7262c7b7: "重置所有設定"
+  to_default: "重置為預設"
+retry:
+  _self: "重試"
+right:
+  _self: "右側"
+run:
+  llm_polish_after_dictation_stops: "聽寫停止後執行 LLM 潤色"
+runtime:
+  _self: "執行時間：%@"
+save:
+  _self: "儲存"
+  as_note: "儲存為筆記"
+  continue: "儲存並繼續"
+  credentials: "儲存憑證"
+  prompt: "儲存提示詞"
+saved:
+  _self: "已儲存"
+  as_note: "已儲存為筆記"
+  transcription: "轉錄已儲存"
+search:
+  media_transcripts: "搜尋媒體轉錄..."
+  models: "搜尋模型"
+  models_61c1b9fe: "搜尋模型..."
+  notes: "搜尋筆記..."
+  settings: "搜尋設定"
+  settings_or_jump_between_sections_without: "搜尋設定或在各部分之間跳轉，無需離開主工作區。"
+  transcriptions: "搜尋轉錄..."
+secondary:
+  text: "次要文字"
+select:
+  a_dictionary_json_file_to_import: "選擇要匯入的詞典 JSON 檔案"
+  a_model: "選擇模型"
+  a_presets_json_file_to_import: "選擇要匯入的預設 JSON 檔案"
+  a_provider_kind: "選擇提供商型別"
+  a_provider_type: "選擇提供商型別"
+  ai_model: "選擇 AI 模型"
+  all: "全選"
+  language: "選擇語言"
+  language_daea52c9: "選擇語言"
+  this_floating_indicator_style: "選擇此浮動指示器樣式。"
+  voice_model: "選擇語音模型"
+selected:
+  _self: "已選擇"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "在處理聽寫以直接插入文字時傳送到 AI 模型。"
+sessions:
+  _self: "會話"
+  781791f5: "會話"
+set:
+  as_default: "設為預設"
+settings:
+  _self: "設定"
+  bf83f07f: "設定..."
+  fa67a397: "設定…"
+setup:
+  required: "需要設定"
+show:
+  app: "顯示應用"
+  app_in_finder: "在 Finder 中顯示應用"
+  floating_indicator: "顯示浮動指示器"
+  in_dock: "在 Dock 中顯示"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
+  as_a_pill_at_the_bottom_of_the_screen: "在螢幕底部顯示為膠囊"
+  beside_the_focused_text_field_caret: "顯示在聚焦的文字欄位/游標旁邊"
+  in_the_menu_bar_notch_area: "顯示在選單欄/劉海區域"
+  recording_state_in_a_lightweight_overlay_w: "在輕量級疊加視窗中顯示錄製狀態。"
+sidebar:
+  position: "側邊欄位置"
+simplified:
+  chinese: "簡體中文"
+size:
+  _self: "Size"
+skip:
+  for_now: "暫時跳過"
+slow:
+  _self: "慢速"
+slower:
+  _self: "更慢"
+slowest:
+  _self: "最慢"
+small:
+  _self: "Small"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "較小的模型更快但準確度較低。n從 Base 開始以獲得最佳平衡。"
+  models_are_faster_but_less_accurate_star: |-
+    較小的模型更快但準確度較低。
+    從 Base 開始以獲得最佳平衡。
+something:
+  went_wrong: "出錯了"
+soon:
+  _self: "即將"
+sort:
+  by: "排序方式"
+source:
+  _self: "來源"
+spanish:
+  _self: "西班牙語"
+speaker:
+  diarization_and_timestamps_are_attached: "說話人分離和時間戳附加到播放。"
+  diarization_is_required: "需要說話人分離"
+speed:
+  _self: "速度"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "當您想要清除首選項、引導狀態和儲存的憑證時重新開始。"
+  recording: "開始錄製"
+  recording_to_see_your_transcriptions_here: "開始錄製以在此處檢視您的轉錄"
+  stop_recording: "開始/停止錄製"
+  using_pindrop: "開始使用 Pindrop"
+status:
+  _self: "狀態"
+stop:
+  recording: "停止錄製"
+streaming:
+  enhancement: "流式增強"
+  transcription_currently_supports_engli: "流式轉錄當前僅支援英語，與所選語言無關。"
+  transcription_is_disabled_while_ai_enh: "啟用 AI 增強時，流式轉錄被禁用。"
+  transcription_model_parakeet_realtime: "流式轉錄模型（Parakeet Realtime EOU）由 NVIDIA Corporation 按照 NVIDIA Open Model License 授權。"
+success:
+  _self: "成功！"
+support:
+  _self: "支援"
+  coming_soon: "%@ 支援即將推出"
+supports:
+  local_media_files_and_web_links_resolve: "支援本地媒體檔案和使用 yt-dlp 解析的網頁連結。"
+switch:
+  to_model: "切換到模型"
+system:
+  _self: "系統"
+  default: "系統預設"
+teach:
+  custom_words: "教授自定義詞彙"
+temporarily:
+  copy_text_paste_it_then_restore_your: "臨時複製文字，貼上它，然後恢復您的剪貼簿"
+  mute_speaker_output_while_dictation: "在聽寫錄製期間暫時靜音揚聲器輸出。"
+  pause_active_media_playback_while_di: "在聽寫錄製期間暫時暫停活動的媒體播放。"
+tertiary:
+  text: "第三文字"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\"             模型在 60 秒內未能載入。這通常意味著模型檔案已損壞或不相容。                          解決方法：             1. 開啟設定 → 模型             2. 刪除有問題的模型             3. 重新下載模型                          如果問題仍然存在，請嘗試使用較小的模型（Tiny 或 Base）。             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "所選的分塊變體尚未下載。切換將開始下載。"
+theme:
+  _self: "主題"
+  changes_apply_live_across_the_workspace_se: "主題更改實時應用於整個工作區、設定、筆記編輯器和浮動指示器。"
+  mode: "主題模式"
+this:
+  preset_name_is_already_in_use: "此預設名稱已被使用。"
+  provider_will_be_available_in_a_future_upda: |-
+    此提供商將在未來的更新中可用。
+    目前，請嘗試 OpenAI 或使用自定義端點。
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    此提供商將在未來的更新中可用。
+    嘗試 OpenAI 或使用自定義端點。
+  provider_will_be_available_in_a_future_upda_0677ac1d: "此提供商將在未來的更新中可用。n目前，請嘗試 OpenAI 或使用自定義端點。"
+  transcription_could_not_be_found: "找不到此轉錄。"
+  will_clear_all_your_settings_including_api: "這將清除您的所有設定，包括 API 金鑰、快捷鍵和模型首選項。應用將退出並在下次啟動時再次顯示引導。"
+  will_permanently_remove_the_transcript_and: "這將永久刪除轉錄及其託管的媒體檔案。"
+time:
+  saved: "節省時間"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "進行聽寫並讓 Pindrop 為您轉錄"
+  start_talking: "開始說話"
+today:
+  _self: "今天"
+toggle:
+  _self: "切換"
+  recording: "切換錄製"
+  sort_order: "切換排序順序"
+transcribe:
+  _self: "轉錄"
+  media: "轉錄媒體"
+transcribed:
+  _self: "已轉錄"
+transcription:
+  _self: "轉錄"
+  backend: "轉錄後端"
+  deleted: "轉錄已刪除。"
+  enhancement: "轉錄增強"
+  failed: "轉錄失敗"
+  finished: "轉錄完成。"
+  in_progress: "轉錄進行中"
+  metadata: "轉錄後設資料"
+  update: "轉錄更新"
+transcriptions:
+  _self: "轉錄"
+  f0972acc: "轉錄"
+  in_this_folder_will_be_kept_and_m: "此資料夾中的轉錄將被保留並移回庫中。"
+transcripts:
+  _self: "轉錄"
+try:
+  a_different_search_term: "嘗試不同的搜尋詞"
+  a_different_search_term_0ba628a3: "嘗試不同的搜尋詞。"
+  a_different_search_term_in_this_folder: "在此資料夾中嘗試不同的搜尋詞。"
+  searching_for_terms_like_hotkeys_microphone: "嘗試搜尋快捷鍵、麥克風、更新或 vibe 模式等術語。"
+turkish:
+  _self: "土耳其語"
+type:
+  text_directly_into_the_active_app_when_poss: "儘可能直接在活動應用中輸入文字"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\"                 無法連線到 AI 增強服務。                                  請檢查：                 1. 您的網際網路連線                 2. API 端點 URL 是否正確                 3. 服務是否正常執行                                  轉錄已儲存，未進行增強。                 \"\""
+  to_finish_transcription: "無法完成轉錄"
+  to_load_history: "無法載入歷史：%@"
+  to_load_models_try_refresh: "無法載入模型。嘗試重新整理。"
+  to_update_media_library: "無法更新媒體庫"
+unavailable:
+  device: "裝置不可用"
+undo:
+  _self: "撤銷"
+unfiled:
+  _self: "未歸檔"
+unpin:
+  from_screen: "從螢幕取消固定"
+update:
+  _self: "更新"
+updates:
+  _self: "更新"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "使用點選開始、點選完成的快捷鍵進行筆記捕獲。"
+  clipboard_only: "僅使用剪貼簿"
+  the_hotkey_to_start_your_first_recording: "使用快捷鍵開始您的第一次錄製"
+  transcription_as_a_placeholder_for_the_trans: "使用 ${transcription} 作為轉錄文字的佔位符。"
+  transcription_as_placeholder: "使用 ${transcription} 作為佔位符"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "在使用快捷鍵捕獲筆記時使用。可以為較長的內容新增 Markdown 格式。"
+uses:
+  a_built_in_prompt_tuned_for_this_task: "使用針對此任務調整的內建提示。"
+  the_160ms_parakeet_variant_for_snappier_par: "使用 160 毫秒 Parakeet 變體以獲得更快的部分結果，但單詞錯誤會增加約 70%。預設使用 320 毫秒變體。"
+  the_transcription_enhancement_assignment_if: "使用“轉錄增強”分配。如果未設定，則保留確定性清理器的輸出。"
+v:
+  _self: "v%@"
+version:
+  _self: "版本 %@ (%@)"
+very:
+  fast: "非常快"
+via:
+  _self: "透過 %@"
+vibe:
+  mode: "Vibe 模式"
+  mode_captures_structured_ui_context_when_re: "Vibe 模式在錄製開始時捕獲結構化的 UI 上下文，以便 AI 增強可以將您的活動應用狀態作為參考。"
+  mode_works_best_with_accessibility_permissi: "Vibe 模式在具有輔助功能許可權時效果最佳。沒有它，Pindrop 將回退到有限的應用後設資料，轉錄仍能正常工作。"
+view:
+  _self: "檢視"
+  all: "檢視全部"
+  transcript_history: "檢視轉錄歷史"
+  transcription_history: "檢視轉錄歷史"
+vocabulary:
+  _self: "詞彙"
+vs:
+  typing: "對比輸入"
+welcome:
+  to_pindrop: "歡迎使用 Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "詞彙"
+  replacements: "詞彙替換"
+words:
+  _self: "詞彙"
+  efb89361: "詞彙"
+  min: "詞彙/分鐘"
+wpm:
+  _self: "每分鐘字數"
+yesterday:
+  _self: "昨天"
+you:
+  are_a_note_formatting_assistant_transform_th: "您是一名筆記格式化助手。將轉錄的文字轉換為結構良好的筆記。nn規則：n- 修正語法、標點和拼寫錯誤n- 對於較長的內容（3 段以上），新增 Markdown 格式：n  - 使用標題（## 或 ###）組織章節n  - 在適當的地方使用專案符號或編號列表n  - 使用 **粗體** 強調關鍵術語n- 對於較短的內容，保持簡單，儘量減少格式n- 保留原始含義和語氣n- 不要新增原始內容中沒有的內容n- 僅返回格式化後的筆記，不加任何評論"
+  are_a_text_enhancement_assistant_improve_the: "您是一名文字增強助手。改進所提供文字的語法、標點和格式，同時保留其原始含義和語氣。僅返回增強後的文字，不加任何額外評論。"
+  can_change_these_anytime_from_the_menu_bar_s: "您可以隨時從選單欄 → 設定 → 快捷鍵更改這些"
+  re_all_set: "一切就緒！"
+  re_all_set_058a8130: "一切就緒！"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\"                 您已超出 API 速率限制或配額。                                  解決方法：                 1. 等待幾分鐘後重試                 2. 檢查您的 API 提供商的使用限制                 3. 考慮升級您的 API 計劃                                  轉錄已儲存，未進行增強。                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\"                 您的 API 金鑰似乎無效或已過期。                                  解決方法：                 1. 開啟設定 → AI 增強                 2. 驗證您的 API 金鑰是否正確                 3. 檢查您的 API 端點是否正確                                  轉錄已儲存，未進行增強。                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "您的快捷鍵已準備好使用。n您可以稍後在設定中自定義它們。"
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    您的快捷鍵已準備好使用。
+    您可以稍後在設定中自定義它們。
+  model_is_ready_to_use: "您的模型已準備好使用。"
+  stats: "您的統計"

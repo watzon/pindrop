@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "بيندروب"
+cfbundlename:
+  _self: "بيندروب"
+nsaudiocaptureusagedescription:
+  _self: "يحتاج Pindrop إلى الوصول إلى صوت النظام لنسخ المكالمات والاجتماعات وصوت التطبيقات الأخرى."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "يحتاج Pindrop إلى الوصول إلى الميكروفون لنسخ صوتك."
+nsspeechrecognitionusagedescription:
+  _self: "يستخدم Pindrop ميزة التعرف على الكلام على الجهاز لنسخ الصوت دون إرسال البيانات إلى أي خادم."

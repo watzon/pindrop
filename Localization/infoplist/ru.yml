@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Пиндроп"
+cfbundlename:
+  _self: "Пиндроп"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop необходим доступ к системному звуку для расшифровки звонков, встреч и звука других приложений."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop необходим доступ к микрофону, чтобы расшифровать ваш голос."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop использует распознавание речи на устройстве для расшифровки аудио без отправки данных на какой-либо сервер."

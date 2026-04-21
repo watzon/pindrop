@@ -6,6 +6,30 @@
       "comment": "cfbundledisplayname",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بيندروب"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পিনড্রপ"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -18,7 +42,19 @@
             "value": "Pindrop"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "fi": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -28,6 +64,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिंड्रोप"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "__TETAPKAN_PINDROP__"
           }
         },
         "it": {
@@ -48,7 +108,25 @@
             "value": "Pindrop"
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -60,7 +138,49 @@
             "value": "Pindrop"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пиндроп"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พินดรอป"
+          }
+        },
         "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ghim"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -78,6 +198,30 @@
       "comment": "cfbundlename",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بيندروب"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পিনড্রপ"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -90,7 +234,19 @@
             "value": "Pindrop"
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "fi": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -100,6 +256,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिंड्रोप"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "__TETAPKAN_PINDROP__"
           }
         },
         "it": {
@@ -120,7 +300,25 @@
             "value": "Pindrop"
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
         "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -132,7 +330,49 @@
             "value": "Pindrop"
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пиндроп"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พินดรอป"
+          }
+        },
         "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ghim"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop"
@@ -150,6 +390,30 @@
       "comment": "nsaudiocaptureusagedescription",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج Pindrop إلى الوصول إلى صوت النظام لنسخ المكالمات والاجتماعات وصوت التطبيقات الأخرى."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "কল, মিটিং এবং অন্যান্য অ্যাপ অডিও প্রতিলিপি করার জন্য Pindrop-এর সিস্টেম অডিও অ্যাক্সেস প্রয়োজন।"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop potřebuje systémový přístup ke zvuku, aby mohl přepisovat hovory, schůzky a další zvuky aplikací."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop har brug for adgang til systemlyd for at transskribere opkald, møder og anden app-lyd."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -162,16 +426,52 @@
             "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Pindrop χρειάζεται πρόσβαση στον ήχο του συστήματος για τη μεταγραφή κλήσεων, συσκέψεων και άλλου ήχου εφαρμογών."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop necesita acceso al audio del sistema para transcribir llamadas, reuniones y otro audio de apps."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop tarvitsee järjestelmän äänen pääsyn puheluiden, kokousten ja muiden sovellusten äänien litterointiin."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop needs system audio access to transcribe calls, meetings, and other app audio."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop זקוק לגישה לאודיו של המערכת כדי לתמלל שיחות, פגישות ואודיו אחר של אפליקציות."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कॉल, मीटिंग और अन्य ऐप ऑडियो को ट्रांसक्राइब करने के लिए पिनड्रॉप को सिस्टम ऑडियो एक्सेस की आवश्यकता होती है।"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Pindrop-nak rendszerhang-hozzáférésre van szüksége a hívások, értekezletek és egyéb alkalmazáshangok átírásához."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop memerlukan akses audio sistem untuk menyalin panggilan, rapat, dan audio aplikasi lainnya."
           }
         },
         "it": {
@@ -192,10 +492,28 @@
             "value": "Pindrop이 통화, 회의 및 기타 앱 오디오를 텍스트로 변환하려면 시스템 오디오 접근 권한이 필요합니다."
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop memerlukan akses audio sistem untuk menyalin panggilan, mesyuarat dan audio apl lain."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop trenger systemlydtilgang for å transkribere anrop, møter og annen applyd."
+          }
+        },
         "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop heeft toegang tot systeemaudio nodig om gesprekken, vergaderingen en ander app-audio te transcriberen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop potrzebuje dostępu do dźwięku systemowego, aby transkrybować rozmowy, spotkania i inne dźwięki z aplikacji."
           }
         },
         "pt-BR": {
@@ -204,10 +522,52 @@
             "value": "O Pindrop precisa de acesso ao áudio do sistema para transcrever chamadas, reuniões e outros áudios de apps."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop are nevoie de acces audio la sistem pentru a transcrie apeluri, întâlniri și alte aplicații audio."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop необходим доступ к системному звуку для расшифровки звонков, встреч и звука других приложений."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop behöver systemljudåtkomst för att transkribera samtal, möten och annat appljud."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop ต้องการการเข้าถึงเสียงของระบบเพื่อถอดเสียงการโทร การประชุม และเสียงอื่นๆ ของแอป"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop'un aramaları, toplantıları ve diğer uygulama seslerini yazıya dökebilmesi için sistem sesine erişmesi gerekir."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop потребує доступу до системного аудіо, щоб транскрибувати дзвінки, зустрічі й аудіо з інших програм."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop cần quyền truy cập vào âm thanh hệ thống để chép lời cuộc gọi, cuộc họp và âm thanh ứng dụng khác."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 需要系統音訊存取權限，才能轉錄通話、會議和其他應用程式音訊。"
           }
         },
         "zh-Hans": {
@@ -222,6 +582,30 @@
       "comment": "nshumanreadablecopyright",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "new",
@@ -234,13 +618,49 @@
             "value": ""
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "new",
             "value": ""
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
         "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "id": {
           "stringUnit": {
             "state": "new",
             "value": ""
@@ -264,7 +684,25 @@
             "value": ""
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
         "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "pl": {
           "stringUnit": {
             "state": "new",
             "value": ""
@@ -276,7 +714,49 @@
             "value": ""
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
         "tr": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "new",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "new",
             "value": ""
@@ -294,6 +774,30 @@
       "comment": "nsmicrophoneusagedescription",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج Pindrop إلى الوصول إلى الميكروفون لنسخ صوتك."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "আপনার ভয়েস প্রতিলিপি করার জন্য Pindrop-এর মাইক্রোফোন অ্যাক্সেস প্রয়োজন।"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop potřebuje přístup k mikrofonu, aby mohl přepsat váš hlas."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop har brug for mikrofonadgang for at transskribere din stemme."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -306,16 +810,52 @@
             "value": "Pindrop needs microphone access to transcribe your voice."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Pindrop χρειάζεται πρόσβαση στο μικρόφωνο για να μεταγράψει τη φωνή σας."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop necesita acceso al micrófono para transcribir tu voz."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop tarvitsee mikrofonin pääsyn äänesi litteroimiseen."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop needs microphone access to transcribe your voice."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop זקוק לגישה למיקרופון כדי לתמלל את הקול שלך."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आपकी आवाज़ को ट्रांसक्रिप्ट करने के लिए पिनड्रॉप को माइक्रोफ़ोन एक्सेस की आवश्यकता होती है।"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Pindrop-nak mikrofon-hozzáférésre van szüksége a hangjának átírásához."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop memerlukan akses mikrofon untuk menyalin suara Anda."
           }
         },
         "it": {
@@ -336,10 +876,28 @@
             "value": "Pindrop이 귀하의 음성을 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다."
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop memerlukan akses mikrofon untuk menyalin suara anda."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop trenger mikrofontilgang for å transkribere stemmen din."
+          }
+        },
         "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop heeft toegang tot de microfoon nodig om je stem te kunnen transcriberen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop potrzebuje dostępu do mikrofonu, aby dokonać transkrypcji Twojego głosu."
           }
         },
         "pt-BR": {
@@ -348,10 +906,52 @@
             "value": "Pindrop precisa de acesso ao microfone para transcrever sua voz."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop are nevoie de acces la microfon pentru a vă transcrie vocea."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop необходим доступ к микрофону, чтобы расшифровать ваш голос."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop behöver mikrofonåtkomst för att transkribera din röst."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop จำเป็นต้องเข้าถึงไมโครโฟนเพื่อถอดเสียงของคุณ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop'un sesinizi yazıya dökebilmesi için mikrofona erişmesi gerekiyor."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop потрібен доступ до мікрофона, щоб транскрибувати ваш голос."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop cần quyền truy cập micrô để ghi lại giọng nói của bạn."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 需要麥克風存取權限，才能轉錄您的語音。"
           }
         },
         "zh-Hans": {
@@ -366,6 +966,30 @@
       "comment": "nsspeechrecognitionusagedescription",
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم Pindrop ميزة التعرف على الكلام على الجهاز لنسخ الصوت دون إرسال البيانات إلى أي خادم."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop কোনো সার্ভারে ডেটা না পাঠিয়ে আপনার অডিও প্রতিলিপি করতে ডিভাইসে স্পিচ রিকগনিশন ব্যবহার করে।"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop používá rozpoznávání řeči na zařízení k přepisu vašeho zvuku bez odesílání dat na jakýkoli server."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop bruger talegenkendelse på enheden til at transskribere din lyd uden at sende data til nogen server."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -378,16 +1002,52 @@
             "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
           }
         },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Pindrop χρησιμοποιεί αναγνώριση ομιλίας στη συσκευή για να μεταγράψει τον ήχο σας χωρίς να στείλει δεδομένα σε κανένα διακομιστή."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop usa el reconocimiento de voz local para transcribir tu audio sin enviar datos a ningún servidor."
           }
         },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop käyttää laitteen puheentunnistusta äänen litteroimiseen lähettämättä tietoja millekään palvelimelle."
+          }
+        },
         "fr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop uses on-device speech recognition to transcribe your audio without sending data to any server."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop משתמש בזיהוי דיבור במכשיר כדי לתמלל את האודיו שלך מבלי לשלוח נתונים לאף שרת."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिनड्रॉप किसी भी सर्वर पर डेटा भेजे बिना आपके ऑडियो को ट्रांसक्रिप्ट करने के लिए ऑन-डिवाइस वाक् पहचान का उपयोग करता है।"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Pindrop az eszközön lévő beszédfelismerést használja a hang átírására anélkül, hogy adatokat küldene bármely szerverre."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop menggunakan pengenalan ucapan pada perangkat untuk menyalin audio Anda tanpa mengirim data ke server mana pun."
           }
         },
         "it": {
@@ -408,10 +1068,28 @@
             "value": "Pindrop은 서버에 데이터를 전송하지 않고 오디오를 텍스트로 변환하기 위해 온디바이스 음성 인식을 사용합니다."
           }
         },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop menggunakan pengecaman pertuturan pada peranti untuk menyalin audio anda tanpa menghantar data ke mana-mana pelayan."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop bruker talegjenkjenning på enheten for å transkribere lyden din uten å sende data til noen server."
+          }
+        },
         "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop gebruikt spraakherkenning op het apparaat om je audio te transcriberen zonder gegevens naar een server te sturen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop korzysta z rozpoznawania mowy na urządzeniu, aby transkrybować dźwięk bez wysyłania danych na jakikolwiek serwer."
           }
         },
         "pt-BR": {
@@ -420,10 +1098,52 @@
             "value": "O Pindrop usa reconhecimento de voz local para transcrever seu áudio sem enviar dados para nenhum servidor."
           }
         },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop folosește recunoașterea vorbirii de pe dispozitiv pentru a vă transcrie sunetul fără a trimite date către niciun server."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop использует распознавание речи на устройстве для расшифровки аудио без отправки данных на какой-либо сервер."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop använder taligenkänning på enheten för att transkribera ditt ljud utan att skicka data till någon server."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop ใช้การรู้จำคำพูดบนอุปกรณ์เพื่อถอดเสียงของคุณโดยไม่ต้องส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ"
+          }
+        },
         "tr": {
           "stringUnit": {
             "state": "translated",
             "value": "Pindrop, herhangi bir sunucuya veri göndermeden sesinizi yazıya dökmek için cihaz üzerinde konuşma tanıma kullanır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop використовує розпізнавання мовлення на пристрої, щоб транскрибувати ваше аудіо без надсилання даних на будь-який сервер."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop sử dụng tính năng nhận dạng giọng nói trên thiết bị để chép lại âm thanh của bạn mà không gửi dữ liệu đến bất kỳ máy chủ nào."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 使用裝置端語音辨識來轉錄您的音訊，不會將資料傳送到任何伺服器。"
           }
         },
         "zh-Hans": {

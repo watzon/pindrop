@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100% τοπική επεξεργασία"
+1:
+  folder: "1 φάκελος"
+  transcription: "1 μεταγραφή"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Μια εγγενής εφαρμογή υπαγόρευσης γραμμής μενού macOS που χρησιμοποιεί τοπική ομιλία σε κείμενο με το WhisperKit. 100% τοπική επεξεργασία από προεπιλογή με προαιρετική βελτίωση AI."
+about:
+  _self: "Για"
+  pindrop: "Σχετικά με το Pindrop"
+accessibility:
+  _self: "Προσιτότητα"
+  permission_is_enabled_full_ui_cont: "Η άδεια προσβασιμότητας είναι ενεργοποιημένη. Διατίθεται πλήρες περιβάλλον διεπαφής χρήστη."
+  permission_is_not_granted_vibe_mod: "Δεν χορηγείται άδεια προσβασιμότητας. Η λειτουργία Vibe παραμένει μη μπλοκαρισμένη με περιορισμένο περιβάλλον."
+  permission_recommended: "Συνιστάται άδεια προσβασιμότητας"
+  permission_required: "Απαιτείται άδεια προσβασιμότητας"
+accuracy:
+  _self: "Ακρίβεια"
+acknowledgments:
+  _self: "Ευχαριστίες"
+active:
+  _self: "Ενεργός"
+add:
+  _self: "Προσθέτω"
+  a_provider_to_start_using_ai_enhancement: "Προσθέστε έναν πάροχο για να αρχίσετε να χρησιμοποιείτε τη βελτίωση AI."
+  custom_words_to_improve_transcription_accura: "Προσθέστε προσαρμοσμένες λέξεις για να βελτιώσετε την ακρίβεια μεταγραφής για εξειδικευμένους όρους, ονόματα ή ορολογία."
+  provider: "Προσθήκη παρόχου"
+  tag: "Προσθήκη ετικέτας..."
+  to_existing: "Προσθήκη στο Υπάρχον"
+  trailing_space: "Προσθέστε ελεύθερο χώρο"
+  word_replacements_to_automatically_correct_c: "Προσθέστε αντικαταστάσεις λέξεων για αυτόματη διόρθωση συνηθισμένων σφαλμάτων μεταγραφής."
+  words_to_help_pindrop_recognize_them_properl: "Προσθέστε λέξεις για να βοηθήσετε τον Pindrop να τις αναγνωρίσει σωστά"
+  words_you_manually_correct_into_your_vocabul: "Προσθέστε λέξεις που διορθώνετε χειροκίνητα στο λεξιλόγιό σας για μελλοντικές μεταγραφές."
+ai:
+  enhancement: "Βελτίωση AI"
+  enhancement_529f5583: "Βελτίωση AI: %@"
+  enhancement_failed: "Η βελτίωση AI απέτυχε"
+  enhancement_is_disabled: "Η βελτίωση AI είναι απενεργοποιημένη."
+  enhancement_will: "Η Βελτίωση AI θα:"
+  model: "Μοντέλο AI"
+all:
+  _self: "Ολοι"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Παρουσιάστηκε σφάλμα κατά τη βελτίωση της μεταγραφής σας:
+
+    %@
+
+    Η αρχική μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.
+    Μπορείτε να δοκιμάσετε να ενεργοποιήσετε ξανά τη βελτίωση AI στις Ρυθμίσεις.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Παρουσιάστηκε σφάλμα κατά τη βελτίωση της μεταγραφής σας:nn%@nnΗ αρχική μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.nΜπορείτε να δοκιμάσετε να ενεργοποιήσετε ξανά τη βελτίωση τεχνητής νοημοσύνης στις Ρυθμίσεις."
+anthropic:
+  _self: "Ανθρωπικό"
+api:
+  endpoint: "Τέλος API"
+  key: "Κλειδί API"
+  key_saved: "Το κλειδί API αποθηκεύτηκε"
+  key_saved_endpoint: "Το κλειδί API αποθηκεύτηκε • Τελικό σημείο: %@"
+app:
+  info_acknowledgments_support_and_logs: "Πληροφορίες εφαρμογής, επιβεβαιώσεις, υποστήριξη και αρχεία καταγραφής"
+append:
+  a_space_after_each_transcription_for_seam: "Προσθέστε ένα κενό μετά από κάθε μεταγραφή για απρόσκοπτη υπαγόρευση."
+apple:
+  foundation_models_on_device: "Μοντέλα Apple Foundation (σε συσκευή)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "Το Apple Intelligence δεν είναι διαθέσιμο σε αυτό το σύστημα. Αυτή η εκχώρηση δεν θα επιλυθεί έως ότου ενεργοποιηθεί το Apple Intelligence."
+  intelligence_runs_on_device_and_requires_n: "Το Apple Intelligence εκτελείται στη συσκευή και δεν απαιτεί διαπιστευτήρια."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Το Apple SpeechTranscriber απαιτεί macOS 26."
+  speechtranscriber_unavailable_using_parake: "Το Apple SpeechTranscriber δεν είναι διαθέσιμο — χρησιμοποιώντας το Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Είστε βέβαιοι ότι θέλετε να διαγράψετε το '%@'; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί."
+assignments:
+  _self: "Εργασίες"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Επισυνάψτε αρχεία καταγραφής από αυτόν τον φάκελο κατά την υποβολή ενός ζητήματος στο GitHub."
+audio:
+  input: "Είσοδος ήχου"
+automatic:
+  follow_system: "Αυτόματο (Ακολουθήστε το σύστημα)"
+  updates: "Αυτόματες ενημερώσεις"
+  updates_and_manual_update_checks: "Αυτόματες ενημερώσεις και έλεγχοι μη αυτόματων ενημερώσεων"
+automatically:
+  check_for_new_versions_in_the_back: "Αυτόματος έλεγχος για νέες εκδόσεις στο παρασκήνιο."
+  start_pindrop_when_you_sign_in: "Αυτόματη έναρξη του Pindrop όταν συνδέεστε."
+available:
+  models: "Διαθέσιμα μοντέλα"
+avg:
+  speed: "Μέση Ταχύτητα"
+back:
+  _self: "Πίσω"
+  to_library: "Επιστροφή στη βιβλιοθήκη"
+base:
+  _self: "Βάση"
+best:
+  _self: "Καλύτερος"
+better:
+  _self: "Καλύτερα"
+bubble:
+  _self: "Φυσαλλίδα"
+built:
+  in_presets: "Ενσωματωμένες προεπιλογές"
+  in_read_only: "Ενσωματωμένο (μόνο για ανάγνωση)"
+cancel:
+  _self: "Ματαίωση"
+  operation: "Ακύρωση λειτουργίας"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Αποτυπώστε απευθείας στο πρόγραμμα επεξεργασίας σημειώσεων με μια ροή αναμονής για εγγραφή."
+change:
+  microphone: "Αλλαγή μικροφώνου"
+  microphone_ac9970f4: "Αλλαγή μικροφώνου"
+check:
+  for_updates: "Ελέγξτε για ενημερώσεις..."
+  for_updates_736b9062: "Ελέγξτε για ενημερώσεις"
+  now: "Ελέγξτε τώρα"
+checking:
+  _self: "Ελεγχος..."
+choose:
+  a_location_to_save_the_dictionary: "Επιλέξτε μια τοποθεσία για να αποθηκεύσετε το λεξικό"
+  a_location_to_save_the_presets: "Επιλέξτε μια τοποθεσία για να αποθηκεύσετε τις προεπιλογές"
+  a_model: "Επιλέξτε ένα μοντέλο"
+  a_provider_first: "Επιλέξτε πρώτα έναν πάροχο"
+  an_audio_or_video_file_to_transcribe: "Επιλέξτε ένα αρχείο ήχου ή βίντεο για μεταγραφή"
+  between_parakeet_cross_version_downloaded: "Επιλέξτε μεταξύ του Parakeet (διασταυρούμενη έκδοση, ληφθέν μοντέλο) και του Apple SpeechTranscriber (macOS 26+, αποστέλλεται με το λειτουργικό σύστημα)."
+  file: "Επιλέξτε αρχείο"
+  how_dictated_text_lands_then_tune_the_fin: "Επιλέξτε τον τρόπο προσγείωσης του υπαγορευμένου κειμένου και, στη συνέχεια, συντονίστε την τελική συμπεριφορά εισαγωγής."
+  how_pindrop_follows_system_appearance_the: "Επιλέξτε πώς το Pindrop ακολουθεί την εμφάνιση του συστήματος και, στη συνέχεια, συνδυάστε επιλεγμένες ανοιχτές και σκούρες παλέτες."
+  how_to_import_the_dictionary_data: "Επιλέξτε τον τρόπο εισαγωγής των δεδομένων του λεξικού"
+  how_to_import_the_preset_data: "Επιλέξτε τον τρόπο εισαγωγής των προκαθορισμένων δεδομένων"
+  languages_for_the_interface_and_for_dicta: "Επιλέξτε γλώσσες για τη διεπαφή και για την υπαγόρευση. Αυτόματη ακολουθεί το σύστημα."
+  location_to_save_presets: "Επιλέξτε τοποθεσία για αποθήκευση προεπιλογών"
+  the_daytime_shell_used_in_light_mode: "Επιλέξτε το κέλυφος ημέρας που χρησιμοποιείται στη λειτουργία φωτός."
+  the_low_glare_shell_used_in_dark_mode: "Επιλέξτε το κέλυφος χαμηλής λάμψης που χρησιμοποιείται στη σκοτεινή λειτουργία."
+  which_floating_indicator_style_appears_wh: "Επιλέξτε ποιο στυλ κινητής ένδειξης θα εμφανίζεται όταν είναι ενεργοποιημένη η επικάλυψη."
+  which_microphone_pindrop_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Pindrop για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
+  which_side_the_navigation_sidebar_appears: "Επιλέξτε σε ποια πλευρά θα εμφανίζεται η πλαϊνή γραμμή πλοήγησης."
+clean:
+  up_filler_words: "Καθαρίστε τις λέξεις πλήρωσης"
+clear:
+  audio_buffer: "Εκκαθάριση προσωρινής μνήμης ήχου"
+  hotkey: "Εκκαθάριση πλήκτρου πρόσβασης"
+clears:
+  preferences_and_restarts_onboarding: "Διαγράφει τις προτιμήσεις και επανεκκινεί την ενσωμάτωση"
+click:
+  or_hold: "Κάντε κλικ ή κρατήστε πατημένο"
+  or_press: "Κάντε κλικ ή πατήστε"
+  or_set_a_hotkey_to_start_talking: "Κάντε κλικ ή ορίστε ένα πλήκτρο πρόσβασης για να αρχίσετε να μιλάτε"
+  this_icon_anytime_to: "Κάντε κλικ σε αυτό το εικονίδιο ανά πάσα στιγμή για:"
+clipboard:
+  _self: "Πρόχειρο"
+cloud:
+  _self: "Σύννεφο"
+  model: "Cloud Model"
+collapse:
+  _self: "Κατάρρευση"
+coming:
+  soon: "%@ Προσεχώς"
+  soon_04d2fd85: "Προσεχώς"
+configure:
+  ai_providers_and_credentials_apple_int: "Διαμόρφωση παρόχων και διαπιστευτηρίων τεχνητής νοημοσύνης. Το Apple Intelligence εκτελείται στη συσκευή. άλλοι πάροχοι απαιτούν κλειδιά API."
+  keyboard_shortcuts_for_recording_and_n: "Διαμορφώστε τις συντομεύσεις πληκτρολογίου για εγγραφή και λήψη σημειώσεων"
+continue:
+  _self: "Συνεχίζω"
+  with_default: "Συνεχίστε με Προεπιλογή"
+  without: "Συνέχεια χωρίς"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Ελέγξτε πώς εμφανίζεται το Pindrop στο macOS και εάν ξεκινά με την περίοδο λειτουργίας του υπολογιστή σας."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Ελέγχει τον τρόπο με τον οποίο η ζωντανή διαδρομή υπαγόρευσης γυαλίζει τις μεταγραφές. Το ντετερμινιστικό καθαριστικό (αφαίρεση γεμίσματος, χρήση κεφαλαίων, προφορικά σημεία στίξης, κανονικοποίηση αριθμών, συγχώνευση διαχωρισμένων λέξεων) εκτελείται με κάθε τρόπο — αυτή η εναλλαγή κλείνει το προαιρετικό πάσο γυαλίσματος LLM που ενεργοποιείται μόλις σταματήσει η υπαγόρευση."
+copied:
+  _self: "Αντιγράφηκε!"
+copy:
+  _self: "Αντίγραφο"
+  enhanced: "Ενισχυμένη αντιγραφή"
+  last_transcript: "Αντιγραφή της τελευταίας μεταγραφής"
+  original: "Αντιγραφή πρωτοτύπου"
+  system_info_for_bug_report: "Αντιγράψτε τις πληροφορίες συστήματος για την αναφορά σφαλμάτων"
+  the_most_recent_transcript_to_the_clipboard: "Αντιγράψτε την πιο πρόσφατη μεταγραφή στο πρόχειρο"
+  to_clipboard: "Αντιγραφή στο πρόχειρο"
+  transcript: "Αντιγραφή μεταγραφής"
+correct:
+  grammar_mistakes: "Διορθώστε τα γραμματικά λάθη"
+create:
+  _self: "Δημιουργώ"
+  new_note: "Δημιουργία νέας σημείωσης"
+  new_preset: "Δημιουργία νέας προεπιλογής"
+  your_first_note_to_get_started: "Δημιουργήστε την πρώτη σας σημείωση για να ξεκινήσετε"
+  your_first_preset_or_duplicate_a_built_in: "Δημιουργήστε την πρώτη σας προεπιλογή ή αντιγράψτε μια ενσωματωμένη για να την προσαρμόσετε."
+  your_own_presets_or_duplicate_built_in_on: "Δημιουργήστε τις δικές σας προεπιλογές ή διπλότυπες ενσωματωμένες για να τις προσαρμόσετε."
+credentials:
+  are_stored_securely_in_keychain: "Τα διαπιστευτήρια αποθηκεύονται με ασφάλεια στο Keychain"
+  saved_successfully: "Τα διαπιστευτήρια αποθηκεύτηκαν με επιτυχία"
+current:
+  _self: "Τρέχον: %@"
+custom:
+  _self: "Εθιμο"
+  local: "Προσαρμοσμένο / Τοπικό"
+  openai_compatible: "Προσαρμοσμένο (συμβατό με OpenAI)"
+  presets: "Προσαρμοσμένες προεπιλογές"
+customize:
+  hotkey: "Προσαρμογή του πλήκτρου πρόσβασης"
+cut:
+  _self: "Τομή"
+d:
+  characters: "%d χαρακτήρες"
+dark:
+  _self: "Σκοτάδι"
+  preview: "Σκοτεινή προεπισκόπηση"
+  theme: "Σκοτεινό θέμα"
+database:
+  error: "Σφάλμα βάσης δεδομένων"
+date:
+  _self: "Ημερομηνία"
+  7f823513: "Ημερομηνία %@"
+default:
+  _self: "Αθέτηση"
+  model: "Προεπιλεγμένο μοντέλο"
+define:
+  word_replacements_to_automatically_replac: "Ορίστε αντικαταστάσεις λέξεων για αυτόματη αντικατάσταση συγκεκριμένων λέξεων ή φράσεων"
+degraded:
+  _self: "Υποβαθμισμένος"
+delete:
+  _self: "Διαγράφω"
+  folder: "Διαγραφή φακέλου"
+  folder_e556e7c2: "Διαγραφή φακέλου;"
+  model: "Διαγραφή μοντέλου"
+  preset: "Διαγραφή προεπιλογής"
+  preset_4f6cfe36: "Διαγραφή προεπιλογής;"
+  transcription: "Διαγραφή μεταγραφής"
+  transcription_f82187c4: "Διαγραφή μεταγραφής;"
+dictionary:
+  _self: "Λεξικό"
+direct:
+  insert: "Απευθείας εισαγωγή"
+disabled:
+  _self: "Ανάπηρος"
+dismiss:
+  _self: "Απολύω"
+display:
+  name: "Εμφανιζόμενο όνομα"
+  name_c7874aaa: "Εμφανιζόμενο όνομα"
+  pindrop_in_the_dock_instead_of_running_o: "Εμφανίστε το Pindrop στο Dock αντί να εκτελείται μόνο ως εφαρμογή γραμμής μενού."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Στερεώστε την πλαϊνή γραμμή στην αριστερή ή τη δεξιά άκρη του παραθύρου."
+dot:
+  _self: "Τελεία"
+download:
+  _self: "Λήψη"
+  complete: "Η λήψη ολοκληρώθηκε!"
+  continue: "Λήψη & Συνέχεια"
+  failed: "Η λήψη απέτυχε"
+  model: "Λήψη μοντέλου"
+  the_diarization_model_before_starting_m: "Κάντε λήψη του μοντέλου diarization πριν ξεκινήσετε τη μεταγραφή πολυμέσων."
+downloaded:
+  _self: "Λήψη"
+downloading:
+  _self: "Λήψη %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Αποθέστε ένα αρχείο ή επικολλήστε έναν σύνδεσμο για να δημιουργήσετε μια ημερολογιακή μεταγραφή με χρονική σήμανση."
+  audio_or_video_here: "Αποθέστε ήχο ή βίντεο εδώ"
+duplicate:
+  preset: "Διπλότυπη προεπιλογή"
+dutch:
+  _self: "Ολλανδός"
+edit:
+  _self: "Εκδίδω"
+  preset: "Επεξεργασία προεπιλογής"
+  provider: "Επεξεργασία παρόχου"
+empty:
+  _self: "(Αδειάζω)"
+enable:
+  ai_enhancement: "Ενεργοποίηση AI Enhancement"
+  live_session_updates_during_recording: "Ενεργοποιήστε τις ζωντανές ενημερώσεις περιόδου λειτουργίας κατά την εγγραφή"
+  the_floating_indicator_to_choose_a_style: "Ενεργοποιήστε την αιωρούμενη ένδειξη για να επιλέξετε στυλ."
+  vibe_mode_ui_context: "Ενεργοποίηση λειτουργίας vibe (περιβάλλον διεπαφής χρήστη)"
+enabled:
+  _self: "Ενεργοποιημένο"
+endpoint:
+  _self: "Τελικό σημείο: %@"
+english:
+  _self: "αγγλικός"
+  only: "Αγγλικά μόνο"
+enhanced:
+  _self: "Ενισχυμένο"
+enhancement:
+  prompts: "Προτροπές βελτίωσης"
+enter:
+  an_openai_api_key_to_load_models: "Εισαγάγετε ένα κλειδί OpenAI API για να φορτώσετε μοντέλα."
+  api_key: "Εισαγάγετε το κλειδί API"
+  word_to_add: "Εισαγάγετε λέξη για προσθήκη"
+error:
+  _self: "Σφάλμα"
+european:
+  multilingual: "Ευρωπαϊκό πολύγλωσσο"
+excellent:
+  _self: "Εξοχος"
+export:
+  _self: "Εξαγωγή"
+  as_csv: "Εξαγωγή ως CSV"
+  as_json: "Εξαγωγή ως JSON"
+  as_plain_text: "Εξαγωγή ως απλού κειμένου"
+  dictionary: "Λεξικό εξαγωγής"
+  failed: "Η εξαγωγή απέτυχε: %@"
+  last_transcript: "Εξαγωγή τελευταίας μεταγραφής..."
+  presets: "Εξαγωγή προεπιλογών"
+failed:
+  to_add_replacement: "Αποτυχία προσθήκης αντικατάστασης: %@"
+  to_add_word: "Αποτυχία προσθήκης λέξης: %@"
+  to_delete_folder: "Απέτυχε η διαγραφή του φακέλου: %@"
+  to_delete_note: "Απέτυχε η διαγραφή της σημείωσης: %@"
+  to_delete_preset: "Απέτυχε η διαγραφή της προεπιλογής: %@"
+  to_delete_replacement: "Αποτυχία διαγραφής αντικατάστασης: %@"
+  to_delete_transcription: "Αποτυχία διαγραφής μεταγραφής: %@"
+  to_delete_word: "Αποτυχία διαγραφής λέξης: %@"
+  to_export_dictionary: "Αποτυχία εξαγωγής λεξικού: %@"
+  to_export_presets: "Αποτυχία εξαγωγής προεπιλογών: %@"
+  to_import_dictionary: "Αποτυχία εισαγωγής λεξικού: %@"
+  to_import_presets: "Αποτυχία εισαγωγής προεπιλογών: %@"
+  to_initialize_the_database_nnthe_app_will: "Απέτυχε η προετοιμασία της βάσης δεδομένων: %@nnΗ εφαρμογή θα τερματιστεί τώρα. Δοκιμάστε να κάνετε επανεκκίνηση ή επικοινωνήστε με την υποστήριξη εάν το πρόβλημα παραμένει."
+  to_load_data: "Αποτυχία φόρτωσης δεδομένων: %@"
+  to_load_history: "Η φόρτωση του ιστορικού απέτυχε: %@"
+  to_read_import_file: "Απέτυχε η ανάγνωση του αρχείου εισαγωγής: %@"
+  to_save: "Αποτυχία αποθήκευσης: %@"
+  to_save_preset: "Αποτυχία αποθήκευσης προεπιλογής: %@"
+  to_switch_model: "Αποτυχία αλλαγής μοντέλου: %@"
+  to_update_preset: "Απέτυχε η ενημέρωση της προεπιλογής: %@"
+  to_update_replacement: "Αποτυχία ενημέρωσης αντικατάστασης: %@"
+  to_update_word: "Αποτυχία ενημέρωσης λέξης: %@"
+fast:
+  _self: "Γρήγορα"
+feature:
+  models: "Χαρακτηριστικά Μοντέλα"
+fetch:
+  models_in_models: "Λήψη μοντέλων σε Μοντέλα"
+fix:
+  punctuation_and_capitalization: "Διορθώστε τα σημεία στίξης και τα κεφαλαία"
+floating:
+  indicator: "%@ αιωρούμενος δείκτης"
+  indicator_3bad78a5: "Πλωτός δείκτης: %@"
+  indicator_e0349402: "Πλωτός δείκτης"
+folder:
+  deleted: "Ο φάκελος διαγράφηκε."
+  name: "Όνομα φακέλου"
+follow:
+  playback: "Ακολουθήστε την αναπαραγωγή"
+format:
+  text_appropriately: "Μορφοποιήστε το κείμενο κατάλληλα"
+french:
+  _self: "Γάλλος"
+general:
+  _self: "Γενικός"
+german:
+  _self: "Γερμανός"
+get:
+  started: "Ξεκινήστε"
+global:
+  keyboard_shortcuts: "Καθολικές συντομεύσεις πληκτρολογίου"
+go:
+  back: "Πάω πίσω"
+  to_settings: "Μεταβείτε στις ρυθμίσεις"
+good:
+  _self: "Καλός"
+  afternoon: "Καλημέρα"
+  evening: "Καλησπέρα"
+  morning: "Καλημέρα"
+  night: "Καληνύχτα"
+google:
+  _self: "Google"
+got:
+  it: "Κατάλαβα"
+grant:
+  _self: "Χορήγηση"
+great:
+  _self: "Μεγάλος"
+hide:
+  this_for_1_hour: "Κρύψτε το για 1 ώρα"
+history:
+  _self: "Ιστορία"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Κρατήστε πατημένο τη συντόμευση για εγγραφή και, στη συνέχεια, αφήστε το για μεταγραφή."
+  to_record_release_to_open_note_editor_with: "Κρατήστε πατημένο για εγγραφή, αφήστε το για να ανοίξει το πρόγραμμα επεξεργασίας σημειώσεων με μεταγραφή"
+  to_record_release_to_stop_and_transcribe: "Κρατήστε πατημένο για εγγραφή, αφήστε το για διακοπή και μεταγραφή"
+  to_record_release_to_transcribe: "Κρατήστε πατημένο για εγγραφή, αφήστε το για μεταγραφή"
+hotkey:
+  conflict: "Σύγκρουση πλήκτρων πρόσβασης"
+hotkeys:
+  _self: "Πλήκτρα συντόμευσης"
+import:
+  dictionary: "Λεξικό εισαγωγής"
+  error: "Σφάλμα εισαγωγής"
+  export: "Εισαγωγή/Εξαγωγή"
+  media: "Εισαγωγή πολυμέσων"
+  or_transcribe_media_while_this_folder_is: "Εισαγωγή ή μεταγραφή πολυμέσων ενώ αυτός ο φάκελος είναι επιλεγμένος για αποθήκευση στοιχείων εδώ."
+  presets: "Εισαγωγή προεπιλογών"
+  strategy: "Στρατηγική Εισαγωγών"
+imported:
+  files_and_web_links_will_appear_here_on: "Τα εισαγόμενα αρχεία και οι σύνδεσμοι ιστού θα εμφανίζονται εδώ μόλις ολοκληρωθεί η επεξεργασία."
+improve:
+  transcription_quality_using_ai: "Βελτιώστε την ποιότητα μεταγραφής χρησιμοποιώντας AI"
+include:
+  clipboard_text: "Συμπεριλάβετε κείμενο στο πρόχειρο"
+interface:
+  _self: "Διασύνδεση"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "Το %@ έχει εκχωρηθεί τόσο στο %@ όσο και στο %@. Μόνο η πρώτη ενέργεια θα είναι ενεργή. Ενημερώστε τα πλήκτρα πρόσβασης στις Ρυθμίσεις για να επιλύσετε αυτήν τη διένεξη."
+italian:
+  _self: "ιταλικά"
+items:
+  _self: "είδη"
+japanese:
+  _self: "Ιαπωνικά"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Διατηρήστε το Pindrop τρέχον αυτόματα ή ενεργοποιήστε έναν μη αυτόματο έλεγχο όποτε θέλετε."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Συντομεύσεις πληκτρολογίου"
+korean:
+  _self: "κορεάτης"
+language:
+  _self: "Γλώσσα"
+large:
+  _self: "Μεγάλο"
+launch:
+  at_login: "Εκκίνηση κατά τη σύνδεση: %@"
+  at_login_0b36c78f: "Εκκίνηση κατά τη σύνδεση"
+layout:
+  _self: "Σχέδιο"
+learn:
+  corrected_words_automatically: "Μάθετε τις διορθωμένες λέξεις αυτόματα"
+left:
+  _self: "Αριστερά"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Αφήστε τον Pindrop να μάθει αθόρυβα λεξιλόγιο από τις διορθώσεις που κάνετε με την πάροδο του χρόνου."
+light:
+  _self: "Φως"
+  dark_and_curated_palette_presets: "Προκαθορισμένες παλέτες ανοιχτόχρωμες, σκοτεινές και επιμελημένες"
+  preview: "Προεπισκόπηση φωτός"
+  theme: "Ελαφρύ θέμα"
+limited:
+  _self: "Περιωρισμένος"
+live:
+  streaming_refinement: "Βελτιστοποίηση ζωντανής ροής"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld χαρακτήρες"
+  complete: "%lld%% ολοκληρώθηκε"
+  items: "%lld στοιχεία"
+  notes: "%lld σημειώσεις"
+  transcriptions: "%lld μεταγραφές"
+lm:
+  studio: "LM Studio"
+  studio_only_needs_a_token_if_local_server_aut: "Το LM Studio χρειάζεται ένα διακριτικό μόνο εάν είναι ενεργοποιημένος ο έλεγχος ταυτότητας τοπικού διακομιστή."
+load:
+  models: "Φόρτωση μοντέλων"
+loaded:
+  d_models: "Φορτωμένα %d μοντέλα"
+loading:
+  history: "Φόρτωση ιστορικού..."
+  models: "Φόρτωση μοντέλων..."
+local:
+  _self: "Τοπικός"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Τοπική ομιλία σε κείμενο, απευθείας από τη γραμμή μενού σας.
+    Γρήγορη, ιδιωτική και πάντα διαθέσιμη.
+  speech_to_text_right_from_your_menu_bar_nf: "Τοπική ομιλία σε κείμενο, απευθείας από τη γραμμή μενού σας.nΓρήγορη, ιδιωτική και πάντα διαθέσιμη."
+  speech_to_text_with_whisperkit: "Τοπική ομιλία σε κείμενο με το WhisperKit"
+  voice_to_text: "Τοπική φωνή σε κείμενο"
+low:
+  latency_mode_less_accurate: "Λειτουργία χαμηλής καθυστέρησης (λιγότερο ακριβής)"
+manage:
+  local_speech_models_feature_models_and_th: "Διαχειριστείτε μοντέλα τοπικής ομιλίας, μοντέλα δυνατοτήτων και τον προεπιλεγμένο κινητήρα που χρησιμοποιεί το Pindrop για μεταγραφή."
+  models: "Διαχείριση μοντέλων"
+  presets: "Διαχείριση προεπιλογών"
+  presets_ab87986d: "Διαχείριση προεπιλογών..."
+manually:
+  check_for_new_versions_now: "Ελέγξτε με μη αυτόματο τρόπο για νέες εκδόσεις τώρα."
+media:
+  library: "Βιβλιοθήκη πολυμέσων"
+  transcription: "Μεταγραφή μέσων"
+  unavailable: "Μη διαθέσιμα μέσα"
+medium:
+  _self: "Μέσον"
+microphone:
+  _self: "Μικρόφωνο"
+  permission_is_required_to_continue: "Απαιτείται άδεια μικροφώνου για να συνεχίσετε"
+  permission_is_required_to_continue_dc: "Απαιτείται άδεια μικροφώνου για να συνεχίσετε."
+  permission_required: "Απαιτείται άδεια μικροφώνου"
+mit:
+  license: "Άδεια MIT"
+mode:
+  _self: "Λειτουργία: %@"
+model:
+  _self: "Μοντέλο"
+  loading_failed: "Η φόρτωση του μοντέλου απέτυχε"
+  loading_timed_out: "Λήξη χρονικού ορίου φόρτωσης μοντέλου"
+models:
+  _self: "Μοντέλα"
+move:
+  to_folder: "Μετακίνηση στο φάκελο"
+multilingual:
+  _self: "Πολύγλωσσος"
+must:
+  be_openai_compatible: "Πρέπει να είναι συμβατό με OpenAI"
+mute:
+  system_audio_during_recording: "Σίγαση ήχου συστήματος κατά την εγγραφή"
+new:
+  folder: "Νέος φάκελος"
+  note: "Νέα Σημείωση"
+  preset: "Νέα προεπιλογή"
+next:
+  _self: "Επόμενος"
+no:
+  api_key: "Δεν υπάρχει κλειδί API"
+  api_key_endpoint: "Χωρίς κλειδί API • Τελικό σημείο: %@"
+  custom_presets: "Δεν υπάρχουν προσαρμοσμένες προεπιλογές"
+  downloaded_models: "Δεν υπάρχουν ληφθέντα μοντέλα"
+  folders_yet: "Δεν υπάρχουν φάκελοι ακόμα"
+  items_in: "Δεν υπάρχουν στοιχεία στο %@"
+  media_transcriptions_yet: "Δεν υπάρχουν ακόμα μεταγραφές μέσων"
+  model_loaded: "Δεν έχει φορτωθεί μοντέλο"
+  model_selected: "Δεν επιλέχθηκε μοντέλο"
+  models_available: "Δεν υπάρχουν διαθέσιμα μοντέλα"
+  models_available_ae9dbd29: "Δεν υπάρχουν διαθέσιμα μοντέλα."
+  models_available_try_refresh_or_enter_a_model: "Δεν υπάρχουν διαθέσιμα μοντέλα. Δοκιμάστε το Refresh ή εισαγάγετε ένα αναγνωριστικό μοντέλου με μη αυτόματο τρόπο."
+  models_found: "Δεν βρέθηκαν μοντέλα."
+  models_loaded_open_edit_to_fetch_models: "Δεν έχουν φορτωθεί μοντέλα. Ανοίξτε την Επεξεργασία για ανάκτηση μοντέλων."
+  models_match: "Κανένα μοντέλο δεν ταιριάζει με το \"%@\""
+  notes_yet: "Δεν υπάρχουν σημειώσεις ακόμα"
+  providers_configured_yet: "Δεν έχουν διαμορφωθεί ακόμη πάροχοι."
+  replacements: "Χωρίς Αντικαταστάσεις"
+  results_found: "Δεν βρέθηκαν αποτελέσματα"
+  settings_found: "Δεν βρέθηκαν ρυθμίσεις"
+  transcriptions_yet: "Δεν υπάρχουν ακόμη μεταγραφές"
+  vocabulary_words: "Χωρίς λεξιλογικές λέξεις"
+not:
+  assigned: "Δεν έχει ανατεθεί"
+  selected: "Δεν έχει επιλεγεί"
+  set: "Δεν έχει οριστεί"
+  set_93039e60: "Δεν έχει οριστεί"
+notch:
+  _self: "Εγκοπή"
+note:
+  _self: "Σημείωμα"
+  capture_push_to_talk: "Λήψη σημειώσεων (Push-to-Talk)"
+  capture_toggle: "Λήψη σημειώσεων (Εναλλαγή)"
+  enhancement: "Σημείωση Ενίσχυση"
+  from: "Σημείωση από"
+  metadata: "Σημείωση Μεταδεδομένα"
+  title: "Σημείωση Τίτλος"
+notes:
+  _self: "Σημειώσεις"
+  3add7b96: "σημειώσεις"
+off:
+  _self: "Μακριά από"
+ok:
+  _self: "ΕΝΤΑΞΕΙ"
+ollama:
+  _self: "Ολάμα"
+  usually_does_not_require_authentication_f: "Το Ollama συνήθως δεν απαιτεί έλεγχο ταυτότητας για τοπικά αιτήματα."
+on:
+  _self: "Επί"
+  device_no_credentials_required: "Στη συσκευή, δεν απαιτούνται διαπιστευτήρια"
+open:
+  _self: "Ανοιχτό"
+  history: "Ανοίξτε το ιστορικό"
+  logs_in_finder: "Ανοίξτε τα αρχεία καταγραφής στο Finder"
+  original_link: "Ανοίξτε τον αρχικό σύνδεσμο"
+  progress: "Ανοιχτή πρόοδος"
+  settings: "Ανοίξτε τις Ρυθμίσεις"
+  settings_fd7108f8: "Ανοίξτε τις ρυθμίσεις"
+  system_settings: "Ανοίξτε τις Ρυθμίσεις συστήματος"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "Τοπικός διακομιστής συμβατός με OpenAI"
+  whisper: "OpenAI Whisper"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Προαιρετικός"
+  insert_text_directly_into_apps: "Προαιρετικό: Εισαγάγετε κείμενο απευθείας στις εφαρμογές"
+  used_for_auto_generated_titles_and_summ: "Προαιρετικό — χρησιμοποιείται για τίτλους και περιλήψεις που δημιουργούνται αυτόματα στις εισαγωγές μεταγραφής μέσων."
+optionally:
+  clean_up_transcriptions_with_ai: "Προαιρετικά καθαρίστε τις μεταγραφές με AI"
+or:
+  _self: "ή"
+  just_use_your_hotkey: "Ή απλώς χρησιμοποιήστε το πλήκτρο πρόσβασης!"
+original:
+  _self: "Πρωτότυπο"
+  text_use_commas_for_multiple: "Αρχικό κείμενο (χρησιμοποιήστε κόμματα για πολλά)"
+originals:
+  comma_separated: "Πρωτότυπα (χωρισμένα με κόμματα)"
+output:
+  _self: "Παραγωγή"
+  audio_interface_and_everyday_behavior: "Έξοδος, ήχος, διεπαφή και καθημερινή συμπεριφορά"
+parakeet:
+  default: "Parakeet (προεπιλογή)"
+paste:
+  _self: "Πάστα"
+  a_video_or_audio_link: "Επικολλήστε έναν σύνδεσμο βίντεο ή ήχου"
+  last_transcript: "Επικόλληση τελευταίας μεταγραφής"
+  last_transcript_v: "Επικόλληση τελευταίας μεταγραφής ⌃⌘V"
+pause:
+  _self: "Παύση"
+  media_during_transcription: "Παύση μέσων κατά τη μεταγραφή"
+permissions:
+  _self: "Άδειες"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Επιλέξτε ποιος πάροχος και μοντέλο χειρίζεται κάθε εργασία AI. Αποχωρήστε ως \"Δεν έχει ανατεθεί\" για να παραλείψετε έναν σκοπό."
+pill:
+  _self: "Χάπι"
+pin:
+  to_screen_always_on_top: "Καρφίτσωμα στην οθόνη (πάντα στην κορυφή)"
+pindrop:
+  _self: "Πίνδροπ"
+  dot: "Pindrop Dot"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Το Pindrop είναι έτοιμο για χρήση.
+    Κάντε κλικ στο εικονίδιο της γραμμής μενού για να ξεκινήσετε.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Το Pindrop είναι έτοιμο για χρήση. nΚάντε κλικ στο εικονίδιο της γραμμής μενού για να ξεκινήσετε."
+  needs_a_few_permissions_to_work_nyour_pr: "Το Pindrop χρειάζεται μερικές άδειες για να λειτουργήσει. nΤο απόρρητό σας είναι πάντα σεβαστό."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Το Pindrop χρειάζεται μερικά δικαιώματα για να λειτουργήσει.
+    Το απόρρητό σας τηρείται πάντα.
+  needs_accessibility_permission_to_insert: "\"\" Το Pindrop χρειάζεται άδεια προσβασιμότητας για να εισαγάγει κείμενο στον κέρσορα σας.                          Για να εκχωρήσετε άδεια: 1. Κάντε κλικ στο \"Άνοιγμα ρυθμίσεων συστήματος\" παρακάτω 2. Κάντε κλικ στο κουμπί + 3. Μεταβείτε στην εφαρμογή που εμφανίζεται στο Finder 4. Επανεκκινήστε το Pindrop μετά τη χορήγηση άδειας Χωρίς αυτήν την άδεια, το κείμενο θα αντιγραφεί μόνο στο πρόχειρό σας.             \"\""
+  needs_microphone_access_to_record_and_tr: "Το Pindrop χρειάζεται πρόσβαση στο μικρόφωνο για την εγγραφή και τη μεταγραφή της φωνής σας.nnΠαρακαλούμε παραχωρήστε άδεια στις Ρυθμίσεις συστήματος."
+  on_github: "Pindrop στο GitHub"
+  pill: "Χάπι Pindrop"
+  theme: "Θέμα Pindrop"
+play:
+  _self: "Παιχνίδι"
+please:
+  check_your_internet_connection_and_try_ag: "Ελέγξτε τη σύνδεσή σας στο Διαδίκτυο και δοκιμάστε ξανά."
+  download_a_whisper_model_in_settings_befo: |-
+    Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν την εγγραφή.
+
+    Μεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.nnΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
+  wait: "Παρακαλώ περιμένετε..."
+portuguese:
+  brazil: "Πορτογαλικά (Βραζιλία)"
+powered:
+  by_whisperkit: "Με την υποστήριξη του WhisperKit"
+preparing:
+  model: "Προετοιμασία μοντέλου..."
+preset:
+  name: "Προκαθορισμένο όνομα"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Πατήστε παρατεταμένα για υπαγόρευση σε οποιαδήποτε εφαρμογή. Το Pindrop θα μεταγράψει την ομιλία σας και θα εισαγάγει το κείμενο όπου βρίσκεται ο κέρσορας σας."
+  esc_to_cancel: "Πατήστε Esc για ακύρωση"
+  keys: "Πατήστε τα πλήκτρα..."
+  once_to_start_again_to_stop: "Πατήστε μία φορά για να ξεκινήσετε, ξανά για να σταματήσετε"
+  once_to_start_recording_press_again_to_sto: "Πατήστε μία φορά για να ξεκινήσει η εγγραφή, πατήστε ξανά για διακοπή και μεταγραφή"
+  once_to_start_recording_then_press_again_t: "Πατήστε μία φορά για να ξεκινήσει η εγγραφή και μετά πατήστε ξανά για διακοπή και μεταγραφή."
+  to_start_recording_press_again_to_open_not: "Πατήστε για να ξεκινήσει η εγγραφή, πατήστε ξανά για να ανοίξετε το πρόγραμμα επεξεργασίας σημειώσεων"
+primary:
+  text: "Πρωτεύον κείμενο"
+processing:
+  _self: "Επεξεργασία"
+  272bc02e: "Επεξεργασία..."
+  5aa377e2: "⏳ Επεξεργασία"
+  transcript: "Επεξεργασία μεταγραφής"
+prompt:
+  _self: "Ταχύς"
+  preset: "Προεπιλογή προεπιλογής"
+provider:
+  _self: "Προμηθευτής"
+  kind: "Είδος Παρόχου"
+  type: "Τύπος παρόχου"
+providers:
+  _self: "Παρόχους"
+  prompts_and_vibe_mode_controls: "Στοιχεία ελέγχου παρόχων, μηνυμάτων προτροπής και λειτουργίας vibe"
+push:
+  to_talk: "Push-to-Talk"
+quickly:
+  copy_your_last_transcription: "Αντιγράψτε γρήγορα την τελευταία σας μεταγραφή"
+  pull_your_latest_transcript_back_to_the: "Τραβήξτε γρήγορα την τελευταία μεταγραφή σας πίσω στο πρόχειρο."
+quit:
+  _self: "Εγκαταλείπω"
+  pindrop: "Κλείστε το Pindrop"
+ready:
+  _self: "Ετοιμος"
+  ec1296e1: "● Έτοιμος"
+  to_record: "Έτοιμο για εγγραφή"
+  to_transcribe: "Έτοιμο για μεταγραφή"
+recent:
+  _self: "Πρόσφατος"
+  transcriptions: "Πρόσφατες μεταγραφές"
+  transcripts: "Πρόσφατες μεταγραφές"
+recommended:
+  _self: "Συνιστάται"
+  the_deterministic_cleaner_handles_mo: "Συνιστάται: το ντετερμινιστικό καθαριστικό χειρίζεται καθαρά την περισσότερη υπαγόρευση. Ενεργοποιήστε το πάσο LLM μόνο εάν θέλετε επιπλέον στίλβωση και αποδεχτείτε περιστασιακές ιδιορρυθμίες μοντέλων (προοίμιο, απαντήσεις συνομιλίας)."
+record:
+  _self: "Ρεκόρ"
+recording:
+  _self: "Εγγραφή"
+  3f8fd48c: "🔴 Ηχογράφηση"
+recordings:
+  _self: "ηχογραφήσεις"
+redo:
+  _self: "Ξανακάνω"
+refresh:
+  _self: "Φρεσκάρω"
+remove:
+  _self: "Αφαιρώ"
+  and_clear_any_assignments_that_reference: "Να καταργηθεί το \"%@\" και να διαγραφούν τυχόν εργασίες που αναφέρονται σε αυτό; Τα αποθηκευμένα διαπιστευτήρια θα διαγραφούν."
+  from_folder: "Κατάργηση από τον φάκελο"
+  provider: "Κατάργηση παρόχου"
+rename:
+  _self: "Μετονομάζω"
+  folder: "Μετονομασία φακέλου"
+replace:
+  all: "Αντικατάσταση όλων"
+  words_and_phrases: "Αντικαταστήστε λέξεις και φράσεις"
+replacement:
+  _self: "Αντικατάσταση"
+  text: "Κείμενο αντικατάστασης"
+report:
+  an_issue: "Αναφορά προβλήματος"
+  an_issue_bd7b4f00: "Αναφέρετε ένα πρόβλημα"
+required:
+  _self: "Υποχρεούμαι"
+  for_recording_your_voice: "Απαιτείται για την ηχογράφηση της φωνής σας"
+requires:
+  a_fast_provider_apple_foundation_models: "Απαιτεί έναν γρήγορο πάροχο (συνιστώνται τα μοντέλα Apple Foundation). Οι πάροχοι cloud θα εκδίδουν μία κλήση API ανά παύση."
+reset:
+  _self: "Επαναφορά"
+  all_settings: "Επαναφορά όλων των ρυθμίσεων;"
+  all_settings_7262c7b7: "Επαναφέρετε όλες τις ρυθμίσεις"
+  to_default: "Επαναφορά στην προεπιλογή"
+retry:
+  _self: "Δοκιμάζω πάλι"
+right:
+  _self: "Δικαίωμα"
+run:
+  llm_polish_after_dictation_stops: "Εκτελέστε LLM Polish αφού σταματήσει η υπαγόρευση"
+runtime:
+  _self: "Χρόνος εκτέλεσης: %@"
+save:
+  _self: "Εκτός"
+  as_note: "Αποθήκευση ως Σημείωση"
+  continue: "Αποθήκευση & Συνέχεια"
+  credentials: "Αποθήκευση διαπιστευτηρίων"
+  prompt: "Αποθήκευση προτροπής"
+saved:
+  _self: "Αποθηκεύτηκε"
+  as_note: "Αποθηκεύτηκε ως Σημείωση"
+  transcription: "Αποθηκευμένη μεταγραφή"
+search:
+  media_transcripts: "Αναζήτηση μεταγραφών πολυμέσων..."
+  models: "Αναζήτηση μοντέλων"
+  models_61c1b9fe: "Αναζήτηση μοντέλων..."
+  notes: "Αναζήτηση σημειώσεων..."
+  settings: "Ρυθμίσεις αναζήτησης"
+  settings_or_jump_between_sections_without: "Αναζητήστε ρυθμίσεις ή μεταβείτε μεταξύ των ενοτήτων χωρίς να βγείτε από τον κύριο χώρο εργασίας."
+  transcriptions: "Αναζήτηση μεταγραφών..."
+secondary:
+  text: "Δευτερεύον κείμενο"
+select:
+  a_dictionary_json_file_to_import: "Επιλέξτε ένα αρχείο JSON λεξικού για εισαγωγή"
+  a_model: "Επιλέξτε ένα μοντέλο"
+  a_presets_json_file_to_import: "Επιλέξτε ένα προκαθορισμένο αρχείο JSON για εισαγωγή"
+  a_provider_kind: "Επιλέξτε ένα είδος παρόχου"
+  a_provider_type: "Επιλέξτε έναν τύπο παρόχου"
+  ai_model: "Επιλέξτε μοντέλο AI"
+  all: "Επιλέξτε Όλα"
+  language: "Επιλέξτε Γλώσσα"
+  language_daea52c9: "Επιλέξτε γλώσσα"
+  this_floating_indicator_style: "Επιλέξτε αυτό το στυλ κυμαινόμενου δείκτη."
+  voice_model: "Επιλέξτε Μοντέλο φωνής"
+selected:
+  _self: "Επιλεγμένο"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Αποστέλλεται στο μοντέλο AI κατά την επεξεργασία υπαγόρευσης για άμεση εισαγωγή κειμένου."
+sessions:
+  _self: "Συνεδρίες"
+  781791f5: "συνεδρίες"
+set:
+  as_default: "Ορισμός ως προεπιλογή"
+settings:
+  _self: "Ρυθμίσεις"
+  bf83f07f: "Ρυθμίσεις..."
+  fa67a397: "Ρυθμίσεις…"
+setup:
+  required: "Απαιτείται ρύθμιση"
+show:
+  app: "Εμφάνιση εφαρμογής"
+  app_in_finder: "Εμφάνιση εφαρμογής στο Finder"
+  floating_indicator: "Εμφάνιση κινητής ένδειξης"
+  in_dock: "Εμφάνιση στο Dock"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Εμφανίζεται ως τελεία στη γωνία της οθόνης"
+  as_a_pill_at_the_bottom_of_the_screen: "Εμφανίζεται ως χάπι στο κάτω μέρος της οθόνης"
+  beside_the_focused_text_field_caret: "Εμφανίζεται δίπλα στο εστιασμένο πεδίο κειμένου/φρεάτιο"
+  in_the_menu_bar_notch_area: "Εμφανίζεται στη γραμμή μενού/την περιοχή εγκοπής"
+  recording_state_in_a_lightweight_overlay_w: "Εμφανίζει την κατάσταση εγγραφής σε ένα ελαφρύ παράθυρο επικάλυψης."
+sidebar:
+  position: "Θέση πλευρικής γραμμής"
+simplified:
+  chinese: "Απλοποιημένα κινέζικα"
+size:
+  _self: "Μέγεθος"
+skip:
+  for_now: "Παράλειψη για τώρα"
+slow:
+  _self: "Αργός"
+slower:
+  _self: "Πιο αργά"
+slowest:
+  _self: "Πιο αργό"
+small:
+  _self: "Μικρό"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Τα μικρότερα μοντέλα είναι πιο γρήγορα αλλά λιγότερο ακριβή.nΞεκινήστε με το Base για την καλύτερη ισορροπία."
+  models_are_faster_but_less_accurate_star: |-
+    Τα μικρότερα μοντέλα είναι πιο γρήγορα αλλά λιγότερο ακριβή.
+    Ξεκινήστε με το Base για την καλύτερη ισορροπία.
+something:
+  went_wrong: "Κάτι πήγε στραβά"
+soon:
+  _self: "Σύντομα"
+sort:
+  by: "Ταξινόμηση κατά"
+source:
+  _self: "Πηγή"
+spanish:
+  _self: "ισπανικά"
+speaker:
+  diarization_and_timestamps_are_attached: "Η ένδειξη ηχείων και οι χρονικές σημάνσεις επισυνάπτονται στην αναπαραγωγή."
+  diarization_is_required: "Απαιτείται διάκριση του ηχείου"
+speed:
+  _self: "Ταχύτητα"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Ξεκινήστε από την αρχή όταν θέλετε να διαγράψετε τις προτιμήσεις, την κατάσταση ενσωμάτωσης και τα αποθηκευμένα διαπιστευτήρια."
+  recording: "Ξεκινήστε την εγγραφή"
+  recording_to_see_your_transcriptions_here: "Ξεκινήστε την εγγραφή για να δείτε τις μεταγραφές σας εδώ"
+  stop_recording: "Έναρξη/διακοπή εγγραφής"
+  using_pindrop: "Ξεκινήστε να χρησιμοποιείτε το Pindrop"
+status:
+  _self: "Κατάσταση"
+stop:
+  recording: "Διακοπή εγγραφής"
+streaming:
+  enhancement: "Βελτίωση ροής"
+  transcription_currently_supports_engli: "Η μεταγραφή ροής υποστηρίζει προς το παρόν μόνο αγγλικά, ανεξάρτητα από την επιλεγμένη γλώσσα."
+  transcription_is_disabled_while_ai_enh: "Η μεταγραφή ροής είναι απενεργοποιημένη ενώ η Βελτίωση AI είναι ενεργοποιημένη."
+  transcription_model_parakeet_realtime: "Μοντέλο μεταγραφής ροής (Parakeet Realtime EOU) με άδεια από την NVIDIA Corporation υπό την άδεια ανοιχτού μοντέλου NVIDIA."
+success:
+  _self: "Επιτυχία!"
+support:
+  _self: "Υποστήριξη"
+  coming_soon: "%@ Υποστήριξη Σύντομα"
+supports:
+  local_media_files_and_web_links_resolve: "Υποστηρίζει αρχεία τοπικών πολυμέσων και συνδέσμους ιστού που επιλύονται με yt-dlp."
+switch:
+  to_model: "Μετάβαση στο μοντέλο"
+system:
+  _self: "Σύστημα"
+  default: "Προεπιλογή συστήματος"
+teach:
+  custom_words: "Διδάξτε προσαρμοσμένες λέξεις"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Αντιγράψτε προσωρινά το κείμενο, επικολλήστε το και, στη συνέχεια, επαναφέρετε το πρόχειρό σας"
+  mute_speaker_output_while_dictation: "Προσωρινή σίγαση της εξόδου των ηχείων κατά την εγγραφή της υπαγόρευσης."
+  pause_active_media_playback_while_di: "Διακόψτε προσωρινά την ενεργή αναπαραγωγή πολυμέσων κατά την εγγραφή της υπαγόρευσης."
+tertiary:
+  text: "Τριτογενές Κείμενο"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Το μοντέλο απέτυχε να φορτώσει μέσα σε 60 δευτερόλεπτα. Αυτό συνήθως σημαίνει ότι τα αρχεία του μοντέλου είναι κατεστραμμένα ή μη συμβατά.                          Για να το διορθώσετε: 1. Ανοίξτε τις Ρυθμίσεις → Μοντέλα 2. Διαγράψτε το προβληματικό μοντέλο 3. Κάντε ξανά λήψη του μοντέλου Εάν το πρόβλημα παραμένει, δοκιμάστε ένα μικρότερο μοντέλο (Tiny ή Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "Η επιλεγμένη παραλλαγή κομματιού δεν έχει γίνει ακόμη λήψη. Η εναλλαγή θα ξεκινήσει μια λήψη."
+theme:
+  _self: "Θέμα"
+  changes_apply_live_across_the_workspace_se: "Οι αλλαγές θέματος εφαρμόζονται ζωντανά στον χώρο εργασίας, τις ρυθμίσεις, το πρόγραμμα επεξεργασίας σημειώσεων και τις κινούμενες ενδείξεις."
+  mode: "Λειτουργία θέματος"
+this:
+  preset_name_is_already_in_use: "Αυτό το προκαθορισμένο όνομα χρησιμοποιείται ήδη."
+  provider_will_be_available_in_a_future_upda: |-
+    Αυτός ο πάροχος θα είναι διαθέσιμος σε μελλοντική ενημέρωση.
+    Προς το παρόν, δοκιμάστε το OpenAI ή χρησιμοποιήστε ένα προσαρμοσμένο τελικό σημείο.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Αυτός ο πάροχος θα είναι διαθέσιμος σε μελλοντική ενημέρωση.
+    Δοκιμάστε το OpenAI ή χρησιμοποιήστε ένα προσαρμοσμένο τελικό σημείο.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Αυτός ο πάροχος θα είναι διαθέσιμος σε μελλοντική ενημέρωση.nΠρος το παρόν, δοκιμάστε το OpenAI ή χρησιμοποιήστε ένα προσαρμοσμένο τελικό σημείο."
+  transcription_could_not_be_found: "Αυτή η μεταγραφή δεν βρέθηκε."
+  will_clear_all_your_settings_including_api: "Αυτό θα διαγράψει όλες τις ρυθμίσεις σας, συμπεριλαμβανομένων των κλειδιών API, των πλήκτρων πρόσβασης και των προτιμήσεων μοντέλου. Η εφαρμογή θα τερματιστεί και θα εμφανιστεί ξανά η ενσωμάτωση στην επόμενη κυκλοφορία."
+  will_permanently_remove_the_transcript_and: "Αυτό θα καταργήσει οριστικά τη μεταγραφή και το διαχειριζόμενο αρχείο πολυμέσων."
+time:
+  saved: "Εξοικονόμηση χρόνου"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "να υπαγορεύσει και να αφήσει τον Πίντροπ να μεταγράψει για εσάς"
+  start_talking: "να αρχίσουμε να μιλάμε"
+today:
+  _self: "Σήμερα"
+toggle:
+  _self: "Μπαρέτα"
+  recording: "Εναλλαγή εγγραφής"
+  sort_order: "Εναλλαγή σειράς ταξινόμησης"
+transcribe:
+  _self: "Αντιγράφω"
+  media: "Μεταγραφή μέσων"
+transcribed:
+  _self: "μεταγραφεί"
+transcription:
+  _self: "Μεταγραφή"
+  backend: "Backend μεταγραφής"
+  deleted: "Η μεταγραφή διαγράφηκε."
+  enhancement: "Βελτίωση μεταγραφής"
+  failed: "Η μεταγραφή απέτυχε"
+  finished: "Η μεταγραφή ολοκληρώθηκε."
+  in_progress: "Η μεταγραφή σε εξέλιξη"
+  metadata: "Μεταδεδομένα μεταγραφής"
+  update: "Ενημέρωση μεταγραφής"
+transcriptions:
+  _self: "Μεταγραφές"
+  f0972acc: "μεταγραφές"
+  in_this_folder_will_be_kept_and_m: "Οι μεταγραφές σε αυτόν τον φάκελο θα διατηρηθούν και θα μετακινηθούν πίσω στη βιβλιοθήκη."
+transcripts:
+  _self: "Μεταγραφές"
+try:
+  a_different_search_term: "Δοκιμάστε έναν διαφορετικό όρο αναζήτησης"
+  a_different_search_term_0ba628a3: "Δοκιμάστε έναν διαφορετικό όρο αναζήτησης."
+  a_different_search_term_in_this_folder: "Δοκιμάστε έναν διαφορετικό όρο αναζήτησης σε αυτόν τον φάκελο."
+  searching_for_terms_like_hotkeys_microphone: "Δοκιμάστε να αναζητήσετε όρους όπως πλήκτρα πρόσβασης, μικρόφωνο, ενημερώσεις ή λειτουργία vibe."
+turkish:
+  _self: "τούρκικος"
+type:
+  text_directly_into_the_active_app_when_poss: "Πληκτρολογήστε κείμενο απευθείας στην ενεργή εφαρμογή όταν είναι δυνατόν"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Δεν είναι δυνατή η σύνδεση με την υπηρεσία βελτίωσης AI.                                  Ελέγξτε: 1. Η σύνδεσή σας στο διαδίκτυο 2. Η διεύθυνση URL τελικού σημείου API είναι σωστή 3. Η υπηρεσία δεν αντιμετωπίζει διακοπή Η μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.                 \"\""
+  to_finish_transcription: "Δεν είναι δυνατή η ολοκλήρωση της μεταγραφής"
+  to_load_history: "Δεν είναι δυνατή η φόρτωση του ιστορικού: %@"
+  to_load_models_try_refresh: "Δεν είναι δυνατή η φόρτωση μοντέλων. Δοκιμάστε να ανανεώσετε."
+  to_update_media_library: "Δεν είναι δυνατή η ενημέρωση της βιβλιοθήκης πολυμέσων"
+unavailable:
+  device: "Μη διαθέσιμη συσκευή"
+undo:
+  _self: "Ξεκάνω"
+unfiled:
+  _self: "Μη αρχειοθετημένο"
+unpin:
+  from_screen: "Ξεκαρφιτσώστε από την οθόνη"
+update:
+  _self: "Εκσυγχρονίζω"
+updates:
+  _self: "Ενημερώσεις"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Χρησιμοποιήστε μια συντόμευση πάτημα για έναρξη, πάτημα για ολοκλήρωση για τη λήψη σημειώσεων."
+  clipboard_only: "Χρησιμοποιήστε μόνο το Πρόχειρο"
+  the_hotkey_to_start_your_first_recording: "Χρησιμοποιήστε το πλήκτρο πρόσβασης για να ξεκινήσετε την πρώτη σας εγγραφή"
+  transcription_as_a_placeholder_for_the_trans: "Χρησιμοποιήστε το ${transcription} ως σύμβολο κράτησης θέσης για το μεταγραμμένο κείμενο."
+  transcription_as_placeholder: "Χρησιμοποιήστε το ${transcription} ως σύμβολο κράτησης θέσης"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Χρησιμοποιείται κατά τη λήψη σημειώσεων μέσω πλήκτρου πρόσβασης. Μπορεί να προσθέσει μορφοποίηση σήμανσης για μεγαλύτερο περιεχόμενο."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Χρησιμοποιεί μια ενσωματωμένη προτροπή συντονισμένη για αυτήν την εργασία."
+  the_160ms_parakeet_variant_for_snappier_par: "Χρησιμοποιεί την παραλλαγή Parakeet των 160 ms για πιο ευέλικτα τμήματα με κόστος ~ 70% περισσότερων σφαλμάτων λέξης. Η προεπιλογή είναι η παραλλαγή των 320 ms."
+  the_transcription_enhancement_assignment_if: "Χρησιμοποιεί την εκχώρηση Transcription Enhancement. Εάν δεν έχει οριστεί κανένα, η ντετερμινιστική έξοδος καθαριστικού διατηρείται ως έχει."
+v:
+  _self: "v%@"
+version:
+  _self: "Έκδοση %@ (%@)"
+very:
+  fast: "Πολύ Γρήγορο"
+via:
+  _self: "μέσω %@"
+vibe:
+  mode: "Λειτουργία Vibe"
+  mode_captures_structured_ui_context_when_re: "Η λειτουργία Vibe καταγράφει το δομημένο περιβάλλον διεπαφής χρήστη όταν ξεκινά η εγγραφή, έτσι ώστε η βελτίωση AI να μπορεί να χρησιμοποιεί την ενεργή κατάσταση της εφαρμογής σας ως αναφορά."
+  mode_works_best_with_accessibility_permissi: "Η λειτουργία Vibe λειτουργεί καλύτερα με την άδεια Προσβασιμότητας. Χωρίς αυτό, το Pindrop επιστρέφει σε περιορισμένα μεταδεδομένα εφαρμογής και η μεταγραφή εξακολουθεί να λειτουργεί κανονικά."
+view:
+  _self: "Θέα"
+  all: "Προβολή όλων"
+  transcript_history: "Προβολή ιστορικού μεταγραφής"
+  transcription_history: "Προβολή ιστορικού μεταγραφής"
+vocabulary:
+  _self: "Λεξιλόγιο"
+vs:
+  typing: "έναντι πληκτρολόγησης"
+welcome:
+  to_pindrop: "Καλώς ήρθατε στο Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Λέξη"
+  replacements: "Αντικαταστάσεις λέξεων"
+words:
+  _self: "Λόγια"
+  efb89361: "λόγια"
+  min: "λέξεις/λεπτό"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Εχθές"
+you:
+  are_a_note_formatting_assistant_transform_th: "Είστε βοηθός μορφοποίησης σημειώσεων. Μετατρέψτε το μεταγραμμένο κείμενο σε μια καλά δομημένη σημείωση.nnΚανόνες:n- Διόρθωση γραμματικών, σημείων στίξης και ορθογραφικών σφαλμάτωνn- Για μεγαλύτερο περιεχόμενο (3+ παραγράφους), προσθέστε μορφοποίηση σήμανσης:n - Χρησιμοποιήστε κεφαλίδες (## ή ###) για να οργανώσετε ενότητεςn - Χρησιμοποιήστε **σημεία κουκκίδων ή αριθμημένες λίστες για σύντομο περιεχόμενο* κρατήστε το απλό με ελάχιστη μορφοποίησηn- Διατηρήστε το αρχικό νόημα και τον τόνο- Μην προσθέτετε περιεχόμενο που δεν υπήρχε στο πρωτότυποn- Επιστρέψτε μόνο τη μορφοποιημένη σημείωση χωρίς κανένα σχόλιο"
+  are_a_text_enhancement_assistant_improve_the: "Είστε βοηθός βελτίωσης κειμένου. Βελτιώστε τη γραμματική, τα σημεία στίξης και τη μορφοποίηση του παρεχόμενου κειμένου διατηρώντας παράλληλα το αρχικό του νόημα και τον τόνο. Επιστρέψτε μόνο το βελτιωμένο κείμενο χωρίς πρόσθετο σχόλιο."
+  can_change_these_anytime_from_the_menu_bar_s: "Μπορείτε να τα αλλάξετε οποιαδήποτε στιγμή από τη γραμμή μενού → Ρυθμίσεις → Πλήκτρα συντόμευσης"
+  re_all_set: "Είστε έτοιμοι!"
+  re_all_set_058a8130: "Είστε έτοιμοι!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Έχετε υπερβεί το όριο ή το όριο του ποσοστού API.                                  Για να το διορθώσετε: 1. Περιμένετε λίγα λεπτά και δοκιμάστε ξανά 2. Ελέγξτε τα όρια χρήσης του παρόχου API σας 3. Εξετάστε το ενδεχόμενο να αναβαθμίσετε το σχέδιο API Η μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Το κλειδί API φαίνεται ότι δεν είναι έγκυρο ή έχει λήξει.                                  Για να το διορθώσετε: 1. Ανοίξτε τις Ρυθμίσεις → Βελτίωση AI 2. Βεβαιωθείτε ότι το κλειδί API είναι σωστό 3. Ελέγξτε ότι το τελικό σημείο του API είναι σωστό Η μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Τα πλήκτρα πρόσβασης είναι έτοιμα για χρήση.nΜπορείτε να τα προσαρμόσετε αργότερα στις Ρυθμίσεις."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Τα πλήκτρα πρόσβασης είναι έτοιμα για χρήση.
+    Μπορείτε να τα προσαρμόσετε αργότερα στις Ρυθμίσεις.
+  model_is_ready_to_use: "Το μοντέλο σας είναι έτοιμο για χρήση."
+  stats: "Τα στατιστικά σας"

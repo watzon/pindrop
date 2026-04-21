@@ -1,0 +1,1012 @@
+100:
+  local_processing: "การประมวลผลในท้องถิ่น 100%"
+1:
+  folder: "1 โฟลเดอร์"
+  transcription: "การถอดเสียง 1 รายการ"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "แอพเขียนตามคำบอกบนแถบเมนู macOS ที่ใช้การแปลงคำพูดเป็นข้อความในเครื่องด้วย WhisperKit การประมวลผลภายในเครื่อง 100% ตามค่าเริ่มต้นพร้อมการเพิ่มประสิทธิภาพ AI ที่เป็นตัวเลือก"
+about:
+  _self: "เกี่ยวกับ"
+  pindrop: "เกี่ยวกับ พินดรอป"
+accessibility:
+  _self: "การเข้าถึง"
+  permission_is_enabled_full_ui_cont: "เปิดใช้งานการอนุญาตการเข้าถึงแล้ว มีบริบท UI แบบเต็ม"
+  permission_is_not_granted_vibe_mod: "ไม่ได้รับอนุญาตการเข้าถึง โหมด Vibe ยังคงไม่ปิดกั้นโดยมีบริบทที่จำกัด"
+  permission_recommended: "แนะนำให้ใช้สิทธิ์ในการเข้าถึง"
+  permission_required: "จำเป็นต้องได้รับอนุญาตการเข้าถึง"
+accuracy:
+  _self: "ความแม่นยำ"
+acknowledgments:
+  _self: "รับทราบ"
+active:
+  _self: "คล่องแคล่ว"
+add:
+  _self: "เพิ่ม"
+  a_provider_to_start_using_ai_enhancement: "เพิ่มผู้ให้บริการเพื่อเริ่มใช้การปรับปรุง AI"
+  custom_words_to_improve_transcription_accura: "เพิ่มคำที่กำหนดเองเพื่อปรับปรุงความแม่นยำในการถอดเสียงสำหรับคำศัพท์ ชื่อ หรือศัพท์เฉพาะทาง"
+  provider: "เพิ่มผู้ให้บริการ"
+  tag: "เพิ่มแท็ก..."
+  to_existing: "เพิ่มไปยังที่มีอยู่"
+  trailing_space: "เพิ่มช่องว่างต่อท้าย"
+  word_replacements_to_automatically_correct_c: "เพิ่มการแทนที่คำเพื่อแก้ไขข้อผิดพลาดในการถอดเสียงทั่วไปโดยอัตโนมัติ"
+  words_to_help_pindrop_recognize_them_properl: "เพิ่มคำเพื่อช่วยให้ Pindrop จดจำได้อย่างถูกต้อง"
+  words_you_manually_correct_into_your_vocabul: "เพิ่มคำที่คุณแก้ไขลงในคำศัพท์ด้วยตนเองเพื่อการถอดเสียงในอนาคต"
+ai:
+  enhancement: "การเพิ่มประสิทธิภาพ AI"
+  enhancement_529f5583: "การปรับปรุง AI: %@"
+  enhancement_failed: "การปรับปรุง AI ล้มเหลว"
+  enhancement_is_disabled: "การเพิ่มประสิทธิภาพ AI ถูกปิดใช้งาน"
+  enhancement_will: "การปรับปรุง AI จะ:"
+  model: "โมเดลเอไอ"
+all:
+  _self: "ทั้งหมด"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    เกิดข้อผิดพลาดขณะปรับปรุงการถอดเสียงของคุณ:
+    
+    %@
+    
+    การถอดเสียงต้นฉบับได้รับการบันทึกโดยไม่มีการปรับปรุง
+    คุณสามารถลองเปิดใช้งานการเพิ่มประสิทธิภาพ AI อีกครั้งได้ในการตั้งค่า
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "เกิดข้อผิดพลาดขณะปรับปรุงการถอดเสียงของคุณ:nn%@nnการถอดเสียงต้นฉบับถูกบันทึกโดยไม่มีการปรับปรุงnคุณสามารถลองเปิดใช้งานการปรับปรุง AI อีกครั้งได้ในการตั้งค่า"
+anthropic:
+  _self: "มานุษยวิทยา"
+api:
+  endpoint: "จุดสิ้นสุด API"
+  key: "คีย์ API"
+  key_saved: "บันทึกคีย์ API แล้ว"
+  key_saved_endpoint: "บันทึกคีย์ API แล้ว • จุดสิ้นสุด: %@"
+app:
+  info_acknowledgments_support_and_logs: "ข้อมูลแอป การรับทราบ การสนับสนุน และบันทึก"
+append:
+  a_space_after_each_transcription_for_seam: "เติมช่องว่างหลังการถอดเสียงแต่ละครั้งเพื่อให้เขียนตามคำบอกได้อย่างราบรื่น"
+apple:
+  foundation_models_on_device: "รุ่น Apple Foundation (บนอุปกรณ์)"
+  intelligence: "แอปเปิ้ลอัจฉริยะ"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence ไม่พร้อมใช้งานบนระบบนี้ การมอบหมายนี้จะไม่ได้รับการแก้ไขจนกว่าจะเปิดใช้งาน Apple Intelligence"
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence ทำงานบนอุปกรณ์และไม่ต้องใช้ข้อมูลประจำตัว"
+  speechtranscriber_macos_26: "เครื่องแปลงคำพูดของ Apple (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber ต้องใช้ macOS 26"
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber ไม่พร้อมใช้งาน — กำลังใช้ Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "คุณแน่ใจหรือไม่ว่าต้องการลบ '%@' การดำเนินการนี้ไม่สามารถยกเลิกได้"
+assignments:
+  _self: "การมอบหมายงาน"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "แนบบันทึกจากโฟลเดอร์นี้เมื่อยื่นปัญหา GitHub"
+audio:
+  input: "อินพุตเสียง"
+automatic:
+  follow_system: "อัตโนมัติ (ติดตามระบบ)"
+  updates: "อัพเดตอัตโนมัติ"
+  updates_and_manual_update_checks: "การอัปเดตอัตโนมัติและการตรวจสอบการอัปเดตด้วยตนเอง"
+automatically:
+  check_for_new_versions_in_the_back: "ตรวจสอบเวอร์ชันใหม่ในเบื้องหลังโดยอัตโนมัติ"
+  start_pindrop_when_you_sign_in: "เริ่ม Pindrop โดยอัตโนมัติเมื่อคุณลงชื่อเข้าใช้"
+available:
+  models: "รุ่นที่มีจำหน่าย"
+avg:
+  speed: "ความเร็วเฉลี่ย"
+back:
+  _self: "กลับ"
+  to_library: "กลับไปที่ห้องสมุด"
+base:
+  _self: "ฐาน"
+best:
+  _self: "ดีที่สุด"
+better:
+  _self: "ดีกว่า"
+bubble:
+  _self: "ฟอง"
+built:
+  in_presets: "ค่าที่ตั้งไว้ล่วงหน้าในตัว"
+  in_read_only: "ในตัว (อ่านอย่างเดียว)"
+cancel:
+  _self: "ยกเลิก"
+  operation: "ยกเลิกการดำเนินการ"
+capture:
+  directly_into_the_note_editor_with_a_hol: "บันทึกลงในเครื่องมือแก้ไขบันทึกโดยตรงด้วยโฟลว์การระงับเพื่อบันทึก"
+change:
+  microphone: "เปลี่ยนไมโครโฟน"
+  microphone_ac9970f4: "เปลี่ยนไมโครโฟน"
+check:
+  for_updates: "ตรวจสอบการอัปเดต..."
+  for_updates_736b9062: "ตรวจสอบการอัปเดต"
+  now: "ตรวจสอบตอนนี้"
+checking:
+  _self: "กำลังตรวจสอบ..."
+choose:
+  a_location_to_save_the_dictionary: "เลือกตำแหน่งที่จะบันทึกพจนานุกรม"
+  a_location_to_save_the_presets: "เลือกตำแหน่งที่จะบันทึกค่าที่ตั้งล่วงหน้า"
+  a_model: "เลือกรุ่น"
+  a_provider_first: "เลือกผู้ให้บริการก่อน"
+  an_audio_or_video_file_to_transcribe: "เลือกไฟล์เสียงหรือวิดีโอที่จะถอดเสียง"
+  between_parakeet_cross_version_downloaded: "เลือกระหว่าง Parakeet (เวอร์ชันข้าม รุ่นดาวน์โหลด) และ Apple SpeechTranscriber (macOS 26+ จัดส่งพร้อมกับระบบปฏิบัติการ)"
+  file: "เลือกไฟล์"
+  how_dictated_text_lands_then_tune_the_fin: "เลือกวิธีการป้อนข้อความตามคำบอก จากนั้นปรับแต่งลักษณะการแทรกขั้นสุดท้าย"
+  how_pindrop_follows_system_appearance_the: "เลือกวิธีที่ Pindrop ติดตามลักษณะที่ปรากฏของระบบ จากนั้นผสมพาเล็ตแสงและสีเข้มที่คัดสรรแล้ว"
+  how_to_import_the_dictionary_data: "เลือกวิธีการนำเข้าข้อมูลพจนานุกรม"
+  how_to_import_the_preset_data: "เลือกวิธีการนำเข้าข้อมูลที่ตั้งไว้ล่วงหน้า"
+  languages_for_the_interface_and_for_dicta: "เลือกภาษาสำหรับอินเทอร์เฟซและสำหรับการเขียนตามคำบอก อัตโนมัติตามระบบ"
+  location_to_save_presets: "เลือกตำแหน่งที่จะบันทึกค่าที่ตั้งล่วงหน้า"
+  the_daytime_shell_used_in_light_mode: "เลือกเปลือกเวลากลางวันที่ใช้ในโหมดแสง"
+  the_low_glare_shell_used_in_dark_mode: "เลือกเปลือกแสงสะท้อนต่ำที่ใช้ในโหมดมืด"
+  which_floating_indicator_style_appears_wh: "เลือกรูปแบบตัวบ่งชี้แบบลอยตัวที่จะปรากฏเมื่อเปิดใช้งานการซ้อนทับ"
+  which_microphone_pindrop_should_use_for_d: "เลือกไมโครโฟน Pindrop ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
+  which_side_the_navigation_sidebar_appears: "เลือกด้านที่แถบนำทางด้านข้างจะปรากฏ"
+clean:
+  up_filler_words: "ทำความสะอาดคำเติม"
+clear:
+  audio_buffer: "ล้างบัฟเฟอร์เสียง"
+  hotkey: "ล้างปุ่มลัด"
+clears:
+  preferences_and_restarts_onboarding: "ล้างค่ากำหนดและรีสตาร์ทการเริ่มต้นใช้งาน"
+click:
+  or_hold: "คลิกหรือกดค้างไว้"
+  or_press: "คลิกหรือกด"
+  or_set_a_hotkey_to_start_talking: "คลิกหรือตั้งค่าปุ่มลัดเพื่อเริ่มพูด"
+  this_icon_anytime_to: "คลิกไอคอนนี้เมื่อใดก็ได้เพื่อ:"
+clipboard:
+  _self: "คลิปบอร์ด"
+cloud:
+  _self: "คลาวด์"
+  model: "โมเดลคลาวด์"
+collapse:
+  _self: "ทรุด"
+coming:
+  soon: "%@ เร็วๆ นี้"
+  soon_04d2fd85: "เร็วๆ นี้"
+configure:
+  ai_providers_and_credentials_apple_int: "กำหนดค่าผู้ให้บริการ AI และข้อมูลประจำตัว Apple Intelligence ทำงานบนอุปกรณ์ ผู้ให้บริการรายอื่นต้องการคีย์ API"
+  keyboard_shortcuts_for_recording_and_n: "กำหนดค่าแป้นพิมพ์ลัดสำหรับการบันทึกและการจดบันทึก"
+continue:
+  _self: "ดำเนินการต่อ"
+  with_default: "ดำเนินการต่อด้วยค่าเริ่มต้น"
+  without: "ดำเนินการต่อโดยไม่มี"
+control:
+  how_pindrop_appears_in_macos_and_whether: "ควบคุมวิธีที่ Pindrop ปรากฏใน macOS และกำหนดว่าจะเริ่มต้นด้วยเซสชันเดสก์ท็อปของคุณหรือไม่"
+controls:
+  how_the_live_dictation_path_polishes_tr: "ควบคุมวิธีที่เส้นทางการเขียนตามคำบอกแบบสดขัดเกลาข้อความถอดเสียง ตัวล้างตามที่กำหนด (การลบฟิลเลอร์ การใช้อักษรตัวพิมพ์ใหญ่ เครื่องหมายวรรคตอนคำพูด การทำให้ตัวเลขเป็นมาตรฐาน การรวมคำแบบแยก) ทำงานด้วยวิธีใดวิธีหนึ่ง - ปุ่มสลับนี้จะเข้าประตูขัดเงา LLM ซึ่งเป็นตัวเลือกซึ่งจะเริ่มทำงานเมื่อการเขียนตามคำบอกหยุดลง"
+copied:
+  _self: "คัดลอก!"
+copy:
+  _self: "สำเนา"
+  enhanced: "คัดลอกขั้นสูง"
+  last_transcript: "คัดลอกทรานสคริปต์ล่าสุด"
+  original: "คัดลอกต้นฉบับ"
+  system_info_for_bug_report: "คัดลอกข้อมูลระบบสำหรับรายงานข้อผิดพลาด"
+  the_most_recent_transcript_to_the_clipboard: "คัดลอกข้อความถอดเสียงล่าสุดไปยังคลิปบอร์ด"
+  to_clipboard: "คัดลอกไปยังคลิปบอร์ด"
+  transcript: "คัดลอกใบรับรองผลการเรียน"
+correct:
+  grammar_mistakes: "แก้ไขข้อผิดพลาดทางไวยากรณ์"
+create:
+  _self: "สร้าง"
+  new_note: "สร้างบันทึกใหม่"
+  new_preset: "สร้างค่าที่ตั้งล่วงหน้าใหม่"
+  your_first_note_to_get_started: "สร้างบันทึกย่อแรกของคุณเพื่อเริ่มต้น"
+  your_first_preset_or_duplicate_a_built_in: "สร้างค่าที่ตั้งล่วงหน้าแรกของคุณหรือทำซ้ำค่าที่ตั้งไว้ภายในเพื่อปรับแต่ง"
+  your_own_presets_or_duplicate_built_in_on: "สร้างค่าที่ตั้งล่วงหน้าของคุณเองหรือทำซ้ำค่าที่ตั้งไว้ภายในเพื่อปรับแต่ง"
+credentials:
+  are_stored_securely_in_keychain: "ข้อมูลประจำตัวจะถูกเก็บไว้อย่างปลอดภัยในพวงกุญแจ"
+  saved_successfully: "บันทึกข้อมูลรับรองเรียบร้อยแล้ว"
+current:
+  _self: "ปัจจุบัน: %@"
+custom:
+  _self: "กำหนดเอง"
+  local: "กำหนดเอง / ท้องถิ่น"
+  openai_compatible: "กำหนดเอง (รองรับ OpenAI)"
+  presets: "ค่าที่ตั้งล่วงหน้าแบบกำหนดเอง"
+customize:
+  hotkey: "ปรับแต่งปุ่มลัด"
+cut:
+  _self: "ตัด"
+d:
+  characters: "%d อักขระ"
+dark:
+  _self: "มืด"
+  preview: "การแสดงตัวอย่างสีเข้ม"
+  theme: "ธีมสีเข้ม"
+database:
+  error: "ข้อผิดพลาดของฐานข้อมูล"
+date:
+  _self: "วันที่"
+  7f823513: "วันที่ %@"
+default:
+  _self: "ค่าเริ่มต้น"
+  model: "โมเดลเริ่มต้น"
+define:
+  word_replacements_to_automatically_replac: "กำหนดการแทนที่คำเพื่อแทนที่คำหรือวลีที่ระบุโดยอัตโนมัติ"
+degraded:
+  _self: "เสื่อมโทรม"
+delete:
+  _self: "ลบ"
+  folder: "ลบโฟลเดอร์"
+  folder_e556e7c2: "ลบโฟลเดอร์ใช่ไหม"
+  model: "ลบโมเดล"
+  preset: "ลบค่าที่ตั้งล่วงหน้า"
+  preset_4f6cfe36: "ลบค่าที่ตั้งไว้ล่วงหน้าใช่ไหม"
+  transcription: "ลบการถอดเสียงเป็นคำ"
+  transcription_f82187c4: "ลบการถอดเสียงเป็นคำใช่ไหม"
+dictionary:
+  _self: "พจนานุกรม"
+direct:
+  insert: "แทรกโดยตรง"
+disabled:
+  _self: "พิการ"
+dismiss:
+  _self: "อนุญาตให้ออกไป"
+display:
+  name: "ชื่อที่แสดง"
+  name_c7874aaa: "ชื่อที่แสดง"
+  pindrop_in_the_dock_instead_of_running_o: "แสดง Pindrop ใน Dock แทนที่จะทำงานเป็นแอปแถบเมนูเท่านั้น"
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "วางแถบด้านข้างไว้ที่ขอบซ้ายหรือขวาของหน้าต่าง"
+dot:
+  _self: "จุด"
+download:
+  _self: "ดาวน์โหลด"
+  complete: "ดาวน์โหลดเสร็จสมบูรณ์!"
+  continue: "ดาวน์โหลดและดำเนินการต่อ"
+  failed: "ดาวน์โหลดล้มเหลว"
+  model: "ดาวน์โหลดโมเดล"
+  the_diarization_model_before_starting_m: "ดาวน์โหลดแบบจำลองไดอะไรเซชันก่อนเริ่มการถอดเสียงสื่อ"
+downloaded:
+  _self: "ดาวน์โหลดแล้ว"
+downloading:
+  _self: "กำลังดาวน์โหลด %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "วางไฟล์หรือวางลิงก์เพื่อสร้างบันทึกประจำวันและบันทึกเวลา"
+  audio_or_video_here: "วางเสียงหรือวิดีโอที่นี่"
+duplicate:
+  preset: "ตั้งค่าล่วงหน้าซ้ำ"
+dutch:
+  _self: "ภาษาดัตช์"
+edit:
+  _self: "แก้ไข"
+  preset: "แก้ไขค่าที่ตั้งล่วงหน้า"
+  provider: "แก้ไขผู้ให้บริการ"
+empty:
+  _self: "(ว่างเปล่า)"
+enable:
+  ai_enhancement: "เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
+  live_session_updates_during_recording: "เปิดใช้งานการอัปเดตเซสชันสดระหว่างการบันทึก"
+  the_floating_indicator_to_choose_a_style: "เปิดใช้งานตัวบ่งชี้แบบลอยเพื่อเลือกสไตล์"
+  vibe_mode_ui_context: "เปิดใช้งานโหมดความรู้สึก (บริบท UI)"
+enabled:
+  _self: "เปิดใช้งานแล้ว"
+endpoint:
+  _self: "จุดสิ้นสุด: %@"
+english:
+  _self: "ภาษาอังกฤษ"
+  only: "ภาษาอังกฤษเท่านั้น"
+enhanced:
+  _self: "ปรับปรุงแล้ว"
+enhancement:
+  prompts: "แจ้งการเพิ่มประสิทธิภาพ"
+enter:
+  an_openai_api_key_to_load_models: "ป้อนคีย์ OpenAI API เพื่อโหลดโมเดล"
+  api_key: "ป้อนคีย์ API"
+  word_to_add: "ป้อนคำที่จะเพิ่ม"
+error:
+  _self: "ข้อผิดพลาด"
+european:
+  multilingual: "พูดได้หลายภาษาในยุโรป"
+excellent:
+  _self: "ยอดเยี่ยม"
+export:
+  _self: "ส่งออก"
+  as_csv: "ส่งออกเป็น CSV"
+  as_json: "ส่งออกเป็น JSON"
+  as_plain_text: "ส่งออกเป็นข้อความธรรมดา"
+  dictionary: "พจนานุกรมส่งออก"
+  failed: "การส่งออกล้มเหลว: %@"
+  last_transcript: "ส่งออกข้อความถอดเสียงล่าสุด..."
+  presets: "ส่งออกค่าที่ตั้งล่วงหน้า"
+failed:
+  to_add_replacement: "ไม่สามารถเพิ่มการแทนที่: %@"
+  to_add_word: "ไม่สามารถเพิ่มคำ: %@"
+  to_delete_folder: "ไม่สามารถลบโฟลเดอร์: %@"
+  to_delete_note: "ไม่สามารถลบบันทึก: %@"
+  to_delete_preset: "ไม่สามารถลบค่าที่กำหนดล่วงหน้า: %@"
+  to_delete_replacement: "ไม่สามารถลบการแทนที่: %@"
+  to_delete_transcription: "ไม่สามารถลบการถอดเสียงเป็นคำ: %@"
+  to_delete_word: "ไม่สามารถลบคำ: %@"
+  to_export_dictionary: "ไม่สามารถส่งออกพจนานุกรม: %@"
+  to_export_presets: "ไม่สามารถส่งออกค่าที่ตั้งล่วงหน้า: %@"
+  to_import_dictionary: "ไม่สามารถนำเข้าพจนานุกรม: %@"
+  to_import_presets: "ไม่สามารถนำเข้าค่าที่ตั้งล่วงหน้า: %@"
+  to_initialize_the_database_nnthe_app_will: "ไม่สามารถเริ่มต้นฐานข้อมูล: %@nnแอปจะปิดในขณะนี้ โปรดลองรีสตาร์ทหรือติดต่อฝ่ายสนับสนุนหากปัญหายังคงมีอยู่"
+  to_load_data: "ไม่สามารถโหลดข้อมูล: %@"
+  to_load_history: "ไม่สามารถโหลดประวัติ: %@"
+  to_read_import_file: "ไม่สามารถอ่านไฟล์นำเข้า: %@"
+  to_save: "ไม่สามารถบันทึก: %@"
+  to_save_preset: "ไม่สามารถบันทึกค่าที่ตั้งไว้ล่วงหน้า: %@"
+  to_switch_model: "ไม่สามารถเปลี่ยนรุ่น: %@"
+  to_update_preset: "ไม่สามารถอัปเดตค่าที่กำหนดล่วงหน้า: %@"
+  to_update_replacement: "ไม่สามารถอัปเดตการแทนที่: %@"
+  to_update_word: "ไม่สามารถอัปเดตคำ: %@"
+fast:
+  _self: "เร็ว"
+feature:
+  models: "ฟีเจอร์โมเดล"
+fetch:
+  models_in_models: "ดึงโมเดลในโมเดล"
+fix:
+  punctuation_and_capitalization: "แก้ไขเครื่องหมายวรรคตอนและการใช้อักษรตัวพิมพ์ใหญ่"
+floating:
+  indicator: "%@ ตัวบ่งชี้ลอยตัว"
+  indicator_3bad78a5: "ตัวบ่งชี้ลอยตัว: %@"
+  indicator_e0349402: "ตัวบ่งชี้ลอยตัว"
+folder:
+  deleted: "ลบโฟลเดอร์แล้ว"
+  name: "ชื่อโฟลเดอร์"
+follow:
+  playback: "ติดตามการเล่น"
+format:
+  text_appropriately: "จัดรูปแบบข้อความให้เหมาะสม"
+french:
+  _self: "ภาษาฝรั่งเศส"
+general:
+  _self: "ทั่วไป"
+german:
+  _self: "เยอรมัน"
+get:
+  started: "เริ่มต้นเลย"
+global:
+  keyboard_shortcuts: "แป้นพิมพ์ลัดทั่วโลก"
+go:
+  back: "กลับไป"
+  to_settings: "ไปที่การตั้งค่า"
+good:
+  _self: "ดี"
+  afternoon: "สวัสดีตอนบ่าย"
+  evening: "สวัสดีตอนเย็น"
+  morning: "สวัสดีตอนเช้า"
+  night: "ราตรีสวัสดิ์"
+google:
+  _self: "Google"
+got:
+  it: "เข้าใจแล้ว"
+grant:
+  _self: "ยินยอม"
+great:
+  _self: "ยอดเยี่ยม"
+hide:
+  this_for_1_hour: "ซ่อนสิ่งนี้เป็นเวลา 1 ชั่วโมง"
+history:
+  _self: "ประวัติศาสตร์"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "กดคีย์ลัดค้างไว้เพื่อบันทึก จากนั้นปล่อยเพื่อถอดเสียง"
+  to_record_release_to_open_note_editor_with: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อเปิดเครื่องมือแก้ไขบันทึกพร้อมการถอดเสียง"
+  to_record_release_to_stop_and_transcribe: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อหยุดและถอดเสียง"
+  to_record_release_to_transcribe: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อถอดเสียง"
+hotkey:
+  conflict: "ความขัดแย้งของปุ่มลัด"
+hotkeys:
+  _self: "ปุ่มลัด"
+import:
+  dictionary: "นำเข้าพจนานุกรม"
+  error: "ข้อผิดพลาดในการนำเข้า"
+  export: "นำเข้า/ส่งออก"
+  media: "นำเข้าสื่อ"
+  or_transcribe_media_while_this_folder_is: "นำเข้าหรือถอดเสียงสื่อในขณะที่เลือกโฟลเดอร์นี้เพื่อบันทึกรายการที่นี่"
+  presets: "นำเข้าค่าที่ตั้งล่วงหน้า"
+  strategy: "กลยุทธ์การนำเข้า"
+imported:
+  files_and_web_links_will_appear_here_on: "ไฟล์และเว็บลิงก์ที่นำเข้าจะปรากฏที่นี่เมื่อการประมวลผลเสร็จสิ้น"
+improve:
+  transcription_quality_using_ai: "ปรับปรุงคุณภาพการถอดเสียงโดยใช้ AI"
+include:
+  clipboard_text: "รวมข้อความคลิปบอร์ด"
+interface:
+  _self: "อินเทอร์เฟซ"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ ถูกกำหนดให้กับทั้ง %@ และ %@ เฉพาะการดำเนินการแรกเท่านั้นที่จะใช้งานได้ อัปเดตปุ่มลัดของคุณในการตั้งค่าเพื่อแก้ไขข้อขัดแย้งนี้"
+italian:
+  _self: "ภาษาอิตาลี"
+items:
+  _self: "รายการ"
+japanese:
+  _self: "ญี่ปุ่น"
+keep:
+  pindrop_current_automatically_or_trigger_a: "รักษา Pindrop ให้เป็นปัจจุบันโดยอัตโนมัติ หรือเรียกใช้การตรวจสอบด้วยตนเองทุกครั้งที่คุณต้องการ"
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "แป้นพิมพ์ลัด"
+korean:
+  _self: "เกาหลี"
+language:
+  _self: "ภาษา"
+large:
+  _self: "ใหญ่"
+launch:
+  at_login: "เปิดตัวเมื่อเข้าสู่ระบบ: %@"
+  at_login_0b36c78f: "เปิดตัวเมื่อเข้าสู่ระบบ"
+layout:
+  _self: "เค้าโครง"
+learn:
+  corrected_words_automatically: "เรียนรู้คำศัพท์ที่ถูกแก้ไขโดยอัตโนมัติ"
+left:
+  _self: "ซ้าย"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "ให้ Pindrop เรียนรู้คำศัพท์อย่างเงียบๆ จากการแก้ไขที่คุณทำเมื่อเวลาผ่านไป"
+light:
+  _self: "แสงสว่าง"
+  dark_and_curated_palette_presets: "ค่าที่ตั้งไว้ล่วงหน้าของชุดสีสว่าง มืด และแบบมีการดูแลจัดการ"
+  preview: "ดูตัวอย่างแสง"
+  theme: "ธีมแสง"
+limited:
+  _self: "จำกัด"
+live:
+  streaming_refinement: "การปรับแต่งการสตรีมสด"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld อักขระ"
+  complete: "%lld%% เสร็จสมบูรณ์"
+  items: "%lld รายการ"
+  notes: "%lld หมายเหตุ"
+  transcriptions: "%lld การถอดเสียง"
+lm:
+  studio: "แอลเอ็ม สตูดิโอ"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio ต้องการโทเค็นเท่านั้นหากเปิดใช้งานการรับรองความถูกต้องของเซิร์ฟเวอร์ภายในเครื่อง"
+load:
+  models: "โหลดโมเดล"
+loaded:
+  d_models: "โหลดโมเดล %d แล้ว"
+loading:
+  history: "กำลังโหลดประวัติ..."
+  models: "กำลังโหลดโมเดล..."
+local:
+  _self: "ท้องถิ่น"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    เสียงพูดเป็นข้อความท้องถิ่นจากแถบเมนูของคุณ
+    รวดเร็ว เป็นส่วนตัว และพร้อมให้บริการตลอดเวลา
+  speech_to_text_right_from_your_menu_bar_nf: "คำพูดเป็นข้อความท้องถิ่นจากแถบเมนูของคุณโดยตรง รวดเร็ว เป็นส่วนตัว และพร้อมใช้งานตลอดเวลา"
+  speech_to_text_with_whisperkit: "คำพูดเป็นข้อความท้องถิ่นด้วย WhisperKit"
+  voice_to_text: "เสียงเป็นข้อความท้องถิ่น"
+low:
+  latency_mode_less_accurate: "โหมดเวลาแฝงต่ำ (แม่นยำน้อยกว่า)"
+manage:
+  local_speech_models_feature_models_and_th: "จัดการโมเดลคำพูดในท้องถิ่น โมเดลฟีเจอร์ และกลไกเริ่มต้นที่ Pindrop ใช้สำหรับการถอดเสียง"
+  models: "จัดการโมเดล"
+  presets: "จัดการค่าที่ตั้งล่วงหน้า"
+  presets_ab87986d: "จัดการค่าที่ตั้งล่วงหน้า..."
+manually:
+  check_for_new_versions_now: "ตรวจสอบเวอร์ชันใหม่ด้วยตนเองทันที"
+media:
+  library: "ห้องสมุดสื่อ"
+  transcription: "การถอดความสื่อ"
+  unavailable: "สื่อไม่พร้อมใช้งาน"
+medium:
+  _self: "ปานกลาง"
+microphone:
+  _self: "ไมโครโฟน"
+  permission_is_required_to_continue: "ต้องได้รับอนุญาตจากไมโครโฟนเพื่อดำเนินการต่อ"
+  permission_is_required_to_continue_dc: "ต้องได้รับอนุญาตจากไมโครโฟนเพื่อดำเนินการต่อ"
+  permission_required: "ต้องได้รับอนุญาตจากไมโครโฟน"
+mit:
+  license: "ใบอนุญาตเอ็มไอที"
+mode:
+  _self: "โหมด: %@"
+model:
+  _self: "แบบอย่าง"
+  loading_failed: "การโหลดโมเดลล้มเหลว"
+  loading_timed_out: "หมดเวลาการโหลดโมเดล"
+models:
+  _self: "โมเดล"
+move:
+  to_folder: "ย้ายไปที่โฟลเดอร์"
+multilingual:
+  _self: "พูดได้หลายภาษา"
+must:
+  be_openai_compatible: "ต้องเข้ากันได้กับ OpenAI"
+mute:
+  system_audio_during_recording: "ปิดเสียงระบบระหว่างการบันทึก"
+new:
+  folder: "โฟลเดอร์ใหม่"
+  note: "หมายเหตุใหม่"
+  preset: "พรีเซ็ตใหม่"
+next:
+  _self: "ต่อไป"
+no:
+  api_key: "ไม่มีคีย์ API"
+  api_key_endpoint: "ไม่มีคีย์ API • จุดสิ้นสุด: %@"
+  custom_presets: "ไม่มีการตั้งค่าล่วงหน้าแบบกำหนดเอง"
+  downloaded_models: "ไม่มีรุ่นที่ดาวน์โหลด"
+  folders_yet: "ยังไม่มีโฟลเดอร์"
+  items_in: "ไม่มีรายการใน %@"
+  media_transcriptions_yet: "ยังไม่มีการถอดความจากสื่อ"
+  model_loaded: "ไม่มีการโหลดโมเดล"
+  model_selected: "ไม่ได้เลือกรุ่น"
+  models_available: "ไม่มีรุ่นที่มีจำหน่าย"
+  models_available_ae9dbd29: "ไม่มีรุ่นที่มีจำหน่าย"
+  models_available_try_refresh_or_enter_a_model: "ไม่มีรุ่นที่มีจำหน่าย ลองรีเฟรชหรือป้อนรหัสรุ่นด้วยตนเอง"
+  models_found: "ไม่พบรุ่น"
+  models_loaded_open_edit_to_fetch_models: "ไม่มีการโหลดโมเดล เปิดแก้ไขเพื่อดึงโมเดล"
+  models_match: "ไม่มีรุ่นที่ตรงกับ \"%@\""
+  notes_yet: "ยังไม่มีบันทึก"
+  providers_configured_yet: "ยังไม่มีการกำหนดค่าผู้ให้บริการ"
+  replacements: "ไม่มีการเปลี่ยน"
+  results_found: "ไม่พบผลลัพธ์"
+  settings_found: "ไม่พบการตั้งค่า"
+  transcriptions_yet: "ยังไม่มีการถอดเสียงเป็นคำ"
+  vocabulary_words: "ไม่มีคำศัพท์"
+not:
+  assigned: "ไม่ได้รับมอบหมาย"
+  selected: "ไม่ได้เลือก"
+  set: "ไม่ได้ตั้งค่า"
+  set_93039e60: "ไม่ได้ตั้งค่า"
+notch:
+  _self: "รอยบาก"
+note:
+  _self: "บันทึก"
+  capture_push_to_talk: "บันทึกย่อ (Push-to-Talk)"
+  capture_toggle: "บันทึกย่อ (สลับ)"
+  enhancement: "หมายเหตุการปรับปรุง"
+  from: "หมายเหตุจาก"
+  metadata: "หมายเหตุ ข้อมูลเมตา"
+  title: "หมายเหตุ ชื่อเรื่อง"
+notes:
+  _self: "หมายเหตุ"
+  3add7b96: "บันทึกย่อ"
+off:
+  _self: "ปิด"
+ok:
+  _self: "ตกลง"
+ollama:
+  _self: "โอลามา"
+  usually_does_not_require_authentication_f: "โดยทั่วไป Ollama ไม่ต้องการการรับรองความถูกต้องสำหรับคำขอในเครื่อง"
+on:
+  _self: "บน"
+  device_no_credentials_required: "บนอุปกรณ์ไม่ต้องใช้ข้อมูลรับรอง"
+open:
+  _self: "เปิด"
+  history: "เปิดประวัติ"
+  logs_in_finder: "เปิดบันทึกใน Finder"
+  original_link: "เปิดลิงค์ต้นฉบับ"
+  progress: "เปิดความคืบหน้า"
+  settings: "เปิดการตั้งค่า"
+  settings_fd7108f8: "เปิดการตั้งค่า"
+  system_settings: "เปิดการตั้งค่าระบบ"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "เซิร์ฟเวอร์ภายในที่เข้ากันได้กับ OpenAI"
+  whisper: "OpenAI กระซิบ"
+openrouter:
+  _self: "เปิดเราเตอร์"
+optional:
+  _self: "ไม่จำเป็น"
+  insert_text_directly_into_apps: "ทางเลือก: แทรกข้อความลงในแอปโดยตรง"
+  used_for_auto_generated_titles_and_summ: "ไม่บังคับ — ใช้สำหรับชื่อเรื่องและข้อมูลสรุปที่สร้างขึ้นโดยอัตโนมัติในการนำเข้าการถอดเสียงสื่อ"
+optionally:
+  clean_up_transcriptions_with_ai: "ล้างข้อมูลการถอดเสียงด้วย AI ได้หรือไม่"
+or:
+  _self: "หรือ"
+  just_use_your_hotkey: "หรือเพียงแค่ใช้ปุ่มลัดของคุณ!"
+original:
+  _self: "ต้นฉบับ"
+  text_use_commas_for_multiple: "ข้อความต้นฉบับ (ใช้เครื่องหมายจุลภาคสำหรับหลายรายการ)"
+originals:
+  comma_separated: "ต้นฉบับ (คั่นด้วยเครื่องหมายจุลภาค)"
+output:
+  _self: "เอาท์พุต"
+  audio_interface_and_everyday_behavior: "เอาต์พุต เสียง อินเทอร์เฟซ และพฤติกรรมในชีวิตประจำวัน"
+parakeet:
+  default: "นกแก้ว (ค่าเริ่มต้น)"
+paste:
+  _self: "แปะ"
+  a_video_or_audio_link: "วางลิงก์วิดีโอหรือเสียง"
+  last_transcript: "วางการถอดเสียงครั้งสุดท้าย"
+  last_transcript_v: "วางการถอดเสียงล่าสุด ⌃⌘V"
+pause:
+  _self: "หยุดชั่วคราว"
+  media_during_transcription: "หยุดสื่อชั่วคราวในระหว่างการถอดเสียง"
+permissions:
+  _self: "สิทธิ์"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "เลือกผู้ให้บริการและโมเดลที่จะจัดการงาน AI แต่ละรายการ ปล่อยให้เป็น \"ไม่ได้มอบหมาย\" เพื่อข้ามวัตถุประสงค์"
+pill:
+  _self: "ยา"
+pin:
+  to_screen_always_on_top: "ปักหมุดที่หน้าจอ (อยู่ด้านบนเสมอ)"
+pindrop:
+  _self: "พินดรอป"
+  dot: "พินดรอปดอท"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    พินดรอปพร้อมใช้งานแล้ว
+    คลิกไอคอนแถบเมนูเพื่อเริ่มต้น
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop พร้อมใช้งานแล้วคลิกไอคอนแถบเมนูเพื่อเริ่มต้น"
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop ต้องการการอนุญาตเล็กน้อยในการทำงาน ความเป็นส่วนตัวของคุณได้รับการเคารพเสมอ"
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop ต้องการสิทธิ์บางอย่างในการทำงาน
+    ความเป็นส่วนตัวของคุณได้รับการเคารพเสมอ
+  needs_accessibility_permission_to_insert: "\"\" Pindrop ต้องการสิทธิ์การเข้าถึงเพื่อแทรกข้อความที่เคอร์เซอร์ของคุณ                          หากต้องการให้สิทธิ์: 1. คลิก \"เปิดการตั้งค่าระบบ\" ด้านล่าง 2. คลิกปุ่ม + 3. ไปที่แอปที่แสดงใน Finder 4. รีสตาร์ท Pindrop หลังจากให้สิทธิ์ หากไม่ได้รับสิทธิ์นี้ ข้อความจะถูกคัดลอกไปยังคลิปบอร์ดของคุณเท่านั้น             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop ต้องการการเข้าถึงไมโครโฟนเพื่อบันทึกและถอดเสียงของคุณ โปรดให้สิทธิ์ในการตั้งค่าระบบ"
+  on_github: "Pindrop บน GitHub"
+  pill: "ยาพินดรอป"
+  theme: "ธีมพินดรอป"
+play:
+  _self: "เล่น"
+please:
+  check_your_internet_connection_and_try_ag: "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณแล้วลองอีกครั้ง"
+  download_a_whisper_model_in_settings_befo: |-
+    โปรดดาวน์โหลดโมเดล Whisper ในการตั้งค่าก่อนบันทึก
+    
+    ไปที่การตั้งค่า → โมเดล เพื่อดาวน์โหลดโมเดล
+  download_a_whisper_model_in_settings_befo_a71d286e: "โปรดดาวน์โหลดโมเดล Whisper ในการตั้งค่าก่อนบันทึก ไปที่การตั้งค่า → โมเดล เพื่อดาวน์โหลดโมเดล"
+  wait: "โปรดรอ..."
+portuguese:
+  brazil: "โปรตุเกส (บราซิล)"
+powered:
+  by_whisperkit: "ขับเคลื่อนโดย WhisperKit"
+preparing:
+  model: "กำลังเตรียมโมเดล..."
+preset:
+  name: "ชื่อที่ตั้งไว้ล่วงหน้า"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "กดค้างไว้เพื่อเขียนตามคำบอกในแอปใดก็ได้ Pindrop จะถอดเสียงคำพูดของคุณและแทรกข้อความในตำแหน่งที่เคอร์เซอร์ของคุณอยู่"
+  esc_to_cancel: "กด Esc เพื่อยกเลิก"
+  keys: "กดปุ่ม..."
+  once_to_start_again_to_stop: "กดหนึ่งครั้งเพื่อเริ่มต้น กดอีกครั้งเพื่อหยุด"
+  once_to_start_recording_press_again_to_sto: "กดหนึ่งครั้งเพื่อเริ่มการบันทึก กดอีกครั้งเพื่อหยุดและถอดเสียง"
+  once_to_start_recording_then_press_again_t: "กดหนึ่งครั้งเพื่อเริ่มการบันทึก จากนั้นกดอีกครั้งเพื่อหยุดและถอดเสียง"
+  to_start_recording_press_again_to_open_not: "กดเพื่อเริ่มการบันทึก กดอีกครั้งเพื่อเปิดโปรแกรมแก้ไขบันทึก"
+primary:
+  text: "ข้อความหลัก"
+processing:
+  _self: "กำลังประมวลผล"
+  272bc02e: "กำลังประมวลผล..."
+  5aa377e2: "⏳ กำลังประมวลผล"
+  transcript: "กำลังประมวลผลการถอดเสียง"
+prompt:
+  _self: "พรอมต์"
+  preset: "พรอมต์ที่ตั้งไว้ล่วงหน้า"
+provider:
+  _self: "ผู้ให้บริการ"
+  kind: "ประเภทผู้ให้บริการ"
+  type: "ประเภทผู้ให้บริการ"
+providers:
+  _self: "ผู้ให้บริการ"
+  prompts_and_vibe_mode_controls: "ผู้ให้บริการ ข้อความแจ้ง และการควบคุมโหมดความรู้สึก"
+push:
+  to_talk: "กดเพื่อพูดคุย"
+quickly:
+  copy_your_last_transcription: "คัดลอกการถอดเสียงเป็นคำล่าสุดของคุณอย่างรวดเร็ว"
+  pull_your_latest_transcript_back_to_the: "ดึงข้อความถอดเสียงล่าสุดของคุณกลับไปที่คลิปบอร์ดอย่างรวดเร็ว"
+quit:
+  _self: "ล้มเลิก"
+  pindrop: "ออกจากพินดรอป"
+ready:
+  _self: "พร้อม"
+  ec1296e1: "● พร้อมแล้ว"
+  to_record: "พร้อมบันทึก"
+  to_transcribe: "พร้อมถอดความ"
+recent:
+  _self: "ล่าสุด"
+  transcriptions: "การถอดความล่าสุด"
+  transcripts: "การถอดเสียงล่าสุด"
+recommended:
+  _self: "ที่แนะนำ"
+  the_deterministic_cleaner_handles_mo: "แนะนำ: ตัวทำความสะอาดที่กำหนดสามารถจัดการคำสั่งส่วนใหญ่ได้อย่างหมดจด เปิดใช้งานบัตรผ่าน LLM เฉพาะในกรณีที่คุณต้องการขัดเกลาเพิ่มเติมและยอมรับนิสัยแปลกๆ ของโมเดลเป็นครั้งคราว (คำนำ การตอบกลับเชิงสนทนา)"
+record:
+  _self: "บันทึก"
+recording:
+  _self: "การบันทึก"
+  3f8fd48c: "🔴 การบันทึก"
+recordings:
+  _self: "การบันทึก"
+redo:
+  _self: "ทำซ้ำ"
+refresh:
+  _self: "รีเฟรช"
+remove:
+  _self: "ลบ"
+  and_clear_any_assignments_that_reference: "ลบ \"%@\" และล้างการมอบหมายที่อ้างถึงหรือไม่ ข้อมูลรับรองที่เก็บไว้จะถูกลบ"
+  from_folder: "ลบออกจากโฟลเดอร์"
+  provider: "ลบผู้ให้บริการ"
+rename:
+  _self: "เปลี่ยนชื่อ"
+  folder: "เปลี่ยนชื่อโฟลเดอร์"
+replace:
+  all: "แทนที่ทั้งหมด"
+  words_and_phrases: "แทนที่คำและวลี"
+replacement:
+  _self: "การทดแทน"
+  text: "ข้อความแทนที่"
+report:
+  an_issue: "รายงานปัญหา"
+  an_issue_bd7b4f00: "รายงานปัญหา"
+required:
+  _self: "ที่จำเป็น"
+  for_recording_your_voice: "จำเป็นสำหรับการบันทึกเสียงของคุณ"
+requires:
+  a_fast_provider_apple_foundation_models: "ต้องมีผู้ให้บริการที่รวดเร็ว (แนะนำรุ่น Apple Foundation) ผู้ให้บริการคลาวด์จะทำการเรียก API หนึ่งครั้งต่อการหยุดชั่วคราว"
+reset:
+  _self: "รีเซ็ต"
+  all_settings: "รีเซ็ตการตั้งค่าทั้งหมดใช่ไหม"
+  all_settings_7262c7b7: "รีเซ็ตการตั้งค่าทั้งหมด"
+  to_default: "รีเซ็ตเป็นค่าเริ่มต้น"
+retry:
+  _self: "ลองอีกครั้ง"
+right:
+  _self: "ขวา"
+run:
+  llm_polish_after_dictation_stops: "เรียกใช้ LLM polish หลังจากหยุดการเขียนตามคำบอก"
+runtime:
+  _self: "รันไทม์: %@"
+save:
+  _self: "บันทึก"
+  as_note: "บันทึกเป็นหมายเหตุ"
+  continue: "บันทึกและดำเนินการต่อ"
+  credentials: "บันทึกข้อมูลรับรอง"
+  prompt: "บันทึกพร้อมท์"
+saved:
+  _self: "บันทึกแล้ว"
+  as_note: "บันทึกเป็นหมายเหตุแล้ว"
+  transcription: "การถอดเสียงที่บันทึกไว้"
+search:
+  media_transcripts: "ค้นหาข้อความถอดเสียงสื่อ..."
+  models: "ค้นหาโมเดล"
+  models_61c1b9fe: "ค้นหารุ่น..."
+  notes: "ค้นหาบันทึก..."
+  settings: "การตั้งค่าการค้นหา"
+  settings_or_jump_between_sections_without: "ค้นหาการตั้งค่าหรือข้ามระหว่างส่วนต่างๆ โดยไม่ต้องออกจากพื้นที่ทำงานหลัก"
+  transcriptions: "ค้นหาข้อความถอดเสียง..."
+secondary:
+  text: "ข้อความรอง"
+select:
+  a_dictionary_json_file_to_import: "เลือกไฟล์ JSON พจนานุกรมที่จะนำเข้า"
+  a_model: "เลือกรุ่น"
+  a_presets_json_file_to_import: "เลือกไฟล์ JSON ที่กำหนดไว้ล่วงหน้าเพื่อนำเข้า"
+  a_provider_kind: "เลือกประเภทผู้ให้บริการ"
+  a_provider_type: "เลือกประเภทผู้ให้บริการ"
+  ai_model: "เลือกโมเดล AI"
+  all: "เลือกทั้งหมด"
+  language: "เลือกภาษา"
+  language_daea52c9: "เลือกภาษา"
+  this_floating_indicator_style: "เลือกสไตล์ตัวบ่งชี้แบบลอยตัวนี้"
+  voice_model: "เลือกรูปแบบเสียง"
+selected:
+  _self: "เลือกแล้ว"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "ส่งไปยังโมเดล AI เมื่อประมวลผลคำสั่งสำหรับการแทรกข้อความโดยตรง"
+sessions:
+  _self: "เซสชัน"
+  781791f5: "เซสชัน"
+set:
+  as_default: "ตั้งเป็นค่าเริ่มต้น"
+settings:
+  _self: "การตั้งค่า"
+  bf83f07f: "การตั้งค่า..."
+  fa67a397: "การตั้งค่า…"
+setup:
+  required: "จำเป็นต้องตั้งค่า"
+show:
+  app: "แสดงแอป"
+  app_in_finder: "แสดงแอปใน Finder"
+  floating_indicator: "แสดงตัวบ่งชี้ลอยตัว"
+  in_dock: "แสดงในด็อค"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "แสดงเป็นจุดที่มุมของหน้าจอ"
+  as_a_pill_at_the_bottom_of_the_screen: "แสดงเป็นเม็ดยาที่ด้านล่างของหน้าจอ"
+  beside_the_focused_text_field_caret: "แสดงข้างช่องข้อความ/คาเร็ตที่โฟกัส"
+  in_the_menu_bar_notch_area: "แสดงในแถบเมนู/พื้นที่รอยบาก"
+  recording_state_in_a_lightweight_overlay_w: "แสดงสถานะการบันทึกในหน้าต่างซ้อนทับแบบน้ำหนักเบา"
+sidebar:
+  position: "ตำแหน่งแถบด้านข้าง"
+simplified:
+  chinese: "จีนตัวย่อ"
+size:
+  _self: "ขนาด"
+skip:
+  for_now: "ข้ามไปก่อน"
+slow:
+  _self: "ช้า"
+slower:
+  _self: "ช้าลง"
+slowest:
+  _self: "ช้าที่สุด"
+small:
+  _self: "เล็ก"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "รุ่นเล็กจะเร็วกว่าแต่แม่นยำน้อยกว่าnเริ่มต้นด้วย Base เพื่อความสมดุลที่ดีที่สุด"
+  models_are_faster_but_less_accurate_star: |-
+    รุ่นเล็กจะเร็วกว่าแต่แม่นยำน้อยกว่า
+    เริ่มต้นด้วยฐานเพื่อความสมดุลที่ดีที่สุด
+something:
+  went_wrong: "มีบางอย่างผิดพลาด"
+soon:
+  _self: "เร็วๆ นี้"
+sort:
+  by: "เรียงตาม"
+source:
+  _self: "แหล่งที่มา"
+spanish:
+  _self: "สเปน"
+speaker:
+  diarization_and_timestamps_are_attached: "มีการแนบไดอะแกรมของลำโพงและการประทับเวลาไว้กับการเล่น"
+  diarization_is_required: "จำเป็นต้องแปลงเสียงของผู้พูด"
+speed:
+  _self: "ความเร็ว"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "เริ่มต้นใหม่เมื่อคุณต้องการล้างการตั้งค่า สถานะการเริ่มต้นใช้งาน และข้อมูลรับรองที่บันทึกไว้"
+  recording: "เริ่มการบันทึก"
+  recording_to_see_your_transcriptions_here: "เริ่มบันทึกเพื่อดูการถอดเสียงของคุณที่นี่"
+  stop_recording: "เริ่ม/หยุดการบันทึก"
+  using_pindrop: "เริ่มใช้ Pindrop"
+status:
+  _self: "สถานะ"
+stop:
+  recording: "หยุดการบันทึก"
+streaming:
+  enhancement: "การเพิ่มประสิทธิภาพสตรีมมิ่ง"
+  transcription_currently_supports_engli: "ปัจจุบันการถอดเสียงแบบสตรีมมิ่งรองรับภาษาอังกฤษเท่านั้น โดยไม่คำนึงถึงภาษาที่เลือก"
+  transcription_is_disabled_while_ai_enh: "การถอดเสียงแบบสตรีมมิ่งถูกปิดใช้งานในขณะที่เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
+  transcription_model_parakeet_realtime: "โมเดลการถอดความแบบสตรีมมิ่ง (Parakeet Realtime EOU) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
+success:
+  _self: "ความสำเร็จ!"
+support:
+  _self: "สนับสนุน"
+  coming_soon: "%@ การสนับสนุนในเร็วๆ นี้"
+supports:
+  local_media_files_and_web_links_resolve: "รองรับไฟล์สื่อท้องถิ่นและเว็บลิงก์ที่แก้ไขด้วย yt-dlp"
+switch:
+  to_model: "สลับไปที่รุ่น"
+system:
+  _self: "ระบบ"
+  default: "ค่าเริ่มต้นของระบบ"
+teach:
+  custom_words: "สอนคำศัพท์ที่กำหนดเอง"
+temporarily:
+  copy_text_paste_it_then_restore_your: "คัดลอกข้อความชั่วคราว วาง จากนั้นกู้คืนคลิปบอร์ดของคุณ"
+  mute_speaker_output_while_dictation: "ปิดเสียงเอาต์พุตของลำโพงชั่วคราวในขณะที่กำลังบันทึกการเขียนตามคำบอก"
+  pause_active_media_playback_while_di: "หยุดการเล่นสื่อที่ใช้งานชั่วคราวชั่วคราวในขณะที่กำลังบันทึกการเขียนตามคำบอก"
+tertiary:
+  text: "ข้อความระดับอุดมศึกษา"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" ไม่สามารถโหลดโมเดลได้ภายใน 60 วินาที ซึ่งมักจะหมายถึงไฟล์โมเดลเสียหายหรือเข้ากันไม่ได้                          วิธีแก้ไขปัญหานี้: 1. เปิดการตั้งค่า → โมเดล 2. ลบโมเดลที่มีปัญหา 3. ดาวน์โหลดโมเดลอีกครั้ง หากปัญหายังคงอยู่ ให้ลองใช้โมเดลที่เล็กกว่า (จิ๋วหรือฐาน)             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "ยังไม่ได้ดาวน์โหลดชุดย่อยที่เลือก การสลับจะเริ่มการดาวน์โหลด"
+theme:
+  _self: "ธีม"
+  changes_apply_live_across_the_workspace_se: "การเปลี่ยนแปลงธีมมีผลใช้งานจริงทั่วทั้งพื้นที่ทำงาน การตั้งค่า ตัวแก้ไขบันทึกย่อ และตัวบ่งชี้แบบลอย"
+  mode: "โหมดธีม"
+this:
+  preset_name_is_already_in_use: "ชื่อที่ตั้งไว้นี้มีการใช้งานแล้ว"
+  provider_will_be_available_in_a_future_upda: |-
+    ผู้ให้บริการรายนี้จะพร้อมใช้งานในการอัปเดตในอนาคต
+    ในตอนนี้ ให้ลองใช้ OpenAI หรือใช้ปลายทางแบบกำหนดเอง
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    ผู้ให้บริการรายนี้จะพร้อมใช้งานในการอัปเดตในอนาคต
+    ลองใช้ OpenAI หรือใช้ปลายทางที่กำหนดเอง
+  provider_will_be_available_in_a_future_upda_0677ac1d: "ผู้ให้บริการนี้จะพร้อมใช้งานในการอัปเดตในอนาคต สำหรับตอนนี้ ให้ลองใช้ OpenAI หรือใช้ปลายทางแบบกำหนดเอง"
+  transcription_could_not_be_found: "ไม่พบการถอดเสียงนี้"
+  will_clear_all_your_settings_including_api: "การดำเนินการนี้จะล้างการตั้งค่าทั้งหมดของคุณ รวมถึงคีย์ API, ปุ่มลัด และการกำหนดลักษณะโมเดล แอปจะปิดและแสดงการเริ่มต้นใช้งานอีกครั้งในการเปิดตัวครั้งถัดไป"
+  will_permanently_remove_the_transcript_and: "การดำเนินการนี้จะลบข้อความถอดเสียงและไฟล์สื่อที่มีการจัดการออกอย่างถาวร"
+time:
+  saved: "เวลาที่บันทึกไว้"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "เพื่อกำหนดและให้ Pindrop ถอดเสียงให้คุณ"
+  start_talking: "เพื่อเริ่มพูด"
+today:
+  _self: "วันนี้"
+toggle:
+  _self: "สลับ"
+  recording: "สลับการบันทึก"
+  sort_order: "สลับการเรียงลำดับ"
+transcribe:
+  _self: "ถอดเสียง"
+  media: "ถอดเสียงสื่อ"
+transcribed:
+  _self: "ถอดความ"
+transcription:
+  _self: "การถอดเสียง"
+  backend: "แบ็กเอนด์การถอดเสียง"
+  deleted: "ลบการถอดเสียงเป็นคำแล้ว"
+  enhancement: "การเพิ่มประสิทธิภาพการถอดความ"
+  failed: "การถอดเสียงล้มเหลว"
+  finished: "การถอดเสียงเป็นคำเสร็จสิ้น"
+  in_progress: "อยู่ระหว่างการถอดเสียง"
+  metadata: "ข้อมูลเมตาของการถอดเสียง"
+  update: "อัปเดตการถอดเสียงเป็นคำ"
+transcriptions:
+  _self: "การถอดเสียง"
+  f0972acc: "การถอดเสียง"
+  in_this_folder_will_be_kept_and_m: "การถอดเสียงเป็นคำในโฟลเดอร์นี้จะถูกเก็บและย้ายกลับไปยังไลบรารี"
+transcripts:
+  _self: "ใบรับรองผลการเรียน"
+try:
+  a_different_search_term: "ลองใช้คำค้นหาอื่น"
+  a_different_search_term_0ba628a3: "ลองใช้คำค้นหาอื่น"
+  a_different_search_term_in_this_folder: "ลองใช้คำค้นหาอื่นในโฟลเดอร์นี้"
+  searching_for_terms_like_hotkeys_microphone: "ลองค้นหาคำต่างๆ เช่น ปุ่มลัด ไมโครโฟน การอัปเดต หรือโหมดความรู้สึก"
+turkish:
+  _self: "ภาษาตุรกี"
+type:
+  text_directly_into_the_active_app_when_poss: "พิมพ์ข้อความลงในแอปที่ใช้งานอยู่โดยตรงเมื่อเป็นไปได้"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" ไม่สามารถเชื่อมต่อกับบริการเสริม AI ได้                                  โปรดตรวจสอบ: 1. การเชื่อมต่ออินเทอร์เน็ตของคุณ 2. URL ปลายทาง API ถูกต้อง 3. บริการไม่พบปัญหาการหยุดทำงาน การถอดเสียงถูกบันทึกโดยไม่มีการปรับปรุง                 \"\""
+  to_finish_transcription: "ไม่สามารถถอดเสียงให้เสร็จสิ้นได้"
+  to_load_history: "ไม่สามารถโหลดประวัติ: %@"
+  to_load_models_try_refresh: "ไม่สามารถโหลดโมเดลได้ ลองรีเฟรช"
+  to_update_media_library: "ไม่สามารถอัปเดตไลบรารีสื่อได้"
+unavailable:
+  device: "อุปกรณ์ไม่พร้อมใช้งาน"
+undo:
+  _self: "เลิกทำ"
+unfiled:
+  _self: "ไม่ได้ยื่น"
+unpin:
+  from_screen: "เลิกปักหมุดจากหน้าจอ"
+update:
+  _self: "อัปเดต"
+updates:
+  _self: "อัพเดท"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "ใช้ทางลัดแตะเพื่อเริ่มต้น แตะเพื่อเสร็จสิ้นสำหรับการบันทึกโน้ต"
+  clipboard_only: "ใช้คลิปบอร์ดเท่านั้น"
+  the_hotkey_to_start_your_first_recording: "ใช้ปุ่มลัดเพื่อเริ่มการบันทึกครั้งแรกของคุณ"
+  transcription_as_a_placeholder_for_the_trans: "ใช้ ${transcription} เป็นตัวยึดตำแหน่งสำหรับข้อความที่ถอดเสียง"
+  transcription_as_placeholder: "ใช้ ${transcription} เป็นตัวยึดตำแหน่ง"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "ใช้เมื่อบันทึกโน้ตผ่านปุ่มลัด สามารถเพิ่มการจัดรูปแบบมาร์กดาวน์สำหรับเนื้อหาที่ยาวขึ้นได้"
+uses:
+  a_built_in_prompt_tuned_for_this_task: "ใช้พร้อมต์ในตัวที่ปรับแต่งสำหรับงานนี้"
+  the_160ms_parakeet_variant_for_snappier_par: "ใช้ตัวแปร Parakeet 160ms สำหรับปลากะพงบางส่วนโดยมีข้อผิดพลาดเพิ่มขึ้นประมาณ 70% ค่าเริ่มต้นคือตัวแปร 320ms"
+  the_transcription_enhancement_assignment_if: "ใช้การมอบหมายการเพิ่มประสิทธิภาพการถอดเสียง หากไม่มีการตั้งค่าไว้ เอาต์พุตตัวล้างตามที่กำหนดจะถูกเก็บไว้เหมือนเดิม"
+v:
+  _self: "ว%@"
+version:
+  _self: "เวอร์ชัน %@ (%@)"
+very:
+  fast: "เร็วมาก"
+via:
+  _self: "ผ่าน %@"
+vibe:
+  mode: "โหมดบรรยากาศ"
+  mode_captures_structured_ui_context_when_re: "โหมด Vibe จะบันทึกบริบท UI ที่มีโครงสร้างเมื่อเริ่มการบันทึก เพื่อให้การเพิ่มประสิทธิภาพ AI สามารถใช้สถานะแอปที่ใช้งานอยู่ของคุณเป็นข้อมูลอ้างอิง"
+  mode_works_best_with_accessibility_permissi: "โหมด Vibe ทำงานได้ดีที่สุดเมื่อได้รับอนุญาตจากการเข้าถึง หากไม่มีสิ่งนี้ Pindrop จะกลับไปใช้ข้อมูลเมตาของแอปที่จำกัด และการถอดเสียงยังคงทำงานได้ตามปกติ"
+view:
+  _self: "ดู"
+  all: "ดูทั้งหมด"
+  transcript_history: "ดูประวัติการถอดเสียง"
+  transcription_history: "ดูประวัติการถอดเสียง"
+vocabulary:
+  _self: "คำศัพท์"
+vs:
+  typing: "เทียบกับการพิมพ์"
+welcome:
+  to_pindrop: "ยินดีต้อนรับสู่พินดรอป"
+whisperkit:
+  _self: "วิสเปอร์คิท"
+word:
+  _self: "คำ"
+  replacements: "การแทนที่คำ"
+words:
+  _self: "คำ"
+  efb89361: "คำ"
+  min: "คำ/นาที"
+wpm:
+  _self: "ดับเบิลยูพีเอ็ม"
+yesterday:
+  _self: "เมื่อวาน"
+you:
+  are_a_note_formatting_assistant_transform_th: "คุณเป็นผู้ช่วยจัดรูปแบบบันทึกย่อ แปลงข้อความที่ถอดเสียงให้เป็นบันทึกที่มีโครงสร้างที่ดีnnกฎ:n- แก้ไขข้อผิดพลาดด้านไวยากรณ์ เครื่องหมายวรรคตอน และการสะกดคำn- สำหรับเนื้อหาที่ยาวกว่า (3 ย่อหน้าขึ้นไป) ให้เพิ่มการจัดรูปแบบมาร์กดาวน์:n - ใช้ส่วนหัว (## หรือ ###) เพื่อจัดระเบียบส่วนต่างๆn - ใช้สัญลักษณ์แสดงหัวข้อย่อยหรือรายการลำดับเลขตามความเหมาะสม - ใช้ **ตัวหนา** เพื่อเน้นคำสำคัญn- สำหรับเนื้อหาที่สั้นกว่า ให้เรียบง่ายโดยใช้การจัดรูปแบบน้อยที่สุดn- คงความหมายดั้งเดิมและโทนเสียงไว้- ทำ ไม่เพิ่มเนื้อหาที่ไม่ได้อยู่ในต้นฉบับ - ส่งกลับเฉพาะบันทึกย่อที่จัดรูปแบบแล้วโดยไม่มีคำอธิบายใดๆ"
+  are_a_text_enhancement_assistant_improve_the: "คุณเป็นผู้ช่วยเพิ่มประสิทธิภาพข้อความ ปรับปรุงไวยากรณ์ เครื่องหมายวรรคตอน และการจัดรูปแบบของข้อความที่ให้ไว้โดยยังคงความหมายและน้ำเสียงดั้งเดิมไว้ ส่งกลับเฉพาะข้อความที่ได้รับการปรับปรุงโดยไม่มีคำอธิบายเพิ่มเติม"
+  can_change_these_anytime_from_the_menu_bar_s: "คุณสามารถเปลี่ยนได้ตลอดเวลาจากแถบเมนู → การตั้งค่า → ปุ่มลัด"
+  re_all_set: "คุณพร้อมแล้ว!"
+  re_all_set_058a8130: "คุณพร้อมแล้ว!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" คุณใช้งานเกินขีดจำกัดอัตรา API หรือโควต้าของคุณ                                  วิธีแก้ไขปัญหานี้: 1. รอสักครู่แล้วลองอีกครั้ง 2. ตรวจสอบขีดจำกัดการใช้งานของผู้ให้บริการ API ของคุณ 3. พิจารณาอัปเกรดแผน API ของคุณ การถอดเสียงได้รับการบันทึกโดยไม่มีการปรับปรุง                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" รหัส API ของคุณดูเหมือนจะไม่ถูกต้องหรือหมดอายุแล้ว                                  วิธีแก้ไขปัญหานี้: 1. เปิดการตั้งค่า → การเพิ่มประสิทธิภาพ AI 2. ตรวจสอบคีย์ API ของคุณถูกต้อง 3. ตรวจสอบว่าจุดสิ้นสุด API ของคุณถูกต้อง การถอดเสียงได้รับการบันทึกโดยไม่มีการปรับปรุง                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "ปุ่มลัดของคุณพร้อมใช้งานแล้ว คุณสามารถปรับแต่งได้ในภายหลังในการตั้งค่า"
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    ปุ่มลัดของคุณพร้อมใช้งานแล้ว
+    คุณสามารถปรับแต่งได้ในภายหลังในการตั้งค่า
+  model_is_ready_to_use: "โมเดลของคุณพร้อมใช้งานแล้ว"
+  stats: "สถิติของคุณ"

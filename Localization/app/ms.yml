@@ -1,0 +1,1012 @@
+100:
+  local_processing: "100% pemprosesan tempatan"
+1:
+  folder: "1 folder"
+  transcription: "1 transkripsi"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Apl imlak bar menu macOS asli menggunakan pertuturan-ke-teks tempatan dengan WhisperKit. 100% pemprosesan tempatan secara lalai dengan peningkatan AI pilihan."
+about:
+  _self: "Tentang"
+  pindrop: "Mengenai Pindrop"
+accessibility:
+  _self: "Kebolehcapaian"
+  permission_is_enabled_full_ui_cont: "Kebenaran kebolehaksesan didayakan. Konteks UI penuh tersedia."
+  permission_is_not_granted_vibe_mod: "Kebenaran kebolehaksesan tidak diberikan. Mod vibe kekal tidak menyekat dengan konteks terhad."
+  permission_recommended: "Kebenaran Kebolehcapaian Disyorkan"
+  permission_required: "Kebenaran Kebolehcapaian Diperlukan"
+accuracy:
+  _self: "Ketepatan"
+acknowledgments:
+  _self: "Ucapan terima kasih"
+active:
+  _self: "Aktif"
+add:
+  _self: "Tambah"
+  a_provider_to_start_using_ai_enhancement: "Tambahkan pembekal untuk mula menggunakan peningkatan AI."
+  custom_words_to_improve_transcription_accura: "Tambahkan perkataan tersuai untuk meningkatkan ketepatan transkripsi bagi istilah, nama atau jargon khusus."
+  provider: "Tambah Pembekal"
+  tag: "Tambah tag..."
+  to_existing: "Tambahkan pada Sedia Ada"
+  trailing_space: "Tambah ruang belakang"
+  word_replacements_to_automatically_correct_c: "Tambahkan penggantian perkataan untuk membetulkan ralat transkripsi biasa secara automatik."
+  words_to_help_pindrop_recognize_them_properl: "Tambahkan perkataan untuk membantu Pindrop mengenalinya dengan betul"
+  words_you_manually_correct_into_your_vocabul: "Tambahkan perkataan yang anda betulkan secara manual ke dalam perbendaharaan kata anda untuk transkripsi masa hadapan."
+ai:
+  enhancement: "Peningkatan AI"
+  enhancement_529f5583: "Peningkatan AI: %@"
+  enhancement_failed: "Peningkatan AI Gagal"
+  enhancement_is_disabled: "Peningkatan AI dilumpuhkan."
+  enhancement_will: "Peningkatan AI akan:"
+  model: "Model AI"
+all:
+  _self: "Semua"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Ralat berlaku semasa meningkatkan transkripsi anda:
+    
+    %@
+    
+    Transkripsi asal telah disimpan tanpa penambahan.
+    Anda boleh cuba mendayakan peningkatan AI sekali lagi dalam Tetapan.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Ralat berlaku semasa mempertingkatkan transkripsi anda:nn%@nnTranskripsi asal telah disimpan tanpa penambahan.nAnda boleh cuba mendayakan peningkatan AI sekali lagi dalam Tetapan."
+anthropic:
+  _self: "Antropik"
+api:
+  endpoint: "Titik Akhir API"
+  key: "Kunci API"
+  key_saved: "Kunci API disimpan"
+  key_saved_endpoint: "Kunci API disimpan • Titik Akhir: %@"
+app:
+  info_acknowledgments_support_and_logs: "Maklumat apl, pengakuan, sokongan dan log"
+append:
+  a_space_after_each_transcription_for_seam: "Tambahkan ruang selepas setiap transkripsi untuk imlak yang lancar."
+apple:
+  foundation_models_on_device: "Model Yayasan Apple (pada peranti)"
+  intelligence: "Kepintaran Apple"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence tidak tersedia pada sistem ini. Tugasan ini tidak akan diselesaikan sehingga Apple Intelligence didayakan."
+  intelligence_runs_on_device_and_requires_n: "Perisikan Apple berjalan pada peranti dan tidak memerlukan bukti kelayakan."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber memerlukan macOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber tidak tersedia — menggunakan Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Adakah anda pasti mahu memadamkan '%@'? Tindakan ini tidak boleh dibuat asal."
+assignments:
+  _self: "Tugasan"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Lampirkan log daripada folder ini apabila memfailkan isu GitHub."
+audio:
+  input: "Input Audio"
+automatic:
+  follow_system: "Automatik (Ikuti Sistem)"
+  updates: "Kemas kini automatik"
+  updates_and_manual_update_checks: "Kemas kini automatik dan semakan kemas kini manual"
+automatically:
+  check_for_new_versions_in_the_back: "Semak versi baharu di latar belakang secara automatik."
+  start_pindrop_when_you_sign_in: "Mulakan Pindrop secara automatik apabila anda log masuk."
+available:
+  models: "Model Tersedia"
+avg:
+  speed: "Purata Kelajuan"
+back:
+  _self: "belakang"
+  to_library: "Kembali ke perpustakaan"
+base:
+  _self: "Pangkalan"
+best:
+  _self: "terbaik"
+better:
+  _self: "lebih baik"
+bubble:
+  _self: "gelembung"
+built:
+  in_presets: "Pratetap Terbina dalam"
+  in_read_only: "Terbina dalam (baca sahaja)"
+cancel:
+  _self: "Batal"
+  operation: "Batalkan Operasi"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Tangkap terus ke dalam editor nota dengan aliran tahan untuk rekod."
+change:
+  microphone: "Tukar Mikrofon"
+  microphone_ac9970f4: "Tukar mikrofon"
+check:
+  for_updates: "Semak Kemas Kini..."
+  for_updates_736b9062: "Semak kemas kini"
+  now: "Semak Sekarang"
+checking:
+  _self: "Menyemak..."
+choose:
+  a_location_to_save_the_dictionary: "Pilih lokasi untuk menyimpan kamus"
+  a_location_to_save_the_presets: "Pilih lokasi untuk menyimpan pratetap"
+  a_model: "Pilih Model"
+  a_provider_first: "Pilih pembekal dahulu"
+  an_audio_or_video_file_to_transcribe: "Pilih fail audio atau video untuk ditranskripsikan"
+  between_parakeet_cross_version_downloaded: "Pilih antara Parakeet (versi silang, model yang dimuat turun) dan Apple SpeechTranscriber (macOS 26+, dihantar dengan OS)."
+  file: "Pilih fail"
+  how_dictated_text_lands_then_tune_the_fin: "Pilih cara teks yang ditentukan tiba, kemudian sesuaikan gelagat sisipan akhir."
+  how_pindrop_follows_system_appearance_the: "Pilih cara Pindrop mengikuti penampilan sistem, kemudian campurkan palet terang dan gelap yang dipilih susun."
+  how_to_import_the_dictionary_data: "Pilih cara mengimport data kamus"
+  how_to_import_the_preset_data: "Pilih cara mengimport data pratetap"
+  languages_for_the_interface_and_for_dicta: "Pilih bahasa untuk antara muka dan untuk imlak. Automatik mengikut sistem."
+  location_to_save_presets: "Pilih lokasi untuk menyimpan pratetap"
+  the_daytime_shell_used_in_light_mode: "Pilih cangkerang siang hari yang digunakan dalam mod cahaya."
+  the_low_glare_shell_used_in_dark_mode: "Pilih cangkerang silau rendah yang digunakan dalam mod gelap."
+  which_floating_indicator_style_appears_wh: "Pilih gaya penunjuk terapung yang muncul apabila tindanan didayakan."
+  which_microphone_pindrop_should_use_for_d: "Pilih mikrofon yang Pindrop harus gunakan untuk imlak dan cara ia berkelakuan semasa merakam."
+  which_side_the_navigation_sidebar_appears: "Pilih sebelah mana bar sisi navigasi muncul."
+clean:
+  up_filler_words: "Bersihkan perkataan pengisi"
+clear:
+  audio_buffer: "Kosongkan Penimbal Audio"
+  hotkey: "Kosongkan hotkey"
+clears:
+  preferences_and_restarts_onboarding: "Kosongkan pilihan dan mulakan semula onboarding"
+click:
+  or_hold: "Klik atau tahan"
+  or_press: "Klik atau tekan"
+  or_set_a_hotkey_to_start_talking: "Klik atau tetapkan kekunci pintas untuk mula bercakap"
+  this_icon_anytime_to: "Klik ikon ini pada bila-bila masa untuk:"
+clipboard:
+  _self: "Papan klip"
+cloud:
+  _self: "awan"
+  model: "Model Awan"
+collapse:
+  _self: "Runtuh"
+coming:
+  soon: "%@ Akan Datang"
+  soon_04d2fd85: "Akan Datang"
+configure:
+  ai_providers_and_credentials_apple_int: "Konfigurasikan pembekal dan kelayakan AI. Perisikan Apple berjalan pada peranti; pembekal lain memerlukan kunci API."
+  keyboard_shortcuts_for_recording_and_n: "Konfigurasikan pintasan papan kekunci untuk merakam dan menangkap nota"
+continue:
+  _self: "Teruskan"
+  with_default: "Teruskan dengan Lalai"
+  without: "Teruskan Tanpa"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Kawal cara Pindrop muncul dalam macOS dan sama ada ia bermula dengan sesi desktop anda."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Mengawal cara laluan imlak langsung menggilap transkrip. Pembersih deterministik (penyingkiran pengisi, penggunaan huruf besar, tanda baca yang dituturkan, penormalan nombor, penggabungan perkataan berpecah) berjalan dengan cara sama ada — togol ini mengawal pas pengilat LLM pilihan yang menyala sebaik sahaja imlak berhenti."
+copied:
+  _self: "disalin!"
+copy:
+  _self: "salin"
+  enhanced: "Salin Dipertingkat"
+  last_transcript: "Salin Transkrip Terakhir"
+  original: "Salin Asal"
+  system_info_for_bug_report: "Salin Maklumat Sistem untuk Laporan Pepijat"
+  the_most_recent_transcript_to_the_clipboard: "Salin transkrip terkini ke papan keratan"
+  to_clipboard: "Salin ke papan keratan"
+  transcript: "Salin Transkrip"
+correct:
+  grammar_mistakes: "Betulkan kesalahan tatabahasa"
+create:
+  _self: "Buat"
+  new_note: "Cipta Nota Baharu"
+  new_preset: "Buat Pratetap Baharu"
+  your_first_note_to_get_started: "Buat nota pertama anda untuk bermula"
+  your_first_preset_or_duplicate_a_built_in: "Buat pratetap pertama anda atau salin pratetap terbina dalam untuk menyesuaikannya."
+  your_own_presets_or_duplicate_built_in_on: "Cipta pratetap anda sendiri atau salinan yang terbina dalam untuk menyesuaikannya."
+credentials:
+  are_stored_securely_in_keychain: "Bukti kelayakan disimpan dengan selamat dalam Rantai Kunci"
+  saved_successfully: "Bukti kelayakan berjaya disimpan"
+current:
+  _self: "Semasa: %@"
+custom:
+  _self: "Adat"
+  local: "Tersuai / Setempat"
+  openai_compatible: "Tersuai (serasi OpenAI)"
+  presets: "Pratetap Tersuai"
+customize:
+  hotkey: "Sesuaikan kekunci pintas"
+cut:
+  _self: "potong"
+d:
+  characters: "%d aksara"
+dark:
+  _self: "Gelap"
+  preview: "Pratonton Gelap"
+  theme: "Tema Gelap"
+database:
+  error: "Ralat Pangkalan Data"
+date:
+  _self: "tarikh"
+  7f823513: "Tarikh %@"
+default:
+  _self: "Lalai"
+  model: "Model Lalai"
+define:
+  word_replacements_to_automatically_replac: "Tentukan penggantian perkataan untuk menggantikan perkataan atau frasa tertentu secara automatik"
+degraded:
+  _self: "Dihina"
+delete:
+  _self: "Padam"
+  folder: "Padam Folder"
+  folder_e556e7c2: "Padamkan folder?"
+  model: "Padamkan Model"
+  preset: "Padam Pratetap"
+  preset_4f6cfe36: "Padamkan Pratetap?"
+  transcription: "Padamkan transkripsi"
+  transcription_f82187c4: "Padamkan transkripsi?"
+dictionary:
+  _self: "Kamus"
+direct:
+  insert: "Sisipan Terus"
+disabled:
+  _self: "Dilumpuhkan"
+dismiss:
+  _self: "Tolak"
+display:
+  name: "Nama Paparan"
+  name_c7874aaa: "Nama paparan"
+  pindrop_in_the_dock_instead_of_running_o: "Paparkan Pindrop dalam Dok dan bukannya berjalan hanya sebagai apl bar menu."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Dok bar sisi ke tepi kiri atau kanan tetingkap."
+dot:
+  _self: "titik"
+download:
+  _self: "Muat turun"
+  complete: "Muat Turun Selesai!"
+  continue: "Muat turun & Teruskan"
+  failed: "Muat turun Gagal"
+  model: "Muat turun model"
+  the_diarization_model_before_starting_m: "Muat turun model diarisasi sebelum memulakan transkripsi media."
+downloaded:
+  _self: "Dimuat turun"
+downloading:
+  _self: "Memuat turun %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Lepaskan fail atau tampalkan pautan untuk membuat transkrip diari dan bercap masa."
+  audio_or_video_here: "Lepaskan audio atau video di sini"
+duplicate:
+  preset: "Pratetap Pendua"
+dutch:
+  _self: "Belanda"
+edit:
+  _self: "Sunting"
+  preset: "Edit Pratetap"
+  provider: "Edit Pembekal"
+empty:
+  _self: "(Kosong)"
+enable:
+  ai_enhancement: "Dayakan Peningkatan AI"
+  live_session_updates_during_recording: "Dayakan kemas kini sesi langsung semasa rakaman"
+  the_floating_indicator_to_choose_a_style: "Dayakan penunjuk terapung untuk memilih gaya."
+  vibe_mode_ui_context: "Dayakan mod getaran (konteks UI)"
+enabled:
+  _self: "Didayakan"
+endpoint:
+  _self: "Titik tamat: %@"
+english:
+  _self: "Inggeris"
+  only: "Bahasa Inggeris sahaja"
+enhanced:
+  _self: "Dipertingkatkan"
+enhancement:
+  prompts: "Gesaan Peningkatan"
+enter:
+  an_openai_api_key_to_load_models: "Masukkan kunci API OpenAI untuk memuatkan model."
+  api_key: "Masukkan kunci API"
+  word_to_add: "Masukkan perkataan untuk ditambah"
+error:
+  _self: "ralat"
+european:
+  multilingual: "berbilang bahasa Eropah"
+excellent:
+  _self: "Cemerlang"
+export:
+  _self: "Eksport"
+  as_csv: "Eksport sebagai CSV"
+  as_json: "Eksport sebagai JSON"
+  as_plain_text: "Eksport sebagai Teks Biasa"
+  dictionary: "Kamus Eksport"
+  failed: "Eksport gagal: %@"
+  last_transcript: "Eksport Transkrip Terakhir..."
+  presets: "Eksport Pratetap"
+failed:
+  to_add_replacement: "Gagal menambah pengganti: %@"
+  to_add_word: "Gagal menambah perkataan: %@"
+  to_delete_folder: "Gagal memadamkan folder: %@"
+  to_delete_note: "Gagal memadamkan nota: %@"
+  to_delete_preset: "Gagal memadamkan pratetap: %@"
+  to_delete_replacement: "Gagal memadamkan penggantian: %@"
+  to_delete_transcription: "Gagal memadamkan transkripsi: %@"
+  to_delete_word: "Gagal memadamkan perkataan: %@"
+  to_export_dictionary: "Gagal mengeksport kamus: %@"
+  to_export_presets: "Gagal mengeksport pratetap: %@"
+  to_import_dictionary: "Gagal mengimport kamus: %@"
+  to_import_presets: "Gagal mengimport pratetap: %@"
+  to_initialize_the_database_nnthe_app_will: "Gagal untuk memulakan pangkalan data: %@nnApl kini akan berhenti. Sila cuba mulakan semula atau hubungi sokongan jika masalah berterusan."
+  to_load_data: "Gagal memuatkan data: %@"
+  to_load_history: "Gagal memuatkan sejarah: %@"
+  to_read_import_file: "Gagal membaca fail import: %@"
+  to_save: "Gagal menyimpan: %@"
+  to_save_preset: "Gagal menyimpan pratetap: %@"
+  to_switch_model: "Gagal menukar model: %@"
+  to_update_preset: "Gagal mengemas kini pratetap: %@"
+  to_update_replacement: "Gagal mengemas kini penggantian: %@"
+  to_update_word: "Gagal mengemas kini perkataan: %@"
+fast:
+  _self: "Cepat"
+feature:
+  models: "Model Ciri"
+fetch:
+  models_in_models: "Ambil model dalam Model"
+fix:
+  punctuation_and_capitalization: "Betulkan tanda baca dan huruf besar"
+floating:
+  indicator: "%@ penunjuk terapung"
+  indicator_3bad78a5: "Penunjuk Terapung: %@"
+  indicator_e0349402: "Penunjuk Terapung"
+folder:
+  deleted: "Folder dipadamkan."
+  name: "Nama folder"
+follow:
+  playback: "Ikut main balik"
+format:
+  text_appropriately: "Format teks dengan betul"
+french:
+  _self: "Perancis"
+general:
+  _self: "Umum"
+german:
+  _self: "Jerman"
+get:
+  started: "Mulakan"
+global:
+  keyboard_shortcuts: "Pintasan papan kekunci global"
+go:
+  back: "Pergi Balik"
+  to_settings: "Pergi ke tetapan"
+good:
+  _self: "bagus"
+  afternoon: "selamat petang"
+  evening: "selamat petang"
+  morning: "selamat pagi"
+  night: "selamat malam"
+google:
+  _self: "Google"
+got:
+  it: "faham"
+grant:
+  _self: "Geran"
+great:
+  _self: "Hebat"
+hide:
+  this_for_1_hour: "Sembunyikan ini selama 1 jam"
+history:
+  _self: "Sejarah"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Tahan pintasan untuk merakam, kemudian lepaskan untuk menyalin."
+  to_record_release_to_open_note_editor_with: "Tahan untuk merakam, lepaskan untuk membuka editor nota dengan transkripsi"
+  to_record_release_to_stop_and_transcribe: "Tahan untuk merakam, lepaskan untuk berhenti dan transkripsi"
+  to_record_release_to_transcribe: "Tahan untuk merakam, lepaskan untuk menyalin"
+hotkey:
+  conflict: "Konflik Hotkey"
+hotkeys:
+  _self: "Kekunci panas"
+import:
+  dictionary: "Kamus Import"
+  error: "Ralat Import"
+  export: "Import/Eksport"
+  media: "Import media"
+  or_transcribe_media_while_this_folder_is: "Import atau transkripsi media semasa folder ini dipilih untuk menyimpan item di sini."
+  presets: "Import Pratetap"
+  strategy: "Strategi Import"
+imported:
+  files_and_web_links_will_appear_here_on: "Fail dan pautan web yang diimport akan dipaparkan di sini setelah pemprosesan selesai."
+improve:
+  transcription_quality_using_ai: "Tingkatkan kualiti transkripsi menggunakan AI"
+include:
+  clipboard_text: "Sertakan teks papan keratan"
+interface:
+  _self: "Antara muka"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ diberikan kepada %@ dan %@. Hanya tindakan pertama akan aktif. Kemas kini kekunci pintas anda dalam Tetapan untuk menyelesaikan konflik ini."
+italian:
+  _self: "Itali"
+items:
+  _self: "barang"
+japanese:
+  _self: "Jepun"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Pastikan Pindrop semasa secara automatik, atau cetuskan semakan manual pada bila-bila masa anda mahu."
+key:
+  _self: "#%@"
+  a979ef10: "None"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Pintasan Papan Kekunci"
+korean:
+  _self: "Korea"
+language:
+  _self: "Bahasa"
+large:
+  _self: "besar"
+launch:
+  at_login: "Pelancaran di Log Masuk: %@"
+  at_login_0b36c78f: "Lancarkan semasa log masuk"
+layout:
+  _self: "Susun atur"
+learn:
+  corrected_words_automatically: "Belajar perkataan yang diperbetulkan secara automatik"
+left:
+  _self: "kiri"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Biarkan Pindrop mempelajari perbendaharaan kata secara senyap-senyap daripada pembetulan yang anda buat dari semasa ke semasa."
+light:
+  _self: "Cahaya"
+  dark_and_curated_palette_presets: "Pratetap palet terang, gelap dan dipilih susun"
+  preview: "Pratonton Cahaya"
+  theme: "Tema Cahaya"
+limited:
+  _self: "Terhad"
+live:
+  streaming_refinement: "Penapisan Penstriman Langsung"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld aksara"
+  complete: "%lld%% selesai"
+  items: "%lld item"
+  notes: "%lld nota"
+  transcriptions: "%lld transkripsi"
+lm:
+  studio: "LM Studio"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio hanya memerlukan token jika pengesahan pelayan setempat didayakan."
+load:
+  models: "Muatkan Model"
+loaded:
+  d_models: "%d model dimuatkan"
+loading:
+  history: "Memuatkan sejarah..."
+  models: "Memuatkan model..."
+local:
+  _self: "Tempatan"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Pertuturan ke teks setempat, terus dari bar menu anda.
+    Cepat, peribadi dan sentiasa tersedia.
+  speech_to_text_right_from_your_menu_bar_nf: "Pertuturan ke teks setempat, terus dari bar menu anda.nPantas, peribadi dan sentiasa tersedia."
+  speech_to_text_with_whisperkit: "Ucapan-ke-teks tempatan dengan WhisperKit"
+  voice_to_text: "Suara-ke-teks tempatan"
+low:
+  latency_mode_less_accurate: "Mod kependaman rendah (kurang tepat)"
+manage:
+  local_speech_models_feature_models_and_th: "Urus model pertuturan tempatan, model ciri dan enjin lalai yang digunakan Pindrop untuk transkripsi."
+  models: "Urus model"
+  presets: "Urus Pratetap"
+  presets_ab87986d: "Urus Pratetap..."
+manually:
+  check_for_new_versions_now: "Semak secara manual untuk versi baharu sekarang."
+media:
+  library: "Perpustakaan Media"
+  transcription: "Transkripsi Media"
+  unavailable: "Media tidak tersedia"
+medium:
+  _self: "Sederhana"
+microphone:
+  _self: "Mikrofon"
+  permission_is_required_to_continue: "Kebenaran mikrofon diperlukan untuk meneruskan"
+  permission_is_required_to_continue_dc: "Kebenaran mikrofon diperlukan untuk meneruskan."
+  permission_required: "Kebenaran Mikrofon Diperlukan"
+mit:
+  license: "Lesen MIT"
+mode:
+  _self: "Mod: %@"
+model:
+  _self: "Model"
+  loading_failed: "Pemuatan Model Gagal"
+  loading_timed_out: "Pemuatan Model Tamat Masa"
+models:
+  _self: "model"
+move:
+  to_folder: "Beralih ke Folder"
+multilingual:
+  _self: "berbilang bahasa"
+must:
+  be_openai_compatible: "Mesti serasi dengan OpenAI"
+mute:
+  system_audio_during_recording: "Redamkan audio sistem semasa rakaman"
+new:
+  folder: "Folder Baharu"
+  note: "Nota Baharu"
+  preset: "Pratetap Baharu"
+next:
+  _self: "Seterusnya"
+no:
+  api_key: "Tiada kunci API"
+  api_key_endpoint: "Tiada kunci API • Titik tamat: %@"
+  custom_presets: "Tiada Pratetap Tersuai"
+  downloaded_models: "Tiada model yang dimuat turun"
+  folders_yet: "Tiada folder lagi"
+  items_in: "Tiada item dalam %@"
+  media_transcriptions_yet: "Tiada transkripsi media lagi"
+  model_loaded: "Tiada Model Dimuatkan"
+  model_selected: "Tiada model dipilih"
+  models_available: "Tiada model tersedia"
+  models_available_ae9dbd29: "Tiada model tersedia."
+  models_available_try_refresh_or_enter_a_model: "Tiada model tersedia. Cuba Muat Semula atau masukkan ID model secara manual."
+  models_found: "Tiada model ditemui."
+  models_loaded_open_edit_to_fetch_models: "Tiada model dimuatkan. Buka Edit untuk mengambil model."
+  models_match: "Tiada model yang sepadan dengan \"%@\""
+  notes_yet: "Tiada nota lagi"
+  providers_configured_yet: "Tiada pembekal dikonfigurasikan lagi."
+  replacements: "Tiada Penggantian"
+  results_found: "Tiada hasil ditemui"
+  settings_found: "Tiada tetapan ditemui"
+  transcriptions_yet: "Tiada transkripsi lagi"
+  vocabulary_words: "Tiada Perbendaharaan Kata"
+not:
+  assigned: "Tidak ditugaskan"
+  selected: "Tidak dipilih"
+  set: "Tidak Ditetapkan"
+  set_93039e60: "Tidak ditetapkan"
+notch:
+  _self: "Takik"
+note:
+  _self: "Nota"
+  capture_push_to_talk: "Tangkapan Nota (Tekan-untuk-Cakap)"
+  capture_toggle: "Tangkapan Nota (Togol)"
+  enhancement: "Peningkatan Nota"
+  from: "Nota daripada"
+  metadata: "Nota Metadata"
+  title: "Tajuk Nota"
+notes:
+  _self: "Nota"
+  3add7b96: "nota"
+off:
+  _self: "Mati"
+ok:
+  _self: "OK"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama biasanya tidak memerlukan pengesahan untuk permintaan tempatan."
+on:
+  _self: "hidup"
+  device_no_credentials_required: "Pada peranti, tiada bukti kelayakan diperlukan"
+open:
+  _self: "Buka"
+  history: "Buka Sejarah"
+  logs_in_finder: "Buka Log dalam Finder"
+  original_link: "Buka pautan asal"
+  progress: "Kemajuan terbuka"
+  settings: "Buka Tetapan"
+  settings_fd7108f8: "Buka tetapan"
+  system_settings: "Buka Tetapan Sistem"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "Pelayan tempatan serasi OpenAI"
+  whisper: "OpenAI Whisper"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Pilihan"
+  insert_text_directly_into_apps: "Pilihan: Masukkan teks terus ke dalam apl"
+  used_for_auto_generated_titles_and_summ: "Pilihan — digunakan untuk tajuk yang dijana secara automatik dan ringkasan pada import transkripsi media."
+optionally:
+  clean_up_transcriptions_with_ai: "Secara pilihan, bersihkan transkripsi dengan AI"
+or:
+  _self: "atau"
+  just_use_your_hotkey: "Atau hanya gunakan hotkey anda!"
+original:
+  _self: "Asal"
+  text_use_commas_for_multiple: "Teks asal (gunakan koma untuk berbilang)"
+originals:
+  comma_separated: "Asal (dipisahkan koma)"
+output:
+  _self: "Output"
+  audio_interface_and_everyday_behavior: "Output, audio, antara muka dan tingkah laku harian"
+parakeet:
+  default: "Parkit (lalai)"
+paste:
+  _self: "tampal"
+  a_video_or_audio_link: "Tampal pautan video atau audio"
+  last_transcript: "Tampal Transkrip Terakhir"
+  last_transcript_v: "Tampal transkrip terakhir ⌃⌘V"
+pause:
+  _self: "jeda"
+  media_during_transcription: "Jeda media semasa transkripsi"
+permissions:
+  _self: "kebenaran"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Pilih penyedia dan model yang mengendalikan setiap tugas AI. Biarkan sebagai \"Tidak ditetapkan\" untuk melangkau tujuan."
+pill:
+  _self: "Pil"
+pin:
+  to_screen_always_on_top: "Semat pada skrin (sentiasa di atas)"
+pindrop:
+  _self: "Pindrop"
+  dot: "Titik Pindrop"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop sedia untuk digunakan.
+    Klik ikon bar menu untuk bermula.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop sedia untuk digunakan.nKlik ikon bar menu untuk bermula."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop memerlukan beberapa kebenaran untuk berfungsi.nPrivasi anda sentiasa dihormati."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop memerlukan beberapa kebenaran untuk berfungsi.
+    Privasi anda sentiasa dihormati.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop memerlukan kebenaran Kebolehaksesan untuk memasukkan teks pada kursor anda.                          Untuk memberikan kebenaran: 1. Klik \"Buka Tetapan Sistem\" di bawah 2. Klik butang + 3. Navigasi ke apl yang ditunjukkan dalam Finder 4. Mulakan semula Pindrop selepas memberikan kebenaran Tanpa kebenaran ini, teks hanya akan disalin ke papan keratan anda.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop memerlukan akses mikrofon untuk merakam dan menyalin suara anda.nnSila berikan kebenaran dalam Tetapan Sistem."
+  on_github: "Pindrop pada GitHub"
+  pill: "Pil Pindrop"
+  theme: "Tema Pindrop"
+play:
+  _self: "Main"
+please:
+  check_your_internet_connection_and_try_ag: "Sila semak sambungan internet anda dan cuba lagi."
+  download_a_whisper_model_in_settings_befo: |-
+    Sila muat turun model Whisper dalam Tetapan sebelum merakam.
+    
+    Pergi ke Tetapan → Model untuk memuat turun model.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Sila muat turun model Whisper dalam Tetapan sebelum merakam.nnPergi ke Tetapan → Model untuk memuat turun model."
+  wait: "Sila tunggu..."
+portuguese:
+  brazil: "Portugis (Brazil)"
+powered:
+  by_whisperkit: "Dikuasakan oleh WhisperKit"
+preparing:
+  model: "Menyediakan Model..."
+preset:
+  name: "Nama Pratetap"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Tekan dan tahan untuk menentukan dalam mana-mana apl. Pindrop akan menyalin pertuturan anda dan memasukkan teks di mana kursor anda berada."
+  esc_to_cancel: "Tekan Esc untuk membatalkan"
+  keys: "Tekan kekunci..."
+  once_to_start_again_to_stop: "Tekan sekali untuk memulakan, sekali lagi untuk berhenti"
+  once_to_start_recording_press_again_to_sto: "Tekan sekali untuk mula merakam, tekan sekali lagi untuk berhenti dan transkripsi"
+  once_to_start_recording_then_press_again_t: "Tekan sekali untuk memulakan rakaman, kemudian tekan sekali lagi untuk berhenti dan transkripsi."
+  to_start_recording_press_again_to_open_not: "Tekan untuk mula merakam, tekan sekali lagi untuk membuka editor nota"
+primary:
+  text: "Teks Utama"
+processing:
+  _self: "Memproses"
+  272bc02e: "Memproses..."
+  5aa377e2: "⏳ Memproses"
+  transcript: "Memproses transkrip"
+prompt:
+  _self: "Prompt"
+  preset: "Pratetap Gesa"
+provider:
+  _self: "Pembekal"
+  kind: "Jenis Penyedia"
+  type: "Jenis Pembekal"
+providers:
+  _self: "Pembekal"
+  prompts_and_vibe_mode_controls: "Pembekal, gesaan dan kawalan mod getaran"
+push:
+  to_talk: "Tekan-untuk-Cakap"
+quickly:
+  copy_your_last_transcription: "Cepat salin transkripsi terakhir anda"
+  pull_your_latest_transcript_back_to_the: "Tarik transkrip terbaharu anda kembali ke papan keratan dengan cepat."
+quit:
+  _self: "Berhenti"
+  pindrop: "Berhenti Pindrop"
+ready:
+  _self: "sedia"
+  ec1296e1: "● Sedia"
+  to_record: "Sedia untuk merakam"
+  to_transcribe: "Sedia untuk transkripsi"
+recent:
+  _self: "Baru-baru ini"
+  transcriptions: "Transkripsi Terkini"
+  transcripts: "Transkrip Terkini"
+recommended:
+  _self: "Disyorkan"
+  the_deterministic_cleaner_handles_mo: "Disyorkan: pembersih deterministik mengendalikan kebanyakan imlak dengan bersih. Dayakan pas LLM hanya jika anda mahukan penggilap tambahan dan terima ciri-ciri model sekali-sekala (mukadimah, balasan perbualan)."
+record:
+  _self: "Rekod"
+recording:
+  _self: "Rakaman"
+  3f8fd48c: "🔴 Rakaman"
+recordings:
+  _self: "rakaman"
+redo:
+  _self: "Buat semula"
+refresh:
+  _self: "Segarkan semula"
+remove:
+  _self: "Alih keluar"
+  and_clear_any_assignments_that_reference: "Alih keluar \"%@\" dan kosongkan sebarang tugasan yang merujuknya? Bukti kelayakan yang disimpan akan dipadamkan."
+  from_folder: "Alih keluar daripada Folder"
+  provider: "Alih keluar Pembekal"
+rename:
+  _self: "Namakan semula"
+  folder: "Namakan semula Folder"
+replace:
+  all: "Gantikan Semua"
+  words_and_phrases: "Gantikan perkataan dan frasa"
+replacement:
+  _self: "Penggantian"
+  text: "Teks gantian"
+report:
+  an_issue: "Laporkan Isu"
+  an_issue_bd7b4f00: "Laporkan isu"
+required:
+  _self: "Diperlukan"
+  for_recording_your_voice: "Diperlukan untuk merakam suara anda"
+requires:
+  a_fast_provider_apple_foundation_models: "Memerlukan pembekal yang pantas (Model Yayasan Apple disyorkan). Pembekal awan akan mengeluarkan satu panggilan API setiap jeda."
+reset:
+  _self: "Tetapkan semula"
+  all_settings: "Tetapkan Semula Semua Tetapan?"
+  all_settings_7262c7b7: "Tetapkan semula semua tetapan"
+  to_default: "Tetapkan semula kepada Lalai"
+retry:
+  _self: "Cuba semula"
+right:
+  _self: "Betul"
+run:
+  llm_polish_after_dictation_stops: "Jalankan penggilap LLM selepas imlak berhenti"
+runtime:
+  _self: "Masa jalan: %@"
+save:
+  _self: "Jimat"
+  as_note: "Simpan sebagai Nota"
+  continue: "Simpan & Teruskan"
+  credentials: "Simpan Bukti kelayakan"
+  prompt: "Simpan Prompt"
+saved:
+  _self: "Disimpan"
+  as_note: "Disimpan sebagai Nota"
+  transcription: "Transkripsi disimpan"
+search:
+  media_transcripts: "Cari transkrip media..."
+  models: "Cari model"
+  models_61c1b9fe: "Cari model..."
+  notes: "Cari nota..."
+  settings: "Tetapan carian"
+  settings_or_jump_between_sections_without: "Cari tetapan atau lompat antara bahagian tanpa meninggalkan ruang kerja utama."
+  transcriptions: "Cari transkripsi..."
+secondary:
+  text: "Teks Sekunder"
+select:
+  a_dictionary_json_file_to_import: "Pilih fail JSON kamus untuk diimport"
+  a_model: "Pilih model"
+  a_presets_json_file_to_import: "Pilih fail JSON pratetap untuk diimport"
+  a_provider_kind: "Pilih jenis pembekal"
+  a_provider_type: "Pilih jenis pembekal"
+  ai_model: "Pilih Model AI"
+  all: "Pilih Semua"
+  language: "Pilih Bahasa"
+  language_daea52c9: "Pilih bahasa"
+  this_floating_indicator_style: "Pilih gaya penunjuk terapung ini."
+  voice_model: "Pilih Model Suara"
+selected:
+  _self: "Dipilih"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Dihantar kepada model AI semasa memproses imlak untuk sisipan teks langsung."
+sessions:
+  _self: "Sesi"
+  781791f5: "sesi"
+set:
+  as_default: "Tetapkan sebagai Lalai"
+settings:
+  _self: "tetapan"
+  bf83f07f: "tetapan..."
+  fa67a397: "Tetapan…"
+setup:
+  required: "Persediaan diperlukan"
+show:
+  app: "Tunjukkan Apl"
+  app_in_finder: "Tunjukkan Apl dalam Finder"
+  floating_indicator: "Tunjukkan penunjuk terapung"
+  in_dock: "Tunjukkan dalam Dok"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Ditunjukkan sebagai titik di penjuru skrin"
+  as_a_pill_at_the_bottom_of_the_screen: "Ditunjukkan sebagai pil di bahagian bawah skrin"
+  beside_the_focused_text_field_caret: "Menunjukkan di sebelah medan teks fokus/karet"
+  in_the_menu_bar_notch_area: "Ditunjukkan dalam bar menu/kawasan takuk"
+  recording_state_in_a_lightweight_overlay_w: "Menunjukkan keadaan rakaman dalam tetingkap tindanan ringan."
+sidebar:
+  position: "Kedudukan bar sisi"
+simplified:
+  chinese: "Cina ringkas"
+size:
+  _self: "Saiz"
+skip:
+  for_now: "Langkau untuk Sekarang"
+slow:
+  _self: "Lambat"
+slower:
+  _self: "Lebih perlahan"
+slowest:
+  _self: "Paling perlahan"
+small:
+  _self: "Kecil"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Model yang lebih kecil lebih pantas tetapi kurang tepat.nMulakan dengan Base untuk keseimbangan terbaik."
+  models_are_faster_but_less_accurate_star: |-
+    Model yang lebih kecil lebih pantas tetapi kurang tepat.
+    Mulakan dengan Base untuk keseimbangan terbaik.
+something:
+  went_wrong: "Sesuatu telah berlaku"
+soon:
+  _self: "Tidak lama lagi"
+sort:
+  by: "Isih mengikut"
+source:
+  _self: "Sumber"
+spanish:
+  _self: "bahasa Sepanyol"
+speaker:
+  diarization_and_timestamps_are_attached: "Diarisasi pembesar suara dan cap masa dilampirkan pada main semula."
+  diarization_is_required: "Diarisasi pembesar suara diperlukan"
+speed:
+  _self: "Kelajuan"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Mulakan baru apabila anda ingin mengosongkan pilihan, keadaan onboarding dan bukti kelayakan yang disimpan."
+  recording: "Mulakan Rakaman"
+  recording_to_see_your_transcriptions_here: "Mulakan rakaman untuk melihat transkripsi anda di sini"
+  stop_recording: "Mula/hentikan rakaman"
+  using_pindrop: "Mula Menggunakan Pindrop"
+status:
+  _self: "Status"
+stop:
+  recording: "Hentikan Rakaman"
+streaming:
+  enhancement: "Peningkatan Penstriman"
+  transcription_currently_supports_engli: "Transkripsi penstriman pada masa ini menyokong bahasa Inggeris sahaja, tanpa mengira bahasa yang dipilih."
+  transcription_is_disabled_while_ai_enh: "Transkripsi penstriman dilumpuhkan manakala Peningkatan AI didayakan."
+  transcription_model_parakeet_realtime: "Model transkripsi penstriman (Parakeet Realtime EOU) yang dilesenkan oleh NVIDIA Corporation di bawah Lesen Model Terbuka NVIDIA."
+success:
+  _self: "Berjaya!"
+support:
+  _self: "Sokongan"
+  coming_soon: "%@ Sokongan Akan Datang"
+supports:
+  local_media_files_and_web_links_resolve: "Menyokong fail media tempatan dan pautan web yang diselesaikan dengan yt-dlp."
+switch:
+  to_model: "Tukar kepada Model"
+system:
+  _self: "Sistem"
+  default: "Lalai Sistem"
+teach:
+  custom_words: "Ajar perkataan tersuai"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Salin teks buat sementara waktu, tampalkannya, kemudian pulihkan papan keratan anda"
+  mute_speaker_output_while_dictation: "Redamkan output pembesar suara buat sementara waktu semasa imlak sedang dirakam."
+  pause_active_media_playback_while_di: "Jeda main balik media aktif buat sementara waktu semasa imlak sedang dirakam."
+tertiary:
+  text: "Teks Tertiari"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuatkan dalam masa 60 saat. Ini biasanya bermakna fail model rosak atau tidak serasi.                          Untuk membetulkannya: 1. Buka Tetapan → Model 2. Padamkan model yang bermasalah 3. Muat turun semula model Jika masalah berterusan, cuba model yang lebih kecil (Tiny atau Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "Varian bahagian yang dipilih belum dimuat turun lagi. Togol akan memulakan muat turun."
+theme:
+  _self: "Tema"
+  changes_apply_live_across_the_workspace_se: "Perubahan tema digunakan secara langsung merentas ruang kerja, tetapan, editor nota dan penunjuk terapung."
+  mode: "Mod tema"
+this:
+  preset_name_is_already_in_use: "Nama pratetap ini sudah digunakan."
+  provider_will_be_available_in_a_future_upda: |-
+    Pembekal ini akan tersedia dalam kemas kini masa hadapan.
+    Buat masa ini, cuba OpenAI atau gunakan titik akhir Tersuai.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Pembekal ini akan tersedia dalam kemas kini masa hadapan.
+    Cuba OpenAI atau gunakan titik akhir Tersuai.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Pembekal ini akan tersedia dalam kemas kini masa hadapan.nBuat masa ini, cuba OpenAI atau gunakan titik akhir Tersuai."
+  transcription_could_not_be_found: "Transkripsi ini tidak ditemui."
+  will_clear_all_your_settings_including_api: "Ini akan mengosongkan semua tetapan anda, termasuk kunci API, kekunci pintas dan pilihan model. Apl akan berhenti dan menunjukkan orientasi semula pada pelancaran seterusnya."
+  will_permanently_remove_the_transcript_and: "Ini akan mengalih keluar transkrip dan fail media terurusnya secara kekal."
+time:
+  saved: "Masa Dijimatkan"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "untuk menentukan dan biarkan Pindrop menyalin untuk anda"
+  start_talking: "untuk mula bercakap"
+today:
+  _self: "Hari ini"
+toggle:
+  _self: "Togol"
+  recording: "Togol Rakaman"
+  sort_order: "Togol susunan isihan"
+transcribe:
+  _self: "Transkripsikan"
+  media: "Transkripsi Media"
+transcribed:
+  _self: "ditranskripsikan"
+transcription:
+  _self: "Transkripsi"
+  backend: "Bahagian belakang transkripsi"
+  deleted: "Transkripsi dipadamkan."
+  enhancement: "Peningkatan Transkripsi"
+  failed: "Transkripsi Gagal"
+  finished: "Transkripsi selesai."
+  in_progress: "Transkripsi sedang dijalankan"
+  metadata: "Metadata Transkripsi"
+  update: "Kemas kini transkripsi"
+transcriptions:
+  _self: "Transkripsi"
+  f0972acc: "transkripsi"
+  in_this_folder_will_be_kept_and_m: "Transkripsi dalam folder ini akan disimpan dan dialihkan kembali ke pustaka."
+transcripts:
+  _self: "Transkrip"
+try:
+  a_different_search_term: "Cuba istilah carian yang berbeza"
+  a_different_search_term_0ba628a3: "Cuba istilah carian yang berbeza."
+  a_different_search_term_in_this_folder: "Cuba istilah carian lain dalam folder ini."
+  searching_for_terms_like_hotkeys_microphone: "Cuba cari istilah seperti kekunci pintas, mikrofon, kemas kini atau mod getaran."
+turkish:
+  _self: "bahasa Turki"
+type:
+  text_directly_into_the_active_app_when_poss: "Taip teks terus ke dalam apl aktif apabila boleh"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Tidak dapat menyambung ke perkhidmatan peningkatan AI.                                  Sila semak: 1. Sambungan Internet anda 2. URL titik akhir API adalah betul 3. Perkhidmatan tidak mengalami gangguan Transkripsi telah disimpan tanpa penambahan.                 \"\""
+  to_finish_transcription: "Tidak dapat menyelesaikan transkripsi"
+  to_load_history: "Tidak dapat memuatkan sejarah: %@"
+  to_load_models_try_refresh: "Tidak dapat memuatkan model. Cuba muat semula."
+  to_update_media_library: "Tidak dapat mengemas kini pustaka media"
+unavailable:
+  device: "Peranti tidak tersedia"
+undo:
+  _self: "Buat asal"
+unfiled:
+  _self: "Tidak difailkan"
+unpin:
+  from_screen: "Nyahsemat daripada skrin"
+update:
+  _self: "Kemas kini"
+updates:
+  _self: "Kemas kini"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Gunakan pintasan ketik-untuk-mula, ketik-untuk-selesai untuk menangkap nota."
+  clipboard_only: "Gunakan Papan Klip Sahaja"
+  the_hotkey_to_start_your_first_recording: "Gunakan kekunci pintas untuk memulakan rakaman pertama anda"
+  transcription_as_a_placeholder_for_the_trans: "Gunakan ${transcription} sebagai pemegang tempat untuk teks yang ditranskripsi."
+  transcription_as_placeholder: "Gunakan ${transcription} sebagai pemegang tempat"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Digunakan semasa menangkap nota melalui hotkey. Boleh menambah pemformatan turun untuk kandungan yang lebih panjang."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Menggunakan gesaan terbina dalam yang ditala untuk tugas ini."
+  the_160ms_parakeet_variant_for_snappier_par: "Menggunakan varian Parakeet 160ms untuk bahagian yang lebih tajam dengan kos ~70% lagi ralat perkataan. Lalai ialah varian 320ms."
+  the_transcription_enhancement_assignment_if: "Menggunakan tugasan Peningkatan Transkripsi. Jika tiada yang ditetapkan, keluaran pembersih deterministik dikekalkan seperti sedia ada."
+v:
+  _self: "v%@"
+version:
+  _self: "Versi %@ (%@)"
+very:
+  fast: "Sangat Cepat"
+via:
+  _self: "melalui %@"
+vibe:
+  mode: "Mod Vibe"
+  mode_captures_structured_ui_context_when_re: "Mod vibe menangkap konteks UI berstruktur apabila rakaman bermula supaya peningkatan AI boleh menggunakan keadaan apl aktif anda sebagai rujukan."
+  mode_works_best_with_accessibility_permissi: "Mod vibe berfungsi paling baik dengan kebenaran Kebolehaksesan. Tanpa itu, Pindrop kembali kepada metadata apl terhad dan transkripsi masih berfungsi seperti biasa."
+view:
+  _self: "Lihat"
+  all: "Lihat semua"
+  transcript_history: "Lihat sejarah transkrip"
+  transcription_history: "Lihat sejarah transkripsi"
+vocabulary:
+  _self: "perbendaharaan kata"
+vs:
+  typing: "vs menaip"
+welcome:
+  to_pindrop: "Selamat datang ke Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Firman"
+  replacements: "Penggantian Perkataan"
+words:
+  _self: "perkataan"
+  efb89361: "perkataan"
+  min: "perkataan/min"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Semalam"
+you:
+  are_a_note_formatting_assistant_transform_th: "Anda ialah pembantu pemformatan nota. Ubah teks yang ditranskripsikan kepada nota yang tersusun dengan baik.nnPeraturan:n- Betulkan kesilapan tatabahasa, tanda baca dan ejaann- Untuk kandungan yang lebih panjang (3+ perenggan), tambahkan pemformatan markdown:n - Gunakan pengepala (## atau ###) untuk menyusun bahagiann - Gunakan titik tumpu atau senarai bernombor yang sesuain - Gunakan **bold** untuk penegasan kandungan yang lebih ringkas dengan format P yang lebih pendek maksud dan nada asal- Jangan tambahkan kandungan yang tiada dalam asal- Kembalikan nota berformat sahaja tanpa sebarang ulasan"
+  are_a_text_enhancement_assistant_improve_the: "Anda ialah pembantu peningkatan teks. Tingkatkan tatabahasa, tanda baca dan pemformatan teks yang disediakan sambil mengekalkan makna dan nada asalnya. Kembalikan hanya teks yang dipertingkatkan tanpa sebarang ulasan tambahan."
+  can_change_these_anytime_from_the_menu_bar_s: "Anda boleh menukarnya pada bila-bila masa dari bar menu → Tetapan → Hotkeys"
+  re_all_set: "Anda Sudah Bersedia!"
+  re_all_set_058a8130: "Anda sudah bersedia!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Anda telah melebihi had kadar API atau kuota anda.                                  Untuk membetulkannya: 1. Tunggu beberapa minit dan cuba lagi 2. Semak had penggunaan penyedia API anda 3. Pertimbangkan untuk menaik taraf pelan API anda Transkripsi telah disimpan tanpa peningkatan.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Kunci API anda nampaknya tidak sah atau tamat tempoh.                                  Untuk membetulkannya: 1. Buka Tetapan → Peningkatan AI 2. Sahkan kunci API anda betul 3. Semak sama ada titik akhir API anda betul Transkripsi telah disimpan tanpa peningkatan.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Kekunci pintas anda sedia untuk digunakan.nAnda boleh menyesuaikannya kemudian dalam Tetapan."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Kekunci pintas anda sedia untuk digunakan.
+    Anda boleh menyesuaikannya kemudian dalam Tetapan.
+  model_is_ready_to_use: "Model anda sedia untuk digunakan."
+  stats: "Statistik anda"

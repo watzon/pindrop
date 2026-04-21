@@ -1,0 +1,1012 @@
+100:
+  local_processing: "Prelucrare 100% locală"
+1:
+  folder: "1 dosar"
+  transcription: "1 transcriere"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "O aplicație nativă de dictare a barei de meniu macOS care folosește conversia vocală în text local cu WhisperKit. Procesare 100% locală în mod implicit, cu îmbunătățire opțională AI."
+about:
+  _self: "Despre"
+  pindrop: "Despre Pindrop"
+accessibility:
+  _self: "Accesibilitate"
+  permission_is_enabled_full_ui_cont: "Permisiunea de accesibilitate este activată. Contextul UI complet este disponibil."
+  permission_is_not_granted_vibe_mod: "Permisiunea de accesibilitate nu este acordată. Modul Vibe rămâne neblocant cu context limitat."
+  permission_recommended: "Permisiune de accesibilitate recomandată"
+  permission_required: "Este necesară permisiunea de accesibilitate"
+accuracy:
+  _self: "Precizie"
+acknowledgments:
+  _self: "Mulțumiri"
+active:
+  _self: "Activ"
+add:
+  _self: "Adăuga"
+  a_provider_to_start_using_ai_enhancement: "Adăugați un furnizor pentru a începe să utilizați îmbunătățirea AI."
+  custom_words_to_improve_transcription_accura: "Adăugați cuvinte personalizate pentru a îmbunătăți acuratețea transcripției pentru termeni, nume sau jargon specializați."
+  provider: "Adăugați furnizorul"
+  tag: "Adăugați etichetă..."
+  to_existing: "Adăugați la Existing"
+  trailing_space: "Adăugați spațiu de sfârșit"
+  word_replacements_to_automatically_correct_c: "Adăugați înlocuiri de cuvinte pentru a corecta automat erorile comune de transcriere."
+  words_to_help_pindrop_recognize_them_properl: "Adăugați cuvinte pentru a ajuta Pindrop să le recunoască corect"
+  words_you_manually_correct_into_your_vocabul: "Adăugați cuvinte pe care le corectați manual în vocabularul dvs. pentru transcrieri viitoare."
+ai:
+  enhancement: "Îmbunătățirea AI"
+  enhancement_529f5583: "Îmbunătățirea AI: %@"
+  enhancement_failed: "Îmbunătățirea AI a eșuat"
+  enhancement_is_disabled: "Îmbunătățirea AI este dezactivată."
+  enhancement_will: "Îmbunătățirea AI va:"
+  model: "Model AI"
+all:
+  _self: "Toate"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    A apărut o eroare la îmbunătățirea transcripției:
+    
+    %@
+    
+    Transcrierea originală a fost salvată fără îmbunătățire.
+    Puteți încerca să activați din nou îmbunătățirea AI în Setări.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "A apărut o eroare la îmbunătățirea transcripției: nn%@nnTranscrierea originală a fost salvată fără îmbunătățire.nPuteți încerca să activați din nou îmbunătățirea AI în Setări."
+anthropic:
+  _self: "antropică"
+api:
+  endpoint: "Punct final API"
+  key: "Cheia API"
+  key_saved: "Cheia API salvată"
+  key_saved_endpoint: "Cheia API salvată • Punct final: %@"
+app:
+  info_acknowledgments_support_and_logs: "Informații despre aplicație, mulțumiri, asistență și jurnalele"
+append:
+  a_space_after_each_transcription_for_seam: "Adăugați un spațiu după fiecare transcriere pentru o dictare fără întreruperi."
+apple:
+  foundation_models_on_device: "Modele Apple Foundation (pe dispozitiv)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence nu este disponibilă pe acest sistem. Această atribuire nu se va rezolva până când Apple Intelligence nu este activată."
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence rulează pe dispozitiv și nu necesită acreditări."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber necesită macOS 26."
+  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber indisponibil - folosind Parakeet"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Sigur doriți să ștergeți „%@”? Această acțiune nu poate fi anulată."
+assignments:
+  _self: "Sarcini"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Atașați jurnalele din acest folder atunci când depuneți o problemă GitHub."
+audio:
+  input: "Intrare audio"
+automatic:
+  follow_system: "Automat (sistem de urmărire)"
+  updates: "Actualizări automate"
+  updates_and_manual_update_checks: "Actualizări automate și verificări manuale ale actualizărilor"
+automatically:
+  check_for_new_versions_in_the_back: "Verificați automat versiunile noi în fundal."
+  start_pindrop_when_you_sign_in: "Porniți automat Pindrop când vă conectați."
+available:
+  models: "Modele disponibile"
+avg:
+  speed: "Viteza medie"
+back:
+  _self: "Spate"
+  to_library: "Înapoi la bibliotecă"
+base:
+  _self: "Baza"
+best:
+  _self: "Cel mai bun"
+better:
+  _self: "Mai bine"
+bubble:
+  _self: "Bulă"
+built:
+  in_presets: "Presetări încorporate"
+  in_read_only: "Încorporat (numai citire)"
+cancel:
+  _self: "Anula"
+  operation: "Anulați operațiunea"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Capturați direct în editorul de note cu un flux hold-to-record."
+change:
+  microphone: "Schimbați microfonul"
+  microphone_ac9970f4: "Schimbați microfonul"
+check:
+  for_updates: "Verificați actualizările..."
+  for_updates_736b9062: "Verificați actualizările"
+  now: "Verificați acum"
+checking:
+  _self: "Control..."
+choose:
+  a_location_to_save_the_dictionary: "Alegeți o locație pentru a salva dicționarul"
+  a_location_to_save_the_presets: "Alegeți o locație pentru a salva presetările"
+  a_model: "Alege un model"
+  a_provider_first: "Alegeți mai întâi un furnizor"
+  an_audio_or_video_file_to_transcribe: "Alegeți un fișier audio sau video pentru a transcrie"
+  between_parakeet_cross_version_downloaded: "Alegeți între Parakeet (versiunea încrucișată, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul de operare)."
+  file: "Alegeți fișierul"
+  how_dictated_text_lands_then_tune_the_fin: "Alegeți cum aterizează textul dictat, apoi reglați comportamentul final de inserare."
+  how_pindrop_follows_system_appearance_the: "Alegeți modul în care Pindrop urmărește aspectul sistemului, apoi amestecați paletele luminoase și întunecate."
+  how_to_import_the_dictionary_data: "Alegeți cum să importați datele din dicționar"
+  how_to_import_the_preset_data: "Alegeți cum să importați datele presetate"
+  languages_for_the_interface_and_for_dicta: "Alegeți limbile pentru interfață și pentru dictare. Sistemul urmează automat."
+  location_to_save_presets: "Alegeți locația pentru a salva presetări"
+  the_daytime_shell_used_in_light_mode: "Alegeți carcasa de zi folosită în modul de lumină."
+  the_low_glare_shell_used_in_dark_mode: "Alegeți carcasa cu strălucire redusă utilizată în modul întunecat."
+  which_floating_indicator_style_appears_wh: "Alegeți stilul de indicator plutitor care apare atunci când suprapunerea este activată."
+  which_microphone_pindrop_should_use_for_d: "Alegeți ce microfon ar trebui să folosească Pindrop pentru dictare și cum se comportă în timpul înregistrării."
+  which_side_the_navigation_sidebar_appears: "Alegeți pe ce parte apare bara laterală de navigare."
+clean:
+  up_filler_words: "Curățați cuvintele de completare"
+clear:
+  audio_buffer: "Ștergeți tamponul audio"
+  hotkey: "Ștergeți tasta rapidă"
+clears:
+  preferences_and_restarts_onboarding: "Șterge preferințele și repornește integrarea"
+click:
+  or_hold: "Faceți clic sau țineți apăsat"
+  or_press: "Faceți clic sau apăsați"
+  or_set_a_hotkey_to_start_talking: "Faceți clic sau setați o tastă rapidă pentru a începe să vorbiți"
+  this_icon_anytime_to: "Faceți clic oricând pe această pictogramă pentru a:"
+clipboard:
+  _self: "Planșetă"
+cloud:
+  _self: "Nor"
+  model: "Modelul Cloud"
+collapse:
+  _self: "Colaps"
+coming:
+  soon: "%@ În curând"
+  soon_04d2fd85: "În curând"
+configure:
+  ai_providers_and_credentials_apple_int: "Configurați furnizorii și acreditările AI. Apple Intelligence rulează pe dispozitiv; alți furnizori necesită chei API."
+  keyboard_shortcuts_for_recording_and_n: "Configurați comenzile rapide de la tastatură pentru înregistrare și captarea notelor"
+continue:
+  _self: "Continua"
+  with_default: "Continuați cu Implicit"
+  without: "Continuați fără"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Controlați cum apare Pindrop în macOS și dacă începe cu sesiunea desktop."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Controlează modul în care calea de dictare live lustruiește transcrierile. Curățarea deterministă (înlăturarea umplerii, scrierea cu majuscule, punctuația rostită, normalizarea numerelor, îmbinarea cuvintelor împărțite) rulează în orice direcție - această comutare pornește trecerea opțională de lustruire LLM care se declanșează odată ce dictarea se oprește."
+copied:
+  _self: "Copiat!"
+copy:
+  _self: "Copie"
+  enhanced: "Copiere îmbunătățită"
+  last_transcript: "Copiați ultima transcriere"
+  original: "Copiați originalul"
+  system_info_for_bug_report: "Copiați informațiile de sistem pentru Raportul de eroare"
+  the_most_recent_transcript_to_the_clipboard: "Copiați cea mai recentă transcriere în clipboard"
+  to_clipboard: "Copiați în clipboard"
+  transcript: "Copiați transcrierea"
+correct:
+  grammar_mistakes: "Corectați greșelile gramaticale"
+create:
+  _self: "Crea"
+  new_note: "Creați o notă nouă"
+  new_preset: "Creați o nouă presetare"
+  your_first_note_to_get_started: "Creați prima notă pentru a începe"
+  your_first_preset_or_duplicate_a_built_in: "Creați prima dvs. presetare sau duplicați una încorporată pentru a o personaliza."
+  your_own_presets_or_duplicate_built_in_on: "Creați-vă propriile presetări sau duplicați-le pe cele încorporate pentru a le personaliza."
+credentials:
+  are_stored_securely_in_keychain: "Acreditările sunt stocate în siguranță în Keychain"
+  saved_successfully: "Acreditările au fost salvate cu succes"
+current:
+  _self: "Curent: %@"
+custom:
+  _self: "Personalizat"
+  local: "Personalizat / Local"
+  openai_compatible: "Personalizat (compatibil cu OpenAI)"
+  presets: "Presetări personalizate"
+customize:
+  hotkey: "Personalizați tastele rapide"
+cut:
+  _self: "Tăiați"
+d:
+  characters: "%d caractere"
+dark:
+  _self: "Întuneric"
+  preview: "Previzualizare întunecată"
+  theme: "Tema întunecată"
+database:
+  error: "Eroare baza de date"
+date:
+  _self: "Data"
+  7f823513: "Data %@"
+default:
+  _self: "Implicit"
+  model: "Model implicit"
+define:
+  word_replacements_to_automatically_replac: "Definiți înlocuiri de cuvinte pentru a înlocui automat anumite cuvinte sau expresii"
+degraded:
+  _self: "Degradat"
+delete:
+  _self: "Şterge"
+  folder: "Ștergeți dosarul"
+  folder_e556e7c2: "Ștergeți folderul?"
+  model: "Ștergeți modelul"
+  preset: "Ștergeți presetarea"
+  preset_4f6cfe36: "Ștergeți presetarea?"
+  transcription: "Ștergeți transcrierea"
+  transcription_f82187c4: "Ștergeți transcrierea?"
+dictionary:
+  _self: "Dicţionar"
+direct:
+  insert: "Inserare directă"
+disabled:
+  _self: "Dezactivat"
+dismiss:
+  _self: "Respingeți"
+display:
+  name: "Numele de afișare"
+  name_c7874aaa: "Numele de afișare"
+  pindrop_in_the_dock_instead_of_running_o: "Afișați Pindrop în Dock în loc să rulați doar ca aplicație pentru bara de meniu."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Fixați bara laterală la marginea stângă sau dreaptă a ferestrei."
+dot:
+  _self: "Punct"
+download:
+  _self: "Descărcați"
+  complete: "Descărcare finalizată!"
+  continue: "Descărcați și continuați"
+  failed: "Descărcarea eșuată"
+  model: "Descărcați modelul"
+  the_diarization_model_before_starting_m: "Descărcați modelul de diarizare înainte de a începe transcrierea media."
+downloaded:
+  _self: "Descărcat"
+downloading:
+  _self: "Se descarcă %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Aruncați un fișier sau inserați un link pentru a crea o transcriere diarizată, marcată de timp."
+  audio_or_video_here: "Aruncă audio sau video aici"
+duplicate:
+  preset: "Preset duplicat"
+dutch:
+  _self: "olandeză"
+edit:
+  _self: "Edita"
+  preset: "Editare presetare"
+  provider: "Editați furnizorul"
+empty:
+  _self: "(Gol)"
+enable:
+  ai_enhancement: "Activați îmbunătățirea AI"
+  live_session_updates_during_recording: "Activați actualizările sesiunilor live în timpul înregistrării"
+  the_floating_indicator_to_choose_a_style: "Activați indicatorul flotant pentru a alege un stil."
+  vibe_mode_ui_context: "Activați modul vibe (context UI)"
+enabled:
+  _self: "Activat"
+endpoint:
+  _self: "Punct final: %@"
+english:
+  _self: "engleză"
+  only: "Numai în engleză"
+enhanced:
+  _self: "Îmbunătățit"
+enhancement:
+  prompts: "Solicitări de îmbunătățire"
+enter:
+  an_openai_api_key_to_load_models: "Introduceți o cheie API OpenAI pentru a încărca modele."
+  api_key: "Introduceți cheia API"
+  word_to_add: "Introduceți cuvântul de adăugat"
+error:
+  _self: "Eroare"
+european:
+  multilingual: "multilingv european"
+excellent:
+  _self: "Excelent"
+export:
+  _self: "Exportare"
+  as_csv: "Exportați ca CSV"
+  as_json: "Exportați ca JSON"
+  as_plain_text: "Exportați ca text simplu"
+  dictionary: "Dicţionar de export"
+  failed: "Export eșuat: %@"
+  last_transcript: "Exportați ultima transcriere..."
+  presets: "Exportați presetări"
+failed:
+  to_add_replacement: "Nu s-a putut adăuga înlocuitorul: %@"
+  to_add_word: "Nu s-a putut adăuga cuvântul: %@"
+  to_delete_folder: "Nu s-a șters dosarul: %@"
+  to_delete_note: "Nota eșuată: %@"
+  to_delete_preset: "Nu s-a șters presetarea: %@"
+  to_delete_replacement: "Nu s-a șters înlocuirea: %@"
+  to_delete_transcription: "Nu s-a șters transcrierea: %@"
+  to_delete_word: "Cuvântul nu a fost șters: %@"
+  to_export_dictionary: "Nu s-a putut exporta dicționarul: %@"
+  to_export_presets: "Exportarea presetărilor eșuate: %@"
+  to_import_dictionary: "Nu s-a putut importa dicționarul: %@"
+  to_import_presets: "Nu s-a putut importa setările prestabilite: %@"
+  to_initialize_the_database_nnthe_app_will: "Eșuarea inițializării bazei de date: %@nnAplicația se va închide acum. Vă rugăm să încercați să reporniți sau să contactați asistența dacă problema persistă."
+  to_load_data: "Nu s-au încărcat datele: %@"
+  to_load_history: "Istoricul nu a fost încărcat: %@"
+  to_read_import_file: "Nu s-a putut citi fișierul de import: %@"
+  to_save: "Salvare eșuată: %@"
+  to_save_preset: "Nu s-a salvat presetarea: %@"
+  to_switch_model: "Schimbarea modelului a eșuat: %@"
+  to_update_preset: "Nu s-a putut actualiza presetarea: %@"
+  to_update_replacement: "Nu s-a putut actualiza înlocuirea: %@"
+  to_update_word: "Nu s-a putut actualiza cuvântul: %@"
+fast:
+  _self: "Rapid"
+feature:
+  models: "Modele caracteristice"
+fetch:
+  models_in_models: "Preluați modele în Modele"
+fix:
+  punctuation_and_capitalization: "Remediați semnele de punctuație și scrierea cu majuscule"
+floating:
+  indicator: "%@ indicator plutitor"
+  indicator_3bad78a5: "Indicator plutitor: %@"
+  indicator_e0349402: "Indicator plutitor"
+folder:
+  deleted: "Dosarul a fost șters."
+  name: "Numele dosarului"
+follow:
+  playback: "Urmăriți redarea"
+format:
+  text_appropriately: "Formatați textul corespunzător"
+french:
+  _self: "franceză"
+general:
+  _self: "General"
+german:
+  _self: "german"
+get:
+  started: "Începeți"
+global:
+  keyboard_shortcuts: "Comenzi rapide globale de la tastatură"
+go:
+  back: "Întoarce-te"
+  to_settings: "Accesați setări"
+good:
+  _self: "Bun"
+  afternoon: "Bună ziua"
+  evening: "Bună seara"
+  morning: "Bună dimineaţa"
+  night: "Noapte bună"
+google:
+  _self: "Google"
+got:
+  it: "Am înţeles"
+grant:
+  _self: "Acorda"
+great:
+  _self: "Mare"
+hide:
+  this_for_1_hour: "Ascunde asta timp de 1 oră"
+history:
+  _self: "Istorie"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Țineți apăsată comanda rapidă pentru a înregistra, apoi eliberați pentru a transcrie."
+  to_record_release_to_open_note_editor_with: "Țineți apăsat pentru a înregistra, eliberați pentru a deschide editorul de note cu transcriere"
+  to_record_release_to_stop_and_transcribe: "Țineți apăsat pentru a înregistra, eliberați pentru a opri și a transcrie"
+  to_record_release_to_transcribe: "Țineți apăsat pentru a înregistra, eliberați pentru a transcrie"
+hotkey:
+  conflict: "Conflict cu taste rapide"
+hotkeys:
+  _self: "Taste rapide"
+import:
+  dictionary: "Dicţionar de import"
+  error: "Eroare de import"
+  export: "Importare/Exportare"
+  media: "Importă media"
+  or_transcribe_media_while_this_folder_is: "Importați sau transcrieți conținut media în timp ce acest dosar este selectat pentru a salva elemente aici."
+  presets: "Importați presetări"
+  strategy: "Strategia de import"
+imported:
+  files_and_web_links_will_appear_here_on: "Fișierele importate și linkurile web vor apărea aici după finalizarea procesării."
+improve:
+  transcription_quality_using_ai: "Îmbunătățiți calitatea transcripției folosind AI"
+include:
+  clipboard_text: "Includeți text din clipboard"
+interface:
+  _self: "Interfață"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ este atribuit atât la %@, cât și la %@. Doar prima acțiune va fi activă. Actualizați tastele rapide din Setări pentru a rezolva acest conflict."
+italian:
+  _self: "italian"
+items:
+  _self: "articole"
+japanese:
+  _self: "japonez"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Păstrați curentul Pindrop în mod automat sau declanșați o verificare manuală oricând doriți."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Comenzi rapide de la tastatură"
+korean:
+  _self: "coreean"
+language:
+  _self: "Limbă"
+large:
+  _self: "Mare"
+launch:
+  at_login: "Lansare la conectare: %@"
+  at_login_0b36c78f: "Lansați la conectare"
+layout:
+  _self: "Aspect"
+learn:
+  corrected_words_automatically: "Învață cuvintele corectate automat"
+left:
+  _self: "Stânga"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Lăsați-l pe Pindrop să învețe în liniște vocabularul din corecțiile pe care le faceți în timp."
+light:
+  _self: "Aprinde"
+  dark_and_curated_palette_presets: "Presetări ale paletei deschise, întunecate și îngrijite"
+  preview: "Previzualizare luminoasă"
+  theme: "Tema ușoară"
+limited:
+  _self: "Limitat"
+live:
+  streaming_refinement: "Rafinamentul transmisiunii în direct"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld caractere"
+  complete: "%lld%% complet"
+  items: "%lld articole"
+  notes: "%lld note"
+  transcriptions: "%lld transcripții"
+lm:
+  studio: "LM Studio"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio are nevoie de un token doar dacă autentificarea locală a serverului este activată."
+load:
+  models: "Încărcați modele"
+loaded:
+  d_models: "Modele %d încărcate"
+loading:
+  history: "Se încarcă istoricul..."
+  models: "Se încarcă modelele..."
+local:
+  _self: "Local"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Conversie vocală locală în text, direct din bara de meniu.
+    Rapid, privat și întotdeauna disponibil.
+  speech_to_text_right_from_your_menu_bar_nf: "Conversie vocală locală în text, direct din bara de meniu.nRapid, privat și întotdeauna disponibil."
+  speech_to_text_with_whisperkit: "Conversie vocală locală în text cu WhisperKit"
+  voice_to_text: "Voce în text local"
+low:
+  latency_mode_less_accurate: "Mod cu latență scăzută (mai puțin precis)"
+manage:
+  local_speech_models_feature_models_and_th: "Gestionați modelele locale de vorbire, modelele de caracteristici și motorul implicit pe care Pindrop îl folosește pentru transcriere."
+  models: "Gestionați modelele"
+  presets: "Gestionați presetări"
+  presets_ab87986d: "Gestionați presetări..."
+manually:
+  check_for_new_versions_now: "Verificați manual dacă există versiuni noi acum."
+media:
+  library: "Biblioteca media"
+  transcription: "Transcriere media"
+  unavailable: "Media indisponibilă"
+medium:
+  _self: "Mediu"
+microphone:
+  _self: "Microfon"
+  permission_is_required_to_continue: "Este necesară permisiunea microfonului pentru a continua"
+  permission_is_required_to_continue_dc: "Este necesară permisiunea microfonului pentru a continua."
+  permission_required: "Este necesară permisiunea microfonului"
+mit:
+  license: "Licență MIT"
+mode:
+  _self: "Mod: %@"
+model:
+  _self: "Model"
+  loading_failed: "Încărcarea modelului a eșuat"
+  loading_timed_out: "Încărcarea modelului a expirat"
+models:
+  _self: "Modele"
+move:
+  to_folder: "Mutați în dosar"
+multilingual:
+  _self: "Multilingv"
+must:
+  be_openai_compatible: "Trebuie să fie compatibil cu OpenAI"
+mute:
+  system_audio_during_recording: "Dezactivați sunetul sistemului în timpul înregistrării"
+new:
+  folder: "Dosar nou"
+  note: "Notă nouă"
+  preset: "Preset nou"
+next:
+  _self: "Următorul"
+no:
+  api_key: "Nicio cheie API"
+  api_key_endpoint: "Fără cheie API • Punct final: %@"
+  custom_presets: "Fără setări personalizate"
+  downloaded_models: "Niciun model descărcat"
+  folders_yet: "Niciun folder încă"
+  items_in: "Nu există articole în %@"
+  media_transcriptions_yet: "Nicio transcriere media încă"
+  model_loaded: "Niciun model încărcat"
+  model_selected: "Niciun model selectat"
+  models_available: "Nu există modele disponibile"
+  models_available_ae9dbd29: "Nu există modele disponibile."
+  models_available_try_refresh_or_enter_a_model: "Nu există modele disponibile. Încercați să reîmprospătați sau introduceți manual un ID de model."
+  models_found: "Nu s-au găsit modele."
+  models_loaded_open_edit_to_fetch_models: "Nu au fost încărcate modele. Deschideți Editați pentru a prelua modele."
+  models_match: "Niciun model nu se potrivește cu „%@”"
+  notes_yet: "Încă nu există note"
+  providers_configured_yet: "Niciun furnizor configurat încă."
+  replacements: "Fără înlocuiri"
+  results_found: "Nu s-au găsit rezultate"
+  settings_found: "Nu s-au găsit setări"
+  transcriptions_yet: "Nicio transcriere încă"
+  vocabulary_words: "Fără cuvinte de vocabular"
+not:
+  assigned: "Nu este atribuit"
+  selected: "Neselectat"
+  set: "Nu setat"
+  set_93039e60: "Nu setat"
+notch:
+  _self: "Crestătură"
+note:
+  _self: "Nota"
+  capture_push_to_talk: "Captură notițe (apăsați pentru a vorbi)"
+  capture_toggle: "Capturarea notelor (comutați)"
+  enhancement: "Îmbunătățirea notei"
+  from: "Notă de la"
+  metadata: "Notă Metadatele"
+  title: "Titlul notei"
+notes:
+  _self: "Note"
+  3add7b96: "note"
+off:
+  _self: "Oprit"
+ok:
+  _self: "Bine"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama de obicei nu necesită autentificare pentru solicitările locale."
+on:
+  _self: "Pe"
+  device_no_credentials_required: "Pe dispozitiv, nu sunt necesare acreditări"
+open:
+  _self: "Deschide"
+  history: "Deschide Istoricul"
+  logs_in_finder: "Deschideți Jurnalele în Finder"
+  original_link: "Deschideți linkul original"
+  progress: "Deschide progresul"
+  settings: "Deschide Setări"
+  settings_fd7108f8: "Deschideți setările"
+  system_settings: "Deschide Setări sistem"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "Server local compatibil cu OpenAI"
+  whisper: "OpenAI Whisper"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Opțional"
+  insert_text_directly_into_apps: "Opțional: inserați text direct în aplicații"
+  used_for_auto_generated_titles_and_summ: "Opțional — folosit pentru titlurile și rezumatele generate automat despre importurile de transcripții media."
+optionally:
+  clean_up_transcriptions_with_ai: "Opțional, curățați transcripțiile cu AI"
+or:
+  _self: "sau"
+  just_use_your_hotkey: "Sau pur și simplu folosiți tasta rapidă!"
+original:
+  _self: "Original"
+  text_use_commas_for_multiple: "Textul original (utilizați virgule pentru mai multe)"
+originals:
+  comma_separated: "Originale (separate prin virgulă)"
+output:
+  _self: "Ieșire"
+  audio_interface_and_everyday_behavior: "Ieșire, sunet, interfață și comportament de zi cu zi"
+parakeet:
+  default: "Parakeet (implicit)"
+paste:
+  _self: "Pastă"
+  a_video_or_audio_link: "Lipiți un link video sau audio"
+  last_transcript: "Lipiți ultima transcriere"
+  last_transcript_v: "Lipiți ultima transcriere ⌃⌘V"
+pause:
+  _self: "Pauză"
+  media_during_transcription: "Întrerupeți media în timpul transcripției"
+permissions:
+  _self: "Permisiuni"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Alegeți ce furnizor și model se ocupă de fiecare sarcină AI. Lăsați „Nealocat” pentru a omite un scop."
+pill:
+  _self: "pilula"
+pin:
+  to_screen_always_on_top: "Fixați pe ecran (întotdeauna în partea de sus)"
+pindrop:
+  _self: "Pindrop"
+  dot: "Pindrop Dot"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop este gata de utilizare.
+    Faceți clic pe pictograma barei de meniu pentru a începe.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop este gata de utilizare.n Faceți clic pe pictograma barei de meniu pentru a începe."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop are nevoie de câteva permisiuni pentru a funcționa.nConfidențialitatea dvs. este întotdeauna respectată."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop are nevoie de câteva permisiuni pentru a funcționa.
+    Intimitatea ta este întotdeauna respectată.
+  needs_accessibility_permission_to_insert: "„” Pindrop are nevoie de permisiunea de accesibilitate pentru a insera text la cursor.                          Pentru a acorda permisiunea: 1. Faceți clic pe „Open System Settings” de mai jos 2. Faceți clic pe butonul + 3. Navigați la aplicația afișată în Finder 4. Reporniți Pindrop după acordarea permisiunii Fără această permisiune, textul va fi copiat numai în clipboard.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop are nevoie de acces la microfon pentru a vă înregistra și a transcrie vocea.nnVă rugăm să acordați permisiunea în Setările de sistem."
+  on_github: "Pindrop pe GitHub"
+  pill: "Pilula Pindrop"
+  theme: "Tema Pindrop"
+play:
+  _self: "Juca"
+please:
+  check_your_internet_connection_and_try_ag: "Vă rugăm să vă verificați conexiunea la internet și să încercați din nou."
+  download_a_whisper_model_in_settings_befo: |-
+    Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.
+    
+    Accesați Setări → Modele pentru a descărca un model.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Vă rugăm să descărcați un model Whisper din Setări înainte de a înregistra.nnAccesați Setări → Modele pentru a descărca un model."
+  wait: "Va rugam asteptati..."
+portuguese:
+  brazil: "portugheză (Brazilia)"
+powered:
+  by_whisperkit: "Produs de WhisperKit"
+preparing:
+  model: "Se pregătește modelul..."
+preset:
+  name: "Nume presetat"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Apăsați lung pentru a dicta în orice aplicație. Pindrop vă va transcrie discursul și va insera textul acolo unde se află cursorul."
+  esc_to_cancel: "Apăsați Esc pentru a anula"
+  keys: "Apăsați tastele..."
+  once_to_start_again_to_stop: "Apăsați o dată pentru a începe, din nou pentru a opri"
+  once_to_start_recording_press_again_to_sto: "Apăsați o dată pentru a începe înregistrarea, apăsați din nou pentru a opri și a transcrie"
+  once_to_start_recording_then_press_again_t: "Apăsați o dată pentru a începe înregistrarea, apoi apăsați din nou pentru a opri și a transcrie."
+  to_start_recording_press_again_to_open_not: "Apăsați pentru a începe înregistrarea, apăsați din nou pentru a deschide editorul de note"
+primary:
+  text: "Textul principal"
+processing:
+  _self: "Prelucrare"
+  272bc02e: "Prelucrare..."
+  5aa377e2: "⏳ Prelucrare"
+  transcript: "Procesarea transcrierea"
+prompt:
+  _self: "Instrucțiune"
+  preset: "Presetare promptă"
+provider:
+  _self: "Furnizor"
+  kind: "Tip de furnizor"
+  type: "Tip de furnizor"
+providers:
+  _self: "Furnizorii"
+  prompts_and_vibe_mode_controls: "Furnizori, solicitări și comenzi pentru modul vibrație"
+push:
+  to_talk: "Apăsați pentru a vorbi"
+quickly:
+  copy_your_last_transcription: "Copiați rapid ultima transcriere"
+  pull_your_latest_transcript_back_to_the: "Trageți rapid cea mai recentă transcriere înapoi în clipboard."
+quit:
+  _self: "Renunță"
+  pindrop: "Părăsiți Pindrop"
+ready:
+  _self: "Gata"
+  ec1296e1: "● Gata"
+  to_record: "Gata de înregistrare"
+  to_transcribe: "Gata de transcriere"
+recent:
+  _self: "Recente"
+  transcriptions: "Trancrieri recente"
+  transcripts: "Transcrieri recente"
+recommended:
+  _self: "Recomandat"
+  the_deterministic_cleaner_handles_mo: "Recomandat: dispozitivul de curățare determinist gestionează cele mai multe dictaturi în mod curat. Activați permisul LLM numai dacă doriți o lustruire suplimentară și acceptați ciudatenii ocazionale de model (preambul, răspunsuri conversaționale)."
+record:
+  _self: "Înregistra"
+recording:
+  _self: "Înregistrare"
+  3f8fd48c: "🔴 Înregistrare"
+recordings:
+  _self: "înregistrări"
+redo:
+  _self: "Reface"
+refresh:
+  _self: "Reîmprospăta"
+remove:
+  _self: "Elimina"
+  and_clear_any_assignments_that_reference: "Eliminați „%@” și ștergeți toate sarcinile care fac referire la el? Acreditările stocate vor fi șterse."
+  from_folder: "Eliminați din dosar"
+  provider: "Eliminați furnizorul"
+rename:
+  _self: "Redenumiți"
+  folder: "Redenumiți folderul"
+replace:
+  all: "Înlocuiește toate"
+  words_and_phrases: "Înlocuiește cuvinte și expresii"
+replacement:
+  _self: "Înlocuire"
+  text: "Text de înlocuire"
+report:
+  an_issue: "Raportați o problemă"
+  an_issue_bd7b4f00: "Raportați o problemă"
+required:
+  _self: "Necesar"
+  for_recording_your_voice: "Necesar pentru înregistrarea vocii"
+requires:
+  a_fast_provider_apple_foundation_models: "Necesită un furnizor rapid (se recomandă modelele Apple Foundation). Furnizorii de cloud vor lansa un apel API pe pauză."
+reset:
+  _self: "Resetați"
+  all_settings: "Resetați toate setările?"
+  all_settings_7262c7b7: "Resetați toate setările"
+  to_default: "Resetați la valoarea implicită"
+retry:
+  _self: "Reîncercați"
+right:
+  _self: "Corect"
+run:
+  llm_polish_after_dictation_stops: "Rulați lustruirea LLM după ce se oprește dictarea"
+runtime:
+  _self: "Timp de rulare: %@"
+save:
+  _self: "Salva"
+  as_note: "Salvați ca notă"
+  continue: "Salvați și continuați"
+  credentials: "Salvați acreditările"
+  prompt: "Salvare prompt"
+saved:
+  _self: "Salvat"
+  as_note: "Salvat ca Notă"
+  transcription: "Transcriere salvată"
+search:
+  media_transcripts: "Căutați transcrieri media..."
+  models: "Caută modele"
+  models_61c1b9fe: "Cauta modele..."
+  notes: "Căutați note..."
+  settings: "Setări de căutare"
+  settings_or_jump_between_sections_without: "Căutați setări sau săriți între secțiuni fără a părăsi spațiul de lucru principal."
+  transcriptions: "Căutați transcripții..."
+secondary:
+  text: "Text secundar"
+select:
+  a_dictionary_json_file_to_import: "Selectați un fișier JSON de dicționar de importat"
+  a_model: "Selectați un model"
+  a_presets_json_file_to_import: "Selectați un fișier JSON presetat de importat"
+  a_provider_kind: "Selectați un tip de furnizor"
+  a_provider_type: "Selectați un tip de furnizor"
+  ai_model: "Selectați modelul AI"
+  all: "Selectați Toate"
+  language: "Selectați Limbă"
+  language_daea52c9: "Selectați limba"
+  this_floating_indicator_style: "Selectați acest stil de indicator plutitor."
+  voice_model: "Selectați Voice Model"
+selected:
+  _self: "Selectat"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Trimis la modelul AI atunci când procesează dictarea pentru inserarea directă a textului."
+sessions:
+  _self: "Sesiuni"
+  781791f5: "sesiuni"
+set:
+  as_default: "Setați ca implicit"
+settings:
+  _self: "Setări"
+  bf83f07f: "Setări..."
+  fa67a397: "Setări…"
+setup:
+  required: "Configurare necesară"
+show:
+  app: "Afișați aplicația"
+  app_in_finder: "Afișați aplicația în Finder"
+  floating_indicator: "Afișează indicatorul plutitor"
+  in_dock: "Afișați în Dock"
+shows:
+  as_a_dot_in_the_corner_of_the_screen: "Afișează sub formă de punct în colțul ecranului"
+  as_a_pill_at_the_bottom_of_the_screen: "Se afișează ca o pastilă în partea de jos a ecranului"
+  beside_the_focused_text_field_caret: "Se afișează lângă câmpul de text focalizat/marca de simbol"
+  in_the_menu_bar_notch_area: "Se afișează în bara de meniu/zona de crestătură"
+  recording_state_in_a_lightweight_overlay_w: "Afișează starea de înregistrare într-o fereastră de suprapunere ușoară."
+sidebar:
+  position: "Poziția barei laterale"
+simplified:
+  chinese: "Chineză simplificată"
+size:
+  _self: "Dimensiune"
+skip:
+  for_now: "Sari peste acum"
+slow:
+  _self: "Lent"
+slower:
+  _self: "Mai lent"
+slowest:
+  _self: "Cel mai lent"
+small:
+  _self: "Mic"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Modelele mai mici sunt mai rapide, dar mai puțin precise.nÎncepeți cu Base pentru cel mai bun echilibru."
+  models_are_faster_but_less_accurate_star: |-
+    Modelele mai mici sunt mai rapide, dar mai puțin precise.
+    Începeți cu Base pentru cel mai bun echilibru.
+something:
+  went_wrong: "Ceva a mers prost"
+soon:
+  _self: "Curând"
+sort:
+  by: "Filtrează după"
+source:
+  _self: "Sursă"
+spanish:
+  _self: "spaniolă"
+speaker:
+  diarization_and_timestamps_are_attached: "Diarizarea difuzorului și marcajele de timp sunt atașate la redare."
+  diarization_is_required: "Diarizarea vorbitorului este necesară"
+speed:
+  _self: "Viteză"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Începeți din nou când doriți să ștergeți preferințele, starea de integrare și acreditările salvate."
+  recording: "Începeți înregistrarea"
+  recording_to_see_your_transcriptions_here: "Începeți înregistrarea pentru a vă vedea transcripțiile aici"
+  stop_recording: "Porniți/opriți înregistrarea"
+  using_pindrop: "Începeți să utilizați Pindrop"
+status:
+  _self: "Stare"
+stop:
+  recording: "Opriți înregistrarea"
+streaming:
+  enhancement: "Îmbunătățirea streamingului"
+  transcription_currently_supports_engli: "Transcrierea în flux acceptă în prezent numai limba engleză, indiferent de limba selectată."
+  transcription_is_disabled_while_ai_enh: "Transcrierea în flux este dezactivată în timp ce Îmbunătățirea AI este activată."
+  transcription_model_parakeet_realtime: "Model de transcriere în flux (Parakeet Realtime EOU) licențiat de NVIDIA Corporation sub Licența NVIDIA Open Model."
+success:
+  _self: "Succes!"
+support:
+  _self: "Sprijin"
+  coming_soon: "%@ Asistență va veni în curând"
+supports:
+  local_media_files_and_web_links_resolve: "Suportă fișiere media locale și link-uri web rezolvate cu yt-dlp."
+switch:
+  to_model: "Comutați la Model"
+system:
+  _self: "Sistem"
+  default: "Implicit sistem"
+teach:
+  custom_words: "Învață cuvinte personalizate"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Copiați temporar textul, lipiți-l, apoi restaurați-vă clipboardul"
+  mute_speaker_output_while_dictation: "Dezactivați temporar ieșirea difuzorului în timp ce se înregistrează dictarea."
+  pause_active_media_playback_while_di: "Întrerupeți temporar redarea media activă în timp ce se înregistrează dictarea."
+tertiary:
+  text: "Text terțiar"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Modelul nu s-a încărcat în 60 de secunde. Aceasta înseamnă de obicei că fișierele model sunt corupte sau incompatibile.                          Pentru a remedia acest lucru: 1. Deschideți Setări → Modele 2. Ștergeți modelul problematic 3. Descărcați din nou modelul Dacă problema persistă, încercați un model mai mic (Tiny sau Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "Varianta de bucată selectată nu este încă descărcată. Comutarea va începe o descărcare."
+theme:
+  _self: "Temă"
+  changes_apply_live_across_the_workspace_se: "Modificările temei se aplică live în spațiul de lucru, setări, editor de note și indicatori flotanți."
+  mode: "Modul temă"
+this:
+  preset_name_is_already_in_use: "Acest nume presetat este deja utilizat."
+  provider_will_be_available_in_a_future_upda: |-
+    Acest furnizor va fi disponibil într-o actualizare viitoare.
+    Pentru moment, încercați OpenAI sau utilizați un punct final personalizat.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Acest furnizor va fi disponibil într-o actualizare viitoare.
+    Încercați OpenAI sau utilizați un punct final personalizat.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Acest furnizor va fi disponibil într-o actualizare viitoare.nDeocamdată, încercați OpenAI sau utilizați un punct final personalizat."
+  transcription_could_not_be_found: "Această transcriere nu a putut fi găsită."
+  will_clear_all_your_settings_including_api: "Aceasta vă va șterge toate setările, inclusiv cheile API, tastele rapide și preferințele de model. Aplicația se va închide și va afișa din nou integrarea la următoarea lansare."
+  will_permanently_remove_the_transcript_and: "Aceasta va elimina definitiv transcrierea și fișierul media gestionat."
+time:
+  saved: "Timp economisit"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "să dicteze și să-l lase pe Pindrop să transpună pentru tine"
+  start_talking: "să înceapă să vorbească"
+today:
+  _self: "Astăzi"
+toggle:
+  _self: "Comutați"
+  recording: "Comutați înregistrarea"
+  sort_order: "Comutați ordinea de sortare"
+transcribe:
+  _self: "Transcrie"
+  media: "Transcrie Media"
+transcribed:
+  _self: "transcris"
+transcription:
+  _self: "Transcriere"
+  backend: "Backend de transcriere"
+  deleted: "Transcrierea a fost ștearsă."
+  enhancement: "Îmbunătățirea transcripției"
+  failed: "Transcrierea eșuată"
+  finished: "Transcrierea s-a terminat."
+  in_progress: "Transcriere în curs"
+  metadata: "Metadate de transcriere"
+  update: "Actualizare transcriere"
+transcriptions:
+  _self: "Trancrieri"
+  f0972acc: "transcrieri"
+  in_this_folder_will_be_kept_and_m: "Trancrierile din acest dosar vor fi păstrate și mutate înapoi în bibliotecă."
+transcripts:
+  _self: "Stenograme"
+try:
+  a_different_search_term: "Încercați un alt termen de căutare"
+  a_different_search_term_0ba628a3: "Încercați un alt termen de căutare."
+  a_different_search_term_in_this_folder: "Încercați un alt termen de căutare în acest dosar."
+  searching_for_terms_like_hotkeys_microphone: "Încercați să căutați termeni precum taste rapide, microfon, actualizări sau modul vibrație."
+turkish:
+  _self: "turc"
+type:
+  text_directly_into_the_active_app_when_poss: "Tastați text direct în aplicația activă atunci când este posibil"
+unable:
+  to_connect_to_the_ai_enhancement_service: "„” Nu se poate conecta la serviciul de îmbunătățire a AI.                                  Vă rugăm să verificați: 1. Conexiunea dvs. la internet 2. Adresa URL a punctului final API este corectă 3. Serviciul nu se confruntă cu o întrerupere Transcrierea a fost salvată fără îmbunătățiri.                 \"\""
+  to_finish_transcription: "Imposibil de finalizat transcrierea"
+  to_load_history: "Nu se poate încărca istoricul: %@"
+  to_load_models_try_refresh: "Nu se pot încărca modelele. Încercați să reîmprospătați."
+  to_update_media_library: "Nu se poate actualiza biblioteca media"
+unavailable:
+  device: "Dispozitiv indisponibil"
+undo:
+  _self: "Anula"
+unfiled:
+  _self: "Neînregistrat"
+unpin:
+  from_screen: "Anulați fixarea de pe ecran"
+update:
+  _self: "Actualizare"
+updates:
+  _self: "Actualizări"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Folosiți o comandă rapidă apăsare pentru a începe, apăsare pentru a termina pentru a captura note."
+  clipboard_only: "Utilizați numai Clipboard"
+  the_hotkey_to_start_your_first_recording: "Utilizați tasta rapidă pentru a începe prima înregistrare"
+  transcription_as_a_placeholder_for_the_trans: "Utilizați ${transcription} ca substituent pentru textul transcris."
+  transcription_as_placeholder: "Utilizați ${transcription} ca substituent"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Folosit la capturarea notelor prin taste rapide. Poate adăuga formatare de reducere pentru conținut mai lung."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Utilizează un prompt încorporat reglat pentru această sarcină."
+  the_160ms_parakeet_variant_for_snappier_par: "Utilizează varianta Parakeet de 160 ms pentru parțiale mai rapide, cu ~70% mai multe erori de cuvinte. Implicit este varianta de 320 ms."
+  the_transcription_enhancement_assignment_if: "Utilizează atribuirea Îmbunătățirea transcripției. Dacă nu este setată niciuna, ieșirea deterministă de curățare este păstrată așa cum este."
+v:
+  _self: "v%@"
+version:
+  _self: "Versiunea %@ (%@)"
+very:
+  fast: "Foarte rapid"
+via:
+  _self: "prin %@"
+vibe:
+  mode: "Modul Vibe"
+  mode_captures_structured_ui_context_when_re: "Modul Vibe captează contextul structurat al interfeței de utilizare atunci când începe înregistrarea, astfel încât îmbunătățirea AI să poată utiliza starea dvs. activă a aplicației ca referință."
+  mode_works_best_with_accessibility_permissi: "Modul Vibe funcționează cel mai bine cu permisiunea Accesibilitate. Fără aceasta, Pindrop se întoarce la metadatele limitate ale aplicației, iar transcrierea funcționează în continuare normal."
+view:
+  _self: "Vedere"
+  all: "Vezi toate"
+  transcript_history: "Vedeți istoricul transcrierilor"
+  transcription_history: "Vedeți istoricul transcripțiilor"
+vocabulary:
+  _self: "Vocabular"
+vs:
+  typing: "vs tastarea"
+welcome:
+  to_pindrop: "Bun venit la Pindrop"
+whisperkit:
+  _self: "WhisperKit"
+word:
+  _self: "Cuvânt"
+  replacements: "Înlocuiri de cuvinte"
+words:
+  _self: "Cuvinte"
+  efb89361: "cuvinte"
+  min: "cuvinte/min"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Ieri"
+you:
+  are_a_note_formatting_assistant_transform_th: "Sunteți un asistent de formatare a notelor. Transformați textul transcris într-o notă bine structurată.nnReguli:n-Remediați greșelile de gramatică, punctuație și ortografien-Pentru conținut mai lung (3+ paragrafe), adăugați formatare de reducere:n - Folosiți anteturi (## sau ###) pentru a organiza secțiunin - Folosiți marcatori sau liste numerotate acolo unde este cazul - Folosiți **aldine** pentru conținutul cheie mai scurt, pentru a menține formarea simplă a termenilor cheie, Păstrați semnificația și tonul original- Nu adăugați conținut care nu a fost în originaln- Returnați numai nota formatată fără niciun comentariu"
+  are_a_text_enhancement_assistant_improve_the: "Sunteți un asistent pentru îmbunătățirea textului. Îmbunătățiți gramatica, punctuația și formatarea textului furnizat, păstrând în același timp sensul și tonul original. Returnați numai textul îmbunătățit fără niciun comentariu suplimentar."
+  can_change_these_anytime_from_the_menu_bar_s: "Le puteți modifica oricând din bara de meniu → Setări → Taste rapide"
+  re_all_set: "Ești gata!"
+  re_all_set_058a8130: "Sunteți gata!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "„” Ați depășit limita sau cota de rată API.                                  Pentru a remedia acest lucru: 1. Așteptați câteva minute și încercați din nou 2. Verificați limitele de utilizare ale furnizorului dvs. API 3. Luați în considerare actualizarea planului API Transcrierea a fost salvată fără îmbunătățiri.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "„” Cheia dvs. API pare a fi nevalidă sau a expirat.                                  Pentru a remedia acest lucru: 1. Deschideți Setări → Îmbunătățire AI 2. Verificați cheia dvs. API este corectă 3. Verificați dacă punctul final API este corect Transcrierea a fost salvată fără îmbunătățire.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Tastele rapide sunt gata de utilizare.nLe puteți personaliza mai târziu în Setări."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Tastele rapide sunt gata de utilizare.
+    Le puteți personaliza mai târziu în Setări.
+  model_is_ready_to_use: "Modelul dvs. este gata de utilizare."
+  stats: "Statisticile tale"

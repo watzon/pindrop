@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "A Pindrop-nak rendszerhang-hozzáférésre van szüksége a hívások, értekezletek és egyéb alkalmazáshangok átírásához."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "A Pindrop-nak mikrofon-hozzáférésre van szüksége a hangjának átírásához."
+nsspeechrecognitionusagedescription:
+  _self: "A Pindrop az eszközön lévő beszédfelismerést használja a hang átírására anélkül, hogy adatokat küldene bármely szerverre."

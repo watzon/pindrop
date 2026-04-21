@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop behöver systemljudåtkomst för att transkribera samtal, möten och annat appljud."
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop behöver mikrofonåtkomst för att transkribera din röst."
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop använder taligenkänning på enheten för att transkribera ditt ljud utan att skicka data till någon server."

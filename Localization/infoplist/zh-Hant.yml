@@ -1,0 +1,12 @@
+cfbundledisplayname:
+  _self: "Pindrop"
+cfbundlename:
+  _self: "Pindrop"
+nsaudiocaptureusagedescription:
+  _self: "Pindrop 需要系統音訊存取權限，才能轉錄通話、會議和其他應用程式音訊。"
+nshumanreadablecopyright:
+  _self: ""
+nsmicrophoneusagedescription:
+  _self: "Pindrop 需要麥克風存取權限，才能轉錄您的語音。"
+nsspeechrecognitionusagedescription:
+  _self: "Pindrop 使用裝置端語音辨識來轉錄您的音訊，不會將資料傳送到任何伺服器。"
