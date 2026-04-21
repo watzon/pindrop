@@ -48,6 +48,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
             return
         }
         
+        let appLocale = AppLocale.currentSelection()
         let contentView = NoteEditorView(
             note: note,
             isNewNote: isNewNote,
@@ -62,11 +63,13 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
             }
         )
         .modelContainer(container)
+        .environment(\.locale, appLocale.locale)
+        .environment(\.layoutDirection, appLocale.layoutDirection)
         
         let hostingController = NSHostingController(rootView: AnyView(contentView))
         
         let window = NSWindow(contentViewController: hostingController)
-        let locale = SettingsStore().selectedAppLocale.locale
+        let locale = appLocale.locale
         Log.ui.infoVisible("Creating note editor window for locale=\(locale.identifier) isNewNote=\(isNewNote)")
         window.title = isNewNote ? localized("New Note", locale: locale) : (note?.title ?? localized("Note", locale: locale))
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
@@ -78,6 +81,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         window.setContentSize(NSSize(width: 600, height: 500))
         window.minSize = NSSize(width: 400, height: 300)
         window.center()
+        applyInterfaceLayoutDirection(to: window, locale: locale)
         
         if note?.isPinned == true {
             window.level = .floating

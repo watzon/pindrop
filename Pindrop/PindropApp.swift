@@ -58,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var currentLocale: Locale {
         settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
     }
-    
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
         let bootStarted = CFAbsoluteTimeGetCurrent()
@@ -176,6 +176,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         editMenu.addItem(NSMenuItem(title: localized("Select All", locale: currentLocale), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
         
         mainMenu.addItem(editMenuItem)
+        applyInterfaceLayoutDirection(to: mainMenu, locale: currentLocale)
         
         NSApplication.shared.mainMenu = mainMenu
     }
@@ -225,6 +226,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.informativeText = String(format: format, error.localizedDescription)
         alert.alertStyle = .critical
         alert.addButton(withTitle: localized("Quit", locale: currentLocale))
+        applyInterfaceLayoutDirection(to: alert.window, locale: currentLocale)
         alert.runModal()
     }
 }

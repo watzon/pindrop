@@ -139,7 +139,7 @@ struct SplashScreen: View {
 final class SplashWindowController {
     
     private var window: NSWindow?
-    private var hostingController: NSHostingController<SplashScreen>?
+    private var hostingController: NSHostingController<AnyView>?
     let state: SplashScreenState
     
     init(state: SplashScreenState) {
@@ -149,7 +149,10 @@ final class SplashWindowController {
     func show() {
         guard window == nil else { return }
         
-        let splashView = SplashScreen(state: state)
+        let appLocale = AppLocale.currentSelection()
+        let splashView = AnyView(SplashScreen(state: state)
+            .environment(\.locale, appLocale.locale)
+            .environment(\.layoutDirection, appLocale.layoutDirection))
         let hostingController = NSHostingController(rootView: splashView)
         self.hostingController = hostingController
         
@@ -168,6 +171,7 @@ final class SplashWindowController {
         
         // Add subtle shadow
         window.hasShadow = true
+        applyInterfaceLayoutDirection(to: window, locale: appLocale.locale)
         
         self.window = window
         window.makeKeyAndOrderFront(nil)

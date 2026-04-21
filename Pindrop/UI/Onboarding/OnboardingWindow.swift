@@ -116,6 +116,7 @@ struct OnboardingWindow: View {
         }
         .frame(minWidth: 800, idealWidth: preferredContentSize.width, minHeight: 600, idealHeight: preferredContentSize.height)
         .environment(\.locale, settings.selectedAppLocale.locale)
+        .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .onAppear {
             let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
             currentStep = initialStep

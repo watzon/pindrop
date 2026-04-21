@@ -461,6 +461,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         updateMenuState()
         updateDynamicItems()
+        applyInterfaceLayoutDirection(to: menu, locale: locale)
     }
 
     func updateSwitchableModels(_ models: [(name: String, displayName: String)]) {
@@ -1073,9 +1074,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             popover.contentViewController = NSHostingController(rootView: WelcomePopoverView {
                 self.welcomePopover?.performClose(nil)
             }
-            .environment(\.locale, locale))
+            .environment(\.locale, locale)
+            .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection))
             popover.behavior = .transient
             popover.animates = true
+            if let contentView = popover.contentViewController?.view {
+                applyInterfaceLayoutDirection(to: contentView, locale: locale)
+            }
             welcomePopover = popover
         }
 

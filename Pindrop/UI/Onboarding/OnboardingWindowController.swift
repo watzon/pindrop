@@ -57,6 +57,7 @@ final class OnboardingWindowController {
         
         window.setContentSize(NSSize(width: 800, height: 600))
         window.minSize = NSSize(width: 800, height: 600)
+        applyInterfaceLayoutDirection(to: window, locale: settings.selectedAppLocale.locale)
         
         self.window = window
         window.makeKeyAndOrderFront(nil)

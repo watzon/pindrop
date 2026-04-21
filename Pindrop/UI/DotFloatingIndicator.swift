@@ -201,7 +201,7 @@ enum DotFloatingIndicatorSize: String, CaseIterable, Identifiable {
 
 // MARK: - Hosting view (enables right-click context menu)
 
-private final class DotHostingView: NSHostingView<DotIndicatorView> {
+private final class DotHostingView: NSHostingView<AnyView> {
     var onRightMouseDown: ((NSEvent) -> Void)?
 
     override func rightMouseDown(with event: NSEvent) {
@@ -263,6 +263,12 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func configure(actions: FloatingIndicatorActions) {
         self.actions = actions
+    }
+
+    func reloadLocalizedStrings() {
+        contextMenu = makeContextMenu()
+        hostingView?.rootView = makeRootView()
+        refreshPanelFrame()
     }
 
     // MARK: FloatingIndicatorPresenting
@@ -428,6 +434,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
         menu.addItem(pasteItem)
 
         refreshContextMenuState()
+        applyInterfaceLayoutDirection(to: menu, locale: locale)
         return menu
     }
 
@@ -565,12 +572,12 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
         let screen = preferredScreen()
         let frame = panelFrame(for: screen)
         let panel = makePanel(contentRect: frame)
-        let contentView = DotIndicatorView(controller: self, state: state)
-        let hostingView = DotHostingView(rootView: contentView)
+        let hostingView = DotHostingView(rootView: makeRootView())
         hostingView.layer?.backgroundColor = .clear
         hostingView.wantsLayer = true
         hostingView.frame = NSRect(origin: .zero, size: frame.size)
         hostingView.autoresizingMask = [.width, .height]
+        hostingView.userInterfaceLayoutDirection = .leftToRight
         hostingView.onRightMouseDown = { [weak self] event in self?.handleRightMouseDown(event) }
         panel.contentView = hostingView
         panel.alphaValue = 0
@@ -597,6 +604,15 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
         panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
         panel.isReleasedWhenClosed = false
         return panel
+    }
+
+    private func makeRootView() -> AnyView {
+        let locale = settingsStore.selectedAppLocale.locale
+        return AnyView(
+            DotIndicatorView(controller: self, state: state)
+                .environment(\.locale, locale)
+                .environment(\.layoutDirection, .leftToRight)
+        )
     }
 
     private func refreshPanelFrame() {

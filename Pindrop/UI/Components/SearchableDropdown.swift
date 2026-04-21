@@ -614,6 +614,7 @@ private struct AnchoredFloatingPanelPresenter<Content: View>: NSViewRepresentabl
 
          if isPresented {
             hostingController.rootView = content
+            hostingController.view.userInterfaceLayoutDirection = anchorView.userInterfaceLayoutDirection
             presentIfNeeded(from: anchorView)
             installLayoutObservers(for: anchorView)
             installResignObserverIfNeeded(for: anchorView)
@@ -666,6 +667,7 @@ private struct AnchoredFloatingPanelPresenter<Content: View>: NSViewRepresentabl
             panel.hidesOnDeactivate = true
             panel.ignoresMouseEvents = false
             panel.contentView = hostingController.view
+            panel.contentView?.userInterfaceLayoutDirection = anchorView.userInterfaceLayoutDirection
             self.panel = panel
          }
 

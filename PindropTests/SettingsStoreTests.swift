@@ -223,6 +223,16 @@ struct SettingsStoreTests {
         #expect(!AppLanguage.allCases.map(\.rawValue).contains(AppLocale.arabic.rawValue))
     }
 
+    @Test func testAppLocaleMapsRTLLayoutDirections() {
+        #expect(AppLocale.arabic.layoutDirection == .rightToLeft)
+        #expect(AppLocale.hebrew.layoutDirection == .rightToLeft)
+    }
+
+    @Test func testAppLocaleMapsLTRLayoutDirections() {
+        #expect(AppLocale.english.layoutDirection == .leftToRight)
+        #expect(AppLocale.german.layoutDirection == .leftToRight)
+    }
+
     @Test func testLocalizedResolvesSelectedLocaleStrings() {
         #expect(localized("Settings", locale: Locale(identifier: "de")) == "Einstellungen")
         #expect(localized("Settings", locale: Locale(identifier: "tr")) == "Ayarlar")

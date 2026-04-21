@@ -8,7 +8,7 @@
 import SwiftUI
 import AppKit
 
-private final class PillHostingView: NSHostingView<PillIndicatorView> {
+private final class PillHostingView: NSHostingView<AnyView> {
     var onRightMouseDown: ((NSEvent) -> Void)?
 
     override func rightMouseDown(with event: NSEvent) {
@@ -94,6 +94,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     func reloadLocalizedStrings() {
         contextMenu = makeContextMenu()
+        hostingView?.rootView = makeRootView(isCompact: true)
+        hostingView?.userInterfaceLayoutDirection = .leftToRight
     }
 
     private var layoutState: LayoutState {
@@ -260,6 +262,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         menu.addItem(pasteLastTranscriptItem)
 
         refreshContextMenuState()
+        applyInterfaceLayoutDirection(to: menu, locale: locale)
 
         return menu
     }
@@ -667,14 +670,31 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func makeHostingView(for contentView: PillIndicatorView, size: CGSize) -> PillHostingView {
-        let hostingView = PillHostingView(rootView: contentView)
+        let hostingView = PillHostingView(
+            rootView: makeRootView(for: contentView)
+        )
         hostingView.layer?.backgroundColor = .clear
         hostingView.frame = NSRect(origin: .zero, size: size)
         hostingView.autoresizingMask = [.width, .height]
+        hostingView.userInterfaceLayoutDirection = .leftToRight
         hostingView.onRightMouseDown = { [weak self] event in
             self?.handleRightMouseDown(event)
         }
         return hostingView
+    }
+
+    private func makeRootView(isCompact: Bool) -> AnyView {
+        makeRootView(for: PillIndicatorView(
+            controller: self,
+            state: state,
+            isCompact: isCompact
+        ))
+    }
+
+    private func makeRootView(for contentView: PillIndicatorView) -> AnyView {
+        AnyView(contentView
+            .environment(\.locale, settingsStore.selectedAppLocale.locale)
+            .environment(\.layoutDirection, .leftToRight))
     }
 
     private func size(for _: LayoutState) -> CGSize {

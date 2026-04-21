@@ -117,7 +117,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     let state: FloatingIndicatorState
 
     private var panel: NotchPanel?
-    private var hostingView: NSHostingView<NotchIndicatorView>?
+    private var hostingView: NSHostingView<AnyView>?
     private var actions = FloatingIndicatorActions()
     private var screenTrackingTimer: Timer?
     private var lastScreen: NSScreen?
@@ -183,7 +183,8 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         )
         let panel = NotchPanel(contentRect: contentRect)
 
-        let contentView = NotchIndicatorView(
+        let appLocale = AppLocale.currentSelection()
+        let contentView = AnyView(NotchIndicatorView(
             state: state,
             notchWidth: notchWidth,
             sideWidth: sideWidth,
@@ -192,8 +193,11 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
                 self?.handleStopButtonTapped()
             }
         )
+        .environment(\.locale, appLocale.locale)
+        .environment(\.layoutDirection, .leftToRight))
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.layer?.backgroundColor = NSColor.clear.cgColor
+        hostingView.userInterfaceLayoutDirection = .leftToRight
         self.hostingView = hostingView
         
         panel.contentView = hostingView

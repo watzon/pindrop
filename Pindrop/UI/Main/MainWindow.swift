@@ -143,12 +143,16 @@ struct MainWindow: View {
             HStack(spacing: 0) {
                 if settingsStore.selectedSidebarPosition == .leading {
                     sidebarPanel
+                        .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection)
                 }
                 detailPanel
+                    .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection)
                 if settingsStore.selectedSidebarPosition == .trailing {
                     sidebarPanel
+                        .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection)
                 }
             }
+            .environment(\.layoutDirection, .leftToRight)
             .ignoresSafeArea()
         }
         .frame(
@@ -156,6 +160,7 @@ struct MainWindow: View {
             minHeight: AppTheme.Window.mainMinHeight
         )
         .environment(\.locale, settingsStore.selectedAppLocale.locale)
+        .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection)
         .themeRefresh()
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMainNavItem)) { notification in
             if let rawValue = notification.userInfo?["navItem"] as? String,
@@ -591,6 +596,7 @@ final class MainWindowController {
             window.center()
             window.isReleasedWhenClosed = false
             PindropThemeController.shared.apply(to: window)
+            applyInterfaceLayoutDirection(to: window, locale: settingsStore.selectedAppLocale.locale)
 
             self.window = window
 
@@ -602,6 +608,9 @@ final class MainWindowController {
         }
 
         PindropThemeController.shared.apply(to: window)
+        if let window {
+            applyInterfaceLayoutDirection(to: window, locale: settingsStore.selectedAppLocale.locale)
+        }
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async { self.positionTrafficLights() }

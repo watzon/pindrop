@@ -19,9 +19,16 @@ final class AlertManager {
         let rawValue = UserDefaults.standard.string(forKey: "selectedAppLocale") ?? AppLocale.automatic.rawValue
         return AppLocale(rawValue: rawValue)?.locale ?? .autoupdatingCurrent
     }
+
+    private func makeAlert(style: NSAlert.Style) -> NSAlert {
+        let alert = NSAlert()
+        alert.alertStyle = style
+        applyInterfaceLayoutDirection(to: alert.window, locale: locale)
+        return alert
+    }
     
     func showAccessibilityPermissionAlert() {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .informational)
         alert.messageText = localized("Accessibility Permission Required", locale: locale)
         alert.informativeText = localized("""
             Pindrop needs Accessibility permission to insert text at your cursor.
@@ -34,7 +41,6 @@ final class AlertManager {
             
             Without this permission, text will only be copied to your clipboard.
             """, locale: locale)
-        alert.alertStyle = .informational
         alert.addButton(withTitle: localized("Open System Settings", locale: locale))
         alert.addButton(withTitle: localized("Show App in Finder", locale: locale))
         alert.addButton(withTitle: localized("Use Clipboard Only", locale: locale))
@@ -55,10 +61,9 @@ final class AlertManager {
     }
     
     func showMicrophonePermissionAlert() {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("Microphone Permission Required", locale: locale)
         alert.informativeText = localized("Pindrop needs microphone access to record and transcribe your voice.\n\nPlease grant permission in System Settings.", locale: locale)
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("Open System Settings", locale: locale))
         alert.addButton(withTitle: localized("Cancel", locale: locale))
         
@@ -70,10 +75,9 @@ final class AlertManager {
     }
     
     func showModelNotLoadedAlert() {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("No Model Loaded", locale: locale)
         alert.informativeText = localized("Please download a Whisper model in Settings before recording.\n\nGo to Settings → Models to download a model.", locale: locale)
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("Open Settings", locale: locale))
         alert.addButton(withTitle: localized("OK", locale: locale))
         
@@ -81,7 +85,7 @@ final class AlertManager {
     }
     
     func showModelTimeoutAlert() {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .critical)
         alert.messageText = localized("Model Loading Timed Out", locale: locale)
         alert.informativeText = localized("""
             The model failed to load within 60 seconds. This usually means the model files are corrupted or incompatible.
@@ -93,7 +97,6 @@ final class AlertManager {
             
             If the problem persists, try a smaller model (Tiny or Base).
             """, locale: locale)
-        alert.alertStyle = .critical
         alert.addButton(withTitle: localized("Open Settings", locale: locale))
         alert.addButton(withTitle: localized("OK", locale: locale))
         
@@ -101,27 +104,25 @@ final class AlertManager {
     }
     
     func showModelLoadErrorAlert(error: Error) {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("Model Loading Failed", locale: locale)
         alert.informativeText = String(format: localized("Failed to switch model: %@", locale: locale), error.localizedDescription)
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("OK", locale: locale))
         
         _ = alert.runModal()
     }
     
     func showTranscriptionErrorAlert(message: String) {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("Transcription Failed", locale: locale)
         alert.informativeText = message
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("OK", locale: locale))
         
         alert.runModal()
     }
     
     func showAIEnhancementErrorAlert(error: Error) {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("AI Enhancement Failed", locale: locale)
         
         let errorDescription = error.localizedDescription
@@ -166,7 +167,6 @@ final class AlertManager {
             )
         }
         
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("Open Settings", locale: locale))
         alert.addButton(withTitle: localized("OK", locale: locale))
         
@@ -174,17 +174,16 @@ final class AlertManager {
     }
     
     func showGenericErrorAlert(title: String, message: String) {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = title
         alert.informativeText = message
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("OK", locale: locale))
         
         alert.runModal()
     }
 
     func showHotkeyConflictAlert(hotkey: String, firstAction: String, secondAction: String) {
-        let alert = NSAlert()
+        let alert = makeAlert(style: .warning)
         alert.messageText = localized("Hotkey Conflict", locale: locale)
         alert.informativeText = String(
             format: localized("%@ is assigned to both %@ and %@. Only the first action will be active. Update your hotkeys in Settings to resolve this conflict.", locale: locale),
@@ -192,7 +191,6 @@ final class AlertManager {
             firstAction,
             secondAction
         )
-        alert.alertStyle = .warning
         alert.addButton(withTitle: localized("OK", locale: locale))
 
         alert.runModal()

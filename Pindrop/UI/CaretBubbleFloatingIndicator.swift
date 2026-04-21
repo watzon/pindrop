@@ -37,7 +37,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     }
 
     private var panel: NSPanel?
-    private var hostingView: NSHostingView<CaretBubbleIndicatorView>?
+    private var hostingView: NSHostingView<AnyView>?
     private var actions = FloatingIndicatorActions()
     private var anchorRefreshTimer: Timer?
     private var isVisible = false
@@ -184,11 +184,15 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
             panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
             panel.isReleasedWhenClosed = false
 
-            let contentView = CaretBubbleIndicatorView(controller: self, state: state)
+            let appLocale = AppLocale.currentSelection()
+            let contentView = AnyView(CaretBubbleIndicatorView(controller: self, state: state)
+                .environment(\.locale, appLocale.locale)
+                .environment(\.layoutDirection, .leftToRight))
             let hostingView = NSHostingView(rootView: contentView)
             hostingView.layer?.backgroundColor = NSColor.clear.cgColor
             hostingView.wantsLayer = true
             hostingView.frame = NSRect(origin: .zero, size: LayoutMetrics.panelSize)
+            hostingView.userInterfaceLayoutDirection = .leftToRight
 
             panel.contentView = hostingView
             panel.alphaValue = 0

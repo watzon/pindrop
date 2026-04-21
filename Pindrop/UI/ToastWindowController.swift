@@ -30,14 +30,15 @@ private final class ToastPanel: NSPanel {
 @MainActor
 final class ToastWindowController: ToastPresenting {
     private var panel: ToastPanel?
-    private var hostingView: NSHostingView<ToastView>?
+    private var hostingView: NSHostingView<AnyView>?
 
     func show(
         payload: ToastPayload,
         onAction: @escaping (UUID) -> Void,
         onHoverChange: @escaping (Bool) -> Void
     ) {
-        let rootView = ToastView(
+        let appLocale = AppLocale.currentSelection()
+        let rootView = AnyView(ToastView(
             payload: payload,
             onAction: onAction,
             onHoverChange: { [weak self] (isHovering: Bool) in
@@ -45,6 +46,8 @@ final class ToastWindowController: ToastPresenting {
                 self?.updateToastFrame(for: payload)
             }
         )
+        .environment(\.locale, appLocale.locale)
+        .environment(\.layoutDirection, appLocale.layoutDirection))
         let hostingView = self.hostingView ?? NSHostingView(rootView: rootView)
         hostingView.rootView = rootView
         hostingView.translatesAutoresizingMaskIntoConstraints = false
@@ -75,6 +78,7 @@ final class ToastWindowController: ToastPresenting {
             panel.isReleasedWhenClosed = false
             panel.contentView = hostingView
             panel.alphaValue = 0
+            applyInterfaceLayoutDirection(to: panel, locale: appLocale.locale)
             panel.orderFrontRegardless()
 
             self.panel = panel
@@ -90,6 +94,9 @@ final class ToastWindowController: ToastPresenting {
 
         self.hostingView = hostingView
         panel?.contentView = hostingView
+        if let panel {
+            applyInterfaceLayoutDirection(to: panel, locale: appLocale.locale)
+        }
         panel?.setFrame(frame, display: true)
         panel?.orderFrontRegardless()
 

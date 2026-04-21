@@ -1450,6 +1450,7 @@ final class AppCoordinator {
                         Log.app.infoVisible("Reloading localized strings after settings change")
                         self.statusBarController.reloadLocalizedStrings()
                         self.pillFloatingIndicatorController.reloadLocalizedStrings()
+                        self.dotFloatingIndicatorController.reloadLocalizedStrings()
                     }
 
                     if previousSnapshot.mcpServerEnabled != snapshot.mcpServerEnabled
