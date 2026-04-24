@@ -96770,6 +96770,30 @@
         }
       }
     },
+    "russian": {
+      "comment": "russian",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Russian"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Русский"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Російська"
+          }
+        }
+      }
+    },
     "save": {
       "comment": "save",
       "extractionState": "manual",
@@ -122302,6 +122326,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "设备不可用"
+          }
+        }
+      }
+    },
+    "ukrainian": {
+      "comment": "ukrainian",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ukrainian"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Украинский"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Українська"
           }
         }
       }

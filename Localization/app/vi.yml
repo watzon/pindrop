@@ -1010,3 +1010,8 @@ your:
     Bạn có thể tùy chỉnh chúng sau trong Cài đặt.
   model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
   stats: "Số liệu thống kê của bạn"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

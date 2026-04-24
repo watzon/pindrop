@@ -1010,3 +1010,8 @@ your:
     您可以稍後在設定中自定義它們。
   model_is_ready_to_use: "您的模型已準備好使用。"
   stats: "您的統計"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

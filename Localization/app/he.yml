@@ -1010,3 +1010,8 @@ your:
     תוכל להתאים אותם מאוחר יותר בהגדרות.
   model_is_ready_to_use: "הדגם שלך מוכן לשימוש."
   stats: "הסטטיסטיקה שלך"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

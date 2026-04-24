@@ -1010,3 +1010,8 @@ your:
     Bunları daha sonra Ayarlar'da özelleştirebilirsiniz.
   model_is_ready_to_use: "Modeliniz kullanıma hazır."
   stats: "İstatistikleriniz"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

@@ -67,6 +67,8 @@ public enum TranscriptionBackend: String, CaseIterable, Sendable, Identifiable {
 public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
    case automatic = "auto"
    case english = "en"
+   case russian = "ru"
+   case ukrainian = "uk"
    case simplifiedChinese = "zh-Hans"
    case spanish = "es"
    case french = "fr"
@@ -91,6 +93,8 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
       switch self {
       case .automatic:        return Metadata(displayKey: "Automatic (Follow System)", whisperCode: nil, localeIdentifier: nil, selectable: true)
       case .english:          return Metadata(displayKey: "English", whisperCode: "en", localeIdentifier: "en", selectable: true)
+      case .russian:          return Metadata(displayKey: "Russian", whisperCode: "ru", localeIdentifier: "ru", selectable: true)
+      case .ukrainian:        return Metadata(displayKey: "Ukrainian", whisperCode: "uk", localeIdentifier: "uk", selectable: true)
       case .simplifiedChinese: return Metadata(displayKey: "Simplified Chinese", whisperCode: "zh", localeIdentifier: "zh-Hans", selectable: true)
       case .spanish:          return Metadata(displayKey: "Spanish", whisperCode: "es", localeIdentifier: "es", selectable: true)
       case .french:           return Metadata(displayKey: "French", whisperCode: "fr", localeIdentifier: "fr", selectable: true)

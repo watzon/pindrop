@@ -1010,3 +1010,8 @@ your:
       आप उन्हें बाद में सेटिंग्स में कस्टमाइज़ कर सकते हैं।
   model_is_ready_to_use: "आपका मॉडल उपयोग के लिए तैयार है."
   stats: "आपके आँकड़े"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
