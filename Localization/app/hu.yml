@@ -1010,3 +1010,8 @@ your:
     Később személyre szabhatja őket a Beállításokban.
   model_is_ready_to_use: "A modell használatra kész."
   stats: "Az Ön statisztikái"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

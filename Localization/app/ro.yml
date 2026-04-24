@@ -1010,3 +1010,8 @@ your:
     Le puteți personaliza mai târziu în Setări.
   model_is_ready_to_use: "Modelul dvs. este gata de utilizare."
   stats: "Statisticile tale"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

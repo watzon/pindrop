@@ -1010,3 +1010,8 @@ your:
     Anda boleh menyesuaikannya kemudian dalam Tetapan.
   model_is_ready_to_use: "Model anda sedia untuk digunakan."
   stats: "Statistik anda"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

@@ -1010,3 +1010,8 @@ your:
     Du kan tilpasse dem senere i Innstillinger.
   model_is_ready_to_use: "Modellen din er klar til bruk."
   stats: "Din statistikk"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
