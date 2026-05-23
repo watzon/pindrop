@@ -450,6 +450,211 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
 }
 
+final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
+    private let audioBuffers = AudioBufferStorage()
+    private let targetFormatStorage: AVAudioFormat
+    private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.microphone-input")
+
+    private var preferredInputDeviceUID: String?
+    private var activeDeviceID: AudioDeviceID = 0
+    private var ioProcID: AudioDeviceIOProcID?
+    private var activeOnBuffer: ((AVAudioPCMBuffer) -> Void)?
+    private var activeOnAudioLevel: ((Float) -> Void)?
+
+    private(set) var isCapturing = false
+
+    var targetFormat: AVAudioFormat {
+        if targetFormatStorage.sampleRate == 0 ||
+            targetFormatStorage.channelCount == 0 ||
+            targetFormatStorage.commonFormat != .pcmFormatFloat32 {
+            return AudioCaptureUtilities.fallbackFormat()
+        }
+        return targetFormatStorage
+    }
+
+    init() throws {
+        self.targetFormatStorage = try AudioCaptureUtilities.makeTargetFormat()
+    }
+
+    deinit {
+        destroyCaptureDevice()
+    }
+
+    func startCapture(
+        onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
+        onAudioLevel: @escaping (Float) -> Void
+    ) throws {
+        guard !isCapturing else { return }
+        _ = audioBuffers.removeAll()
+        activeOnBuffer = onBuffer
+        activeOnAudioLevel = onAudioLevel
+        try startResolvedCapture(onBuffer: onBuffer, onAudioLevel: onAudioLevel)
+    }
+
+    func stopCapture() throws -> [AVAudioPCMBuffer] {
+        guard isCapturing else {
+            throw AudioRecorderError.notRecording
+        }
+
+        destroyCaptureDevice()
+        activeOnBuffer = nil
+        activeOnAudioLevel = nil
+        let collectedBuffers = audioBuffers.removeAll()
+        Log.audio.debug("Stopped microphone capture, collected \(collectedBuffers.count) buffers")
+        return collectedBuffers
+    }
+
+    func cancelCapture() {
+        guard isCapturing else { return }
+        destroyCaptureDevice()
+        activeOnBuffer = nil
+        activeOnAudioLevel = nil
+        _ = audioBuffers.removeAll()
+        Log.audio.info("Microphone capture cancelled")
+    }
+
+    func reset() {
+        destroyCaptureDevice()
+        activeOnBuffer = nil
+        activeOnAudioLevel = nil
+        _ = audioBuffers.removeAll()
+    }
+
+    func setPreferredInputDeviceUID(_ uid: String) {
+        let trimmedUID = uid.trimmingCharacters(in: .whitespacesAndNewlines)
+        preferredInputDeviceUID = trimmedUID.isEmpty ? nil : trimmedUID
+
+        guard isCapturing,
+              let activeOnBuffer,
+              let activeOnAudioLevel else { return }
+
+        destroyCaptureDevice()
+        do {
+            try startResolvedCapture(onBuffer: activeOnBuffer, onAudioLevel: activeOnAudioLevel)
+        } catch {
+            Log.audio.error("Failed to switch input device: \(error.localizedDescription)")
+        }
+    }
+
+    private func startResolvedCapture(
+        onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
+        onAudioLevel: @escaping (Float) -> Void
+    ) throws {
+        let deviceID = try resolvedInputDeviceID()
+        let sourceFormat = try inputFormat(for: deviceID)
+
+        var createdIOProcID: AudioDeviceIOProcID?
+        let status = AudioDeviceCreateIOProcIDWithBlock(
+            &createdIOProcID,
+            deviceID,
+            callbackQueue
+        ) { [weak self] _, inputData, _, _, _ in
+            self?.handleInput(
+                inputData,
+                sourceFormat: sourceFormat,
+                onBuffer: onBuffer,
+                onAudioLevel: onAudioLevel
+            )
+        }
+
+        guard status == noErr, let createdIOProcID else {
+            throw AudioRecorderError.engineStartFailed("Unable to create microphone IO proc (\(status))")
+        }
+
+        let startStatus = AudioDeviceStart(deviceID, createdIOProcID)
+        guard startStatus == noErr else {
+            AudioDeviceDestroyIOProcID(deviceID, createdIOProcID)
+            throw AudioRecorderError.engineStartFailed("Unable to start microphone device (\(startStatus))")
+        }
+
+        activeDeviceID = deviceID
+        ioProcID = createdIOProcID
+        isCapturing = true
+        Log.audio.info("Microphone capture started on input device: \(deviceID)")
+    }
+
+    private func resolvedInputDeviceID() throws -> AudioDeviceID {
+        if let preferredInputDeviceUID {
+            if let deviceID = AudioDeviceManager.inputDeviceID(for: preferredInputDeviceUID) {
+                return deviceID
+            }
+            Log.audio.warning("Preferred input device not found, using system default")
+        }
+
+        guard let deviceID = AudioDeviceManager.defaultInputDeviceID() else {
+            throw AudioRecorderError.engineStartFailed("No microphone input device is available")
+        }
+        return deviceID
+    }
+
+    private func inputFormat(for deviceID: AudioDeviceID) throws -> AVAudioFormat {
+        var address = AudioObjectPropertyAddress(
+            mSelector: AudioObjectPropertySelector(kAudioDevicePropertyStreamFormat),
+            mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
+            mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+        )
+
+        var streamDescription = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        let status = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, &streamDescription)
+        guard status == noErr else {
+            throw AudioRecorderError.engineStartFailed("Unable to read microphone input format (\(status))")
+        }
+
+        var mutableDescription = streamDescription
+        guard let format = AVAudioFormat(streamDescription: &mutableDescription) else {
+            throw AudioRecorderError.engineStartFailed("Unable to construct microphone input format")
+        }
+        return format
+    }
+
+    private func handleInput(
+        _ inputData: UnsafePointer<AudioBufferList>,
+        sourceFormat: AVAudioFormat,
+        onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
+        onAudioLevel: @escaping (Float) -> Void
+    ) {
+        let mutableBufferList = UnsafeMutablePointer(mutating: inputData)
+        let audioBuffersPointer = UnsafeMutableAudioBufferListPointer(mutableBufferList)
+        guard let firstBuffer = audioBuffersPointer.first, firstBuffer.mDataByteSize > 0 else {
+            return
+        }
+
+        guard let sourceBuffer = AVAudioPCMBuffer(
+            pcmFormat: sourceFormat,
+            bufferListNoCopy: mutableBufferList,
+            deallocator: nil
+        ) else {
+            return
+        }
+
+        let bytesPerFrame = max(Int(sourceFormat.streamDescription.pointee.mBytesPerFrame), 1)
+        sourceBuffer.frameLength = AVAudioFrameCount(Int(firstBuffer.mDataByteSize) / bytesPerFrame)
+
+        guard let convertedBuffer = AudioCaptureUtilities.convertBuffer(
+            sourceBuffer,
+            from: sourceFormat,
+            to: targetFormat
+        ) else {
+            return
+        }
+
+        audioBuffers.append(convertedBuffer)
+        onBuffer(convertedBuffer)
+        onAudioLevel(AudioCaptureUtilities.calculateAudioLevel(convertedBuffer))
+    }
+
+    private func destroyCaptureDevice() {
+        if activeDeviceID != 0, let ioProcID {
+            AudioDeviceStop(activeDeviceID, ioProcID)
+            AudioDeviceDestroyIOProcID(activeDeviceID, ioProcID)
+            self.ioProcID = nil
+        }
+        activeDeviceID = 0
+        isCapturing = false
+    }
+}
+
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     private let audioBuffers = AudioBufferStorage()
@@ -859,7 +1064,7 @@ final class AudioRecorder {
         systemAudioCaptureBackend: AudioCaptureBackend? = nil
     ) throws {
         self.permissionManager = permissionManager
-        self.microphoneCaptureBackend = try captureBackend ?? AVAudioEngineCaptureBackend()
+        self.microphoneCaptureBackend = try captureBackend ?? CoreAudioInputCaptureBackend()
         if let systemAudioCaptureBackend {
             self.systemAudioCaptureBackend = systemAudioCaptureBackend
         } else if #available(macOS 14.2, *) {
