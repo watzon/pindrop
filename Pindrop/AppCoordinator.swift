@@ -294,6 +294,12 @@ final class AppCoordinator {
     
     let statusBarController: StatusBarController
     let floatingIndicatorState: FloatingIndicatorState
+    /// Live-transcript model for overlay streaming. Shared by all indicator presenters
+    /// (switching indicator type mid-session keeps the transcript) and fed by
+    /// `overlayStreamingSink`.
+    let liveTranscriptState: LiveTranscriptState
+    /// Strongly retained here — `StreamingRefinementCoordinator` holds its sink weakly.
+    private(set) var overlayStreamingSink: OverlayStreamingSink?
     let floatingIndicatorController: FloatingIndicatorController
     let pillFloatingIndicatorController: PillFloatingIndicatorController
     let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
@@ -313,12 +319,9 @@ final class AppCoordinator {
     private var quickCaptureTranscription: String?
     private var isStreamingTranscriptionSessionActive = false
     private var streamingAudioProcessingTask: Task<Void, Never>?
-    private var streamingInsertionUpdateTask: Task<Void, Never>?
-    /// The refinement coordinator for the current streaming session, if a
-    /// `streamingRefinement` assignment resolved at session start. When non-nil, partial
-    /// and final streaming callbacks are routed through the coordinator rather than
-    /// straight to OutputManager, and the post-stop holistic enhancement pass is
-    /// suppressed when it lands at least one refinement.
+    /// The refinement coordinator for the current streaming session. Owns the
+    /// committed/tentative split and drives the overlay sink; partial and final
+    /// streaming callbacks route through it.
     private var streamingRefinementCoordinator: StreamingRefinementCoordinator?
     private var mediaTranscriptionTask: Task<Void, Never>?
     private var queueOriginalModelName: String?
@@ -447,15 +450,24 @@ final class AppCoordinator {
             settingsStore: settingsStore
         )
         self.floatingIndicatorState = FloatingIndicatorState()
-        self.floatingIndicatorController = FloatingIndicatorController(state: floatingIndicatorState)
+        self.liveTranscriptState = LiveTranscriptState()
+        self.floatingIndicatorController = FloatingIndicatorController(
+            state: floatingIndicatorState,
+            liveTranscript: liveTranscriptState
+        )
         self.pillFloatingIndicatorController = PillFloatingIndicatorController(
             state: floatingIndicatorState,
-            settingsStore: settingsStore
+            settingsStore: settingsStore,
+            liveTranscript: liveTranscriptState
         )
-        self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(state: floatingIndicatorState)
+        self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(
+            state: floatingIndicatorState,
+            liveTranscript: liveTranscriptState
+        )
         self.dotFloatingIndicatorController = DotFloatingIndicatorController(
             state: floatingIndicatorState,
-            settingsStore: settingsStore
+            settingsStore: settingsStore,
+            liveTranscript: liveTranscriptState
         )
         self.floatingIndicatorPresenters = [
             .notch: floatingIndicatorController,
@@ -2280,7 +2292,7 @@ final class AppCoordinator {
             didStartRecording = try await audioRecorder.startRecording()
         } catch {
             if isStreamingTranscriptionSessionActive {
-                await cancelStreamingSession(preserveInsertedText: true)
+                await cancelStreamingSession()
             }
             Log.app.error("Audio engine failed to start: \(error)")
             throw error
@@ -2288,7 +2300,7 @@ final class AppCoordinator {
 
         guard didStartRecording else {
             if isStreamingTranscriptionSessionActive {
-                await cancelStreamingSession(preserveInsertedText: true)
+                await cancelStreamingSession()
             }
             Log.app.debug("Recording start already in progress; ignoring duplicate start request")
             return
@@ -2407,31 +2419,28 @@ final class AppCoordinator {
         diarizationFeatureEnabled && !isStreamingSessionActive
     }
 
-    /// The v2 streaming gate. Streaming transcription runs whenever the user's streaming
-    /// preference says so, independent of any AI-enhancement assignment. The streaming
-    /// finalize path handles the three enhancement-state combinations:
+    /// The v3 (overlay) streaming gate. Streaming transcription runs whenever the user's
+    /// streaming preference says so, independent of any AI-enhancement assignment. Live
+    /// text renders in the floating-indicator overlay; the target app receives the final
+    /// text once, via a single paste at stop (after dictionary replacements and the
+    /// optional post-stop enhancement rewrite).
     ///
-    ///   - streamingRefinement assigned → the coordinator drives mid-utterance replacement
-    ///     and owns the final text at stop.
-    ///   - transcriptionEnhancement assigned, streamingRefinement not → streamed raw is
-    ///     typed as-is during dictation; at stop, runBasicPostStopEnhance produces the
-    ///     enhanced text and finishStreamingInsertion diffs it against the raw, backspacing
-    ///     and retyping only the divergent suffix.
-    ///   - neither assigned → streamed raw is the final output.
-    ///
-    /// Gates that still matter: feature flag, output mode, quick-capture mode.
+    /// Gates that matter: feature flag, quick-capture mode, and floating-indicator
+    /// availability. With overlay streaming the live transcript renders in Pindrop's own
+    /// indicator overlay and the target app receives one paste at the end, so:
+    ///   - `outputMode` no longer gates — clipboard-mode users get the live overlay too;
+    ///     the final landing routes through `output(_:)` per mode.
+    ///   - The indicator must be available: without an overlay there is nowhere to show
+    ///     live text, and streaming has no user-visible benefit over batch. We never
+    ///     force-show UI the user disabled or temporarily hid.
     static func shouldUseStreamingTranscription(
         streamingFeatureEnabled: Bool,
-        outputMode: OutputMode,
-        postStopEnhancementAssigned: Bool,
-        streamingRefinementAssigned: Bool,
-        isQuickCaptureMode: Bool
+        isQuickCaptureMode: Bool,
+        floatingIndicatorAvailable: Bool
     ) -> Bool {
-        _ = postStopEnhancementAssigned  // retained in the signature for explicitness and
-        _ = streamingRefinementAssigned  // symmetry with callers/tests; no longer gates.
-        return streamingFeatureEnabled
-            && outputMode == .directInsert
+        streamingFeatureEnabled
             && !isQuickCaptureMode
+            && floatingIndicatorAvailable
     }
 
     private func encodeDiarizationSegmentsJSON(_ segments: [DiarizedTranscriptSegment]?) -> String? {
@@ -2453,12 +2462,10 @@ final class AppCoordinator {
     private func shouldUseStreamingTranscriptionForCurrentSession() -> Bool {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
-            outputMode: outputManager.outputMode,
-            postStopEnhancementAssigned:
-                settingsStore.assignment(for: .transcriptionEnhancement) != nil,
-            streamingRefinementAssigned:
-                settingsStore.assignment(for: .streamingRefinement) != nil,
-            isQuickCaptureMode: isQuickCaptureMode
+            isQuickCaptureMode: isQuickCaptureMode,
+            floatingIndicatorAvailable:
+                settingsStore.floatingIndicatorEnabled
+                && !isFloatingIndicatorTemporarilyHidden()
         )
     }
 
@@ -2489,12 +2496,41 @@ final class AppCoordinator {
         AlertManager.shared.showMicrophonePermissionAlert()
     }
 
+    /// Lazily builds the long-lived overlay sink. Created outside `init` so the escaping
+    /// closures can capture dependencies without phase-1 initialization restrictions.
+    private func ensureOverlayStreamingSink() -> OverlayStreamingSink {
+        if let overlayStreamingSink {
+            return overlayStreamingSink
+        }
+        let sink = OverlayStreamingSink(
+            transcriptState: liveTranscriptState,
+            finalOutput: { [outputManager] text in
+                try await outputManager.output(text)
+            },
+            onClipboardFallback: { [toastService] in
+                toastService.show(
+                    ToastPayload(
+                        message: localized(
+                            "Paste failed. Transcript copied to clipboard.",
+                            locale: .autoupdatingCurrent
+                        ),
+                        style: .error
+                    )
+                )
+            }
+        )
+        overlayStreamingSink = sink
+        return sink
+    }
+
     private func beginStreamingSessionIfAvailable() async {
         let shouldUseStreaming = shouldUseStreamingTranscriptionForCurrentSession()
         guard shouldUseStreaming else {
+            let indicatorAvailable =
+                settingsStore.floatingIndicatorEnabled && !isFloatingIndicatorTemporarilyHidden()
             let reasons = [
                 settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
-                outputManager.outputMode == .directInsert ? nil : "output-mode-not-directInsert",
+                indicatorAvailable ? nil : "indicator-unavailable",
                 isQuickCaptureMode ? "quick-capture-mode" : nil
             ].compactMap { $0 }
             Log.transcription.info("Streaming transcription disabled for session: \(reasons.joined(separator: ","))")
@@ -2514,7 +2550,7 @@ final class AppCoordinator {
                 toastService.show(
                     ToastPayload(
                         message: localized(
-                            "Apple SpeechTranscriber unavailable — using Parakeet",
+                            "Apple SpeechTranscriber unavailable — using Nemotron",
                             locale: .autoupdatingCurrent
                         ),
                         style: .standard
@@ -2522,13 +2558,12 @@ final class AppCoordinator {
                 )
             }
 
-            // Phase 2: the coordinator always stands up now. It owns the committed/
-            // tentative split, LocalAgreement-2 commit rules, and deterministic cleanup —
-            // none of which need an LLM. Live LLM refinement has been removed (see
-            // StreamingRefinementCoordinator.swift header). Post-stop holistic enhancement
-            // still runs via `runBasicPostStopEnhance`.
+            // The coordinator always stands up. It owns the committed/tentative split,
+            // LocalAgreement-2 commit rules, and deterministic cleanup — none of which
+            // need an LLM. Its sink is the overlay: live text renders in the floating
+            // indicator, and the target app receives one paste at session finish.
             let coord = StreamingRefinementCoordinator()
-            coord.beginSession(outputSink: outputManager)
+            coord.beginSession(outputSink: ensureOverlayStreamingSink())
             streamingRefinementCoordinator = coord
             if let refinementAssignment = settingsStore.resolveAssignment(for: .streamingRefinement) {
                 Log.transcription.info(
@@ -2545,7 +2580,7 @@ final class AppCoordinator {
             Log.transcription.info("Streaming transcription enabled for current session")
         } catch {
             Log.transcription.error("Streaming transcription unavailable, falling back to batch: \(error)")
-            await cancelStreamingSession(preserveInsertedText: true)
+            await cancelStreamingSession()
         }
     }
 
@@ -2553,22 +2588,12 @@ final class AppCoordinator {
         transcriptionService.setStreamingCallbacks(
             onPartial: { [weak self] text in
                 Task { @MainActor in
-                    guard let self else { return }
-                    if let coord = self.streamingRefinementCoordinator {
-                        await coord.ingestPartial(text)
-                    } else {
-                        self.enqueueStreamingInsertionUpdate(text, source: "partial")
-                    }
+                    await self?.streamingRefinementCoordinator?.ingestPartial(text)
                 }
             },
             onFinalUtterance: { [weak self] text in
                 Task { @MainActor in
-                    guard let self else { return }
-                    if let coord = self.streamingRefinementCoordinator {
-                        await coord.ingestFinal(text)
-                    } else {
-                        self.enqueueStreamingInsertionUpdate(text, source: "final-utterance")
-                    }
+                    await self?.streamingRefinementCoordinator?.ingestFinal(text)
                 }
             }
         )
@@ -2595,32 +2620,11 @@ final class AppCoordinator {
         }
     }
 
-    private func enqueueStreamingInsertionUpdate(_ text: String, source: String) {
-        guard isStreamingTranscriptionSessionActive else { return }
-
-        let previousTask = streamingInsertionUpdateTask
-        streamingInsertionUpdateTask = Task { @MainActor [weak self] in
-            _ = await previousTask?.result
-            guard let self, self.isStreamingTranscriptionSessionActive else { return }
-            do {
-                try await self.outputManager.updateStreamingInsertion(with: text)
-                Log.transcription.debug("Applied streaming \(source) update (chars=\(text.count))")
-            } catch {
-                Log.output.error("Failed applying streaming \(source) update: \(error)")
-            }
-        }
-    }
-
     private func flushStreamingSessionWork() async {
         if let task = streamingAudioProcessingTask {
             _ = await task.result
         }
         streamingAudioProcessingTask = nil
-
-        if let task = streamingInsertionUpdateTask {
-            _ = await task.result
-        }
-        streamingInsertionUpdateTask = nil
     }
 
     private func clearStreamingSessionBindings(cancelPendingWork: Bool) {
@@ -2628,9 +2632,7 @@ final class AppCoordinator {
         transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
         if cancelPendingWork {
             streamingAudioProcessingTask?.cancel()
-            streamingInsertionUpdateTask?.cancel()
             streamingAudioProcessingTask = nil
-            streamingInsertionUpdateTask = nil
         }
     }
 
@@ -2689,14 +2691,17 @@ final class AppCoordinator {
         }
     }
 
-    private func cancelStreamingSession(preserveInsertedText: Bool) async {
+    /// Abort the streaming session: tear down callbacks, cancel the engine, and collapse
+    /// the overlay. Nothing was inserted into the target app, so there is no text to
+    /// preserve or remove.
+    private func cancelStreamingSession() async {
         clearStreamingSessionBindings(cancelPendingWork: true)
         await transcriptionService.cancelStreaming()
         if let coord = streamingRefinementCoordinator {
-            await coord.cancelSession(removeInsertedText: !preserveInsertedText)
+            await coord.cancelSession()
             streamingRefinementCoordinator = nil
         } else {
-            await outputManager.cancelStreamingInsertion(removeInsertedText: !preserveInsertedText)
+            await overlayStreamingSink?.cancelStreamingInsertion()
         }
         isStreamingTranscriptionSessionActive = false
     }
@@ -2723,11 +2728,14 @@ final class AppCoordinator {
             }
         }
 
+        // Keep the recorded audio: the finalize path re-transcribes it offline so the
+        // pasted text gets full-context (pause-aware) punctuation.
+        let recordedAudioData: Data
         do {
-            _ = try await audioRecorder.stopRecording()
+            recordedAudioData = try await audioRecorder.stopRecording()
         } catch {
             Log.app.error("Failed to stop recording for streaming session: \(error)")
-            await cancelStreamingSession(preserveInsertedText: true)
+            await cancelStreamingSession()
             throw error
         }
 
@@ -2740,7 +2748,7 @@ final class AppCoordinator {
             Log.transcription.info("Streaming transcription finalized")
         } catch {
             Log.transcription.error("Failed to stop streaming transcription: \(error)")
-            await cancelStreamingSession(preserveInsertedText: true)
+            await cancelStreamingSession()
             throw error
         }
 
@@ -2757,8 +2765,8 @@ final class AppCoordinator {
         // If the refinement coordinator is active, it owns the authoritative final text:
         // fold dictionary replacements onto its refined output rather than the raw stream.
         // The coordinator's drained text is the currently-displayed string; dictionary
-        // replacements run on top, and the outer finishStreamingInsertion below performs
-        // one final diff/retype that lands the post-replacement text.
+        // replacements run on top, and the sink's finishStreamingInsertion below lands
+        // the post-replacement text in the target app with a single paste.
         let coord = streamingRefinementCoordinator
         if let coord {
             let coordText = await coord.awaitFinalTextAndDrain()
@@ -2775,9 +2783,47 @@ final class AppCoordinator {
 
         guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
             handleNoSpeechDetected(context: "streaming recording")
-            try? await outputManager.finishStreamingInsertion(finalText: "", appendTrailingSpace: false)
+            // Empty finish collapses the overlay without pasting anything.
+            try? await overlayStreamingSink?.finishStreamingInsertion(
+                finalText: "", appendTrailingSpace: false)
             streamingRefinementCoordinator = nil
             return
+        }
+
+        // Offline finalize pass: re-transcribe the recorded audio with the batch model.
+        // Streaming RNNT decoding is append-only — punctuation the model doesn't emit
+        // in the moment can never be inserted retroactively, so pause-dependent
+        // punctuation is unreliable live. The batch model decodes the whole waveform
+        // (pauses included) with full bidirectional context and places punctuation
+        // correctly. The streamed text remains the live overlay preview and the
+        // fallback whenever the offline pass fails or comes back empty.
+        if !recordedAudioData.isEmpty {
+            liveTranscriptState.beginEnhancing()
+            do {
+                let refined = try await transcriptionService.transcribe(
+                    audioData: recordedAudioData,
+                    diarizationEnabled: false,
+                    options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                )
+                let (refinedAfterReplacements, refinedReplacements) =
+                    try dictionaryStore.applyReplacements(to: refined.text)
+                let normalizedRefined = normalizedTranscriptionText(refinedAfterReplacements)
+                if !isTranscriptionEffectivelyEmpty(normalizedRefined) {
+                    textAfterReplacements = normalizedRefined
+                    self.lastAppliedReplacements = refinedReplacements
+                    Log.transcription.info(
+                        "Streaming finalize: offline re-transcription applied (\(normalizedRefined.count) chars)"
+                    )
+                } else {
+                    Log.transcription.info(
+                        "Streaming finalize: offline re-transcription was empty; keeping streamed text"
+                    )
+                }
+            } catch {
+                Log.transcription.warning(
+                    "Streaming finalize: offline re-transcription failed, keeping streamed text: \(error.localizedDescription)"
+                )
+            }
         }
 
         // Post-stop holistic enhancement for streaming sessions. Gated by the
@@ -2790,21 +2836,25 @@ final class AppCoordinator {
         var enhancedWithModel: String? = nil
         let liveRefinementLanded = coord?.didLandAnyRefinement == true
         let enhanceEnabled = settingsStore.streamingPostStopEnhancementEnabled
-        if enhanceEnabled,
-           !liveRefinementLanded,
-           let result = await runBasicPostStopEnhance(text: textAfterReplacements)
-        {
-            originalStreamedText = textAfterReplacements
-            textAfterReplacements = result.enhancedText
-            enhancedWithModel = result.modelID
-            Log.transcription.info(
-                "Streaming post-stop enhancement applied: \(originalStreamedText?.count ?? 0) → \(result.enhancedText.count) chars (model=\(result.modelID))"
-            )
+        if enhanceEnabled, !liveRefinementLanded {
+            // Surface the enhancement wait in the overlay: the transcript stays visible
+            // with an "Enhancing…" affordance until the rewritten text is pasted.
+            liveTranscriptState.beginEnhancing()
+            if let result = await runBasicPostStopEnhance(text: textAfterReplacements) {
+                originalStreamedText = textAfterReplacements
+                textAfterReplacements = result.enhancedText
+                enhancedWithModel = result.modelID
+                Log.transcription.info(
+                    "Streaming post-stop enhancement applied: \(originalStreamedText?.count ?? 0) → \(result.enhancedText.count) chars (model=\(result.modelID))"
+                )
+            }
         }
 
         var outputSucceeded = false
         do {
-            try await outputManager.finishStreamingInsertion(
+            // Single atomic insertion into the target app; the sink collapses the
+            // overlay whether or not the paste succeeds.
+            try await ensureOverlayStreamingSink().finishStreamingInsertion(
                 finalText: textAfterReplacements,
                 appendTrailingSpace: settingsStore.addTrailingSpace
             )
@@ -2812,7 +2862,6 @@ final class AppCoordinator {
             Log.transcription.debug("Applied final streaming transcription output")
         } catch {
             Log.output.error("Final streaming insertion failed: \(error)")
-            await outputManager.cancelStreamingInsertion(removeInsertedText: false)
         }
 
         coord?.endSession()
@@ -3664,7 +3713,14 @@ final class AppCoordinator {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 await self.transcriptionService.cancelStreaming()
-                await self.outputManager.cancelStreamingInsertion(removeInsertedText: false)
+                // Collapse the overlay via the coordinator (which cancels the sink); also
+                // nil it out so the session doesn't dangle past the cancellation.
+                if let coord = self.streamingRefinementCoordinator {
+                    await coord.cancelSession()
+                    self.streamingRefinementCoordinator = nil
+                } else {
+                    await self.overlayStreamingSink?.cancelStreamingInsertion()
+                }
             }
         }
 
@@ -4330,7 +4386,7 @@ final class AppCoordinator {
         Log.app.info("Clearing audio buffer")
         audioRecorder.cancelRecording()
         if isStreamingTranscriptionSessionActive {
-            await cancelStreamingSession(preserveInsertedText: true)
+            await cancelStreamingSession()
         } else {
             clearStreamingSessionBindings(cancelPendingWork: true)
         }

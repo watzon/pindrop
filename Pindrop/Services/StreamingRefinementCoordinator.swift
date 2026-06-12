@@ -60,9 +60,16 @@ protocol StreamingRefinementEnhancing: AnyObject, Sendable {
 @MainActor
 protocol StreamingRefinementOutputSink: AnyObject {
    func beginStreamingInsertion()
-   func updateStreamingInsertion(with text: String) async throws
+   /// Push the latest committed/tentative split to the sink. The composed display string
+   /// is `StreamingRefinementCoordinator.composeDisplay(committed:tentative:)` — sinks
+   /// that only need one string should compose with that helper so display semantics
+   /// stay identical everywhere.
+   func updateStreamingInsertion(committed: String, tentative: String) async throws
    func finishStreamingInsertion(finalText: String, appendTrailingSpace: Bool) async throws
-   func cancelStreamingInsertion(removeInsertedText: Bool) async
+   /// Abort the session and discard any in-flight display state. Nothing is ever
+   /// inserted into the target app before `finishStreamingInsertion`, so there is no
+   /// text to remove.
+   func cancelStreamingInsertion() async
 }
 
 // MARK: - Coordinator
@@ -244,13 +251,13 @@ final class StreamingRefinementCoordinator {
    }
 
    /// Drop the session and ask the sink to cancel its streaming insertion.
-   func cancelSession(removeInsertedText: Bool) async {
+   func cancelSession() async {
       guard isSessionActive else { return }
       idleCommitTask?.cancel()
       idleCommitTask = nil
       isSessionActive = false
       if let sink = outputSink {
-         await sink.cancelStreamingInsertion(removeInsertedText: removeInsertedText)
+         await sink.cancelStreamingInsertion()
       }
    }
 
@@ -302,7 +309,10 @@ final class StreamingRefinementCoordinator {
          priorWord: Self.lastWord(of: committedText)
       )
 
-      committedText += cleanedChunk
+      committedText = Self.appendingWithSafeBoundary(
+         cleanedChunk,
+         to: committedText
+      )
       committedRawLength = clamped
 
       Log.transcription.debug(
@@ -356,13 +366,16 @@ final class StreamingRefinementCoordinator {
 
    private func applyCurrentDisplay() async {
       recomputeTentativeTail()
-      let composed = committedText + tentativeTail
-      let displayed = composed.trimmingCharacters(in: .whitespacesAndNewlines)
+      let displayed = Self.composeDisplay(committed: committedText, tentative: tentativeTail)
+         .trimmingCharacters(in: .whitespacesAndNewlines)
       guard displayed != currentlyDisplayed else { return }
       stabilityMetrics.recordDisplayUpdate(displayed)
       currentlyDisplayed = displayed
       do {
-         try await outputSink?.updateStreamingInsertion(with: displayed)
+         try await outputSink?.updateStreamingInsertion(
+            committed: committedText,
+            tentative: tentativeTail
+         )
       } catch {
          Log.output.error(
             "Streaming refinement display update failed: \(error.localizedDescription)")
@@ -377,6 +390,33 @@ final class StreamingRefinementCoordinator {
          return character == "." || character == "?" || character == "!"
       }
       return false
+   }
+
+   /// Compose the user-visible display string from the committed/tentative split. The
+   /// single source of truth for how the two halves join — sinks, overlay views, and
+   /// tests must all compose through this so display semantics stay identical.
+   static func composeDisplay(committed: String, tentative: String) -> String {
+      appendingWithSafeBoundary(tentative, to: committed)
+   }
+
+   private static func appendingWithSafeBoundary(_ suffix: String, to prefix: String) -> String {
+      guard !prefix.isEmpty, !suffix.isEmpty else { return prefix + suffix }
+      guard let last = prefix.last, let first = suffix.first else { return prefix + suffix }
+      if last.isWhitespace || first.isWhitespace { return prefix + suffix }
+      if isPunctuationThatAttachesToPreviousWord(first) { return prefix + suffix }
+      if isOpeningPunctuationThatAttachesToNextWord(last) { return prefix + suffix }
+      if last.isLetter || last.isNumber, first.isLetter || first.isNumber {
+         return prefix + " " + suffix
+      }
+      return prefix + suffix
+   }
+
+   private static func isPunctuationThatAttachesToPreviousWord(_ character: Character) -> Bool {
+      ".,;:?!)]}".contains(character)
+   }
+
+   private static func isOpeningPunctuationThatAttachesToNextWord(_ character: Character) -> Bool {
+      "([{".contains(character)
    }
 
    /// The last whitespace-delimited token of `text`, with trailing whitespace stripped.
@@ -492,6 +532,3 @@ final class ResolvedAssignmentEnhancer: StreamingRefinementEnhancing, @unchecked
    }
 }
 
-// MARK: - OutputManager conformance
-
-extension OutputManager: StreamingRefinementOutputSink {}

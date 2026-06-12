@@ -54,6 +54,19 @@ struct AIEnhancementResponseSanitizerTests {
       #expect(AIEnhancementService.stripResponsePreamble(input) == "this is the text")
    }
 
+   @Test func decodesCommonXMLEntitiesCopiedFromPromptWrapper() {
+      let input = "I&apos;m testing &quot;quoted&quot; text with AT&amp;T and &lt;tags&gt;."
+      #expect(
+         AIEnhancementService.stripResponsePreamble(input)
+            == "I'm testing \"quoted\" text with AT&T and <tags>."
+      )
+   }
+
+   @Test func decodesEntitiesBeforePreambleStripping() {
+      let input = "Here&apos;s the cleaned text: I&apos;m ready."
+      #expect(AIEnhancementService.stripResponsePreamble(input) == "I'm ready.")
+   }
+
    @Test func stripsCompoundPreamble() {
       // Model adds both an acknowledgment AND a label.
       let input = "Sure! Here is the cleaned transcription: real content."

@@ -87,6 +87,9 @@
 		TREDITAPPLIERTESTBUILD01 /* TranscriptEditApplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */; };
 		AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */; };
 		STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */; };
+		OVERLAYSINKBUILD01A2B3C4D /* OverlayStreamingSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */; };
+		LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */; };
+		OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */; };
 		STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */; };
 		DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */; };
 		SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */; };
@@ -130,7 +133,7 @@
 		NOTESW001A2B3C4D5E6 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESW001A2B3C4D5E6F7 /* Note.swift */; };
 		PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */; };
 		PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */; };
-		PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */; };
+		PARAKEETSTRM02A2B3C4D5E6F /* NemotronStreamingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */; };
 		APPLESPEECHTRANS02A2B3C4 /* AppleSpeechTranscriberEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */; };
 		PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */; };
 		PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */; };
@@ -271,6 +274,9 @@
 		TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEditApplierTests.swift; sourceTree = "<group>"; };
 		AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIEnhancementService+ResolvedAssignment.swift"; sourceTree = "<group>"; };
 		STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingRefinementCoordinator.swift; sourceTree = "<group>"; };
+		OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSink.swift; sourceTree = "<group>"; };
+		LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptState.swift; sourceTree = "<group>"; };
+		OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSinkTests.swift; sourceTree = "<group>"; };
 		STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetrics.swift; sourceTree = "<group>"; };
 		DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicTranscriptCleaner.swift; sourceTree = "<group>"; };
 		SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIConfigV2.swift"; sourceTree = "<group>"; };
@@ -326,7 +332,7 @@
 		NOTESW001A2B3C4D5E6F7 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngine.swift; sourceTree = "<group>"; };
 		PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngineTests.swift; sourceTree = "<group>"; };
-		PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetStreamingEngine.swift; sourceTree = "<group>"; };
+		PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NemotronStreamingEngine.swift; sourceTree = "<group>"; };
 		APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechTranscriberEngine.swift; sourceTree = "<group>"; };
 		PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMentionResolver.swift; sourceTree = "<group>"; };
 		PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManagerTests.swift; sourceTree = "<group>"; };
@@ -459,6 +465,7 @@
 				BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */,
 				DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */,
 				FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
+				LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */,
 				PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
 				TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */,
 				SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
@@ -517,6 +524,7 @@
 				D120A62260BDECC9467BE609 /* AIEnhancementService.swift */,
 				AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */,
 				STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */,
+				OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */,
 				STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */,
 				DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */,
 				APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */,
@@ -632,6 +640,7 @@
 				AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */,
 				PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */,
 				STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */,
+				OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */,
 				STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */,
 				DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */,
 				TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */,
@@ -765,7 +774,7 @@
 				TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */,
 				WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
 				PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
-				PARAKEETSTRM01A2B3C4D5E6F /* ParakeetStreamingEngine.swift */,
+				PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */,
 				APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */,
 				APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */,
 			);
@@ -952,6 +961,7 @@
 				AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */,
 				PRESETSEEDBUILD1A2B3C4D5E /* PromptPresetStoreSeedingTests.swift in Sources */,
 				STREAMREFTESTBUILD1A2B3C4 /* StreamingRefinementCoordinatorTests.swift in Sources */,
+				OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */,
 				STABMETRICSTESTBUILD1A2B3 /* StreamingStabilityMetricsTests.swift in Sources */,
 				DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */,
 				TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */,
@@ -1023,6 +1033,8 @@
 				E759D485AF275927D5306AA9 /* AIEnhancementService.swift in Sources */,
 				AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */,
 				STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */,
+				OVERLAYSINKBUILD01A2B3C4D /* OverlayStreamingSink.swift in Sources */,
+				LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */,
 				STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */,
 				DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */,
 				APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */,
@@ -1077,7 +1089,7 @@
 				SPKDIARIZ02A2B3C4D5E6F /* SpeakerDiarizer.swift in Sources */,
 				FLUIDDIARBUILD01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift in Sources */,
 				STREAMASR02A2B3C4D5E6F /* StreamingTranscriptionEngine.swift in Sources */,
-				PARAKEETSTRM02A2B3C4D5E6F /* ParakeetStreamingEngine.swift in Sources */,
+				PARAKEETSTRM02A2B3C4D5E6F /* NemotronStreamingEngine.swift in Sources */,
 				APPLESPEECHTRANS02A2B3C4 /* AppleSpeechTranscriberEngine.swift in Sources */,
 				TTSENGINE02A2B3C4D5E6F /* TextToSpeechEngine.swift in Sources */,
 				CTXCAPT02A2B3C4D5E6F /* ContextCaptureService.swift in Sources */,

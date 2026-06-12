@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple Intelligence rulează pe dispozitiv și nu necesită acreditări."
   speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber necesită macOS 26."
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber indisponibil - folosind Parakeet"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber indisponibil — se folosește Nemotron"
 are:
   you_sure_you_want_to_delete_this_action_cann: "Sigur doriți să ștergeți „%@”? Această acțiune nu poate fi anulată."
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "Alege un model"
   a_provider_first: "Alegeți mai întâi un furnizor"
   an_audio_or_video_file_to_transcribe: "Alegeți un fișier audio sau video pentru a transcrie"
-  between_parakeet_cross_version_downloaded: "Alegeți între Parakeet (versiunea încrucișată, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul de operare)."
+  between_nemotron_punctuated_downloaded_mod: "Alegeți între Nemotron (cu punctuație, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul)."
   file: "Alegeți fișierul"
   how_dictated_text_lands_then_tune_the_fin: "Alegeți cum aterizează textul dictat, apoi reglați comportamentul final de inserare."
   how_pindrop_follows_system_appearance_the: "Alegeți modul în care Pindrop urmărește aspectul sistemului, apoi amestecați paletele luminoase și întunecate."
@@ -284,6 +284,8 @@ enhanced:
   _self: "Îmbunătățit"
 enhancement:
   prompts: "Solicitări de îmbunătățire"
+enhancing:
+  _self: "Se îmbunătățește…"
 enter:
   an_openai_api_key_to_load_models: "Introduceți o cheie API OpenAI pentru a încărca modele."
   api_key: "Introduceți cheia API"
@@ -441,6 +443,8 @@ light:
   theme: "Tema ușoară"
 limited:
   _self: "Limitat"
+listening:
+  _self: "Se ascultă…"
 live:
   streaming_refinement: "Rafinamentul transmisiunii în direct"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "Ieșire"
   audio_interface_and_everyday_behavior: "Ieșire, sunet, interfață și comportament de zi cu zi"
-parakeet:
-  default: "Parakeet (implicit)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "Pastă"
   a_video_or_audio_link: "Lipiți un link video sau audio"
+  failed_transcript_copied_to_clipboard: "Lipirea a eșuat. Transcrierea a fost copiată în clipboard."
   last_transcript: "Lipiți ultima transcriere"
   last_transcript_v: "Lipiți ultima transcriere ⌃⌘V"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "Îmbunătățirea streamingului"
   transcription_currently_supports_engli: "Transcrierea în flux acceptă în prezent numai limba engleză, indiferent de limba selectată."
   transcription_is_disabled_while_ai_enh: "Transcrierea în flux este dezactivată în timp ce Îmbunătățirea AI este activată."
-  transcription_model_parakeet_realtime: "Model de transcriere în flux (Parakeet Realtime EOU) licențiat de NVIDIA Corporation sub Licența NVIDIA Open Model."
+  transcription_model_nemotron_speech: "Modelul de transcriere în flux (Nemotron Speech Streaming) este licențiat de NVIDIA Corporation sub NVIDIA Open Model License."
 success:
   _self: "Succes!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "Folosit la capturarea notelor prin taste rapide. Poate adăuga formatare de reducere pentru conținut mai lung."
 uses:
   a_built_in_prompt_tuned_for_this_task: "Utilizează un prompt încorporat reglat pentru această sarcină."
-  the_160ms_parakeet_variant_for_snappier_par: "Utilizează varianta Parakeet de 160 ms pentru parțiale mai rapide, cu ~70% mai multe erori de cuvinte. Implicit este varianta de 320 ms."
+  the_560ms_nemotron_variant_for_snappier_par: "Folosește varianta Nemotron de 560 ms pentru text parțial mai rapid. Implicită este varianta de 1120 ms (cea mai bună acuratețe)."
   the_transcription_enhancement_assignment_if: "Utilizează atribuirea Îmbunătățirea transcripției. Dacă nu este setată niciuna, ieșirea deterministă de curățare este păstrată așa cum este."
 v:
   _self: "v%@"

@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple Intelligence viene eseguita sul dispositivo e non richiede credenziali."
   speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber richiede macOS 26."
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber non disponibile — uso di Parakeet"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber non disponibile — uso di Nemotron"
 are:
   you_sure_you_want_to_delete_this_action_cann: "Sei sicuro di voler eliminare '%@'? Questa azione non può essere annullata."
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "Scegli un modello"
   a_provider_first: "Scegli prima un fornitore"
   an_audio_or_video_file_to_transcribe: "Scegli un file audio o video da trascrivere"
-  between_parakeet_cross_version_downloaded: "Scegli tra Parakeet (multi-versione, modello scaricato) e Apple SpeechTranscriber (macOS 26+, fornito con il sistema)."
+  between_nemotron_punctuated_downloaded_mod: "Scegli tra Nemotron (con punteggiatura, modello scaricato) e Apple SpeechTranscriber (macOS 26+, incluso nel sistema)."
   file: "Scegli file"
   how_dictated_text_lands_then_tune_the_fin: "Scegli la modalità di destinazione del testo dettato, quindi ottimizza il comportamento di inserimento finale."
   how_pindrop_follows_system_appearance_the: "Scegli in che modo Pindrop segue l'aspetto del sistema, quindi mescola tavolozze chiare e scure selezionate."
@@ -284,6 +284,8 @@ enhanced:
   _self: "Migliorato"
 enhancement:
   prompts: "Suggerimenti di miglioramento"
+enhancing:
+  _self: "Miglioramento…"
 enter:
   an_openai_api_key_to_load_models: "Inserisci una chiave API OpenAI per caricare i modelli."
   api_key: "Inserisci la chiave API"
@@ -441,6 +443,8 @@ light:
   theme: "Tema leggero"
 limited:
   _self: "Limitato"
+listening:
+  _self: "In ascolto…"
 live:
   streaming_refinement: "Perfezionamento dello streaming live"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "Produzione"
   audio_interface_and_everyday_behavior: "Output, audio, interfaccia e comportamento quotidiano"
-parakeet:
-  default: "Parakeet (predefinito)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "Impasto"
   a_video_or_audio_link: "Incolla un collegamento video o audio"
+  failed_transcript_copied_to_clipboard: "Incolla non riuscito. Trascrizione copiata negli appunti."
   last_transcript: "Incolla l'ultima trascrizione"
   last_transcript_v: "Incolla l'ultima trascrizione ⌃⌘V"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "Miglioramento in streaming"
   transcription_currently_supports_engli: "La trascrizione in streaming attualmente supporta solo l'inglese, indipendentemente dalla lingua selezionata."
   transcription_is_disabled_while_ai_enh: "La trascrizione dello streaming è disabilitata mentre il miglioramento AI è abilitato."
-  transcription_model_parakeet_realtime: "Il modello di trascrizione in streaming (Parakeet Realtime EOU) è concesso in licenza da NVIDIA Corporation con la NVIDIA Open Model License."
+  transcription_model_nemotron_speech: "Modello di trascrizione in streaming (Nemotron Speech Streaming) concesso in licenza da NVIDIA Corporation secondo la NVIDIA Open Model License."
 success:
   _self: "Successo!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "Utilizzato durante l'acquisizione di note tramite tasto di scelta rapida. Può aggiungere la formattazione del markdown per contenuti più lunghi."
 uses:
   a_built_in_prompt_tuned_for_this_task: "Usa un prompt integrato ottimizzato per questa attività."
-  the_160ms_parakeet_variant_for_snappier_par: "Usa la variante Parakeet da 160 ms per parziali più reattivi, al costo di ~70 % di errori di parola in più. La variante predefinita è quella da 320 ms."
+  the_560ms_nemotron_variant_for_snappier_par: "Usa la variante Nemotron da 560 ms per testo parziale più reattivo. La predefinita è la variante da 1120 ms (migliore precisione)."
   the_transcription_enhancement_assignment_if: "Usa l'assegnazione Miglioramento trascrizione. Se non è impostata, l'output del pulitore deterministico viene mantenuto invariato."
 v:
   _self: "v%@"

@@ -8,36 +8,37 @@
 import Foundation
 import FluidAudio
 
-/// Streaming chunk size variants for the Parakeet EOU model. The two variants ship as
-/// separate CoreML exports under distinct subfolders; picking between them trades
-/// partial-token latency against WER on LibriSpeech test-clean (~4.9% at 320ms vs.
-/// ~8.2% at 160ms).
+/// Streaming chunk size variants for the Nemotron Speech Streaming 0.6B model. The two
+/// variants ship as separate CoreML exports under distinct subfolders; both punctuate
+/// and capitalize natively (~2-3.5% WER on LibriSpeech test-clean) — picking between
+/// them trades partial-text cadence against per-chunk compute.
 public enum StreamingChunkProfile: String, Sendable {
-    /// 320ms chunks. Default — ~70% relative WER reduction vs. 160ms, imperceptible
-    /// added latency for dictation (one beat of slower partial text).
+    /// 1120ms chunks. Default — NVIDIA's original export, best accuracy.
     case standard = "standard"
 
-    /// 160ms chunks. Low-latency mode. Noisier partials, more churn.
+    /// 560ms chunks. Snappier partial text at comparable accuracy, at the cost of
+    /// running the encoder twice as often.
     case lowLatency = "lowLatency"
 
-    public var fluidAudioChunkSize: StreamingChunkSize {
+    public var nemotronChunkSize: NemotronChunkSize {
         switch self {
-        case .standard: return .ms320
-        case .lowLatency: return .ms160
+        case .standard: return .ms1120
+        case .lowLatency: return .ms560
         }
     }
 
     public var modelSubdirectory: String {
         switch self {
-        case .standard: return "320ms"
-        case .lowLatency: return "160ms"
+        case .standard: return "1120ms"
+        case .lowLatency: return "560ms"
         }
     }
 
     /// Full relative folder name under `Application Support/FluidAudio/Models/` where
-    /// the CoreML variant lives once downloaded.
+    /// the CoreML variant lives once downloaded. Matches FluidAudio's
+    /// `Repo.nemotronStreaming*` folder names.
     public var repoFolderName: String {
-        "parakeet-eou-streaming/\(modelSubdirectory)"
+        "nemotron-streaming/\(modelSubdirectory)"
     }
 }
 
@@ -78,7 +79,8 @@ enum FeatureModelType: String, CaseIterable, Identifiable, Codable {
         case .diarization:
             return 100
         case .streaming:
-            return 150
+            // Nemotron 0.6B per chunk variant (int8-quantized encoder).
+            return 650
         }
     }
 

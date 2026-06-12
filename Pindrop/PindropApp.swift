@@ -181,9 +181,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.mainMenu = mainMenu
     }
     
-    @objc private func settingsDidChange() {
-        updateDockVisibility()
-        setupMainMenu()
+    /// `UserDefaults.didChangeNotification` is delivered synchronously on whatever
+    /// thread mutated the defaults — not necessarily the main thread. (First observed
+    /// crash: CoreML's model-load queue calls `-[NSUserDefaults registerDefaults:]`
+    /// via `MLFeatureFlags` while loading the first mlprogram-format model, which
+    /// delivered this notification on that queue and drove `setMainMenu` off-main.)
+    /// The selector is `nonisolated` because ObjC dispatch bypasses actor isolation;
+    /// all AppKit work hops to the main actor explicitly.
+    @objc nonisolated private func settingsDidChange() {
+        Task { @MainActor [weak self] in
+            self?.updateDockVisibility()
+            self?.setupMainMenu()
+        }
     }
     
     private func updateDockVisibility() {

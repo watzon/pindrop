@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import Combine
 
 // MARK: - Layout constants (size-independent only)
 
@@ -170,6 +171,26 @@ enum DotFloatingIndicatorSize: String, CaseIterable, Identifiable {
         }
     }
 
+    // MARK: Live transcript (overlay streaming)
+
+    /// Extra pill height for the live-transcript area shown while overlay streaming is
+    /// active. Sized for `transcriptLineLimit` lines of `expandedTextSize` text.
+    var transcriptHeight: CGFloat {
+        switch self {
+        case .small:  return 44
+        case .medium: return 54
+        case .large:  return 64
+        }
+    }
+
+    var transcriptLineLimit: Int {
+        switch self {
+        case .small:  return 2
+        case .medium: return 3
+        case .large:  return 3
+        }
+    }
+
     // MARK: Processing pill content
 
     var processingLogoDiameter: CGFloat {
@@ -225,6 +246,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     let type: FloatingIndicatorType = .dot
     let state: FloatingIndicatorState
+    let liveTranscript: LiveTranscriptState
 
     @Published var isHovered: Bool = false
     @Published private(set) var expandsRight: Bool = false
@@ -252,13 +274,35 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
     private var sizeItem: NSMenuItem?
     private var isContextMenuOpen = false
 
-    init(state: FloatingIndicatorState, settingsStore: SettingsStore) {
+    init(
+        state: FloatingIndicatorState,
+        settingsStore: SettingsStore,
+        liveTranscript: LiveTranscriptState
+    ) {
         self.state = state
         self.settingsStore = settingsStore
+        self.liveTranscript = liveTranscript
         self.dragOffset = settingsStore.dotFloatingIndicatorOffset
         self.dotIndicatorSize = DotFloatingIndicatorSize(rawValue: settingsStore.dotFloatingIndicatorSize) ?? .large
         super.init()
         contextMenu = makeContextMenu()
+
+        // The panel grows by `transcriptHeight` while the live transcript is active —
+        // resize on phase transitions only (text growth never resizes the panel).
+        liveTranscript.$phase
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.refreshPanelFrame()
+            }
+            .store(in: &phaseCancellables)
+    }
+
+    private var phaseCancellables = Set<AnyCancellable>()
+
+    /// Extra panel height while the live transcript is visible.
+    private var transcriptExtraHeight: CGFloat {
+        liveTranscript.isActive ? dotIndicatorSize.transcriptHeight : 0
     }
 
     func configure(actions: FloatingIndicatorActions) {
@@ -609,7 +653,7 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
     private func makeRootView() -> AnyView {
         let locale = settingsStore.selectedAppLocale.locale
         return AnyView(
-            DotIndicatorView(controller: self, state: state)
+            DotIndicatorView(controller: self, state: state, transcript: liveTranscript)
                 .environment(\.locale, locale)
                 .environment(\.layoutDirection, .leftToRight)
         )
@@ -720,8 +764,15 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
             ? dotCX - r - DotMetrics.edgeInset
             : dotCX + r + DotMetrics.edgeInset - pw
 
-        return NSRect(x: panelX, y: dotCY - dotIndicatorSize.panelHeight / 2,
-                      width: pw, height: dotIndicatorSize.panelHeight)
+        // While the live transcript is showing, the panel grows upward (the dot's home
+        // is the bottom-right corner) with the pill row pinned to the panel bottom;
+        // clamp so a dragged dot near the top edge stays on screen.
+        let extra = transcriptExtraHeight
+        let ph = dotIndicatorSize.panelHeight + extra
+        var panelY = dotCY - dotIndicatorSize.panelHeight / 2
+        panelY = max(visible.minY, min(panelY, visible.maxY - ph))
+
+        return NSRect(x: panelX, y: panelY, width: pw, height: ph)
     }
 
     private func shouldExpandRight(dotCenterX: CGFloat, screen: NSScreen) -> Bool {
@@ -746,43 +797,71 @@ final class DotFloatingIndicatorController: NSObject, ObservableObject, Floating
 struct DotIndicatorView: View {
     @ObservedObject var controller: DotFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
     @Environment(\.locale) private var locale
 
     private var sz: DotFloatingIndicatorSize { controller.dotIndicatorSize }
 
     private var isExpanded: Bool { state.isRecording || state.isProcessing || controller.isHovered }
+    /// Live transcript renders while a streaming session is active (recording and the
+    /// post-stop drain/enhance window, until the final paste collapses it).
+    private var showsTranscript: Bool { transcript.isActive }
     private var pillWidth: CGFloat  { isExpanded ? sz.expandedWidth  : sz.dotDiameter }
-    private var pillHeight: CGFloat { isExpanded ? sz.expandedHeight : sz.dotDiameter }
+    private var pillHeight: CGFloat {
+        guard isExpanded else { return sz.dotDiameter }
+        return sz.expandedHeight + (showsTranscript ? sz.transcriptHeight : 0)
+    }
+    /// Capsule for the dot/pill states (radius == height/2); softer rounded card while
+    /// the transcript area is showing.
+    private var shellCornerRadius: CGFloat {
+        showsTranscript && isExpanded ? sz.expandedHeight / 2 : pillHeight / 2
+    }
+    private var panelHeightEffective: CGFloat {
+        sz.panelHeight + (showsTranscript ? sz.transcriptHeight : 0)
+    }
 
     var body: some View {
         Group {
             if controller.expandsRight {
                 HStack(spacing: 0) {
-                    morphingPill.padding(.leading, DotMetrics.edgeInset)
+                    bottomAlignedPill.padding(.leading, DotMetrics.edgeInset)
                     Spacer(minLength: 0)
                 }
             } else {
                 HStack(spacing: 0) {
                     Spacer(minLength: 0)
-                    morphingPill.padding(.trailing, DotMetrics.edgeInset)
+                    bottomAlignedPill.padding(.trailing, DotMetrics.edgeInset)
                 }
             }
         }
-        .frame(width: sz.panelWidth, height: sz.panelHeight)
+        .frame(width: sz.panelWidth, height: panelHeightEffective)
         .animation(.spring(response: 0.36, dampingFraction: 0.80), value: isExpanded)
+        .animation(.spring(response: 0.36, dampingFraction: 0.80), value: showsTranscript)
         .animation(.spring(response: 0.36, dampingFraction: 0.80), value: controller.expandsRight)
         .animation(.spring(response: 0.28, dampingFraction: 0.84), value: sz.dotDiameter)
+    }
+
+    /// The panel grows upward while the transcript shows; keeping the pill pinned to
+    /// the bottom keeps the dot's on-screen position stable through the transition.
+    private var bottomAlignedPill: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            morphingPill
+        }
     }
 
     // MARK: Morphing pill
 
     private var morphingPill: some View {
         ZStack {
-            Capsule()
+            RoundedRectangle(cornerRadius: shellCornerRadius, style: .continuous)
                 .fill(AppColors.overlaySurfaceStrong)
                 .shadow(color: AppColors.shadowColor.opacity(0.36), radius: 12, y: 6)
-                .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(0.6))
+                .hairlineStroke(
+                    RoundedRectangle(cornerRadius: shellCornerRadius, style: .continuous),
+                    style: AppColors.overlayLine.opacity(0.6)
+                )
 
             TimelineView(.animation(minimumInterval: 0.04)) { timeline in
                 let t = timeline.date.timeIntervalSinceReferenceDate
@@ -809,8 +888,8 @@ struct DotIndicatorView: View {
             }
         }
         .frame(width: pillWidth, height: pillHeight)
-        .clipShape(Capsule())
-        .contentShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: shellCornerRadius, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: shellCornerRadius, style: .continuous))
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { _ in
@@ -825,9 +904,28 @@ struct DotIndicatorView: View {
 
     @ViewBuilder
     private var expandedContent: some View {
-        if state.isRecording      { recordingContent }
-        else if state.isProcessing { processingContent }
-        else                       { hoverContent }
+        if showsTranscript, state.isRecording || state.isProcessing {
+            VStack(spacing: 0) {
+                Group {
+                    if state.isRecording { recordingContent } else { processingContent }
+                }
+                .frame(height: sz.expandedHeight)
+                LiveTranscriptView(
+                    transcript: transcript,
+                    fontSize: sz.expandedTextSize,
+                    lineLimit: sz.transcriptLineLimit
+                )
+                .padding(.horizontal, sz.recordingLeadPadding)
+                .padding(.bottom, 8)
+            }
+            .frame(height: pillHeight)
+        } else if state.isRecording {
+            recordingContent
+        } else if state.isProcessing {
+            processingContent
+        } else {
+            hoverContent
+        }
     }
 
     private var hoverContent: some View {
@@ -944,35 +1042,35 @@ struct DotIndicatorView: View {
 private func dotPreview(size: DotFloatingIndicatorSize) -> some View {
     let settings = SettingsStore()
     settings.dotFloatingIndicatorSize = size.rawValue
-    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: settings)
-    return DotIndicatorView(controller: controller, state: controller.state)
+    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: settings, liveTranscript: LiveTranscriptState())
+    return DotIndicatorView(controller: controller, state: controller.state, transcript: controller.liveTranscript)
         .frame(width: size.panelWidth, height: size.panelHeight)
         .background(AppColors.windowBackground)
 }
 
 @MainActor
 private var dotHoverPreview: some View {
-    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore())
+    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     controller.isHovered = true
-    return DotIndicatorView(controller: controller, state: controller.state)
+    return DotIndicatorView(controller: controller, state: controller.state, transcript: controller.liveTranscript)
         .frame(width: DotFloatingIndicatorSize.large.panelWidth, height: DotFloatingIndicatorSize.large.panelHeight)
         .background(AppColors.windowBackground)
 }
 
 @MainActor
 private var dotRecordingPreview: some View {
-    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore())
+    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     controller.state.isRecording = true; controller.state.audioLevel = 0.65
-    return DotIndicatorView(controller: controller, state: controller.state)
+    return DotIndicatorView(controller: controller, state: controller.state, transcript: controller.liveTranscript)
         .frame(width: DotFloatingIndicatorSize.large.panelWidth, height: DotFloatingIndicatorSize.large.panelHeight)
         .background(AppColors.windowBackground)
 }
 
 @MainActor
 private var dotProcessingPreview: some View {
-    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore())
+    let controller = DotFloatingIndicatorController(state: FloatingIndicatorState(), settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     controller.state.isProcessing = true
-    return DotIndicatorView(controller: controller, state: controller.state)
+    return DotIndicatorView(controller: controller, state: controller.state, transcript: controller.liveTranscript)
         .frame(width: DotFloatingIndicatorSize.large.panelWidth, height: DotFloatingIndicatorSize.large.panelHeight)
         .background(AppColors.windowBackground)
 }

@@ -96,7 +96,7 @@ class TranscriptionService {
             FluidSpeakerDiarizer()
         },
         streamingEngineFactory: @escaping @MainActor (StreamingChunkProfile) -> any StreamingTranscriptionEngine = {
-            ParakeetStreamingEngine(chunkProfile: $0)
+            NemotronStreamingEngine(chunkProfile: $0)
         },
         appleSpeechEngineFactory: @escaping @MainActor () -> (any StreamingTranscriptionEngine)? = {
             if #available(macOS 26, *) {
@@ -356,7 +356,7 @@ class TranscriptionService {
             effectiveBackend = .parakeet
             appleBackendFellBackToParakeet = true
             Log.transcription.warning(
-                "Apple SpeechTranscriber requested but unavailable on this host; falling back to Parakeet"
+                "Apple SpeechTranscriber requested but unavailable on this host; falling back to Nemotron"
             )
         } else {
             effectiveBackend = requestedBackend
@@ -368,10 +368,10 @@ class TranscriptionService {
             let existingBackend = Self.backendFor(engine: existing)
             var recreate = existingBackend != effectiveBackend
             if !recreate, effectiveBackend == .parakeet,
-               let parakeet = existing as? ParakeetStreamingEngine,
-               parakeet.chunkProfile != profile
+               let nemotron = existing as? NemotronStreamingEngine,
+               nemotron.chunkProfile != profile
             {
-                await parakeet.updateChunkProfile(profile)
+                await nemotron.updateChunkProfile(profile)
                 recreate = true
             }
             if recreate {
@@ -449,7 +449,7 @@ class TranscriptionService {
 
     /// Map an existing engine instance back to the `TranscriptionBackend` that produced it.
     private static func backendFor(engine: any StreamingTranscriptionEngine) -> TranscriptionBackend {
-        if engine is ParakeetStreamingEngine {
+        if engine is NemotronStreamingEngine {
             return .parakeet
         }
         if #available(macOS 26, *) {

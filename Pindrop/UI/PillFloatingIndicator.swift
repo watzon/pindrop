@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import Combine
 
 private final class PillHostingView: NSHostingView<AnyView> {
     var onRightMouseDown: ((NSEvent) -> Void)?
@@ -28,7 +29,9 @@ private final class PillHostingView: NSHostingView<AnyView> {
 final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuDelegate, FloatingIndicatorPresenting {
     let type: FloatingIndicatorType = .pill
     let state: FloatingIndicatorState
+    let liveTranscript: LiveTranscriptState
     private let settingsStore: SettingsStore
+    private var phaseCancellables = Set<AnyCancellable>()
 
     private enum LayoutState {
         case compact
@@ -43,6 +46,11 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         static let hoverSize = CGSize(width: 332, height: 68)
         static let recordingSize = CGSize(width: 124, height: 30)
         static let processingSize = CGSize(width: 124, height: 30)
+        /// Panel size while the live transcript card is showing (overlay streaming).
+        static let streamingSize = CGSize(width: 332, height: 112)
+        /// The transcript card itself (pill row + transcript area), bottom-aligned in
+        /// the panel like the plain recording pill.
+        static let streamingCardSize = CGSize(width: 320, height: 98)
 
         static let compactBottomInset: CGFloat = 6
         static let expandedBottomInset: CGFloat = 10
@@ -80,12 +88,27 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private var isVisible: Bool = false
 
-    init(state: FloatingIndicatorState, settingsStore: SettingsStore) {
+    init(
+        state: FloatingIndicatorState,
+        settingsStore: SettingsStore,
+        liveTranscript: LiveTranscriptState
+    ) {
         self.state = state
         self.settingsStore = settingsStore
+        self.liveTranscript = liveTranscript
         self.dragOffset = settingsStore.pillFloatingIndicatorOffset
         super.init()
         contextMenu = makeContextMenu()
+
+        // The panel swaps to `streamingSize` while the live transcript is active —
+        // resize on phase transitions only, never on text growth.
+        liveTranscript.$phase
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.refreshLayout(animated: true, duration: 0.24)
+            }
+            .store(in: &phaseCancellables)
     }
 
     func configure(actions: FloatingIndicatorActions) {
@@ -126,6 +149,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         let contentView = PillIndicatorView(
             controller: self,
             state: self.state,
+            transcript: liveTranscript,
             isCompact: true
         )
         let hostingView = makeHostingView(for: contentView, size: size(for: state))
@@ -687,6 +711,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         makeRootView(for: PillIndicatorView(
             controller: self,
             state: state,
+            transcript: liveTranscript,
             isCompact: isCompact
         ))
     }
@@ -697,8 +722,13 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             .environment(\.layoutDirection, .leftToRight))
     }
 
-    private func size(for _: LayoutState) -> CGSize {
-        LayoutMetrics.hoverSize
+    private func size(for layoutState: LayoutState) -> CGSize {
+        switch layoutState {
+        case .recording, .processing:
+            return liveTranscript.isActive ? LayoutMetrics.streamingSize : LayoutMetrics.hoverSize
+        case .compact, .hover:
+            return LayoutMetrics.hoverSize
+        }
     }
 
     private func bottomInset(for _: LayoutState) -> CGFloat {
@@ -775,12 +805,19 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 struct PillIndicatorView: View {
     @ObservedObject var controller: PillFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject var transcript: LiveTranscriptState
     let isCompact: Bool
     @Namespace private var pillShellNamespace
     @ObservedObject private var theme = PindropThemeController.shared
 
     private var showsExpandedState: Bool {
         state.isRecording || state.isProcessing || !isCompact
+    }
+
+    /// Live transcript card replaces the small recording/processing pill while a
+    /// streaming session is active.
+    private var showsTranscript: Bool {
+        transcript.isActive && (state.isRecording || state.isProcessing)
     }
 
     var body: some View {
@@ -849,60 +886,80 @@ struct PillIndicatorView: View {
         ZStack {
             expandedPillShell
 
-            if state.isRecording {
-                HStack(spacing: 8) {
-                    Button {
-                        controller.handleCancelButtonTapped()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(AppColors.overlayTextPrimary.opacity(0.1))
-
-                            Image(systemName: "xmark")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
-                        }
-                        .frame(width: 18, height: 18)
-                    }
-                    .buttonStyle(.plain)
-
-                    FloatingIndicatorWaveformView(
-                        audioLevel: state.audioLevel,
-                        isRecording: state.isRecording,
-                        style: .pill
-                    )
-                    .frame(width: 46, height: 14)
-
-                    Button {
-                        controller.handleStopButtonTapped()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(AppColors.overlayRecording)
-
-                            RoundedRectangle(cornerRadius: 1.5)
-                                .fill(AppColors.overlayTextPrimary)
-                                .frame(width: 6, height: 6)
-                        }
-                        .frame(width: 18, height: 18)
-                        .shadow(color: AppColors.overlayRecording.opacity(0.25), radius: 4)
-                    }
-                    .buttonStyle(.plain)
+            if showsTranscript {
+                VStack(spacing: 4) {
+                    expandedControlsRow
+                        .frame(height: 30)
+                    LiveTranscriptView(transcript: transcript, fontSize: 11, lineLimit: 3)
+                        .padding(.horizontal, 14)
+                        .padding(.bottom, 10)
                 }
-                .padding(.horizontal, 9)
             } else {
-                HStack(spacing: 6) {
-                    IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
-
-                    Text("Processing")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
-                }
+                expandedControlsRow
             }
         }
-        .frame(width: 124, height: 30)
+        .frame(width: expandedSize.width, height: expandedSize.height)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom, 6)
+        .animation(.spring(response: 0.26, dampingFraction: 0.86), value: showsTranscript)
+    }
+
+    private var expandedSize: CGSize {
+        showsTranscript ? CGSize(width: 320, height: 98) : CGSize(width: 124, height: 30)
+    }
+
+    @ViewBuilder
+    private var expandedControlsRow: some View {
+        if state.isRecording {
+            HStack(spacing: 8) {
+                Button {
+                    controller.handleCancelButtonTapped()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(AppColors.overlayTextPrimary.opacity(0.1))
+
+                        Image(systemName: "xmark")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
+                    }
+                    .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.plain)
+
+                FloatingIndicatorWaveformView(
+                    audioLevel: state.audioLevel,
+                    isRecording: state.isRecording,
+                    style: .pill
+                )
+                .frame(width: 46, height: 14)
+
+                Button {
+                    controller.handleStopButtonTapped()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(AppColors.overlayRecording)
+
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(AppColors.overlayTextPrimary)
+                            .frame(width: 6, height: 6)
+                    }
+                    .frame(width: 18, height: 18)
+                    .shadow(color: AppColors.overlayRecording.opacity(0.25), radius: 4)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 9)
+        } else {
+            HStack(spacing: 6) {
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
+
+                Text("Processing")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
+            }
+        }
     }
 
     private var compactPillShell: some View {
@@ -946,12 +1003,18 @@ struct PillIndicatorView: View {
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }
 
+    /// Capsule for the small recording/processing pill; rounded card while the live
+    /// transcript shows. Same matched-geometry id so the capsule morphs into the card.
     private var expandedPillShell: some View {
-        Capsule()
+        let shape = RoundedRectangle(
+            cornerRadius: showsTranscript ? 16 : expandedSize.height / 2,
+            style: .continuous
+        )
+        return shape
             .fill(AppColors.overlaySurface)
-            .hairlineStroke(Capsule(), style: AppColors.overlayLine)
+            .hairlineStroke(shape, style: AppColors.overlayLine)
             .overlay(
-                Capsule()
+                shape
                     .fill(
                         LinearGradient(
                             colors: [AppColors.overlayTextPrimary.opacity(0.2), .clear],
@@ -1105,9 +1168,9 @@ private struct TooltipPointer: Shape {
 @MainActor
 private var pillCompactPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
 
-    return PillIndicatorView(controller: controller, state: state, isCompact: true)
+    return PillIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript, isCompact: true)
         .frame(width: 332, height: 68)
         .padding()
         .background(Color.black.opacity(0.1))
@@ -1116,12 +1179,12 @@ private var pillCompactPreview: some View {
 @MainActor
 private var pillHoverPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     controller.isHovered = true
     controller.isHoverTooltipVisible = true
     state.toggleRecordingHotkey = "⌥Space"
 
-    return PillIndicatorView(controller: controller, state: state, isCompact: true)
+    return PillIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript, isCompact: true)
         .frame(width: 332, height: 68)
         .padding()
         .background(Color.black.opacity(0.1))
@@ -1130,11 +1193,11 @@ private var pillHoverPreview: some View {
 @MainActor
 private var pillRecordingPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     state.isRecording = true
     state.audioLevel = 0.7
 
-    return PillIndicatorView(controller: controller, state: state, isCompact: false)
+    return PillIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript, isCompact: false)
         .frame(width: 124, height: 30)
         .padding()
         .background(Color.black.opacity(0.1))
@@ -1143,11 +1206,11 @@ private var pillRecordingPreview: some View {
 @MainActor
 private var pillProcessingPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore())
+    let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     state.isRecording = false
     state.isProcessing = true
 
-    return PillIndicatorView(controller: controller, state: state, isCompact: false)
+    return PillIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript, isCompact: false)
         .frame(width: 124, height: 30)
         .padding()
         .background(Color.black.opacity(0.1))

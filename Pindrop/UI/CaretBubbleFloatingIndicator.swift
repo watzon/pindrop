@@ -6,20 +6,25 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
 final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting, ObservableObject {
     let type: FloatingIndicatorType = .bubble
     let state: FloatingIndicatorState
+    let liveTranscript: LiveTranscriptState
 
     @Published var isHovered = false
     @Published private(set) var actionRevealWidth: CGFloat = 0
     @Published private(set) var isDragging = false
 
-    private enum LayoutMetrics {
+    fileprivate enum LayoutMetrics {
         static let panelSize = CGSize(width: 98, height: 40)
         static let centerBubbleSize = CGSize(width: 42, height: 28)
+        /// Sizes while the live transcript card is showing (overlay streaming).
+        static let streamingPanelSize = CGSize(width: 320, height: 116)
+        static let streamingBubbleSize = CGSize(width: 264, height: 104)
         static let actionBubbleSize = CGSize(width: 22, height: 22)
         static let actionSpacing: CGFloat = 6
         static let horizontalGap: CGFloat = 12
@@ -36,6 +41,20 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         case below
     }
 
+    /// Effective sizes — swap to the transcript-card dimensions while streaming.
+    private var panelSize: CGSize {
+        liveTranscript.isActive ? LayoutMetrics.streamingPanelSize : LayoutMetrics.panelSize
+    }
+    fileprivate var centerBubbleSize: CGSize {
+        liveTranscript.isActive ? LayoutMetrics.streamingBubbleSize : LayoutMetrics.centerBubbleSize
+    }
+
+    /// Placement preference: while the transcript card shows, prefer below/above so the
+    /// card doesn't cover the line being written at the caret.
+    private var placementOrder: [BubblePlacement] {
+        liveTranscript.isActive ? [.below, .above, .left, .right] : BubblePlacement.allCases
+    }
+
     private var panel: NSPanel?
     private var hostingView: NSHostingView<AnyView>?
     private var actions = FloatingIndicatorActions()
@@ -44,9 +63,28 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     private var dragStartMouseLocation: CGPoint?
     private var manualOffset: CGSize = .zero
     private var dragStartOffset: CGSize = .zero
+    private var phaseCancellables = Set<AnyCancellable>()
 
-    init(state: FloatingIndicatorState) {
+    init(state: FloatingIndicatorState, liveTranscript: LiveTranscriptState) {
         self.state = state
+        self.liveTranscript = liveTranscript
+
+        // Resize the panel on transcript phase transitions only; while the card is up
+        // the cancel/stop bubbles stay revealed (no hover needed mid-dictation).
+        liveTranscript.$phase
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                if self.liveTranscript.isActive {
+                    self.actionRevealWidth =
+                        LayoutMetrics.actionBubbleSize.width + LayoutMetrics.actionSpacing
+                } else if !self.isHovered {
+                    self.actionRevealWidth = 0
+                }
+                self.refreshAnchorPosition(animated: true)
+            }
+            .store(in: &phaseCancellables)
     }
 
     func configure(actions: FloatingIndicatorActions) {
@@ -68,7 +106,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     func startRecording() {
         state.startRecording()
         isHovered = false
-        actionRevealWidth = 0
+        actionRevealWidth = streamingRevealWidth
         show()
         refreshAnchorPosition(animated: false)
     }
@@ -76,9 +114,16 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     func transitionToProcessing() {
         state.transitionToProcessing()
         isHovered = false
-        actionRevealWidth = 0
+        actionRevealWidth = streamingRevealWidth
         show()
         refreshAnchorPosition(animated: false)
+    }
+
+    /// While the transcript card is up the action bubbles stay revealed.
+    private var streamingRevealWidth: CGFloat {
+        liveTranscript.isActive
+            ? (LayoutMetrics.actionBubbleSize.width + LayoutMetrics.actionSpacing)
+            : 0
     }
 
     func finishProcessing() {
@@ -120,7 +165,8 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
             return
         }
         isHovered = hovering
-        actionRevealWidth = hovering ? (LayoutMetrics.actionBubbleSize.width + LayoutMetrics.actionSpacing) : 0
+        let revealed = hovering || liveTranscript.isActive
+        actionRevealWidth = revealed ? (LayoutMetrics.actionBubbleSize.width + LayoutMetrics.actionSpacing) : 0
         refreshAnchorPosition(animated: true)
     }
 
@@ -171,7 +217,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     private func show() {
         if panel == nil {
             let panel = NSPanel(
-                contentRect: NSRect(origin: .zero, size: LayoutMetrics.panelSize),
+                contentRect: NSRect(origin: .zero, size: panelSize),
                 styleMask: [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow],
                 backing: .buffered,
                 defer: false
@@ -185,13 +231,14 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
             panel.isReleasedWhenClosed = false
 
             let appLocale = AppLocale.currentSelection()
-            let contentView = AnyView(CaretBubbleIndicatorView(controller: self, state: state)
-                .environment(\.locale, appLocale.locale)
-                .environment(\.layoutDirection, .leftToRight))
+            let contentView = AnyView(
+                CaretBubbleIndicatorView(controller: self, state: state, transcript: liveTranscript)
+                    .environment(\.locale, appLocale.locale)
+                    .environment(\.layoutDirection, .leftToRight))
             let hostingView = NSHostingView(rootView: contentView)
             hostingView.layer?.backgroundColor = NSColor.clear.cgColor
             hostingView.wantsLayer = true
-            hostingView.frame = NSRect(origin: .zero, size: LayoutMetrics.panelSize)
+            hostingView.frame = NSRect(origin: .zero, size: panelSize)
             hostingView.userInterfaceLayoutDirection = .leftToRight
 
             panel.contentView = hostingView
@@ -240,7 +287,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     }
 
     private func targetFrame() -> NSRect {
-        let size = LayoutMetrics.panelSize
+        let size = panelSize
         let anchorRect = actions.anchorProvider?().map(convertToAppKitScreenCoordinates)
         let screen = preferredScreen(for: anchorRect) ?? NSScreen.main
         let visibleFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
@@ -252,7 +299,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
             )
         }
 
-        for placement in BubblePlacement.allCases {
+        for placement in placementOrder {
             if let frame = frame(for: placement, anchorRect: anchorRect, visibleFrame: visibleFrame) {
                 return applyManualOffset(to: frame, within: visibleFrame)
             }
@@ -260,7 +307,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
 
         return applyManualOffset(
             to: clampedFrame(
-                x: anchorRect.midX - (LayoutMetrics.centerBubbleSize.width / 2) - actionRevealWidth,
+                x: anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth,
                 y: anchorRect.maxY + LayoutMetrics.verticalGap - verticalBubbleInset,
                 within: visibleFrame
             ),
@@ -272,26 +319,26 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         switch placement {
         case .above:
             let y = anchorRect.maxY + LayoutMetrics.verticalGap - verticalBubbleInset
-            guard y + LayoutMetrics.panelSize.height <= visibleFrame.maxY - LayoutMetrics.screenInset else { return nil }
-            let x = anchorRect.midX - (LayoutMetrics.centerBubbleSize.width / 2) - actionRevealWidth
+            guard y + panelSize.height <= visibleFrame.maxY - LayoutMetrics.screenInset else { return nil }
+            let x = anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .left:
-            let x = anchorRect.minX - LayoutMetrics.horizontalGap - LayoutMetrics.centerBubbleSize.width - actionRevealWidth
+            let x = anchorRect.minX - LayoutMetrics.horizontalGap - centerBubbleSize.width - actionRevealWidth
             guard x >= visibleFrame.minX + LayoutMetrics.screenInset else { return nil }
-            let y = anchorRect.midY - (LayoutMetrics.centerBubbleSize.height / 2) - verticalBubbleInset
+            let y = anchorRect.midY - (centerBubbleSize.height / 2) - verticalBubbleInset
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .right:
             let x = anchorRect.maxX + LayoutMetrics.horizontalGap - actionRevealWidth
-            guard x + LayoutMetrics.panelSize.width <= visibleFrame.maxX - LayoutMetrics.screenInset else { return nil }
-            let y = anchorRect.midY - (LayoutMetrics.centerBubbleSize.height / 2) - verticalBubbleInset
+            guard x + panelSize.width <= visibleFrame.maxX - LayoutMetrics.screenInset else { return nil }
+            let y = anchorRect.midY - (centerBubbleSize.height / 2) - verticalBubbleInset
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .below:
-            let y = anchorRect.minY - LayoutMetrics.verticalGap - LayoutMetrics.centerBubbleSize.height - verticalBubbleInset
+            let y = anchorRect.minY - LayoutMetrics.verticalGap - centerBubbleSize.height - verticalBubbleInset
             guard y >= visibleFrame.minY + LayoutMetrics.screenInset else { return nil }
-            let x = anchorRect.midX - (LayoutMetrics.centerBubbleSize.width / 2) - actionRevealWidth
+            let x = anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth
             return clampedFrame(x: x, y: y, within: visibleFrame)
         }
     }
@@ -306,13 +353,13 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
 
     private func fallbackOrigin(in visibleFrame: CGRect) -> CGPoint {
         CGPoint(
-            x: visibleFrame.maxX - LayoutMetrics.panelSize.width - 24,
+            x: visibleFrame.maxX - panelSize.width - 24,
             y: visibleFrame.minY + LayoutMetrics.fallbackBottomInset
         )
     }
 
     private var verticalBubbleInset: CGFloat {
-        (LayoutMetrics.panelSize.height - LayoutMetrics.centerBubbleSize.height) / 2
+        (panelSize.height - centerBubbleSize.height) / 2
     }
 
     private func clampedFrame(x: CGFloat, y: CGFloat, within visibleFrame: CGRect) -> NSRect {
@@ -320,15 +367,15 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
             x: clamp(
                 x,
                 min: visibleFrame.minX + LayoutMetrics.screenInset,
-                max: visibleFrame.maxX - LayoutMetrics.panelSize.width - LayoutMetrics.screenInset
+                max: visibleFrame.maxX - panelSize.width - LayoutMetrics.screenInset
             ),
             y: clamp(
                 y,
                 min: visibleFrame.minY + LayoutMetrics.screenInset,
-                max: visibleFrame.maxY - LayoutMetrics.panelSize.height - LayoutMetrics.screenInset
+                max: visibleFrame.maxY - panelSize.height - LayoutMetrics.screenInset
             ),
-            width: LayoutMetrics.panelSize.width,
-            height: LayoutMetrics.panelSize.height
+            width: panelSize.width,
+            height: panelSize.height
         )
     }
 
@@ -376,17 +423,30 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
 private struct CaretBubbleIndicatorView: View {
     @ObservedObject var controller: CaretBubbleFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
     @State private var idlePulse: Bool = false
 
-    private var showsHoverActions: Bool {
-        state.isRecording && controller.isHovered
+    private var showsTranscript: Bool {
+        transcript.isActive && (state.isRecording || state.isProcessing)
+    }
+
+    private var showsActions: Bool {
+        showsTranscript || (state.isRecording && controller.isHovered)
+    }
+
+    private var bubbleSize: CGSize { controller.centerBubbleSize }
+
+    private var panelSize: CGSize {
+        showsTranscript
+            ? CaretBubbleFloatingIndicatorController.LayoutMetrics.streamingPanelSize
+            : CaretBubbleFloatingIndicatorController.LayoutMetrics.panelSize
     }
 
     var body: some View {
         ZStack(alignment: .leading) {
             actionBubble(icon: "xmark", isDestructive: false, action: controller.handleCancelTapped)
-                .opacity(showsHoverActions ? 1 : 0)
+                .opacity(showsActions ? 1 : 0)
                 .offset(
                     x: controller.actionRevealWidth == 0 ? 10 : 0,
                     y: 9
@@ -396,9 +456,9 @@ private struct CaretBubbleIndicatorView: View {
                 .offset(x: controller.actionRevealWidth, y: 6)
 
             actionBubble(icon: nil, isDestructive: true, action: controller.handleStopTapped)
-                .opacity(showsHoverActions ? 1 : 0)
+                .opacity(showsActions ? 1 : 0)
                 .offset(
-                    x: controller.actionRevealWidth + 48,
+                    x: controller.actionRevealWidth + bubbleSize.width + 6,
                     y: 9
                 )
 
@@ -409,11 +469,12 @@ private struct CaretBubbleIndicatorView: View {
                     .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
             }
         }
-        .frame(width: 98, height: 40, alignment: .leading)
+        .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
         .contentShape(Rectangle())
         .onHover { controller.setHover($0) }
         .themeRefresh()
-        .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsHoverActions)
+        .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsActions)
+        .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsTranscript)
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: controller.actionRevealWidth)
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
@@ -436,12 +497,34 @@ private struct CaretBubbleIndicatorView: View {
             }
         } label: {
             ZStack {
-                Capsule()
+                RoundedRectangle(cornerRadius: showsTranscript ? 14 : bubbleSize.height / 2, style: .continuous)
                     .fill(AppColors.overlaySurface)
-                    .hairlineStroke(Capsule(), style: AppColors.overlayLine)
+                    .hairlineStroke(
+                        RoundedRectangle(cornerRadius: showsTranscript ? 14 : bubbleSize.height / 2, style: .continuous),
+                        style: AppColors.overlayLine
+                    )
                     .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
 
-                if state.isProcessing {
+                if showsTranscript {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            if state.isProcessing {
+                                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
+                            } else {
+                                FloatingIndicatorWaveformView(
+                                    audioLevel: state.audioLevel,
+                                    isRecording: state.isRecording,
+                                    style: .bubble
+                                )
+                                .frame(width: 24, height: 12)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        LiveTranscriptView(transcript: transcript, fontSize: 11, lineLimit: 3)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                } else if state.isProcessing {
                     IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
                 } else {
                     FloatingIndicatorWaveformView(
@@ -449,11 +532,11 @@ private struct CaretBubbleIndicatorView: View {
                         isRecording: state.isRecording,
                         style: .bubble
                     )
-                        .frame(width: 24, height: 12)
+                    .frame(width: 24, height: 12)
                 }
             }
-            .frame(width: 42, height: 28)
-            .scaleEffect(controller.isHovered && state.isRecording ? 1.03 : 1)
+            .frame(width: bubbleSize.width, height: bubbleSize.height)
+            .scaleEffect(controller.isHovered && state.isRecording && !showsTranscript ? 1.03 : 1)
             .scaleEffect(!state.isRecording && !state.isProcessing ? (idlePulse ? 1.04 : 0.97) : 1.0)
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
@@ -489,7 +572,7 @@ private struct CaretBubbleIndicatorView: View {
             .shadow(color: isDestructive ? AppColors.overlayRecording.opacity(0.2) : AppColors.shadowColor.opacity(0.16), radius: 6, y: 3)
         }
         .buttonStyle(.plain)
-        .allowsHitTesting(showsHoverActions)
+        .allowsHitTesting(showsActions)
     }
 }
 
@@ -504,12 +587,12 @@ private struct CaretBubbleIndicatorView: View {
 @MainActor
 private var caretBubbleRecordingPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = CaretBubbleFloatingIndicatorController(state: state)
+    let controller = CaretBubbleFloatingIndicatorController(state: state, liveTranscript: LiveTranscriptState())
     state.isRecording = true
     state.audioLevel = 0.7
     controller.isHovered = true
 
-    return CaretBubbleIndicatorView(controller: controller, state: state)
+    return CaretBubbleIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript)
         .padding()
         .background(AppColors.windowBackground)
 }
@@ -517,10 +600,10 @@ private var caretBubbleRecordingPreview: some View {
 @MainActor
 private var caretBubbleProcessingPreview: some View {
     let state = FloatingIndicatorState()
-    let controller = CaretBubbleFloatingIndicatorController(state: state)
+    let controller = CaretBubbleFloatingIndicatorController(state: state, liveTranscript: LiveTranscriptState())
     state.isProcessing = true
 
-    return CaretBubbleIndicatorView(controller: controller, state: state)
+    return CaretBubbleIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript)
         .padding()
         .background(AppColors.windowBackground)
 }

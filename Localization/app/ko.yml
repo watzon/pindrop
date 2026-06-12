@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple Intelligence는 기기 내에서 실행되며 자격 증명이 필요하지 않습니다."
   speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26 이상)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber는 macOS 26가 필요합니다."
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber를 사용할 수 없습니다 — Parakeet으로 전환합니다"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber를 사용할 수 없음 — Nemotron 사용 중"
 are:
   you_sure_you_want_to_delete_this_action_cann: "정말로 '%@'을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "모델을 선택하세요"
   a_provider_first: "먼저 제공업체를 선택하세요"
   an_audio_or_video_file_to_transcribe: "텍스트로 변환할 오디오 또는 비디오 파일을 선택하세요"
-  between_parakeet_cross_version_downloaded: "Parakeet(여러 버전 호환, 모델 다운로드 필요)와 Apple SpeechTranscriber(macOS 26 이상, OS와 함께 제공) 중에서 선택하세요."
+  between_nemotron_punctuated_downloaded_mod: "Nemotron(구두점 지원, 다운로드 모델)과 Apple SpeechTranscriber(macOS 26+, OS 내장) 중에서 선택하세요."
   file: "파일 선택"
   how_dictated_text_lands_then_tune_the_fin: "받아쓰기 텍스트가 어떻게 전달되는지 선택한 다음 최종 삽입 동작을 조정하세요."
   how_pindrop_follows_system_appearance_the: "Pindrop이 시스템 모양을 따르는 방식을 선택한 다음 엄선된 밝은 팔레트와 어두운 팔레트를 혼합합니다."
@@ -284,6 +284,8 @@ enhanced:
   _self: "향상된"
 enhancement:
   prompts: "개선 프롬프트"
+enhancing:
+  _self: "다듬는 중…"
 enter:
   an_openai_api_key_to_load_models: "모델을 로드하려면 OpenAI API 키를 입력하세요."
   api_key: "API 키를 입력하세요"
@@ -441,6 +443,8 @@ light:
   theme: "라이트 테마"
 limited:
   _self: "제한된"
+listening:
+  _self: "듣는 중…"
 live:
   streaming_refinement: "라이브 스트리밍 개선"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "산출"
   audio_interface_and_everyday_behavior: "출력, 오디오, 인터페이스 및 일상적인 동작"
-parakeet:
-  default: "Parakeet(기본값)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "반죽"
   a_video_or_audio_link: "비디오 또는 오디오 링크 붙여넣기"
+  failed_transcript_copied_to_clipboard: "붙여넣기에 실패했습니다. 텍스트가 클립보드에 복사되었습니다."
   last_transcript: "마지막 기록 붙여넣기"
   last_transcript_v: "마지막 기록 붙여넣기 ⌃⌘V"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "스트리밍 향상"
   transcription_currently_supports_engli: "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
   transcription_is_disabled_while_ai_enh: "AI Enhancement가 활성화된 동안 스트리밍 전사는 비활성화됩니다."
-  transcription_model_parakeet_realtime: "스트리밍 전사 모델(Parakeet Realtime EOU)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스합니다."
+  transcription_model_nemotron_speech: "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
 success:
   _self: "성공!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "단축키를 통해 메모를 캡처할 때 사용됩니다. 더 긴 콘텐츠에 마크다운 형식을 추가할 수 있습니다."
 uses:
   a_built_in_prompt_tuned_for_this_task: "이 작업에 맞게 조정된 내장 프롬프트를 사용합니다."
-  the_160ms_parakeet_variant_for_snappier_par: "160ms Parakeet 변형을 사용해 중간 결과가 더 빨라지지만, 단어 오류가 약 70% 증가합니다. 기본값은 320ms 변형입니다."
+  the_560ms_nemotron_variant_for_snappier_par: "더 빠른 부분 텍스트를 위해 560ms Nemotron 변형을 사용합니다. 기본값은 1120ms 변형입니다(최고 정확도)."
   the_transcription_enhancement_assignment_if: "전사 향상 할당을 사용합니다. 설정되어 있지 않으면 결정론적 정리기의 출력이 그대로 유지됩니다."
 v:
   _self: "v%@"

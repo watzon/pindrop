@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple Intelligence běží na zařízení a nevyžaduje žádné přihlašovací údaje."
   speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber vyžaduje macOS 26."
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber není k dispozici — používá Parakeet"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber není k dispozici — používá se Nemotron"
 are:
   you_sure_you_want_to_delete_this_action_cann: "Opravdu chcete smazat „%@“? Tuto akci nelze vrátit zpět."
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "Vyberte model"
   a_provider_first: "Nejprve vyberte poskytovatele"
   an_audio_or_video_file_to_transcribe: "Vyberte zvukový nebo video soubor, který chcete přepsat"
-  between_parakeet_cross_version_downloaded: "Vyberte si mezi Parakeet (křížová verze, stažený model) a Apple SpeechTranscriber (macOS 26+, dodává se s OS)."
+  between_nemotron_punctuated_downloaded_mod: "Vyberte mezi Nemotron (s interpunkcí, stahovaný model) a Apple SpeechTranscriber (macOS 26+, součást systému)."
   file: "Vyberte soubor"
   how_dictated_text_lands_then_tune_the_fin: "Vyberte, jak bude diktovaný text přistávat, a poté vylaďte konečné chování vkládání."
   how_pindrop_follows_system_appearance_the: "Vyberte, jak Pindrop sleduje vzhled systému, a poté smíchejte upravené světlé a tmavé palety."
@@ -284,6 +284,8 @@ enhanced:
   _self: "Vylepšené"
 enhancement:
   prompts: "Výzvy k vylepšení"
+enhancing:
+  _self: "Vylepšuji…"
 enter:
   an_openai_api_key_to_load_models: "Chcete-li načíst modely, zadejte klíč API OpenAI."
   api_key: "Zadejte klíč API"
@@ -441,6 +443,8 @@ light:
   theme: "Světlé téma"
 limited:
   _self: "Omezený"
+listening:
+  _self: "Poslouchám…"
 live:
   streaming_refinement: "Upřesnění živého vysílání"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "Výstup"
   audio_interface_and_everyday_behavior: "Výstup, zvuk, rozhraní a každodenní chování"
-parakeet:
-  default: "Papoušek (výchozí)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "Pasta"
   a_video_or_audio_link: "Vložte odkaz na video nebo zvuk"
+  failed_transcript_copied_to_clipboard: "Vložení se nezdařilo. Přepis byl zkopírován do schránky."
   last_transcript: "Vložit poslední přepis"
   last_transcript_v: "Vložte poslední přepis ⌃⌘V"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "Vylepšení streamování"
   transcription_currently_supports_engli: "Přepis streamování aktuálně podporuje pouze angličtinu, bez ohledu na vybraný jazyk."
   transcription_is_disabled_while_ai_enh: "Když je povoleno AI Enhancement, přepis streamování je zakázán."
-  transcription_model_parakeet_realtime: "Model streamování transkripce (Parakeet Realtime EOU) licencovaný společností NVIDIA Corporation v rámci licence NVIDIA Open Model License."
+  transcription_model_nemotron_speech: "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
 success:
   _self: "Úspěch!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "Používá se při pořizování poznámek pomocí klávesové zkratky. Pro delší obsah lze přidat formátování markdown."
 uses:
   a_built_in_prompt_tuned_for_this_task: "Používá vestavěnou výzvu vyladěnou pro tento úkol."
-  the_160ms_parakeet_variant_for_snappier_par: "Používá variantu 160 ms Parakeet pro rychlejší části za cenu ~70 % více slovních chyb. Výchozí je varianta 320 ms."
+  the_560ms_nemotron_variant_for_snappier_par: "Používá variantu Nemotron 560 ms pro svižnější průběžný text. Výchozí je varianta 1120 ms (nejlepší přesnost)."
   the_transcription_enhancement_assignment_if: "Používá přiřazení Vylepšení transkripce. Pokud není nastaveno žádné, deterministický čistší výstup se zachová tak, jak je."
 v:
   _self: "v%@"

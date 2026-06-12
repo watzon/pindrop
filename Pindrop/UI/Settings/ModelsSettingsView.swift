@@ -325,7 +325,7 @@ struct ModelsSettingsView: View {
                     Text(localized("Low-latency mode (less accurate)", locale: locale))
                         .font(.caption)
                         .fontWeight(.medium)
-                    Text(localized("Uses the 160ms Parakeet variant for snappier partials at the cost of ~70% more word errors. Default is the 320ms variant.", locale: locale))
+                    Text(localized("Uses the 560ms Nemotron variant for snappier partial text. Default is the 1120ms variant (best accuracy).", locale: locale))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -379,7 +379,7 @@ struct ModelsSettingsView: View {
                 Text(localized("Transcription backend", locale: locale))
                     .font(.caption)
                     .fontWeight(.medium)
-                Text(localized("Choose between Parakeet (cross-version, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS).", locale: locale))
+                Text(localized("Choose between Nemotron (punctuated, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS).", locale: locale))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -399,7 +399,7 @@ struct ModelsSettingsView: View {
                 ),
                 label: EmptyView()
             ) {
-                Text(localized("Parakeet (default)", locale: locale))
+                Text(localized("Nemotron (default)", locale: locale))
                     .tag(TranscriptionBackend.parakeet)
                 Text(localized("Apple SpeechTranscriber (macOS 26+)", locale: locale))
                     .tag(TranscriptionBackend.appleSpeechTranscriber)

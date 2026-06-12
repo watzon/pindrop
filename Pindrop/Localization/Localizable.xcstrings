@@ -8834,194 +8834,194 @@
         }
       }
     },
-    "apple_speechtranscriber_unavailable_using_parake": {
-      "comment": "apple_speechtranscriber_unavailable_using_parake",
+    "apple_speechtranscriber_unavailable_using_nemotr": {
+      "comment": "Apple SpeechTranscriber unavailable — using Nemotron",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber غير متوفر — باستخدام Parakeet"
+            "value": "Apple SpeechTranscriber غير متاح — يتم استخدام Nemotron"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber অনুপলব্ধ — Parakeet ব্যবহার করে"
+            "value": "Apple SpeechTranscriber উপলব্ধ নয় — Nemotron ব্যবহার করা হচ্ছে"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber není k dispozici — používá Parakeet"
+            "value": "Apple SpeechTranscriber není k dispozici — používá se Nemotron"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber utilgængelig — bruger Parakeet"
+            "value": "Apple SpeechTranscriber er ikke tilgængelig — bruger Nemotron"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber nicht verfügbar – Parakeet wird verwendet"
+            "value": "Apple SpeechTranscriber nicht verfügbar — Nemotron wird verwendet"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber unavailable — using Parakeet"
+            "value": "Apple SpeechTranscriber unavailable — using Nemotron"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Το Apple SpeechTranscriber δεν είναι διαθέσιμο — χρησιμοποιώντας το Parakeet"
+            "value": "Το Apple SpeechTranscriber δεν είναι διαθέσιμο — χρησιμοποιείται το Nemotron"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber no disponible — se usa Parakeet"
+            "value": "Apple SpeechTranscriber no disponible — usando Nemotron"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber ei ole saatavilla — Parakeetin avulla"
+            "value": "Apple SpeechTranscriber ei ole käytettävissä — käytetään Nemotronia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber indisponible — utilisation de Parakeet"
+            "value": "Apple SpeechTranscriber indisponible — utilisation de Nemotron"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber לא זמין - באמצעות Parakeet"
+            "value": "Apple SpeechTranscriber אינו זמין — נעשה שימוש ב-Nemotron"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber अनुपलब्ध - पैराकीट का उपयोग करते हुए"
+            "value": "Apple SpeechTranscriber उपलब्ध नहीं — Nemotron का उपयोग हो रहा है"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Az Apple SpeechTranscriber nem érhető el – a Parakeet használatával"
+            "value": "Az Apple SpeechTranscriber nem érhető el — Nemotron használata"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber tidak tersedia — menggunakan Parakeet"
+            "value": "Apple SpeechTranscriber tidak tersedia — menggunakan Nemotron"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber non disponibile — uso di Parakeet"
+            "value": "Apple SpeechTranscriber non disponibile — uso di Nemotron"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber を利用できません — Parakeet を使用します"
+            "value": "Apple SpeechTranscriberが利用できません — Nemotronを使用します"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber를 사용할 수 없습니다 — Parakeet으로 전환합니다"
+            "value": "Apple SpeechTranscriber를 사용할 수 없음 — Nemotron 사용 중"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber tidak tersedia — menggunakan Parakeet"
+            "value": "Apple SpeechTranscriber tidak tersedia — menggunakan Nemotron"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber utilgjengelig — bruker Parakeet"
+            "value": "Apple SpeechTranscriber er utilgjengelig — bruker Nemotron"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber niet beschikbaar — Parakeet wordt gebruikt"
+            "value": "Apple SpeechTranscriber niet beschikbaar — Nemotron wordt gebruikt"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usługa Apple SpeechTranscriber jest niedostępna — przy użyciu programu Parakeet"
+            "value": "Apple SpeechTranscriber niedostępny — używany jest Nemotron"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber indisponível — usando Parakeet"
+            "value": "Apple SpeechTranscriber indisponível — usando Nemotron"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber indisponibil - folosind Parakeet"
+            "value": "Apple SpeechTranscriber indisponibil — se folosește Nemotron"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber недоступен — используется Parakeet"
+            "value": "Apple SpeechTranscriber недоступен — используется Nemotron"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber inte tillgänglig — använder Parakeet"
+            "value": "Apple SpeechTranscriber är inte tillgänglig — använder Nemotron"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber ไม่พร้อมใช้งาน — กำลังใช้ Parakeet"
+            "value": "Apple SpeechTranscriber ไม่พร้อมใช้งาน — กำลังใช้ Nemotron"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber kullanılamıyor — Parakeet kullanılıyor"
+            "value": "Apple SpeechTranscriber kullanılamıyor — Nemotron kullanılıyor"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber недоступний — використовується Parakeet"
+            "value": "Apple SpeechTranscriber недоступний — використовується Nemotron"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber không khả dụng — sử dụng Parakeet"
+            "value": "Apple SpeechTranscriber không khả dụng — đang dùng Nemotron"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber 不可用 — 使用 Parakeet"
+            "value": "Apple SpeechTranscriber 無法使用 — 正在使用 Nemotron"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apple SpeechTranscriber 不可用 — 使用 Parakeet"
+            "value": "Apple SpeechTranscriber 不可用 — 正在使用 Nemotron"
           }
         }
       }
@@ -15362,194 +15362,194 @@
         }
       }
     },
-    "choose_between_parakeet_cross_version_downloaded": {
-      "comment": "choose_between_parakeet_cross_version_downloaded",
+    "choose_between_nemotron_punctuated_downloaded_mod": {
+      "comment": "Choose between Nemotron (punctuated, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS).",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اختر بين Parakeet (الإصدار المشترك، النموذج الذي تم تنزيله) وApple SpeechTranscriber (macOS 26+، يأتي مع نظام التشغيل)."
+            "value": "اختر بين Nemotron (مع علامات ترقيم، نموذج يتم تنزيله) وApple SpeechTranscriber (macOS 26+، مدمج مع النظام)."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parakeet (ক্রস-সংস্করণ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS সহ জাহাজ) এর মধ্যে বেছে নিন।"
+            "value": "Nemotron (যতিচিহ্নসহ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS-এর সাথে আসে) এর মধ্যে বেছে নিন।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vyberte si mezi Parakeet (křížová verze, stažený model) a Apple SpeechTranscriber (macOS 26+, dodává se s OS)."
+            "value": "Vyberte mezi Nemotron (s interpunkcí, stahovaný model) a Apple SpeechTranscriber (macOS 26+, součást systému)."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vælg mellem Parakeet (cross-version, downloadet model) og Apple SpeechTranscriber (macOS 26+, leveres med OS)."
+            "value": "Vælg mellem Nemotron (med tegnsætning, downloadet model) og Apple SpeechTranscriber (macOS 26+, følger med systemet)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle zwischen Parakeet (versionsübergreifend, heruntergeladenes Modell) und Apple SpeechTranscriber (macOS 26+, mit dem System ausgeliefert)."
+            "value": "Wählen Sie zwischen Nemotron (mit Interpunktion, heruntergeladenes Modell) und Apple SpeechTranscriber (macOS 26+, im System enthalten)."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose between Parakeet (cross-version, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS)."
+            "value": "Choose between Nemotron (punctuated, downloaded model) and Apple SpeechTranscriber (macOS 26+, ships with the OS)."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επιλέξτε μεταξύ του Parakeet (διασταυρούμενη έκδοση, ληφθέν μοντέλο) και του Apple SpeechTranscriber (macOS 26+, αποστέλλεται με το λειτουργικό σύστημα)."
+            "value": "Επιλέξτε μεταξύ Nemotron (με στίξη, μοντέλο με λήψη) και Apple SpeechTranscriber (macOS 26+, ενσωματωμένο στο σύστημα)."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige entre Parakeet (compatible con varias versiones, modelo descargado) y Apple SpeechTranscriber (macOS 26+, incluido con el sistema)."
+            "value": "Elige entre Nemotron (con puntuación, modelo descargado) y Apple SpeechTranscriber (macOS 26+, incluido con el sistema)."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Valitse Parakeet (ristiversio, ladattu malli) tai Apple SpeechTranscriber (macOS 26+, toimitetaan käyttöjärjestelmän mukana)."
+            "value": "Valitse Nemotron (välimerkit, ladattava malli) tai Apple SpeechTranscriber (macOS 26+, mukana järjestelmässä)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez entre Parakeet (multiversion, modèle téléchargé) et Apple SpeechTranscriber (macOS 26+, fourni avec le système)."
+            "value": "Choisissez entre Nemotron (ponctué, modèle téléchargé) et Apple SpeechTranscriber (macOS 26+, fourni avec le système)."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "בחר בין Parakeet (גרסה צולבת, דגם שהורד) לבין Apple SpeechTranscriber (macOS 26+, נשלח עם מערכת ההפעלה)."
+            "value": "בחרו בין Nemotron (עם פיסוק, מודל להורדה) לבין Apple SpeechTranscriber (macOS 26+, מגיע עם המערכת)."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "पैराकीट (क्रॉस-वर्जन, डाउनलोड किया गया मॉडल) और ऐप्पल स्पीचट्रांसक्राइबर (मैकओएस 26+, ओएस के साथ जहाज) के बीच चुनें।"
+            "value": "Nemotron (विराम चिह्न सहित, डाउनलोड किया गया मॉडल) और Apple SpeechTranscriber (macOS 26+, OS के साथ आता है) में से चुनें।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Válasszon a Parakeet (több verzió, letöltött modell) és az Apple SpeechTranscriber (macOS 26+, az operációs rendszerrel együtt) közül."
+            "value": "Válasszon a Nemotron (központozott, letöltött modell) és az Apple SpeechTranscriber (macOS 26+, a rendszer része) között."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilih antara Parakeet (versi silang, model yang diunduh) dan Apple SpeechTranscriber (macOS 26+, dikirimkan bersama OS)."
+            "value": "Pilih antara Nemotron (dengan tanda baca, model yang diunduh) dan Apple SpeechTranscriber (macOS 26+, bawaan OS)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli tra Parakeet (multi-versione, modello scaricato) e Apple SpeechTranscriber (macOS 26+, fornito con il sistema)."
+            "value": "Scegli tra Nemotron (con punteggiatura, modello scaricato) e Apple SpeechTranscriber (macOS 26+, incluso nel sistema)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parakeet（複数バージョン対応、モデルのダウンロードが必要）と Apple SpeechTranscriber（macOS 26 以降、OS に同梱）から選択します。"
+            "value": "Nemotron（句読点対応、ダウンロード型モデル）とApple SpeechTranscriber（macOS 26以降、OS同梱）から選択します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parakeet(여러 버전 호환, 모델 다운로드 필요)와 Apple SpeechTranscriber(macOS 26 이상, OS와 함께 제공) 중에서 선택하세요."
+            "value": "Nemotron(구두점 지원, 다운로드 모델)과 Apple SpeechTranscriber(macOS 26+, OS 내장) 중에서 선택하세요."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pilih antara Parakeet (versi silang, model yang dimuat turun) dan Apple SpeechTranscriber (macOS 26+, dihantar dengan OS)."
+            "value": "Pilih antara Nemotron (bertanda baca, model dimuat turun) dan Apple SpeechTranscriber (macOS 26+, disertakan dengan OS)."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velg mellom Parakeet (kryssversjon, nedlastet modell) og Apple SpeechTranscriber (macOS 26+, leveres med OS)."
+            "value": "Velg mellom Nemotron (med tegnsetting, nedlastet modell) og Apple SpeechTranscriber (macOS 26+, følger med systemet)."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kies tussen Parakeet (meerdere versies, gedownload model) en Apple SpeechTranscriber (macOS 26+, meegeleverd met het besturingssysteem)."
+            "value": "Kies tussen Nemotron (met interpunctie, gedownload model) en Apple SpeechTranscriber (macOS 26+, meegeleverd met het systeem)."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wybierz pomiędzy Parakeet (wersja krzyżowa, model pobrany) i Apple SpeechTranscriber (macOS 26+, dostarczany z systemem operacyjnym)."
+            "value": "Wybierz między Nemotron (z interpunkcją, pobierany model) a Apple SpeechTranscriber (macOS 26+, dostarczany z systemem)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escolha entre Parakeet (compatível com várias versões, modelo baixado) e Apple SpeechTranscriber (macOS 26+, fornecido com o sistema)."
+            "value": "Escolha entre Nemotron (com pontuação, modelo baixado) e Apple SpeechTranscriber (macOS 26+, incluído no sistema)."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alegeți între Parakeet (versiunea încrucișată, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul de operare)."
+            "value": "Alegeți între Nemotron (cu punctuație, model descărcat) și Apple SpeechTranscriber (macOS 26+, livrat cu sistemul)."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выбирайте между Parakeet (кросс-версия, загруженная модель) и Apple SpeechTranscriber (macOS 26+, поставляется вместе с ОС)."
+            "value": "Выберите между Nemotron (с пунктуацией, загружаемая модель) и Apple SpeechTranscriber (macOS 26+, входит в состав системы)."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Välj mellan Parakeet (korsversion, nedladdad modell) och Apple SpeechTranscriber (macOS 26+, levereras med OS)."
+            "value": "Välj mellan Nemotron (med skiljetecken, nedladdad modell) och Apple SpeechTranscriber (macOS 26+, medföljer systemet)."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เลือกระหว่าง Parakeet (เวอร์ชันข้าม รุ่นดาวน์โหลด) และ Apple SpeechTranscriber (macOS 26+ จัดส่งพร้อมกับระบบปฏิบัติการ)"
+            "value": "เลือกระหว่าง Nemotron (มีเครื่องหมายวรรคตอน โมเดลที่ดาวน์โหลด) และ Apple SpeechTranscriber (macOS 26+ มาพร้อมระบบ)"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parakeet (birden fazla sürümle uyumlu, indirilen model) ile Apple SpeechTranscriber (macOS 26+, işletim sistemiyle birlikte gelir) arasında seçim yapın."
+            "value": "Nemotron (noktalama destekli, indirilen model) ile Apple SpeechTranscriber (macOS 26+, sistemle birlikte gelir) arasında seçim yapın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вибирайте між Parakeet (крос-версія, завантажена модель) і Apple SpeechTranscriber (macOS 26+, постачається з ОС)."
+            "value": "Виберіть між Nemotron (з пунктуацією, завантажувана модель) та Apple SpeechTranscriber (macOS 26+, постачається із системою)."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chọn giữa Parakeet (phiên bản chéo, mẫu đã tải xuống) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
+            "value": "Chọn giữa Nemotron (có dấu câu, mô hình tải về) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 Parakeet（跨版本，需下載模型）和 Apple SpeechTranscriber（macOS 26 及以上，系統自帶）之間進行選擇。"
+            "value": "在 Nemotron（含標點、需下載的模型）與 Apple SpeechTranscriber（macOS 26+，隨系統提供）之間選擇。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 Parakeet（跨版本，需下载模型）和 Apple SpeechTranscriber（macOS 26 及以上，系统自带）之间进行选择。"
+            "value": "在 Nemotron（带标点、需下载的模型）和 Apple SpeechTranscriber（macOS 26+，随系统提供）之间选择。"
           }
         }
       }
@@ -37058,6 +37058,198 @@
         }
       }
     },
+    "enhancing": {
+      "comment": "Enhancing…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ التحسين…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "উন্নত করা হচ্ছে…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vylepšuji…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbedrer…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird verbessert…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enhancing…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Βελτίωση…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorando…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parannellaan…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amélioration…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "משפר…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सुधार रहा है…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Javítás…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menyempurnakan…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miglioramento…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "補正中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다듬는 중…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memperhalus…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbedrer…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbeteren…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ulepszanie…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprimorando…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se îmbunătățește…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Улучшение…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Förbättrar…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังปรับแต่ง…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İyileştiriliyor…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Покращення…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang cải thiện…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在潤飾…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在润色…"
+          }
+        }
+      }
+    },
     "enter_an_openai_api_key_to_load_models": {
       "comment": "enter_an_openai_api_key_to_load_models",
       "extractionState": "manual",
@@ -57218,6 +57410,198 @@
         }
       }
     },
+    "listening": {
+      "comment": "Listening…",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ الاستماع…"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "শোনা হচ্ছে…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poslouchám…"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lytter…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Höre zu…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening…"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ακρόαση…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuchando…"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuunnellaan…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écoute…"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "מאזין…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सुन रहा है…"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hallgatás…"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mendengarkan…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In ascolto…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞き取り中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "듣는 중…"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mendengar…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lytter…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luisteren…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Słucham…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvindo…"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ascultă…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушаю…"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyssnar…"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังฟัง…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinleniyor…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слухаю…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang nghe…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆聽…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在聆听…"
+          }
+        }
+      }
+    },
     "live_streaming_refinement": {
       "comment": "live_streaming_refinement",
       "extractionState": "manual",
@@ -65662,6 +66046,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "录制期间静音系统音频"
+          }
+        }
+      }
+    },
+    "nemotron_default": {
+      "comment": "Nemotron (default)",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nemotron (default)"
           }
         }
       }
@@ -78914,198 +79490,6 @@
         }
       }
     },
-    "parakeet_default": {
-      "comment": "parakeet_default",
-      "extractionState": "manual",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ببغاء (افتراضي)"
-          }
-        },
-        "bn": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "প্যারাকিট (ডিফল্ট)"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Papoušek (výchozí)"
-          }
-        },
-        "da": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakit (standard)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (Standard)"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (default)"
-          }
-        },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (προεπιλογή)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (predeterminado)"
-          }
-        },
-        "fi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Papukaija (oletus)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (par défaut)"
-          }
-        },
-        "he": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "תוכי (ברירת מחדל)"
-          }
-        },
-        "hi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "तोता (डिफ़ॉल्ट)"
-          }
-        },
-        "hu": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Papagáj (alapértelmezett)"
-          }
-        },
-        "id": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (bawaan)"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (predefinito)"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet（既定）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet(기본값)"
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parkit (lalai)"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (standard)"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (standaard)"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Papuga (domyślna)"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (padrão)"
-          }
-        },
-        "ro": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (implicit)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Попугай (по умолчанию)"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakit (standard)"
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "นกแก้ว (ค่าเริ่มต้น)"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet (varsayılan)"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Папуга (за замовчуванням)"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vẹt đuôi dài (mặc định)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet（預設）"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parakeet（默认）"
-          }
-        }
-      }
-    },
     "paste": {
       "comment": "paste",
       "extractionState": "manual",
@@ -79486,6 +79870,198 @@
           "stringUnit": {
             "state": "translated",
             "value": "粘贴视频或音频链接"
+          }
+        }
+      }
+    },
+    "paste_failed_transcript_copied_to_clipboard": {
+      "comment": "Paste failed. Transcript copied to clipboard.",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فشل اللصق. تم نسخ النص إلى الحافظة."
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পেস্ট ব্যর্থ হয়েছে। ট্রান্সক্রিপ্ট ক্লিপবোর্ডে কপি করা হয়েছে।"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vložení se nezdařilo. Přepis byl zkopírován do schránky."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indsættelse mislykkedes. Transskriptionen er kopieret til udklipsholderen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einfügen fehlgeschlagen. Transkript in die Zwischenablage kopiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste failed. Transcript copied to clipboard."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η επικόλληση απέτυχε. Το κείμενο αντιγράφηκε στο πρόχειρο."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al pegar. Transcripción copiada al portapapeles."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liittäminen epäonnistui. Teksti kopioitiin leikepöydälle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du collage. Transcription copiée dans le presse-papiers."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ההדבקה נכשלה. התמליל הועתק ללוח."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पेस्ट विफल रहा। ट्रांसक्रिप्ट क्लिपबोर्ड पर कॉपी कर दिया गया।"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A beillesztés sikertelen. Az átirat a vágólapra másolva."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gagal menempel. Transkrip disalin ke papan klip."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incolla non riuscito. Trascrizione copiata negli appunti."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペーストに失敗しました。テキストはクリップボードにコピーされました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "붙여넣기에 실패했습니다. 텍스트가 클립보드에 복사되었습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tampal gagal. Transkrip disalin ke papan keratan."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innliming mislyktes. Transkripsjonen er kopiert til utklippstavlen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plakken mislukt. Transcript gekopieerd naar het klembord."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wklejanie nie powiodło się. Transkrypcję skopiowano do schowka."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha ao colar. Transcrição copiada para a área de transferência."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lipirea a eșuat. Transcrierea a fost copiată în clipboard."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось вставить. Текст скопирован в буфер обмена."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det gick inte att klistra in. Transkriptionen kopierades till urklipp."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วางไม่สำเร็จ คัดลอกข้อความไปยังคลิปบอร์ดแล้ว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yapıştırma başarısız. Transkript panoya kopyalandı."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося вставити. Текст скопійовано в буфер обміну."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dán không thành công. Bản ghi đã được sao chép vào bảng nhớ tạm."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "貼上失敗。轉寫文字已複製到剪貼簿。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴失败。转写文本已复制到剪贴板。"
           }
         }
       }
@@ -110786,194 +111362,194 @@
         }
       }
     },
-    "streaming_transcription_model_parakeet_realtime": {
-      "comment": "streaming_transcription_model_parakeet_realtime",
+    "streaming_transcription_model_nemotron_speech": {
+      "comment": "Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "نموذج النسخ المتدفق (Parakeet Realtime EOU) المرخص من قبل شركة NVIDIA بموجب ترخيص NVIDIA Open Model License."
+            "value": "نموذج النسخ المتدفق (Nemotron Speech Streaming) مرخص من NVIDIA Corporation بموجب ترخيص NVIDIA Open Model License."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (প্যারাকিট রিয়েলটাইম EOU) NVIDIA কর্পোরেশন দ্বারা NVIDIA ওপেন মডেল লাইসেন্সের অধীনে লাইসেন্সপ্রাপ্ত।"
+            "value": "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (Nemotron Speech Streaming) NVIDIA Corporation কর্তৃক NVIDIA Open Model License-এর অধীনে লাইসেন্সকৃত।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Model streamování transkripce (Parakeet Realtime EOU) licencovaný společností NVIDIA Corporation v rámci licence NVIDIA Open Model License."
+            "value": "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-transskriptionsmodel (Parakeet Realtime EOU) licenseret af NVIDIA Corporation under NVIDIA Open Model License."
+            "value": "Streaming-transskriptionsmodel (Nemotron Speech Streaming) licenseret af NVIDIA Corporation under NVIDIA Open Model License."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Modell für die Streaming-Transkription (Parakeet Realtime EOU) wird von NVIDIA Corporation unter der NVIDIA Open Model License lizenziert."
+            "value": "Streaming-Transkriptionsmodell (Nemotron Speech Streaming) lizenziert von der NVIDIA Corporation unter der NVIDIA Open Model License."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming transcription model (Parakeet Realtime EOU) licensed by NVIDIA Corporation under the NVIDIA Open Model License."
+            "value": "Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Μοντέλο μεταγραφής ροής (Parakeet Realtime EOU) με άδεια από την NVIDIA Corporation υπό την άδεια ανοιχτού μοντέλου NVIDIA."
+            "value": "Μοντέλο μεταγραφής ροής (Nemotron Speech Streaming) με άδεια από την NVIDIA Corporation βάσει της NVIDIA Open Model License."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El modelo de transcripción en streaming (Parakeet Realtime EOU) está licenciado por NVIDIA Corporation bajo la NVIDIA Open Model License."
+            "value": "Modelo de transcripción en streaming (Nemotron Speech Streaming) licenciado por NVIDIA Corporation bajo la NVIDIA Open Model License."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suoratoiston transkriptiomalli (Parakeet Realtime EOU), jonka NVIDIA Corporation on lisensoinut NVIDIA Open Model License -lisenssillä."
+            "value": "Suoratoistotranskriptiomalli (Nemotron Speech Streaming) on NVIDIA Corporationin lisensoima NVIDIA Open Model License -lisenssillä."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le modèle de transcription en streaming (Parakeet Realtime EOU) est concédé sous licence par NVIDIA Corporation selon la NVIDIA Open Model License."
+            "value": "Modèle de transcription en continu (Nemotron Speech Streaming) sous licence de NVIDIA Corporation selon la NVIDIA Open Model License."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "מודל תמלול סטרימינג (Parakeet Realtime EOU) ברישיון NVIDIA Corporation תחת רישיון NVIDIA Open Model."
+            "value": "מודל תמלול בזרימה (Nemotron Speech Streaming) ברישיון NVIDIA Corporation תחת NVIDIA Open Model License."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (पैराकीट रियलटाइम ईओयू) को NVIDIA ओपन मॉडल लाइसेंस के तहत NVIDIA कॉर्पोरेशन द्वारा लाइसेंस प्राप्त है।"
+            "value": "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (Nemotron Speech Streaming) NVIDIA Corporation द्वारा NVIDIA Open Model License के तहत लाइसेंस प्राप्त।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming átírási modell (Parakeet Realtime EOU), amelyet az NVIDIA Corporation licencelt az NVIDIA Open Model License alapján."
+            "value": "A streamelt átírási modellt (Nemotron Speech Streaming) az NVIDIA Corporation licenceli az NVIDIA Open Model License alatt."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Model transkripsi streaming (Parakeet Realtime EOU) dilisensikan oleh NVIDIA Corporation di bawah Lisensi Model Terbuka NVIDIA."
+            "value": "Model transkripsi streaming (Nemotron Speech Streaming) dilisensikan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il modello di trascrizione in streaming (Parakeet Realtime EOU) è concesso in licenza da NVIDIA Corporation con la NVIDIA Open Model License."
+            "value": "Modello di trascrizione in streaming (Nemotron Speech Streaming) concesso in licenza da NVIDIA Corporation secondo la NVIDIA Open Model License."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ストリーミング文字起こしモデル（Parakeet Realtime EOU）は、NVIDIA Corporationにより NVIDIA Open Model License のもとで提供されています。"
+            "value": "ストリーミング文字起こしモデル（Nemotron Speech Streaming）はNVIDIA CorporationによりNVIDIA Open Model Licenseの下でライセンスされています。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스트리밍 전사 모델(Parakeet Realtime EOU)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스합니다."
+            "value": "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Model transkripsi penstriman (Parakeet Realtime EOU) yang dilesenkan oleh NVIDIA Corporation di bawah Lesen Model Terbuka NVIDIA."
+            "value": "Model transkripsi penstriman (Nemotron Speech Streaming) dilesenkan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-transkripsjonsmodell (Parakeet Realtime EOU) lisensiert av NVIDIA Corporation under NVIDIA Open Model License."
+            "value": "Strømmetranskripsjonsmodell (Nemotron Speech Streaming) lisensiert av NVIDIA Corporation under NVIDIA Open Model License."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Het streamingtranscriptiemodel (Parakeet Realtime EOU) is in licentie gegeven door NVIDIA Corporation onder de NVIDIA Open Model License."
+            "value": "Streaming-transcriptiemodel (Nemotron Speech Streaming) gelicentieerd door NVIDIA Corporation onder de NVIDIA Open Model License."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Model transkrypcji strumieniowej (Parakeet Realtime EOU) licencjonowany przez firmę NVIDIA Corporation w ramach licencji NVIDIA Open Model License."
+            "value": "Model transkrypcji strumieniowej (Nemotron Speech Streaming) licencjonowany przez NVIDIA Corporation na licencji NVIDIA Open Model License."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O modelo de transcrição em streaming (Parakeet Realtime EOU) é licenciado pela NVIDIA Corporation sob a NVIDIA Open Model License."
+            "value": "Modelo de transcrição em streaming (Nemotron Speech Streaming) licenciado pela NVIDIA Corporation sob a NVIDIA Open Model License."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Model de transcriere în flux (Parakeet Realtime EOU) licențiat de NVIDIA Corporation sub Licența NVIDIA Open Model."
+            "value": "Modelul de transcriere în flux (Nemotron Speech Streaming) este licențiat de NVIDIA Corporation sub NVIDIA Open Model License."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Модель потоковой транскрипции (Parakeet Realtime EOU), лицензированная корпорацией NVIDIA по лицензии NVIDIA Open Model License."
+            "value": "Модель потоковой транскрипции (Nemotron Speech Streaming) лицензирована NVIDIA Corporation по лицензии NVIDIA Open Model License."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Strömmande transkriptionsmodell (Parakeet Realtime EOU) licensierad av NVIDIA Corporation under NVIDIA Open Model License."
+            "value": "Strömmande transkriptionsmodell (Nemotron Speech Streaming) licensierad av NVIDIA Corporation under NVIDIA Open Model License."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "โมเดลการถอดความแบบสตรีมมิ่ง (Parakeet Realtime EOU) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
+            "value": "โมเดลถอดความแบบสตรีมมิง (Nemotron Speech Streaming) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Akışlı yazıya dökme modeli (Parakeet Realtime EOU), NVIDIA Corporation tarafından NVIDIA Open Model License kapsamında lisanslanmıştır."
+            "value": "Akış transkripsiyon modeli (Nemotron Speech Streaming) NVIDIA Corporation tarafından NVIDIA Open Model License kapsamında lisanslanmıştır."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Модель потокової транскрипції (Parakeet Realtime EOU), ліцензована корпорацією NVIDIA згідно з ліцензією відкритої моделі NVIDIA."
+            "value": "Модель потокової транскрипції (Nemotron Speech Streaming) ліцензована NVIDIA Corporation за ліцензією NVIDIA Open Model License."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mô hình sao chép trực tuyến (Parakeet Realtime EOU) được NVIDIA Corporation cấp phép theo Giấy phép mô hình mở NVIDIA."
+            "value": "Mô hình phiên âm trực tuyến (Nemotron Speech Streaming) được NVIDIA Corporation cấp phép theo NVIDIA Open Model License."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "流式轉錄模型（Parakeet Realtime EOU）由 NVIDIA Corporation 按照 NVIDIA Open Model License 授權。"
+            "value": "串流轉錄模型（Nemotron Speech Streaming）由 NVIDIA Corporation 依據 NVIDIA Open Model License 授權。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流式转录模型（Parakeet Realtime EOU）由 NVIDIA Corporation 按照 NVIDIA Open Model License 授权。"
+            "value": "流式转写模型（Nemotron Speech Streaming）由 NVIDIA Corporation 依据 NVIDIA Open Model License 授权。"
           }
         }
       }
@@ -124610,194 +125186,194 @@
         }
       }
     },
-    "uses_the_160ms_parakeet_variant_for_snappier_par": {
-      "comment": "uses_the_160ms_parakeet_variant_for_snappier_par",
+    "uses_the_560ms_nemotron_variant_for_snappier_par": {
+      "comment": "Uses the 560ms Nemotron variant for snappier partial text. Default is the 1120ms variant (best accuracy).",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يستخدم متغير Parakeet الذي تبلغ مدته 160 مللي ثانية للأجزاء الجزئية الأكثر سرعة على حساب زيادة في أخطاء الكلمات بنسبة 70% تقريبًا. الافتراضي هو البديل 320 مللي ثانية."
+            "value": "يستخدم متغير Nemotron بسرعة 560 مللي ثانية لنص جزئي أسرع. الافتراضي هو متغير 1120 مللي ثانية (أفضل دقة)."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "~70% বেশি শব্দ ত্রুটির খরচে স্ন্যাপিয়ার আংশিকগুলির জন্য 160ms প্যারাকিট ভেরিয়েন্ট ব্যবহার করে। ডিফল্ট হল 320ms ভেরিয়েন্ট।"
+            "value": "দ্রুততর আংশিক টেক্সটের জন্য 560ms Nemotron ভ্যারিয়েন্ট ব্যবহার করে। ডিফল্ট হল 1120ms ভ্যারিয়েন্ট (সেরা নির্ভুলতা)।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Používá variantu 160 ms Parakeet pro rychlejší části za cenu ~70 % více slovních chyb. Výchozí je varianta 320 ms."
+            "value": "Používá variantu Nemotron 560 ms pro svižnější průběžný text. Výchozí je varianta 1120 ms (nejlepší přesnost)."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bruger 160ms Parakeet-varianten til hurtigere partialer på bekostning af ~70 % flere ordfejl. Standard er 320ms varianten."
+            "value": "Bruger 560 ms Nemotron-varianten til hurtigere løbende tekst. Standard er 1120 ms-varianten (bedst nøjagtighed)."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwendet die 160ms-Parakeet-Variante für flottere Teilergebnisse, auf Kosten von ~70 % mehr Worterkennungsfehlern. Standard ist die 320ms-Variante."
+            "value": "Verwendet die 560-ms-Nemotron-Variante für flotteren Zwischentext. Standard ist die 1120-ms-Variante (beste Genauigkeit)."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uses the 160ms Parakeet variant for snappier partials at the cost of ~70% more word errors. Default is the 320ms variant."
+            "value": "Uses the 560ms Nemotron variant for snappier partial text. Default is the 1120ms variant (best accuracy)."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Χρησιμοποιεί την παραλλαγή Parakeet των 160 ms για πιο ευέλικτα τμήματα με κόστος ~ 70% περισσότερων σφαλμάτων λέξης. Η προεπιλογή είναι η παραλλαγή των 320 ms."
+            "value": "Χρησιμοποιεί την παραλλαγή Nemotron 560ms για πιο γρήγορο ενδιάμεσο κείμενο. Προεπιλογή είναι η παραλλαγή 1120ms (καλύτερη ακρίβεια)."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa la variante Parakeet de 160 ms para resultados parciales más rápidos, a costa de ~70 % más errores de palabras. La variante predeterminada es la de 320 ms."
+            "value": "Usa la variante Nemotron de 560 ms para texto parcial más ágil. La predeterminada es la variante de 1120 ms (mejor precisión)."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Käyttää 160 ms:n Parakeet-varianttia näppärämpiin osioihin maksamalla ~70 % enemmän sanavirheitä. Oletus on 320 ms variantti."
+            "value": "Käyttää 560 ms:n Nemotron-varianttia nopeampaan välitekstiin. Oletus on 1120 ms:n variantti (paras tarkkuus)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilise la variante Parakeet 160 ms pour des résultats partiels plus rapides, au prix d'environ 70 % d'erreurs de mots supplémentaires. La variante par défaut est celle de 320 ms."
+            "value": "Utilise la variante Nemotron 560 ms pour un texte partiel plus réactif. La variante par défaut est 1120 ms (meilleure précision)."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "משתמש בגרסה של 160ms Parakeet עבור חלקים חלקים יותר במחיר של ~70% יותר שגיאות מילים. ברירת המחדל היא גרסת 320ms."
+            "value": "משתמש בגרסת Nemotron של 560ms לטקסט חלקי מהיר יותר. ברירת המחדל היא גרסת 1120ms (הדיוק הטוב ביותר)."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "~70% अधिक शब्द त्रुटियों की कीमत पर अधिक तेज़ आंशिक भागों के लिए 160 एमएस पैराकीट संस्करण का उपयोग करता है। डिफ़ॉल्ट 320ms वैरिएंट है."
+            "value": "तेज़ आंशिक टेक्स्ट के लिए 560ms Nemotron वैरिएंट का उपयोग करता है। डिफ़ॉल्ट 1120ms वैरिएंट है (सर्वोत्तम सटीकता)।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A 160 ms-os Parakeet változatot használja a frappánsabb részekre, ~70%-kal több szóhibával. Az alapértelmezett a 320 ms-os változat."
+            "value": "Az 560 ms-os Nemotron-változatot használja a gyorsabb részszöveghez. Az alapértelmezett az 1120 ms-os változat (legjobb pontosság)."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menggunakan varian Parakeet 160 md untuk bagian yang lebih cepat dengan kerugian ~70% lebih banyak kesalahan kata. Defaultnya adalah varian 320ms."
+            "value": "Menggunakan varian Nemotron 560 md untuk teks parsial yang lebih responsif. Default adalah varian 1120 md (akurasi terbaik)."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa la variante Parakeet da 160 ms per parziali più reattivi, al costo di ~70 % di errori di parola in più. La variante predefinita è quella da 320 ms."
+            "value": "Usa la variante Nemotron da 560 ms per testo parziale più reattivo. La predefinita è la variante da 1120 ms (migliore precisione)."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "160ms版Parakeetを使用して途中結果を高速化しますが、単語誤りが約70%増えます。既定は320ms版です。"
+            "value": "560msのNemotronバリアントを使用して途中テキストの表示を速くします。デフォルトは1120msバリアント（最高精度）です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "160ms Parakeet 변형을 사용해 중간 결과가 더 빨라지지만, 단어 오류가 약 70% 증가합니다. 기본값은 320ms 변형입니다."
+            "value": "더 빠른 부분 텍스트를 위해 560ms Nemotron 변형을 사용합니다. 기본값은 1120ms 변형입니다(최고 정확도)."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Menggunakan varian Parakeet 160ms untuk bahagian yang lebih tajam dengan kos ~70% lagi ralat perkataan. Lalai ialah varian 320ms."
+            "value": "Menggunakan varian Nemotron 560ms untuk teks separa yang lebih pantas. Lalai ialah varian 1120ms (ketepatan terbaik)."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bruker 160ms Parakeet-varianten for raskere partialer på bekostning av ~70 % flere ordfeil. Standard er 320ms-varianten."
+            "value": "Bruker 560 ms Nemotron-varianten for raskere underveistekst. Standard er 1120 ms-varianten (best nøyaktighet)."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gebruikt de 160 ms-variant van Parakeet voor snellere voorlopige resultaten, ten koste van ~70 % meer woordfouten. Standaard is de 320 ms-variant."
+            "value": "Gebruikt de 560ms Nemotron-variant voor vlottere tussentekst. Standaard is de 1120ms-variant (beste nauwkeurigheid)."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wykorzystuje wariant Parakeet o czasie trwania 160 ms w celu uzyskania szybszych fragmentów, kosztem ~70% więcej błędów słownych. Domyślnie jest to wariant 320 ms."
+            "value": "Używa wariantu Nemotron 560 ms dla szybszego tekstu częściowego. Domyślny jest wariant 1120 ms (najlepsza dokładność)."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa a variante Parakeet de 160 ms para resultados parciais mais rápidos, ao custo de cerca de 70 % mais erros de palavra. O padrão é a variante de 320 ms."
+            "value": "Usa a variante Nemotron de 560 ms para texto parcial mais ágil. O padrão é a variante de 1120 ms (melhor precisão)."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilizează varianta Parakeet de 160 ms pentru parțiale mai rapide, cu ~70% mai multe erori de cuvinte. Implicit este varianta de 320 ms."
+            "value": "Folosește varianta Nemotron de 560 ms pentru text parțial mai rapid. Implicită este varianta de 1120 ms (cea mai bună acuratețe)."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Использует вариант Parakeet с длительностью 160 мс для более быстрых фрагментов за счет увеличения количества ошибок в словах примерно на 70%. По умолчанию используется вариант 320 мс."
+            "value": "Использует вариант Nemotron 560 мс для более быстрого промежуточного текста. По умолчанию — вариант 1120 мс (лучшая точность)."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Använder 160ms Parakeet-varianten för snabbare partialer till priset av ~70 % fler ordfel. Standard är 320ms-varianten."
+            "value": "Använder 560 ms Nemotron-varianten för snabbare deltext. Standard är 1120 ms-varianten (bäst noggrannhet)."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ใช้ตัวแปร Parakeet 160ms สำหรับปลากะพงบางส่วนโดยมีข้อผิดพลาดเพิ่มขึ้นประมาณ 70% ค่าเริ่มต้นคือตัวแปร 320ms"
+            "value": "ใช้ Nemotron รุ่น 560ms เพื่อข้อความระหว่างพูดที่เร็วขึ้น ค่าเริ่มต้นคือรุ่น 1120ms (ความแม่นยำสูงสุด)"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daha hızlı kısmi sonuçlar için 160 ms Parakeet varyantını kullanır, ancak ~%70 daha fazla sözcük hatasına yol açar. Varsayılan 320 ms varyantıdır."
+            "value": "Daha hızlı ara metin için 560 ms Nemotron varyantını kullanır. Varsayılan, 1120 ms varyantıdır (en iyi doğruluk)."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Використовує варіант Parakeet на 160 мс для швидшої часткової обробки за рахунок приблизно на 70% більшої кількості помилок у словах. За умовчанням встановлено варіант 320 мс."
+            "value": "Використовує варіант Nemotron 560 мс для швидшого проміжного тексту. Типовим є варіант 1120 мс (найкраща точність)."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sử dụng biến thể Parakeet 160ms cho các phần nhanh hơn với chi phí mắc lỗi từ nhiều hơn ~ 70%. Mặc định là biến thể 320ms."
+            "value": "Dùng biến thể Nemotron 560ms để hiển thị văn bản tạm nhanh hơn. Mặc định là biến thể 1120ms (độ chính xác tốt nhất)."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 160 毫秒 Parakeet 變體以獲得更快的部分結果，但單詞錯誤會增加約 70%。預設使用 320 毫秒變體。"
+            "value": "使用 560ms Nemotron 變體以更快顯示中間文字。預設為 1120ms 變體（最佳準確度）。"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 160 毫秒 Parakeet 变体以获得更快的部分结果，但单词错误会增加约 70%。默认使用 320 毫秒变体。"
+            "value": "使用 560ms Nemotron 变体以更快显示中间文本。默认为 1120ms 变体（最佳准确度）。"
           }
         }
       }

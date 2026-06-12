@@ -1,8 +1,18 @@
 //
-//  ParakeetStreamingEngine.swift
+//  NemotronStreamingEngine.swift
 //  Pindrop
 //
-//  Created on 2026-03-03.
+//  Created on 2026-06-05.
+//
+//  Streaming engine backed by FluidAudio's NemotronStreamingAsrManager (NVIDIA Nemotron
+//  Speech Streaming 0.6B, cache-aware FastConformer-TDT). Unlike the retired Parakeet
+//  EOU 120M engine, Nemotron emits natively punctuated and capitalized text (~2-3.5%
+//  WER on LibriSpeech test-clean vs ~8-9% for the EOU model).
+//
+//  Nemotron has no end-of-utterance token, so this engine never fires the
+//  end-of-utterance callback — segmentation falls to StreamingRefinementCoordinator's
+//  idle-commit timer and the stop-time drain, both of which operate independently of
+//  EOU signals.
 //
 
 import AVFoundation
@@ -10,7 +20,7 @@ import FluidAudio
 import Foundation
 
 @MainActor
-public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
+public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
 
     public enum EngineError: Error, LocalizedError {
         case modelNotFound(String)
@@ -34,8 +44,9 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
 
     public private(set) var state: StreamingTranscriptionState = .unloaded
 
-    private var manager: StreamingEouAsrManager?
+    private var manager: NemotronStreamingAsrManager?
     private var transcriptionCallback: StreamingTranscriptionCallback?
+    /// Stored for protocol conformance; never invoked — Nemotron has no EOU token.
     private var endOfUtteranceCallback: EndOfUtteranceCallback?
 
     /// Chunk-size variant to use when loading the model. Changing this after load has no
@@ -69,7 +80,9 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
                 throw EngineError.modelNotFound(modelDirectory.path)
             }
 
-            let streamingManager = StreamingEouAsrManager(chunkSize: chunkProfile.fluidAudioChunkSize)
+            let streamingManager = NemotronStreamingAsrManager(
+                requestedChunkSize: chunkProfile.nemotronChunkSize
+            )
             await streamingManager.setPartialCallback { [weak self] text in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
@@ -79,18 +92,6 @@ public final class ParakeetStreamingEngine: StreamingTranscriptionEngine {
                         timestamp: Date().timeIntervalSince1970
                     )
                     self.transcriptionCallback?(result)
-                }
-            }
-            await streamingManager.setEouCallback { [weak self] text in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    let result = StreamingTranscriptionResult(
-                        text: text,
-                        isFinal: true,
-                        timestamp: Date().timeIntervalSince1970
-                    )
-                    self.transcriptionCallback?(result)
-                    self.endOfUtteranceCallback?(text)
                 }
             }
 

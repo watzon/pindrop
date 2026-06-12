@@ -146,6 +146,94 @@ struct IndicatorCompletionOverlay: View {
     }
 }
 
+// MARK: - Live transcript (overlay streaming)
+
+/// Shared live-transcript text area shown inside the floating indicators while overlay
+/// streaming is active. Committed text renders in the primary overlay color; the
+/// tentative tail is dimmed and italic. The view keeps a fixed height (`lineLimit`
+/// lines) and auto-scrolls to the tail — panels never resize with text growth, only on
+/// phase transitions.
+struct LiveTranscriptView: View {
+    @ObservedObject var transcript: LiveTranscriptState
+    var fontSize: CGFloat = 11
+    var lineLimit: Int = 3
+
+    @Environment(\.locale) private var locale
+
+    private var lineHeight: CGFloat { fontSize + 5 }
+
+    /// Composed display string split back into committed/tentative runs so the two can
+    /// be styled differently while joining exactly like the coordinator's display path.
+    private var styledTranscript: AttributedString {
+        let composed = transcript.displayText
+        let committedCore = transcript.committedText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        var committedRun = AttributedString()
+        var tentativeRun = AttributedString()
+        if !committedCore.isEmpty, composed.hasPrefix(committedCore) {
+            committedRun = AttributedString(committedCore)
+            tentativeRun = AttributedString(String(composed.dropFirst(committedCore.count)))
+        } else {
+            tentativeRun = AttributedString(composed)
+        }
+
+        committedRun.foregroundColor = AppColors.overlayTextPrimary
+        committedRun.font = .system(size: fontSize, weight: .regular, design: .rounded)
+        tentativeRun.foregroundColor = AppColors.overlayTextPrimary.opacity(0.55)
+        tentativeRun.font = .system(size: fontSize, weight: .regular, design: .rounded).italic()
+        return committedRun + tentativeRun
+    }
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        if transcript.displayText.isEmpty {
+                            Text(localized("Listening…", locale: locale))
+                                .font(.system(size: fontSize, weight: .regular, design: .rounded))
+                                .foregroundStyle(AppColors.overlayTextSecondary)
+                        } else {
+                            Text(styledTranscript)
+                                .opacity(transcript.phase == .enhancing ? 0.7 : 1.0)
+                        }
+                        Color.clear
+                            .frame(height: 1)
+                            .id("transcript-tail")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .onChange(of: transcript.committedText) {
+                    proxy.scrollTo("transcript-tail", anchor: .bottom)
+                }
+                .onChange(of: transcript.tentativeText) {
+                    proxy.scrollTo("transcript-tail", anchor: .bottom)
+                }
+            }
+            .frame(height: CGFloat(lineLimit) * lineHeight)
+
+            if transcript.phase == .enhancing {
+                HStack(spacing: 4) {
+                    IndicatorProcessingView(dotCount: 3, dotDiameter: 3.5, spacing: 3)
+                    Text(localized("Enhancing…", locale: locale))
+                        .font(.system(size: fontSize - 2, weight: .semibold, design: .rounded))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule()
+                        .fill(AppColors.overlaySurfaceStrong)
+                        .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(0.7))
+                )
+                .transition(.opacity)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
 enum FloatingIndicatorWaveformBarLayout {
     case fixed(count: Int, heightScale: [CGFloat]? = nil)
     case dynamic(minimumCount: Int, edgeAttenuation: CGFloat)

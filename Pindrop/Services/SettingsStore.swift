@@ -46,8 +46,10 @@ public enum SidebarPosition: String, CaseIterable, Identifiable {
 /// force the service to substitute a different backend — see
 /// `SettingsStore.resolvedTranscriptionBackend` for the effective value.
 public enum TranscriptionBackend: String, CaseIterable, Sendable, Identifiable {
-   /// Parakeet Realtime EOU via FluidAudio. Available on all supported macOS versions;
-   /// requires a ~150 MB model download.
+   /// Nemotron Speech Streaming 0.6B via FluidAudio. Natively punctuated and
+   /// capitalized; available on all supported macOS versions; requires a ~630 MB model
+   /// download. (Raw value stays "parakeet" for stored-settings compatibility — the
+   /// case predates the Nemotron engine swap.)
    case parakeet = "parakeet"
 
    /// Apple's on-device `Speech.SpeechTranscriber` (macOS 26+). Ships with the OS,
@@ -58,7 +60,7 @@ public enum TranscriptionBackend: String, CaseIterable, Sendable, Identifiable {
 
    var displayNameKey: String {
       switch self {
-      case .parakeet: return "Parakeet (default)"
+      case .parakeet: return "Nemotron (default)"
       case .appleSpeechTranscriber: return "Apple SpeechTranscriber (macOS 26+)"
       }
    }
@@ -426,15 +428,17 @@ final class SettingsStore: ObservableObject {
    var diarizationFeatureEnabled: Bool = false
    @AppStorage("streamingFeatureEnabled", store: SettingsStoreRuntime.appStorageStore)
    var streamingFeatureEnabled: Bool = false
-   /// Picks the Parakeet EOU chunk variant used by the streaming backend. OFF (default)
-   /// maps to the 320ms variant — lower WER, ~160ms extra latency on partials. ON maps
-   /// to the 160ms variant — snappier partials, noisier text.
+   /// Picks the Nemotron chunk variant used by the streaming backend. OFF (default)
+   /// maps to the 1120ms variant — NVIDIA's original export, best accuracy. ON maps to
+   /// the 560ms variant — snappier partials at comparable accuracy, double the encoder
+   /// invocations.
    @AppStorage("streamingLowLatencyMode", store: SettingsStoreRuntime.appStorageStore)
    var streamingLowLatencyMode: Bool = false
 
-   /// Which streaming transcription backend to use. Default is Parakeet (cross-platform,
-   /// 150MB model download). `.apple` uses Apple's SpeechTranscriber (macOS 26+, zero
-   /// download) but falls back to Parakeet when unavailable on the host.
+   /// Which streaming transcription backend to use. Default is Nemotron (cross-version,
+   /// ~630MB model download, natively punctuated). `.apple` uses Apple's
+   /// SpeechTranscriber (macOS 26+, zero download) but falls back to Nemotron when
+   /// unavailable on the host.
    @AppStorage("transcriptionBackend", store: SettingsStoreRuntime.appStorageStore)
    var transcriptionBackend: String = TranscriptionBackend.parakeet.rawValue
 
@@ -558,7 +562,7 @@ final class SettingsStore: ObservableObject {
       }
 
     /// Streaming chunk profile derived from `streamingLowLatencyMode`. OFF (the default)
-    /// resolves to `.standard` (320ms); ON resolves to `.lowLatency` (160ms).
+    /// resolves to `.standard` (1120ms); ON resolves to `.lowLatency` (560ms).
     var streamingChunkProfile: StreamingChunkProfile {
        streamingLowLatencyMode ? .lowLatency : .standard
     }

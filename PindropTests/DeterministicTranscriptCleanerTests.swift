@@ -222,6 +222,24 @@ struct DeterministicTranscriptCleanerTests {
          == "During that time period nothing happened")
    }
 
+   @Test func leavesCommonBusinessPeriodNounPhrasesAlone() {
+      #expect(
+         cleaner.clean("the billing period ends tomorrow")
+            == "The billing period ends tomorrow"
+      )
+      #expect(
+         cleaner.clean("the reporting period starts monday")
+            == "The reporting period starts monday"
+      )
+   }
+
+   @Test func doesNotReplacePeriodBeforeArbitraryFollowingWord() {
+      #expect(
+         cleaner.clean("the quiet period ended yesterday")
+            == "The quiet period ended yesterday"
+      )
+   }
+
    @Test func leavesOxfordCommaAlone() {
       #expect(
          cleaner.clean("i prefer the oxford comma in lists")

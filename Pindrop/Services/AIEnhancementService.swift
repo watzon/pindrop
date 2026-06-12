@@ -489,14 +489,13 @@ final class AIEnhancementService {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Belt-and-suspenders stripper for common model preambles that slip past the
-    /// `<output_contract>` instruction. Idempotent: if the response has no preamble,
-    /// returns the input verbatim (modulo trimming). Applied by callers that want a
-    /// final safety net before handing text to the user — typically the streaming
-    /// post-stop path, where an LLM "Here is your updated transcription:" leak shows up
-    /// directly in the target app.
+    /// Belt-and-suspenders sanitizer for common model artifacts that slip past the
+    /// `<output_contract>` instruction. Idempotent: if the response has no preamble or
+    /// copied XML entities, returns the input verbatim (modulo trimming). Applied before
+    /// handing enhanced text to the user.
     static func stripResponsePreamble(_ text: String) -> String {
-        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        var result = decodeCommonXMLEntities(text)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Drop a surrounding pair of matching quotes — some models wrap the whole
         // output even when we told them not to.
@@ -545,6 +544,38 @@ final class AIEnhancementService {
         // answered conversationally. Return the whole original text so the caller can
         // decide how to surface it (we'd rather keep the raw transcript than ship a reply).
         return result.isEmpty ? text : result
+    }
+
+    private static func decodeCommonXMLEntities(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: "&apos;", with: "'")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "&amp;", with: "&")
+    }
+
+    private static func containsCommonXMLEntity(_ text: String) -> Bool {
+        text.contains("&apos;")
+            || text.contains("&quot;")
+            || text.contains("&lt;")
+            || text.contains("&gt;")
+            || text.contains("&amp;")
+    }
+
+    private static func logResponseSanitizationIfNeeded(
+        rawText: String,
+        sanitizedText: String,
+        provider: AIProvider
+    ) {
+        let trimmedRaw = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hadXMLPayloadEntity = containsCommonXMLEntity(trimmedRaw)
+        let changed = sanitizedText != trimmedRaw
+        guard hadXMLPayloadEntity || changed else { return }
+
+        Log.aiEnhancement.info(
+            "Sanitized AI enhancement response provider=\(provider.rawValue) decodedXML=\(hadXMLPayloadEntity) changed=\(changed) rawChars=\(trimmedRaw.count) sanitizedChars=\(sanitizedText.count)"
+        )
     }
 
     private static func buildClipboardContextBlock(context: ContextMetadata) -> String? {
@@ -1149,7 +1180,13 @@ final class AIEnhancementService {
                   let text = firstBlock["text"] as? String else {
                 throw EnhancementError.invalidResponse
             }
-            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let sanitized = Self.stripResponsePreamble(text)
+            Self.logResponseSanitizationIfNeeded(
+                rawText: text,
+                sanitizedText: sanitized,
+                provider: provider
+            )
+            return sanitized
         } else {
             guard let choices = json["choices"] as? [[String: Any]],
                   let firstChoice = choices.first,
@@ -1157,7 +1194,13 @@ final class AIEnhancementService {
                   let content = message["content"] as? String else {
                 throw EnhancementError.invalidResponse
             }
-            return content.trimmingCharacters(in: .whitespacesAndNewlines)
+            let sanitized = Self.stripResponsePreamble(content)
+            Self.logResponseSanitizationIfNeeded(
+                rawText: content,
+                sanitizedText: sanitized,
+                provider: provider
+            )
+            return sanitized
         }
     }
 

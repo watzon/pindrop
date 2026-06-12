@@ -1051,8 +1051,8 @@ class ModelManager {
                 onProgress?(0.3)
                 let repo: Repo = {
                     switch streamingChunkProfile {
-                    case .standard: return .parakeetEou320
-                    case .lowLatency: return .parakeetEou160
+                    case .standard: return .nemotronStreaming1120
+                    case .lowLatency: return .nemotronStreaming560
                     }
                 }()
                 try await DownloadUtils.downloadRepo(

@@ -93,7 +93,7 @@ struct TranscriptionBackendTests {
    // MARK: - TranscriptionService integration
 
    @Test func prepareStreamingEngineSwitchesEngineOnBackendChange() async throws {
-      // Two-stage test: first a Parakeet backend → ParakeetStreamingEngine; then an
+      // Two-stage test: first a Nemotron backend → NemotronStreamingEngine; then an
       // Apple preference → Apple engine (on macOS 26+) or fallback with the flag set.
       let parakeetEngine = StubStreamingEngine()
       let appleEngine = StubStreamingEngine()

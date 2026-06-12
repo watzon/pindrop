@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple इंटेलिजेंस डिवाइस पर चलता है और इसके लिए किसी क्रेडेंशियल की आवश्यकता नहीं होती है।"
   speechtranscriber_macos_26: "ऐप्पल स्पीचट्रांसक्राइबर (मैकओएस 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber को macOS 26 की आवश्यकता है।"
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber अनुपलब्ध - पैराकीट का उपयोग करते हुए"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber उपलब्ध नहीं — Nemotron का उपयोग हो रहा है"
 are:
   you_sure_you_want_to_delete_this_action_cann: "क्या आप वाकई '%@' को हटाना चाहते हैं? इस एक्शन को वापस नहीं किया जा सकता।"
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "एक मॉडल चुनें"
   a_provider_first: "पहले एक प्रदाता चुनें"
   an_audio_or_video_file_to_transcribe: "ट्रांसक्राइब करने के लिए एक ऑडियो या वीडियो फ़ाइल चुनें"
-  between_parakeet_cross_version_downloaded: "पैराकीट (क्रॉस-वर्जन, डाउनलोड किया गया मॉडल) और ऐप्पल स्पीचट्रांसक्राइबर (मैकओएस 26+, ओएस के साथ जहाज) के बीच चुनें।"
+  between_nemotron_punctuated_downloaded_mod: "Nemotron (विराम चिह्न सहित, डाउनलोड किया गया मॉडल) और Apple SpeechTranscriber (macOS 26+, OS के साथ आता है) में से चुनें।"
   file: "फाइलें चुनें"
   how_dictated_text_lands_then_tune_the_fin: "चुनें कि निर्देशित पाठ किस प्रकार उतरेगा, फिर अंतिम प्रविष्टि व्यवहार को समायोजित करें।"
   how_pindrop_follows_system_appearance_the: "चुनें कि पिनड्रॉप सिस्टम स्वरूप का अनुसरण कैसे करता है, फिर क्यूरेटेड लाइट और डार्क पैलेट्स को मिलाएं।"
@@ -284,6 +284,8 @@ enhanced:
   _self: "बढ़ी"
 enhancement:
   prompts: "संवर्द्धन संकेत"
+enhancing:
+  _self: "सुधार रहा है…"
 enter:
   an_openai_api_key_to_load_models: "मॉडल लोड करने के लिए OpenAI API कुंजी दर्ज करें।"
   api_key: "एपीआई कुंजी दर्ज करें"
@@ -441,6 +443,8 @@ light:
   theme: "लाइट थीम"
 limited:
   _self: "सीमित"
+listening:
+  _self: "सुन रहा है…"
 live:
   streaming_refinement: "लाइव स्ट्रीमिंग परिशोधन"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "उत्पादन"
   audio_interface_and_everyday_behavior: "आउटपुट, ऑडियो, इंटरफ़ेस और रोजमर्रा का व्यवहार"
-parakeet:
-  default: "तोता (डिफ़ॉल्ट)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "पेस्ट करें"
   a_video_or_audio_link: "एक वीडियो या ऑडियो लिंक चिपकाएँ"
+  failed_transcript_copied_to_clipboard: "पेस्ट विफल रहा। ट्रांसक्रिप्ट क्लिपबोर्ड पर कॉपी कर दिया गया।"
   last_transcript: "अंतिम प्रतिलेख चिपकाएँ"
   last_transcript_v: "अंतिम प्रतिलेख ⌃⌘V चिपकाएँ"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "स्ट्रीमिंग संवर्द्धन"
   transcription_currently_supports_engli: "स्ट्रीमिंग ट्रांसक्रिप्शन वर्तमान में चयनित भाषा की परवाह किए बिना केवल अंग्रेजी का समर्थन करता है।"
   transcription_is_disabled_while_ai_enh: "एआई एन्हांसमेंट सक्षम होने पर स्ट्रीमिंग ट्रांसक्रिप्शन अक्षम है।"
-  transcription_model_parakeet_realtime: "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (पैराकीट रियलटाइम ईओयू) को NVIDIA ओपन मॉडल लाइसेंस के तहत NVIDIA कॉर्पोरेशन द्वारा लाइसेंस प्राप्त है।"
+  transcription_model_nemotron_speech: "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (Nemotron Speech Streaming) NVIDIA Corporation द्वारा NVIDIA Open Model License के तहत लाइसेंस प्राप्त।"
 success:
   _self: "सफलता!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "हॉटकी के माध्यम से नोट्स कैप्चर करते समय उपयोग किया जाता है। लंबी सामग्री के लिए मार्कडाउन फ़ॉर्मेटिंग जोड़ सकते हैं।"
 uses:
   a_built_in_prompt_tuned_for_this_task: "इस कार्य के लिए ट्यून किए गए अंतर्निहित प्रॉम्प्ट का उपयोग करता है।"
-  the_160ms_parakeet_variant_for_snappier_par: "~70% अधिक शब्द त्रुटियों की कीमत पर अधिक तेज़ आंशिक भागों के लिए 160 एमएस पैराकीट संस्करण का उपयोग करता है। डिफ़ॉल्ट 320ms वैरिएंट है."
+  the_560ms_nemotron_variant_for_snappier_par: "तेज़ आंशिक टेक्स्ट के लिए 560ms Nemotron वैरिएंट का उपयोग करता है। डिफ़ॉल्ट 1120ms वैरिएंट है (सर्वोत्तम सटीकता)।"
   the_transcription_enhancement_assignment_if: "ट्रांसक्रिप्शन एन्हांसमेंट असाइनमेंट का उपयोग करता है। यदि कोई भी सेट नहीं है, तो नियतात्मक क्लीनर आउटपुट को यथावत रखा जाता है।"
 v:
   _self: "v%@"

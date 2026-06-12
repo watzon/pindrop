@@ -214,6 +214,22 @@ struct DeterministicTranscriptCleaner: Sendable {
       "long", "short", "brief", "whole", "entire", "same", "next", "last",
       "previous", "new", "old", "given", "set", "single", "critical",
       "transitional", "historical", "dark", "golden", "classical",
+      // Product/business/domain noun phrases where ASR commonly emits "period" as a
+      // real word, not punctuation.
+      "billing", "reporting", "pay", "loan", "lease", "rental", "review",
+      "comment", "notice", "accounting", "fiscal", "calendar", "school",
+      "academic", "modern", "roman",
+   ]
+
+   /// If a spoken-punctuation phrase is followed by another token, only replace it when
+   /// that following token looks like the start of a continuation clause. This keeps
+   /// deterministic cleanup conservative for noun phrases such as "billing period ends"
+   /// while preserving common dictation commands like "period but" and "comma how".
+   private static let spokenPunctuationContinuationStarters: Set<String> = [
+      "and", "but", "or", "so", "then", "because", "although", "though",
+      "however", "therefore", "also", "plus",
+      "i", "we", "you", "he", "she", "they", "it", "this", "that", "there",
+      "how", "what", "when", "where", "why", "who", "which",
    ]
 
    /// Replace spoken-punctuation words with their marks. Handles trailing usage
@@ -284,6 +300,11 @@ struct DeterministicTranscriptCleaner: Sendable {
             // alone.
             guard let prior = priorForBlocklist else { continue }
             if spokenPunctuationNounBlocklist.contains(prior) { continue }
+
+            if rule.mark == ".", i + rule.phrase.count < tokens.count {
+               let next = tokens[i + rule.phrase.count].text.lowercased()
+               if !spokenPunctuationContinuationStarters.contains(next) { continue }
+            }
 
             // Splice: when there's an in-text prior token, absorb the whitespace between
             // it and the phrase so "well period" becomes "well." (not "well ."). When

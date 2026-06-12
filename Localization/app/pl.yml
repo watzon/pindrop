@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "Apple Intelligence działa na urządzeniu i nie wymaga żadnych poświadczeń."
   speechtranscriber_macos_26: "Apple Speech Transcriber (macOS 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber wymaga systemu macOS 26."
-  speechtranscriber_unavailable_using_parake: "Usługa Apple SpeechTranscriber jest niedostępna — przy użyciu programu Parakeet"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber niedostępny — używany jest Nemotron"
 are:
   you_sure_you_want_to_delete_this_action_cann: "Czy na pewno chcesz usunąć „%@”? Tej akcji nie można cofnąć."
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "Wybierz model"
   a_provider_first: "Najpierw wybierz dostawcę"
   an_audio_or_video_file_to_transcribe: "Wybierz plik audio lub wideo do transkrypcji"
-  between_parakeet_cross_version_downloaded: "Wybierz pomiędzy Parakeet (wersja krzyżowa, model pobrany) i Apple SpeechTranscriber (macOS 26+, dostarczany z systemem operacyjnym)."
+  between_nemotron_punctuated_downloaded_mod: "Wybierz między Nemotron (z interpunkcją, pobierany model) a Apple SpeechTranscriber (macOS 26+, dostarczany z systemem)."
   file: "Wybierz plik"
   how_dictated_text_lands_then_tune_the_fin: "Wybierz sposób wylądowania podyktowanego tekstu, a następnie dostosuj końcowe zachowanie podczas wstawiania."
   how_pindrop_follows_system_appearance_the: "Wybierz sposób, w jaki Pindrop będzie podążał za wyglądem systemu, a następnie połącz wybrane jasne i ciemne palety."
@@ -284,6 +284,8 @@ enhanced:
   _self: "Wzmocniony"
 enhancement:
   prompts: "Monity o ulepszenia"
+enhancing:
+  _self: "Ulepszanie…"
 enter:
   an_openai_api_key_to_load_models: "Wprowadź klucz API OpenAI, aby załadować modele."
   api_key: "Wprowadź klucz API"
@@ -441,6 +443,8 @@ light:
   theme: "Lekki motyw"
 limited:
   _self: "Ograniczony"
+listening:
+  _self: "Słucham…"
 live:
   streaming_refinement: "Udoskonalenie transmisji na żywo"
 lld:
@@ -597,11 +601,12 @@ originals:
 output:
   _self: "Wyjście"
   audio_interface_and_everyday_behavior: "Wyjście, dźwięk, interfejs i codzienne zachowanie"
-parakeet:
-  default: "Papuga (domyślna)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "Pasta"
   a_video_or_audio_link: "Wklej link wideo lub audio"
+  failed_transcript_copied_to_clipboard: "Wklejanie nie powiodło się. Transkrypcję skopiowano do schowka."
   last_transcript: "Wklej ostatnią transkrypcję"
   last_transcript_v: "Wklej ostatni zapis ⌃⌘V"
 pause:
@@ -848,7 +853,7 @@ streaming:
   enhancement: "Udoskonalanie transmisji strumieniowej"
   transcription_currently_supports_engli: "Transkrypcja strumieniowa obsługuje obecnie wyłącznie język angielski, niezależnie od wybranego języka."
   transcription_is_disabled_while_ai_enh: "Transkrypcja strumieniowa jest wyłączona, gdy włączone jest ulepszenie AI."
-  transcription_model_parakeet_realtime: "Model transkrypcji strumieniowej (Parakeet Realtime EOU) licencjonowany przez firmę NVIDIA Corporation w ramach licencji NVIDIA Open Model License."
+  transcription_model_nemotron_speech: "Model transkrypcji strumieniowej (Nemotron Speech Streaming) licencjonowany przez NVIDIA Corporation na licencji NVIDIA Open Model License."
 success:
   _self: "Sukces!"
 support:
@@ -957,7 +962,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "Używane podczas przechwytywania notatek za pomocą klawisza skrótu. Można dodać formatowanie przecen dla dłuższych treści."
 uses:
   a_built_in_prompt_tuned_for_this_task: "Używa wbudowanego monitu dostosowanego do tego zadania."
-  the_160ms_parakeet_variant_for_snappier_par: "Wykorzystuje wariant Parakeet o czasie trwania 160 ms w celu uzyskania szybszych fragmentów, kosztem ~70% więcej błędów słownych. Domyślnie jest to wariant 320 ms."
+  the_560ms_nemotron_variant_for_snappier_par: "Używa wariantu Nemotron 560 ms dla szybszego tekstu częściowego. Domyślny jest wariant 1120 ms (najlepsza dokładność)."
   the_transcription_enhancement_assignment_if: "Używa przypisania Wzmocnienie transkrypcji. Jeżeli żadna nie jest ustawiona, deterministyczne wyjście czyszczące pozostaje niezmienione."
 v:
   _self: "v%@"

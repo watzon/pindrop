@@ -53,8 +53,6 @@ struct ClipboardSnapshot {
 }
 
 protocol KeySimulationProtocol {
-    func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws
-    func postCharacterEvent(character: Character, keyDown: Bool) throws
     func simulatePaste() async throws
 }
 
@@ -115,29 +113,6 @@ final class SystemClipboard: ClipboardProtocol {
 }
 
 final class SystemKeySimulation: KeySimulationProtocol {
-    func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags, keyDown: Bool) throws {
-        let source = CGEventSource(stateID: .hidSystemState)
-        
-        guard let event = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: keyDown) else {
-            throw OutputManagerError.textInsertionFailed
-        }
-        
-        event.flags = flags
-        event.post(tap: .cghidEventTap)
-    }
-
-    func postCharacterEvent(character: Character, keyDown: Bool) throws {
-        let source = CGEventSource(stateID: .hidSystemState)
-
-        guard let event = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: keyDown) else {
-            throw OutputManagerError.textInsertionFailed
-        }
-
-        var utf16 = Array(String(character).utf16)
-        event.keyboardSetUnicodeString(stringLength: utf16.count, unicodeString: &utf16)
-        event.post(tap: .cghidEventTap)
-    }
-    
     func simulatePaste() async throws {
         if try runSystemEventsPasteScript() {
             return
@@ -184,23 +159,22 @@ final class SystemKeySimulation: KeySimulationProtocol {
 
 @MainActor
 final class OutputManager {
-    
+
+    /// How `output(_:)` actually landed the text in the target app. `.pasted` means the
+    /// paste keystroke was issued; `.copiedToClipboard` means insertion wasn't possible
+    /// (no accessibility permission, or the paste failed) and the text was left on the
+    /// clipboard for the user to paste manually — callers can surface that distinction.
+    enum OutputResult: Equatable {
+        case pasted
+        case copiedToClipboard
+    }
+
     private(set) var outputMode: OutputMode
     private let clipboard: ClipboardProtocol
     private let keySimulation: KeySimulationProtocol
     private let accessibilityPermissionChecker: () -> Bool
     private let frontmostApplicationProvider: () -> NSRunningApplication?
-    private var streamingSessionActive = false
-    private var lastStreamingText = ""
-    /// Tail of a chain of in-flight streaming writes. Each call to
-    /// `updateStreamingInsertion(with:)` or `finishStreamingInsertion(...)` appends a
-    /// task that awaits its predecessor before reading `lastStreamingText` and issuing
-    /// keystrokes. This prevents concurrent callers from reading a stale baseline and
-    /// interleaving their keystrokes. The main actor serializes method entry, but `await`
-    /// points inside each write yield the actor, so without this chain a refinement apply
-    /// that's still typing can race with the next partial that arrives mid-typing.
-    private var streamingWriteChainTail: Task<Void, Error>?
-    
+
     init(
         outputMode: OutputMode = .clipboard,
         clipboard: ClipboardProtocol = SystemClipboard(),
@@ -219,18 +193,19 @@ final class OutputManager {
         self.outputMode = mode
     }
     
-    func output(_ text: String) async throws {
+    @discardableResult
+    func output(_ text: String) async throws -> OutputResult {
         guard !text.isEmpty else {
             throw OutputManagerError.emptyText
         }
-        
+
         Log.output.debug("Output called, mode: \(String(describing: self.outputMode)), length: \(text.count)")
-        
+
         switch outputMode {
         case .clipboard:
-            try await outputViaClipboard(text)
+            return try await outputViaClipboard(text)
         case .directInsert:
-            try await outputViaDirectInsert(text)
+            return try await outputViaDirectInsert(text)
         }
     }
 
@@ -242,151 +217,40 @@ final class OutputManager {
         try await pasteViaClipboard(text, restoreClipboard: true)
     }
 
-    func beginStreamingInsertion() {
-        streamingSessionActive = true
-        lastStreamingText = ""
-        streamingWriteChainTail = nil
-    }
-
-    func updateStreamingInsertion(with text: String) async throws {
-        guard streamingSessionActive else {
-            throw OutputManagerError.textInsertionFailed
-        }
-        try await enqueueStreamingWrite { [weak self] in
-            try await self?.performStreamingInsertion(text: text)
-        }
-    }
-
-    /// Actual diff + keystroke pipeline. Invoked only from inside `enqueueStreamingWrite`
-    /// so that `lastStreamingText` and the keystroke stream are consistent with each other
-    /// across concurrent callers.
-    private func performStreamingInsertion(text: String) async throws {
-        guard streamingSessionActive else {
-            throw OutputManagerError.textInsertionFailed
-        }
-
-        let previous = lastStreamingText
-        let commonPrefixLength = longestCommonPrefixLength(previous, text)
-        let charactersToDelete = previous.count - commonPrefixLength
-        let suffixToInsert = String(text.dropFirst(commonPrefixLength))
-
-        // Compact diagnostics: previous length, target length, prefix match, chars
-        // deleted, chars inserted, plus short preview windows around the divergence.
-        // Enable with `log stream --predicate 'subsystem == "tech.watzon.pindrop" AND
-        // category == "output"' --level=debug`.
-        Log.output.debug(
-            """
-            updateStreamingInsertion diff: \
-            prev=\(previous.count) target=\(text.count) \
-            prefix=\(commonPrefixLength) delete=\(charactersToDelete) \
-            insert=\(suffixToInsert.count) \
-            prevTail=\(Self.logWindow(previous, around: commonPrefixLength)) \
-            targetTail=\(Self.logWindow(text, around: commonPrefixLength))
-            """
-        )
-
-        if charactersToDelete > 0 {
-            try await deleteBackward(count: charactersToDelete)
-        }
-        if !suffixToInsert.isEmpty {
-            try await insertStreamingSuffix(suffixToInsert)
-        }
-
-        lastStreamingText = text
-    }
-
-    /// Appends a unit of streaming-write work onto the serial chain. Each enqueued task
-    /// awaits its predecessor's completion before running. The chain survives errors —
-    /// a throw from one task does not poison the chain, so subsequent writes still run.
-    private func enqueueStreamingWrite(
-        _ work: @escaping @Sendable () async throws -> Void
-    ) async throws {
-        let predecessor = streamingWriteChainTail
-        let task: Task<Void, Error> = Task { @MainActor in
-            _ = try? await predecessor?.value
-            try await work()
-        }
-        streamingWriteChainTail = task
-        try await task.value
-    }
-
-    /// 30-char window around an index in `text`, with the divergence point marked by `|`,
-    /// for debug logs. Never throws — clamps to string bounds.
-    private static func logWindow(_ text: String, around index: Int) -> String {
-        let count = text.count
-        guard count > 0 else { return "<empty>" }
-        let clamped = max(0, min(index, count))
-        let start = max(0, clamped - 15)
-        let end = min(count, clamped + 15)
-        let startIdx = text.index(text.startIndex, offsetBy: start)
-        let endIdx = text.index(text.startIndex, offsetBy: end)
-        let divergeIdx = text.index(text.startIndex, offsetBy: clamped)
-        let left = text[startIdx..<divergeIdx]
-        let right = text[divergeIdx..<endIdx]
-        return "\"\(left)|\(right)\""
-    }
-
-    func finishStreamingInsertion(finalText: String, appendTrailingSpace: Bool) async throws {
-        guard streamingSessionActive else {
-            throw OutputManagerError.textInsertionFailed
-        }
-
-        var finalOutput = finalText
-        if appendTrailingSpace, !finalOutput.isEmpty {
-            finalOutput += " "
-        }
-
-        // Route through the serial write chain so the final diff runs only after any
-        // in-flight streaming writes complete.
-        try await enqueueStreamingWrite { [weak self] in
-            try await self?.performStreamingInsertion(text: finalOutput)
-        }
-        streamingSessionActive = false
-        lastStreamingText = ""
-        streamingWriteChainTail = nil
-    }
-
-    func cancelStreamingInsertion(removeInsertedText: Bool) async {
-        guard streamingSessionActive else {
-            lastStreamingText = ""
-            return
-        }
-
-        // Wait for any in-flight writes to drain so we don't interleave our delete with
-        // their keystrokes. An error thrown by a prior write is irrelevant here; swallow.
-        if let tail = streamingWriteChainTail {
-            _ = try? await tail.value
-        }
-        streamingWriteChainTail = nil
-
-        if removeInsertedText && !lastStreamingText.isEmpty {
-            try? await deleteBackward(count: lastStreamingText.count)
-        }
-
-        streamingSessionActive = false
-        lastStreamingText = ""
-    }
-    
-    private func outputViaClipboard(_ text: String) async throws {
+    private func outputViaClipboard(_ text: String) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
             try copyToClipboard(text)
-            return
+            return .copiedToClipboard
         }
 
         do {
             try await pasteViaClipboard(text, restoreClipboard: true)
+            return .pasted
         } catch {
             try copyToClipboard(text)
+            return .copiedToClipboard
         }
     }
 
-    private func outputViaDirectInsert(_ text: String) async throws {
+    /// Direct insert is paste-based: one atomic Cmd+V with clipboard snapshot/restore.
+    /// (Character-by-character CGEvent typing was removed — the overlay-streaming
+    /// architecture inserts final text exactly once, and paste is the only insertion
+    /// primitive reliable across apps.) On paste failure the text is left on the
+    /// clipboard so the user's words are never lost.
+    private func outputViaDirectInsert(_ text: String) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
             try copyToClipboard(text)
-            return
+            return .copiedToClipboard
         }
 
-        try await insertTextDirectly(text)
+        do {
+            try await pasteViaClipboard(text, restoreClipboard: true)
+            return .pasted
+        } catch {
+            Log.output.error("Direct insert paste failed; leaving text on clipboard: \(error.localizedDescription)")
+            try copyToClipboard(text)
+            return .copiedToClipboard
+        }
     }
 
     private func pasteViaClipboard(_ text: String, restoreClipboard: Bool) async throws {
@@ -452,43 +316,4 @@ final class OutputManager {
             || clipboard.currentStringContent() == insertedText
     }
     
-    private func insertTextDirectly(_ text: String) async throws {
-        for character in text {
-            try await typeCharacter(character)
-        }
-    }
-
-    private func insertStreamingSuffix(_ text: String) async throws {
-        try await insertTextDirectly(text)
-    }
-
-    private func deleteBackward(count: Int) async throws {
-        guard count > 0 else { return }
-        for _ in 0..<count {
-            try keySimulation.postKeyEvent(keyCode: 51, flags: [], keyDown: true)
-            try await Task.sleep(nanoseconds: 1_000_000)
-            try keySimulation.postKeyEvent(keyCode: 51, flags: [], keyDown: false)
-        }
-    }
-
-    /// Length of the longest common PREFIX (measured in Character units) between `lhs` and
-    /// `rhs`. Must stop at the first mismatch — without an early break, a `where` filter
-    /// would keep counting matching character positions beyond the divergence, which is
-    /// wrong for any input with interior edits (e.g. AI-refined streams replacing words
-    /// mid-string). Monotone streaming inputs happen to hide this bug because each partial
-    /// is a strict extension of the previous, but refinement introduces interior diffs.
-    private func longestCommonPrefixLength(_ lhs: String, _ rhs: String) -> Int {
-        var length = 0
-        for (left, right) in zip(lhs, rhs) {
-            if left != right { break }
-            length += 1
-        }
-        return length
-    }
-    
-    private func typeCharacter(_ character: Character) async throws {
-        try keySimulation.postCharacterEvent(character: character, keyDown: true)
-        try await Task.sleep(nanoseconds: 1_000_000)
-        try keySimulation.postCharacterEvent(character: character, keyDown: false)
-    }
 }

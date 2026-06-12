@@ -98,7 +98,35 @@ struct AIEnhancementServiceTests {
 
         #expect(mockSession.lastRequest?.value(forHTTPHeaderField: "Authorization") == nil)
     }
-    
+
+    @Test func testEnhanceDecodesXMLEntitiesFromModelResponse() async throws {
+        let (service, mockSession) = makeSUT()
+
+        mockSession.mockData = """
+        {
+            "choices": [{
+                "message": {
+                    "content": "I&apos;m testing AT&amp;T."
+                }
+            }]
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let result = try await service.enhance(
+            text: "I'm testing AT&T.",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key"
+        )
+
+        #expect(result == "I'm testing AT&T.")
+    }
+
     // MARK: - Test Fallback on API Error
     @Test func testThrowsOnAPIError() async throws {
         let (service, mockSession) = makeSUT()

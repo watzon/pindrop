@@ -67,7 +67,7 @@ apple:
   intelligence_runs_on_device_and_requires_n: "অ্যাপল ইন্টেলিজেন্স ডিভাইসে চলে এবং কোনো শংসাপত্রের প্রয়োজন হয় না।"
   speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
   speechtranscriber_requires_macos_26: "Apple SpeechTranscriber এর macOS 26 প্রয়োজন।"
-  speechtranscriber_unavailable_using_parake: "Apple SpeechTranscriber অনুপলব্ধ — Parakeet ব্যবহার করে"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber উপলব্ধ নয় — Nemotron ব্যবহার করা হচ্ছে"
 are:
   you_sure_you_want_to_delete_this_action_cann: "আপনি কি '%@' মুছতে চান? এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না৷"
 assignments:
@@ -121,7 +121,7 @@ choose:
   a_model: "একটি মডেল চয়ন করুন"
   a_provider_first: "প্রথমে একটি প্রদানকারী চয়ন করুন"
   an_audio_or_video_file_to_transcribe: "প্রতিলিপি করার জন্য একটি অডিও বা ভিডিও ফাইল চয়ন করুন৷"
-  between_parakeet_cross_version_downloaded: "Parakeet (ক্রস-সংস্করণ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS সহ জাহাজ) এর মধ্যে বেছে নিন।"
+  between_nemotron_punctuated_downloaded_mod: "Nemotron (যতিচিহ্নসহ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS-এর সাথে আসে) এর মধ্যে বেছে নিন।"
   file: "ফাইল নির্বাচন করুন"
   how_dictated_text_lands_then_tune_the_fin: "টেক্সট ল্যান্ড কিভাবে নির্দেশিত চয়ন করুন, তারপর চূড়ান্ত সন্নিবেশ আচরণ টিউন."
   how_pindrop_follows_system_appearance_the: "পিনড্রপ কীভাবে সিস্টেমের চেহারা অনুসরণ করে তা চয়ন করুন, তারপরে কিউরেটেড আলো এবং অন্ধকার প্যালেটগুলি মিশ্রিত করুন।"
@@ -284,6 +284,8 @@ enhanced:
   _self: "উন্নত"
 enhancement:
   prompts: "বর্ধিতকরণ প্রম্পট"
+enhancing:
+  _self: "উন্নত করা হচ্ছে…"
 enter:
   an_openai_api_key_to_load_models: "মডেল লোড করতে একটি OpenAI API কী লিখুন।"
   api_key: "API কী লিখুন"
@@ -441,6 +443,8 @@ light:
   theme: "হালকা থিম"
 limited:
   _self: "লিমিটেড"
+listening:
+  _self: "শোনা হচ্ছে…"
 live:
   streaming_refinement: "লাইভ স্ট্রিমিং পরিমার্জন"
 lld:
@@ -598,11 +602,12 @@ originals:
 output:
   _self: "আউটপুট"
   audio_interface_and_everyday_behavior: "আউটপুট, অডিও, ইন্টারফেস এবং দৈনন্দিন আচরণ"
-parakeet:
-  default: "প্যারাকিট (ডিফল্ট)"
+nemotron:
+  default: "Nemotron (default)"
 paste:
   _self: "পেস্ট করুন"
   a_video_or_audio_link: "একটি ভিডিও বা অডিও লিঙ্ক আটকান"
+  failed_transcript_copied_to_clipboard: "পেস্ট ব্যর্থ হয়েছে। ট্রান্সক্রিপ্ট ক্লিপবোর্ডে কপি করা হয়েছে।"
   last_transcript: "শেষ ট্রান্সক্রিপ্ট পেস্ট করুন"
   last_transcript_v: "শেষ ট্রান্সক্রিপ্ট পেস্ট করুন ⌃⌘V"
 pause:
@@ -853,7 +858,7 @@ streaming:
   enhancement: "স্ট্রিমিং এনহান্সমেন্ট"
   transcription_currently_supports_engli: "স্ট্রিমিং ট্রান্সক্রিপশন বর্তমানে শুধুমাত্র ইংরেজি সমর্থন করে, নির্বাচিত ভাষা নির্বিশেষে।"
   transcription_is_disabled_while_ai_enh: "AI উন্নত করার সময় স্ট্রিমিং ট্রান্সক্রিপশন অক্ষম করা আছে।"
-  transcription_model_parakeet_realtime: "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (প্যারাকিট রিয়েলটাইম EOU) NVIDIA কর্পোরেশন দ্বারা NVIDIA ওপেন মডেল লাইসেন্সের অধীনে লাইসেন্সপ্রাপ্ত।"
+  transcription_model_nemotron_speech: "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (Nemotron Speech Streaming) NVIDIA Corporation কর্তৃক NVIDIA Open Model License-এর অধীনে লাইসেন্সকৃত।"
 success:
   _self: "সফলতার !"
 support:
@@ -964,7 +969,7 @@ used:
   when_capturing_notes_via_hotkey_can_add_mar: "হটকির মাধ্যমে নোট ক্যাপচার করার সময় ব্যবহৃত হয়। দীর্ঘ বিষয়বস্তুর জন্য মার্কডাউন বিন্যাস যোগ করতে পারেন।"
 uses:
   a_built_in_prompt_tuned_for_this_task: "এই কাজের জন্য টিউন করা একটি অন্তর্নির্মিত প্রম্পট ব্যবহার করে।"
-  the_160ms_parakeet_variant_for_snappier_par: "~70% বেশি শব্দ ত্রুটির খরচে স্ন্যাপিয়ার আংশিকগুলির জন্য 160ms প্যারাকিট ভেরিয়েন্ট ব্যবহার করে। ডিফল্ট হল 320ms ভেরিয়েন্ট।"
+  the_560ms_nemotron_variant_for_snappier_par: "দ্রুততর আংশিক টেক্সটের জন্য 560ms Nemotron ভ্যারিয়েন্ট ব্যবহার করে। ডিফল্ট হল 1120ms ভ্যারিয়েন্ট (সেরা নির্ভুলতা)।"
   the_transcription_enhancement_assignment_if: "ট্রান্সক্রিপশন এনহান্সমেন্ট অ্যাসাইনমেন্ট ব্যবহার করে। যদি কোনোটিই সেট করা না থাকে, তাহলে নির্ধারক ক্লিনার আউটপুট যেমন-ই রাখা হয়।"
 v:
   _self: "v%@"

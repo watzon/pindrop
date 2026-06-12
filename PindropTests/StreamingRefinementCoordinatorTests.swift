@@ -36,22 +36,29 @@ struct StreamingRefinementCoordinatorTests {
       private(set) var beganCount = 0
       private(set) var updates: [String] = []
       private(set) var finished: (text: String, trailingSpace: Bool)?
-      private(set) var cancelledRemovingText: Bool?
+      private(set) var cancelledCount = 0
 
       func beginStreamingInsertion() {
          beganCount += 1
       }
 
-      func updateStreamingInsertion(with text: String) async throws {
-         updates.append(text)
+      func updateStreamingInsertion(committed: String, tentative: String) async throws {
+         // Compose exactly like the coordinator's display path so the existing
+         // string-level assertions keep testing the same user-visible output.
+         updates.append(
+            StreamingRefinementCoordinator.composeDisplay(
+               committed: committed, tentative: tentative
+            )
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+         )
       }
 
       func finishStreamingInsertion(finalText: String, appendTrailingSpace: Bool) async throws {
          finished = (finalText, appendTrailingSpace)
       }
 
-      func cancelStreamingInsertion(removeInsertedText: Bool) async {
-         cancelledRemovingText = removeInsertedText
+      func cancelStreamingInsertion() async {
+         cancelledCount += 1
       }
 
       /// The longest displayed string across all updates — useful as a proxy for "what
@@ -188,6 +195,33 @@ struct StreamingRefinementCoordinatorTests {
       #expect(afterRewrite.contains("five six seven"))
    }
 
+   @Test func displayPreservesSpaceWhenTentativeTailLosesLeadingWhitespace() async throws {
+      let sink = FakeSink()
+      let coord = makeCoordinator()
+      coord.beginSession(outputSink: sink)
+
+      await coord.ingestPartial("hello")
+      await coord.ingestPartial("hello world")
+      await coord.ingestPartial("hello world again")
+      await coord.ingestPartial("hello world again today")
+
+      await coord.ingestPartial("helloworld again today tomorrow")
+
+      #expect(sink.lastUpdate == "Hello world again today tomorrow")
+   }
+
+   @Test func committedChunksPreserveSpaceWhenCleanedChunkHasNoLeadingWhitespace() async throws {
+      let sink = FakeSink()
+      let coord = makeCoordinator()
+      coord.beginSession(outputSink: sink)
+
+      await coord.ingestFinal("hello")
+      await coord.ingestFinal("helloworld")
+
+      let finalText = await coord.awaitFinalTextAndDrain()
+      #expect(finalText == "Hello world")
+   }
+
    // MARK: - ingestFinal (EOU) commits everything
 
    @Test func ingestFinalCommitsAllText() async throws {
@@ -295,9 +329,9 @@ struct StreamingRefinementCoordinatorTests {
       let coord = makeCoordinator()
       coord.beginSession(outputSink: sink)
 
-      await coord.cancelSession(removeInsertedText: true)
+      await coord.cancelSession()
 
-      #expect(sink.cancelledRemovingText == true)
+      #expect(sink.cancelledCount == 1)
    }
 
    // MARK: - Integration: simulated long stream

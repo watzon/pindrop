@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import Combine
 
 private enum NotchPanelMetrics {
     static let fallbackNotchWidth: CGFloat = 186
@@ -21,6 +22,8 @@ private enum NotchPanelMetrics {
     static let hideDuration: TimeInterval = 0.15
     static let sectionDividerOpacity: CGFloat = 0.18
     static let sidePadding: CGFloat = 10
+    /// Dynamic-Island-style downward extension while the live transcript is showing.
+    static let transcriptDropHeight: CGFloat = 64
 }
 
 extension NSScreen {
@@ -115,17 +118,72 @@ struct NotchShape: Shape {
 final class FloatingIndicatorController: FloatingIndicatorPresenting {
     let type: FloatingIndicatorType = .notch
     let state: FloatingIndicatorState
+    let liveTranscript: LiveTranscriptState
 
     private var panel: NotchPanel?
     private var hostingView: NSHostingView<AnyView>?
     private var actions = FloatingIndicatorActions()
     private var screenTrackingTimer: Timer?
     private var lastScreen: NSScreen?
+    private var phaseCancellables = Set<AnyCancellable>()
 
-    init(state: FloatingIndicatorState) {
+    init(state: FloatingIndicatorState, liveTranscript: LiveTranscriptState) {
         self.state = state
+        self.liveTranscript = liveTranscript
+
+        // The notch extends downward while the live transcript shows — resize on
+        // phase transitions only, never on text growth.
+        liveTranscript.$phase
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.applyPanelFrameForCurrentScreen(animated: true)
+            }
+            .store(in: &phaseCancellables)
     }
-    
+
+    /// Geometry for the panel on `screen`, including the transcript drop when active.
+    private func panelLayout(for screen: NSScreen) -> (frame: NSRect, notchWidth: CGFloat, sideWidth: CGFloat, rowHeight: CGFloat) {
+        let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
+        let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
+        let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
+        let dynamicSideWidth = max(
+            NotchPanelMetrics.minimumSideWidth,
+            min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
+        )
+        let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
+        let rowHeight = screen.hasNotch
+            ? screen.notchPanelHeight
+            : max(NotchPanelMetrics.panelHeightMinimum, screen.notchPanelHeight)
+        let panelHeight = rowHeight
+            + (liveTranscript.isActive ? NotchPanelMetrics.transcriptDropHeight : 0)
+        let expandedWidth = notchWidth + (sideWidth * 2)
+        let panelWidth = min(expandedWidth, maxPanelWidth)
+
+        let xPosition = screen.visibleFrame.midX - (panelWidth / 2)
+        // Anchor the panel's TOP edge to the very top of screen.frame; the transcript
+        // drop extends downward.
+        let yPosition = screen.frame.maxY - panelHeight
+
+        let clampedXPosition = max(
+            screen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
+            min(
+                xPosition,
+                screen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
+            )
+        )
+        let frame = NSRect(x: clampedXPosition, y: yPosition, width: panelWidth, height: panelHeight)
+        return (frame, notchWidth, sideWidth, rowHeight)
+    }
+
+    private func applyPanelFrameForCurrentScreen(animated: Bool) {
+        guard let panel else { return }
+        let screen = lastScreen ?? preferredScreen()
+        let layout = panelLayout(for: screen)
+        panel.setFrame(layout.frame, display: true, animate: animated)
+        hostingView?.frame = NSRect(origin: .zero, size: layout.frame.size)
+    }
+
     func configure(actions: FloatingIndicatorActions) {
         self.actions = actions
     }
@@ -149,46 +207,17 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         }
         
         guard let screen = Optional(preferredScreen()) else { return }
-        
-        let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
-        let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
-        let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
-        let dynamicSideWidth = max(
-            NotchPanelMetrics.minimumSideWidth,
-            min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
-        )
-        let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
-        let panelHeight = screen.hasNotch
-            ? screen.notchPanelHeight
-            : max(NotchPanelMetrics.panelHeightMinimum, screen.notchPanelHeight)
-        let expandedWidth = notchWidth + (sideWidth * 2)
-        let panelWidth = min(expandedWidth, maxPanelWidth)
 
-        let xPosition = screen.visibleFrame.midX - (panelWidth / 2)
-        // Anchor the panel to the very top of screen.frame — no rounding that could leave a gap.
-        let yPosition = screen.frame.maxY - panelHeight
-
-        let clampedXPosition = max(
-            screen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
-            min(
-                xPosition,
-                screen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
-            )
-        )
-        let contentRect = NSRect(
-            x: clampedXPosition,
-            y: yPosition,
-            width: panelWidth,
-            height: panelHeight
-        )
-        let panel = NotchPanel(contentRect: contentRect)
+        let layout = panelLayout(for: screen)
+        let panel = NotchPanel(contentRect: layout.frame)
 
         let appLocale = AppLocale.currentSelection()
         let contentView = AnyView(NotchIndicatorView(
             state: state,
-            notchWidth: notchWidth,
-            sideWidth: sideWidth,
-            height: panelHeight,
+            transcript: liveTranscript,
+            notchWidth: layout.notchWidth,
+            sideWidth: layout.sideWidth,
+            height: layout.rowHeight,
             onStopRecording: { [weak self] in
                 self?.handleStopButtonTapped()
             }
@@ -276,44 +305,12 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     }
     
     private func checkAndUpdateScreenPosition() {
-        guard let panel = panel else { return }
+        guard panel != nil else { return }
         guard let currentScreen = Optional(preferredScreen()) else { return }
-        
+
         if lastScreen?.pindrop_isSameDisplay(as: currentScreen) == false || lastScreen == nil {
             lastScreen = currentScreen
-            
-            let notchWidth = currentScreen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
-            let maxPanelWidth = max(0, currentScreen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
-            let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
-            let dynamicSideWidth = max(
-                NotchPanelMetrics.minimumSideWidth,
-                min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
-            )
-            let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
-            let panelHeight = currentScreen.hasNotch
-                ? currentScreen.notchPanelHeight
-                : max(NotchPanelMetrics.panelHeightMinimum, currentScreen.notchPanelHeight)
-            let expandedWidth = notchWidth + (sideWidth * 2)
-            let panelWidth = min(expandedWidth, maxPanelWidth)
-
-            let xPosition = currentScreen.visibleFrame.midX - (panelWidth / 2)
-            let yPosition = currentScreen.frame.maxY - panelHeight
-
-            let clampedXPosition = max(
-                currentScreen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
-                min(
-                    xPosition,
-                    currentScreen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
-                )
-            )
-
-            let newFrame = NSRect(
-                x: clampedXPosition,
-                y: yPosition,
-                width: panelWidth,
-                height: panelHeight
-            )
-            panel.setFrame(newFrame, display: true, animate: true)
+            applyPanelFrameForCurrentScreen(animated: true)
         }
     }
 
@@ -324,30 +321,48 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
 
 struct NotchIndicatorView: View {
     @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
     let notchWidth: CGFloat
     let sideWidth: CGFloat
     let height: CGFloat
     let onStopRecording: () -> Void
-    
+
     private var formattedDuration: String {
         let minutes = Int(state.recordingDuration) / 60
         let seconds = Int(state.recordingDuration) % 60
         let tenths = Int((state.recordingDuration.truncatingRemainder(dividingBy: 1)) * 10)
         return String(format: "%d:%02d.%d", minutes, seconds, tenths)
     }
-    
+
+    private var showsTranscript: Bool { transcript.isActive }
+
     var body: some View {
-        HStack(spacing: 0) {
-            leftSide
-            centerSection
-                .frame(width: notchWidth)
-            rightSide
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                leftSide
+                centerSection
+                    .frame(width: notchWidth)
+                rightSide
+            }
+            .frame(height: height)
+
+            if showsTranscript {
+                // Dynamic-Island-style drop: full-width transcript area below the
+                // notch row, same black surface so it reads as the notch extending.
+                LiveTranscriptView(transcript: transcript, fontSize: 11, lineLimit: 3)
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(height: NotchPanelMetrics.transcriptDropHeight)
+                    .transition(.opacity)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.black)
         .clipShape(NotchShape(cornerRadius: NotchPanelMetrics.cornerRadius))
         .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.2), value: showsTranscript)
         .themeRefresh()
     }
     
@@ -492,7 +507,7 @@ private var notchRecordingPreview: some View {
     state.recordingDuration = 5.3
     state.audioLevel = 0.6
 
-    return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+    return NotchIndicatorView(state: state, transcript: LiveTranscriptState(), notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
         .background(AppColors.windowBackground)
 }
@@ -505,7 +520,7 @@ private var notchProcessingPreview: some View {
     state.recordingDuration = 12.7
     state.audioLevel = 0.0
 
-    return NotchIndicatorView(state: state, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+    return NotchIndicatorView(state: state, transcript: LiveTranscriptState(), notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
         .background(AppColors.windowBackground)
 }
