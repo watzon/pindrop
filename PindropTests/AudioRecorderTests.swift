@@ -266,7 +266,17 @@ struct AudioRecorderTests {
         fixture.sut.setPreferredInputDeviceUID("usb-mic")
 
         #expect(fixture.mockBackend.startCaptureCallCount == 1)
-        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 2)
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
+        #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
+    }
+
+    @Test func setPreferredInputDeviceUIDIgnoresDuplicateSelection() throws {
+        let fixture = try makeFixture()
+
+        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
         #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
     }
 }

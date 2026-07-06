@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import CoreAudio
+import AudioToolbox
 import os.log
 
 enum AudioRecordingMode: String, CaseIterable, Equatable, Sendable {
@@ -278,6 +279,11 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     private let audioBuffers = AudioBufferStorage()
     private var preferredInputDeviceUID: String?
     private var configurationChangeObserver: NSObjectProtocol?
+    private var onBufferCallback: ((AVAudioPCMBuffer) -> Void)?
+    private var onAudioLevelCallback: ((Float) -> Void)?
+    private var isRestartingCapture = false
+    private var pendingConfigurationRestartWorkItem: DispatchWorkItem?
+    private var suppressConfigurationChangesUntil: Date?
     
     private(set) var isCapturing = false
     
@@ -300,50 +306,33 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     }
     
     func startCapture(onBuffer: @escaping (AVAudioPCMBuffer) -> Void, onAudioLevel: @escaping (Float) -> Void) throws {
+        self.onBufferCallback = onBuffer
+        self.onAudioLevelCallback = onAudioLevel
         _ = audioBuffers.removeAll()
         removeConfigurationChangeObserver()
         
-        let engine = AVAudioEngine()
-        self.audioEngine = engine
-        registerConfigurationChangeObserver(for: engine)
-        
-        let inputNode = engine.inputNode
-        applyPreferredInputDevice(to: inputNode)
-        let nodeFormat = inputNode.inputFormat(forBus: 0)
-        let tapFormat = AVAudioFormat(
-            standardFormatWithSampleRate: nodeFormat.sampleRate,
-            channels: 1
-        ) ?? nodeFormat
-        
-        Log.audio.debug("Input format: \(nodeFormat)")
-        Log.audio.debug("Tap format: \(tapFormat)")
-        
-        let bufferStorage = self.audioBuffers
-        let targetFmt = self.targetFormat
-        
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: tapFormat) { [weak self] buffer, _ in
-            guard self != nil else { return }
-
-            let bufferFormat = buffer.format
-            if let convertedBuffer = AudioCaptureUtilities.convertBuffer(buffer, from: bufferFormat, to: targetFmt) {
-                bufferStorage.append(convertedBuffer)
-                onBuffer(convertedBuffer)
-            }
-            
-            let level = AudioCaptureUtilities.calculateAudioLevel(buffer)
-            onAudioLevel(level)
-        }
-        
-        engine.prepare()
-        
         do {
-            try engine.start()
+            var engine = try startFreshEngine()
+            if !verifyPinnedDevice(on: engine) {
+                Log.audio.error("Retrying audio capture with a fresh engine because the pinned input device was not honored")
+                tearDownEngine(engine)
+                self.audioEngine = nil
+
+                engine = try startFreshEngine()
+                if !verifyPinnedDevice(on: engine) {
+                    Log.audio.error("Pinned input device was not honored after retry; continuing with the engine's current input device")
+                }
+            }
+
             isCapturing = true
             Log.audio.info("Audio engine started")
         } catch {
-            inputNode.removeTap(onBus: 0)
-            engine.reset()
-            self.audioEngine = nil
+            if let engine = audioEngine {
+                tearDownEngine(engine)
+                self.audioEngine = nil
+            }
+            onBufferCallback = nil
+            onAudioLevelCallback = nil
             throw AudioRecorderError.engineStartFailed(error.localizedDescription)
         }
     }
@@ -353,11 +342,14 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             throw AudioRecorderError.notRecording
         }
         
-        engine.inputNode.removeTap(onBus: 0)
-        engine.stop()
+        tearDownEngine(engine)
         isCapturing = false
         self.audioEngine = nil
-        removeConfigurationChangeObserver()
+        onBufferCallback = nil
+        onAudioLevelCallback = nil
+        isRestartingCapture = false
+        cancelPendingConfigurationRestart()
+        suppressConfigurationChangesUntil = nil
         
         let collectedBuffers = audioBuffers.removeAll()
         Log.audio.debug("Stopped capturing, collected \(collectedBuffers.count) buffers")
@@ -370,11 +362,14 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             return
         }
         
-        engine.inputNode.removeTap(onBus: 0)
-        engine.stop()
+        tearDownEngine(engine)
         isCapturing = false
         self.audioEngine = nil
-        removeConfigurationChangeObserver()
+        onBufferCallback = nil
+        onAudioLevelCallback = nil
+        isRestartingCapture = false
+        cancelPendingConfigurationRestart()
+        suppressConfigurationChangesUntil = nil
         _ = audioBuffers.removeAll()
         
         Log.audio.info("Capture cancelled, audio discarded")
@@ -382,24 +377,38 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
     func reset() {
         if let engine = audioEngine {
-            if isCapturing {
-                engine.inputNode.removeTap(onBus: 0)
-                engine.stop()
-            }
+            tearDownEngine(engine)
         }
         audioEngine = nil
         removeConfigurationChangeObserver()
         isCapturing = false
+        onBufferCallback = nil
+        onAudioLevelCallback = nil
+        isRestartingCapture = false
+        cancelPendingConfigurationRestart()
+        suppressConfigurationChangesUntil = nil
         _ = audioBuffers.removeAll()
         Log.audio.info("Audio engine reset")
     }
     
     func setPreferredInputDeviceUID(_ uid: String) {
         let trimmedUID = uid.trimmingCharacters(in: .whitespacesAndNewlines)
-        preferredInputDeviceUID = trimmedUID.isEmpty ? nil : trimmedUID
+        let normalizedUID = trimmedUID.isEmpty ? nil : trimmedUID
+        guard preferredInputDeviceUID != normalizedUID else {
+            Log.audio.debug("Preferred input device unchanged; no capture restart needed")
+            return
+        }
 
-        guard let engine = audioEngine else { return }
-        applyPreferredInputDevice(to: engine.inputNode)
+        preferredInputDeviceUID = normalizedUID
+
+        guard let engine = audioEngine, isCapturing else { return }
+        guard !isRestartingCapture else { return }
+
+        isRestartingCapture = true
+        suppressConfigurationChanges()
+        Log.audio.info("Preferred input device changed during capture; restarting audio engine")
+        engine.stop()
+        restartCapture(engine, attempt: 1)
     }
     
     // MARK: - Private Helpers
@@ -425,12 +434,207 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.configurationChangeObserver = nil
     }
 
-    private func handleEngineConfigurationChange(for engine: AVAudioEngine) {
-        guard isCapturing, audioEngine === engine else { return }
+    private func tearDownEngine(_ engine: AVAudioEngine) {
+        removeConfigurationChangeObserver()
+        engine.inputNode.removeTap(onBus: 0)
+        if engine.isRunning {
+            engine.stop()
+        }
 
-        // AVAudioEngine can reconfigure its I/O unit mid-session and fall back to a
-        // different input. Re-apply the user's selected device when that happens.
-        applyPreferredInputDevice(to: engine.inputNode)
+        // Work around an AVFAudio teardown race observed on macOS 26.4:
+        // AVAudioIOUnit can still be processing device changes after stop().
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            _ = engine
+        }
+    }
+
+    private func handleEngineConfigurationChange(for engine: AVAudioEngine) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.isCapturing, self.audioEngine === engine else { return }
+            guard !self.isRestartingCapture else { return }
+            Log.audio.debug("Audio engine configuration changed; isRunning=\(engine.isRunning)")
+            if self.isSuppressingConfigurationChanges {
+                Log.audio.debug("Configuration change from recent input reconfiguration; no restart needed")
+                if !engine.isRunning {
+                    self.scheduleConfigurationRestart(for: engine, delay: self.configurationSuppressionRemaining + 0.2)
+                }
+                return
+            }
+            guard !engine.isRunning else {
+                Log.audio.debug("Configuration change with engine still running; no restart needed")
+                return
+            }
+
+            self.scheduleConfigurationRestart(for: engine, delay: 0.5)
+        }
+    }
+
+    private func startFreshEngine() throws -> AVAudioEngine {
+        let engine = AVAudioEngine()
+        self.audioEngine = engine
+        registerConfigurationChangeObserver(for: engine)
+
+        installInputTap(on: engine)
+        engine.prepare()
+        try engine.start()
+        suppressConfigurationChanges()
+        logStartedEngineState(engine, context: "Audio engine started")
+        return engine
+    }
+
+    private func installInputTap(on engine: AVAudioEngine) {
+        let inputNode = engine.inputNode
+        applyPreferredInputDevice(to: inputNode)
+        let nodeFormat = inputNode.inputFormat(forBus: 0)
+        let preferredDeviceID = preferredInputDeviceID()
+        let nominalSampleRate = preferredDeviceID.flatMap(AudioDeviceManager.nominalSampleRate)
+        let tapSampleRate: Double
+        if let nominalSampleRate,
+           abs(nodeFormat.sampleRate - nominalSampleRate) > 1.0 {
+            tapSampleRate = nominalSampleRate
+            Log.audio.warning(
+                "Input node sample rate \(nodeFormat.sampleRate) differs from preferred device nominal sample rate \(nominalSampleRate); using nominal rate for tap"
+            )
+        } else {
+            tapSampleRate = nodeFormat.sampleRate
+        }
+        let tapFormat = AVAudioFormat(
+            standardFormatWithSampleRate: tapSampleRate,
+            channels: 1
+        ) ?? nodeFormat
+
+        Log.audio.debug("Input format: \(nodeFormat)")
+        Log.audio.debug("Tap format: \(tapFormat)")
+
+        let bufferStorage = self.audioBuffers
+        let targetFmt = self.targetFormat
+
+        inputNode.installTap(onBus: 0, bufferSize: 4096, format: tapFormat) { [weak self] buffer, _ in
+            guard let self else { return }
+
+            if let convertedBuffer = AudioCaptureUtilities.convertBuffer(buffer, from: buffer.format, to: targetFmt) {
+                bufferStorage.append(convertedBuffer)
+                self.onBufferCallback?(convertedBuffer)
+            }
+
+            self.onAudioLevelCallback?(AudioCaptureUtilities.calculateAudioLevel(buffer))
+        }
+    }
+
+    private func restartCapture(_ engine: AVAudioEngine, attempt: Int) {
+        cancelPendingConfigurationRestart()
+        engine.inputNode.removeTap(onBus: 0)
+        installInputTap(on: engine)
+        engine.prepare()
+
+        do {
+            try engine.start()
+            logStartedEngineState(engine, context: "Audio engine restarted")
+            _ = verifyPinnedDevice(on: engine)
+            suppressConfigurationChanges()
+            isRestartingCapture = false
+            Log.audio.info("Audio engine restarted after configuration change")
+        } catch {
+            guard attempt < 3 else {
+                isRestartingCapture = false
+                Log.audio.error("Audio engine restart failed after \(attempt) attempts: \(error.localizedDescription)")
+                return
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self, self.isCapturing, self.audioEngine === engine else {
+                    self?.isRestartingCapture = false
+                    return
+                }
+
+                self.restartCapture(engine, attempt: attempt + 1)
+            }
+        }
+    }
+
+    private func preferredInputDeviceID() -> AudioDeviceID? {
+        guard let preferredUID = preferredInputDeviceUID else { return nil }
+        return AudioDeviceManager.inputDeviceID(for: preferredUID)
+    }
+
+    private var isSuppressingConfigurationChanges: Bool {
+        guard let suppressConfigurationChangesUntil else { return false }
+        return Date() < suppressConfigurationChangesUntil
+    }
+
+    private var configurationSuppressionRemaining: TimeInterval {
+        guard let suppressConfigurationChangesUntil else { return 0 }
+        return max(0, suppressConfigurationChangesUntil.timeIntervalSinceNow)
+    }
+
+    private func suppressConfigurationChanges() {
+        suppressConfigurationChangesUntil = Date().addingTimeInterval(2.0)
+    }
+
+    private func cancelPendingConfigurationRestart() {
+        pendingConfigurationRestartWorkItem?.cancel()
+        pendingConfigurationRestartWorkItem = nil
+    }
+
+    private func scheduleConfigurationRestart(for engine: AVAudioEngine, delay: TimeInterval) {
+        cancelPendingConfigurationRestart()
+
+        let workItem = DispatchWorkItem { [weak self, weak engine] in
+            guard let self, let engine else { return }
+            guard self.isCapturing, self.audioEngine === engine else { return }
+            guard !self.isRestartingCapture else { return }
+
+            if self.isSuppressingConfigurationChanges {
+                self.scheduleConfigurationRestart(for: engine, delay: self.configurationSuppressionRemaining + 0.2)
+                return
+            }
+
+            guard !engine.isRunning else {
+                Log.audio.debug("Deferred configuration restart skipped because engine resumed")
+                self.pendingConfigurationRestartWorkItem = nil
+                return
+            }
+
+            self.pendingConfigurationRestartWorkItem = nil
+            self.isRestartingCapture = true
+            Log.audio.info("Audio engine remains stopped after configuration change; restarting capture")
+            self.restartCapture(engine, attempt: 1)
+        }
+
+        pendingConfigurationRestartWorkItem = workItem
+        Log.audio.debug("Audio engine stopped after configuration change; scheduling deferred restart")
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+    }
+
+    private func verifyPinnedDevice(on engine: AVAudioEngine) -> Bool {
+        guard let preferredUID = preferredInputDeviceUID,
+              let wantedID = AudioDeviceManager.inputDeviceID(for: preferredUID) else {
+            return true
+        }
+
+        let actualID = engine.inputNode.auAudioUnit.deviceID
+        if actualID != wantedID {
+            Log.audio.error("Pinned input device not honored (wanted \(wantedID), engine is using \(actualID))")
+            return false
+        }
+
+        return true
+    }
+
+    private func logStartedEngineState(_ engine: AVAudioEngine, context: String) {
+        let inputNode = engine.inputNode
+        let actualID = inputNode.auAudioUnit.deviceID
+        let inputFormat = inputNode.inputFormat(forBus: 0)
+
+        if let preferredDeviceID = preferredInputDeviceID() {
+            let nominalSampleRate = AudioDeviceManager.nominalSampleRate(preferredDeviceID)
+            let nominalSampleRateDescription = nominalSampleRate.map { String($0) } ?? "unknown"
+            Log.audio.debug(
+                "\(context): inputDeviceID=\(actualID), inputFormat=\(inputFormat), preferredNominalSampleRate=\(nominalSampleRateDescription)"
+            )
+        } else {
+            Log.audio.debug("\(context): inputDeviceID=\(actualID), inputFormat=\(inputFormat), preferredNominalSampleRate=none")
+        }
     }
 
     private func applyPreferredInputDevice(to inputNode: AVAudioInputNode) {
@@ -442,10 +646,27 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         
         do {
             try inputNode.auAudioUnit.setDeviceID(deviceID)
-            Log.audio.info("Using preferred input device: \(deviceID)")
         } catch {
             Log.audio.error("Failed to set input device: \(error.localizedDescription)")
         }
+
+        if let audioUnit = inputNode.audioUnit {
+            var mutableDeviceID = deviceID
+            let status = AudioUnitSetProperty(
+                audioUnit,
+                kAudioOutputUnitProperty_CurrentDevice,
+                kAudioUnitScope_Global,
+                0,
+                &mutableDeviceID,
+                UInt32(MemoryLayout<AudioDeviceID>.size)
+            )
+            if status != noErr {
+                Log.audio.error("Failed to set input device via AUHAL property: \(status)")
+            }
+        }
+
+        let actualID = inputNode.auAudioUnit.deviceID
+        Log.audio.info("Preferred input device requested: \(deviceID), actual: \(actualID)")
     }
     
 }
@@ -966,9 +1187,13 @@ final class AudioRecorder {
     }
 
     func setPreferredInputDeviceUID(_ uid: String) {
+        guard preferredInputDeviceUID != uid else { return }
+
         preferredInputDeviceUID = uid
         microphoneCaptureBackend.setPreferredInputDeviceUID(uid)
-        activeCaptureBackend?.setPreferredInputDeviceUID(uid)
+        if let activeCaptureBackend, activeCaptureBackend !== microphoneCaptureBackend {
+            activeCaptureBackend.setPreferredInputDeviceUID(uid)
+        }
     }
 
     private func makeCaptureBackend(for mode: AudioRecordingMode) throws -> AudioCaptureBackend {
