@@ -5,6 +5,7 @@
   transcription: "1 個轉錄"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "一款使用 WhisperKit 進行本地語音轉文字的原生 macOS 選單欄聽寫應用。預設 100% 本地處理，可選 AI 增強。"
+  big_round_of_upgrades_and_two_community_shout: "一大波升級 — 以及兩位社群貢獻者致謝。"
 about:
   _self: "關於"
   pindrop: "關於 Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "最佳"
 better:
   _self: "更好"
+  bluetooth_external_mic_support: "更好的 Bluetooth 與外接麥克風支援"
 built:
   in_presets: "內建預設"
   in_read_only: "內建（只讀）"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop 膠囊"
   theme: "Pindrop 主題"
   orb: "Pindrop 光球"
+  1_19: "Pindrop 1.19"
 play:
   _self: "播放"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "錄音中"
   3f8fd48c: "🔴 錄音中"
+  from_external_and_bluetooth_microphone: "現在即使音訊輸出被路由到其他位置，外接與 Bluetooth 麥克風錄音也能穩定運作。"
 recordings:
   _self: "錄音"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "流式轉錄當前僅支援英語，與所選語言無關。"
   transcription_is_disabled_while_ai_enh: "啟用 AI 增強時，流式轉錄被禁用。"
   transcription_model_nemotron_speech: "串流轉錄模型（Nemotron Speech Streaming）由 NVIDIA Corporation 依據 NVIDIA Open Model License 授權。"
+  transcription_instantly_ready: "串流轉錄，立即就緒"
 success:
   _self: "成功！"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\"             模型在 60 秒內未能載入。這通常意味著模型檔案已損壞或不相容。                          解決方法：             1. 開啟設定 → 模型             2. 刪除有問題的模型             3. 重新下載模型                          如果問題仍然存在，請嘗試使用較小的模型（Tiny 或 Base）。             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "所選的分塊變體尚未下載。切換將開始下載。"
+  new_nemotron_streaming_engine_shows_words_as: "新的 Nemotron 串流引擎會在你說話時顯示文字，並在啟動時預熱，讓第一次聽寫也能無延遲開始。"
 theme:
   _self: "主題"
   changes_apply_live_across_the_workspace_se: "主題更改實時應用於整個工作區、設定、筆記編輯器和浮動指示器。"
@@ -1006,6 +1012,7 @@ your:
     您可以稍後在設定中自定義它們。
   model_is_ready_to_use: "您的模型已準備好使用。"
   stats: "您的統計"
+  floating_indicator_is_now_a_living_audio_re: "你的浮動指示器現在是會對音訊反應的活體 orb。閒置時會呼吸，說話時會膨脹，並在你聽寫時即時串流顯示文字。"
 orb:
   _self: "光球"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop 的新功能"
+  s_new: "新功能…"
+
+meet:
+  the_new_orb: "認識全新的 Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "感謝 %@ 調查並啟動修正 (PR #64)。"
+  to_for_the_contribution_pr_61: "感謝 %@ 的貢獻 (PR #61)。"
+
+dictate:
+  in_russian_and_ukrainian: "用俄文和烏克蘭文聽寫"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "兩種新的聽寫語言，已完整接入模型建議。"
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "同時新增：RTL 版面支援與 20 種新的介面語言。"

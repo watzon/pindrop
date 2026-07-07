@@ -5,6 +5,7 @@
   transcription: "1 전사"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit을 통해 로컬 음성-텍스트 변환을 사용하는 기본 macOS 메뉴 표시줄 받아쓰기 앱입니다. AI 향상 옵션이 기본적으로 100% 로컬 처리됩니다."
+  big_round_of_upgrades_and_two_community_shout: "큰 업그레이드 한 묶음 — 그리고 커뮤니티에 전하는 두 번의 감사."
 about:
   _self: "에 대한"
   pindrop: "핀드롭 소개"
@@ -96,6 +97,7 @@ best:
   _self: "최상의"
 better:
   _self: "더 나은"
+  bluetooth_external_mic_support: "Bluetooth 및 외부 마이크 지원 개선"
 built:
   in_presets: "내장 사전 설정"
   in_read_only: "내장(읽기 전용)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "핀드롭 알약"
   theme: "핀드롭 테마"
   orb: "Pindrop 오브"
+  1_19: "Pindrop 1.19"
 play:
   _self: "놀다"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "녹음"
   3f8fd48c: "🔴 녹음"
+  from_external_and_bluetooth_microphone: "이제 외부 및 Bluetooth 마이크 녹음이 매우 안정적이며, 오디오 출력이 다른 곳으로 라우팅되어도 문제없이 동작합니다."
 recordings:
   _self: "녹음"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
   transcription_is_disabled_while_ai_enh: "AI Enhancement가 활성화된 동안 스트리밍 전사는 비활성화됩니다."
   transcription_model_nemotron_speech: "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
+  transcription_instantly_ready: "스트리밍 전사, 즉시 준비 완료"
 success:
   _self: "성공!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" 60초 이내에 모델을 불러오지 못했습니다. 이는 일반적으로 모델 파일이 손상되었거나 호환되지 않음을 의미합니다.                          이 문제를 해결하려면: 1. 설정 → 모델을 엽니다. 2. 문제가 있는 모델을 삭제합니다. 3. 모델을 다시 다운로드합니다. 문제가 지속되면 더 작은 모델(Tiny 또는 Base)을 사용해 보십시오.             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "선택한 청크 변형이 아직 다운로드되지 않았습니다. 전환하면 다운로드가 시작됩니다."
+  new_nemotron_streaming_engine_shows_words_as: "새로운 Nemotron 스트리밍 엔진은 말하는 즉시 단어를 표시하고, 실행 시 미리 준비되어 첫 받아쓰기가 지연 없이 시작됩니다."
 theme:
   _self: "주제"
   changes_apply_live_across_the_workspace_se: "테마 변경 사항은 작업 공간, 설정, 노트 편집기 및 플로팅 표시기에 실시간으로 적용됩니다."
@@ -1006,6 +1012,7 @@ your:
     나중에 설정에서 맞춤설정할 수 있습니다.
   model_is_ready_to_use: "모델을 사용할 준비가 되었습니다."
   stats: "귀하의 통계"
+  floating_indicator_is_now_a_living_audio_re: "이제 플로팅 표시기는 소리에 반응하는 살아 있는 orb입니다. 대기 중에는 숨 쉬고, 말하면 부풀어 오르며, 받아쓰는 동안 단어를 실시간으로 보여줍니다."
 orb:
   _self: "오브"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop의 새로운 기능"
+  s_new: "새로운 기능…"
+
+meet:
+  the_new_orb: "새로운 Orb 만나보기"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "문제를 조사하고 수정의 출발점을 마련해 준 %@님께 감사드립니다 (PR #64)."
+  to_for_the_contribution_pr_61: "기여해 준 %@님께 감사드립니다 (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "러시아어와 우크라이나어로 받아쓰기"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "두 가지 새로운 받아쓰기 언어가 모델 추천에 완전히 연결되었습니다."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "또한 RTL 레이아웃 지원과 20개의 새로운 인터페이스 언어가 추가되었습니다."

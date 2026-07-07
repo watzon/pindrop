@@ -5,6 +5,7 @@
   transcription: "1 transcriere"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "O aplicație nativă de dictare a barei de meniu macOS care folosește conversia vocală în text local cu WhisperKit. Procesare 100% locală în mod implicit, cu îmbunătățire opțională AI."
+  big_round_of_upgrades_and_two_community_shout: "O rundă mare de îmbunătățiri — și două mulțumiri pentru comunitate."
 about:
   _self: "Despre"
   pindrop: "Despre Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Cel mai bun"
 better:
   _self: "Mai bine"
+  bluetooth_external_mic_support: "Suport mai bun pentru Bluetooth și microfoane externe"
 built:
   in_presets: "Presetări încorporate"
   in_read_only: "Încorporat (numai citire)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pilula Pindrop"
   theme: "Tema Pindrop"
   orb: "Sfera Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Juca"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Înregistrare"
   3f8fd48c: "🔴 Înregistrare"
+  from_external_and_bluetooth_microphone: "Înregistrarea de pe microfoane externe și Bluetooth este acum foarte stabilă, chiar și când ieșirea audio este rutată în altă parte."
 recordings:
   _self: "înregistrări"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Transcrierea în flux acceptă în prezent numai limba engleză, indiferent de limba selectată."
   transcription_is_disabled_while_ai_enh: "Transcrierea în flux este dezactivată în timp ce Îmbunătățirea AI este activată."
   transcription_model_nemotron_speech: "Modelul de transcriere în flux (Nemotron Speech Streaming) este licențiat de NVIDIA Corporation sub NVIDIA Open Model License."
+  transcription_instantly_ready: "Transcriere în flux, gata instantaneu"
 success:
   _self: "Succes!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Modelul nu s-a încărcat în 60 de secunde. Aceasta înseamnă de obicei că fișierele model sunt corupte sau incompatibile.                          Pentru a remedia acest lucru: 1. Deschideți Setări → Modele 2. Ștergeți modelul problematic 3. Descărcați din nou modelul Dacă problema persistă, încercați un model mai mic (Tiny sau Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Varianta de bucată selectată nu este încă descărcată. Comutarea va începe o descărcare."
+  new_nemotron_streaming_engine_shows_words_as: "Noul motor de streaming Nemotron afișează cuvintele pe măsură ce le rostești și se preîncălzește la lansare, astfel încât prima dictare pornește fără întârziere."
 theme:
   _self: "Temă"
   changes_apply_live_across_the_workspace_se: "Modificările temei se aplică live în spațiul de lucru, setări, editor de note și indicatori flotanți."
@@ -1006,6 +1012,7 @@ your:
     Le puteți personaliza mai târziu în Setări.
   model_is_ready_to_use: "Modelul dvs. este gata de utilizare."
   stats: "Statisticile tale"
+  floating_indicator_is_now_a_living_audio_re: "Indicatorul tău plutitor este acum un orb viu, reactiv la audio. Respiră când este inactiv, se umflă când vorbești și transmite cuvintele în direct în timp ce dictezi."
 orb:
   _self: "Sferă"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Noutăți în Pindrop"
+  s_new: "Noutăți…"
+
+meet:
+  the_new_orb: "Faceți cunoștință cu noul Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Mulțumiri lui %@ pentru investigație și pentru pornirea remedierii (PR #64)."
+  to_for_the_contribution_pr_61: "Mulțumiri lui %@ pentru contribuție (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Dictează în rusă și ucraineană"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Două limbi noi de dictare, complet conectate la recomandările de modele."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Tot nou: suport pentru layout RTL și 20 de limbi noi pentru interfață."

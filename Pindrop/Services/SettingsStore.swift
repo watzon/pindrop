@@ -461,6 +461,8 @@ final class SettingsStore: ObservableObject {
    var hasCompletedOnboarding: Bool = false
    @AppStorage("currentOnboardingStep", store: SettingsStoreRuntime.appStorageStore)
    var currentOnboardingStep: Int = 0
+   @AppStorage("lastSeenAnnouncementID", store: SettingsStoreRuntime.appStorageStore)
+   var lastSeenAnnouncementID: String = ""
 
    // MARK: - MCP Server
 
@@ -1028,6 +1030,7 @@ final class SettingsStore: ObservableObject {
       vibeRuntimeDetail = "Vibe mode is disabled."
       hasCompletedOnboarding = false
       currentOnboardingStep = 0
+      lastSeenAnnouncementID = ""
 
       try? deleteAPIEndpoint()
       for provider in AIProvider.allCases {

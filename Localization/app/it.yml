@@ -5,6 +5,7 @@
   transcription: "1 trascrizione"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Un'app nativa per la dettatura della barra dei menu di macOS che utilizza la sintesi vocale locale con WhisperKit. Elaborazione locale al 100% per impostazione predefinita con miglioramento dell'intelligenza artificiale opzionale."
+  big_round_of_upgrades_and_two_community_shout: "Un grande ciclo di aggiornamenti — e due ringraziamenti alla community."
 about:
   _self: "Di"
   pindrop: "A proposito di Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Migliore"
 better:
   _self: "Meglio"
+  bluetooth_external_mic_support: "Migliore supporto per Bluetooth e microfoni esterni"
 built:
   in_presets: "Preimpostazioni integrate"
   in_read_only: "Integrato (sola lettura)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pillola Pindrop"
   theme: "Tema Pindrop"
   orb: "Sfera Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Giocare"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Registrazione"
   3f8fd48c: "🔴 Registrazione"
+  from_external_and_bluetooth_microphone: "La registrazione da microfoni esterni e Bluetooth ora è estremamente affidabile, anche quando l’uscita audio è indirizzata altrove."
 recordings:
   _self: "registrazioni"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "La trascrizione in streaming attualmente supporta solo l'inglese, indipendentemente dalla lingua selezionata."
   transcription_is_disabled_while_ai_enh: "La trascrizione dello streaming è disabilitata mentre il miglioramento AI è abilitato."
   transcription_model_nemotron_speech: "Modello di trascrizione in streaming (Nemotron Speech Streaming) concesso in licenza da NVIDIA Corporation secondo la NVIDIA Open Model License."
+  transcription_instantly_ready: "Trascrizione in streaming, subito pronta"
 success:
   _self: "Successo!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Impossibile caricare il modello entro 60 secondi. Questo di solito significa che i file del modello sono danneggiati o incompatibili.                          Per risolvere questo problema: 1. Apri Impostazioni → Modelli 2. Elimina il modello problematico 3. Scarica nuovamente il modello Se il problema persiste, prova un modello più piccolo (Tiny o Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "La variante selezionata non è ancora scaricata. Cambiare avvierà un download."
+  new_nemotron_streaming_engine_shows_words_as: "Il nuovo motore di streaming Nemotron mostra le parole mentre le dici e si preriscalda all’avvio, così la tua prima dettatura parte senza ritardi."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Le modifiche al tema vengono applicate in tempo reale nell'area di lavoro, nelle impostazioni, nell'editor delle note e negli indicatori mobili."
@@ -1006,6 +1012,7 @@ your:
     Puoi personalizzarli in seguito in Impostazioni.
   model_is_ready_to_use: "Il tuo modello è pronto per l'uso."
   stats: "Le tue statistiche"
+  floating_indicator_is_now_a_living_audio_re: "Il tuo indicatore flottante ora è un orb vivo e reattivo all’audio. Respira quando è inattivo, si espande quando parli e mostra le tue parole in tempo reale mentre detti."
 orb:
   _self: "Sfera"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Novità in Pindrop"
+  s_new: "Novità…"
+
+meet:
+  the_new_orb: "Scopri il nuovo Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Grazie a %@ per aver indagato e avviato la correzione (PR #64)."
+  to_for_the_contribution_pr_61: "Grazie a %@ per il contributo (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Detta in russo e ucraino"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Due nuove lingue di dettatura, completamente collegate ai consigli sui modelli."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Anche nuovo: supporto al layout RTL e 20 nuove lingue dell’interfaccia."

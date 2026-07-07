@@ -5,6 +5,7 @@
   transcription: "1 transskription"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "En indbygget macOS-menulinjedikteringsapp, der bruger lokal tale-til-tekst med WhisperKit. 100 % lokal behandling som standard med valgfri AI-forbedring."
+  big_round_of_upgrades_and_two_community_shout: "En stor runde opgraderinger — og to taksigelser til fællesskabet."
 about:
   _self: "Om"
   pindrop: "Om Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Bedst"
 better:
   _self: "Bedre"
+  bluetooth_external_mic_support: "Bedre Bluetooth- og ekstern mikrofonunderstøttelse"
 built:
   in_presets: "Indbyggede forudindstillinger"
   in_read_only: "Indbygget (skrivebeskyttet)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop pille"
   theme: "Pindrop-tema"
   orb: "Pindrop-kugle"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Spil"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Indspilning"
   3f8fd48c: "🔴 Optagelse"
+  from_external_and_bluetooth_microphone: "Optagelse fra eksterne og Bluetooth-mikrofoner er nu klippestabil, selv når lydoutputtet sendes et andet sted hen."
 recordings:
   _self: "optagelser"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Streamingtransskription understøtter i øjeblikket kun engelsk, uanset det valgte sprog."
   transcription_is_disabled_while_ai_enh: "Streamingtransskription er deaktiveret, mens AI Enhancement er aktiveret."
   transcription_model_nemotron_speech: "Streaming-transskriptionsmodel (Nemotron Speech Streaming) licenseret af NVIDIA Corporation under NVIDIA Open Model License."
+  transcription_instantly_ready: "Streamingtransskription, klar med det samme"
 success:
   _self: "Succes!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\\\"\\\" Modellen kunne ikke indlæses inden for 60 sekunder. Dette betyder normalt, at modelfilerne er beskadigede eller inkompatible.                          For at løse dette: 1. Åbn Indstillinger → Modeller 2. Slet den problematiske model 3. Download modellen igen Hvis problemet fortsætter, prøv en mindre model (Tiny eller Base).             \\\"\\\""
   selected_chunk_variant_isn_t_downloaded_yet: "Den valgte chunk-variant er ikke downloadet endnu. Skift vil starte en download."
+  new_nemotron_streaming_engine_shows_words_as: "Den nye Nemotron-streamingmotor viser ordene, mens du siger dem, og motoren forvarmes ved start, så din første diktering begynder uden forsinkelse."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Temaændringer gælder live på tværs af arbejdsområdet, indstillinger, noteeditor og flydende indikatorer."
@@ -1006,6 +1012,7 @@ your:
     Du kan tilpasse dem senere i Indstillinger.
   model_is_ready_to_use: "Din model er klar til brug."
   stats: "Dine statistikker"
+  floating_indicator_is_now_a_living_audio_re: "Din flydende indikator er nu en levende, lydreaktiv orb. Den ånder i tomgang, vokser når du taler, og streamer dine ord live mens du dikterer."
 orb:
   _self: "Kugle"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Nyheder i Pindrop"
+  s_new: "Nyheder…"
+
+meet:
+  the_new_orb: "Mød den nye Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Tak til %@ for at undersøge og sætte rettelsen i gang (PR #64)."
+  to_for_the_contribution_pr_61: "Tak til %@ for bidraget (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Diktér på russisk og ukrainsk"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "To nye dikteringssprog, fuldt forbundet med modelanbefalinger."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Også nyt: RTL-layoutunderstøttelse og 20 nye grænsefladesprog."

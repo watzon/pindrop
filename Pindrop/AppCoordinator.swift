@@ -93,6 +93,7 @@ extension Notification.Name {
     static let switchModel = Notification.Name("tech.watzon.pindrop.switchModel")
     static let modelActiveChanged = Notification.Name("tech.watzon.pindrop.modelActiveChanged")
     static let requestActiveModel = Notification.Name("tech.watzon.pindrop.requestActiveModel")
+    static let showWhatsNew = Notification.Name("tech.watzon.pindrop.showWhatsNew")
 }
 
 struct HotkeyConflict: Equatable {
@@ -272,6 +273,7 @@ final class AppCoordinator {
     let mediaPauseService: MediaPauseService
     let mediaIngestionService: MediaIngestionService
     let mediaPreparationService: MediaPreparationService
+    let announcementService: AnnouncementService
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
     private(set) var mcpServer: MCPServer?
@@ -292,6 +294,7 @@ final class AppCoordinator {
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
+    let announcementController: AnnouncementWindowController
     let splashController: SplashWindowController
     let mainWindowController: MainWindowController
     let noteEditorWindowController: NoteEditorWindowController
@@ -460,6 +463,11 @@ final class AppCoordinator {
             .orb: orbFloatingIndicatorController
         ]
         self.onboardingController = OnboardingWindowController()
+        self.announcementController = AnnouncementWindowController()
+        self.announcementService = AnnouncementService(
+            settingsStore: settingsStore,
+            presenter: announcementController
+        )
         let splashState = SplashScreenState()
         self.splashController = SplashWindowController(state: splashState)
         self.mainWindowController = MainWindowController()
@@ -559,6 +567,10 @@ final class AppCoordinator {
 
         self.statusBarController.onShowApp = { [weak self] in
             self?.handleShowApp()
+        }
+
+        self.statusBarController.onShowWhatsNew = { [weak self] in
+            self?.handleShowWhatsNew()
         }
 
         self.statusBarController.onSelectModel = { [weak self] modelName in
@@ -695,6 +707,16 @@ final class AppCoordinator {
                 )
             }
         }
+
+        NotificationCenter.default.addObserver(
+            forName: .showWhatsNew,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.handleShowWhatsNew()
+            }
+        }
     }
     
     // MARK: - Lifecycle
@@ -717,6 +739,7 @@ final class AppCoordinator {
         
         splashController.dismiss { [weak self] in
             self?.mainWindowController.show()
+            self?.presentAnnouncementAfterStartup()
         }
         Log.boot.info("AppCoordinator.start() finished normal path")
     }
@@ -730,12 +753,33 @@ final class AppCoordinator {
             permissionManager: permissionManager,
             onComplete: { [weak self] in
                 Task { @MainActor in
+                    self?.announcementService.markCurrentAnnouncementSeen()
                     await self?.finishPostOnboardingSetup()
                     self?.mainWindowController.show()
                     self?.showWelcomePopoverAfterDelay()
                 }
             }
         )
+    }
+
+    private func presentAnnouncementAfterStartup() {
+        guard !AppTestMode.isRunningAnyTests else {
+            Log.app.debug("Skipping announcement presentation in test mode")
+            return
+        }
+
+        announcementService.presentCurrentAnnouncementIfNeeded(
+            hasCompletedOnboarding: settingsStore.hasCompletedOnboarding
+        )
+    }
+
+    private func handleShowWhatsNew() {
+        guard !AppTestMode.isRunningAnyTests else {
+            Log.app.debug("Skipping manual announcement presentation in test mode")
+            return
+        }
+
+        announcementService.showCurrentAnnouncement()
     }
     
     private func showWelcomePopoverAfterDelay() {

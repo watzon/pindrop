@@ -5,6 +5,7 @@
   transcription: "1 النسخ"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "تطبيق إملاء شريط قوائم macOS أصلي يستخدم تحويل الكلام إلى نص محلي مع WhisperKit. معالجة محلية بنسبة 100% بشكل افتراضي مع تحسين الذكاء الاصطناعي الاختياري."
+  big_round_of_upgrades_and_two_community_shout: "مجموعة كبيرة من التحسينات — وشكران لمساهمين من المجتمع."
 about:
   _self: "عن"
   pindrop: "حول بيندروب"
@@ -96,6 +97,7 @@ best:
   _self: "أفضل"
 better:
   _self: "أحسن"
+  bluetooth_external_mic_support: "دعم أفضل للبلوتوث والميكروفونات الخارجية"
 built:
   in_presets: "الإعدادات المسبقة المضمنة"
   in_read_only: "مدمج (للقراءة فقط)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "حبة بيندروب"
   theme: "موضوع بيندروب"
   orb: "كرة Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "يلعب"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "تسجيل"
   3f8fd48c: "🔴 التسجيل"
+  from_external_and_bluetooth_microphone: "أصبح التسجيل من الميكروفونات الخارجية وميكروفونات Bluetooth ثابتًا الآن، حتى عندما يكون إخراج الصوت موجّهًا إلى مكان آخر."
 recordings:
   _self: "التسجيلات"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "يدعم النسخ المتدفق حاليًا اللغة الإنجليزية فقط، بغض النظر عن اللغة المحددة."
   transcription_is_disabled_while_ai_enh: "يتم تعطيل النسخ المتدفق أثناء تمكين تحسين الذكاء الاصطناعي."
   transcription_model_nemotron_speech: "نموذج النسخ المتدفق (Nemotron Speech Streaming) مرخص من NVIDIA Corporation بموجب ترخيص NVIDIA Open Model License."
+  transcription_instantly_ready: "تفريغ مباشر جاهز فورًا"
 success:
   _self: "نجاح!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\" \"فشل تحميل النموذج خلال 60 ثانية. وهذا يعني عادةً أن ملفات النموذج تالفة أو غير متوافقة.                          لإصلاح ذلك: 1. افتح الإعدادات → النماذج 2. احذف النموذج الذي به مشكلة 3. أعد تنزيل النموذج إذا استمرت المشكلة، فجرّب نموذجًا أصغر (Tiny أو Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "لم يتم تنزيل متغير القطعة المحدد بعد. سيؤدي التبديل إلى بدء التنزيل."
+  new_nemotron_streaming_engine_shows_words_as: "يعرض محرك Nemotron الجديد للبث الكلمات أثناء نطقها، ويتم تسخين المحرك مسبقًا عند التشغيل حتى يبدأ أول إملاء لك دون تأخير."
 theme:
   _self: "سمة"
   changes_apply_live_across_the_workspace_se: "يتم تطبيق تغييرات السمات مباشرة عبر مساحة العمل والإعدادات ومحرر الملاحظات والمؤشرات العائمة."
@@ -1006,6 +1012,7 @@ your:
     ويمكنك تخصيصها لاحقًا في الإعدادات.
   model_is_ready_to_use: "النموذج الخاص بك جاهز للاستخدام."
   stats: "احصائياتك"
+  floating_indicator_is_now_a_living_audio_re: "أصبح المؤشر العائم الآن كرة حية تتفاعل مع الصوت. يتنفس أثناء الخمول، ويتمدد عندما تتحدث، ويبث كلماتك مباشرة أثناء الإملاء."
 orb:
   _self: "الكرة"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "ما الجديد في Pindrop"
+  s_new: "ما الجديد…"
+
+meet:
+  the_new_orb: "تعرّف على Orb الجديد"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "شكرًا لـ %@ على التحقيق وبدء الإصلاح (PR #64)."
+  to_for_the_contribution_pr_61: "شكرًا لـ %@ على المساهمة (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "أملِ بالروسية والأوكرانية"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "لغتان جديدتان للإملاء، متصلتان بالكامل بتوصيات النماذج."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "جديد أيضًا: دعم تخطيط RTL و20 لغة واجهة جديدة."

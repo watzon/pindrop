@@ -75,6 +75,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onSelectLanguage: ((AppLanguage) -> Void)?
     var onSelectModel: ((String) -> Void)?
     var onSelectAIModel: ((String) -> Void)?
+    var onShowWhatsNew: (() -> Void)?
     var onCheckForUpdates: (() -> Void)?
     var onMenuWillOpen: (() async -> Void)?
 
@@ -338,6 +339,19 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         openHistoryItem?.target = self
         openHistoryItem?.image = NSImage(systemSymbolName: "clock.arrow.circlepath", accessibilityDescription: nil)
         menu.addItem(openHistoryItem!)
+
+        if AnnouncementCatalog.current != nil {
+            menu.addItem(NSMenuItem.separator())
+
+            let whatsNewItem = NSMenuItem(
+                title: localized("What's New…", locale: locale),
+                action: #selector(showWhatsNew),
+                keyEquivalent: ""
+            )
+            whatsNewItem.target = self
+            whatsNewItem.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: nil)
+            menu.addItem(whatsNewItem)
+        }
 
         let settingsItem = NSMenuItem(
             title: localized("Settings...", locale: locale),
@@ -873,6 +887,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func showApp() {
         onShowApp?()
+    }
+
+    @objc private func showWhatsNew() {
+        onShowWhatsNew?()
     }
 
     @objc private func openSettings() {

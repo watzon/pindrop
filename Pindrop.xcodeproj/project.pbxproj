@@ -48,6 +48,10 @@
 		AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */; };
 		AIENHTEST01A2B3C4D5E6F /* AIEnhancementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */; };
 		AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
+		ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */; };
+		ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */; };
+		ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */; };
+		ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */; };
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
 		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
@@ -165,6 +169,7 @@
 		TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */; };
 		TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */; };
 		TRANSCRIBEVIEWBUILD01A2B3C4D5E6F /* TranscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */; };
+		WHATVIEWBUILD01A2B3C4D5E6F /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */; };
 		MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */; };
 		HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */; };
 		NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */; };
@@ -240,6 +245,10 @@
 		ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecordSchema.swift; sourceTree = "<group>"; };
 		AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementServiceTests.swift; sourceTree = "<group>"; };
 		AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
+		ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
+		ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
+		ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementWindowController.swift; sourceTree = "<group>"; };
+		ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementServiceTests.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
@@ -363,6 +372,7 @@
 		TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastServiceTests.swift; sourceTree = "<group>"; };
 		TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastWindowController.swift; sourceTree = "<group>"; };
 		TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscribeView.swift; sourceTree = "<group>"; };
+		WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionDetailView.swift; sourceTree = "<group>"; };
 		HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionHistoryRow.swift; sourceTree = "<group>"; };
 		NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteHistoryRow.swift; sourceTree = "<group>"; };
@@ -438,6 +448,7 @@
 		38268D286F644C93A216D0F4 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */,
 				31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */,
 				ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */,
 				MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */,
@@ -468,6 +479,7 @@
 				PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
 				TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */,
 				SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
+				WHATNEWGRP01A2B3C4D5E6F /* WhatsNew */,
 				AC5569DC7FCD55BB91774AB2 /* Onboarding */,
 				BFA9046303E3874827C62B25 /* Components */,
 			);
@@ -506,6 +518,7 @@
 				CTXENGN02A2B3C4D5E6F /* ContextEngineService.swift */,
 				FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */,
 				TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
+				ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */,
 				AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */,
 				WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */,
 				PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */,
@@ -666,6 +679,7 @@
 				CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */,
 				FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */,
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
+				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
 				AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */,
 				COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */,
 				MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
@@ -689,6 +703,15 @@
 				B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		WHATNEWGRP01A2B3C4D5E6F /* WhatsNew */ = {
+			isa = PBXGroup;
+			children = (
+				ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */,
+				WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */,
+			);
+			path = WhatsNew;
 			sourceTree = "<group>";
 		};
 		BFA9046303E3874827C62B25 /* Components */ = {
@@ -977,6 +1000,7 @@
 				CTXENGNTEST01A2B3C4D5E6F /* ContextEngineServiceTests.swift in Sources */,
 				FLOATFSTRKTESTBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift in Sources */,
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
+				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
 				AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */,
 				COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */,
 				MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
@@ -1004,6 +1028,7 @@
 				862E74C35C4D46713D5A1B80 /* TranscriptionRecordSchema.swift in Sources */,
 				MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */,
 				MEDIATRANSTYPESBUILD01 /* MediaTranscriptionTypes.swift in Sources */,
+				ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */,
 				WORDRPLACEA1B2C3D4 /* WordReplacement.swift in Sources */,
 				VOCABWORDA1B2C3D4 /* VocabularyWord.swift in Sources */,
 				NOTESCH001A2B3C4D5 /* NoteSchema.swift in Sources */,
@@ -1050,6 +1075,8 @@
 				IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */,
 				MODELCAPS1A2B3C4D5E6F70 /* ModelCapabilities.swift in Sources */,
 				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
+				ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */,
+				WHATVIEWBUILD01A2B3C4D5E6F /* WhatsNewView.swift in Sources */,
 				D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */,
 				7C9FFAAD40CEE61496E8C14C /* OnboardingWindowController.swift in Sources */,
 				3A991DE907202841FF536AB0 /* WelcomeStepView.swift in Sources */,
@@ -1098,6 +1125,7 @@
 				CTXENGN01A2B3C4D5E6F /* ContextEngineService.swift in Sources */,
 				FLOATFSTRKBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift in Sources */,
 				TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
+				ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */,
 				AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */,
 				WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */,
 				PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */,

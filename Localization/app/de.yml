@@ -5,6 +5,7 @@
   transcription: "1 Transkription"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Eine native macOS-Menüleisten-Diktier-App mit lokaler Spracherkennung durch WhisperKit. 100% lokale Verarbeitung standardmäßig mit optionaler KI-Verbesserung."
+  big_round_of_upgrades_and_two_community_shout: "Eine große Runde Upgrades — und zwei Community-Danksagungen."
 about:
   _self: "Über"
   pindrop: "Über Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Beste"
 better:
   _self: "Besser"
+  bluetooth_external_mic_support: "Bessere Unterstützung für Bluetooth und externe Mikrofone"
 built:
   in_presets: "Eingebaute Voreinstellungen"
   in_read_only: "Eingebaut (nur lesen)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop-Pille"
   theme: "Pindrop-Thema"
   orb: "Pindrop-Orb"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Abspielen"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Aufnahme"
   3f8fd48c: "🔴 Aufnahme"
+  from_external_and_bluetooth_microphone: "Aufnahmen über externe und Bluetooth-Mikrofone sind jetzt absolut zuverlässig, selbst wenn die Audioausgabe woandershin geleitet wird."
 recordings:
   _self: "Aufnahmen"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Die Streaming-Transkription unterstützt derzeit nur Englisch, unabhängig von der ausgewählten Sprache."
   transcription_is_disabled_while_ai_enh: "Streaming-Transkription ist deaktiviert, während die KI-Verbesserung aktiviert ist."
   transcription_model_nemotron_speech: "Streaming-Transkriptionsmodell (Nemotron Speech Streaming) lizenziert von der NVIDIA Corporation unter der NVIDIA Open Model License."
+  transcription_instantly_ready: "Streaming-Transkription, sofort bereit"
 success:
   _self: "Erfolg!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\"             Das Modell konnte nicht innerhalb von 60 Sekunden geladen werden. Dies bedeutet normalerweise, dass die Modelldateien beschädigt oder inkompatibel sind.                          So beheben Sie das:             1. Öffnen Sie Einstellungen → Modelle             2. Löschen Sie das problematische Modell             3. Laden Sie das Modell erneut herunter                          Wenn das Problem weiterhin besteht, versuchen Sie ein kleineres Modell (Tiny oder Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Die gewählte Chunk-Variante ist noch nicht geladen. Durch das Umschalten wird ein Download gestartet."
+  new_nemotron_streaming_engine_shows_words_as: "Die neue Nemotron-Streaming-Engine zeigt Wörter, während du sie sagst, und wird beim Start vorgewärmt, damit dein erstes Diktat ohne Verzögerung beginnt."
 theme:
   _self: "Thema"
   changes_apply_live_across_the_workspace_se: "Designänderungen werden live im gesamten Arbeitsbereich, in den Einstellungen, im Notizeditor und in den schwebenden Indikatoren angewendet."
@@ -1006,6 +1012,7 @@ your:
     Sie können sie später in den Einstellungen anpassen.
   model_is_ready_to_use: "Ihr Modell ist bereit zur Verwendung."
   stats: "Ihre Statistiken"
+  floating_indicator_is_now_a_living_audio_re: "Deine schwebende Anzeige ist jetzt ein lebendiger, audioreaktiver Orb. Sie atmet im Leerlauf, schwillt an, wenn du sprichst, und streamt deine Wörter live beim Diktieren."
 orb:
   _self: "Orb"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Neu in Pindrop"
+  s_new: "Neuigkeiten…"
+
+meet:
+  the_new_orb: "Lerne den neuen Orb kennen"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Danke an %@ fürs Untersuchen und Anstoßen der Korrektur (PR #64)."
+  to_for_the_contribution_pr_61: "Danke an %@ für den Beitrag (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Diktiere auf Russisch und Ukrainisch"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Zwei neue Diktiersprachen, vollständig in die Modellempfehlungen eingebunden."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Ebenfalls neu: RTL-Layout-Unterstützung und 20 neue Oberflächensprachen."

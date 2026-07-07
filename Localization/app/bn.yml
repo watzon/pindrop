@@ -5,6 +5,7 @@
   transcription: "1 ট্রান্সক্রিপশন"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
+  big_round_of_upgrades_and_two_community_shout: "বড় আপগ্রেডের এক দফা — আর কমিউনিটির দুইজনকে ধন্যবাদ।"
 about:
   _self: "সম্পর্কে"
   pindrop: "পিনড্রপ সম্পর্কে"
@@ -96,6 +97,7 @@ best:
   _self: "সেরা"
 better:
   _self: "ভালো"
+  bluetooth_external_mic_support: "Bluetooth ও বাহ্যিক মাইকের আরও ভালো সমর্থন"
 built:
   in_presets: "অন্তর্নির্মিত প্রিসেট"
   in_read_only: "অন্তর্নির্মিত (শুধু পড়ার জন্য)"
@@ -633,6 +635,7 @@ pindrop:
   pill: "পিনড্রপ পিল"
   theme: "পিনড্রপ থিম"
   orb: "Pindrop অর্ব"
+  1_19: "Pindrop 1.19"
 play:
   _self: "খেলা"
 please:
@@ -702,6 +705,7 @@ record:
 recording:
   _self: "রেকর্ডিং"
   3f8fd48c: "🔴 রেকর্ডিং"
+  from_external_and_bluetooth_microphone: "বাহ্যিক ও Bluetooth মাইক্রোফোন থেকে রেকর্ডিং এখন অনেক বেশি নির্ভরযোগ্য, এমনকি অডিও আউটপুট অন্য কোথাও রাউট করা থাকলেও।"
 recordings:
   _self: "রেকর্ডিং"
 redo:
@@ -849,6 +853,7 @@ streaming:
   transcription_currently_supports_engli: "স্ট্রিমিং ট্রান্সক্রিপশন বর্তমানে শুধুমাত্র ইংরেজি সমর্থন করে, নির্বাচিত ভাষা নির্বিশেষে।"
   transcription_is_disabled_while_ai_enh: "AI উন্নত করার সময় স্ট্রিমিং ট্রান্সক্রিপশন অক্ষম করা আছে।"
   transcription_model_nemotron_speech: "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (Nemotron Speech Streaming) NVIDIA Corporation কর্তৃক NVIDIA Open Model License-এর অধীনে লাইসেন্সকৃত।"
+  transcription_instantly_ready: "স্ট্রিমিং ট্রান্সক্রিপশন, সঙ্গে সঙ্গে প্রস্তুত"
 success:
   _self: "সফলতার !"
 support:
@@ -872,6 +877,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\" মডেলটি 60 সেকেন্ডের মধ্যে লোড হতে ব্যর্থ হয়েছে৷ এর মানে সাধারণত মডেল ফাইলগুলি দূষিত বা বেমানান।                          এটি ঠিক করতে: 1. সেটিংস খুলুন → মডেলগুলি 2. সমস্যাযুক্ত মডেলটি মুছুন 3. মডেলটি পুনরায় ডাউনলোড করুন যদি সমস্যাটি থেকে যায়, একটি ছোট মডেল চেষ্টা করুন (ক্ষুদ্র বা বেস)।             \""
   selected_chunk_variant_isn_t_downloaded_yet: "নির্বাচিত খণ্ড ভেরিয়েন্টটি এখনও ডাউনলোড করা হয়নি। টগল করলে একটি ডাউনলোড শুরু হবে।"
+  new_nemotron_streaming_engine_shows_words_as: "নতুন Nemotron স্ট্রিমিং ইঞ্জিন আপনি বলার সঙ্গে সঙ্গে শব্দ দেখায়, আর প্রথম ডিক্টেশন যেন দেরি ছাড়াই শুরু হয় সে জন্য ইঞ্জিনটি চালুর সময় প্রিওয়ার্ম হয়।"
 theme:
   _self: "থিম"
   changes_apply_live_across_the_workspace_se: "থিম পরিবর্তনগুলি কর্মক্ষেত্র, সেটিংস, নোট এডিটর এবং ভাসমান সূচক জুড়ে লাইভ প্রযোজ্য।"
@@ -1014,6 +1020,7 @@ your:
     আপনি সেগুলিকে পরে সেটিংসে কাস্টমাইজ করতে পারেন৷
   model_is_ready_to_use: "আপনার মডেল ব্যবহারের জন্য প্রস্তুত."
   stats: "আপনার পরিসংখ্যান"
+  floating_indicator_is_now_a_living_audio_re: "আপনার ভাসমান সূচকটি এখন একটি জীবন্ত, অডিও-প্রতিক্রিয়াশীল orb। নিষ্ক্রিয় থাকলে এটি শ্বাস নেয়, আপনি কথা বললে ফুলে ওঠে, এবং ডিক্টেট করার সময় আপনার শব্দ সরাসরি দেখায়।"
 orb:
   _self: "অর্ব"
 meeting:
@@ -1023,3 +1030,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop-এ নতুন কী"
+  s_new: "নতুন কী…"
+
+meet:
+  the_new_orb: "নতুন Orb-এর সঙ্গে পরিচিত হন"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "অনুসন্ধান করে সমাধান শুরু করার জন্য %@-কে ধন্যবাদ (PR #64)।"
+  to_for_the_contribution_pr_61: "অবদানের জন্য %@-কে ধন্যবাদ (PR #61)।"
+
+dictate:
+  in_russian_and_ukrainian: "রুশ ও ইউক্রেনীয় ভাষায় ডিক্টেট করুন"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "দুটি নতুন ডিক্টেশন ভাষা, মডেল সুপারিশে সম্পূর্ণভাবে যুক্ত।"
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "আরও নতুন: RTL লেআউট সমর্থন এবং 20টি নতুন ইন্টারফেস ভাষা।"

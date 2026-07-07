@@ -5,6 +5,7 @@
   transcription: "תמלול 1"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "אפליקציית הכתבה מקורית של שורת התפריט של macOS המשתמשת בדיבור לטקסט מקומי עם WhisperKit. עיבוד מקומי של 100% כברירת מחדל עם שיפור AI אופציונלי."
+  big_round_of_upgrades_and_two_community_shout: "סבב גדול של שדרוגים — ושתי תודות לקהילה."
 about:
   _self: "אוֹדוֹת"
   pindrop: "על פינדרופ"
@@ -96,6 +97,7 @@ best:
   _self: "טוֹב בִּיוֹתֵר"
 better:
   _self: "לְשַׁפֵּר"
+  bluetooth_external_mic_support: "תמיכה טובה יותר ב-Bluetooth ובמיקרופונים חיצוניים"
 built:
   in_presets: "הגדרות מובנות מראש"
   in_read_only: "מובנה (לקריאה בלבד)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "גלולת פינדרופ"
   theme: "נושא Pindrop"
   orb: "כדור Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "לְשַׂחֵק"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "הַקלָטָה"
   3f8fd48c: "🔴 הקלטה"
+  from_external_and_bluetooth_microphone: "הקלטה ממיקרופונים חיצוניים וממיקרופוני Bluetooth יציבה עכשיו מאוד, גם כשפלט האודיו מנותב למקום אחר."
 recordings:
   _self: "הקלטות"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "תמלול סטרימינג תומך כרגע באנגלית בלבד, ללא קשר לשפה שנבחרה."
   transcription_is_disabled_while_ai_enh: "תמלול סטרימינג מושבת בזמן ששיפור בינה מלאכותית מופעל."
   transcription_model_nemotron_speech: "מודל תמלול בזרימה (Nemotron Speech Streaming) ברישיון NVIDIA Corporation תחת NVIDIA Open Model License."
+  transcription_instantly_ready: "תמלול זורם, מוכן מיד"
 success:
   _self: "הַצלָחָה!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" הדגם לא הצליח להיטען בתוך 60 שניות. זה בדרך כלל אומר שקובצי הדגם פגומים או לא תואמים.                          כדי לתקן זאת: 1. פתח את הגדרות ← דגמים 2. מחק את הדגם הבעייתי 3. הורד מחדש את הדגם אם הבעיה נמשכת, נסה דגם קטן יותר (Tiny או Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "גרסת הנתח שנבחרה עדיין לא הורדה. החלפה תתחיל הורדה."
+  new_nemotron_streaming_engine_shows_words_as: "מנוע הסטרימינג החדש Nemotron מציג מילים תוך כדי הדיבור, ומתחמם מראש בהפעלה כדי שההכתבה הראשונה תתחיל ללא עיכוב."
 theme:
   _self: "נוֹשֵׂא"
   changes_apply_live_across_the_workspace_se: "שינויי ערכת נושא חלים בשידור חי על פני סביבת העבודה, ההגדרות, עורך הערות ומחוונים צפים."
@@ -1006,6 +1012,7 @@ your:
     תוכל להתאים אותם מאוחר יותר בהגדרות.
   model_is_ready_to_use: "הדגם שלך מוכן לשימוש."
   stats: "הסטטיסטיקה שלך"
+  floating_indicator_is_now_a_living_audio_re: "המחוון הצף שלך הוא עכשיו orb חי שמגיב לאודיו. הוא נושם כשהוא לא פעיל, מתרחב כשמדברים, ומשדר את המילים שלך בזמן אמת בזמן ההכתבה."
 orb:
   _self: "כדור"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "מה חדש ב-Pindrop"
+  s_new: "מה חדש…"
+
+meet:
+  the_new_orb: "הכירו את ה-Orb החדש"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "תודה ל-%@ על החקירה והתחלת התיקון (PR #64)."
+  to_for_the_contribution_pr_61: "תודה ל-%@ על התרומה (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "הכתבה ברוסית ובאוקראינית"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "שתי שפות הכתבה חדשות, מחוברות במלואן להמלצות המודלים."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "חדש גם: תמיכה בפריסת RTL ו-20 שפות ממשק חדשות."

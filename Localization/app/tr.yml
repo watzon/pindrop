@@ -5,6 +5,7 @@
   transcription: "1 transkripsiyon"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
+  big_round_of_upgrades_and_two_community_shout: "Büyük bir yükseltme turu — ve topluluktan iki kişiye teşekkür."
 about:
   _self: "Hakkında"
   pindrop: "Pindrop Hakkında"
@@ -96,6 +97,7 @@ best:
   _self: "En iyi"
 better:
   _self: "Daha iyi"
+  bluetooth_external_mic_support: "Daha iyi Bluetooth ve harici mikrofon desteği"
 built:
   in_presets: "Yerleşik Ön Ayarlar"
   in_read_only: "Yerleşik (salt okunur)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop Hapı"
   theme: "Pindrop Teması"
   orb: "Pindrop Küresi"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Oynamak"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Kayıt"
   3f8fd48c: "🔴 Kayıt"
+  from_external_and_bluetooth_microphone: "Harici ve Bluetooth mikrofonlardan kayıt artık, ses çıkışı başka yere yönlendirilse bile son derece kararlı."
 recordings:
   _self: "kayıtlar"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Akış transkripsiyonu şu anda seçilen dilden bağımsız olarak yalnızca İngilizceyi destekler."
   transcription_is_disabled_while_ai_enh: "AI Geliştirme etkinken akış transkripsiyonu devre dışı bırakılır."
   transcription_model_nemotron_speech: "Akış transkripsiyon modeli (Nemotron Speech Streaming) NVIDIA Corporation tarafından NVIDIA Open Model License kapsamında lisanslanmıştır."
+  transcription_instantly_ready: "Akışlı transkripsiyon, anında hazır"
 success:
   _self: "Başarı!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Model 60 saniye içinde yüklenemedi. Bu genellikle model dosyalarının bozuk veya uyumsuz olduğu anlamına gelir.                          Bunu düzeltmek için: 1. Ayarlar → Modeller'i açın 2. Sorunlu modeli silin 3. Modeli yeniden indirin Sorun devam ederse daha küçük bir model deneyin (Tiny veya Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Seçili yığın varyantı henüz indirilmedi. Değiştirmek bir indirme başlatacak."
+  new_nemotron_streaming_engine_shows_words_as: "Yeni Nemotron akış motoru kelimeleri söylediğiniz anda gösterir ve açılışta önceden hazırlanır, böylece ilk dikteniz gecikmeden başlar."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Tema değişiklikleri, çalışma alanı, ayarlar, not düzenleyici ve kayan göstergeler genelinde canlı olarak uygulanır."
@@ -1006,6 +1012,7 @@ your:
     Bunları daha sonra Ayarlar'da özelleştirebilirsiniz.
   model_is_ready_to_use: "Modeliniz kullanıma hazır."
   stats: "İstatistikleriniz"
+  floating_indicator_is_now_a_living_audio_re: "Kayan göstergeniz artık sese tepki veren canlı bir orb. Boştayken nefes alır, konuştuğunuzda büyür ve dikte ederken kelimelerinizi canlı olarak aktarır."
 orb:
   _self: "Küre"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop’ta Yenilikler"
+  s_new: "Yenilikler…"
+
+meet:
+  the_new_orb: "Yeni Orb ile tanışın"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Araştırıp düzeltmeyi başlattığı için %@ kişisine teşekkürler (PR #64)."
+  to_for_the_contribution_pr_61: "Katkısı için %@ kişisine teşekkürler (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Rusça ve Ukraynaca dikte edin"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Model önerilerine tamamen bağlanmış iki yeni dikte dili."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Ayrıca yeni: RTL düzen desteği ve 20 yeni arayüz dili."

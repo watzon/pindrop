@@ -5,6 +5,7 @@
   transcription: "1 μεταγραφή"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Μια εγγενής εφαρμογή υπαγόρευσης γραμμής μενού macOS που χρησιμοποιεί τοπική ομιλία σε κείμενο με το WhisperKit. 100% τοπική επεξεργασία από προεπιλογή με προαιρετική βελτίωση AI."
+  big_round_of_upgrades_and_two_community_shout: "Ένας μεγάλος γύρος αναβαθμίσεων — και δύο ευχαριστίες στην κοινότητα."
 about:
   _self: "Για"
   pindrop: "Σχετικά με το Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Καλύτερος"
 better:
   _self: "Καλύτερα"
+  bluetooth_external_mic_support: "Καλύτερη υποστήριξη Bluetooth και εξωτερικών μικροφώνων"
 built:
   in_presets: "Ενσωματωμένες προεπιλογές"
   in_read_only: "Ενσωματωμένο (μόνο για ανάγνωση)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Χάπι Pindrop"
   theme: "Θέμα Pindrop"
   orb: "Σφαίρα Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Παιχνίδι"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Εγγραφή"
   3f8fd48c: "🔴 Ηχογράφηση"
+  from_external_and_bluetooth_microphone: "Η εγγραφή από εξωτερικά μικρόφωνα και μικρόφωνα Bluetooth είναι πλέον απόλυτα αξιόπιστη, ακόμη κι όταν η έξοδος ήχου δρομολογείται αλλού."
 recordings:
   _self: "ηχογραφήσεις"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Η μεταγραφή ροής υποστηρίζει προς το παρόν μόνο αγγλικά, ανεξάρτητα από την επιλεγμένη γλώσσα."
   transcription_is_disabled_while_ai_enh: "Η μεταγραφή ροής είναι απενεργοποιημένη ενώ η Βελτίωση AI είναι ενεργοποιημένη."
   transcription_model_nemotron_speech: "Μοντέλο μεταγραφής ροής (Nemotron Speech Streaming) με άδεια από την NVIDIA Corporation βάσει της NVIDIA Open Model License."
+  transcription_instantly_ready: "Ζωντανή μεταγραφή, άμεσα έτοιμη"
 success:
   _self: "Επιτυχία!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Το μοντέλο απέτυχε να φορτώσει μέσα σε 60 δευτερόλεπτα. Αυτό συνήθως σημαίνει ότι τα αρχεία του μοντέλου είναι κατεστραμμένα ή μη συμβατά.                          Για να το διορθώσετε: 1. Ανοίξτε τις Ρυθμίσεις → Μοντέλα 2. Διαγράψτε το προβληματικό μοντέλο 3. Κάντε ξανά λήψη του μοντέλου Εάν το πρόβλημα παραμένει, δοκιμάστε ένα μικρότερο μοντέλο (Tiny ή Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Η επιλεγμένη παραλλαγή κομματιού δεν έχει γίνει ακόμη λήψη. Η εναλλαγή θα ξεκινήσει μια λήψη."
+  new_nemotron_streaming_engine_shows_words_as: "Η νέα μηχανή ροής Nemotron εμφανίζει τις λέξεις καθώς τις λέτε και προθερμαίνεται κατά την εκκίνηση ώστε η πρώτη υπαγόρευση να ξεκινά χωρίς καθυστέρηση."
 theme:
   _self: "Θέμα"
   changes_apply_live_across_the_workspace_se: "Οι αλλαγές θέματος εφαρμόζονται ζωντανά στον χώρο εργασίας, τις ρυθμίσεις, το πρόγραμμα επεξεργασίας σημειώσεων και τις κινούμενες ενδείξεις."
@@ -1006,6 +1012,7 @@ your:
     Μπορείτε να τα προσαρμόσετε αργότερα στις Ρυθμίσεις.
   model_is_ready_to_use: "Το μοντέλο σας είναι έτοιμο για χρήση."
   stats: "Τα στατιστικά σας"
+  floating_indicator_is_now_a_living_audio_re: "Η αιωρούμενη ένδειξή σας είναι πλέον ένα ζωντανό orb που αντιδρά στον ήχο. Αναπνέει όταν είναι ανενεργό, μεγαλώνει όταν μιλάτε και μεταδίδει ζωντανά τις λέξεις σας καθώς υπαγορεύετε."
 orb:
   _self: "Σφαίρα"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Τι νέο υπάρχει στο Pindrop"
+  s_new: "Τι νέο υπάρχει…"
+
+meet:
+  the_new_orb: "Γνωρίστε το νέο Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Ευχαριστούμε τον/την %@ για τη διερεύνηση και την έναρξη της διόρθωσης (PR #64)."
+  to_for_the_contribution_pr_61: "Ευχαριστούμε τον/την %@ για τη συνεισφορά (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Υπαγόρευση στα Ρωσικά και Ουκρανικά"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Δύο νέες γλώσσες υπαγόρευσης, πλήρως συνδεδεμένες με τις προτάσεις μοντέλων."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Επίσης νέο: υποστήριξη διάταξης RTL και 20 νέες γλώσσες διεπαφής."

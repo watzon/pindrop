@@ -5,6 +5,7 @@
   transcription: "1 transkripsi"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Apl imlak bar menu macOS asli menggunakan pertuturan-ke-teks tempatan dengan WhisperKit. 100% pemprosesan tempatan secara lalai dengan peningkatan AI pilihan."
+  big_round_of_upgrades_and_two_community_shout: "Satu pusingan besar peningkatan — dan dua penghargaan komuniti."
 about:
   _self: "Tentang"
   pindrop: "Mengenai Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "terbaik"
 better:
   _self: "lebih baik"
+  bluetooth_external_mic_support: "Sokongan Bluetooth dan mikrofon luaran yang lebih baik"
 built:
   in_presets: "Pratetap Terbina dalam"
   in_read_only: "Terbina dalam (baca sahaja)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pil Pindrop"
   theme: "Tema Pindrop"
   orb: "Orb Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Main"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Rakaman"
   3f8fd48c: "🔴 Rakaman"
+  from_external_and_bluetooth_microphone: "Rakaman daripada mikrofon luaran dan Bluetooth kini sangat stabil, walaupun output audio dihalakan ke tempat lain."
 recordings:
   _self: "rakaman"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Transkripsi penstriman pada masa ini menyokong bahasa Inggeris sahaja, tanpa mengira bahasa yang dipilih."
   transcription_is_disabled_while_ai_enh: "Transkripsi penstriman dilumpuhkan manakala Peningkatan AI didayakan."
   transcription_model_nemotron_speech: "Model transkripsi penstriman (Nemotron Speech Streaming) dilesenkan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
+  transcription_instantly_ready: "Transkripsi penstriman, sedia serta-merta"
 success:
   _self: "Berjaya!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuatkan dalam masa 60 saat. Ini biasanya bermakna fail model rosak atau tidak serasi.                          Untuk membetulkannya: 1. Buka Tetapan → Model 2. Padamkan model yang bermasalah 3. Muat turun semula model Jika masalah berterusan, cuba model yang lebih kecil (Tiny atau Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Varian bahagian yang dipilih belum dimuat turun lagi. Togol akan memulakan muat turun."
+  new_nemotron_streaming_engine_shows_words_as: "Enjin penstriman Nemotron baharu memaparkan perkataan semasa anda menyebutnya, dan enjin diprapanaskan semasa pelancaran supaya imlak pertama bermula tanpa lengah."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Perubahan tema digunakan secara langsung merentas ruang kerja, tetapan, editor nota dan penunjuk terapung."
@@ -1006,6 +1012,7 @@ your:
     Anda boleh menyesuaikannya kemudian dalam Tetapan.
   model_is_ready_to_use: "Model anda sedia untuk digunakan."
   stats: "Statistik anda"
+  floating_indicator_is_now_a_living_audio_re: "Penunjuk terapung anda kini orb hidup yang bertindak balas kepada audio. Ia bernafas ketika melahu, mengembang apabila anda bercakap, dan menstrim perkataan anda secara langsung semasa imlak."
 orb:
   _self: "Orb"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Apa yang Baharu dalam Pindrop"
+  s_new: "Apa yang Baharu…"
+
+meet:
+  the_new_orb: "Kenali Orb baharu"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Terima kasih kepada %@ kerana menyiasat dan memulakan pembaikan (PR #64)."
+  to_for_the_contribution_pr_61: "Terima kasih kepada %@ atas sumbangan tersebut (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Imlak dalam bahasa Rusia dan Ukraine"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Dua bahasa imlak baharu, disambungkan sepenuhnya kepada cadangan model."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Juga baharu: sokongan susun atur RTL dan 20 bahasa antara muka baharu."

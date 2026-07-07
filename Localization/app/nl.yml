@@ -5,6 +5,7 @@
   transcription: "1 transcriptie"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Een native macOS-dicteerapp voor de menubalk die lokale spraak-naar-tekst gebruikt met WhisperKit. Standaard 100% lokale verwerking met optionele AI-verbetering."
+  big_round_of_upgrades_and_two_community_shout: "Een grote ronde upgrades — en twee bedankjes aan de community."
 about:
   _self: "Over"
   pindrop: "Over Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Best"
 better:
   _self: "Beter"
+  bluetooth_external_mic_support: "Betere ondersteuning voor Bluetooth en externe microfoons"
 built:
   in_presets: "Ingebouwde voorinstellingen"
   in_read_only: "Ingebouwd (alleen-lezen)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop-pil"
   theme: "Pindrop-thema"
   orb: "Pindrop-orb"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Toneelstuk"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Opname"
   3f8fd48c: "🔴Opname"
+  from_external_and_bluetooth_microphone: "Opnemen via externe en Bluetooth-microfoons is nu rotsvast, zelfs wanneer je audio-uitvoer ergens anders naartoe wordt geleid."
 recordings:
   _self: "opnames"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
   transcription_is_disabled_while_ai_enh: "Streamingtranscriptie is uitgeschakeld terwijl AI Enhancement is ingeschakeld."
   transcription_model_nemotron_speech: "Streaming-transcriptiemodel (Nemotron Speech Streaming) gelicentieerd door NVIDIA Corporation onder de NVIDIA Open Model License."
+  transcription_instantly_ready: "Streamingtranscriptie, direct klaar"
 success:
   _self: "Succes!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Het model kon niet binnen 60 seconden worden geladen. Dit betekent meestal dat de modelbestanden beschadigd of incompatibel zijn.                          Om dit op te lossen: 1. Open Instellingen → Modellen 2. Verwijder het problematische model 3. Download het model opnieuw. Als het probleem zich blijft voordoen, probeer dan een kleiner model (Tiny of Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "De geselecteerde chunk-variant is nog niet gedownload. Omschakelen start een download."
+  new_nemotron_streaming_engine_shows_words_as: "De nieuwe Nemotron-streamingengine toont woorden terwijl je ze uitspreekt en warmt op bij het starten, zodat je eerste dictaat zonder vertraging begint."
 theme:
   _self: "Thema"
   changes_apply_live_across_the_workspace_se: "Themawijzigingen zijn live van toepassing op de werkruimte, instellingen, notitie-editor en zwevende indicatoren."
@@ -1006,6 +1012,7 @@ your:
     Je kunt ze later aanpassen in Instellingen.
   model_is_ready_to_use: "Uw model is klaar voor gebruik."
   stats: "Jouw statistieken"
+  floating_indicator_is_now_a_living_audio_re: "Je zwevende indicator is nu een levende, audio-reactieve orb. Hij ademt wanneer hij inactief is, zwelt op wanneer je spreekt en streamt je woorden live terwijl je dicteert."
 orb:
   _self: "Orb"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Nieuw in Pindrop"
+  s_new: "Nieuw…"
+
+meet:
+  the_new_orb: "Maak kennis met de nieuwe Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Dank aan %@ voor het onderzoeken en het starten van de oplossing (PR #64)."
+  to_for_the_contribution_pr_61: "Dank aan %@ voor de bijdrage (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Dicteer in het Russisch en Oekraïens"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Twee nieuwe dicteertalen, volledig gekoppeld aan modelaanbevelingen."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Ook nieuw: ondersteuning voor RTL-layouts en 20 nieuwe interfacetalen."

@@ -5,6 +5,7 @@
   transcription: "1 přepis"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Nativní aplikace pro diktování na liště nabídek macOS využívající místní převod řeči na text pomocí WhisperKit. 100% místní zpracování ve výchozím nastavení s volitelným vylepšením AI."
+  big_round_of_upgrades_and_two_community_shout: "Velká sada vylepšení — a dvě komunitní poděkování."
 about:
   _self: "O"
   pindrop: "O Pindropovi"
@@ -96,6 +97,7 @@ best:
   _self: "Nejlepší"
 better:
   _self: "Lepší"
+  bluetooth_external_mic_support: "Lepší podpora Bluetooth a externích mikrofonů"
 built:
   in_presets: "Vestavěné předvolby"
   in_read_only: "Vestavěný (pouze pro čtení)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop pilulka"
   theme: "Pindrop téma"
   orb: "Pindrop Koule"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Hrát"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Záznam"
   3f8fd48c: "🔴 Nahrávání"
+  from_external_and_bluetooth_microphone: "Nahrávání z externích a Bluetooth mikrofonů je nyní spolehlivé, i když je zvukový výstup směrován jinam."
 recordings:
   _self: "nahrávek"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Přepis streamování aktuálně podporuje pouze angličtinu, bez ohledu na vybraný jazyk."
   transcription_is_disabled_while_ai_enh: "Když je povoleno AI Enhancement, přepis streamování je zakázán."
   transcription_model_nemotron_speech: "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
+  transcription_instantly_ready: "Streamovaný přepis, připravený okamžitě"
 success:
   _self: "Úspěch!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Model se nepodařilo načíst do 60 sekund. To obvykle znamená, že soubory modelu jsou poškozené nebo nekompatibilní.                          Řešení: 1. Otevřete Nastavení → Modely 2. Odstraňte problematický model 3. Znovu si stáhněte model Pokud problém přetrvává, zkuste menší model (Tiny nebo Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Vybraná varianta bloku ještě není stažena. Přepnutím se zahájí stahování."
+  new_nemotron_streaming_engine_shows_words_as: "Nový streamovací engine Nemotron zobrazuje slova tak, jak je říkáte, a při spuštění se předehřívá, takže první diktování začne bez zdržení."
 theme:
   _self: "Téma"
   changes_apply_live_across_the_workspace_se: "Změny motivu se projeví na pracovní ploše, v nastavení, v editoru poznámek a v plovoucích indikátorech."
@@ -1006,6 +1012,7 @@ your:
     Později je můžete upravit v Nastavení.
   model_is_ready_to_use: "Váš model je připraven k použití."
   stats: "Vaše statistiky"
+  floating_indicator_is_now_a_living_audio_re: "Váš plovoucí indikátor je teď živý, zvukově reaktivní orb. V klidu dýchá, při řeči se zvětšuje a během diktování živě streamuje vaše slova."
 orb:
   _self: "Koule"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Co je nového v Pindropu"
+  s_new: "Co je nového…"
+
+meet:
+  the_new_orb: "Seznamte se s novým Orbem"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Díky %@ za prozkoumání a nastartování opravy (PR #64)."
+  to_for_the_contribution_pr_61: "Díky %@ za příspěvek (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Diktujte rusky a ukrajinsky"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Dva nové jazyky diktování, plně napojené na doporučení modelů."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Nově také: podpora rozvržení RTL a 20 nových jazyků rozhraní."

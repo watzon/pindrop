@@ -5,6 +5,7 @@
   transcription: "1 bản phiên âm"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
+  big_round_of_upgrades_and_two_community_shout: "Một loạt nâng cấp lớn — và hai lời cảm ơn tới cộng đồng."
 about:
   _self: "Về"
   pindrop: "Giới thiệu về Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Tốt nhất"
 better:
   _self: "Tốt hơn"
+  bluetooth_external_mic_support: "Hỗ trợ Bluetooth và mic ngoài tốt hơn"
 built:
   in_presets: "Cài đặt sẵn tích hợp"
   in_read_only: "Tích hợp (chỉ đọc)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Thuốc nhỏ giọt"
   theme: "Chủ đề ghim"
   orb: "Quả cầu Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Chơi"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "ghi âm"
   3f8fd48c: "🔴 Ghi âm"
+  from_external_and_bluetooth_microphone: "Ghi âm từ mic ngoài và mic Bluetooth giờ rất ổn định, ngay cả khi đầu ra âm thanh được định tuyến sang nơi khác."
 recordings:
   _self: "bản ghi âm"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Phiên âm trực tuyến hiện chỉ hỗ trợ tiếng Anh, bất kể ngôn ngữ đã chọn."
   transcription_is_disabled_while_ai_enh: "Tính năng chép lời trực tuyến bị vô hiệu hóa khi tính năng Cải tiến AI được bật."
   transcription_model_nemotron_speech: "Mô hình phiên âm trực tuyến (Nemotron Speech Streaming) được NVIDIA Corporation cấp phép theo NVIDIA Open Model License."
+  transcription_instantly_ready: "Phiên âm phát trực tiếp, sẵn sàng tức thì"
 success:
   _self: "Thành công!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Mô hình không tải được trong vòng 60 giây. Điều này thường có nghĩa là các tệp mô hình bị hỏng hoặc không tương thích.                          Để khắc phục điều này: 1. Mở Cài đặt → Kiểu máy 2. Xóa mô hình có vấn đề 3. Tải lại mô hình xuống Nếu sự cố vẫn tiếp diễn, hãy thử một mô hình nhỏ hơn (Tiny hoặc Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Biến thể đoạn đã chọn chưa được tải xuống. Chuyển đổi sẽ bắt đầu tải xuống."
+  new_nemotron_streaming_engine_shows_words_as: "Công cụ streaming Nemotron mới hiển thị từ khi bạn nói và được làm nóng sẵn khi khởi chạy để lần đọc chính tả đầu tiên bắt đầu không chậm trễ."
 theme:
   _self: "chủ đề"
   changes_apply_live_across_the_workspace_se: "Các thay đổi về chủ đề áp dụng trực tiếp trên không gian làm việc, cài đặt, trình chỉnh sửa ghi chú và chỉ báo nổi."
@@ -1006,6 +1012,7 @@ your:
     Bạn có thể tùy chỉnh chúng sau trong Cài đặt.
   model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
   stats: "Số liệu thống kê của bạn"
+  floating_indicator_is_now_a_living_audio_re: "Chỉ báo nổi của bạn giờ là một orb sống động, phản ứng với âm thanh. Nó thở khi rảnh, phồng lên khi bạn nói và truyền trực tiếp lời của bạn khi bạn đọc chính tả."
 orb:
   _self: "Quả cầu"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Có gì mới trong Pindrop"
+  s_new: "Có gì mới…"
+
+meet:
+  the_new_orb: "Gặp Orb mới"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Cảm ơn %@ đã điều tra và khởi đầu bản sửa lỗi (PR #64)."
+  to_for_the_contribution_pr_61: "Cảm ơn %@ vì đóng góp (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Đọc chính tả bằng tiếng Nga và tiếng Ukraina"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Hai ngôn ngữ đọc chính tả mới, được kết nối đầy đủ với đề xuất mô hình."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Cũng mới: hỗ trợ bố cục RTL và 20 ngôn ngữ giao diện mới."

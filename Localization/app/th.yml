@@ -5,6 +5,7 @@
   transcription: "การถอดเสียง 1 รายการ"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "แอพเขียนตามคำบอกบนแถบเมนู macOS ที่ใช้การแปลงคำพูดเป็นข้อความในเครื่องด้วย WhisperKit การประมวลผลภายในเครื่อง 100% ตามค่าเริ่มต้นพร้อมการเพิ่มประสิทธิภาพ AI ที่เป็นตัวเลือก"
+  big_round_of_upgrades_and_two_community_shout: "การอัปเกรดชุดใหญ่ — และคำขอบคุณจากชุมชนสองรายการ"
 about:
   _self: "เกี่ยวกับ"
   pindrop: "เกี่ยวกับ พินดรอป"
@@ -96,6 +97,7 @@ best:
   _self: "ดีที่สุด"
 better:
   _self: "ดีกว่า"
+  bluetooth_external_mic_support: "รองรับ Bluetooth และไมค์ภายนอกดีขึ้น"
 built:
   in_presets: "ค่าที่ตั้งไว้ล่วงหน้าในตัว"
   in_read_only: "ในตัว (อ่านอย่างเดียว)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "ยาพินดรอป"
   theme: "ธีมพินดรอป"
   orb: "ออร์บ Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "เล่น"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "การบันทึก"
   3f8fd48c: "🔴 การบันทึก"
+  from_external_and_bluetooth_microphone: "การบันทึกจากไมโครโฟนภายนอกและ Bluetooth ตอนนี้เสถียรมาก แม้ว่าเอาต์พุตเสียงจะถูกส่งไปที่อื่น"
 recordings:
   _self: "การบันทึก"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "ปัจจุบันการถอดเสียงแบบสตรีมมิ่งรองรับภาษาอังกฤษเท่านั้น โดยไม่คำนึงถึงภาษาที่เลือก"
   transcription_is_disabled_while_ai_enh: "การถอดเสียงแบบสตรีมมิ่งถูกปิดใช้งานในขณะที่เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
   transcription_model_nemotron_speech: "โมเดลถอดความแบบสตรีมมิง (Nemotron Speech Streaming) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
+  transcription_instantly_ready: "การถอดเสียงแบบสตรีม พร้อมใช้งานทันที"
 success:
   _self: "ความสำเร็จ!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" ไม่สามารถโหลดโมเดลได้ภายใน 60 วินาที ซึ่งมักจะหมายถึงไฟล์โมเดลเสียหายหรือเข้ากันไม่ได้                          วิธีแก้ไขปัญหานี้: 1. เปิดการตั้งค่า → โมเดล 2. ลบโมเดลที่มีปัญหา 3. ดาวน์โหลดโมเดลอีกครั้ง หากปัญหายังคงอยู่ ให้ลองใช้โมเดลที่เล็กกว่า (จิ๋วหรือฐาน)             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "ยังไม่ได้ดาวน์โหลดชุดย่อยที่เลือก การสลับจะเริ่มการดาวน์โหลด"
+  new_nemotron_streaming_engine_shows_words_as: "เอนจินสตรีมมิง Nemotron ใหม่จะแสดงคำตามที่คุณพูด และอุ่นเครื่องตอนเปิดแอปเพื่อให้การป้อนตามคำบอกครั้งแรกเริ่มได้โดยไม่ล่าช้า"
 theme:
   _self: "ธีม"
   changes_apply_live_across_the_workspace_se: "การเปลี่ยนแปลงธีมมีผลใช้งานจริงทั่วทั้งพื้นที่ทำงาน การตั้งค่า ตัวแก้ไขบันทึกย่อ และตัวบ่งชี้แบบลอย"
@@ -1006,6 +1012,7 @@ your:
     คุณสามารถปรับแต่งได้ในภายหลังในการตั้งค่า
   model_is_ready_to_use: "โมเดลของคุณพร้อมใช้งานแล้ว"
   stats: "สถิติของคุณ"
+  floating_indicator_is_now_a_living_audio_re: "ตัวบ่งชี้แบบลอยของคุณตอนนี้เป็น orb ที่มีชีวิตและตอบสนองต่อเสียง หายใจเมื่ออยู่นิ่ง ขยายเมื่อคุณพูด และสตรีมคำของคุณแบบสดขณะป้อนตามคำบอก"
 orb:
   _self: "ออร์บ"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "มีอะไรใหม่ใน Pindrop"
+  s_new: "มีอะไรใหม่…"
+
+meet:
+  the_new_orb: "พบกับ Orb ใหม่"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "ขอบคุณ %@ สำหรับการตรวจสอบและเริ่มต้นการแก้ไข (PR #64)"
+  to_for_the_contribution_pr_61: "ขอบคุณ %@ สำหรับการมีส่วนร่วม (PR #61)"
+
+dictate:
+  in_russian_and_ukrainian: "ป้อนตามคำบอกเป็นภาษารัสเซียและยูเครน"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "ภาษาป้อนตามคำบอกใหม่สองภาษา เชื่อมต่อกับคำแนะนำโมเดลอย่างสมบูรณ์"
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "ใหม่ด้วย: รองรับเลย์เอาต์ RTL และภาษาอินเทอร์เฟซใหม่ 20 ภาษา"

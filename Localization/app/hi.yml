@@ -5,6 +5,7 @@
   transcription: "1 प्रतिलेखन"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit के साथ स्थानीय स्पीच-टू-टेक्स्ट का उपयोग करने वाला एक देशी macOS मेनू बार डिक्टेशन ऐप। वैकल्पिक एआई संवर्द्धन के साथ डिफ़ॉल्ट रूप से 100% स्थानीय प्रसंस्करण।"
+  big_round_of_upgrades_and_two_community_shout: "अपग्रेड का बड़ा दौर — और समुदाय के दो सदस्यों को धन्यवाद।"
 about:
   _self: "के बारे में"
   pindrop: "पिंड्रोप के बारे में"
@@ -96,6 +97,7 @@ best:
   _self: "श्रेष्ठ"
 better:
   _self: "बेहतर"
+  bluetooth_external_mic_support: "Bluetooth और बाहरी माइक का बेहतर समर्थन"
 built:
   in_presets: "अंतर्निर्मित प्रीसेट"
   in_read_only: "अंतर्निर्मित (केवल पढ़ने के लिए)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "पिंड्रोप गोली"
   theme: "पिनड्रॉप थीम"
   orb: "Pindrop ऑर्ब"
+  1_19: "Pindrop 1.19"
 play:
   _self: "खेल"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "रिकॉर्डिंग"
   3f8fd48c: "🔴रिकॉर्डिंग"
+  from_external_and_bluetooth_microphone: "बाहरी और Bluetooth माइक्रोफ़ोन से रिकॉर्डिंग अब बेहद स्थिर है, भले ही ऑडियो आउटपुट कहीं और रूट हो रहा हो।"
 recordings:
   _self: "रिकॉर्डिंग"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "स्ट्रीमिंग ट्रांसक्रिप्शन वर्तमान में चयनित भाषा की परवाह किए बिना केवल अंग्रेजी का समर्थन करता है।"
   transcription_is_disabled_while_ai_enh: "एआई एन्हांसमेंट सक्षम होने पर स्ट्रीमिंग ट्रांसक्रिप्शन अक्षम है।"
   transcription_model_nemotron_speech: "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (Nemotron Speech Streaming) NVIDIA Corporation द्वारा NVIDIA Open Model License के तहत लाइसेंस प्राप्त।"
+  transcription_instantly_ready: "स्ट्रीमिंग ट्रांसक्रिप्शन, तुरंत तैयार"
 success:
   _self: "सफलता!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" मॉडल 60 सेकंड के भीतर लोड होने में विफल रहा। इसका आमतौर पर मतलब है कि मॉडल फ़ाइलें दूषित या असंगत हैं।                          इसे ठीक करने के लिए: 1. सेटिंग्स खोलें → मॉडल 2. समस्याग्रस्त मॉडल हटाएं 3. मॉडल को दोबारा डाउनलोड करें यदि समस्या बनी रहती है, तो एक छोटा मॉडल (छोटा या बेस) आज़माएं।             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "चयनित चंक संस्करण अभी तक डाउनलोड नहीं हुआ है। टॉगल करने से डाउनलोड प्रारंभ हो जाएगा."
+  new_nemotron_streaming_engine_shows_words_as: "नया Nemotron स्ट्रीमिंग इंजन आपके बोलते ही शब्द दिखाता है, और लॉन्च पर पहले से तैयार हो जाता है ताकि आपका पहला डिक्टेशन बिना देरी शुरू हो।"
 theme:
   _self: "विषय"
   changes_apply_live_across_the_workspace_se: "थीम परिवर्तन कार्यक्षेत्र, सेटिंग्स, नोट संपादक और फ़्लोटिंग संकेतकों पर लाइव लागू होते हैं।"
@@ -1006,6 +1012,7 @@ your:
     आप उन्हें बाद में सेटिंग्स में कस्टमाइज़ कर सकते हैं।
   model_is_ready_to_use: "आपका मॉडल उपयोग के लिए तैयार है."
   stats: "आपके आँकड़े"
+  floating_indicator_is_now_a_living_audio_re: "आपका फ्लोटिंग इंडिकेटर अब एक जीवंत, ऑडियो-प्रतिक्रियाशील orb है। निष्क्रिय होने पर यह सांस लेता है, आपके बोलने पर फैलता है, और डिक्टेशन के दौरान आपके शब्द लाइव दिखाता है।"
 orb:
   _self: "ऑर्ब"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop में नया क्या है"
+  s_new: "नया क्या है…"
+
+meet:
+  the_new_orb: "नए Orb से मिलें"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "जाँच करने और सुधार शुरू करने के लिए %@ का धन्यवाद (PR #64)।"
+  to_for_the_contribution_pr_61: "योगदान के लिए %@ का धन्यवाद (PR #61)।"
+
+dictate:
+  in_russian_and_ukrainian: "रूसी और यूक्रेनी में डिक्टेट करें"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "दो नई डिक्टेशन भाषाएँ, मॉडल सिफारिशों से पूरी तरह जुड़ी हुई।"
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "यह भी नया: RTL लेआउट समर्थन और 20 नई इंटरफ़ेस भाषाएँ।"

@@ -5,6 +5,7 @@
   transcription: "1 transcription"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Une application native de dictée pour la barre de menus macOS utilisant la reconnaissance vocale locale avec WhisperKit. Traitement 100% local par défaut avec amélioration IA optionnelle."
+  big_round_of_upgrades_and_two_community_shout: "Une grande série d’améliorations — et deux remerciements à la communauté."
 about:
   _self: "À propos"
   pindrop: "À propos de Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Meilleur"
 better:
   _self: "Mieux"
+  bluetooth_external_mic_support: "Meilleure prise en charge du Bluetooth et des micros externes"
 built:
   in_presets: "Préréglages intégrés"
   in_read_only: "Intégré (lecture seule)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pilule Pindrop"
   theme: "Thème Pindrop"
   orb: "Orbe Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Lire"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Enregistrement"
   3f8fd48c: "🔴 Enregistrement"
+  from_external_and_bluetooth_microphone: "L’enregistrement depuis des micros externes et Bluetooth est maintenant très fiable, même lorsque la sortie audio est routée ailleurs."
 recordings:
   _self: "enregistrements"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "La transcription en streaming ne prend actuellement en charge que l’anglais, quelle que soit la langue sélectionnée."
   transcription_is_disabled_while_ai_enh: "La transcription en streaming est désactivée lorsque l'amélioration IA est activée."
   transcription_model_nemotron_speech: "Modèle de transcription en continu (Nemotron Speech Streaming) sous licence de NVIDIA Corporation selon la NVIDIA Open Model License."
+  transcription_instantly_ready: "Transcription en streaming, prête instantanément"
 success:
   _self: "Succès !"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\"             Le modèle n'a pas pu se charger dans les 60 secondes. Cela signifie généralement que les fichiers du modèle sont corrompus ou incompatibles.                          Pour corriger cela :             1. Ouvrez Paramètres → Modèles             2. Supprimez le modèle problématique             3. Téléchargez à nouveau le modèle                          Si le problème persiste, essayez un modèle plus petit (Tiny ou Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "La variante sélectionnée n'est pas encore téléchargée. Basculer lancera un téléchargement."
+  new_nemotron_streaming_engine_shows_words_as: "Le nouveau moteur de streaming Nemotron affiche les mots au moment où vous les dites et se préchauffe au lancement pour que votre première dictée démarre sans délai."
 theme:
   _self: "Thème"
   changes_apply_live_across_the_workspace_se: "Les changements de thème s'appliquent en direct dans tout l'espace de travail, les paramètres, l'éditeur de notes et les indicateurs flottants."
@@ -1006,6 +1012,7 @@ your:
     Vous pouvez les personnaliser plus tard dans les Paramètres.
   model_is_ready_to_use: "Votre modèle est prêt à être utilisé."
   stats: "Vos statistiques"
+  floating_indicator_is_now_a_living_audio_re: "Votre indicateur flottant est désormais un orb vivant et réactif à l’audio. Il respire au repos, gonfle quand vous parlez et diffuse vos mots en direct pendant la dictée."
 orb:
   _self: "Orbe"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Nouveautés de Pindrop"
+  s_new: "Nouveautés…"
+
+meet:
+  the_new_orb: "Découvrez le nouvel Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Merci à %@ pour l’enquête et le lancement du correctif (PR #64)."
+  to_for_the_contribution_pr_61: "Merci à %@ pour la contribution (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Dictez en russe et en ukrainien"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Deux nouvelles langues de dictée, entièrement reliées aux recommandations de modèles."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Également nouveau : prise en charge des mises en page RTL et 20 nouvelles langues d’interface."

@@ -5,6 +5,7 @@
   transcription: "1 транскрипція"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Рідна програма для диктування панелі меню macOS, яка використовує локальне перетворення мовлення в текст за допомогою WhisperKit. 100% локальна обробка за замовчуванням із додатковим покращенням ШІ."
+  big_round_of_upgrades_and_two_community_shout: "Велика порція оновлень — і дві подяки спільноті."
 about:
   _self: "про"
   pindrop: "Про Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Найкращий"
 better:
   _self: "краще"
+  bluetooth_external_mic_support: "Краща підтримка Bluetooth і зовнішніх мікрофонів"
 built:
   in_presets: "Вбудовані пресети"
   in_read_only: "Вбудований (лише читання)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop Pill"
   theme: "Тема Pindrop"
   orb: "Сфера Pindrop"
+  1_19: "Pindrop 1.19"
 play:
   _self: "грати"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Запис"
   3f8fd48c: "🔴 Запис"
+  from_external_and_bluetooth_microphone: "Запис із зовнішніх і Bluetooth-мікрофонів тепер дуже стабільний, навіть коли аудіовихід спрямовано в інше місце."
 recordings:
   _self: "записи"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Потокова транскрипція наразі підтримує лише англійську мову, незалежно від вибраної мови."
   transcription_is_disabled_while_ai_enh: "Потокова транскрипція вимкнена, коли ввімкнено AI Enhancement."
   transcription_model_nemotron_speech: "Модель потокової транскрипції (Nemotron Speech Streaming) ліцензована NVIDIA Corporation за ліцензією NVIDIA Open Model License."
+  transcription_instantly_ready: "Потокова транскрипція, готова миттєво"
 success:
   _self: "Успіх!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Модель не вдалося завантажити протягом 60 секунд. Зазвичай це означає, що файли моделі пошкоджені або несумісні.                          Щоб виправити це: 1. Відкрийте «Параметри» → «Моделі» 2. Видаліть проблемну модель 3. Повторно завантажте модель. Якщо проблема не зникає, спробуйте меншу модель (Tiny або Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "Вибраний варіант блоку ще не завантажено. Перемикання почне завантаження."
+  new_nemotron_streaming_engine_shows_words_as: "Новий потоковий рушій Nemotron показує слова під час мовлення та прогрівається під час запуску, щоб перше диктування починалося без затримки."
 theme:
   _self: "Тема"
   changes_apply_live_across_the_workspace_se: "Зміни теми застосовуються в робочій області, налаштуваннях, редакторі нотаток і плаваючих індикаторах."
@@ -1006,6 +1012,7 @@ your:
     Ви можете налаштувати їх пізніше в налаштуваннях.
   model_is_ready_to_use: "Ваша модель готова до використання."
   stats: "Ваша статистика"
+  floating_indicator_is_now_a_living_audio_re: "Ваш плаваючий індикатор тепер живий orb, що реагує на звук. Він дихає в режимі очікування, збільшується, коли ви говорите, і наживо показує ваші слова під час диктування."
 orb:
   _self: "Сфера"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Російська"
 ukrainian:
   _self: "Українська"
+
+what:
+  s_new_in_pindrop: "Що нового в Pindrop"
+  s_new: "Що нового…"
+
+meet:
+  the_new_orb: "Знайомтеся з новим Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Дякуємо %@ за розслідування та початок виправлення (PR #64)."
+  to_for_the_contribution_pr_61: "Дякуємо %@ за внесок (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Диктуйте російською та українською"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Дві нові мови диктування, повністю підключені до рекомендацій моделей."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Також нове: підтримка RTL-макета та 20 нових мов інтерфейсу."

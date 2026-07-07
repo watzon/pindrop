@@ -5,6 +5,7 @@
   transcription: "1 transcription"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement."
+  big_round_of_upgrades_and_two_community_shout: "A big round of upgrades — and two community shout-outs."
 about:
   _self: "About"
   pindrop: "About Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Best"
 better:
   _self: "Better"
+  bluetooth_external_mic_support: "Better Bluetooth & external mic support"
 built:
   in_presets: "Built-in Presets"
   in_read_only: "Built-in (read-only)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop Pill"
   theme: "Pindrop Theme"
   orb: "Pindrop Orb"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Play"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Recording"
   3f8fd48c: "🔴 Recording"
+  from_external_and_bluetooth_microphone: "Recording from external and Bluetooth microphones is now rock solid, even when your audio output is routed elsewhere."
 recordings:
   _self: "recordings"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "Streaming transcription currently supports English only, regardless of the selected language."
   transcription_is_disabled_while_ai_enh: "Streaming transcription is disabled while AI Enhancement is enabled."
   transcription_model_nemotron_speech: "Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License."
+  transcription_instantly_ready: "Streaming transcription, instantly ready"
 success:
   _self: "Success!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\"             The model failed to load within 60 seconds. This usually means the model files are corrupted or incompatible.                          To fix this:             1. Open Settings → Models             2. Delete the problematic model             3. Re-download the model                          If the problem persists, try a smaller model (Tiny or Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "The selected chunk variant isn't downloaded yet. Toggling will start a download."
+  new_nemotron_streaming_engine_shows_words_as: "The new Nemotron streaming engine shows words as you say them, and the engine prewarms at launch so your first dictation starts without a delay."
 theme:
   _self: "Theme"
   changes_apply_live_across_the_workspace_se: "Theme changes apply live across the workspace, settings, note editor, and floating indicators."
@@ -1006,6 +1012,7 @@ your:
     You can customize them later in Settings.
   model_is_ready_to_use: "Your model is ready to use."
   stats: "Your Stats"
+  floating_indicator_is_now_a_living_audio_re: "Your floating indicator is now a living, audio-reactive orb. It breathes while idle, swells when you speak, and streams your words live as you dictate."
 orb:
   _self: "Orb"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "What's New in Pindrop"
+  s_new: "What's New…"
+
+meet:
+  the_new_orb: "Meet the new Orb"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Thanks to %@ for investigating and kicking off the fix (PR #64)."
+  to_for_the_contribution_pr_61: "Thanks to %@ for the contribution (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Dictate in Russian and Ukrainian"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Two new dictation languages, fully wired into model recommendations."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Also new: RTL layout support and 20 new interface languages."

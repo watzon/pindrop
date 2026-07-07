@@ -5,6 +5,7 @@
   transcription: "1 転写"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
+  big_round_of_upgrades_and_two_community_shout: "大きなアップグレードの数々 — そしてコミュニティへの2つの感謝。"
 about:
   _self: "について"
   pindrop: "ピンドロップについて"
@@ -96,6 +97,7 @@ best:
   _self: "最高"
 better:
   _self: "より良い"
+  bluetooth_external_mic_support: "Bluetooth と外部マイクのサポートを改善"
 built:
   in_presets: "内蔵プリセット"
   in_read_only: "組み込み (読み取り専用)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "ピンドロップピル"
   theme: "ピンドロップのテーマ"
   orb: "Pindrop オーブ"
+  1_19: "Pindrop 1.19"
 play:
   _self: "遊ぶ"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "録音"
   3f8fd48c: "🔴 録音"
+  from_external_and_bluetooth_microphone: "外部マイクや Bluetooth マイクからの録音が、音声出力が別の場所にルーティングされていても安定して動作するようになりました。"
 recordings:
   _self: "録音"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
   transcription_is_disabled_while_ai_enh: "AI Enhancement が有効になっている間、ストリーミング文字起こしは無効になります。"
   transcription_model_nemotron_speech: "ストリーミング文字起こしモデル（Nemotron Speech Streaming）はNVIDIA CorporationによりNVIDIA Open Model Licenseの下でライセンスされています。"
+  transcription_instantly_ready: "ストリーミング文字起こし、すぐに準備完了"
 success:
   _self: "成功！"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" モデルは 60 秒以内にロードできませんでした。これは通常、モデル ファイルが破損しているか、互換性がないことを意味します。                          これを修正するには: 1. [設定] → [モデル] を開きます。 2. 問題のあるモデルを削除します。 3. モデルを再ダウンロードします。 問題が解決しない場合は、より小さいモデル (Tiny または Base) を試してください。             「」"
   selected_chunk_variant_isn_t_downloaded_yet: "選択したチャンク版はまだダウンロードされていません。切り替えるとダウンロードが始まります。"
+  new_nemotron_streaming_engine_shows_words_as: "新しい Nemotron ストリーミングエンジンは、話したそばから言葉を表示し、起動時にプリウォームされるため、最初のディクテーションも遅延なく始まります。"
 theme:
   _self: "テーマ"
   changes_apply_live_across_the_workspace_se: "テーマの変更は、ワークスペース、設定、ノートエディター、フローティングインジケーター全体にライブで適用されます。"
@@ -1006,6 +1012,7 @@ your:
     後で [設定] でカスタマイズできます。
   model_is_ready_to_use: "モデルを使用する準備ができました。"
   stats: "あなたの統計"
+  floating_indicator_is_now_a_living_audio_re: "フローティングインジケーターは、音声に反応する生きた Orb になりました。待機中は呼吸し、話すとふくらみ、ディクテーション中は言葉をライブで表示します。"
 orb:
   _self: "オーブ"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Pindrop の新機能"
+  s_new: "新機能…"
+
+meet:
+  the_new_orb: "新しい Orb を紹介"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "調査し修正のきっかけを作ってくれた %@ に感謝します (PR #64)。"
+  to_for_the_contribution_pr_61: "貢献してくれた %@ に感謝します (PR #61)。"
+
+dictate:
+  in_russian_and_ukrainian: "ロシア語とウクライナ語でディクテーション"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "2つの新しいディクテーション言語が、モデル推奨に完全に組み込まれました。"
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "そのほか、RTL レイアウト対応と20の新しいインターフェイス言語も追加されました。"

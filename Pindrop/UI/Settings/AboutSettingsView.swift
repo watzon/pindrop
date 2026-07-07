@@ -58,6 +58,12 @@ struct AboutSettingsView: View {
 
                Spacer()
 
+               if AnnouncementCatalog.current != nil {
+                  Button(localized("What's New…", locale: locale)) {
+                     NotificationCenter.default.post(name: .showWhatsNew, object: nil)
+                  }
+               }
+
                Button(localized("Check Now", locale: locale)) {
                   updateService.checkForUpdates()
                }

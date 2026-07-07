@@ -5,6 +5,7 @@
   transcription: "1 átírás"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Natív macOS-menüsoros diktálóalkalmazás, amely helyi beszéd-szövegké alakítást használ a WhisperKit funkcióval. Alapértelmezés szerint 100%-ban helyi feldolgozás opcionális AI-javítással."
+  big_round_of_upgrades_and_two_community_shout: "Nagy adag fejlesztés — és két közösségi köszönet."
 about:
   _self: "Körülbelül"
   pindrop: "Körülbelül Pindrop"
@@ -96,6 +97,7 @@ best:
   _self: "Legjobb"
 better:
   _self: "Jobb"
+  bluetooth_external_mic_support: "Jobb Bluetooth- és külső mikrofon-támogatás"
 built:
   in_presets: "Beépített előbeállítások"
   in_read_only: "Beépített (csak olvasható)"
@@ -630,6 +632,7 @@ pindrop:
   pill: "Pindrop Tabletta"
   theme: "Pindrop téma"
   orb: "Pindrop-gömb"
+  1_19: "Pindrop 1.19"
 play:
   _self: "Játék"
 please:
@@ -698,6 +701,7 @@ record:
 recording:
   _self: "Felvétel"
   3f8fd48c: "🔴 Felvétel"
+  from_external_and_bluetooth_microphone: "A külső és Bluetooth mikrofonokról történő rögzítés most már nagyon stabil, még akkor is, ha a hangkimenet máshová van irányítva."
 recordings:
   _self: "felvételeket"
 redo:
@@ -844,6 +848,7 @@ streaming:
   transcription_currently_supports_engli: "A streaming átírás jelenleg csak az angol nyelvet támogatja, függetlenül a kiválasztott nyelvtől."
   transcription_is_disabled_while_ai_enh: "A streamelési átírás le van tiltva, amíg az AI Enhancement engedélyezve van."
   transcription_model_nemotron_speech: "A streamelt átírási modellt (Nemotron Speech Streaming) az NVIDIA Corporation licenceli az NVIDIA Open Model License alatt."
+  transcription_instantly_ready: "Streaming átírás, azonnal készen"
 success:
   _self: "Siker!"
 support:
@@ -867,6 +872,7 @@ tertiary:
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" A modell betöltése nem sikerült 60 másodpercen belül. Ez általában azt jelenti, hogy a modellfájlok sérültek vagy nem kompatibilisek.                          A probléma megoldása: 1. Nyissa meg a Beállítások → Modellek menüpontot. 2. Törölje a problémás modellt 3. Töltse le újra a modellt. Ha a probléma továbbra is fennáll, próbáljon ki egy kisebb modellt (Tiny vagy Base).             \"\""
   selected_chunk_variant_isn_t_downloaded_yet: "A kiválasztott darabváltozat még nincs letöltve. A váltás elindítja a letöltést."
+  new_nemotron_streaming_engine_shows_words_as: "Az új Nemotron streaming motor kimondás közben jeleníti meg a szavakat, és indításkor előmelegszik, hogy az első diktálás késlekedés nélkül induljon."
 theme:
   _self: "Téma"
   changes_apply_live_across_the_workspace_se: "A téma módosításai élőben érvényesek a munkaterületen, a beállításokon, a jegyzetszerkesztőben és a lebegő indikátorokon."
@@ -1006,6 +1012,7 @@ your:
     Később személyre szabhatja őket a Beállításokban.
   model_is_ready_to_use: "A modell használatra kész."
   stats: "Az Ön statisztikái"
+  floating_indicator_is_now_a_living_audio_re: "A lebegő jelző mostantól élő, hangra reagáló orb. Tétlenül lélegzik, beszéd közben megduzzad, és diktálás közben élőben közvetíti a szavaidat."
 orb:
   _self: "Gömb"
 meeting:
@@ -1015,3 +1022,23 @@ russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
+
+what:
+  s_new_in_pindrop: "Újdonságok a Pindropban"
+  s_new: "Újdonságok…"
+
+meet:
+  the_new_orb: "Ismerd meg az új Orbot"
+
+thanks:
+  to_for_investigating_and_kicking_off_the: "Köszönet %@ számára a hiba feltárásáért és a javítás elindításáért (PR #64)."
+  to_for_the_contribution_pr_61: "Köszönet %@ számára a hozzájárulásért (PR #61)."
+
+dictate:
+  in_russian_and_ukrainian: "Diktálj oroszul és ukránul"
+
+two:
+  new_dictation_languages_fully_wired_into_mod: "Két új diktálási nyelv, teljesen bekötve a modellajánlásokba."
+
+also:
+  new_rtl_layout_support_and_20_new_interface: "Szintén új: RTL elrendezéstámogatás és 20 új felületnyelv."
