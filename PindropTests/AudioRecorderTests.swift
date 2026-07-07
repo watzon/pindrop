@@ -252,7 +252,7 @@ struct AudioRecorderTests {
     @Test func setPreferredInputDeviceUIDForwardsSelectionToCaptureBackend() throws {
         let fixture = try makeFixture()
 
-        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+        try fixture.sut.setPreferredInputDeviceUID("usb-mic")
 
         #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
         #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
@@ -263,10 +263,48 @@ struct AudioRecorderTests {
         fixture.mockPermission.grantPermission = true
 
         try await fixture.sut.startRecording()
-        fixture.sut.setPreferredInputDeviceUID("usb-mic")
+        try fixture.sut.setPreferredInputDeviceUID("usb-mic")
 
         #expect(fixture.mockBackend.startCaptureCallCount == 1)
-        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 2)
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
         #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
+    }
+
+    @Test func setPreferredInputDeviceUIDFailurePreservesActiveRecording() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        try await fixture.sut.startRecording()
+        fixture.mockBackend.shouldThrowOnSetPreferredInputDeviceUID = AudioRecorderError.engineStartFailed("switch failed")
+
+        var caughtError: Error?
+        do {
+            try fixture.sut.setPreferredInputDeviceUID("missing-mic")
+        } catch {
+            caughtError = error
+        }
+
+        #expect(caughtError != nil)
+        #expect(fixture.sut.isRecording)
+        #expect(fixture.mockBackend.isCapturing)
+        #expect(fixture.mockBackend.startCaptureCallCount == 1)
+        #expect(fixture.mockBackend.setPreferredInputDeviceUIDCallCount == 1)
+    }
+
+    @Test func captureBackendFailureClearsRecordingState() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        var reportedError: Error?
+        fixture.sut.onCaptureError = { error in
+            reportedError = error
+        }
+
+        try await fixture.sut.startRecording()
+        fixture.mockBackend.capturedOnError?(AudioRecorderError.engineStartFailed("device disappeared"))
+        await Task.yield()
+
+        #expect(fixture.sut.isRecording == false)
+        #expect(reportedError != nil)
     }
 }
