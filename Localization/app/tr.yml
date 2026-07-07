@@ -383,6 +383,8 @@ hotkey:
   conflict: "Kısayol Tuşu Çakışması"
 hotkeys:
   _self: "Kısayol tuşları"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Sözlüğü İçe Aktar"
   error: "İçe Aktarma Hatası"
@@ -729,6 +731,8 @@ required:
   _self: "Gerekli"
   for_recording_your_voice: "Sesinizi kaydetmek için gerekli"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Hızlı bir sağlayıcı gerektirir (Apple Foundation Modelleri önerilir). Bulut sağlayıcıları her duraklatma için bir API çağrısı yayınlayacaktır."
 reset:
   _self: "Sıfırla"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "İspanyol"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Konuşmacı günlüğü ve zaman damgaları oynatmaya eklenir."
   diarization_is_required: "Konuşmacı günlüğü gerekli"
 speed:

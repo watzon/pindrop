@@ -383,6 +383,8 @@ hotkey:
   conflict: "Conflicto de atajos"
 hotkeys:
   _self: "Atajos"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importar diccionario"
   error: "Error de importación"
@@ -729,6 +731,8 @@ required:
   _self: "Obligatorio"
   for_recording_your_voice: "Requerido para grabar tu voz"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Requires a fast provider (Apple Foundation Models recommended). Los proveedores de la nube emitirán una llamada API por pausa."
 reset:
   _self: "Restablecer"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "Español"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "La diarización de hablantes y las marcas de tiempo se adjuntan a la reproducción."
   diarization_is_required: "Se requiere diarización de hablantes"
 speed:

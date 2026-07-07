@@ -383,6 +383,8 @@ hotkey:
   conflict: "Konflik Hotkey"
 hotkeys:
   _self: "Kekunci panas"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Kamus Import"
   error: "Ralat Import"
@@ -729,6 +731,8 @@ required:
   _self: "Diperlukan"
   for_recording_your_voice: "Diperlukan untuk merakam suara anda"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Memerlukan pembekal yang pantas (Model Yayasan Apple disyorkan). Pembekal awan akan mengeluarkan satu panggilan API setiap jeda."
 reset:
   _self: "Tetapkan semula"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "bahasa Sepanyol"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diarisasi pembesar suara dan cap masa dilampirkan pada main semula."
   diarization_is_required: "Diarisasi pembesar suara diperlukan"
 speed:

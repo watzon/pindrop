@@ -383,6 +383,8 @@ hotkey:
   conflict: "हॉटकी संघर्ष"
 hotkeys:
   _self: "हॉटकी"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "शब्दकोश आयात करें"
   error: "आयात त्रुटि"
@@ -729,6 +731,8 @@ required:
   _self: "आवश्यक"
   for_recording_your_voice: "आपकी आवाज़ रिकॉर्ड करने के लिए आवश्यक है"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "एक तेज़ प्रदाता की आवश्यकता है (Apple फाउंडेशन मॉडल अनुशंसित)। क्लाउड प्रदाता प्रति विराम एक एपीआई कॉल जारी करेंगे।"
 reset:
   _self: "रीसेट करें"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "स्पैनिश"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "स्पीकर डायराइज़ेशन और टाइमस्टैम्प प्लेबैक से जुड़े हुए हैं।"
   diarization_is_required: "स्पीकर डायरीकरण आवश्यक है"
 speed:

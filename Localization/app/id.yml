@@ -383,6 +383,8 @@ hotkey:
   conflict: "Konflik Tombol Pintas"
 hotkeys:
   _self: "Tombol pintas"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Impor Kamus"
   error: "Kesalahan Impor"
@@ -729,6 +731,8 @@ required:
   _self: "Diperlukan"
   for_recording_your_voice: "Diperlukan untuk merekam suara Anda"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Membutuhkan penyedia yang cepat (disarankan Apple Foundation Models). Penyedia cloud akan mengeluarkan satu panggilan API per jeda."
 reset:
   _self: "Mengatur ulang"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "Spanyol"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diarisasi speaker dan stempel waktu dilampirkan pada pemutaran."
   diarization_is_required: "Diarisasi pembicara diperlukan"
 speed:

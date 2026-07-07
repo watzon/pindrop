@@ -383,6 +383,8 @@ hotkey:
   conflict: "Sneltoetsconflict"
 hotkeys:
   _self: "Sneltoetsen"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Woordenboek importeren"
   error: "Importfout"
@@ -729,6 +731,8 @@ required:
   _self: "Vereist"
   for_recording_your_voice: "Vereist voor het opnemen van uw stem"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Vereist een snelle provider (Apple Foundation Models aanbevolen). Cloudproviders zullen één API-oproep per pauze doen."
 reset:
   _self: "Opnieuw instellen"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "Spaans"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Sprekersdialoog en tijdstempels zijn aan het afspelen gekoppeld."
   diarization_is_required: "Sprekersdagboek is vereist"
 speed:

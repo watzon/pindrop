@@ -383,6 +383,8 @@ hotkey:
   conflict: "단축키 충돌"
 hotkeys:
   _self: "단축키"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "사전 가져오기"
   error: "가져오기 오류"
@@ -729,6 +731,8 @@ required:
   _self: "필수의"
   for_recording_your_voice: "음성 녹음에 필요합니다."
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "빠른 공급자가 필요합니다(Apple Foundation Models 권장). 클라우드 제공업체는 일시 중지당 하나의 API 호출을 발행합니다."
 reset:
   _self: "다시 놓기"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "스페인 사람"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "화자 분할 및 타임스탬프가 재생에 첨부됩니다."
   diarization_is_required: "화자 분할이 필요합니다."
 speed:

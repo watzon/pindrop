@@ -383,6 +383,8 @@ hotkey:
   conflict: "快捷鍵衝突"
 hotkeys:
   _self: "快捷鍵"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "匯入詞典"
   error: "匯入錯誤"
@@ -729,6 +731,8 @@ required:
   _self: "必需"
   for_recording_your_voice: "錄製您的語音所需"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "需要快速提供者（推薦 Apple Foundation Models）。雲提供商將在每次暫停時發出一次 API 呼叫。"
 reset:
   _self: "已重置"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "西班牙語"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "說話人分離和時間戳附加到播放。"
   diarization_is_required: "需要說話人分離"
 speed:

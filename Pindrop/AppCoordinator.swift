@@ -3818,13 +3818,13 @@ final class AppCoordinator {
             recordingState.updateJob(
                 stage: .transcribing,
                 progress: nil,
-                detail: "Running diarization and transcription",
+                detail: job.options.diarizationEnabled ? "Running diarization and transcription" : "Running transcription",
                 errorMessage: nil
             )
 
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
-                diarizationEnabled: true,
+                diarizationEnabled: job.options.diarizationEnabled,
                 options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
@@ -3923,14 +3923,14 @@ final class AppCoordinator {
             return
         }
 
+        let request = jobIn.request
+        let options = jobIn.options
+
         await modelManager.refreshDownloadedFeatureModels()
-        guard modelManager.isFeatureModelDownloaded(.diarization) else {
+        guard !options.diarizationEnabled || modelManager.isFeatureModelDownloaded(.diarization) else {
             mediaTranscriptionState.setSetupIssue("Download the speaker diarization model before starting media transcription.")
             return
         }
-
-        let request = jobIn.request
-        let options = jobIn.options
 
         var job = MediaTranscriptionJobState(
             id: jobIn.id,
@@ -4012,13 +4012,13 @@ final class AppCoordinator {
             mediaTranscriptionState.updateJob(
                 stage: .transcribing,
                 progress: nil,
-                detail: "Running diarization and transcription",
+                detail: options.diarizationEnabled ? "Running diarization and transcription" : "Running transcription",
                 errorMessage: nil
             )
 
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
-                diarizationEnabled: true,
+                diarizationEnabled: options.diarizationEnabled,
                 options: TranscriptionOptions(language: options.language)
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)

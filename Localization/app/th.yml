@@ -383,6 +383,8 @@ hotkey:
   conflict: "ความขัดแย้งของปุ่มลัด"
 hotkeys:
   _self: "ปุ่มลัด"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "นำเข้าพจนานุกรม"
   error: "ข้อผิดพลาดในการนำเข้า"
@@ -729,6 +731,8 @@ required:
   _self: "ที่จำเป็น"
   for_recording_your_voice: "จำเป็นสำหรับการบันทึกเสียงของคุณ"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "ต้องมีผู้ให้บริการที่รวดเร็ว (แนะนำรุ่น Apple Foundation) ผู้ให้บริการคลาวด์จะทำการเรียก API หนึ่งครั้งต่อการหยุดชั่วคราว"
 reset:
   _self: "รีเซ็ต"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "สเปน"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "มีการแนบไดอะแกรมของลำโพงและการประทับเวลาไว้กับการเล่น"
   diarization_is_required: "จำเป็นต้องแปลงเสียงของผู้พูด"
 speed:

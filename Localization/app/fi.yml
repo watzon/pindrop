@@ -383,6 +383,8 @@ hotkey:
   conflict: "Pikanäppäinkonflikti"
 hotkeys:
   _self: "Pikanäppäimet"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Tuo sanakirja"
   error: "Tuontivirhe"
@@ -729,6 +731,8 @@ required:
   _self: "Pakollinen"
   for_recording_your_voice: "Vaaditaan äänen tallentamiseen"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Edellyttää nopeaa toimittajaa (Apple Foundation -malleja suositellaan). Pilvipalveluntarjoajat lähettävät yhden API-kutsun taukoa kohden."
 reset:
   _self: "Nollaa"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "espanja"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Kaiutinpäiväkirja ja aikaleimat on liitetty toistoon."
   diarization_is_required: "Kaiutinpäiväkirja vaaditaan"
 speed:

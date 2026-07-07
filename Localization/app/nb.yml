@@ -383,6 +383,8 @@ hotkey:
   conflict: "Hurtigtastkonflikt"
 hotkeys:
   _self: "Hurtigtaster"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importer ordbok"
   error: "Importfeil"
@@ -729,6 +731,8 @@ required:
   _self: "Obligatorisk"
   for_recording_your_voice: "Nødvendig for å ta opp stemmen din"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Krever en rask leverandør (Apple Foundation-modeller anbefales). Skyleverandører vil utstede ett API-kall per pause."
 reset:
   _self: "Tilbakestill"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "spansk"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Høyttalerdiarisering og tidsstempler er festet til avspilling."
   diarization_is_required: "Høyttalerdiarisering er nødvendig"
 speed:

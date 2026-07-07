@@ -30,15 +30,18 @@ struct TranscriptionJobOptions: Sendable, Equatable {
     var modelName: String
     var language: AppLanguage
     var outputFormat: TranscribeOutputFormat
+    var diarizationEnabled: Bool
 
     init(
         modelName: String,
         language: AppLanguage = .automatic,
-        outputFormat: TranscribeOutputFormat = .plainText
+        outputFormat: TranscribeOutputFormat = .plainText,
+        diarizationEnabled: Bool = true
     ) {
         self.modelName = modelName
         self.language = language
         self.outputFormat = outputFormat
+        self.diarizationEnabled = diarizationEnabled
     }
 }
 

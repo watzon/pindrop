@@ -111,6 +111,10 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
             )
             state = .ready
             return mapped
+        } catch is CancellationError {
+            state = .ready
+            Log.transcription.info("Speaker diarization canceled")
+            throw CancellationError()
         } catch {
             state = .error
             let mappedError = mapError(error)
@@ -302,14 +306,24 @@ private final class FluidSpeakerDiarizerWorker {
     }
 
     private func run<T>(_ operation: @escaping () throws -> T) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do {
-                    continuation.resume(returning: try operation())
-                } catch {
-                    continuation.resume(throwing: error)
+        let state = WorkerContinuationState<T>()
+
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                guard state.activate(continuation) else { return }
+
+                queue.async {
+                    guard !state.hasResolved else { return }
+
+                    do {
+                        state.resolve(.success(try operation()))
+                    } catch {
+                        state.resolve(.failure(error))
+                    }
                 }
             }
+        } onCancel: {
+            state.resolve(.failure(CancellationError()))
         }
     }
 
@@ -319,6 +333,58 @@ private final class FluidSpeakerDiarizerWorker {
                 operation()
                 continuation.resume()
             }
+        }
+    }
+
+    private final class WorkerContinuationState<T>: @unchecked Sendable {
+        private let lock = NSLock()
+        private var continuation: CheckedContinuation<T, Error>?
+        private var pendingResult: Result<T, Error>?
+        private var resolved = false
+
+        var hasResolved: Bool {
+            lock.lock()
+            let value = resolved
+            lock.unlock()
+            return value
+        }
+
+        func activate(_ continuation: CheckedContinuation<T, Error>) -> Bool {
+            lock.lock()
+            if let pendingResult {
+                self.pendingResult = nil
+                lock.unlock()
+                continuation.resume(with: pendingResult)
+                return false
+            }
+
+            if resolved {
+                lock.unlock()
+                continuation.resume(throwing: CancellationError())
+                return false
+            }
+
+            self.continuation = continuation
+            lock.unlock()
+            return true
+        }
+
+        func resolve(_ result: Result<T, Error>) {
+            lock.lock()
+            guard !resolved else {
+                lock.unlock()
+                return
+            }
+
+            resolved = true
+            let continuationToResume = continuation
+            continuation = nil
+            if continuationToResume == nil {
+                pendingResult = result
+            }
+            lock.unlock()
+
+            continuationToResume?.resume(with: result)
         }
     }
 }

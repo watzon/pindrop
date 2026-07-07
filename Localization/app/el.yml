@@ -383,6 +383,8 @@ hotkey:
   conflict: "Σύγκρουση πλήκτρων πρόσβασης"
 hotkeys:
   _self: "Πλήκτρα συντόμευσης"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Λεξικό εισαγωγής"
   error: "Σφάλμα εισαγωγής"
@@ -729,6 +731,8 @@ required:
   _self: "Υποχρεούμαι"
   for_recording_your_voice: "Απαιτείται για την ηχογράφηση της φωνής σας"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Απαιτεί έναν γρήγορο πάροχο (συνιστώνται τα μοντέλα Apple Foundation). Οι πάροχοι cloud θα εκδίδουν μία κλήση API ανά παύση."
 reset:
   _self: "Επαναφορά"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "ισπανικά"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Η ένδειξη ηχείων και οι χρονικές σημάνσεις επισυνάπτονται στην αναπαραγωγή."
   diarization_is_required: "Απαιτείται διάκριση του ηχείου"
 speed:

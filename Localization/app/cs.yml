@@ -383,6 +383,8 @@ hotkey:
   conflict: "Konflikt klávesových zkratek"
 hotkeys:
   _self: "Klávesové zkratky"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importovat slovník"
   error: "Chyba importu"
@@ -729,6 +731,8 @@ required:
   _self: "Požadovaný"
   for_recording_your_voice: "Vyžadováno pro záznam vašeho hlasu"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Vyžaduje rychlého poskytovatele (doporučeny modely Apple Foundation). Poskytovatelé cloudu vydají jedno volání API na pauzu."
 reset:
   _self: "Resetovat"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "španělština"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "K přehrávání jsou připojeny diarizace a časová razítka reproduktoru."
   diarization_is_required: "Je vyžadována dializace reproduktoru"
 speed:
