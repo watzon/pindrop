@@ -195,6 +195,32 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.shouldPersistHistory(outputSucceeded: true, text: "[BLANK AUDIO]") == false)
     }
 
+    @Test func whisperRepairSkipsDirectNetworkErrors() {
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: URLError(.notConnectedToInternet)) == false)
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: URLError(.networkConnectionLost)) == false)
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: URLError(.cannotFindHost)) == false)
+    }
+
+    @Test func whisperRepairSkipsWrappedNetworkMessages() {
+        let offlineError = TranscriptionService.TranscriptionError.modelLoadFailed(
+            "Download failed: The Internet connection appears to be offline."
+        )
+        let lostConnectionError = TranscriptionService.TranscriptionError.modelLoadFailed(
+            "Download failed: The network connection was lost."
+        )
+
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: offlineError) == false)
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: lostConnectionError) == false)
+    }
+
+    @Test func whisperRepairAllowsLikelyCorruptionFailures() {
+        let missingModelFileError = TranscriptionService.TranscriptionError.modelLoadFailed(
+            "Unable to load AudioEncoder.mlmodelc from the model folder."
+        )
+
+        #expect(AppCoordinator.shouldAttemptWhisperModelRepair(after: missingModelFileError))
+    }
+
     @Test func shouldUseStreamingTranscriptionTruthTable() {
         // Baseline: streaming enabled, indicator available, not quick-capture → stream.
         // Output mode no longer gates — the live transcript renders in the overlay, and
