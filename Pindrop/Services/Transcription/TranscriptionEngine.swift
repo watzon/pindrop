@@ -45,6 +45,13 @@ public protocol TranscriptionEngine: AnyObject {
     /// - Parameter audioData: Raw audio data (expected format: 16kHz mono PCM Float32)
     /// - Returns: Transcribed text
     func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String
+
+    /// Detect the spoken language in raw samples, when supported.
+    /// - Parameters:
+    ///   - samples: Raw audio samples (expected format: 16kHz mono PCM Float32)
+    ///   - sampleRate: Sample rate for the provided samples
+    /// - Returns: A concrete app language, or nil when detection is unavailable.
+    func detectLanguage(samples: [Float], sampleRate: Int) async throws -> AppLanguage?
     
     /// Unload the model and free resources
     func unloadModel() async
@@ -54,5 +61,8 @@ public extension TranscriptionEngine {
     func transcribe(audioData: Data) async throws -> String {
         try await transcribe(audioData: audioData, options: TranscriptionOptions())
     }
-}
 
+    func detectLanguage(samples: [Float], sampleRate: Int) async throws -> AppLanguage? {
+        nil
+    }
+}

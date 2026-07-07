@@ -316,6 +316,65 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.receivedOptions == [options])
     }
 
+    @Test func transcribeWithDiarizationPinsDetectedLanguageAcrossSegments() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.detectedLanguage = .german
+        mockEngine.transcribeResponses = ["Guten Morgen", "Wir testen die Erkennung"]
+
+        let speakerA = Speaker(id: "speaker-a", label: "A", embedding: nil)
+        let speakerB = Speaker(id: "speaker-b", label: "B", embedding: nil)
+        let diarizationResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(speaker: speakerA, startTime: 0.0, endTime: 1.4, confidence: 0.9),
+                SpeakerSegment(speaker: speakerB, startTime: 1.6, endTime: 3.0, confidence: 0.9)
+            ],
+            speakers: [speakerA, speakerB],
+            audioDuration: 3.0
+        )
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = diarizationResult
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        _ = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 3.0),
+            diarizationEnabled: true,
+            options: TranscriptionOptions(language: .automatic)
+        )
+
+        #expect(mockEngine.detectLanguageCallCount == 1)
+        #expect(mockEngine.detectLanguageSampleCounts == [48_000])
+        #expect(mockEngine.receivedOptions == [
+            TranscriptionOptions(language: .german),
+            TranscriptionOptions(language: .german)
+        ])
+    }
+
+    @Test func transcribeWithoutDiarizationKeepsWholeClipAutomaticDetection() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.detectedLanguage = .german
+        mockEngine.transcribeResponses = ["ganzer Mitschnitt"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        _ = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2.0),
+            diarizationEnabled: false,
+            options: TranscriptionOptions(language: .automatic)
+        )
+
+        #expect(mockEngine.detectLanguageCallCount == 0)
+        #expect(mockEngine.receivedOptions == [TranscriptionOptions(language: .automatic)])
+    }
+
     @Test func transcribeWithDiarizationEnabledPreservesDiarizerSpeakerLabels() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team", "We should ship this today"]
@@ -424,7 +483,7 @@ struct TranscriptionServiceTests {
         )
 
         #expect(output.text == "Hello team")
-        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Alice"])
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
         #expect(identityService.bestMatchCallCount == 1)
     }
 
@@ -460,7 +519,7 @@ struct TranscriptionServiceTests {
         )
 
         #expect(output.text == "Hello team")
-        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Speaker 1"])
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
         #expect(identityService.bestMatchCallCount == 1)
     }
 
@@ -491,7 +550,7 @@ struct TranscriptionServiceTests {
         )
 
         #expect(output.text == "Hello team")
-        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Speaker 1"])
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
     }
 
     @Test func transcribeWithSingleSpeakerDiarizationOmitsSpeakerLabelsFromOutput() async throws {
@@ -522,7 +581,7 @@ struct TranscriptionServiceTests {
 
         #expect(output.text == "I clicked the button to install the diarization package.")
         #expect(output.diarizedSegments?.count == 1)
-        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["A"])
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
         #expect(mockDiarizer.loadModelsCallCount == 1)
         #expect(mockDiarizer.diarizeCallCount == 1)
         #expect(mockEngine.transcribeCallCount == 1)
@@ -829,7 +888,11 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     private(set) var state: TranscriptionEngineState = .unloaded
     var transcribeResponses: [String] = []
     var transcribeError: Error?
+    var detectedLanguage: AppLanguage?
+    var detectLanguageError: Error?
     private(set) var transcribeCallCount = 0
+    private(set) var detectLanguageCallCount = 0
+    private(set) var detectLanguageSampleCounts: [Int] = []
     private(set) var receivedOptions: [TranscriptionOptions] = []
 
     func loadModel(path: String) async throws {
@@ -853,6 +916,17 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
 
         let index = min(transcribeCallCount - 1, transcribeResponses.count - 1)
         return transcribeResponses[index]
+    }
+
+    func detectLanguage(samples: [Float], sampleRate: Int) async throws -> AppLanguage? {
+        detectLanguageCallCount += 1
+        detectLanguageSampleCounts.append(samples.count)
+
+        if let detectLanguageError {
+            throw detectLanguageError
+        }
+
+        return detectedLanguage
     }
 
     func unloadModel() async {

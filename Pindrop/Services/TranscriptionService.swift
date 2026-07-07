@@ -627,6 +627,13 @@ class TranscriptionService {
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
         let speakerLabelsByID = try speakerLabelsByID(from: segments)
+        let shouldShowSpeakerLabels = speakerLabelsByID.count > 1
+        let segmentOptions = await transcriptionOptionsForDiarizedSegments(
+            engine: engine,
+            samples: samples,
+            sampleRate: sampleRate,
+            options: options
+        )
         var transcriptSegments: [DiarizedTranscriptSegment] = []
         var textLines: [String] = []
 
@@ -640,16 +647,17 @@ class TranscriptionService {
                 continue
             }
 
-            let segmentText = try await engine.transcribe(audioData: segmentData, options: options)
+            let segmentText = try await engine.transcribe(audioData: segmentData, options: segmentOptions)
             let trimmed = segmentText.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else { continue }
 
             let speakerID = segment.speaker.id
-            let speakerLabel = speakerLabelsByID[speakerID] ?? "Speaker 1"
+            let resolvedSpeakerLabel = speakerLabelsByID[speakerID] ?? "Speaker 1"
+            let visibleSpeakerLabel = shouldShowSpeakerLabels ? resolvedSpeakerLabel : ""
 
             let diarizedSegment = DiarizedTranscriptSegment(
                 speakerId: speakerID,
-                speakerLabel: speakerLabel,
+                speakerLabel: visibleSpeakerLabel,
                 speakerEmbedding: segment.speaker.embedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
@@ -659,11 +667,13 @@ class TranscriptionService {
 
             let splitSegments = splitTranscriptSegmentIfNeeded(diarizedSegment)
             transcriptSegments.append(contentsOf: splitSegments)
-            textLines.append(contentsOf: splitSegments.map { "\(speakerLabel): \($0.text)" })
+            if shouldShowSpeakerLabels {
+                textLines.append(contentsOf: splitSegments.map { "\(resolvedSpeakerLabel): \($0.text)" })
+            }
         }
 
         let mergedText: String
-        if speakerLabelsByID.count <= 1 {
+        if !shouldShowSpeakerLabels {
             if !transcriptSegments.isEmpty {
                 Log.transcription.info("Speaker diarization detected a single speaker; omitting labels from transcript output")
             }
@@ -678,6 +688,32 @@ class TranscriptionService {
             text: mergedText,
             diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments
         )
+    }
+
+    private func transcriptionOptionsForDiarizedSegments(
+        engine: any TranscriptionEngine,
+        samples: [Float],
+        sampleRate: Int,
+        options: TranscriptionOptions
+    ) async -> TranscriptionOptions {
+        guard options.language == .automatic else {
+            return options
+        }
+
+        do {
+            guard let detectedLanguage = try await engine.detectLanguage(samples: samples, sampleRate: sampleRate),
+                  detectedLanguage != .automatic else {
+                return options
+            }
+
+            Log.transcription.info("Pinned detected language for diarized transcription segments: \(detectedLanguage.rawValue)")
+            return TranscriptionOptions(language: detectedLanguage)
+        } catch {
+            Log.transcription.warning(
+                "Language detection for diarized transcription failed; using per-segment automatic detection: \(error.localizedDescription)"
+            )
+            return options
+        }
     }
 
     private func speakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
