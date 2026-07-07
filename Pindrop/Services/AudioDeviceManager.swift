@@ -210,3 +210,66 @@ enum AudioDeviceManager {
         return buffers.reduce(0) { $0 + Int($1.mNumberChannels) }
     }
 }
+
+/// Watches the system audio device list and fires `onChange` on the main queue when
+/// devices are added or removed. Changes are debounced because a single unplug can
+/// re-enumerate the device list several times in quick succession.
+final class AudioDeviceListMonitor {
+    private static let debounceInterval: TimeInterval = 0.5
+
+    var onChange: (() -> Void)?
+
+    private var listenerBlock: AudioObjectPropertyListenerBlock?
+    private var debounceWorkItem: DispatchWorkItem?
+    private var address = AudioObjectPropertyAddress(
+        mSelector: AudioObjectPropertySelector(kAudioHardwarePropertyDevices),
+        mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
+        mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+    )
+
+    deinit {
+        stop()
+    }
+
+    func start() {
+        guard listenerBlock == nil else { return }
+
+        let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+            self?.scheduleChangeNotification()
+        }
+        let status = AudioObjectAddPropertyListenerBlock(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            DispatchQueue.main,
+            block
+        )
+        guard status == noErr else {
+            Log.audio.error("Failed to observe audio device list changes: status=\(status)")
+            return
+        }
+        listenerBlock = block
+    }
+
+    func stop() {
+        if let block = listenerBlock {
+            AudioObjectRemovePropertyListenerBlock(
+                AudioObjectID(kAudioObjectSystemObject),
+                &address,
+                DispatchQueue.main,
+                block
+            )
+            listenerBlock = nil
+        }
+        debounceWorkItem?.cancel()
+        debounceWorkItem = nil
+    }
+
+    private func scheduleChangeNotification() {
+        debounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.onChange?()
+        }
+        debounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.debounceInterval, execute: workItem)
+    }
+}

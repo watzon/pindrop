@@ -357,6 +357,7 @@ final class AppCoordinator {
     private var modifierEventTapDisableState = EventTapDisableState()
     private var escapeEventTapRecoveryTask: Task<Void, Never>?
     private var modifierEventTapRecoveryTask: Task<Void, Never>?
+    private var inputDeviceListMonitor: AudioDeviceListMonitor?
     private var lastEscapeTime: Date?
     private var lastEscapeSignalTime: Date?
     private let doubleEscapeThreshold: TimeInterval = 0.4
@@ -670,6 +671,7 @@ final class AppCoordinator {
             setupHotkeys()
             setupEscapeKeyMonitor()
             setupModifierKeyMonitor()
+            setupInputDeviceMonitoring()
         } else {
             Log.app.debug("Skipping global hotkey and key monitor setup in test environment")
         }
@@ -3682,6 +3684,30 @@ final class AppCoordinator {
         } else {
             Log.audio.info("Selected input device UID: \(uid)")
         }
+    }
+
+    private func setupInputDeviceMonitoring() {
+        let monitor = AudioDeviceListMonitor()
+        monitor.onChange = { [weak self] in
+            self?.validateSelectedInputDeviceAvailability()
+        }
+        monitor.start()
+        inputDeviceListMonitor = monitor
+        validateSelectedInputDeviceAvailability()
+    }
+
+    /// If the explicitly selected input device is no longer attached, fall back to the
+    /// system default so capture and the device pickers don't stay pinned to a device
+    /// that isn't there anymore.
+    private func validateSelectedInputDeviceAvailability() {
+        let uid = settingsStore.selectedInputDeviceUID
+        guard !uid.isEmpty else { return }
+        guard !AudioDeviceManager.inputDevices().contains(where: { $0.uid == uid }) else { return }
+
+        Log.audio.info(
+            "Selected input device is no longer available (uid=\(uid)); falling back to system default"
+        )
+        handleSelectInputDeviceUID("")
     }
 
     private func handleSelectLanguage(_ language: AppLanguage) {
