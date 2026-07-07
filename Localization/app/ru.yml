@@ -1010,3 +1010,8 @@ orb:
   _self: "Сфера"
 meeting:
   saved: "Встреча сохранена"
+
+russian:
+  _self: "Русский"
+ukrainian:
+  _self: "Украинский"

@@ -1010,3 +1010,8 @@ orb:
   _self: "Kula"
 meeting:
   saved: "Möte sparat"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

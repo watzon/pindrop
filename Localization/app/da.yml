@@ -1010,3 +1010,8 @@ orb:
   _self: "Kugle"
 meeting:
   saved: "Møde gemt"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

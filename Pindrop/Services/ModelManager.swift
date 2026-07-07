@@ -92,7 +92,7 @@ class ModelManager {
                 return true
             case .parakeetV3European:
                 switch language {
-                case .automatic, .english, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch, .turkish:
+                case .automatic, .english, .russian, .ukrainian, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch, .turkish:
                     return true
                 case .simplifiedChinese, .japanese, .korean:
                     return false
@@ -564,7 +564,7 @@ class ModelManager {
         switch language {
         case .english:
             recommendedModelNames = Self.englishRecommendedModelNames
-        case .automatic, .simplifiedChinese, .spanish, .french, .german, .turkish, .japanese, .portugueseBrazil, .italian, .dutch, .korean:
+        case .automatic, .russian, .ukrainian, .simplifiedChinese, .spanish, .french, .german, .turkish, .japanese, .portugueseBrazil, .italian, .dutch, .korean:
             recommendedModelNames = Self.multilingualRecommendedModelNames
         }
 

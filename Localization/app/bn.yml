@@ -1018,3 +1018,8 @@ orb:
   _self: "অর্ব"
 meeting:
   saved: "মিটিং সংরক্ষিত হয়েছে"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

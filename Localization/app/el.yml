@@ -1010,3 +1010,8 @@ orb:
   _self: "Σφαίρα"
 meeting:
   saved: "Η σύσκεψη αποθηκεύτηκε"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

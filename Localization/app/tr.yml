@@ -1010,3 +1010,8 @@ orb:
   _self: "Küre"
 meeting:
   saved: "Toplantı kaydedildi"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

@@ -1010,3 +1010,8 @@ orb:
   _self: "Gömb"
 meeting:
   saved: "Értekezlet mentve"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

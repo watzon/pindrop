@@ -1010,3 +1010,8 @@ orb:
   _self: "כדור"
 meeting:
   saved: "הפגישה נשמרה"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

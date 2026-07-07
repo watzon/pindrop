@@ -1010,3 +1010,8 @@ orb:
   _self: "Quả cầu"
 meeting:
   saved: "Đã lưu cuộc họp"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

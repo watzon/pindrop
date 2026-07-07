@@ -101,6 +101,8 @@ struct ModelManagerTests {
         let model = try #require(modelManager.availableModels.first { $0.name == "parakeet-tdt-0.6b-v3" })
         #expect(model.supports(language: .spanish) == true)
         #expect(model.supports(language: .portugueseBrazil) == true)
+        #expect(model.supports(language: .russian) == true)
+        #expect(model.supports(language: .ukrainian) == true)
         #expect(model.supports(language: .simplifiedChinese) == false)
     }
 

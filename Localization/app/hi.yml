@@ -1010,3 +1010,8 @@ orb:
   _self: "ऑर्ब"
 meeting:
   saved: "मीटिंग सहेजी गई"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

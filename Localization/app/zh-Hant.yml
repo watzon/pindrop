@@ -1010,3 +1010,8 @@ orb:
   _self: "光球"
 meeting:
   saved: "會議已儲存"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

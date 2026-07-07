@@ -1010,3 +1010,8 @@ orb:
   _self: "Pallo"
 meeting:
   saved: "Kokous tallennettu"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

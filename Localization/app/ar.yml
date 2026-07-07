@@ -1010,3 +1010,8 @@ orb:
   _self: "الكرة"
 meeting:
   saved: "تم حفظ الاجتماع"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"

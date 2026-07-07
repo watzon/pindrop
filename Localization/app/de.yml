@@ -1010,3 +1010,8 @@ orb:
   _self: "Orb"
 meeting:
   saved: "Meeting gespeichert"
+
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
