@@ -56,6 +56,12 @@ protocol KeySimulationProtocol {
     func simulatePaste() async throws
 }
 
+struct KeySimulationEvent: Equatable {
+    let virtualKey: CGKeyCode
+    let keyDown: Bool
+    let flags: CGEventFlags
+}
+
 // MARK: - Real Implementations
 
 final class SystemClipboard: ClipboardProtocol {
@@ -113,15 +119,35 @@ final class SystemClipboard: ClipboardProtocol {
 }
 
 final class SystemKeySimulation: KeySimulationProtocol {
-    func simulatePaste() async throws {
-        if try runSystemEventsPasteScript() {
-            return
-        }
+    private let pasteScriptRunner: () throws -> Bool
+    private let keyEventPoster: (CGEventSource?, KeySimulationEvent) -> Bool
+    private let sleeper: (UInt64) async throws -> Void
 
-        try await simulatePasteWithCGEvent()
+    init(
+        pasteScriptRunner: @escaping () throws -> Bool = SystemKeySimulation.runSystemEventsPasteScript,
+        keyEventPoster: @escaping (CGEventSource?, KeySimulationEvent) -> Bool = SystemKeySimulation.postKeyEvent,
+        sleeper: @escaping (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }
+    ) {
+        self.pasteScriptRunner = pasteScriptRunner
+        self.keyEventPoster = keyEventPoster
+        self.sleeper = sleeper
     }
 
-    private func runSystemEventsPasteScript() throws -> Bool {
+    func simulatePaste() async throws {
+        do {
+            try await simulatePasteWithCGEvent()
+            return
+        } catch {
+            Log.output.debug("CGEvent paste failed; falling back to System Events: \(error.localizedDescription)")
+            if try pasteScriptRunner() {
+                return
+            }
+
+            throw error
+        }
+    }
+
+    private static func runSystemEventsPasteScript() throws -> Bool {
         let scriptSource = "tell application \"System Events\" to keystroke \"v\" using command down"
         guard let script = NSAppleScript(source: scriptSource) else {
             return false
@@ -139,21 +165,42 @@ final class SystemKeySimulation: KeySimulationProtocol {
     }
 
     private func simulatePasteWithCGEvent() async throws {
+        let commandKeyCode: CGKeyCode = 0x37
         let vKeyCode: CGKeyCode = 0x09
         let source = CGEventSource(stateID: .hidSystemState)
-        
-        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) else {
-            Log.output.error("Failed to create CGEvents for paste")
-            throw OutputManagerError.textInsertionFailed
+
+        let events = [
+            KeySimulationEvent(virtualKey: commandKeyCode, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: vKeyCode, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: vKeyCode, keyDown: false, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: commandKeyCode, keyDown: false, flags: []),
+        ]
+
+        for (index, event) in events.enumerated() {
+            guard keyEventPoster(source, event) else {
+                Log.output.error("Failed to create CGEvent for paste")
+                throw OutputManagerError.textInsertionFailed
+            }
+
+            if index < events.endIndex - 1 {
+                try await sleeper(50_000_000)
+            }
         }
-        
-        keyDown.flags = .maskCommand
-        keyUp.flags = .maskCommand
-        
-        keyDown.post(tap: .cghidEventTap)
-        try await Task.sleep(nanoseconds: 50_000_000)
-        keyUp.post(tap: .cghidEventTap)
+    }
+
+    private static func postKeyEvent(source: CGEventSource?, event: KeySimulationEvent) -> Bool {
+        guard let cgEvent = CGEvent(
+            keyboardEventSource: source,
+            virtualKey: event.virtualKey,
+            keyDown: event.keyDown
+        ) else {
+            Log.output.error("Failed to create CGEvents for paste")
+            return false
+        }
+
+        cgEvent.flags = event.flags
+        cgEvent.post(tap: .cghidEventTap)
+        return true
     }
 }
 

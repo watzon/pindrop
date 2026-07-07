@@ -253,4 +253,57 @@ struct OutputManagerTests {
         #expect(mockKeySimulation.pasteSimulated)
         #expect(mockKeySimulation.simulatePasteCallCount == 1)
     }
+
+    @Test func systemKeySimulationPostsPhysicalCommandAroundPasteShortcut() async throws {
+        var postedEvents: [KeySimulationEvent] = []
+        var sleepDurations: [UInt64] = []
+        var systemEventsFallbackCalled = false
+        let sut = SystemKeySimulation(
+            pasteScriptRunner: {
+                systemEventsFallbackCalled = true
+                return false
+            },
+            keyEventPoster: { _, event in
+                postedEvents.append(event)
+                return true
+            },
+            sleeper: { duration in
+                sleepDurations.append(duration)
+            }
+        )
+
+        try await sut.simulatePaste()
+
+        #expect(postedEvents == [
+            KeySimulationEvent(virtualKey: 0x37, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: 0x09, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: 0x09, keyDown: false, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: 0x37, keyDown: false, flags: []),
+        ])
+        #expect(sleepDurations == [50_000_000, 50_000_000, 50_000_000])
+        #expect(systemEventsFallbackCalled == false)
+    }
+
+    @Test func systemKeySimulationFallsBackToSystemEventsWhenCGEventPostingFails() async throws {
+        var postedEvents: [KeySimulationEvent] = []
+        var systemEventsFallbackCalled = false
+        let sut = SystemKeySimulation(
+            pasteScriptRunner: {
+                systemEventsFallbackCalled = true
+                return true
+            },
+            keyEventPoster: { _, event in
+                postedEvents.append(event)
+                return false
+            },
+            sleeper: { _ in }
+        )
+
+        try await sut.simulatePaste()
+
+        #expect(postedEvents == [
+            KeySimulationEvent(virtualKey: 0x37, keyDown: true, flags: .maskCommand),
+        ])
+        #expect(systemEventsFallbackCalled)
+    }
 }
