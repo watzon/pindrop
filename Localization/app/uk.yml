@@ -383,6 +383,8 @@ hotkey:
   conflict: "Конфлікт гарячих клавіш"
 hotkeys:
   _self: "Гарячі клавіші"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Імпорт словника"
   error: "Помилка імпорту"
@@ -729,6 +731,8 @@ required:
   _self: "Обов'язковий"
   for_recording_your_voice: "Необхідний для запису вашого голосу"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Потрібен швидкий постачальник (рекомендуються моделі Apple Foundation). Хмарні постачальники надсилатимуть один виклик API за паузу."
 reset:
   _self: "Скинути"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "Іспанська"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Щоденник доповідача та часові мітки додаються до відтворення."
   diarization_is_required: "Потрібен щоденник доповідача"
 speed:

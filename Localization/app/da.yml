@@ -383,6 +383,8 @@ hotkey:
   conflict: "Genvejstast konflikt"
 hotkeys:
   _self: "Genvejstaster"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importer ordbog"
   error: "Importfejl"
@@ -729,6 +731,8 @@ required:
   _self: "Påkrævet"
   for_recording_your_voice: "Nødvendig for at optage din stemme"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Kræver en hurtig udbyder (Apple Foundation-modeller anbefales). Cloud-udbydere vil udstede et API-kald pr. pause."
 reset:
   _self: "Nulstil"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "spansk"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Højttalerdiarisering og tidsstempler er knyttet til afspilning."
   diarization_is_required: "Højttalerdiaarisering er påkrævet"
 speed:

@@ -383,6 +383,8 @@ hotkey:
   conflict: "Hotkey Conflict"
 hotkeys:
   _self: "Hotkeys"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Import Dictionary"
   error: "Import Error"
@@ -729,6 +731,8 @@ required:
   _self: "Required"
   for_recording_your_voice: "Required for recording your voice"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Requires a fast provider (Apple Foundation Models recommended). Cloud providers will issue one API call per pause."
 reset:
   _self: "Reset"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "Spanish"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Speaker diarization and timestamps are attached to playback."
   diarization_is_required: "Speaker diarization is required"
 speed:

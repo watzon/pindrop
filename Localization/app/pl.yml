@@ -383,6 +383,8 @@ hotkey:
   conflict: "Konflikt skrótu klawiszowego"
 hotkeys:
   _self: "Skróty klawiszowe"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importuj słownik"
   error: "Błąd importu"
@@ -729,6 +731,8 @@ required:
   _self: "Wymagany"
   for_recording_your_voice: "Wymagane do nagrania Twojego głosu"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Wymaga szybkiego dostawcy (zalecane modele Apple Foundation). Dostawcy usług w chmurze będą wysyłać jedno wywołanie API na każdą pauzę."
 reset:
   _self: "Nastawić"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "hiszpański"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diaryzacja głośników i znaczniki czasu są dołączane do odtwarzania."
   diarization_is_required: "Wymagana jest diaryzacja głośników"
 speed:

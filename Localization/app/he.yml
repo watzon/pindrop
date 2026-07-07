@@ -383,6 +383,8 @@ hotkey:
   conflict: "קונפליקט מקשי קיצור"
 hotkeys:
   _self: "מקשי קיצור"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "ייבוא ​​מילון"
   error: "שגיאת ייבוא"
@@ -729,6 +731,8 @@ required:
   _self: "דָרוּשׁ"
   for_recording_your_voice: "נדרש להקלטת הקול שלך"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "דורש ספק מהיר (מומלצים דגמי Apple Foundation). ספקי ענן יוציאו קריאת API אחת לכל הפסקה."
 reset:
   _self: "אִתחוּל"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "סְפָרַדִית"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "יומן רמקול וחותמות זמן מצורפות להשמעה."
   diarization_is_required: "נדרש יומן דובר"
 speed:

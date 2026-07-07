@@ -33,10 +33,10 @@ struct TranscribeView: View {
     @State private var pendingDeletionRecord: TranscriptionRecord?
     @State private var errorMessage: String?
 
-    // Quick Options (front-end only; wired up in a follow-up pass)
     @State private var selectedJobModel: String = ""
     @State private var selectedJobLanguage: String = AppLanguage.automatic.rawValue
     @State private var outputFormat: TranscribeOutputFormat = .plainText
+    @State private var diarizationEnabled = true
 
     // Batch import sheet
     @State private var showBatchImport = false
@@ -58,7 +58,8 @@ struct TranscribeView: View {
         TranscriptionJobOptions(
             modelName: selectedJobModel.isEmpty ? settingsStore.selectedModel : selectedJobModel,
             language: AppLanguage(rawValue: selectedJobLanguage) ?? .automatic,
-            outputFormat: outputFormat
+            outputFormat: outputFormat,
+            diarizationEnabled: diarizationEnabled
         )
     }
 
@@ -259,7 +260,7 @@ struct TranscribeView: View {
     @ViewBuilder
     private var diarizationGate: some View {
         let isDownloaded = modelManager.isFeatureModelDownloaded(.diarization)
-        if !isDownloaded || modelManager.currentDownloadingFeature == .diarization {
+        if diarizationEnabled && (!isDownloaded || modelManager.currentDownloadingFeature == .diarization) {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
                     ZStack {
@@ -614,6 +615,36 @@ struct TranscribeView: View {
                 .fill(AppColors.border)
                 .frame(maxWidth: .infinity, maxHeight: hairlineWidth)
 
+            Button {
+                diarizationEnabled.toggle()
+                if !diarizationEnabled {
+                    outputFormat = .plainText
+                }
+            } label: {
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Image(systemName: diarizationEnabled ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(diarizationEnabled ? AppColors.accent : AppColors.textTertiary)
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(localized("Speaker diarization", locale: locale))
+                            .font(AppTypography.bodySmall)
+                            .foregroundStyle(AppColors.textPrimary)
+                        Text(localized("Identify speakers and enable timestamped exports.", locale: locale))
+                            .font(.system(size: 10))
+                            .foregroundStyle(AppColors.textTertiary)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(maxWidth: .infinity, maxHeight: hairlineWidth)
+
             VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 Text(localized("Output Format", locale: locale))
                     .font(AppTypography.caption)
@@ -621,7 +652,11 @@ struct TranscribeView: View {
 
                 let diarizationAvailable = modelManager.isFeatureModelDownloaded(.diarization)
                 ForEach(TranscribeOutputFormat.allCases, id: \.rawValue) { format in
-                    outputFormatRow(format, diarizationAvailable: diarizationAvailable)
+                    outputFormatRow(
+                        format,
+                        diarizationEnabled: diarizationEnabled,
+                        diarizationAvailable: diarizationAvailable
+                    )
                 }
             }
 
@@ -669,9 +704,13 @@ struct TranscribeView: View {
         }
     }
 
-    private func outputFormatRow(_ format: TranscribeOutputFormat, diarizationAvailable: Bool) -> some View {
+    private func outputFormatRow(
+        _ format: TranscribeOutputFormat,
+        diarizationEnabled: Bool,
+        diarizationAvailable: Bool
+    ) -> some View {
         let requiresDiarization = format != .plainText
-        let isDisabled = requiresDiarization && !diarizationAvailable
+        let isDisabled = requiresDiarization && (!diarizationEnabled || !diarizationAvailable)
 
         return Button {
             if !isDisabled { outputFormat = format }
@@ -697,7 +736,7 @@ struct TranscribeView: View {
                         .font(AppTypography.bodySmall)
                         .foregroundStyle(isDisabled ? AppColors.textTertiary : AppColors.textPrimary)
                     if isDisabled {
-                        Text(localized("Requires diarization model", locale: locale))
+                        Text(localized(diarizationEnabled ? "Requires diarization model" : "Requires speaker diarization", locale: locale))
                             .font(.system(size: 10))
                             .foregroundStyle(AppColors.textTertiary)
                     }

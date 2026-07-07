@@ -383,6 +383,8 @@ hotkey:
   conflict: "ホットキーの競合"
 hotkeys:
   _self: "ホットキー"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "辞書のインポート"
   error: "インポートエラー"
@@ -729,6 +731,8 @@ required:
   _self: "必須"
   for_recording_your_voice: "音声を録音するために必要です"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "高速プロバイダーが必要です (Apple Foundation モデルを推奨)。クラウド プロバイダーは、一時停止ごとに 1 つの API 呼び出しを発行します。"
 reset:
   _self: "リセット"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "スペイン語"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "再生にはスピーカーのダイアライゼーションとタイムスタンプが付加されます。"
   diarization_is_required: "スピーカーのダイアライゼーションが必要です"
 speed:

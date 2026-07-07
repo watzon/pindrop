@@ -383,6 +383,8 @@ hotkey:
   conflict: "الصراع هوتكي"
 hotkeys:
   _self: "مفاتيح الاختصار"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "استيراد القاموس"
   error: "خطأ في الاستيراد"
@@ -729,6 +731,8 @@ required:
   _self: "مطلوب"
   for_recording_your_voice: "مطلوب لتسجيل صوتك"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "يتطلب مزودًا سريعًا (يُوصى باستخدام نماذج Apple Foundation). سيقوم موفرو السحابة بإصدار استدعاء API واحد لكل توقف مؤقت."
 reset:
   _self: "إعادة ضبط"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "الأسبانية"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "يتم إرفاق مذكرات المتحدث والطوابع الزمنية بالتشغيل."
   diarization_is_required: "مطلوب مذكرات المتحدث"
 speed:

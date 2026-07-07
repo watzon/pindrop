@@ -383,6 +383,8 @@ hotkey:
   conflict: "Xung đột phím nóng"
 hotkeys:
   _self: "Phím nóng"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Nhập từ điển"
   error: "Lỗi nhập"
@@ -729,6 +731,8 @@ required:
   _self: "Yêu cầu"
   for_recording_your_voice: "Cần thiết để ghi âm giọng nói của bạn"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Yêu cầu nhà cung cấp nhanh (khuyến nghị sử dụng Apple Foundation Models). Các nhà cung cấp đám mây sẽ thực hiện một lệnh gọi API cho mỗi lần tạm dừng."
 reset:
   _self: "Cài lại"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "tiếng Tây Ban Nha"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Nhật ký loa và dấu thời gian được đính kèm để phát lại."
   diarization_is_required: "Cần phải ghi nhật ký loa"
 speed:

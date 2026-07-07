@@ -12,6 +12,26 @@ import Testing
 @MainActor
 @Suite
 struct MediaTranscriptionFeatureStateTests {
+    @Test func jobOptionsEnableDiarizationByDefault() {
+        let options = TranscriptionJobOptions(modelName: "tiny")
+
+        #expect(options.diarizationEnabled)
+        #expect(options.outputFormat == .plainText)
+        #expect(options.language == .automatic)
+    }
+
+    @Test func jobOptionsAllowDisablingDiarization() {
+        let options = TranscriptionJobOptions(
+            modelName: "tiny",
+            language: .english,
+            outputFormat: .plainText,
+            diarizationEnabled: false
+        )
+
+        #expect(options.diarizationEnabled == false)
+        #expect(options.language == .english)
+    }
+
     @Test func clipboardPrefillDoesNotOverwriteUserEditedDraft() {
         let sut = MediaTranscriptionFeatureState()
         sut.draftLink = "https://user-entered.example"

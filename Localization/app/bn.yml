@@ -383,6 +383,8 @@ hotkey:
   conflict: "হটকি দ্বন্দ্ব"
 hotkeys:
   _self: "হটকি"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "আমদানি অভিধান"
   error: "আমদানি ত্রুটি৷"
@@ -733,6 +735,8 @@ required:
   _self: "প্রয়োজন"
   for_recording_your_voice: "আপনার ভয়েস রেকর্ড করার জন্য প্রয়োজন"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "একটি দ্রুত প্রদানকারী প্রয়োজন (অ্যাপল ফাউন্ডেশন মডেল প্রস্তাবিত)। ক্লাউড প্রদানকারীরা প্রতি বিরতিতে একটি API কল ইস্যু করবে।"
 reset:
   _self: "রিসেট করুন"
@@ -834,6 +838,7 @@ source:
 spanish:
   _self: "স্প্যানিশ"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "স্পীকার ডায়েরাইজেশন এবং টাইমস্ট্যাম্প প্লেব্যাকের সাথে সংযুক্ত।"
   diarization_is_required: "স্পীকার ডায়েরাইজেশন প্রয়োজন"
 speed:

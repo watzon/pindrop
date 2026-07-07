@@ -383,6 +383,8 @@ hotkey:
   conflict: "Gyorsbillentyű konfliktus"
 hotkeys:
   _self: "Gyorsbillentyűk"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Szótár importálása"
   error: "Importálási hiba"
@@ -729,6 +731,8 @@ required:
   _self: "Kívánt"
   for_recording_your_voice: "A hang rögzítéséhez szükséges"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Gyors szolgáltatót igényel (Apple Foundation Models ajánlott). A felhőszolgáltatók szünetenként egy API-hívást adnak ki."
 reset:
   _self: "Reset"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "spanyol"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "A hangszóró naplózása és az időbélyegek a lejátszáshoz vannak csatolva."
   diarization_is_required: "Előadói naplózás szükséges"
 speed:

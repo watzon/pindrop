@@ -65,6 +65,7 @@ class TranscriptionService {
     private static let maximumTranscriptChunkDurationSeconds: TimeInterval = 12.0
     private static let maximumTranscriptChunkWordCount = 28
     private static let targetTranscriptChunkWordCount = 20
+    private static let defaultDiarizationTimeoutSeconds: TimeInterval = 300
 
     private(set) var state: State = .unloaded
     private(set) var error: Error?
@@ -91,6 +92,7 @@ class TranscriptionService {
     private var streamingChunkProfileProvider: @MainActor () -> StreamingChunkProfile
     private var streamingBackendProvider: @MainActor () -> TranscriptionBackend
     private let speakerIdentityService: SpeakerIdentityManaging?
+    private let diarizationTimeoutSeconds: TimeInterval?
 
     /// True once this service substituted Parakeet for a user-requested Apple backend
     /// that couldn't be provisioned this run. AppCoordinator reads it to surface a
@@ -115,7 +117,8 @@ class TranscriptionService {
         },
         streamingChunkProfileProvider: @escaping @MainActor () -> StreamingChunkProfile = { .standard },
         streamingBackendProvider: @escaping @MainActor () -> TranscriptionBackend = { .parakeet },
-        speakerIdentityService: SpeakerIdentityManaging? = nil
+        speakerIdentityService: SpeakerIdentityManaging? = nil,
+        diarizationTimeoutSeconds: TimeInterval? = TranscriptionService.defaultDiarizationTimeoutSeconds
     ) {
         self.engineFactory = engineFactory
         self.speakerDiarizerFactory = diarizerFactory
@@ -124,6 +127,7 @@ class TranscriptionService {
         self.streamingChunkProfileProvider = streamingChunkProfileProvider
         self.streamingBackendProvider = streamingBackendProvider
         self.speakerIdentityService = speakerIdentityService
+        self.diarizationTimeoutSeconds = diarizationTimeoutSeconds
     }
 
     /// Replace the provider that resolves which streaming chunk profile to use. Safe to
@@ -326,6 +330,9 @@ class TranscriptionService {
         } catch let error as TranscriptionError {
             state = .ready
             throw error
+        } catch is CancellationError {
+            state = .ready
+            throw CancellationError()
         } catch {
             state = .ready
             throw TranscriptionError.transcriptionFailed(error.localizedDescription)
@@ -576,9 +583,17 @@ class TranscriptionService {
         Log.transcription.info("Speaker diarization enabled for current transcription")
 
         do {
+            try Task.checkCancellation()
             let diarizer = try await prepareSpeakerDiarizer()
+            try Task.checkCancellation()
             try await diarizer.loadModels()
-            let diarizationResult = try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
+            try Task.checkCancellation()
+            let diarizationResult = try await diarizeWithWatchdog(
+                diarizer: diarizer,
+                samples: samples,
+                sampleRate: sampleRate
+            )
+            try Task.checkCancellation()
             let normalizedSegments = normalizedDiarizationSegments(
                 diarizationResult.segments,
                 audioDuration: diarizationResult.audioDuration
@@ -604,9 +619,26 @@ class TranscriptionService {
 
             Log.transcription.warning("Speaker diarization produced no transcript text. Falling back to plain transcript.")
             return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+        } catch is CancellationError {
+            Log.transcription.info("Speaker diarization canceled")
+            throw CancellationError()
         } catch {
             Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(error.localizedDescription)")
             return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+        }
+    }
+
+    private func diarizeWithWatchdog(
+        diarizer: any SpeakerDiarizer,
+        samples: [Float],
+        sampleRate: Int
+    ) async throws -> DiarizationResult {
+        guard let timeoutSeconds = diarizationTimeoutSeconds else {
+            return try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
+        }
+
+        return try await withAsyncWatchdog(timeoutSeconds: timeoutSeconds) {
+            try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
         }
     }
 
@@ -638,6 +670,7 @@ class TranscriptionService {
         var textLines: [String] = []
 
         for segment in segments {
+            try Task.checkCancellation()
             guard let segmentData = extractAudioData(
                 samples: samples,
                 sampleRate: sampleRate,
@@ -1079,5 +1112,132 @@ class TranscriptionService {
         }
 
         return floatArray
+    }
+}
+
+private struct DiarizationTimeoutError: Error, LocalizedError {
+    let timeoutSeconds: TimeInterval
+
+    var errorDescription: String? {
+        "Speaker diarization timed out after \(Int(timeoutSeconds)) seconds."
+    }
+}
+
+private final class AsyncWatchdogState<Output>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Output, Error>?
+    private var operationTask: Task<Void, Never>?
+    private var timeoutTask: Task<Void, Never>?
+    private var pendingResult: Result<Output, Error>?
+    private var isResolved = false
+
+    func activate(_ continuation: CheckedContinuation<Output, Error>) -> Bool {
+        lock.lock()
+        if let pendingResult {
+            self.pendingResult = nil
+            lock.unlock()
+            continuation.resume(with: pendingResult)
+            return false
+        }
+
+        if isResolved {
+            lock.unlock()
+            continuation.resume(throwing: CancellationError())
+            return false
+        }
+
+        self.continuation = continuation
+        lock.unlock()
+        return true
+    }
+
+    func setOperationTask(_ task: Task<Void, Never>) {
+        lock.lock()
+        let shouldCancel = isResolved
+        if !shouldCancel {
+            operationTask = task
+        }
+        lock.unlock()
+
+        if shouldCancel {
+            task.cancel()
+        }
+    }
+
+    func setTimeoutTask(_ task: Task<Void, Never>) {
+        lock.lock()
+        let shouldCancel = isResolved
+        if !shouldCancel {
+            timeoutTask = task
+        }
+        lock.unlock()
+
+        if shouldCancel {
+            task.cancel()
+        }
+    }
+
+    func resolve(_ result: Result<Output, Error>) {
+        lock.lock()
+        guard !isResolved else {
+            lock.unlock()
+            return
+        }
+
+        isResolved = true
+        let continuationToResume = continuation
+        continuation = nil
+        let operationTaskToCancel = operationTask
+        operationTask = nil
+        let timeoutTaskToCancel = timeoutTask
+        timeoutTask = nil
+
+        if continuationToResume == nil {
+            pendingResult = result
+        }
+        lock.unlock()
+
+        operationTaskToCancel?.cancel()
+        timeoutTaskToCancel?.cancel()
+        continuationToResume?.resume(with: result)
+    }
+}
+
+@MainActor
+private func withAsyncWatchdog<Output>(
+    timeoutSeconds: TimeInterval,
+    operation: @escaping @MainActor () async throws -> Output
+) async throws -> Output {
+    let state = AsyncWatchdogState<Output>()
+
+    return try await withTaskCancellationHandler {
+        try await withCheckedThrowingContinuation { continuation in
+            guard state.activate(continuation) else { return }
+
+            if Task.isCancelled {
+                state.resolve(.failure(CancellationError()))
+                return
+            }
+
+            let operationTask = Task { @MainActor in
+                do {
+                    state.resolve(.success(try await operation()))
+                } catch {
+                    state.resolve(.failure(error))
+                }
+            }
+            state.setOperationTask(operationTask)
+
+            let timeoutTask = Task {
+                let clampedTimeout = max(timeoutSeconds, 0)
+                let nanoseconds = UInt64(clampedTimeout * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: nanoseconds)
+                guard !Task.isCancelled else { return }
+                state.resolve(.failure(DiarizationTimeoutError(timeoutSeconds: timeoutSeconds)))
+            }
+            state.setTimeoutTask(timeoutTask)
+        }
+    } onCancel: {
+        state.resolve(.failure(CancellationError()))
     }
 }

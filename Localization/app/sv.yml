@@ -383,6 +383,8 @@ hotkey:
   conflict: "Snabbknappskonflikt"
 hotkeys:
   _self: "Snabbtangenter"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
   dictionary: "Importera ordbok"
   error: "Importfel"
@@ -729,6 +731,8 @@ required:
   _self: "Nödvändig"
   for_recording_your_voice: "Krävs för att spela in din röst"
 requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
   a_fast_provider_apple_foundation_models: "Kräver en snabb leverantör (Apple Foundation-modeller rekommenderas). Molnleverantörer kommer att utfärda ett API-anrop per paus."
 reset:
   _self: "Återställa"
@@ -829,6 +833,7 @@ source:
 spanish:
   _self: "spanska"
 speaker:
+  diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Högtalardiarisering och tidsstämplar är fästa vid uppspelning."
   diarization_is_required: "Högtalarens diaarisering krävs"
 speed:

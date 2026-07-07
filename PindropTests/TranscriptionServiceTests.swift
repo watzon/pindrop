@@ -610,6 +610,64 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.transcribeCallCount == 1)
     }
 
+    @Test func transcribeWithDiarizationTimeoutFallsBackToSinglePassTranscription() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["fallback after timeout"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.diarizeDelayNanoseconds = 1_000_000_000
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer },
+            diarizationTimeoutSeconds: 0.01
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let output = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2.0),
+            diarizationEnabled: true
+        )
+
+        #expect(output.text == "fallback after timeout")
+        #expect(output.diarizedSegments == nil)
+        #expect(mockDiarizer.diarizeCallCount == 1)
+        #expect(mockEngine.transcribeCallCount == 1)
+    }
+
+    @Test func transcribeWithDiarizationCancellationPropagates() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["should not transcribe"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.diarizeDelayNanoseconds = 1_000_000_000
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer },
+            diarizationTimeoutSeconds: 10
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let task = Task {
+            try await service.transcribe(
+                audioData: makeFloatAudioData(seconds: 2.0),
+                diarizationEnabled: true
+            )
+        }
+
+        try await Task.sleep(nanoseconds: 10_000_000)
+        task.cancel()
+
+        do {
+            _ = try await task.value
+            Issue.record("Expected cancellation to propagate")
+        } catch is CancellationError {
+            #expect(mockDiarizer.diarizeCallCount == 1)
+            #expect(mockEngine.transcribeCallCount == 0)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
     @Test func transcribeWithDiarizationNormalizesAndMergesSegments() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Merged speaker text", "Second speaker text"]
@@ -941,6 +999,7 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
 
     var nextResult: DiarizationResult = DiarizationResult(segments: [], speakers: [], audioDuration: 0)
     var diarizeError: Error?
+    var diarizeDelayNanoseconds: UInt64?
     private(set) var loadModelsCallCount = 0
     private(set) var unloadModelsCallCount = 0
     private(set) var diarizeCallCount = 0
@@ -959,6 +1018,9 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
 
     func diarize(samples: [Float], sampleRate: Int) async throws -> DiarizationResult {
         diarizeCallCount += 1
+        if let diarizeDelayNanoseconds {
+            try await Task.sleep(nanoseconds: diarizeDelayNanoseconds)
+        }
         if let diarizeError {
             throw diarizeError
         }
