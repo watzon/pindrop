@@ -17,17 +17,14 @@ The development pipeline is native macOS only: Xcode builds the app, SwiftPM res
 - **swiftlint** - Code linting (`brew install swiftlint`)
 - **swiftformat** - Code formatting (`brew install swiftformat`)
 
-Check installed tools:
-```bash
-just check-tools
-```
+Run `just --list` to see every available recipe.
 
 ## Quick Start
 
 ```bash
 just build
 just test
-just run
+just xcode
 ```
 
 `just build` uses Xcode-managed signing. If you do not have a signing certificate configured, use `just build-unsigned` instead.
@@ -38,11 +35,10 @@ just run
 
 ```bash
 just build              # Debug build with signing
-just build-unsigned     # Debug build without signing
+just build-unsigned     # Debug build without signing (CI/fallback)
 just test               # Run test suite
 just test-coverage      # Run tests with coverage
 just dev                # Clean + build + test
-just build-unsigned     # Debug build without signing (CI/fallback)
 ```
 
 ### Release
@@ -197,18 +193,16 @@ just staple dist/Pindrop.dmg
 
 ## Version Management
 
-### Show Current Version
+Version and build numbers live in `Pindrop.xcodeproj/project.pbxproj`
+(`MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`). The release workflow bumps
+them for you:
 
 ```bash
-just version
+just release 1.9.0     # Sets MARKETING_VERSION to 1.9.0 and increments the build number
 ```
 
-### Bump Version
-
-```bash
-just bump-patch        # 1.0.0 → 1.0.1
-just bump-minor        # Manual: 1.0.0 → 1.1.0
-```
+To inspect or change the version manually, edit `MARKETING_VERSION` /
+`CURRENT_PROJECT_VERSION` in the Xcode project (or open it with `just xcode`).
 
 ## Testing
 
@@ -280,8 +274,7 @@ just test
 Check requirements:
 ```bash
 brew install create-dmg
-just export-app
-just dmg-quick
+just dmg
 ```
 
 ### Code Signing Fails
@@ -320,7 +313,7 @@ pindrop/
 ### Custom Build Settings
 
 ```bash
-just show-settings
+xcodebuild -project Pindrop.xcodeproj -scheme Pindrop -showBuildSettings
 ```
 
 ### Archive for App Store

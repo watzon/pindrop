@@ -31,17 +31,16 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Build App (Unsigned)
-        run: |
-          xcodebuild \
-            -scheme "${{ env.SCHEME }}" \
-            -configuration "${{ env.CONFIGURATION }}" \
-            -derivedDataPath DerivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
+      - name: Setup just
+        uses: extractions/setup-just@v3
+        with:
+          just-version: '1.49.0'
 
+      - name: Build App (Unsigned)
+        run: just build-unsigned
+
+      - name: Locate App Bundle
+        run: |
           APP_PATH="DerivedData/Build/Products/${{ env.CONFIGURATION }}/${{ env.APP_NAME }}.app"
           echo "App built at: $APP_PATH"
           echo "app_path=$APP_PATH" >> $GITHUB_ENV
@@ -55,14 +54,7 @@ jobs:
       - name: Run Tests
         env:
           NSUnbufferedIO: YES
-        run: |
-          xcodebuild \
-            test \
-            -scheme "${{ env.SCHEME }}" \
-            -destination "platform=macOS" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+        run: just test-unsigned
 
       - name: Package App Artifact
         run: |

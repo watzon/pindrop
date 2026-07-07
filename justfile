@@ -17,6 +17,9 @@ sparkle_tools_version := "2.8.1"
 # Build configuration
 xcode_project := "Pindrop.xcodeproj"
 
+# Shared code-signing overrides for unsigned CI runners
+signing_disabled := 'CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO'
+
 # Clean all build artifacts
 clean:
     @echo "🧹 Cleaning build artifacts..."
@@ -25,55 +28,51 @@ clean:
     rm -rf DerivedData
     @echo "✅ Clean complete"
 
-# Build for development (Debug, Xcode-managed signing)
-build:
-    @echo "🔨 Building {{app_name}} (Debug)..."
+# Shared xcodebuild build invocation (signed unless sign="no")
+[private]
+_build configuration sign="yes":
     xcodebuild \
         -project {{xcode_project}} \
         -scheme {{scheme}} \
-        -configuration Debug \
+        -configuration {{configuration}} \
         -derivedDataPath DerivedData \
+        {{ if sign == "no" { signing_disabled } else { "" } }} \
         build
+
+# Shared xcodebuild test invocation (signed unless sign="no"; coverage="yes" enables coverage)
+[private]
+_test testplan sign="yes" coverage="no":
+    xcodebuild test \
+        -project {{xcode_project}} \
+        -scheme {{scheme}} \
+        -testPlan {{testplan}} \
+        -destination 'platform=macOS' \
+        {{ if coverage == "yes" { "-enableCodeCoverage YES" } else { "" } }} \
+        {{ if sign == "no" { signing_disabled } else { "" } }}
+
+# Build for development (Debug, Xcode-managed signing)
+build:
+    @echo "🔨 Building {{app_name}} (Debug)..."
+    @just _build Debug
     @echo "✅ Debug build complete"
 
 # Build for release (Xcode-managed signing)
 build-release:
     @echo "🔨 Building {{app_name}} (Release)..."
-    xcodebuild \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -configuration Release \
-        -derivedDataPath DerivedData \
-        build
+    @just _build Release
     @echo "✅ Release build complete"
-    @echo "📦 App bundle: DerivedData/Build/Products/Release/{{app_name}}.app"
+    @echo "📦 App bundle: {{app_bundle}}"
 
 # Build for development on unsigned CI runners
 build-unsigned:
     @echo "🔨 Building {{app_name}} (Debug, unsigned)..."
-    xcodebuild \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -configuration Debug \
-        -derivedDataPath DerivedData \
-        CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGNING_ALLOWED=NO \
-        build
+    @just _build Debug no
     @echo "✅ Unsigned debug build complete"
 
 # Build for release on unsigned CI runners
 build-release-unsigned:
     @echo "🔨 Building {{app_name}} (Release, unsigned)..."
-    xcodebuild \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -configuration Release \
-        -derivedDataPath DerivedData \
-        CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGNING_ALLOWED=NO \
-        build
+    @just _build Release no
     @echo "✅ Unsigned release build complete"
 
 # Legacy fallback when no Apple signing identity is available
@@ -88,40 +87,22 @@ dmg-self-signed: build-self-signed
     @./scripts/create-dmg-self-signed.sh
     @echo "✅ Self-signed DMG created in {{dmg_dir}}/"
 
-# Run the app in Xcode
-run:
-    @echo "🚀 Running {{app_name}}..."
-    open -a Xcode {{xcode_project}}
-    # Note: Press Cmd+R in Xcode to run
-
 # Run tests
 test:
     @echo "🧪 Running tests..."
-    xcodebuild test \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -testPlan Unit \
-        -destination 'platform=macOS'
+    @just _test Unit
     @echo "✅ Tests complete"
 
 # Run integration tests only (opt-in)
 test-integration:
     @echo "🧪 Running integration tests..."
-    xcodebuild test \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -testPlan Integration \
-        -destination 'platform=macOS'
+    @just _test Integration
     @echo "✅ Integration tests complete"
 
 # Run UI tests
 test-ui:
     @echo "🧪 Running UI tests..."
-    xcodebuild test \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -testPlan UI \
-        -destination 'platform=macOS'
+    @just _test UI
     @echo "✅ UI tests complete"
 
 # Run unit + integration + UI suites
@@ -131,13 +112,14 @@ test-all: test test-integration test-ui
 # Run tests with coverage
 test-coverage:
     @echo "🧪 Running tests with coverage..."
-    xcodebuild test \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -testPlan Unit \
-        -destination 'platform=macOS' \
-        -enableCodeCoverage YES
+    @just _test Unit yes yes
     @echo "✅ Tests with coverage complete"
+
+# Run tests on unsigned CI runners
+test-unsigned:
+    @echo "🧪 Running tests (unsigned CI mode)..."
+    @just _test Unit no
+    @echo "✅ Unsigned CI tests complete"
 
 # Localization pipeline
 l10n-import-current:
@@ -152,27 +134,9 @@ l10n-lint:
 l10n-add-locale locale:
     @python3 scripts/localization.py add-locale "{{locale}}"
 
-# Type check only (no build)
-typecheck:
-    @echo "🔍 Type checking..."
-    xcodebuild \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -configuration Debug \
-        -derivedDataPath DerivedData \
-        -dry-run \
-        build
-    @echo "✅ Type check complete"
-
 # Create a signed DMG for distribution
 dmg: export-app
     @echo "📦 Creating DMG..."
-    @./scripts/create-dmg.sh
-    @echo "✅ DMG created in {{dmg_dir}}/"
-
-# Quick DMG (assumes exported signed app exists)
-dmg-quick:
-    @echo "📦 Creating DMG (skipping build)..."
     @./scripts/create-dmg.sh
     @echo "✅ DMG created in {{dmg_dir}}/"
 
@@ -210,29 +174,16 @@ verify-signature:
     spctl --assess --type execute --verbose=2 {{app_bundle}}
     @echo "✅ Signature verified"
 
-# Run tests on unsigned CI runners
-test-unsigned:
-    @echo "🧪 Running tests (unsigned CI mode)..."
-    xcodebuild test \
-        -project {{xcode_project}} \
-        -scheme {{scheme}} \
-        -testPlan Unit \
-        -destination 'platform=macOS' \
-        CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGNING_ALLOWED=NO
-    @echo "✅ Unsigned CI tests complete"
-
 # Notarize the DMG (requires Apple Developer account)
 notarize dmg_path:
-	@echo "📝 Notarizing {{dmg_path}}..."
-	@result_file=$(mktemp) && \
-	xcrun notarytool submit {{dmg_path}} \
-		--keychain-profile "notarytool-password" \
-		--wait \
-		--output-format json > "$result_file" && \
-	python3 -c 'import json, sys; result=json.load(open(sys.argv[1], encoding="utf-8")); status=result.get("status"); summary=result.get("statusSummary", "Unknown notarization failure"); sys.exit(0 if status == "Accepted" else (print("Notarization failed: %s - %s" % (status or "unknown", summary), file=sys.stderr) or 1))' "$result_file"
-	@echo "✅ Notarization complete"
+    @echo "📝 Notarizing {{dmg_path}}..."
+    @result_file=$(mktemp) && \
+    xcrun notarytool submit {{dmg_path}} \
+        --keychain-profile "notarytool-password" \
+        --wait \
+        --output-format json > "$result_file" && \
+    python3 -c 'import json, sys; result=json.load(open(sys.argv[1], encoding="utf-8")); status=result.get("status"); summary=result.get("statusSummary", "Unknown notarization failure"); sys.exit(0 if status == "Accepted" else (print("Notarization failed: %s - %s" % (status or "unknown", summary), file=sys.stderr) or 1))' "$result_file"
+    @echo "✅ Notarization complete"
 
 # Staple notarization ticket to DMG
 staple dmg_path:
@@ -240,363 +191,325 @@ staple dmg_path:
     xcrun stapler staple {{dmg_path}}
     @echo "✅ Stapling complete"
 
-# Full local release workflow: clean export, DMG, then notarize manually
-release-local: clean dmg
-	@echo "🎉 Release build complete!"
-	@echo "📦 DMG: {{dmg_dir}}/{{app_name}}.dmg"
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Test the DMG on a clean Mac"
-	@echo "  2. Notarize: just notarize {{dmg_dir}}/{{app_name}}.dmg"
-	@echo "  3. Staple: just staple {{dmg_dir}}/{{app_name}}.dmg"
-
 # Manual GitHub release workflow
 # Usage: just release 1.9.0
 # Runs locally: tests -> signed DMG -> notarize/staple -> appcast -> release notes -> tag -> push tag -> gh release create
 release version:
-	#!/usr/bin/env bash
-	set -euo pipefail
-	
-	VERSION="{{version}}"
-	TAG="v${VERSION}"
-	DMG_PATH="{{dmg_dir}}/{{app_name}}.dmg"
-	APPCAST_PATH="appcast.xml"
-	NOTES_PATH="release-notes/${TAG}.md"
-	NOTES_HTML_ASSET="release-notes-${TAG}.html"
-	NOTES_HTML_PATH="{{dmg_dir}}/${NOTES_HTML_ASSET}"
-	
-	# Validate version format (X.Y.Z)
-	if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		echo "❌ Invalid version format: $VERSION"
-		echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
-		exit 1
-	fi
-	
-	echo "🚀 Releasing Pindrop ${TAG}"
-	echo ""
-	
-	# Check for uncommitted changes
-	if ! git diff --quiet || ! git diff --cached --quiet; then
-		echo "❌ You have uncommitted changes. Please commit or stash them first."
-		exit 1
-	fi
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-	# Ensure required tools are available
-	for tool in just gh create-dmg; do
-		if ! command -v "$tool" >/dev/null 2>&1; then
-			echo "❌ Required tool not found: $tool"
-			exit 1
-		fi
-	done
+    VERSION="{{version}}"
+    TAG="v${VERSION}"
+    DMG_PATH="{{dmg_dir}}/{{app_name}}.dmg"
+    APPCAST_PATH="appcast.xml"
+    NOTES_PATH="release-notes/${TAG}.md"
+    NOTES_HTML_ASSET="release-notes-${TAG}.html"
+    NOTES_HTML_PATH="{{dmg_dir}}/${NOTES_HTML_ASSET}"
 
-	# Ensure gh is authenticated
-	if ! gh auth status -h github.com >/dev/null 2>&1; then
-		echo "❌ GitHub CLI is not authenticated."
-		echo "   Run: gh auth login"
-		exit 1
-	fi
+    # Validate version format (X.Y.Z)
+    if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "❌ Invalid version format: $VERSION"
+        echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
+        exit 1
+    fi
 
-	# Ensure release does not already exist
-	if gh release view "${TAG}" >/dev/null 2>&1; then
-		echo "❌ GitHub release already exists: ${TAG}"
-		exit 1
-	fi
+    echo "🚀 Releasing Pindrop ${TAG}"
+    echo ""
 
-	# Ensure release notes exist and are edited
-	if [ ! -f "${NOTES_PATH}" ]; then
-		echo "📝 No release notes found for ${TAG}. Creating draft..."
-		just release-notes "${VERSION}"
-		echo "❌ Draft release notes created at ${NOTES_PATH}."
-		echo "   Review/edit the file and rerun: just release ${VERSION}"
-		exit 1
-	fi
-	if grep -q "TODO" "${NOTES_PATH}"; then
-		echo "❌ Release notes still contain TODO markers: ${NOTES_PATH}"
-		echo "   Please finalize notes before releasing."
-		exit 1
-	fi
-	
-	# Get current version
-	CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-	CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-	LATEST_TAG=$(git tag --sort=-version:refname | head -1)
-	LATEST_RELEASE_BUILD=""
-	if [ -n "${LATEST_TAG}" ]; then
-		LATEST_RELEASE_BUILD=$(git show "${LATEST_TAG}:Pindrop.xcodeproj/project.pbxproj" 2>/dev/null | grep 'CURRENT_PROJECT_VERSION = ' | head -1 | sed 's/.*= \(.*\);/\1/' || true)
-	fi
-	BASE_BUILD=${CURRENT_BUILD}
-	if [ -n "${LATEST_RELEASE_BUILD}" ] && [ "${LATEST_RELEASE_BUILD}" -gt "${BASE_BUILD}" ]; then
-		BASE_BUILD=${LATEST_RELEASE_BUILD}
-	fi
-	echo "📋 Current version: ${CURRENT_VERSION}"
-	echo "📋 Current build: ${CURRENT_BUILD}"
-	echo "📋 Latest release tag: ${LATEST_TAG:-none}"
-	if [ -n "${LATEST_RELEASE_BUILD}" ]; then
-		echo "📋 Latest released build: ${LATEST_RELEASE_BUILD}"
-	fi
-	echo "📋 New version: ${VERSION}"
-	echo ""
+    # Check for uncommitted changes
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo "❌ You have uncommitted changes. Please commit or stash them first."
+        exit 1
+    fi
 
-	if [ "$CURRENT_VERSION" = "$VERSION" ]; then
-		echo "ℹ️  Version already set to ${VERSION}; keeping build ${CURRENT_BUILD}."
-	else
-		NEXT_BUILD=$((BASE_BUILD + 1))
-		echo "📋 New build: ${NEXT_BUILD}"
-		echo ""
-		
-		# Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
-		echo "📝 Updating version and build number in Xcode project..."
-		sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
-		sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
-		
-		# Verify the changes
-		NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-		NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
-		if [ "$NEW_VERSION" != "$VERSION" ]; then
-			echo "❌ Failed to update version"
-			exit 1
-		fi
-		if [ "$NEW_BUILD" != "$NEXT_BUILD" ]; then
-			echo "❌ Failed to update build number"
-			exit 1
-		fi
-		echo "✅ Version updated to ${VERSION} (build ${NEXT_BUILD})"
-		
-		# Commit the version bump
-		echo "📦 Committing version bump..."
-		git add Pindrop.xcodeproj/project.pbxproj
-		git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
-	fi
+    # Ensure required tools are available
+    for tool in just gh create-dmg; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            echo "❌ Required tool not found: $tool"
+            exit 1
+        fi
+    done
 
-	# Step 1: Ensure tests pass
-	echo "🧪 Running test suite..."
-	just test
+    # Ensure gh is authenticated
+    if ! gh auth status -h github.com >/dev/null 2>&1; then
+        echo "❌ GitHub CLI is not authenticated."
+        echo "   Run: gh auth login"
+        exit 1
+    fi
 
-	# Step 2: Build signed release DMG
-	echo "📦 Building signed release DMG..."
-	just dmg
+    # Ensure release does not already exist
+    if gh release view "${TAG}" >/dev/null 2>&1; then
+        echo "❌ GitHub release already exists: ${TAG}"
+        exit 1
+    fi
 
-	# Step 3: Notarize and staple the DMG before publishing or generating appcast
-	echo "📝 Notarizing release DMG..."
-	just notarize "${DMG_PATH}"
-	echo "📎 Stapling notarization ticket..."
-	just staple "${DMG_PATH}"
+    # Ensure release notes exist and are edited
+    if [ ! -f "${NOTES_PATH}" ]; then
+        echo "📝 No release notes found for ${TAG}. Creating draft..."
+        just release-notes "${VERSION}"
+        echo "❌ Draft release notes created at ${NOTES_PATH}."
+        echo "   Review/edit the file and rerun: just release ${VERSION}"
+        exit 1
+    fi
+    if grep -q "TODO" "${NOTES_PATH}"; then
+        echo "❌ Release notes still contain TODO markers: ${NOTES_PATH}"
+        echo "   Please finalize notes before releasing."
+        exit 1
+    fi
 
-	# Step 4: Update appcast using the final stapled DMG bytes
-	echo "📡 Generating appcast.xml..."
-	just appcast "${DMG_PATH}"
-	if [ ! -f "${NOTES_HTML_PATH}" ]; then
-		echo "❌ Expected rendered release notes asset was not generated: ${NOTES_HTML_PATH}"
-		exit 1
-	fi
+    # Get current version
+    CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+    CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+    LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+    LATEST_RELEASE_BUILD=""
+    if [ -n "${LATEST_TAG}" ]; then
+        LATEST_RELEASE_BUILD=$(git show "${LATEST_TAG}:Pindrop.xcodeproj/project.pbxproj" 2>/dev/null | grep 'CURRENT_PROJECT_VERSION = ' | head -1 | sed 's/.*= \(.*\);/\1/' || true)
+    fi
+    BASE_BUILD=${CURRENT_BUILD}
+    if [ -n "${LATEST_RELEASE_BUILD}" ] && [ "${LATEST_RELEASE_BUILD}" -gt "${BASE_BUILD}" ]; then
+        BASE_BUILD=${LATEST_RELEASE_BUILD}
+    fi
+    echo "📋 Current version: ${CURRENT_VERSION}"
+    echo "📋 Current build: ${CURRENT_BUILD}"
+    echo "📋 Latest release tag: ${LATEST_TAG:-none}"
+    if [ -n "${LATEST_RELEASE_BUILD}" ]; then
+        echo "📋 Latest released build: ${LATEST_RELEASE_BUILD}"
+    fi
+    echo "📋 New version: ${VERSION}"
+    echo ""
 
-	# Step 5: Validate release notes
-	echo "📝 Using release notes: ${NOTES_PATH}"
-	
-	# Step 6: Create annotated tag (if needed)
-	if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
-		echo "ℹ️  Tag already exists locally: ${TAG}"
-	else
-		echo "🏷️  Creating tag ${TAG}..."
-		git tag -a "${TAG}" -m "Release ${TAG}"
-	fi
-	
-	# Step 7: Push tag (if needed)
-	if git ls-remote --exit-code --tags origin "${TAG}" >/dev/null 2>&1; then
-		echo "ℹ️  Tag already exists on origin: ${TAG}"
-	else
-		echo "🚀 Pushing tag to origin..."
-		git push origin "${TAG}"
-	fi
+    if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+        echo "ℹ️  Version already set to ${VERSION}; keeping build ${CURRENT_BUILD}."
+    else
+        NEXT_BUILD=$((BASE_BUILD + 1))
+        echo "📋 New build: ${NEXT_BUILD}"
+        echo ""
 
-	# Step 8: Create GitHub release and attach assets
-	echo "📤 Creating GitHub release with DMG + appcast + release notes..."
-	gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" "${NOTES_HTML_PATH}" \
-		--title "Pindrop ${TAG}" \
-		--notes-file "${NOTES_PATH}"
-	
-	echo ""
-	echo "✅ Release ${TAG} published!"
-	echo ""
-	echo "📋 Uploaded assets:"
-	echo "  - ${DMG_PATH}"
-	echo "  - ${APPCAST_PATH}"
-	echo "  - ${NOTES_HTML_PATH}"
-	echo "📝 Release notes:"
-	echo "  - ${NOTES_PATH}"
-	echo ""
-	echo "ℹ️  Optional follow-up: push main when you're ready."
+        # Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project.pbxproj
+        echo "📝 Updating version and build number in Xcode project..."
+        sed -i '' "s/MARKETING_VERSION = ${CURRENT_VERSION};/MARKETING_VERSION = ${VERSION};/g" Pindrop.xcodeproj/project.pbxproj
+        sed -i '' "s/CURRENT_PROJECT_VERSION = ${CURRENT_BUILD};/CURRENT_PROJECT_VERSION = ${NEXT_BUILD};/g" Pindrop.xcodeproj/project.pbxproj
+
+        # Verify the changes
+        NEW_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+        NEW_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
+        if [ "$NEW_VERSION" != "$VERSION" ]; then
+            echo "❌ Failed to update version"
+            exit 1
+        fi
+        if [ "$NEW_BUILD" != "$NEXT_BUILD" ]; then
+            echo "❌ Failed to update build number"
+            exit 1
+        fi
+        echo "✅ Version updated to ${VERSION} (build ${NEXT_BUILD})"
+
+        # Commit the version bump
+        echo "📦 Committing version bump..."
+        git add Pindrop.xcodeproj/project.pbxproj
+        git commit -m "chore: bump version to ${VERSION} (build ${NEXT_BUILD})"
+    fi
+
+    # Step 1: Ensure tests pass
+    echo "🧪 Running test suite..."
+    just test
+
+    # Step 2: Build signed release DMG
+    echo "📦 Building signed release DMG..."
+    just dmg
+
+    # Step 3: Notarize and staple the DMG before publishing or generating appcast
+    echo "📝 Notarizing release DMG..."
+    just notarize "${DMG_PATH}"
+    echo "📎 Stapling notarization ticket..."
+    just staple "${DMG_PATH}"
+
+    # Step 4: Update appcast using the final stapled DMG bytes
+    echo "📡 Generating appcast.xml..."
+    just appcast "${DMG_PATH}"
+    if [ ! -f "${NOTES_HTML_PATH}" ]; then
+        echo "❌ Expected rendered release notes asset was not generated: ${NOTES_HTML_PATH}"
+        exit 1
+    fi
+
+    # Step 5: Validate release notes
+    echo "📝 Using release notes: ${NOTES_PATH}"
+
+    # Step 6: Create annotated tag (if needed)
+    if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+        echo "ℹ️  Tag already exists locally: ${TAG}"
+    else
+        echo "🏷️  Creating tag ${TAG}..."
+        git tag -a "${TAG}" -m "Release ${TAG}"
+    fi
+
+    # Step 7: Push tag (if needed)
+    if git ls-remote --exit-code --tags origin "${TAG}" >/dev/null 2>&1; then
+        echo "ℹ️  Tag already exists on origin: ${TAG}"
+    else
+        echo "🚀 Pushing tag to origin..."
+        git push origin "${TAG}"
+    fi
+
+    # Step 8: Create GitHub release and attach assets
+    echo "📤 Creating GitHub release with DMG + appcast + release notes..."
+    gh release create "${TAG}" "${DMG_PATH}" "${APPCAST_PATH}" "${NOTES_HTML_PATH}" \
+        --title "Pindrop ${TAG}" \
+        --notes-file "${NOTES_PATH}"
+
+    echo ""
+    echo "✅ Release ${TAG} published!"
+    echo ""
+    echo "📋 Uploaded assets:"
+    echo "  - ${DMG_PATH}"
+    echo "  - ${APPCAST_PATH}"
+    echo "  - ${NOTES_HTML_PATH}"
+    echo "📝 Release notes:"
+    echo "  - ${NOTES_PATH}"
+    echo ""
+    echo "ℹ️  Optional follow-up: push main when you're ready."
 
 # Generate a draft release notes file for a version
 # Usage: just release-notes 1.9.0
 release-notes version:
-	#!/usr/bin/env bash
-	set -euo pipefail
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-	VERSION="{{version}}"
-	TAG="v${VERSION}"
-	NOTES_DIR="release-notes"
-	NOTES_PATH="${NOTES_DIR}/${TAG}.md"
+    VERSION="{{version}}"
+    TAG="v${VERSION}"
+    NOTES_DIR="release-notes"
+    NOTES_PATH="${NOTES_DIR}/${TAG}.md"
 
-	if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		echo "❌ Invalid version format: $VERSION"
-		echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
-		exit 1
-	fi
+    if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "❌ Invalid version format: $VERSION"
+        echo "   Expected format: X.Y.Z (e.g., 1.9.0)"
+        exit 1
+    fi
 
-	mkdir -p "${NOTES_DIR}"
+    mkdir -p "${NOTES_DIR}"
 
-	if [ -f "${NOTES_PATH}" ]; then
-		echo "ℹ️  Release notes already exist: ${NOTES_PATH}"
-		exit 0
-	fi
+    if [ -f "${NOTES_PATH}" ]; then
+        echo "ℹ️  Release notes already exist: ${NOTES_PATH}"
+        exit 0
+    fi
 
-	if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
-		PREV_TAG=$(git tag --sort=-version:refname | awk -v tag="${TAG}" '$0 != tag {print; exit}')
-	else
-		PREV_TAG=$(git tag --sort=-version:refname | head -1)
-	fi
+    if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+        PREV_TAG=$(git tag --sort=-version:refname | awk -v tag="${TAG}" '$0 != tag {print; exit}')
+    else
+        PREV_TAG=$(git tag --sort=-version:refname | head -1)
+    fi
 
-	COMMITS=$(git log --no-merges --pretty=format:'- %s' "${PREV_TAG:+${PREV_TAG}..HEAD}" | head -8 || true)
-	COMPARE_URL=""
-	if [ -n "${PREV_TAG}" ]; then
-		COMPARE_URL="https://github.com/watzon/pindrop/compare/${PREV_TAG}...${TAG}"
-	fi
+    COMMITS=$(git log --no-merges --pretty=format:'- %s' "${PREV_TAG:+${PREV_TAG}..HEAD}" | head -8 || true)
+    COMPARE_URL=""
+    if [ -n "${PREV_TAG}" ]; then
+        COMPARE_URL="https://github.com/watzon/pindrop/compare/${PREV_TAG}...${TAG}"
+    fi
 
-	printf '%s\n' \
-		"## What's New" \
-		'' \
-		"- TODO: Add 2-5 user-facing highlights for ${TAG}." \
-		'' \
-		'## Improvements' \
-		'' \
-		'- TODO: Add notable fixes, polish, or infrastructure changes users should know about.' \
-		'' \
-		'## Full Changelog' \
-		'' \
-		"${COMPARE_URL:-TODO: Add compare URL}" \
-		> "${NOTES_PATH}"
+    printf '%s\n' \
+        "## What's New" \
+        '' \
+        "- TODO: Add 2-5 user-facing highlights for ${TAG}." \
+        '' \
+        '## Improvements' \
+        '' \
+        '- TODO: Add notable fixes, polish, or infrastructure changes users should know about.' \
+        '' \
+        '## Full Changelog' \
+        '' \
+        "${COMPARE_URL:-TODO: Add compare URL}" \
+        > "${NOTES_PATH}"
 
-	if [ -n "${COMMITS}" ]; then
-		printf '\n## Commit Context (for drafting)\n\n%s\n' "${COMMITS}" >> "${NOTES_PATH}"
-	fi
+    if [ -n "${COMMITS}" ]; then
+        printf '\n## Commit Context (for drafting)\n\n%s\n' "${COMMITS}" >> "${NOTES_PATH}"
+    fi
 
-	echo "✅ Draft release notes created: ${NOTES_PATH}"
-	echo "✏️  Review/edit the file, remove TODO markers, then run: just release ${VERSION}"
+    echo "✅ Draft release notes created: ${NOTES_PATH}"
+    echo "✏️  Review/edit the file, remove TODO markers, then run: just release ${VERSION}"
 
 # Render versioned release notes HTML from the markdown source
 # Usage: just release-notes-html 1.9.0
 release-notes-html version:
-	#!/usr/bin/env bash
-	set -euo pipefail
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-	VERSION="{{version}}"
-	TAG="v${VERSION}"
-	NOTES_PATH="release-notes/${TAG}.md"
-	NOTES_HTML_PATH="{{dmg_dir}}/release-notes-${TAG}.html"
+    VERSION="{{version}}"
+    TAG="v${VERSION}"
+    NOTES_PATH="release-notes/${TAG}.md"
+    NOTES_HTML_PATH="{{dmg_dir}}/release-notes-${TAG}.html"
 
-	if [ ! -f "${NOTES_PATH}" ]; then
-		echo "❌ Release notes not found: ${NOTES_PATH}"
-		exit 1
-	fi
+    if [ ! -f "${NOTES_PATH}" ]; then
+        echo "❌ Release notes not found: ${NOTES_PATH}"
+        exit 1
+    fi
 
-	mkdir -p "{{dmg_dir}}"
-	python3 scripts/render_release_notes_html.py \
-		--input "${NOTES_PATH}" \
-		--output "${NOTES_HTML_PATH}" \
-		--version "${TAG}"
+    mkdir -p "{{dmg_dir}}"
+    python3 scripts/render_release_notes_html.py \
+        --input "${NOTES_PATH}" \
+        --output "${NOTES_HTML_PATH}" \
+        --version "${TAG}"
 
-	echo "✅ Rendered release notes HTML: ${NOTES_HTML_PATH}"
+    echo "✅ Rendered release notes HTML: ${NOTES_HTML_PATH}"
 
 # Generate appcast.xml for Sparkle updates
 # Usage: just appcast dist/Pindrop.dmg
 appcast dmg_path:
-	@echo "📡 Generating appcast.xml..."
-	@if [ ! -f "{{dmg_path}}" ]; then \
-		echo "❌ DMG not found: {{dmg_path}}"; \
-		echo "   Run: just dmg"; \
-		exit 1; \
-	fi
-	@if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
-		echo "⚠️  Sparkle tools not found. Downloading..."; \
-		curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/{{sparkle_tools_version}}/Sparkle-{{sparkle_tools_version}}.tar.xz"; \
-		mkdir -p /tmp/sparkle-extract; \
-		tar -xf /tmp/Sparkle.tar.xz -C /tmp/sparkle-extract; \
-		mkdir -p bin; \
-		cp /tmp/sparkle-extract/bin/generate_appcast bin/; \
-		cp /tmp/sparkle-extract/bin/sign_update bin/ 2>/dev/null || true; \
-		rm -rf /tmp/Sparkle.tar.xz /tmp/sparkle-extract; \
-		echo "✅ Sparkle tools downloaded to bin/"; \
-	fi
-	@TAG_VERSION="v$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
-	NOTES_PATH="release-notes/${TAG_VERSION}.md"; \
-	NOTES_ASSET="release-notes-${TAG_VERSION}.html"; \
-	NOTES_OUTPUT="{{dmg_dir}}/${NOTES_ASSET}"; \
-	RELEASE_NOTES_URL="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/${NOTES_ASSET}"; \
-	RELEASE_PAGE_URL="https://github.com/watzon/pindrop/releases/tag/${TAG_VERSION}"; \
-	DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/"; \
-	echo "🔏 Signing DMG and generating appcast for ${TAG_VERSION}..."; \
-	echo "🔗 Download prefix: ${DOWNLOAD_PREFIX}"; \
-	mkdir -p "{{dmg_dir}}"; \
-	if [ -f "${NOTES_PATH}" ]; then \
-		echo "📝 Rendering release notes HTML asset..."; \
-		python3 scripts/render_release_notes_html.py --input "${NOTES_PATH}" --output "${NOTES_OUTPUT}" --version "${TAG_VERSION}"; \
-	else \
-		echo "⚠️  Release notes markdown not found for ${TAG_VERSION}; appcast will not include release notes"; \
-	fi; \
-	mkdir -p updates; \
-	cp "{{dmg_path}}" updates/; \
-	if ./bin/generate_appcast --help 2>&1 | grep -q -- '--download-url-prefix'; then \
-		./bin/generate_appcast --download-url-prefix "${DOWNLOAD_PREFIX}" updates/; \
-	else \
-		echo "⚠️  generate_appcast does not support --download-url-prefix; generating without explicit URL prefix"; \
-		./bin/generate_appcast updates/; \
-	fi; \
-	if [ -f "updates/appcast.xml" ]; then \
-		cp updates/appcast.xml appcast.xml; \
-	fi; \
-	if [ -f "${NOTES_OUTPUT}" ]; then \
-		python3 scripts/augment_appcast_release_notes.py --appcast appcast.xml --release-notes-url "${RELEASE_NOTES_URL}" --full-release-notes-url "${RELEASE_PAGE_URL}" --download-page-url "${RELEASE_PAGE_URL}"; \
-	fi; \
-	rm -rf updates/
-	@echo "✅ Appcast generated: appcast.xml"
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Review appcast.xml"
-	@echo "  2. Attach {{dmg_path}}, appcast.xml, and the rendered release notes HTML to the matching GitHub release tag"
-
-# Install dependencies (if any)
-deps:
-    @echo "📦 Installing dependencies..."
-    @echo "✅ No external dependencies to install (WhisperKit is via SPM)"
+    @echo "📡 Generating appcast.xml..."
+    @if [ ! -f "{{dmg_path}}" ]; then \
+        echo "❌ DMG not found: {{dmg_path}}"; \
+        echo "   Run: just dmg"; \
+        exit 1; \
+    fi
+    @if [ ! -d "bin" ] || [ ! -f "bin/generate_appcast" ]; then \
+        echo "⚠️  Sparkle tools not found. Downloading..."; \
+        curl -L -o /tmp/Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/{{sparkle_tools_version}}/Sparkle-{{sparkle_tools_version}}.tar.xz"; \
+        mkdir -p /tmp/sparkle-extract; \
+        tar -xf /tmp/Sparkle.tar.xz -C /tmp/sparkle-extract; \
+        mkdir -p bin; \
+        cp /tmp/sparkle-extract/bin/generate_appcast bin/; \
+        cp /tmp/sparkle-extract/bin/sign_update bin/ 2>/dev/null || true; \
+        rm -rf /tmp/Sparkle.tar.xz /tmp/sparkle-extract; \
+        echo "✅ Sparkle tools downloaded to bin/"; \
+    fi
+    @TAG_VERSION="v$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')"; \
+    NOTES_PATH="release-notes/${TAG_VERSION}.md"; \
+    NOTES_ASSET="release-notes-${TAG_VERSION}.html"; \
+    NOTES_OUTPUT="{{dmg_dir}}/${NOTES_ASSET}"; \
+    RELEASE_NOTES_URL="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/${NOTES_ASSET}"; \
+    RELEASE_PAGE_URL="https://github.com/watzon/pindrop/releases/tag/${TAG_VERSION}"; \
+    DOWNLOAD_PREFIX="https://github.com/watzon/pindrop/releases/download/${TAG_VERSION}/"; \
+    echo "🔏 Signing DMG and generating appcast for ${TAG_VERSION}..."; \
+    echo "🔗 Download prefix: ${DOWNLOAD_PREFIX}"; \
+    mkdir -p "{{dmg_dir}}"; \
+    if [ -f "${NOTES_PATH}" ]; then \
+        echo "📝 Rendering release notes HTML asset..."; \
+        python3 scripts/render_release_notes_html.py --input "${NOTES_PATH}" --output "${NOTES_OUTPUT}" --version "${TAG_VERSION}"; \
+    else \
+        echo "⚠️  Release notes markdown not found for ${TAG_VERSION}; appcast will not include release notes"; \
+    fi; \
+    mkdir -p updates; \
+    cp "{{dmg_path}}" updates/; \
+    if ./bin/generate_appcast --help 2>&1 | grep -q -- '--download-url-prefix'; then \
+        ./bin/generate_appcast --download-url-prefix "${DOWNLOAD_PREFIX}" updates/; \
+    else \
+        echo "⚠️  generate_appcast does not support --download-url-prefix; generating without explicit URL prefix"; \
+        ./bin/generate_appcast updates/; \
+    fi; \
+    if [ -f "updates/appcast.xml" ]; then \
+        cp updates/appcast.xml appcast.xml; \
+    fi; \
+    if [ -f "${NOTES_OUTPUT}" ]; then \
+        python3 scripts/augment_appcast_release_notes.py --appcast appcast.xml --release-notes-url "${RELEASE_NOTES_URL}" --full-release-notes-url "${RELEASE_PAGE_URL}" --download-page-url "${RELEASE_PAGE_URL}"; \
+    fi; \
+    rm -rf updates/
+    @echo "✅ Appcast generated: appcast.xml"
+    @echo ""
+    @echo "Next steps:"
+    @echo "  1. Review appcast.xml"
+    @echo "  2. Attach {{dmg_path}}, appcast.xml, and the rendered release notes HTML to the matching GitHub release tag"
 
 # Open project in Xcode
 xcode:
     @echo "🔧 Opening Xcode..."
     open {{xcode_project}}
-
-# Show build settings
-show-settings:
-    @echo "⚙️  Build settings:"
-    xcodebuild -project {{xcode_project}} -scheme {{scheme}} -showBuildSettings
-
-# Show version info
-version:
-    @echo "📋 Version info:"
-    @agvtool what-version
-    @agvtool what-marketing-version
-
-# Bump version (patch)
-bump-patch:
-    @echo "⬆️  Bumping patch version..."
-    @agvtool next-version -all
-    @just version
-
-# Bump version (minor) - requires manual edit
-bump-minor:
-    @echo "⬆️  Bumping minor version..."
-    @echo "Please update MARKETING_VERSION in project settings"
-    @just xcode
 
 # Lint Swift code (requires SwiftLint)
 lint:
@@ -615,25 +528,6 @@ format:
     else \
         echo "⚠️  SwiftFormat not installed. Run: brew install swiftformat"; \
     fi
-
-# Check for required tools
-check-tools:
-    @echo "🔧 Checking required tools..."
-    @command -v xcodebuild >/dev/null 2>&1 || echo "❌ xcodebuild not found"
-    @command -v create-dmg >/dev/null 2>&1 || echo "⚠️  create-dmg not found (brew install create-dmg)"
-    @command -v swiftlint >/dev/null 2>&1 || echo "ℹ️  swiftlint not found (optional: brew install swiftlint)"
-    @command -v swiftformat >/dev/null 2>&1 || echo "ℹ️  swiftformat not found (optional: brew install swiftformat)"
-    @echo "✅ Tool check complete"
-
-# Show app info
-info:
-    @echo "📱 {{app_name}} Info:"
-    @echo "  Project: {{xcode_project}}"
-    @echo "  Scheme: {{scheme}}"
-    @echo "  Build Dir: {{build_dir}}"
-    @echo "  Release Dir: {{release_dir}}"
-    @echo "  App Bundle: {{app_bundle}}"
-    @echo "  DMG Dir: {{dmg_dir}}"
 
 # Development workflow: clean, build, test
 dev: clean build test

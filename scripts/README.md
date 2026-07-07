@@ -25,15 +25,6 @@ just dmg
 **Output:**
 - DMG file in `dist/Pindrop.dmg`
 
-### `download-icons.sh`
-
-Downloads icon assets for the application.
-
-**Usage:**
-```bash
-./scripts/download-icons.sh
-```
-
 ### `ExportOptions.plist`
 
 Configuration file for Xcode archive exports. Used when creating signed builds for distribution.
@@ -93,7 +84,6 @@ scripts/
 ├── create-dmg.sh               # Signed DMG creation script
 ├── create-dmg-self-signed.sh   # Fallback self-signed DMG script
 ├── sign-app-bundle.sh          # Manual/fallback bundle signing
-├── download-icons.sh           # Icon download script
 └── ExportOptions.plist         # Xcode export configuration
 ```
 

@@ -67,3 +67,4 @@ package.json
 
 # Local test recordings / captures
 video/
+__pycache__/
