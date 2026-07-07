@@ -17,6 +17,30 @@ struct AIEnhancementServiceTests {
         let service = AIEnhancementService(session: mockSession)
         return (service, mockSession)
     }
+
+    private func configureSuccessfulChatResponse(_ mockSession: MockURLSession, content: String = "Enhanced text") {
+        mockSession.mockData = """
+        {
+            "choices": [{
+                "message": {
+                    "content": "\(content)"
+                }
+            }]
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+    }
+
+    private func requestBody(from request: URLRequest?) throws -> [String: Any] {
+        let bodyData = try #require(request?.httpBody)
+        let bodyObject = try JSONSerialization.jsonObject(with: bodyData)
+        return try #require(bodyObject as? [String: Any])
+    }
     
     // MARK: - Test Enhancement with Mock API
     @Test func testEnhanceTextWithMockAPI() async throws {
@@ -232,6 +256,9 @@ struct AIEnhancementServiceTests {
             // Current service default model is gpt-4o-mini; validate against that
             #expect(bodyJSON["model"] as? String == "gpt-4o-mini")
             #expect(bodyJSON["messages"] as? [[String: Any]] != nil)
+            #expect(bodyJSON["temperature"] as? Int == 0)
+            #expect(bodyJSON["max_tokens"] as? Int == 2048)
+            #expect(bodyJSON["max_completion_tokens"] == nil)
             
             if let messages = bodyJSON["messages"] as? [[String: Any]] {
                 #expect(messages.count == 2)
@@ -266,6 +293,81 @@ struct AIEnhancementServiceTests {
         // Then - should return empty text without making API call
         #expect(result == "")
         #expect(mockSession.lastRequest == nil)
+    }
+
+    @Test func testModernOpenAIChatParameterDetection() {
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "gpt-5"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "gpt-5-mini"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "gpt-5.1"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: " GPT-5-NANO "))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "o1"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "o1-preview"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "o3-mini"))
+        #expect(AIEnhancementService.requiresModernOpenAIChatParameters(model: "o4-mini"))
+
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "gpt-4.1"))
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "gpt-4o-mini"))
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "o10"))
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "o3mini"))
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "o4ever"))
+        #expect(!AIEnhancementService.requiresModernOpenAIChatParameters(model: "my-gpt-5"))
+    }
+
+    @Test func testTextOnlyRequestBodyUsesModernOpenAIParameters() async throws {
+        let (service, mockSession) = makeSUT()
+        configureSuccessfulChatResponse(mockSession)
+
+        _ = try await service.enhance(
+            text: "test text",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            model: "gpt-5.1"
+        )
+
+        let bodyJSON = try requestBody(from: mockSession.lastRequest)
+        #expect(bodyJSON["model"] as? String == "gpt-5.1")
+        #expect(bodyJSON["max_completion_tokens"] as? Int == 2048)
+        #expect(bodyJSON["max_tokens"] == nil)
+        #expect(bodyJSON["temperature"] == nil)
+
+        let messages = try #require(bodyJSON["messages"] as? [[String: Any]])
+        #expect(messages.count == 2)
+        #expect(messages[0]["role"] as? String == "system")
+        #expect(messages[1]["role"] as? String == "user")
+        #expect(messages[1]["content"] as? String == "test text")
+    }
+
+    @Test func testImageRequestBodyUsesModernOpenAIParameters() async throws {
+        let (service, mockSession) = makeSUT()
+        let imageBase64 = "abc123"
+        configureSuccessfulChatResponse(mockSession)
+
+        _ = try await service.enhance(
+            text: "describe this",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            model: "o3-mini",
+            imageBase64: imageBase64
+        )
+
+        let bodyJSON = try requestBody(from: mockSession.lastRequest)
+        #expect(bodyJSON["model"] as? String == "o3-mini")
+        #expect(bodyJSON["max_completion_tokens"] as? Int == 2048)
+        #expect(bodyJSON["max_tokens"] == nil)
+        #expect(bodyJSON["temperature"] == nil)
+
+        let messages = try #require(bodyJSON["messages"] as? [[String: Any]])
+        #expect(messages.count == 2)
+        #expect(messages[0]["role"] as? String == "system")
+        #expect(messages[1]["role"] as? String == "user")
+
+        let content = try #require(messages[1]["content"] as? [[String: Any]])
+        #expect(content.count == 2)
+        #expect(content[0]["type"] as? String == "text")
+        #expect(content[1]["type"] as? String == "image_url")
+
+        let imageURL = try #require(content[1]["image_url"] as? [String: Any])
+        #expect(imageURL["url"] as? String == "data:image/png;base64,\(imageBase64)")
     }
 
     // MARK: - Test Message Building
