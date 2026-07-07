@@ -173,6 +173,34 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             throw error
         }
     }
+
+    /// Detect the spoken language from full-clip samples so diarized segments can
+    /// share one stable language decision.
+    public func detectLanguage(samples: [Float], sampleRate: Int) async throws -> AppLanguage? {
+        guard state == .ready else {
+            throw EngineError.modelNotLoaded
+        }
+
+        guard !samples.isEmpty else {
+            throw EngineError.invalidAudioData
+        }
+
+        guard let whisperKit else {
+            throw EngineError.modelNotLoaded
+        }
+
+        state = .transcribing
+
+        do {
+            let result = try await whisperKit.detectLangauge(audioArray: samples)
+            state = .ready
+            return Self.appLanguage(forWhisperLanguageCode: result.language)
+        } catch {
+            state = .ready
+            self.error = error
+            throw error
+        }
+    }
     
     /// Unload the model and free resources
     public func unloadModel() async {
@@ -194,5 +222,16 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
     /// Load a model from a path (convenience method for tests)
     public func loadModel(modelPath: String) async throws {
         try await loadModel(path: modelPath)
+    }
+
+    private static func appLanguage(forWhisperLanguageCode code: String) -> AppLanguage? {
+        let normalizedCode = code.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalizedCode.isEmpty else { return nil }
+
+        return AppLanguage.allCases.first { language in
+            language != .automatic &&
+                (language.whisperLanguageCode?.lowercased() == normalizedCode ||
+                 language.rawValue.lowercased() == normalizedCode)
+        }
     }
 }
