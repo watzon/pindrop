@@ -16,6 +16,7 @@
 //
 
 import AVFoundation
+import CoreML
 import FluidAudio
 import Foundation
 
@@ -80,7 +81,14 @@ public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
                 throw EngineError.modelNotFound(modelDirectory.path)
             }
 
+            // Keep inference off the GPU (CPU+ANE only): CoreML's default `.all`
+            // dispatches to the same GPU that composites the floating indicator's
+            // blur/shader animations, and the two visibly contend at session start.
+            // FluidAudio's own batch Parakeet path makes the same choice.
+            let mlConfiguration = MLModelConfiguration()
+            mlConfiguration.computeUnits = .cpuAndNeuralEngine
             let streamingManager = NemotronStreamingAsrManager(
+                configuration: mlConfiguration,
                 requestedChunkSize: chunkProfile.nemotronChunkSize
             )
             await streamingManager.setPartialCallback { [weak self] text in
@@ -96,6 +104,17 @@ public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
             }
 
             try await streamingManager.loadModels(modelDir: modelDirectory)
+
+            // CoreML specializes kernels lazily on the first prediction, not at
+            // load — without this, that one-time spike lands on the first real
+            // audio chunk of a session, mid pop-out animation. Push one silent
+            // chunk (1.2s covers both chunk profiles) through the full
+            // preprocessor→encoder→decoder→joint path while still `.loading`.
+            let warmupSamples = [Float](repeating: 0, count: 19_200)
+            if let warmupBuffer = try? makePCMBuffer(from: warmupSamples) {
+                _ = try? await streamingManager.process(audioBuffer: warmupBuffer)
+            }
+            await streamingManager.reset()
 
             manager = streamingManager
             state = .ready

@@ -5,12 +5,13 @@
 //  Created on 2026-07-06.
 //
 //  The Orb floating indicator: a liquid-glass orb resting in a screen corner
-//  (bottom-right by default). Its interior renders a layered, EKG-style waveform —
-//  one scrolling trace per frequency band. While recording, a compact pill pops
-//  out of the orb's side carrying the timer and stop control; while overlay
-//  streaming is active the same pill grows to hold the live transcript with the
-//  timer/actions row on top. Orb and pill are rendered as one liquid surface via
-//  the `orbGoo` Metal layer effect (blur + alpha threshold + rim light).
+//  (bottom-right by default). Its interior renders three audio-reactive band
+//  blobs; hovering (or tapping to start) makes the orb itself swell and churn.
+//  While recording, a compact pill pops out of the orb's side carrying the timer
+//  and stop control; while overlay streaming is active the same pill grows to
+//  hold the live transcript with the timer/actions row on top. Orb and pill are
+//  rendered as one liquid surface by the analytic `orbGooField` Metal shader
+//  (SDF lobes → blurred-silhouette alpha → threshold + rim light).
 //
 
 import SwiftUI
@@ -32,15 +33,18 @@ private enum OrbMetrics {
     static let showDuration: TimeInterval = 0.22
     static let hideDuration: TimeInterval = 0.15
 
-    /// Blur radius feeding the goo threshold shader. Must stay below `edgeInset`
-    /// so the liquid surface never clips at the panel bounds.
-    static let gooBlur: CGFloat = 6
+    /// Softness (σ) of the analytic goo field: the shader models each lobe's
+    /// alpha as a Gaussian-blurred silhouette of this radius, preserving the
+    /// look of the earlier raster-blur pipeline.
+    static let gooSoftness: CGFloat = 5
 
-    /// Resting gap between the orb's edge and the detached pill. Must exceed the
-    /// goo shader's bridging distance (~1.5 × `gooBlur`) so the two read as fully
-    /// separate surfaces at rest — the liquid merge only appears mid-transition,
-    /// while the pill's near edge travels through the orb's alpha field.
-    static let pillSeparationGap: CGFloat = 14
+    /// Resting gap between the orb's edge and the detached pill. The shader
+    /// bridges two surfaces once the saddle point of their alpha fields crosses
+    /// the 0.34 threshold — at ~1.9 × `gooSoftness` apart — so the gap must
+    /// exceed that for the two to read as fully separate surfaces at rest; the
+    /// liquid merge only appears mid-transition, while the pill's near edge
+    /// travels through the orb's alpha field.
+    static let pillSeparationGap: CGFloat = 10
 
     /// Screen-width fractions that pick the pill's exit side: orb in the right
     /// zone → pill exits left, left zone → exits right, middle band → exits
@@ -78,6 +82,16 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Hover swell: clearly bigger than idle while still short of the active size,
+    /// so starting a session reads as a further step up.
+    var orbHoverDiameter: CGFloat {
+        switch self {
+        case .small:  return 32
+        case .medium: return 40
+        case .large:  return 46
+        }
+    }
+
     var orbActiveDiameter: CGFloat {
         switch self {
         case .small:  return 44
@@ -96,7 +110,8 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
         }
     }
 
-    var pillHoverWidth: CGFloat {
+    /// Width of the pill while a finished recording is being transcribed.
+    var pillProcessingWidth: CGFloat {
         switch self {
         case .small:  return 150
         case .medium: return 176
@@ -122,14 +137,15 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
 
     var pillStreamingHeight: CGFloat {
         switch self {
-        case .small:  return 78
-        case .medium: return 92
-        case .large:  return 104
+        case .small:  return 84
+        case .medium: return 98
+        case .large:  return 110
         }
     }
 
     /// Vertical lift that keeps the compact pill centred on the orb when it exits
-    /// horizontally; the streaming pill keeps this bottom edge and grows upward.
+    /// horizontally; the streaming pill drops the lift so its bottom edge aligns
+    /// with the orb's.
     var pillLift: CGFloat { (orbActiveDiameter - pillHeight) / 2 }
 
     // MARK: Type
@@ -168,26 +184,17 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
         }
     }
 
-    var recordButtonDiameter: CGFloat {
-        switch self {
-        case .small:  return 18
-        case .medium: return 21
-        case .large:  return 24
-        }
-    }
-
     // MARK: Panel
 
     /// Panel dimensions depend on the pill's exit direction: horizontal exits lay
-    /// orb and pill side by side; vertical exits stack them. The streaming pill
-    /// sits `pillLift` above the assembly bottom on horizontal exits, so the panel
-    /// reserves that lift or the pill's top edge clips at the panel bounds.
+    /// orb and pill side by side (streaming pill bottom-aligned with the orb);
+    /// vertical exits stack them.
     func panelSize(for edge: OrbPillExitEdge) -> CGSize {
         let inset = OrbMetrics.edgeInset * 2
         if edge.isHorizontal {
             return CGSize(
                 width: pillStreamingWidth + OrbMetrics.pillSeparationGap + orbActiveDiameter + inset,
-                height: max(orbActiveDiameter, pillStreamingHeight + pillLift) + inset
+                height: max(orbActiveDiameter, pillStreamingHeight) + inset
             )
         }
         return CGSize(
@@ -247,6 +254,9 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     private var actions = FloatingIndicatorActions()
     private var isVisible = false
     private var lastHoverContactAt: Date = .distantPast
+    private var lastDragEndedAt: Date = .distantPast
+    private var isPointerCursorActive = false
+    private var monitorTickCount = 0
     private var dragStartMouseLocation: CGPoint?
     private var dragStartOffset: CGSize = .zero
     private var dragOffset: CGSize = .zero
@@ -317,6 +327,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func hide() {
         stopHoverMonitoring()
+        setPointerCursorActive(false)
         guard let panel else { isVisible = false; return }
         isVisible = false
         isHovered = false
@@ -345,6 +356,27 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func handleStartTapped() { actions.onStartRecording?(type) }
     func handleStopTapped()  { actions.onStopRecording?(type) }
+
+    /// Tap on the orb toggles the session. The tap gesture's movement slop is
+    /// wider than the drag gesture's 4pt threshold, so a small reposition nudge
+    /// can fire both — ignore taps during or just after a drag.
+    func handleOrbTapped() {
+        guard !isDragging, Date().timeIntervalSince(lastDragEndedAt) > 0.25 else { return }
+        if state.isRecording {
+            handleStopTapped()
+        } else if !state.isProcessing {
+            handleStartTapped()
+        }
+    }
+
+    /// Balanced push/pop for the orb's hover cursor. Closing the panel under the
+    /// pointer never delivers the hover-exit callback, so `hide()` resets this to
+    /// keep the app's cursor stack balanced.
+    func setPointerCursorActive(_ active: Bool) {
+        guard isPointerCursorActive != active else { return }
+        isPointerCursorActive = active
+        if active { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+    }
 
     // MARK: Drag
 
@@ -384,6 +416,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         settingsStore.orbFloatingIndicatorOffset = dragOffset
         dragStartOffset = dragOffset
         isDragging = false
+        lastDragEndedAt = Date()
         dragStartMouseLocation = nil
         if let panel {
             panel.setFrame(panelFrame(for: preferredScreen()), display: true)
@@ -675,7 +708,10 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     private func monitorTick() {
         guard isVisible else { return }
-        checkScreenPosition()
+        // Hover proximity wants the full tick rate; the screen/exit-edge check
+        // walks NSScreen.screens and doesn't — keep it off the animation frames.
+        monitorTickCount &+= 1
+        if monitorTickCount % 8 == 0 { checkScreenPosition() }
         evaluateHover()
     }
 
@@ -685,9 +721,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         let mouse = NSEvent.mouseLocation; let now = Date()
         let orbRect = orbScreenRect(for: panel.frame)
         let activationRect = orbRect.insetBy(dx: -OrbMetrics.hoverActivationInset, dy: -OrbMetrics.hoverActivationInset)
-        let retentionRect = panel.frame.insetBy(dx: -12, dy: -10)
         if isHovered {
-            if isContextMenuOpen || retentionRect.contains(mouse) { lastHoverContactAt = now; return }
+            if isContextMenuOpen || activationRect.contains(mouse) { lastHoverContactAt = now; return }
             if now.timeIntervalSince(lastHoverContactAt) >= OrbMetrics.hoverCollapseDelay { setHoverState(false) }
             return
         }
@@ -836,9 +871,12 @@ struct OrbIndicatorView: View {
 
     private var isActive: Bool { state.isRecording || state.isProcessing }
     private var showsTranscript: Bool { transcript.isActive && isActive }
-    private var showsPill: Bool { isActive || controller.isHovered }
+    private var showsPill: Bool { isActive }
 
-    private var orbDiameter: CGFloat { isActive ? sz.orbActiveDiameter : sz.orbIdleDiameter }
+    private var orbDiameter: CGFloat {
+        if isActive { return sz.orbActiveDiameter }
+        return controller.isHovered ? sz.orbHoverDiameter : sz.orbIdleDiameter
+    }
 
     private var exit: OrbPillExitEdge { controller.pillExitEdge }
 
@@ -849,7 +887,7 @@ struct OrbIndicatorView: View {
         if state.isRecording {
             return CGSize(width: sz.pillRecordingWidth, height: sz.pillHeight)
         }
-        return CGSize(width: sz.pillHoverWidth, height: sz.pillHeight)
+        return CGSize(width: sz.pillProcessingWidth, height: sz.pillHeight)
     }
 
     /// Hidden, the pill collapses along its travel axis so the pop-out reads as an
@@ -888,65 +926,89 @@ struct OrbIndicatorView: View {
 
     var body: some View {
         let panel = sz.panelSize(for: exit)
-        return ZStack(alignment: assemblyAlignment) {
-            gooLayer
-            contentLayer
-        }
-        .padding(OrbMetrics.edgeInset)
-        .frame(width: panel.width, height: panel.height, alignment: assemblyAlignment)
-        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsPill)
-        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsTranscript)
-        .animation(.spring(response: 0.34, dampingFraction: 0.84), value: isActive)
-        .animation(.spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
-        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: exit)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 4)
-                .onChanged { _ in
-                    if !controller.isDragging { controller.beginDrag() }
-                    controller.updateDrag(translation: .zero)
-                }
-                .onEnded { _ in controller.endDrag(translation: .zero) }
-        )
-        .themeRefresh()
-    }
-
-    // MARK: Liquid surface (goo silhouette → threshold shader)
-
-    private var gooLayer: some View {
-        liquidSilhouette
-            .compositingGroup()
-            .blur(radius: OrbMetrics.gooBlur)
-            .layerEffect(
-                ShaderLibrary.orbGoo(
-                    .color(OrbPalette.surface),
-                    .color(OrbPalette.rim)
-                ),
-                maxSampleOffset: .zero
+        return contentLayer
+            .padding(OrbMetrics.edgeInset)
+            .frame(width: panel.width, height: panel.height, alignment: assemblyAlignment)
+            .background(
+                OrbGooSurface(
+                    orbCenter: orbCenterInPanel,
+                    orbRadius: orbDiameter / 2,
+                    pillCenter: pillCenterInPanel,
+                    pillHalfWidth: pillSize.width / 2,
+                    pillHalfHeight: pillSize.height / 2,
+                    pillCornerRadius: pillCornerRadius
+                )
             )
-            .allowsHitTesting(false)
+            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsPill)
+            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsTranscript)
+            .animation(.spring(response: 0.34, dampingFraction: 0.84), value: isActive)
+            .animation(.spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
+            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: exit)
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 4)
+                    .onChanged { _ in
+                        if !controller.isDragging { controller.beginDrag() }
+                        controller.updateDrag(translation: .zero)
+                    }
+                    .onEnded { _ in controller.endDrag(translation: .zero) }
+            )
+            .themeRefresh()
     }
 
-    private var liquidSilhouette: some View {
-        ZStack(alignment: assemblyAlignment) {
-            RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
-                .fill(Color.black)
-                .frame(width: pillSize.width, height: pillSize.height)
-                .padding(pillEdgeInsets)
-            Circle()
-                .fill(Color.black)
-                .frame(width: orbDiameter, height: orbDiameter)
-                .frame(width: sz.orbActiveDiameter, height: sz.orbActiveDiameter)
+    // MARK: Liquid surface geometry (full-panel coordinates, including edge inset)
+
+    private var orbCenterInPanel: CGPoint {
+        let panel = sz.panelSize(for: exit)
+        let e = OrbMetrics.edgeInset
+        let half = sz.orbActiveDiameter / 2
+        switch exit {
+        case .left:  return CGPoint(x: panel.width - e - half, y: panel.height - e - half)
+        case .right: return CGPoint(x: e + half, y: panel.height - e - half)
+        case .up:    return CGPoint(x: panel.width / 2, y: panel.height - e - half)
+        case .down:  return CGPoint(x: panel.width / 2, y: e + half)
         }
     }
 
-    /// Positions the pill's near edge relative to the orb along the exit axis;
-    /// horizontal exits also lift the pill so its compact form centres on the orb.
-    private var pillEdgeInsets: EdgeInsets {
+    private var pillCenterInPanel: CGPoint {
+        let panel = sz.panelSize(for: exit)
+        let e = OrbMetrics.edgeInset
+        let lift = showsTranscript ? 0 : sz.pillLift
         switch exit {
         case .left:
-            return EdgeInsets(top: 0, leading: 0, bottom: sz.pillLift, trailing: pillNearInset)
+            return CGPoint(x: panel.width - e - pillNearInset - pillSize.width / 2,
+                           y: panel.height - e - lift - pillSize.height / 2)
         case .right:
-            return EdgeInsets(top: 0, leading: pillNearInset, bottom: sz.pillLift, trailing: 0)
+            return CGPoint(x: e + pillNearInset + pillSize.width / 2,
+                           y: panel.height - e - lift - pillSize.height / 2)
+        case .up:
+            return CGPoint(x: panel.width / 2,
+                           y: panel.height - e - pillNearInset - pillSize.height / 2)
+        case .down:
+            return CGPoint(x: panel.width / 2,
+                           y: e + pillNearInset + pillSize.height / 2)
+        }
+    }
+
+    /// Anchors the fixed-size pill content within the animated reveal window so
+    /// the wipe travels away from the orb, matching the pill's growth direction.
+    private var pillRevealAlignment: Alignment {
+        switch exit {
+        case .left:      return .topTrailing
+        case .right:     return .topLeading
+        case .up, .down: return .top
+        }
+    }
+
+    /// Positions the pill's near edge relative to the orb along the exit axis.
+    /// Horizontal exits also lift the compact pill so it centres on the orb; the
+    /// streaming pill drops the lift so its bottom edge aligns with the orb's.
+    private var pillEdgeInsets: EdgeInsets {
+        let lift = showsTranscript ? 0 : sz.pillLift
+        switch exit {
+        case .left:
+            return EdgeInsets(top: 0, leading: 0, bottom: lift, trailing: pillNearInset)
+        case .right:
+            return EdgeInsets(top: 0, leading: pillNearInset, bottom: lift, trailing: 0)
         case .up:
             return EdgeInsets(top: 0, leading: 0, bottom: pillNearInset, trailing: 0)
         case .down:
@@ -959,7 +1021,15 @@ struct OrbIndicatorView: View {
     private var contentLayer: some View {
         ZStack(alignment: assemblyAlignment) {
             pillContent
-                .frame(width: pillSize.width, height: pillSize.height, alignment: .top)
+                // Content lays out once at its resting size and is revealed
+                // through the animated window below — re-laying-out the
+                // transcript/scroll stack on every spring frame is the cost
+                // this avoids. The nil transaction stops the resting-size frame
+                // itself from animating; inner explicit `.animation(value:)`
+                // modifiers (timer digits, processing dots) still run.
+                .frame(width: pillRestingSize.width, height: pillRestingSize.height, alignment: .top)
+                .transaction { $0.animation = nil }
+                .frame(width: pillSize.width, height: pillSize.height, alignment: pillRevealAlignment)
                 .clipShape(RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous))
                 .padding(pillEdgeInsets)
                 .opacity(showsPill ? 1 : 0)
@@ -991,7 +1061,7 @@ struct OrbIndicatorView: View {
                     )
                 )
 
-            OrbBlobsView(state: state, isLive: isActive)
+            OrbBlobsView(state: state, isLive: isActive, isExcited: controller.isHovered)
                 .padding(orbDiameter * 0.04)
                 .clipShape(Circle())
 
@@ -1012,6 +1082,12 @@ struct OrbIndicatorView: View {
         }
         .frame(width: orbDiameter, height: orbDiameter)
         .contentShape(Circle())
+        .onTapGesture { controller.handleOrbTapped() }
+        .onHover { controller.setPointerCursorActive($0) }
+        .accessibilityElement()
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(localized("Pindrop Orb", locale: locale))
+        .accessibilityAction { controller.handleOrbTapped() }
     }
 
     // MARK: Pill content
@@ -1026,10 +1102,13 @@ struct OrbIndicatorView: View {
                     fontSize: sz.textFontSize,
                     lineLimit: sz.transcriptLineLimit
                 )
-                .padding(.horizontal, 13)
-                .padding(.bottom, 9)
+                .padding(.horizontal, 15)
+                .padding(.bottom, 10)
             }
         }
+        // Compact pill height equals the row height, so the inset only applies to
+        // the streaming layout — the row stays vertically centred otherwise.
+        .padding(.top, showsTranscript ? 5 : 0)
     }
 
     @ViewBuilder
@@ -1058,7 +1137,7 @@ struct OrbIndicatorView: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 14)
         } else if state.isProcessing {
             HStack(spacing: 7) {
                 IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3.5)
@@ -1068,38 +1147,72 @@ struct OrbIndicatorView: View {
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 14)
         } else {
-            HStack(spacing: 8) {
-                Button { controller.handleStartTapped() } label: {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.overlayRecording)
-                            .frame(width: sz.recordButtonDiameter, height: sz.recordButtonDiameter)
-                            .shadow(color: AppColors.overlayRecording.opacity(0.28), radius: 6, y: 3)
-                        Circle()
-                            .fill(AppColors.overlayTextPrimary)
-                            .frame(width: sz.recordButtonDiameter * 0.42, height: sz.recordButtonDiameter * 0.42)
-                    }
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-                }
-
-                Text(localized("Ready to record", locale: locale))
-                    .font(.system(size: sz.textFontSize, weight: .regular, design: .rounded))
-                    .foregroundStyle(AppColors.overlayTextSecondary)
-                    .lineLimit(1)
-
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 10)
+            // The pill only shows while a session is active; this branch renders
+            // solely during the collapse animation after a session ends.
+            Color.clear
         }
     }
 
     private var formattedDuration: String {
         String(format: "%d:%02d", Int(state.recordingDuration) / 60, Int(state.recordingDuration) % 60)
+    }
+}
+
+// MARK: - Liquid surface (analytic SDF metaball shader)
+
+/// The orb+pill liquid surface, evaluated analytically per pixel in one fragment
+/// pass (`orbGooField`). The predecessor rendered silhouettes through
+/// compositingGroup → blur → threshold layerEffect; that chain re-rasterized on
+/// every frame of the pop-out springs and dominated the transition's render
+/// cost. `Animatable` lets the springs interpolate the field's geometry as plain
+/// shader uniforms — an animation frame costs one quad draw.
+private struct OrbGooSurface: View, Animatable {
+    var orbCenter: CGPoint
+    var orbRadius: CGFloat
+    var pillCenter: CGPoint
+    var pillHalfWidth: CGFloat
+    var pillHalfHeight: CGFloat
+    var pillCornerRadius: CGFloat
+
+    typealias Quad = AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>>
+
+    var animatableData: AnimatablePair<Quad, Quad> {
+        get {
+            AnimatablePair(
+                AnimatablePair(AnimatablePair(orbCenter.x, orbCenter.y),
+                               AnimatablePair(orbRadius, pillCornerRadius)),
+                AnimatablePair(AnimatablePair(pillCenter.x, pillCenter.y),
+                               AnimatablePair(pillHalfWidth, pillHalfHeight))
+            )
+        }
+        set {
+            orbCenter = CGPoint(x: newValue.first.first.first, y: newValue.first.first.second)
+            orbRadius = newValue.first.second.first
+            pillCornerRadius = newValue.first.second.second
+            pillCenter = CGPoint(x: newValue.second.first.first, y: newValue.second.first.second)
+            pillHalfWidth = newValue.second.second.first
+            pillHalfHeight = newValue.second.second.second
+        }
+    }
+
+    var body: some View {
+        Rectangle()
+            .fill(Color.white)
+            .colorEffect(
+                ShaderLibrary.orbGooField(
+                    .float2(orbCenter),
+                    .float(orbRadius),
+                    .float2(pillCenter),
+                    .float2(pillHalfWidth, pillHalfHeight),
+                    .float(pillCornerRadius),
+                    .float(OrbMetrics.gooSoftness),
+                    .color(OrbPalette.surface),
+                    .color(OrbPalette.rim)
+                )
+            )
+            .allowsHitTesting(false)
     }
 }
 
@@ -1149,7 +1262,7 @@ final class OrbBlobModel {
         }
     }
 
-    func advance(to time: TimeInterval, bands: AudioBandLevels, overall: Float, isLive: Bool) {
+    func advance(to time: TimeInterval, bands: AudioBandLevels, overall: Float, isLive: Bool, isExcited: Bool) {
         let dt = lastTime == 0 ? 1.0 / 40.0 : min(0.1, max(0.0, time - lastTime))
         lastTime = time
 
@@ -1161,9 +1274,15 @@ final class OrbBlobModel {
             targets = [level, level * 0.7, level * 0.45]
         }
         if !isLive {
-            // Idle: lazy drifting blobs with a slow breathing swell.
-            let breath = 0.16 + 0.06 * sin(time * 1.1)
-            targets = [breath, breath * 0.75, breath * 0.55]
+            if isExcited {
+                // Hover: the orb perks up — a quicker, fuller pulse than the idle breath.
+                let pulse = 0.34 + 0.10 * sin(time * 2.6)
+                targets = [pulse, pulse * 0.78, pulse * 0.58]
+            } else {
+                // Idle: lazy drifting blobs with a slow breathing swell.
+                let breath = 0.18 + 0.07 * sin(time * 1.15)
+                targets = [breath, breath * 0.72, breath * 0.52]
+            }
         }
 
         for index in levels.indices {
@@ -1186,8 +1305,12 @@ final class OrbBlobModel {
 /// drifting and churning with the voice under additive blending, plus a hot core
 /// highlight — the flowy, organic look rather than a spiky trace.
 struct OrbBlobsView: View {
-    @ObservedObject var state: FloatingIndicatorState
+    /// Deliberately NOT observed: the Canvas below polls band/level values on its
+    /// own 40fps timeline, so per-audio-buffer `objectWillChange` invalidations
+    /// would only add SwiftUI churn during recording.
+    let state: FloatingIndicatorState
     let isLive: Bool
+    let isExcited: Bool
 
     @State private var model = OrbBlobModel()
 
@@ -1201,7 +1324,8 @@ struct OrbBlobsView: View {
                     to: timeline.date.timeIntervalSinceReferenceDate,
                     bands: state.bandLevels,
                     overall: state.audioLevel,
-                    isLive: isLive
+                    isLive: isLive,
+                    isExcited: isExcited
                 )
                 context.blendMode = .plusLighter
 

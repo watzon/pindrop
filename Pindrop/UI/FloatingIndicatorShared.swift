@@ -435,7 +435,12 @@ final class FloatingIndicatorState: ObservableObject {
     @Published var isRecording = false
     @Published var recordingDuration: TimeInterval = 0
     @Published var audioLevel: Float = 0.0
-    @Published var bandLevels = AudioBandLevels.zero
+    /// Deliberately not `@Published`: the only reader is the Orb's blob canvas,
+    /// which polls at 40fps on its own timeline, so publishing bought nothing.
+    /// This halves (not eliminates) the per-buffer invalidation traffic —
+    /// `audioLevel` above updates at the same cadence and must stay `@Published`
+    /// for the Pill indicator's waveform.
+    var bandLevels = AudioBandLevels.zero
     @Published var isProcessing = false
     @Published var escapePrimed = false
     @Published var toggleRecordingHotkey = ""

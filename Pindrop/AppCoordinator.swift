@@ -164,6 +164,7 @@ struct SettingsObservationSnapshot: Equatable {
     let aiEnhancementEnabled: Bool
     let enableUIContext: Bool
     let vibeLiveSessionEnabled: Bool
+    let streamingFeatureEnabled: Bool
     let hotkeys: HotkeySettingsSnapshot
     let mcpServerEnabled: Bool
     let mcpServerPort: Int
@@ -981,7 +982,28 @@ final class AppCoordinator {
 
         updateVibeRuntimeStateFromSettings()
         applyMCPServerSettings()
+        prewarmStreamingEngineIfEnabled()
         Log.boot.info("startNormalOperation complete")
+    }
+
+    /// Loads the streaming (Nemotron) engine and runs its CoreML warm-up inference
+    /// in the background so the first dictation session doesn't pay that cost while
+    /// the recording indicator is animating in. `prepareStreamingEngine` coalesces
+    /// concurrent callers, so a session that starts mid-prewarm awaits this same
+    /// load rather than failing over to batch.
+    private func prewarmStreamingEngineIfEnabled() {
+        guard settingsStore.streamingFeatureEnabled else { return }
+        Task(priority: .utility) { [weak self] in
+            guard let self else { return }
+            do {
+                try await self.transcriptionService.prepareStreamingEngine()
+                Log.boot.info("Streaming engine prewarmed")
+            } catch {
+                // Model not downloaded yet, etc. — the session path handles
+                // fallback; the next session simply pays the load as before.
+                Log.transcription.info("Streaming engine prewarm skipped: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - MCP Server
@@ -1347,6 +1369,7 @@ final class AppCoordinator {
             aiEnhancementEnabled: settingsStore.assignment(for: .transcriptionEnhancement) != nil,
             enableUIContext: settingsStore.enableUIContext,
             vibeLiveSessionEnabled: settingsStore.vibeLiveSessionEnabled,
+            streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
             hotkeys: HotkeySettingsSnapshot(
                 hasCompletedOnboarding: settingsStore.hasCompletedOnboarding,
                 pushToTalk: HotkeyBindingSnapshot(
@@ -1405,6 +1428,10 @@ final class AppCoordinator {
                     if previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
                         self.clearFloatingIndicatorTemporaryHiddenState()
                         self.updateFloatingIndicatorVisibility(previousType: previousSnapshot.floatingIndicatorType)
+                    }
+
+                    if !previousSnapshot.streamingFeatureEnabled && snapshot.streamingFeatureEnabled {
+                        self.prewarmStreamingEngineIfEnabled()
                     }
 
                     if previousSnapshot.hotkeys != snapshot.hotkeys {

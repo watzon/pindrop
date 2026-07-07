@@ -71,6 +71,15 @@ class TranscriptionService {
     private var engine: (any TranscriptionEngine)?
     private var speakerDiarizer: (any SpeakerDiarizer)?
     private var streamingEngine: (any StreamingTranscriptionEngine)?
+    /// In-flight streaming-engine preparation, shared by concurrent callers so a
+    /// session starting during the launch prewarm awaits the same load instead of
+    /// hitting the engine's `.loading` state and falling back to batch. Class
+    /// wrapper so callers can identity-check before clearing the slot.
+    private final class StreamingPrepareHandle {
+        let task: Task<Void, Error>
+        init(task: Task<Void, Error>) { self.task = task }
+    }
+    private var streamingPrepareHandle: StreamingPrepareHandle?
     private var currentProvider: ModelManager.ModelProvider?
     private var streamingPartialCallback: (@Sendable (String) -> Void)?
     private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
@@ -345,6 +354,23 @@ class TranscriptionService {
     }
 
     func prepareStreamingEngine() async throws {
+        // Wait out any in-flight preparation, then reconcile once more against
+        // the settings as they are NOW — a caller landing mid-prewarm must not
+        // inherit the backend/chunk profile captured when that prepare started.
+        // The re-run is a cheap early-return when nothing changed. Errors from
+        // the in-flight task are ignored here; our own run rethrows fresh ones.
+        while let inFlight = streamingPrepareHandle {
+            _ = try? await inFlight.task.value
+            if streamingPrepareHandle === inFlight { streamingPrepareHandle = nil }
+        }
+        let task = Task { try await performPrepareStreamingEngine() }
+        let handle = StreamingPrepareHandle(task: task)
+        streamingPrepareHandle = handle
+        defer { if streamingPrepareHandle === handle { streamingPrepareHandle = nil } }
+        try await task.value
+    }
+
+    private func performPrepareStreamingEngine() async throws {
         let profile = streamingChunkProfileProvider()
         let requestedBackend = streamingBackendProvider()
 
@@ -428,22 +454,25 @@ class TranscriptionService {
                 state = .ready
             }
         } catch {
+            let streamingError: TranscriptionError
             switch effectiveBackend {
             case .parakeet:
                 let path = getStreamingModelBase()
                     .appendingPathComponent(modelPath, isDirectory: true)
                     .path
-                let streamingError = TranscriptionError.streamingModelNotAvailable(path)
-                self.error = streamingError
-                state = .error
-                throw streamingError
+                streamingError = TranscriptionError.streamingModelNotAvailable(path)
             case .appleSpeechTranscriber:
-                let streamingError = TranscriptionError.streamingStartFailed(
+                streamingError = TranscriptionError.streamingStartFailed(
                     error.localizedDescription)
-                self.error = streamingError
-                state = .error
-                throw streamingError
             }
+            self.error = streamingError
+            // A streaming-prepare failure (reachable from the background prewarm
+            // at any time) must not clobber the batch engine's state machine —
+            // mirror the guarded success path above.
+            if state == .unloaded || state == .error {
+                state = .error
+            }
+            throw streamingError
         }
     }
 
