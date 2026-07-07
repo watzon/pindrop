@@ -874,11 +874,85 @@ final class AppCoordinator {
         )
     }
 
+    static func shouldAttemptWhisperModelRepair(after error: Error) -> Bool {
+        !isNetworkConnectivityError(error)
+    }
+
+    static func isNetworkConnectivityError(_ error: Error) -> Bool {
+        if containsNetworkURLError(error) {
+            return true
+        }
+
+        let descriptions = [
+            (error as? LocalizedError)?.errorDescription,
+            error.localizedDescription
+        ].compactMap { $0?.lowercased() }
+
+        let networkFragments = [
+            "internet connection appears to be offline",
+            "not connected to the internet",
+            "network connection was lost",
+            "cannot find host",
+            "could not find host",
+            "could not connect to the server",
+            "a server with the specified hostname could not be found",
+            "request timed out",
+            "connection timed out",
+            "dns lookup failed"
+        ]
+
+        return descriptions.contains { description in
+            networkFragments.contains { description.contains($0) }
+        }
+    }
+
+    private static func containsNetworkURLError(_ error: Error, depth: Int = 0) -> Bool {
+        guard depth < 4 else { return false }
+
+        let nsError = error as NSError
+        let networkCodes: Set<URLError.Code> = [
+            .notConnectedToInternet,
+            .networkConnectionLost,
+            .cannotFindHost,
+            .cannotConnectToHost,
+            .dnsLookupFailed,
+            .timedOut,
+            .internationalRoamingOff,
+            .callIsActive,
+            .dataNotAllowed,
+            .secureConnectionFailed
+        ]
+
+        if nsError.domain == NSURLErrorDomain,
+           networkCodes.contains(URLError.Code(rawValue: nsError.code)) {
+            return true
+        }
+
+        if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? Error,
+           containsNetworkURLError(underlyingError, depth: depth + 1) {
+            return true
+        }
+
+        if let underlyingErrors = nsError.userInfo[NSMultipleUnderlyingErrorsKey] as? [Error] {
+            return underlyingErrors.contains {
+                containsNetworkURLError($0, depth: depth + 1)
+            }
+        }
+
+        return false
+    }
+
     private func loadAndActivateModel(
         named modelName: String,
         provider: ModelManager.ModelProvider
     ) async throws {
-        try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+        if provider == .whisperKit,
+           let localModelPath = modelManager.existingLocalModelPath(for: modelName) {
+            Log.model.info("Loading WhisperKit model \(modelName) from local folder: \(localModelPath.path)")
+            try await transcriptionService.loadModel(modelPath: localModelPath.path)
+        } else {
+            try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+        }
         setActiveModel(modelName)
     }
 
@@ -903,9 +977,17 @@ final class AppCoordinator {
 
     private func attemptWhisperModelRepairAndReload(
         modelName: String,
-        displayName: String
+        displayName: String,
+        loadError: Error
     ) async throws {
         Log.boot.info("attemptWhisperModelRepairAndReload begin model=\(modelName)")
+
+        guard Self.shouldAttemptWhisperModelRepair(after: loadError) else {
+            Log.model.warning("Skipping Whisper model repair for \(modelName) after network/offline load failure; local model folder will not be deleted. Error: \(loadError.localizedDescription)")
+            Log.boot.warning("attemptWhisperModelRepairAndReload skipped network/offline error model=\(modelName)")
+            throw loadError
+        }
+
         Log.model.warning("Selected Whisper model failed to load, attempting repair for \(modelName)")
 
         do {
@@ -981,7 +1063,8 @@ final class AppCoordinator {
                     do {
                         try await attemptWhisperModelRepairAndReload(
                             modelName: modelName,
-                            displayName: selectedDisplayName
+                            displayName: selectedDisplayName,
+                            loadError: error
                         )
                         Log.model.info("Model repaired and loaded successfully")
                     } catch {
@@ -1124,7 +1207,8 @@ final class AppCoordinator {
         guard let model = modelManager.availableModels.first(where: { $0.name == modelName }) else {
             throw ModelManager.ModelError.modelNotFound(modelName)
         }
-        if !modelManager.isModelDownloaded(modelName) {
+        if !modelManager.isModelDownloaded(modelName),
+           modelManager.existingLocalModelPath(for: modelName) == nil {
             try await modelManager.downloadModel(named: modelName) { _ in }
         }
         try await loadAndActivateModel(named: modelName, provider: model.provider)
@@ -4386,7 +4470,8 @@ final class AppCoordinator {
                 do {
                     try await attemptWhisperModelRepairAndReload(
                         modelName: modelName,
-                        displayName: model.displayName
+                        displayName: model.displayName,
+                        loadError: error
                     )
                     settingsStore.selectedModel = modelName
                     statusBarController.updateDynamicItems()

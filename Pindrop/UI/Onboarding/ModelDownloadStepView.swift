@@ -197,17 +197,10 @@ struct ModelDownloadStepView: View {
         Log.boot.info("ModelDownloadStepView.startDownload task began modelName=\(modelName)")
 
         // Check if model is already downloaded
-        if modelManager.isModelDownloaded(modelName) {
+        if modelManager.isModelDownloaded(modelName) || modelManager.existingLocalModelPath(for: modelName) != nil {
             Log.model.info("Model \(modelName) already downloaded, skipping download step")
             Log.boot.info("Onboarding model download step: model already on disk name=\(modelName) scheduling TranscriptionService.loadModel")
-            Task.detached { @MainActor in
-                do {
-                    try await self.transcriptionService.loadModel(modelName: self.modelName)
-                    Log.boot.info("Onboarding background loadModel finished OK name=\(self.modelName)")
-                } catch {
-                    Log.boot.error("Onboarding background loadModel failed name=\(self.modelName) error=\(error.localizedDescription)")
-                }
-            }
+            loadSelectedModelInBackground()
             try? await Task.sleep(for: .milliseconds(300))
             onComplete()
             return
@@ -218,14 +211,7 @@ struct ModelDownloadStepView: View {
             try await modelManager.downloadModel(named: modelName)
             Log.boot.info("Onboarding model download step: ModelManager.downloadModel returned scheduling TranscriptionService.loadModel name=\(modelName)")
 
-            Task.detached { @MainActor in
-                do {
-                    try await self.transcriptionService.loadModel(modelName: self.modelName)
-                    Log.boot.info("Onboarding background loadModel finished OK name=\(self.modelName)")
-                } catch {
-                    Log.boot.error("Onboarding background loadModel failed name=\(self.modelName) error=\(error.localizedDescription)")
-                }
-            }
+            loadSelectedModelInBackground()
 
             try? await Task.sleep(for: .milliseconds(300))
             Log.boot.info("Onboarding model download step: invoking onComplete")
@@ -234,6 +220,25 @@ struct ModelDownloadStepView: View {
             Log.boot.error("Onboarding model download step failed name=\(modelName) error=\(error.localizedDescription)")
             downloadError = error.localizedDescription
             hasStarted = false
+        }
+    }
+
+    private func loadSelectedModelInBackground() {
+        let localModelPath = modelManager.existingLocalModelPath(for: modelName)
+
+        Task.detached { @MainActor in
+            do {
+                if let localModelPath {
+                    Log.boot.info("Onboarding background loadModel(path) starting name=\(self.modelName)")
+                    try await self.transcriptionService.loadModel(modelPath: localModelPath.path)
+                } else {
+                    Log.boot.info("Onboarding background loadModel(name) starting name=\(self.modelName)")
+                    try await self.transcriptionService.loadModel(modelName: self.modelName)
+                }
+                Log.boot.info("Onboarding background loadModel finished OK name=\(self.modelName)")
+            } catch {
+                Log.boot.error("Onboarding background loadModel failed name=\(self.modelName) error=\(error.localizedDescription)")
+            }
         }
     }
 }

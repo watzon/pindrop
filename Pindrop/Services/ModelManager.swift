@@ -639,6 +639,21 @@ class ModelManager {
             return nil
         }
     }
+
+    func existingLocalModelPath(for modelName: String) -> URL? {
+        guard let model = availableModels.first(where: { $0.name == modelName }),
+              let modelPath = localModelPath(for: model) else {
+            return nil
+        }
+
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: modelPath.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else {
+            return nil
+        }
+
+        return modelPath
+    }
     
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
