@@ -96,8 +96,6 @@ best:
   _self: "Cel mai bun"
 better:
   _self: "Mai bine"
-bubble:
-  _self: "Bulă"
 built:
   in_presets: "Presetări încorporate"
   in_read_only: "Încorporat (numai citire)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Alegeți locația pentru a salva presetări"
   the_daytime_shell_used_in_light_mode: "Alegeți carcasa de zi folosită în modul de lumină."
   the_low_glare_shell_used_in_dark_mode: "Alegeți carcasa cu strălucire redusă utilizată în modul întunecat."
-  which_floating_indicator_style_appears_wh: "Alegeți stilul de indicator plutitor care apare atunci când suprapunerea este activată."
   which_microphone_pindrop_should_use_for_d: "Alegeți ce microfon ar trebui să folosească Pindrop pentru dictare și cum se comportă în timpul înregistrării."
   which_side_the_navigation_sidebar_appears: "Alegeți pe ce parte apare bara laterală de navigare."
+  how_pindrop_appears_on_screen_while_you_d: "Alege cum apare Pindrop pe ecran în timp ce dictezi."
 clean:
   up_filler_words: "Curățați cuvintele de completare"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Afișați Pindrop în Dock în loc să rulați doar ca aplicație pentru bara de meniu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Fixați bara laterală la marginea stângă sau dreaptă a ferestrei."
-dot:
-  _self: "Punct"
 download:
   _self: "Descărcați"
   complete: "Descărcare finalizată!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Activați îmbunătățirea AI"
   live_session_updates_during_recording: "Activați actualizările sesiunilor live în timpul înregistrării"
-  the_floating_indicator_to_choose_a_style: "Activați indicatorul flotant pentru a alege un stil."
   vibe_mode_ui_context: "Activați modul vibe (context UI)"
 enabled:
   _self: "Activat"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Remediați semnele de punctuație și scrierea cu majuscule"
 floating:
   indicator: "%@ indicator plutitor"
-  indicator_3bad78a5: "Indicator plutitor: %@"
   indicator_e0349402: "Indicator plutitor"
 folder:
   deleted: "Dosarul a fost șters."
@@ -487,6 +481,7 @@ media:
   library: "Biblioteca media"
   transcription: "Transcriere media"
   unavailable: "Media indisponibilă"
+  saved: "Media salvată"
 medium:
   _self: "Mediu"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Neselectat"
   set: "Nu setat"
   set_93039e60: "Nu setat"
-notch:
-  _self: "Crestătură"
 note:
   _self: "Nota"
   capture_push_to_talk: "Captură notițe (apăsați pentru a vorbi)"
@@ -556,6 +549,7 @@ note:
   from: "Notă de la"
   metadata: "Notă Metadatele"
   title: "Titlul notei"
+  saved: "Notiță salvată"
 notes:
   _self: "Note"
   3add7b96: "note"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Fixați pe ecran (întotdeauna în partea de sus)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop este gata de utilizare.
     Faceți clic pe pictograma barei de meniu pentru a începe.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop pe GitHub"
   pill: "Pilula Pindrop"
   theme: "Tema Pindrop"
+  orb: "Sfera Pindrop"
 play:
   _self: "Juca"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Afișați aplicația"
   app_in_finder: "Afișați aplicația în Finder"
-  floating_indicator: "Afișează indicatorul plutitor"
   in_dock: "Afișați în Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Afișează sub formă de punct în colțul ecranului"
   as_a_pill_at_the_bottom_of_the_screen: "Se afișează ca o pastilă în partea de jos a ecranului"
-  beside_the_focused_text_field_caret: "Se afișează lângă câmpul de text focalizat/marca de simbol"
-  in_the_menu_bar_notch_area: "Se afișează în bara de meniu/zona de crestătură"
-  recording_state_in_a_lightweight_overlay_w: "Afișează starea de înregistrare într-o fereastră de suprapunere ușoară."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Se afișează ca o sferă de sticlă lichidă în colțul ecranului"
 sidebar:
   position: "Poziția barei laterale"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transcriere în curs"
   metadata: "Metadate de transcriere"
   update: "Actualizare transcriere"
+  saved: "Transcriere salvată"
 transcriptions:
   _self: "Trancrieri"
   f0972acc: "transcrieri"
@@ -1015,3 +1006,7 @@ your:
     Le puteți personaliza mai târziu în Setări.
   model_is_ready_to_use: "Modelul dvs. este gata de utilizare."
   stats: "Statisticile tale"
+orb:
+  _self: "Sferă"
+meeting:
+  saved: "Ședință salvată"

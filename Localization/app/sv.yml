@@ -96,8 +96,6 @@ best:
   _self: "Bäst"
 better:
   _self: "Bättre"
-bubble:
-  _self: "Bubbla"
 built:
   in_presets: "Inbyggda förinställningar"
   in_read_only: "Inbyggd (skrivskyddad)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Välj plats för att spara förinställningar"
   the_daytime_shell_used_in_light_mode: "Välj dagskalet som används i ljusläge."
   the_low_glare_shell_used_in_dark_mode: "Välj skalet med låg bländning som används i mörkt läge."
-  which_floating_indicator_style_appears_wh: "Välj vilken flytande indikatorstil som ska visas när överlägget är aktiverat."
   which_microphone_pindrop_should_use_for_d: "Välj vilken mikrofon Pindrop ska använda för diktering och hur den beter sig under inspelning."
   which_side_the_navigation_sidebar_appears: "Välj vilken sida navigeringssidofältet ska visas på."
+  how_pindrop_appears_on_screen_while_you_d: "Välj hur Pindrop visas på skärmen medan du dikterar."
 clean:
   up_filler_words: "Rensa upp utfyllnadsord"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Visa Pindrop i Dock istället för att endast köras som en menyradsapp."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Docka sidofältet till vänster eller höger kant av fönstret."
-dot:
-  _self: "Punkt"
 download:
   _self: "Ladda ner"
   complete: "Nedladdningen är klar!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Aktivera AI Enhancement"
   live_session_updates_during_recording: "Aktivera livesessionsuppdateringar under inspelning"
-  the_floating_indicator_to_choose_a_style: "Aktivera den flytande indikatorn för att välja en stil."
   vibe_mode_ui_context: "Aktivera vibbläge (UI-kontext)"
 enabled:
   _self: "Aktiverad"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Fixa skiljetecken och versaler"
 floating:
   indicator: "%@ flytande indikator"
-  indicator_3bad78a5: "Flytande indikator: %@"
   indicator_e0349402: "Flytande indikator"
 folder:
   deleted: "Mapp raderad."
@@ -487,6 +481,7 @@ media:
   library: "Mediebibliotek"
   transcription: "Mediatranskription"
   unavailable: "Media inte tillgänglig"
+  saved: "Media sparad"
 medium:
   _self: "Medium"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Ej vald"
   set: "Ej inställd"
   set_93039e60: "Inte inställt"
-notch:
-  _self: "Hack"
 note:
   _self: "Notera"
   capture_push_to_talk: "Note Capture (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Anteckning från"
   metadata: "Notera Metadata"
   title: "Obs Titel"
+  saved: "Anteckning sparad"
 notes:
   _self: "Anteckningar"
   3add7b96: "anteckningar"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Fäst på skärmen (alltid överst)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop är redo att användas.
     Klicka på menyradens ikon för att komma igång.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop på GitHub"
   pill: "Pindrop piller"
   theme: "Pindrop-tema"
+  orb: "Pindrop-kula"
 play:
   _self: "Spela"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Visa app"
   app_in_finder: "Visa appen i Finder"
-  floating_indicator: "Visa flytande indikator"
   in_dock: "Visa i Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Visas som en prick i hörnet på skärmen"
   as_a_pill_at_the_bottom_of_the_screen: "Visas som ett piller längst ner på skärmen"
-  beside_the_focused_text_field_caret: "Visas bredvid det fokuserade textfältet/careten"
-  in_the_menu_bar_notch_area: "Visas i menyraden/notchområdet"
-  recording_state_in_a_lightweight_overlay_w: "Visar inspelningstillstånd i ett lätt överlagringsfönster."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Visas som en kula av flytande glas i hörnet av skärmen"
 sidebar:
   position: "Sidofältsposition"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkription pågår"
   metadata: "Transkriptionsmetadata"
   update: "Uppdatering av transkription"
+  saved: "Transkription sparad"
 transcriptions:
   _self: "Transkriptioner"
   f0972acc: "transkriptioner"
@@ -1015,3 +1006,7 @@ your:
     Du kan anpassa dem senare i Inställningar.
   model_is_ready_to_use: "Din modell är redo att användas."
   stats: "Din statistik"
+orb:
+  _self: "Kula"
+meeting:
+  saved: "Möte sparat"

@@ -160,7 +160,6 @@ struct SettingsObservationSnapshot: Equatable {
     let selectedInputDeviceUID: String
     let selectedAppLocale: AppLocale
     let selectedAppLanguage: AppLanguage
-    let floatingIndicatorEnabled: Bool
     let floatingIndicatorType: FloatingIndicatorType
     let aiEnhancementEnabled: Bool
     let enableUIContext: Bool
@@ -189,10 +188,8 @@ final class AppCoordinator {
         case floatingIndicatorStop = "floating-indicator-stop"
         case pillIndicatorStop = "pill-indicator-stop"
         case pillIndicatorStart = "pill-indicator-start"
-        case bubbleIndicatorStart = "bubble-indicator-start"
-        case bubbleIndicatorStop = "bubble-indicator-stop"
-        case dotIndicatorStart = "dot-indicator-start"
-        case dotIndicatorStop = "dot-indicator-stop"
+        case orbIndicatorStart = "orb-indicator-start"
+        case orbIndicatorStop = "orb-indicator-stop"
     }
 
     enum EventTapRecoveryAction: Equatable {
@@ -230,24 +227,12 @@ final class AppCoordinator {
     }
 
     static func floatingIndicatorFocusTrackingMode(
-        floatingIndicatorEnabled: Bool,
         isTemporarilyHidden: Bool,
-        selectedType: FloatingIndicatorType,
         isRecording: Bool,
         isProcessing: Bool
     ) -> FloatingIndicatorTrackingMode? {
-        guard floatingIndicatorEnabled, !isTemporarilyHidden else { return nil }
-
-        if isRecording || isProcessing {
-            switch selectedType {
-            case .pill, .notch, .dot:
-                return .activeSession
-            case .bubble:
-                return nil
-            }
-        }
-
-        return (selectedType == .pill || selectedType == .dot) ? .idlePill : nil
+        guard !isTemporarilyHidden else { return nil }
+        return (isRecording || isProcessing) ? .activeSession : .idlePill
     }
 
     private enum EventTapKind {
@@ -295,15 +280,14 @@ final class AppCoordinator {
     let statusBarController: StatusBarController
     let floatingIndicatorState: FloatingIndicatorState
     /// Live-transcript model for overlay streaming. Shared by all indicator presenters
-    /// (switching indicator type mid-session keeps the transcript) and fed by
-    /// `overlayStreamingSink`.
+    /// (switching indicator type mid-session keeps the transcript) and fed by the
+    /// streaming session's overlay sink.
     let liveTranscriptState: LiveTranscriptState
-    /// Strongly retained here — `StreamingRefinementCoordinator` holds its sink weakly.
-    private(set) var overlayStreamingSink: OverlayStreamingSink?
-    let floatingIndicatorController: FloatingIndicatorController
+    /// Owns the streaming session lifecycle: engine callbacks, audio forwarding,
+    /// refinement coordinator + overlay sink, and the post-stop finalize pipeline.
+    let streamingSession: StreamingSessionController
     let pillFloatingIndicatorController: PillFloatingIndicatorController
-    let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
-    let dotFloatingIndicatorController: DotFloatingIndicatorController
+    let orbFloatingIndicatorController: OrbFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
@@ -317,12 +301,6 @@ final class AppCoordinator {
     private var isQuickCaptureMode = false
     private var isRecordingFeatureCaptureActive = false
     private var quickCaptureTranscription: String?
-    private var isStreamingTranscriptionSessionActive = false
-    private var streamingAudioProcessingTask: Task<Void, Never>?
-    /// The refinement coordinator for the current streaming session. Owns the
-    /// committed/tentative split and drives the overlay sink; partial and final
-    /// streaming callbacks route through it.
-    private var streamingRefinementCoordinator: StreamingRefinementCoordinator?
     private var mediaTranscriptionTask: Task<Void, Never>?
     private var queueOriginalModelName: String?
 
@@ -451,29 +429,30 @@ final class AppCoordinator {
         )
         self.floatingIndicatorState = FloatingIndicatorState()
         self.liveTranscriptState = LiveTranscriptState()
-        self.floatingIndicatorController = FloatingIndicatorController(
-            state: floatingIndicatorState,
-            liveTranscript: liveTranscriptState
+        self.streamingSession = StreamingSessionController(
+            transcriptionService: transcriptionService,
+            settingsStore: settingsStore,
+            dictionaryStore: dictionaryStore,
+            outputManager: outputManager,
+            toastService: toastService,
+            liveTranscriptState: liveTranscriptState,
+            audioRecorder: audioRecorder,
+            normalizeText: { AppCoordinator.normalizedTranscriptionText($0) },
+            isEffectivelyEmptyText: { AppCoordinator.isTranscriptionEffectivelyEmpty($0) }
         )
         self.pillFloatingIndicatorController = PillFloatingIndicatorController(
             state: floatingIndicatorState,
             settingsStore: settingsStore,
             liveTranscript: liveTranscriptState
         )
-        self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(
-            state: floatingIndicatorState,
-            liveTranscript: liveTranscriptState
-        )
-        self.dotFloatingIndicatorController = DotFloatingIndicatorController(
+        self.orbFloatingIndicatorController = OrbFloatingIndicatorController(
             state: floatingIndicatorState,
             settingsStore: settingsStore,
             liveTranscript: liveTranscriptState
         )
         self.floatingIndicatorPresenters = [
-            .notch: floatingIndicatorController,
             .pill: pillFloatingIndicatorController,
-            .bubble: caretBubbleFloatingIndicatorController,
-            .dot: dotFloatingIndicatorController
+            .orb: orbFloatingIndicatorController
         ]
         self.onboardingController = OnboardingWindowController()
         let splashState = SplashScreenState()
@@ -552,10 +531,6 @@ final class AppCoordinator {
             self?.handleSelectPromptPreset(presetId)
         }
 
-        self.statusBarController.onToggleFloatingIndicator = { [weak self] in
-            self?.handleToggleFloatingIndicator()
-        }
-
         self.statusBarController.onToggleLaunchAtLogin = { [weak self] in
             self?.handleToggleLaunchAtLogin()
         }
@@ -603,6 +578,12 @@ final class AppCoordinator {
                 self?.recordingState.audioLevel = level
             }
         }
+        self.audioRecorder.onAudioBandLevels = { [weak self] bands in
+            self?.floatingIndicatorState.updateBandLevels(bands)
+        }
+        self.streamingSession.configure(postStopEnhance: { [weak self] text in
+            await self?.runBasicPostStopEnhance(text: text)
+        })
 
         let floatingIndicatorActions = FloatingIndicatorActions(
             onStartRecording: { [weak self] type in
@@ -649,9 +630,6 @@ final class AppCoordinator {
             },
             selectedLanguageProvider: { [weak self] in
                 self?.settingsStore.selectedAppLanguage ?? .automatic
-            },
-            anchorProvider: { [weak self] in
-                self?.contextEngineService.captureFocusedElementAnchorRect()
             },
             preferredScreenProvider: { [weak self] in
                 self?.floatingIndicatorFocusTracker.preferredScreen()
@@ -1365,7 +1343,6 @@ final class AppCoordinator {
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
             selectedAppLocale: settingsStore.selectedAppLocale,
             selectedAppLanguage: settingsStore.selectedAppLanguage,
-            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
             aiEnhancementEnabled: settingsStore.assignment(for: .transcriptionEnhancement) != nil,
             enableUIContext: settingsStore.enableUIContext,
@@ -1425,12 +1402,8 @@ final class AppCoordinator {
                         self.audioRecorder.setPreferredInputDeviceUID(snapshot.selectedInputDeviceUID)
                     }
 
-                    if previousSnapshot.floatingIndicatorEnabled != snapshot.floatingIndicatorEnabled
-                        || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
-                        if (!previousSnapshot.floatingIndicatorEnabled && snapshot.floatingIndicatorEnabled)
-                            || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
-                            self.clearFloatingIndicatorTemporaryHiddenState()
-                        }
+                    if previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                        self.clearFloatingIndicatorTemporaryHiddenState()
                         self.updateFloatingIndicatorVisibility(previousType: previousSnapshot.floatingIndicatorType)
                     }
 
@@ -1462,7 +1435,7 @@ final class AppCoordinator {
                         Log.app.infoVisible("Reloading localized strings after settings change")
                         self.statusBarController.reloadLocalizedStrings()
                         self.pillFloatingIndicatorController.reloadLocalizedStrings()
-                        self.dotFloatingIndicatorController.reloadLocalizedStrings()
+                        self.orbFloatingIndicatorController.reloadLocalizedStrings()
                     }
 
                     if previousSnapshot.mcpServerEnabled != snapshot.mcpServerEnabled
@@ -1489,12 +1462,6 @@ final class AppCoordinator {
     
     private func updateFloatingIndicatorVisibility(previousType: FloatingIndicatorType? = nil) {
         guard !isFloatingIndicatorTemporarilyHidden() else {
-            hideAllFloatingIndicators()
-            syncFloatingIndicatorFocusTracking()
-            return
-        }
-
-        guard settingsStore.floatingIndicatorEnabled else {
             hideAllFloatingIndicators()
             syncFloatingIndicatorFocusTracking()
             return
@@ -1527,12 +1494,8 @@ final class AppCoordinator {
         switch type {
         case .pill:
             .pillIndicatorStart
-        case .notch:
-            .floatingIndicatorStart
-        case .bubble:
-            .bubbleIndicatorStart
-        case .dot:
-            .dotIndicatorStart
+        case .orb:
+            .orbIndicatorStart
         }
     }
 
@@ -1540,12 +1503,8 @@ final class AppCoordinator {
         switch type {
         case .pill:
             .pillIndicatorStop
-        case .notch:
-            .floatingIndicatorStop
-        case .bubble:
-            .bubbleIndicatorStop
-        case .dot:
-            .dotIndicatorStop
+        case .orb:
+            .orbIndicatorStop
         }
     }
 
@@ -1557,9 +1516,7 @@ final class AppCoordinator {
 
     private func syncFloatingIndicatorFocusTracking() {
         let trackingMode = Self.floatingIndicatorFocusTrackingMode(
-            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             isTemporarilyHidden: isFloatingIndicatorTemporarilyHidden(),
-            selectedType: configuredFloatingIndicatorType(),
             isRecording: isRecording,
             isProcessing: isProcessing
         )
@@ -1572,7 +1529,7 @@ final class AppCoordinator {
     }
 
     private func startRecordingIndicatorSession() {
-        guard settingsStore.floatingIndicatorEnabled, !isFloatingIndicatorTemporarilyHidden() else { return }
+        guard !isFloatingIndicatorTemporarilyHidden() else { return }
 
         let selectedType = configuredFloatingIndicatorType()
         activeFloatingIndicatorType = selectedType
@@ -1582,18 +1539,12 @@ final class AppCoordinator {
     }
 
     private func transitionRecordingIndicatorToProcessing() {
-        guard settingsStore.floatingIndicatorEnabled else {
-            finishIndicatorSession()
-            return
-        }
-
         let activeType = activeFloatingIndicatorType ?? configuredFloatingIndicatorType()
         syncFloatingIndicatorFocusTracking()
         floatingIndicatorPresenters[activeType]?.transitionToProcessing()
     }
 
     private func startProcessingIndicatorSession() {
-        guard settingsStore.floatingIndicatorEnabled else { return }
         startRecordingIndicatorSession()
         transitionRecordingIndicatorToProcessing()
     }
@@ -1609,11 +1560,6 @@ final class AppCoordinator {
             floatingIndicatorState.showCompletion(pending)
         }
 
-        guard settingsStore.floatingIndicatorEnabled else {
-            hideAllFloatingIndicators()
-            syncFloatingIndicatorFocusTracking()
-            return
-        }
         updateFloatingIndicatorVisibility()
     }
 
@@ -2291,16 +2237,16 @@ final class AppCoordinator {
         do {
             didStartRecording = try await audioRecorder.startRecording()
         } catch {
-            if isStreamingTranscriptionSessionActive {
-                await cancelStreamingSession()
+            if streamingSession.isSessionActive {
+                await streamingSession.cancel()
             }
             Log.app.error("Audio engine failed to start: \(error)")
             throw error
         }
 
         guard didStartRecording else {
-            if isStreamingTranscriptionSessionActive {
-                await cancelStreamingSession()
+            if streamingSession.isSessionActive {
+                await streamingSession.cancel()
             }
             Log.app.debug("Recording start already in progress; ignoring duplicate start request")
             return
@@ -2463,9 +2409,7 @@ final class AppCoordinator {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
             isQuickCaptureMode: isQuickCaptureMode,
-            floatingIndicatorAvailable:
-                settingsStore.floatingIndicatorEnabled
-                && !isFloatingIndicatorTemporarilyHidden()
+            floatingIndicatorAvailable: !isFloatingIndicatorTemporarilyHidden()
         )
     }
 
@@ -2496,144 +2440,21 @@ final class AppCoordinator {
         AlertManager.shared.showMicrophonePermissionAlert()
     }
 
-    /// Lazily builds the long-lived overlay sink. Created outside `init` so the escaping
-    /// closures can capture dependencies without phase-1 initialization restrictions.
-    private func ensureOverlayStreamingSink() -> OverlayStreamingSink {
-        if let overlayStreamingSink {
-            return overlayStreamingSink
-        }
-        let sink = OverlayStreamingSink(
-            transcriptState: liveTranscriptState,
-            finalOutput: { [outputManager] text in
-                try await outputManager.output(text)
-            },
-            onClipboardFallback: { [toastService] in
-                toastService.show(
-                    ToastPayload(
-                        message: localized(
-                            "Paste failed. Transcript copied to clipboard.",
-                            locale: .autoupdatingCurrent
-                        ),
-                        style: .error
-                    )
-                )
-            }
-        )
-        overlayStreamingSink = sink
-        return sink
-    }
-
     private func beginStreamingSessionIfAvailable() async {
         let shouldUseStreaming = shouldUseStreamingTranscriptionForCurrentSession()
         guard shouldUseStreaming else {
-            let indicatorAvailable =
-                settingsStore.floatingIndicatorEnabled && !isFloatingIndicatorTemporarilyHidden()
+            let indicatorAvailable = !isFloatingIndicatorTemporarilyHidden()
             let reasons = [
                 settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
                 indicatorAvailable ? nil : "indicator-unavailable",
                 isQuickCaptureMode ? "quick-capture-mode" : nil
             ].compactMap { $0 }
             Log.transcription.info("Streaming transcription disabled for session: \(reasons.joined(separator: ","))")
-            isStreamingTranscriptionSessionActive = false
-            clearStreamingSessionBindings(cancelPendingWork: true)
+            streamingSession.deactivate()
             return
         }
 
-        do {
-            setStreamingTranscriptionCallbacks()
-            try await transcriptionService.prepareStreamingEngine()
-            try await transcriptionService.startStreaming()
-
-            // Surface a one-time toast if the Apple backend was requested but we had to
-            // fall back to Parakeet (e.g. running on macOS < 26 or unsupported locale).
-            if transcriptionService.consumeAppleBackendFallbackFlag() {
-                toastService.show(
-                    ToastPayload(
-                        message: localized(
-                            "Apple SpeechTranscriber unavailable — using Nemotron",
-                            locale: .autoupdatingCurrent
-                        ),
-                        style: .standard
-                    )
-                )
-            }
-
-            // The coordinator always stands up. It owns the committed/tentative split,
-            // LocalAgreement-2 commit rules, and deterministic cleanup — none of which
-            // need an LLM. Its sink is the overlay: live text renders in the floating
-            // indicator, and the target app receives one paste at session finish.
-            let coord = StreamingRefinementCoordinator()
-            coord.beginSession(outputSink: ensureOverlayStreamingSink())
-            streamingRefinementCoordinator = coord
-            if let refinementAssignment = settingsStore.resolveAssignment(for: .streamingRefinement) {
-                Log.transcription.info(
-                    "Streaming refinement coordinator engaged (provider=\(refinementAssignment.kind.rawValue), model=\(refinementAssignment.modelID)) — live LLM refinement disabled in Phase 2, post-stop path unchanged"
-                )
-            } else {
-                Log.transcription.info(
-                    "Streaming refinement coordinator engaged with deterministic cleanup only"
-                )
-            }
-
-            attachStreamingAudioForwarding()
-            isStreamingTranscriptionSessionActive = true
-            Log.transcription.info("Streaming transcription enabled for current session")
-        } catch {
-            Log.transcription.error("Streaming transcription unavailable, falling back to batch: \(error)")
-            await cancelStreamingSession()
-        }
-    }
-
-    private func setStreamingTranscriptionCallbacks() {
-        transcriptionService.setStreamingCallbacks(
-            onPartial: { [weak self] text in
-                Task { @MainActor in
-                    await self?.streamingRefinementCoordinator?.ingestPartial(text)
-                }
-            },
-            onFinalUtterance: { [weak self] text in
-                Task { @MainActor in
-                    await self?.streamingRefinementCoordinator?.ingestFinal(text)
-                }
-            }
-        )
-    }
-
-    private func attachStreamingAudioForwarding() {
-        audioRecorder.onAudioBuffer = { [weak self] buffer in
-            self?.enqueueStreamingAudioBuffer(buffer)
-        }
-    }
-
-    private func enqueueStreamingAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        guard isStreamingTranscriptionSessionActive else { return }
-
-        let previousTask = streamingAudioProcessingTask
-        streamingAudioProcessingTask = Task { @MainActor [weak self] in
-            _ = await previousTask?.result
-            guard let self, self.isStreamingTranscriptionSessionActive else { return }
-            do {
-                try await self.transcriptionService.processStreamingAudioBuffer(buffer)
-            } catch {
-                Log.transcription.error("Streaming audio buffer processing failed: \(error)")
-            }
-        }
-    }
-
-    private func flushStreamingSessionWork() async {
-        if let task = streamingAudioProcessingTask {
-            _ = await task.result
-        }
-        streamingAudioProcessingTask = nil
-    }
-
-    private func clearStreamingSessionBindings(cancelPendingWork: Bool) {
-        audioRecorder.onAudioBuffer = nil
-        transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
-        if cancelPendingWork {
-            streamingAudioProcessingTask?.cancel()
-            streamingAudioProcessingTask = nil
-        }
+        await streamingSession.begin()
     }
 
     /// Runs the post-stop transcriptionEnhancement assignment on `text` using the simple
@@ -2691,21 +2512,6 @@ final class AppCoordinator {
         }
     }
 
-    /// Abort the streaming session: tear down callbacks, cancel the engine, and collapse
-    /// the overlay. Nothing was inserted into the target app, so there is no text to
-    /// preserve or remove.
-    private func cancelStreamingSession() async {
-        clearStreamingSessionBindings(cancelPendingWork: true)
-        await transcriptionService.cancelStreaming()
-        if let coord = streamingRefinementCoordinator {
-            await coord.cancelSession()
-            streamingRefinementCoordinator = nil
-        } else {
-            await overlayStreamingSink?.cancelStreamingInsertion()
-        }
-        isStreamingTranscriptionSessionActive = false
-    }
-
     private func stopRecordingAndFinalizeStreaming() async throws {
         guard let startTime = recordingStartTime else {
             Log.app.warning("stopRecordingAndFinalizeStreaming called but recordingStartTime is nil")
@@ -2735,150 +2541,33 @@ final class AppCoordinator {
             recordedAudioData = try await audioRecorder.stopRecording()
         } catch {
             Log.app.error("Failed to stop recording for streaming session: \(error)")
-            await cancelStreamingSession()
+            await streamingSession.cancel()
             throw error
         }
 
-        await flushStreamingSessionWork()
-        transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+        let outcome = try await streamingSession.finalize(
+            recordedAudioData: recordedAudioData,
+            recordingDuration: Date().timeIntervalSince(startTime)
+        )
+        lastAppliedReplacements = outcome.appliedReplacements
 
-        let finalStreamedText: String
-        do {
-            finalStreamedText = try await transcriptionService.stopStreaming()
-            Log.transcription.info("Streaming transcription finalized")
-        } catch {
-            Log.transcription.error("Failed to stop streaming transcription: \(error)")
-            await cancelStreamingSession()
-            throw error
-        }
-
-        clearStreamingSessionBindings(cancelPendingWork: false)
-        isStreamingTranscriptionSessionActive = false
-
-        var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: finalStreamedText)
-        textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
-        self.lastAppliedReplacements = appliedReplacements
-        if !appliedReplacements.isEmpty {
-            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
-        }
-
-        // If the refinement coordinator is active, it owns the authoritative final text:
-        // fold dictionary replacements onto its refined output rather than the raw stream.
-        // The coordinator's drained text is the currently-displayed string; dictionary
-        // replacements run on top, and the sink's finishStreamingInsertion below lands
-        // the post-replacement text in the target app with a single paste.
-        let coord = streamingRefinementCoordinator
-        if let coord {
-            let coordText = await coord.awaitFinalTextAndDrain()
-            let (coordAfterReplacements, coordReplacements) = try dictionaryStore.applyReplacements(
-                to: coordText
-            )
-            textAfterReplacements = normalizedTranscriptionText(coordAfterReplacements)
-            self.lastAppliedReplacements = coordReplacements
-            if !coordReplacements.isEmpty {
-                Log.app.info(
-                    "Applied \(coordReplacements.count) dictionary replacements to refined stream")
-            }
-        }
-
-        guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
+        guard !outcome.isEffectivelyEmpty else {
             handleNoSpeechDetected(context: "streaming recording")
-            // Empty finish collapses the overlay without pasting anything.
-            try? await overlayStreamingSink?.finishStreamingInsertion(
-                finalText: "", appendTrailingSpace: false)
-            streamingRefinementCoordinator = nil
             return
         }
 
-        // Offline finalize pass: re-transcribe the recorded audio with the batch model.
-        // Streaming RNNT decoding is append-only — punctuation the model doesn't emit
-        // in the moment can never be inserted retroactively, so pause-dependent
-        // punctuation is unreliable live. The batch model decodes the whole waveform
-        // (pauses included) with full bidirectional context and places punctuation
-        // correctly. The streamed text remains the live overlay preview and the
-        // fallback whenever the offline pass fails or comes back empty.
-        if !recordedAudioData.isEmpty {
-            liveTranscriptState.beginEnhancing()
-            do {
-                let refined = try await transcriptionService.transcribe(
-                    audioData: recordedAudioData,
-                    diarizationEnabled: false,
-                    options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
-                )
-                let (refinedAfterReplacements, refinedReplacements) =
-                    try dictionaryStore.applyReplacements(to: refined.text)
-                let normalizedRefined = normalizedTranscriptionText(refinedAfterReplacements)
-                if !isTranscriptionEffectivelyEmpty(normalizedRefined) {
-                    textAfterReplacements = normalizedRefined
-                    self.lastAppliedReplacements = refinedReplacements
-                    Log.transcription.info(
-                        "Streaming finalize: offline re-transcription applied (\(normalizedRefined.count) chars)"
-                    )
-                } else {
-                    Log.transcription.info(
-                        "Streaming finalize: offline re-transcription was empty; keeping streamed text"
-                    )
-                }
-            } catch {
-                Log.transcription.warning(
-                    "Streaming finalize: offline re-transcription failed, keeping streamed text: \(error.localizedDescription)"
-                )
-            }
-        }
-
-        // Post-stop holistic enhancement for streaming sessions. Gated by the
-        // `streamingPostStopEnhancementEnabled` setting (default OFF): the deterministic
-        // cleaner is strong enough to stand on its own for most dictation, and the LLM
-        // path has failure modes (preamble, conversational replies, rate-limit stalls)
-        // we don't want as the default experience. Users who want LLM polish can enable
-        // the toggle and configure a `transcriptionEnhancement` assignment.
-        var originalStreamedText: String? = nil
-        var enhancedWithModel: String? = nil
-        let liveRefinementLanded = coord?.didLandAnyRefinement == true
-        let enhanceEnabled = settingsStore.streamingPostStopEnhancementEnabled
-        if enhanceEnabled, !liveRefinementLanded {
-            // Surface the enhancement wait in the overlay: the transcript stays visible
-            // with an "Enhancing…" affordance until the rewritten text is pasted.
-            liveTranscriptState.beginEnhancing()
-            if let result = await runBasicPostStopEnhance(text: textAfterReplacements) {
-                originalStreamedText = textAfterReplacements
-                textAfterReplacements = result.enhancedText
-                enhancedWithModel = result.modelID
-                Log.transcription.info(
-                    "Streaming post-stop enhancement applied: \(originalStreamedText?.count ?? 0) → \(result.enhancedText.count) chars (model=\(result.modelID))"
-                )
-            }
-        }
-
-        var outputSucceeded = false
-        do {
-            // Single atomic insertion into the target app; the sink collapses the
-            // overlay whether or not the paste succeeds.
-            try await ensureOverlayStreamingSink().finishStreamingInsertion(
-                finalText: textAfterReplacements,
-                appendTrailingSpace: settingsStore.addTrailingSpace
-            )
-            outputSucceeded = true
-            Log.transcription.debug("Applied final streaming transcription output")
-        } catch {
-            Log.output.error("Final streaming insertion failed: \(error)")
-        }
-
-        coord?.endSession()
-        streamingRefinementCoordinator = nil
-
-        guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: textAfterReplacements) else {
+        guard Self.shouldPersistHistory(outputSucceeded: outcome.outputSucceeded, text: outcome.finalText) else {
             return
         }
 
         let duration = Date().timeIntervalSince(startTime)
         do {
             try historyStore.save(
-                text: textAfterReplacements,
-                originalText: originalStreamedText,
+                text: outcome.finalText,
+                originalText: outcome.originalStreamedText,
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
-                enhancedWith: enhancedWithModel,
+                enhancedWith: outcome.enhancedWithModel,
                 diarizationSegmentsJSON: nil
             )
             updateRecentTranscriptsMenu()
@@ -2894,7 +2583,7 @@ final class AppCoordinator {
             return
         }
 
-        if isStreamingTranscriptionSessionActive {
+        if streamingSession.isSessionActive {
             try await stopRecordingAndFinalizeStreaming()
             return
         }
@@ -3684,9 +3373,7 @@ final class AppCoordinator {
             cancelCurrentOperation()
         } else {
             lastEscapeTime = now
-            if settingsStore.floatingIndicatorEnabled {
-                floatingIndicatorState.showEscapePrimed()
-            }
+            floatingIndicatorState.showEscapePrimed()
         }
     }
     
@@ -3704,25 +3391,9 @@ final class AppCoordinator {
         }
 
         Log.app.info("Cancelling current operation via double-escape")
-        let hadStreamingSession = isStreamingTranscriptionSessionActive
-        clearStreamingSessionBindings(cancelPendingWork: true)
-        isStreamingTranscriptionSessionActive = false
+        streamingSession.cancelDetached()
         recordingState.endRecording(message: "Recording canceled.")
         recordingState.clearCurrentJob()
-        if hadStreamingSession {
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                await self.transcriptionService.cancelStreaming()
-                // Collapse the overlay via the coordinator (which cancels the sink); also
-                // nil it out so the session doesn't dangle past the cancellation.
-                if let coord = self.streamingRefinementCoordinator {
-                    await coord.cancelSession()
-                    self.streamingRefinementCoordinator = nil
-                } else {
-                    await self.overlayStreamingSink?.cancelStreamingInsertion()
-                }
-            }
-        }
 
         audioRecorder.resetAudioEngine()
         mediaPauseService.endRecordingSession()
@@ -4385,10 +4056,10 @@ final class AppCoordinator {
 
         Log.app.info("Clearing audio buffer")
         audioRecorder.cancelRecording()
-        if isStreamingTranscriptionSessionActive {
-            await cancelStreamingSession()
+        if streamingSession.isSessionActive {
+            await streamingSession.cancel()
         } else {
-            clearStreamingSessionBindings(cancelPendingWork: true)
+            streamingSession.deactivate()
         }
         mediaPauseService.endRecordingSession()
         isRecording = false
@@ -4515,19 +4186,6 @@ final class AppCoordinator {
         }
 
         statusBarController.updateDynamicItems()
-    }
-
-    // MARK: - Toggle Floating Indicator
-
-    private func handleToggleFloatingIndicator() {
-        settingsStore.floatingIndicatorEnabled.toggle()
-
-        if settingsStore.floatingIndicatorEnabled {
-            clearFloatingIndicatorTemporaryHiddenState()
-        }
-
-        let status = settingsStore.floatingIndicatorEnabled ? "enabled" : "disabled"
-        Log.app.info("Floating indicator \(status)")
     }
 
     // MARK: - Toggle Launch at Login

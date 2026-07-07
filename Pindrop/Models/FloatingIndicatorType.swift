@@ -8,10 +8,8 @@
 import Foundation
 
 enum FloatingIndicatorType: String, CaseIterable, Identifiable {
-    case notch = "notch"
     case pill = "pill"
-    case bubble = "bubble"
-    case dot = "dot"
+    case orb = "orb"
 
     var id: String { rawValue }
 
@@ -21,14 +19,10 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
 
     func displayName(locale: Locale) -> String {
         switch self {
-        case .notch:
-            return localized("Notch", locale: locale)
         case .pill:
             return localized("Pill", locale: locale)
-        case .bubble:
-            return localized("Bubble", locale: locale)
-        case .dot:
-            return localized("Dot", locale: locale)
+        case .orb:
+            return localized("Orb", locale: locale)
         }
     }
 
@@ -38,14 +32,10 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
 
     func description(locale: Locale) -> String {
         switch self {
-        case .notch:
-            return localized("Shows in the menu bar/notch area", locale: locale)
         case .pill:
             return localized("Shows as a pill at the bottom of the screen", locale: locale)
-        case .bubble:
-            return localized("Shows beside the focused text field/caret", locale: locale)
-        case .dot:
-            return localized("Shows as a dot in the corner of the screen", locale: locale)
+        case .orb:
+            return localized("Shows as a liquid glass orb in the corner of the screen", locale: locale)
         }
     }
 }

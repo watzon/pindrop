@@ -96,8 +96,6 @@ best:
   _self: "terbaik"
 better:
   _self: "lebih baik"
-bubble:
-  _self: "gelembung"
 built:
   in_presets: "Pratetap Terbina dalam"
   in_read_only: "Terbina dalam (baca sahaja)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Pilih lokasi untuk menyimpan pratetap"
   the_daytime_shell_used_in_light_mode: "Pilih cangkerang siang hari yang digunakan dalam mod cahaya."
   the_low_glare_shell_used_in_dark_mode: "Pilih cangkerang silau rendah yang digunakan dalam mod gelap."
-  which_floating_indicator_style_appears_wh: "Pilih gaya penunjuk terapung yang muncul apabila tindanan didayakan."
   which_microphone_pindrop_should_use_for_d: "Pilih mikrofon yang Pindrop harus gunakan untuk imlak dan cara ia berkelakuan semasa merakam."
   which_side_the_navigation_sidebar_appears: "Pilih sebelah mana bar sisi navigasi muncul."
+  how_pindrop_appears_on_screen_while_you_d: "Pilih cara Pindrop dipaparkan pada skrin semasa anda mendikte."
 clean:
   up_filler_words: "Bersihkan perkataan pengisi"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Paparkan Pindrop dalam Dok dan bukannya berjalan hanya sebagai apl bar menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dok bar sisi ke tepi kiri atau kanan tetingkap."
-dot:
-  _self: "titik"
 download:
   _self: "Muat turun"
   complete: "Muat Turun Selesai!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Dayakan Peningkatan AI"
   live_session_updates_during_recording: "Dayakan kemas kini sesi langsung semasa rakaman"
-  the_floating_indicator_to_choose_a_style: "Dayakan penunjuk terapung untuk memilih gaya."
   vibe_mode_ui_context: "Dayakan mod getaran (konteks UI)"
 enabled:
   _self: "Didayakan"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Betulkan tanda baca dan huruf besar"
 floating:
   indicator: "%@ penunjuk terapung"
-  indicator_3bad78a5: "Penunjuk Terapung: %@"
   indicator_e0349402: "Penunjuk Terapung"
 folder:
   deleted: "Folder dipadamkan."
@@ -487,6 +481,7 @@ media:
   library: "Perpustakaan Media"
   transcription: "Transkripsi Media"
   unavailable: "Media tidak tersedia"
+  saved: "Media disimpan"
 medium:
   _self: "Sederhana"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Tidak dipilih"
   set: "Tidak Ditetapkan"
   set_93039e60: "Tidak ditetapkan"
-notch:
-  _self: "Takik"
 note:
   _self: "Nota"
   capture_push_to_talk: "Tangkapan Nota (Tekan-untuk-Cakap)"
@@ -556,6 +549,7 @@ note:
   from: "Nota daripada"
   metadata: "Nota Metadata"
   title: "Tajuk Nota"
+  saved: "Nota disimpan"
 notes:
   _self: "Nota"
   3add7b96: "nota"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Semat pada skrin (sentiasa di atas)"
 pindrop:
   _self: "Pindrop"
-  dot: "Titik Pindrop"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop sedia untuk digunakan.
     Klik ikon bar menu untuk bermula.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop pada GitHub"
   pill: "Pil Pindrop"
   theme: "Tema Pindrop"
+  orb: "Orb Pindrop"
 play:
   _self: "Main"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Tunjukkan Apl"
   app_in_finder: "Tunjukkan Apl dalam Finder"
-  floating_indicator: "Tunjukkan penunjuk terapung"
   in_dock: "Tunjukkan dalam Dok"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Ditunjukkan sebagai titik di penjuru skrin"
   as_a_pill_at_the_bottom_of_the_screen: "Ditunjukkan sebagai pil di bahagian bawah skrin"
-  beside_the_focused_text_field_caret: "Menunjukkan di sebelah medan teks fokus/karet"
-  in_the_menu_bar_notch_area: "Ditunjukkan dalam bar menu/kawasan takuk"
-  recording_state_in_a_lightweight_overlay_w: "Menunjukkan keadaan rakaman dalam tetingkap tindanan ringan."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Dipaparkan sebagai orb kaca cecair di penjuru skrin"
 sidebar:
   position: "Kedudukan bar sisi"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkripsi sedang dijalankan"
   metadata: "Metadata Transkripsi"
   update: "Kemas kini transkripsi"
+  saved: "Transkripsi disimpan"
 transcriptions:
   _self: "Transkripsi"
   f0972acc: "transkripsi"
@@ -1015,3 +1006,7 @@ your:
     Anda boleh menyesuaikannya kemudian dalam Tetapan.
   model_is_ready_to_use: "Model anda sedia untuk digunakan."
   stats: "Statistik anda"
+orb:
+  _self: "Orb"
+meeting:
+  saved: "Mesyuarat disimpan"

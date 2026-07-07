@@ -96,8 +96,6 @@ best:
   _self: "أفضل"
 better:
   _self: "أحسن"
-bubble:
-  _self: "فقاعة"
 built:
   in_presets: "الإعدادات المسبقة المضمنة"
   in_read_only: "مدمج (للقراءة فقط)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "اختر الموقع لحفظ الإعدادات المسبقة"
   the_daytime_shell_used_in_light_mode: "اختر الغلاف النهاري المستخدم في الوضع الخفيف."
   the_low_glare_shell_used_in_dark_mode: "اختر الغلاف منخفض الوهج المستخدم في الوضع المظلم."
-  which_floating_indicator_style_appears_wh: "اختر نمط المؤشر العائم الذي يظهر عند تمكين التراكب."
   which_microphone_pindrop_should_use_for_d: "اختر الميكروفون الذي يجب أن يستخدمه Pindrop للإملاء وكيف يتصرف أثناء التسجيل."
   which_side_the_navigation_sidebar_appears: "اختر الجانب الذي يظهر عليه شريط التنقل الجانبي."
+  how_pindrop_appears_on_screen_while_you_d: "اختر كيف يظهر Pindrop على الشاشة أثناء الإملاء."
 clean:
   up_filler_words: "تنظيف الكلمات الحشو"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "قم بعرض Pindrop في Dock بدلاً من تشغيله كتطبيق شريط قوائم فقط."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "قم بإرساء الشريط الجانبي على الحافة اليسرى أو اليمنى من النافذة."
-dot:
-  _self: "نقطة"
 download:
   _self: "تحميل"
   complete: "اكتمل التنزيل!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "تمكين تعزيز الذكاء الاصطناعي"
   live_session_updates_during_recording: "تمكين تحديثات الجلسة المباشرة أثناء التسجيل"
-  the_floating_indicator_to_choose_a_style: "تمكين المؤشر العائم لاختيار النمط."
   vibe_mode_ui_context: "تمكين وضع vibe (سياق واجهة المستخدم)"
 enabled:
   _self: "ممكّن"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "إصلاح علامات الترقيم والأحرف الكبيرة"
 floating:
   indicator: "%@ مؤشر عائم"
-  indicator_3bad78a5: "المؤشر العائم: %@"
   indicator_e0349402: "المؤشر العائم"
 folder:
   deleted: "تم حذف المجلد."
@@ -487,6 +481,7 @@ media:
   library: "مكتبة الوسائط"
   transcription: "نسخ الوسائط"
   unavailable: "الوسائط غير متوفرة"
+  saved: "تم حفظ الوسائط"
 medium:
   _self: "واسطة"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "لم يتم التحديد"
   set: "غير محدد"
   set_93039e60: "لم يتم ضبطه"
-notch:
-  _self: "الشق"
 note:
   _self: "ملحوظة"
   capture_push_to_talk: "التقاط الملاحظات (اضغط لتتحدث)"
@@ -556,6 +549,7 @@ note:
   from: "ملاحظة من"
   metadata: "ملاحظة البيانات الوصفية"
   title: "ملاحظة العنوان"
+  saved: "تم حفظ الملاحظة"
 notes:
   _self: "ملحوظات"
   3add7b96: "ملحوظات"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "تثبيت على الشاشة (دائما في الأعلى)"
 pindrop:
   _self: "بيندروب"
-  dot: "نقطة بيندروب"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop جاهز للاستخدام.
     انقر على أيقونة شريط القائمة للبدء.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop على جيثب"
   pill: "حبة بيندروب"
   theme: "موضوع بيندروب"
+  orb: "كرة Pindrop"
 play:
   _self: "يلعب"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "عرض التطبيق"
   app_in_finder: "إظهار التطبيق في Finder"
-  floating_indicator: "عرض المؤشر العائم"
   in_dock: "عرض في قفص الاتهام"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "يظهر كنقطة في زاوية الشاشة"
   as_a_pill_at_the_bottom_of_the_screen: "يظهر على شكل حبة في أسفل الشاشة"
-  beside_the_focused_text_field_caret: "يظهر بجانب حقل/علامة الإقحام التي تم التركيز عليها"
-  in_the_menu_bar_notch_area: "يظهر في شريط القائمة/منطقة الشق"
-  recording_state_in_a_lightweight_overlay_w: "يظهر حالة التسجيل في نافذة تراكب خفيفة الوزن."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "يظهر ككرة زجاجية سائلة في زاوية الشاشة"
 sidebar:
   position: "موقف الشريط الجانبي"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "النسخ قيد التقدم"
   metadata: "البيانات الوصفية للنسخ"
   update: "تحديث النسخ"
+  saved: "تم حفظ النسخ"
 transcriptions:
   _self: "النسخ"
   f0972acc: "النسخ"
@@ -1015,3 +1006,7 @@ your:
     ويمكنك تخصيصها لاحقًا في الإعدادات.
   model_is_ready_to_use: "النموذج الخاص بك جاهز للاستخدام."
   stats: "احصائياتك"
+orb:
+  _self: "الكرة"
+meeting:
+  saved: "تم حفظ الاجتماع"

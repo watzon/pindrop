@@ -96,8 +96,6 @@ best:
   _self: "Migliore"
 better:
   _self: "Meglio"
-bubble:
-  _self: "Bolla"
 built:
   in_presets: "Preimpostazioni integrate"
   in_read_only: "Integrato (sola lettura)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Scegli la posizione in cui salvare i preset"
   the_daytime_shell_used_in_light_mode: "Scegli la shell diurna utilizzata in modalità luce."
   the_low_glare_shell_used_in_dark_mode: "Scegli il guscio antiriflesso utilizzato in modalità oscura."
-  which_floating_indicator_style_appears_wh: "Scegli lo stile dell'indicatore mobile da visualizzare quando l'overlay è abilitato."
   which_microphone_pindrop_should_use_for_d: "Scegli quale microfono Pindrop deve utilizzare per la dettatura e come si comporta durante la registrazione."
   which_side_the_navigation_sidebar_appears: "Scegli su quale lato appare la barra di navigazione laterale."
+  how_pindrop_appears_on_screen_while_you_d: "Scegli come Pindrop appare sullo schermo mentre detti."
 clean:
   up_filler_words: "Pulisci le parole di riempimento"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Visualizza Pindrop nel Dock invece di essere eseguito solo come app della barra dei menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ancora la barra laterale al bordo sinistro o destro della finestra."
-dot:
-  _self: "Dot"
 download:
   _self: "Scaricamento"
   complete: "Scarica completo!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Abilita il miglioramento dell'intelligenza artificiale"
   live_session_updates_during_recording: "Abilita gli aggiornamenti della sessione live durante la registrazione"
-  the_floating_indicator_to_choose_a_style: "Abilita l'indicatore mobile per scegliere uno stile."
   vibe_mode_ui_context: "Abilita la modalità vibrazione (contesto dell'interfaccia utente)"
 enabled:
   _self: "Abilitato"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Correggi la punteggiatura e le maiuscole"
 floating:
   indicator: "%@ indicatore mobile"
-  indicator_3bad78a5: "Indicatore fluttuante: %@"
   indicator_e0349402: "Indicatore galleggiante"
 folder:
   deleted: "Cartella eliminata."
@@ -487,6 +481,7 @@ media:
   library: "Biblioteca multimediale"
   transcription: "Trascrizione multimediale"
   unavailable: "Supporto non disponibile"
+  saved: "Contenuti multimediali salvati"
 medium:
   _self: "Medio"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Non selezionato"
   set: "Non impostato"
   set_93039e60: "Non impostato"
-notch:
-  _self: "Tacca"
 note:
   _self: "Nota"
   capture_push_to_talk: "Cattura note (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Nota da"
   metadata: "Nota Metadati"
   title: "Titolo della nota"
+  saved: "Nota salvata"
 notes:
   _self: "Note"
   3add7b96: "note"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Aggiungi allo schermo (sempre in primo piano)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop è pronto per l'uso.
     Fare clic sull'icona della barra dei menu per iniziare.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop su GitHub"
   pill: "Pillola Pindrop"
   theme: "Tema Pindrop"
+  orb: "Sfera Pindrop"
 play:
   _self: "Giocare"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Mostra app"
   app_in_finder: "Mostra l'app nel Finder"
-  floating_indicator: "Mostra indicatore mobile"
   in_dock: "Mostra nel Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Viene visualizzato come una pillola nella parte inferiore dello schermo"
-  beside_the_focused_text_field_caret: "Viene visualizzato accanto al campo di testo/accento circonflesso evidenziato"
-  in_the_menu_bar_notch_area: "Viene visualizzato nella barra dei menu/area tacca"
-  recording_state_in_a_lightweight_overlay_w: "Mostra lo stato della registrazione in una finestra in sovrapposizione leggera."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Appare come una sfera di vetro liquido nell'angolo dello schermo"
 sidebar:
   position: "Posizione della barra laterale"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Trascrizione in corso"
   metadata: "Metadati di trascrizione"
   update: "Aggiornamento della trascrizione"
+  saved: "Trascrizione salvata"
 transcriptions:
   _self: "Trascrizioni"
   f0972acc: "trascrizioni"
@@ -1015,3 +1006,7 @@ your:
     Puoi personalizzarli in seguito in Impostazioni.
   model_is_ready_to_use: "Il tuo modello è pronto per l'uso."
   stats: "Le tue statistiche"
+orb:
+  _self: "Sfera"
+meeting:
+  saved: "Riunione salvata"

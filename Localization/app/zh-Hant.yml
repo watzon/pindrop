@@ -96,8 +96,6 @@ best:
   _self: "最佳"
 better:
   _self: "更好"
-bubble:
-  _self: "氣泡"
 built:
   in_presets: "內建預設"
   in_read_only: "內建（只讀）"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "選擇儲存預設的位置"
   the_daytime_shell_used_in_light_mode: "選擇在淺色模式下使用的日間外觀。"
   the_low_glare_shell_used_in_dark_mode: "選擇在深色模式下使用的低眩光外觀。"
-  which_floating_indicator_style_appears_wh: "選擇在啟用疊加層時顯示的浮動指示器樣式。"
   which_microphone_pindrop_should_use_for_d: "選擇 Pindrop 用於聽寫的麥克風以及錄製時的行為。"
   which_side_the_navigation_sidebar_appears: "選擇導航側邊欄顯示在哪一側。"
+  how_pindrop_appears_on_screen_while_you_d: "選擇聽寫時 Pindrop 在螢幕上的顯示方式。"
 clean:
   up_filler_words: "清理填充詞"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "在 Dock 中顯示 Pindrop，而不是僅作為選單欄應用執行。"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "將側邊欄固定到視窗的左側或右側邊緣。"
-dot:
-  _self: "Dot"
 download:
   _self: "下載"
   complete: "下載完成！"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "啟用 AI 增強"
   live_session_updates_during_recording: "啟用錄製期間的實時會話更新"
-  the_floating_indicator_to_choose_a_style: "啟用浮動指示器以選擇樣式。"
   vibe_mode_ui_context: "啟用 vibe 模式（UI 上下文）"
 enabled:
   _self: "已啟用"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "修正標點和大小寫"
 floating:
   indicator: "%@ 浮動指示器"
-  indicator_3bad78a5: "浮動指示器：%@"
   indicator_e0349402: "浮動指示器"
 folder:
   deleted: "資料夾已刪除。"
@@ -487,6 +481,7 @@ media:
   library: "媒體庫"
   transcription: "媒體轉錄"
   unavailable: "媒體不可用"
+  saved: "媒體已儲存"
 medium:
   _self: "中"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "未選擇"
   set: "未設定"
   set_93039e60: "未設定"
-notch:
-  _self: "劉海"
 note:
   _self: "筆記"
   capture_push_to_talk: "筆記捕獲（按鍵通話）"
@@ -556,6 +549,7 @@ note:
   from: "來自的筆記"
   metadata: "註釋後設資料"
   title: "筆記標題"
+  saved: "筆記已儲存"
 notes:
   _self: "筆記"
   3add7b96: "筆記"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "固定到螢幕（始終置頂）"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop 已準備好使用。
     點選選單欄圖示開始使用。
@@ -636,6 +629,7 @@ pindrop:
   on_github: "GitHub 上的 Pindrop"
   pill: "Pindrop 膠囊"
   theme: "Pindrop 主題"
+  orb: "Pindrop 光球"
 play:
   _self: "播放"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "顯示應用"
   app_in_finder: "在 Finder 中顯示應用"
-  floating_indicator: "顯示浮動指示器"
   in_dock: "在 Dock 中顯示"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "在螢幕底部顯示為膠囊"
-  beside_the_focused_text_field_caret: "顯示在聚焦的文字欄位/游標旁邊"
-  in_the_menu_bar_notch_area: "顯示在選單欄/劉海區域"
-  recording_state_in_a_lightweight_overlay_w: "在輕量級疊加視窗中顯示錄製狀態。"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "以液態玻璃光球的形式顯示在螢幕角落"
 sidebar:
   position: "側邊欄位置"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "轉錄進行中"
   metadata: "轉錄後設資料"
   update: "轉錄更新"
+  saved: "轉錄已儲存"
 transcriptions:
   _self: "轉錄"
   f0972acc: "轉錄"
@@ -1015,3 +1006,7 @@ your:
     您可以稍後在設定中自定義它們。
   model_is_ready_to_use: "您的模型已準備好使用。"
   stats: "您的統計"
+orb:
+  _self: "光球"
+meeting:
+  saved: "會議已儲存"

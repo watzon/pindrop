@@ -38,7 +38,6 @@ protocol SettingsStoreProtocol: ObservableObject {
     func setAssignment(_ assignment: ModelAssignment?, for purpose: EnhancementPurpose)
     func provider(withID id: UUID) -> ProviderConfig?
     
-    var floatingIndicatorEnabled: Bool { get set }
     var showInDock: Bool { get set }
     
     var hasCompletedOnboarding: Bool { get set }
@@ -83,7 +82,6 @@ final class PreviewSettingsStore: SettingsStoreProtocol {
     @Published var providers: [ProviderConfig]
     @Published var assignments: [EnhancementPurpose: ModelAssignment]
 
-    @Published var floatingIndicatorEnabled = false
     @Published var showInDock = false
 
     @Published var hasCompletedOnboarding = true

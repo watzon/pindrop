@@ -43,9 +43,9 @@ all:
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     אירעה שגיאה בעת שיפור התמלול שלך:
-
+    
     %@
-
+    
     התמלול המקורי נשמר ללא שיפור.
     אתה יכול לנסות להפעיל שוב שיפור AI בהגדרות.
   error_occurred_while_enhancing_your_transcrip_8c664cb4: "אירעה שגיאה בעת שיפור התמלול שלך:nn%@nnהתמלול המקורי נשמר ללא שיפור.nתוכל לנסות להפעיל שוב שיפור בינה מלאכותית בהגדרות."
@@ -96,8 +96,6 @@ best:
   _self: "טוֹב בִּיוֹתֵר"
 better:
   _self: "לְשַׁפֵּר"
-bubble:
-  _self: "בּוּעָה"
 built:
   in_presets: "הגדרות מובנות מראש"
   in_read_only: "מובנה (לקריאה בלבד)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "בחר מיקום לשמירת הגדרות קבועות מראש"
   the_daytime_shell_used_in_light_mode: "בחר את מעטפת היום המשמשת במצב אור."
   the_low_glare_shell_used_in_dark_mode: "בחר את המעטפת הזוהרת נמוכה המשמשת במצב כהה."
-  which_floating_indicator_style_appears_wh: "בחר איזה סגנון מחוון צף יופיע כאשר שכבת העל מופעלת."
   which_microphone_pindrop_should_use_for_d: "בחר באיזה מיקרופון Pindrop צריך להשתמש להכתבה וכיצד הוא מתנהג בזמן ההקלטה."
   which_side_the_navigation_sidebar_appears: "בחר באיזה צד יופיע סרגל הניווט."
+  how_pindrop_appears_on_screen_while_you_d: "בחרו כיצד Pindrop יופיע על המסך בזמן ההכתבה."
 clean:
   up_filler_words: "נקה מילות מילוי"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "הצג Pindrop ב-Dock במקום לפעול רק כאפליקציה של שורת תפריטים."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "עגן את סרגל הצד לקצה השמאלי או הימני של החלון."
-dot:
-  _self: "נְקוּדָה"
 download:
   _self: "הורד"
   complete: "ההורדה הושלמה!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "אפשר שיפור AI"
   live_session_updates_during_recording: "אפשר עדכוני הפעלה חיים במהלך ההקלטה"
-  the_floating_indicator_to_choose_a_style: "אפשר את המחוון הצף כדי לבחור סגנון."
   vibe_mode_ui_context: "הפעל מצב אווירה (הקשר של ממשק משתמש)"
 enabled:
   _self: "מופעל"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "תקן סימני פיסוק ואותיות רישיות"
 floating:
   indicator: "%@ מחוון צף"
-  indicator_3bad78a5: "מחוון צף: %@"
   indicator_e0349402: "מחוון צף"
 folder:
   deleted: "התיקיה נמחקה."
@@ -487,6 +481,7 @@ media:
   library: "ספריית מדיה"
   transcription: "תמלול מדיה"
   unavailable: "המדיה לא זמינה"
+  saved: "המדיה נשמרה"
 medium:
   _self: "בֵּינוֹנִי"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "לא נבחר"
   set: "לא מוגדר"
   set_93039e60: "לא מוגדר"
-notch:
-  _self: "לַחֲרוֹץ"
 note:
   _self: "פֶּתֶק"
   capture_push_to_talk: "לכידת הערות (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "הערה מ"
   metadata: "הערה מטא נתונים"
   title: "הערה כותרת"
+  saved: "ההערה נשמרה"
 notes:
   _self: "הערות"
   3add7b96: "הערות"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "הצמד למסך (תמיד למעלה)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop מוכן לשימוש.
     לחץ על סמל שורת התפריטים כדי להתחיל.
@@ -636,13 +629,14 @@ pindrop:
   on_github: "Pindrop ב-GitHub"
   pill: "גלולת פינדרופ"
   theme: "נושא Pindrop"
+  orb: "כדור Pindrop"
 play:
   _self: "לְשַׂחֵק"
 please:
   check_your_internet_connection_and_try_ag: "אנא בדוק את חיבור האינטרנט שלך ונסה שוב."
   download_a_whisper_model_in_settings_befo: |-
     אנא הורד דגם Whisper בהגדרות לפני ההקלטה.
-
+    
     עבור אל הגדרות ← דגמים כדי להוריד דגם.
   download_a_whisper_model_in_settings_befo_a71d286e: "אנא הורד דגם Whisper בהגדרות לפני ההקלטה.nnעבור להגדרות ← דגמים כדי להוריד דגם."
   wait: "אנא המתן..."
@@ -795,14 +789,10 @@ setup:
 show:
   app: "הצג אפליקציה"
   app_in_finder: "הצג את האפליקציה ב-Finder"
-  floating_indicator: "הצג מחוון צף"
   in_dock: "הצג ב-Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "מוצג כנקודה בפינת המסך"
   as_a_pill_at_the_bottom_of_the_screen: "מוצג כגלולה בתחתית המסך"
-  beside_the_focused_text_field_caret: "מוצג לצד שדה הטקסט/הקארט הממוקד"
-  in_the_menu_bar_notch_area: "מופיע בשורת התפריטים/אזור החריץ"
-  recording_state_in_a_lightweight_overlay_w: "מציג מצב הקלטה בחלון כיסוי קל משקל."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "מוצג ככדור זכוכית נוזלית בפינת המסך"
 sidebar:
   position: "מיקום סרגל הצד"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "תמלול מתבצע"
   metadata: "מטא נתונים של תמלול"
   update: "עדכון תמלול"
+  saved: "התמלול נשמר"
 transcriptions:
   _self: "תעתיקים"
   f0972acc: "תעתיקים"
@@ -1015,3 +1006,7 @@ your:
     תוכל להתאים אותם מאוחר יותר בהגדרות.
   model_is_ready_to_use: "הדגם שלך מוכן לשימוש."
   stats: "הסטטיסטיקה שלך"
+orb:
+  _self: "כדור"
+meeting:
+  saved: "הפגישה נשמרה"

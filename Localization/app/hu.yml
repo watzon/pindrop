@@ -96,8 +96,6 @@ best:
   _self: "Legjobb"
 better:
   _self: "Jobb"
-bubble:
-  _self: "Buborék"
 built:
   in_presets: "Beépített előbeállítások"
   in_read_only: "Beépített (csak olvasható)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Válasszon helyet az előre beállított értékek mentéséhez"
   the_daytime_shell_used_in_light_mode: "Válassza ki a világos módban használt nappali kagylót."
   the_low_glare_shell_used_in_dark_mode: "Válassza a sötét módban használt alacsony vakító héjat."
-  which_floating_indicator_style_appears_wh: "Válassza ki, hogy melyik lebegő jelzőstílus jelenjen meg, ha az átfedés engedélyezve van."
   which_microphone_pindrop_should_use_for_d: "Válassza ki, hogy a Pindrop melyik mikrofont használja a diktáláshoz, és hogyan viselkedjen felvétel közben."
   which_side_the_navigation_sidebar_appears: "Válassza ki, hogy a navigációs oldalsáv melyik oldalon jelenjen meg."
+  how_pindrop_appears_on_screen_while_you_d: "Válaszd ki, hogyan jelenjen meg a Pindrop a képernyőn diktálás közben."
 clean:
   up_filler_words: "Tisztítsa meg a töltelékszavakat"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "A Pindrop megjelenítése a Dockban, ahelyett, hogy csak menüsor-alkalmazásként futna."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Rögzítse az oldalsávot az ablak bal vagy jobb széléhez."
-dot:
-  _self: "Pont"
 download:
   _self: "Letöltés"
   complete: "Letöltés kész!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "AI Enhancement engedélyezése"
   live_session_updates_during_recording: "Élő munkamenet-frissítés engedélyezése felvétel közben"
-  the_floating_indicator_to_choose_a_style: "Stílus kiválasztásához engedélyezze a lebegő jelzőt."
   vibe_mode_ui_context: "Vibe mód engedélyezése (UI kontextus)"
 enabled:
   _self: "Engedélyezve"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Javítsa ki az írásjeleket és a nagybetűket"
 floating:
   indicator: "%@ lebegő indikátor"
-  indicator_3bad78a5: "Lebegő jelző: %@"
   indicator_e0349402: "Lebegő jelző"
 folder:
   deleted: "Mappa törölve."
@@ -487,6 +481,7 @@ media:
   library: "Médiatár"
   transcription: "Médiaátírás"
   unavailable: "A média nem érhető el"
+  saved: "Média mentve"
 medium:
   _self: "Közepes"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Nincs kiválasztva"
   set: "Nincs beállítva"
   set_93039e60: "Nincs beállítva"
-notch:
-  _self: "Bemetszés"
 note:
   _self: "Jegyzet"
   capture_push_to_talk: "Jegyzetrögzítés (push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Megjegyzés tőle"
   metadata: "Megjegyzés Metaadatok"
   title: "Megjegyzés Cím"
+  saved: "Jegyzet mentve"
 notes:
   _self: "Megjegyzések"
   3add7b96: "jegyzetek"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Rögzítés a képernyőn (mindig felül)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Pont"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop használatra kész.
     A kezdéshez kattintson a menüsor ikonjára.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop a GitHubon"
   pill: "Pindrop Tabletta"
   theme: "Pindrop téma"
+  orb: "Pindrop-gömb"
 play:
   _self: "Játék"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Alkalmazás megjelenítése"
   app_in_finder: "Alkalmazás megjelenítése a Finderben"
-  floating_indicator: "Lebegő indikátor megjelenítése"
   in_dock: "Megjelenítés a Dockban"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Pontként jelenik meg a képernyő sarkában"
   as_a_pill_at_the_bottom_of_the_screen: "Tablettaként jelenik meg a képernyő alján"
-  beside_the_focused_text_field_caret: "A fókuszált szövegmező/karet mellett jelenik meg"
-  in_the_menu_bar_notch_area: "Megjelenik a menüsorban/bevágási területen"
-  recording_state_in_a_lightweight_overlay_w: "A felvétel állapotát egy könnyű átfedő ablakban mutatja."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Folyékony üveggömbként jelenik meg a képernyő sarkában"
 sidebar:
   position: "Oldalsáv helyzete"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Átírás folyamatban"
   metadata: "Átírási metaadatok"
   update: "Átírás frissítése"
+  saved: "Átirat mentve"
 transcriptions:
   _self: "Átiratok"
   f0972acc: "átiratok"
@@ -1015,3 +1006,7 @@ your:
     Később személyre szabhatja őket a Beállításokban.
   model_is_ready_to_use: "A modell használatra kész."
   stats: "Az Ön statisztikái"
+orb:
+  _self: "Gömb"
+meeting:
+  saved: "Értekezlet mentve"

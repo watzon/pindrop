@@ -96,8 +96,6 @@ best:
   _self: "Meilleur"
 better:
   _self: "Mieux"
-bubble:
-  _self: "Bulle"
 built:
   in_presets: "Préréglages intégrés"
   in_read_only: "Intégré (lecture seule)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Choisir l'emplacement pour enregistrer les préréglages"
   the_daytime_shell_used_in_light_mode: "Choisissez l'interface diurne utilisée en mode clair."
   the_low_glare_shell_used_in_dark_mode: "Choisissez l'interface anti-reflets utilisée en mode sombre."
-  which_floating_indicator_style_appears_wh: "Choisissez quel style d'indicateur flottant apparaît lorsque la superposition est activée."
   which_microphone_pindrop_should_use_for_d: "Choisissez quel microphone Pindrop doit utiliser pour la dictée et comment il se comporte pendant l'enregistrement."
   which_side_the_navigation_sidebar_appears: "Choisissez de quel côté la barre de navigation apparaît."
+  how_pindrop_appears_on_screen_while_you_d: "Choisissez comment Pindrop apparaît à l'écran pendant la dictée."
 clean:
   up_filler_words: "Supprimer les mots de remplissage"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Affichez Pindrop dans le Dock au lieu de l'exécuter uniquement comme une app de barre de menus."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ancrez la barre latérale sur le bord gauche ou droit de la fenêtre."
-dot:
-  _self: "Dot"
 download:
   _self: "Télécharger"
   complete: "Téléchargement terminé !"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Activer l'amélioration IA"
   live_session_updates_during_recording: "Activer les mises à jour de session en direct pendant l'enregistrement"
-  the_floating_indicator_to_choose_a_style: "Activez l'indicateur flottant pour choisir un style."
   vibe_mode_ui_context: "Activer le mode vibe (contexte UI)"
 enabled:
   _self: "Activé"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Corriger la ponctuation et la capitalisation"
 floating:
   indicator: "Indicateur flottant %@"
-  indicator_3bad78a5: "Indicateur flottant : %@"
   indicator_e0349402: "Indicateur flottant"
 folder:
   deleted: "Dossier supprimé."
@@ -487,6 +481,7 @@ media:
   library: "Bibliothèque de médias"
   transcription: "Transcription de médias"
   unavailable: "Média indisponible"
+  saved: "Média enregistré"
 medium:
   _self: "Moyen"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Non sélectionné"
   set: "Non défini"
   set_93039e60: "Non défini"
-notch:
-  _self: "Encoche"
 note:
   _self: "Note"
   capture_push_to_talk: "Capture de note (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Note de"
   metadata: "Remarque sur les métadonnées"
   title: "Titre de la note"
+  saved: "Note enregistrée"
 notes:
   _self: "Notes"
   3add7b96: "notes"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Épingler à l'écran (toujours au-dessus)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop est prêt à être utilisé.
     Cliquez sur l'icône de la barre de menus pour commencer.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop sur GitHub"
   pill: "Pilule Pindrop"
   theme: "Thème Pindrop"
+  orb: "Orbe Pindrop"
 play:
   _self: "Lire"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Afficher l'app"
   app_in_finder: "Afficher l'app dans Finder"
-  floating_indicator: "Afficher l'indicateur flottant"
   in_dock: "Afficher dans le Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "S'affiche comme une pilule en bas de l'écran"
-  beside_the_focused_text_field_caret: "S'affiche à côté du champ de texte/caret focus"
-  in_the_menu_bar_notch_area: "S'affiche dans la barre de menus/zone de l'encoche"
-  recording_state_in_a_lightweight_overlay_w: "Affiche l'état d'enregistrement dans une fenêtre de superposition légère."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "S'affiche sous forme d'orbe en verre liquide dans le coin de l'écran"
 sidebar:
   position: "Position de la barre latérale"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transcription en cours"
   metadata: "Métadonnées de transcription"
   update: "Mise à jour de la transcription"
+  saved: "Transcription enregistrée"
 transcriptions:
   _self: "Transcriptions"
   f0972acc: "transcriptions"
@@ -1015,3 +1006,7 @@ your:
     Vous pouvez les personnaliser plus tard dans les Paramètres.
   model_is_ready_to_use: "Votre modèle est prêt à être utilisé."
   stats: "Vos statistiques"
+orb:
+  _self: "Orbe"
+meeting:
+  saved: "Réunion enregistrée"

@@ -96,8 +96,6 @@ best:
   _self: "Nejlepší"
 better:
   _self: "Lepší"
-bubble:
-  _self: "Bublina"
 built:
   in_presets: "Vestavěné předvolby"
   in_read_only: "Vestavěný (pouze pro čtení)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Vyberte umístění pro uložení předvoleb"
   the_daytime_shell_used_in_light_mode: "Vyberte denní skořepinu používanou ve světelném režimu."
   the_low_glare_shell_used_in_dark_mode: "Vyberte skořepinu s nízkým oslněním použitou v tmavém režimu."
-  which_floating_indicator_style_appears_wh: "Vyberte, který styl plovoucího indikátoru se zobrazí, když je povoleno překrytí."
   which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Pindrop používat pro diktování a jak se chová při nahrávání."
   which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
+  how_pindrop_appears_on_screen_while_you_d: "Zvolte, jak se Pindrop zobrazuje na obrazovce během diktování."
 clean:
   up_filler_words: "Vyčistěte výplňová slova"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Zobrazte Pindrop v doku místo toho, aby běžel pouze jako aplikace na liště nabídek."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ukotvete postranní panel k levému nebo pravému okraji okna."
-dot:
-  _self: "Tečka"
 download:
   _self: "Stáhnout"
   complete: "Stahování dokončeno!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Povolit AI Enhancement"
   live_session_updates_during_recording: "Povolit aktualizace živé relace během nahrávání"
-  the_floating_indicator_to_choose_a_style: "Chcete-li vybrat styl, povolte plovoucí indikátor."
   vibe_mode_ui_context: "Povolit režim vibrace (kontext uživatelského rozhraní)"
 enabled:
   _self: "Povoleno"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Opravte interpunkci a velká písmena"
 floating:
   indicator: "%@ plovoucí indikátor"
-  indicator_3bad78a5: "Plovoucí indikátor: %@"
   indicator_e0349402: "Plovoucí indikátor"
 folder:
   deleted: "Složka byla smazána."
@@ -487,6 +481,7 @@ media:
   library: "Knihovna médií"
   transcription: "Přepis médií"
   unavailable: "Média nedostupná"
+  saved: "Média uložena"
 medium:
   _self: "Střední"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Nevybráno"
   set: "Nenastaveno"
   set_93039e60: "Nenastaveno"
-notch:
-  _self: "Zářez"
 note:
   _self: "Poznámka"
   capture_push_to_talk: "Zachycení poznámek (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Poznámka od"
   metadata: "Poznámka: Metadata"
   title: "Název poznámky"
+  saved: "Poznámka uložena"
 notes:
   _self: "Poznámky"
   3add7b96: "poznámky"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Připnout na obrazovku (vždy nahoře)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop je připraven k použití.
     Začněte kliknutím na ikonu panelu nabídek.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop na GitHubu"
   pill: "Pindrop pilulka"
   theme: "Pindrop téma"
+  orb: "Pindrop Koule"
 play:
   _self: "Hrát"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Zobrazit aplikaci"
   app_in_finder: "Zobrazit aplikaci ve Finderu"
-  floating_indicator: "Zobrazit plovoucí indikátor"
   in_dock: "Zobrazit v Docku"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Zobrazuje se jako tečka v rohu obrazovky"
   as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
-  beside_the_focused_text_field_caret: "Zobrazuje se vedle vybraného textového pole/stříšky"
-  in_the_menu_bar_notch_area: "Zobrazuje se v pruhu nabídky/oblasti zářezu"
-  recording_state_in_a_lightweight_overlay_w: "Zobrazuje stav nahrávání v odlehčeném překryvném okně."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Zobrazuje se jako koule z tekutého skla v rohu obrazovky"
 sidebar:
   position: "Poloha bočního panelu"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Probíhá přepis"
   metadata: "Metadata přepisu"
   update: "Aktualizace přepisu"
+  saved: "Přepis uložen"
 transcriptions:
   _self: "Přepisy"
   f0972acc: "přepisy"
@@ -1015,3 +1006,7 @@ your:
     Později je můžete upravit v Nastavení.
   model_is_ready_to_use: "Váš model je připraven k použití."
   stats: "Vaše statistiky"
+orb:
+  _self: "Koule"
+meeting:
+  saved: "Schůzka uložena"

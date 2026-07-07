@@ -96,8 +96,6 @@ best:
   _self: "Best"
 better:
   _self: "Beter"
-bubble:
-  _self: "Bel"
 built:
   in_presets: "Ingebouwde voorinstellingen"
   in_read_only: "Ingebouwd (alleen-lezen)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Kies een locatie om voorinstellingen op te slaan"
   the_daytime_shell_used_in_light_mode: "Kies de dagschaal die in de lichtmodus wordt gebruikt."
   the_low_glare_shell_used_in_dark_mode: "Kies de laag-reflecterende behuizing die in de donkere modus wordt gebruikt."
-  which_floating_indicator_style_appears_wh: "Kies welke zwevende indicatorstijl wordt weergegeven wanneer de overlay is ingeschakeld."
   which_microphone_pindrop_should_use_for_d: "Kies welke microfoon Pindrop moet gebruiken voor dicteren en hoe deze zich gedraagt ​​tijdens het opnemen."
   which_side_the_navigation_sidebar_appears: "Kies aan welke kant de navigatiebalk verschijnt."
+  how_pindrop_appears_on_screen_while_you_d: "Kies hoe Pindrop op het scherm verschijnt terwijl je dicteert."
 clean:
   up_filler_words: "Ruim opvulwoorden op"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Geef Pindrop weer in het Dock in plaats van alleen als menubalk-app te draaien."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dock de zijbalk aan de linker- of rechterrand van het venster."
-dot:
-  _self: "Dot"
 download:
   _self: "Downloaden"
   complete: "Downloaden voltooid!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Schakel AI-verbetering in"
   live_session_updates_during_recording: "Schakel live sessie-updates in tijdens het opnemen"
-  the_floating_indicator_to_choose_a_style: "Schakel de zwevende indicator in om een ​​stijl te kiezen."
   vibe_mode_ui_context: "Schakel sfeermodus in (UI-context)"
 enabled:
   _self: "Ingeschakeld"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Corrigeer interpunctie en hoofdlettergebruik"
 floating:
   indicator: "%@ zwevende indicator"
-  indicator_3bad78a5: "Zwevende indicator: %@"
   indicator_e0349402: "Zwevende indicator"
 folder:
   deleted: "Map verwijderd."
@@ -487,6 +481,7 @@ media:
   library: "Mediabibliotheek"
   transcription: "Mediatranscriptie"
   unavailable: "Media niet beschikbaar"
+  saved: "Media opgeslagen"
 medium:
   _self: "Medium"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Niet geselecteerd"
   set: "Niet ingesteld"
   set_93039e60: "Niet ingesteld"
-notch:
-  _self: "Inkeping"
 note:
   _self: "Opmerking"
   capture_push_to_talk: "Notitie vastleggen (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Opmerking van"
   metadata: "Let op Metagegevens"
   title: "Opmerking Titel"
+  saved: "Notitie opgeslagen"
 notes:
   _self: "Opmerkingen"
   3add7b96: "notities"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Vastzetten op scherm (altijd bovenaan)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop is klaar voor gebruik.
     Klik op het menubalkpictogram om aan de slag te gaan.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop op GitHub"
   pill: "Pindrop-pil"
   theme: "Pindrop-thema"
+  orb: "Pindrop-orb"
 play:
   _self: "Toneelstuk"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Toon app"
   app_in_finder: "Toon app in Finder"
-  floating_indicator: "Zwevende indicator weergeven"
   in_dock: "Weergeven in Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Wordt weergegeven als een pil onder aan het scherm"
-  beside_the_focused_text_field_caret: "Wordt weergegeven naast het gefocuste tekstveld/caret"
-  in_the_menu_bar_notch_area: "Wordt weergegeven in de menubalk/notch-gebied"
-  recording_state_in_a_lightweight_overlay_w: "Toont de opnamestatus in een lichtgewicht overlayvenster."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Wordt weergegeven als een orb van vloeibaar glas in de hoek van het scherm"
 sidebar:
   position: "Zijbalkpositie"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transcriptie wordt uitgevoerd"
   metadata: "Metagegevens van transcriptie"
   update: "Transcriptie-update"
+  saved: "Transcriptie opgeslagen"
 transcriptions:
   _self: "Transcripties"
   f0972acc: "transcripties"
@@ -1015,3 +1006,7 @@ your:
     Je kunt ze later aanpassen in Instellingen.
   model_is_ready_to_use: "Uw model is klaar voor gebruik."
   stats: "Jouw statistieken"
+orb:
+  _self: "Orb"
+meeting:
+  saved: "Vergadering opgeslagen"

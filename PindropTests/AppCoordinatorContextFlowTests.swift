@@ -267,34 +267,20 @@ struct AppCoordinatorContextFlowTests {
         )
     }
 
-    @Test func floatingIndicatorFocusTrackingModeUsesIdlePillOnlyForVisiblePill() {
+    @Test func floatingIndicatorFocusTrackingModeUsesIdlePillWhenIdle() {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
                 isTemporarilyHidden: false,
-                selectedType: .pill,
                 isRecording: false,
                 isProcessing: false
             ) == .idlePill
         )
-
-        #expect(
-            AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
-                isTemporarilyHidden: false,
-                selectedType: .notch,
-                isRecording: false,
-                isProcessing: false
-            ) == nil
-        )
     }
 
-    @Test func floatingIndicatorFocusTrackingModeUsesActiveSessionForPillAndNotchOnly() {
+    @Test func floatingIndicatorFocusTrackingModeUsesActiveSessionWhileRecordingOrProcessing() {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
                 isTemporarilyHidden: false,
-                selectedType: .pill,
                 isRecording: true,
                 isProcessing: false
             ) == .activeSession
@@ -302,31 +288,17 @@ struct AppCoordinatorContextFlowTests {
 
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
                 isTemporarilyHidden: false,
-                selectedType: .notch,
                 isRecording: false,
                 isProcessing: true
             ) == .activeSession
         )
-
-        #expect(
-            AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
-                isTemporarilyHidden: false,
-                selectedType: .bubble,
-                isRecording: true,
-                isProcessing: false
-            ) == nil
-        )
     }
 
-    @Test func floatingIndicatorFocusTrackingModeStopsWhenDisabledOrHidden() {
+    @Test func floatingIndicatorFocusTrackingModeStopsWhenTemporarilyHidden() {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: false,
-                isTemporarilyHidden: false,
-                selectedType: .pill,
+                isTemporarilyHidden: true,
                 isRecording: true,
                 isProcessing: false
             ) == nil
@@ -334,10 +306,8 @@ struct AppCoordinatorContextFlowTests {
 
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
-                floatingIndicatorEnabled: true,
                 isTemporarilyHidden: true,
-                selectedType: .pill,
-                isRecording: true,
+                isRecording: false,
                 isProcessing: false
             ) == nil
         )

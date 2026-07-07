@@ -58,11 +58,10 @@
 		B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */; };
 		B2C3D4E5F6789012345678AB /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */; };
 		BC44C77F1DDD43BFAD8A88BD /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDC77E732664A859279FEC9 /* HistoryStore.swift */; };
-		BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */; };
-		DOTINDBUILD001A2B3C4D5E6F70 /* DotFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */; };
+		ORBINDBUILD001A2B3C4D5E6F70 /* OrbFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */; };
+		ORBSHDBUILD001A2B3C4D5E6F72 /* OrbGooShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */; };
 		BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */; };
 		C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6BA5D6DB40F25222D224E /* StatusBarController.swift */; };
-		C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */; };
 		CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049276EAC4FEBCA2F91F807E /* CopyButton.swift */; };
 		COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */; };
 		CTXADAPT01A2B3C4D5E6F /* AppContextAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CTXADAPT02A2B3C4D5E6F /* AppContextAdapter.swift */; };
@@ -88,6 +87,7 @@
 		AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */; };
 		STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */; };
 		OVERLAYSINKBUILD01A2B3C4D /* OverlayStreamingSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */; };
+		STREAMSESSBUILD01A2B3C4D5 /* StreamingSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */; };
 		LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */; };
 		OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */; };
 		STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */; };
@@ -232,7 +232,6 @@
 		8B28B59A0FB34CF9A0080275 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8F65084073F3C8D42F7A5D1B /* PindropUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PindropUITests.swift; path = PindropUITests.swift; sourceTree = "<group>"; };
 		8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderTests.swift; sourceTree = "<group>"; };
-		96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FloatingIndicator.swift; sourceTree = "<group>"; };
 		9C6F7D779229187888C90F48 /* AIEnhancementStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AIEnhancementStepView.swift; sourceTree = "<group>"; };
 		9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestSupport.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
@@ -254,8 +253,8 @@
 		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
 		BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
-		BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaretBubbleFloatingIndicator.swift; sourceTree = "<group>"; };
-		DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotFloatingIndicator.swift; sourceTree = "<group>"; };
+		ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbFloatingIndicator.swift; sourceTree = "<group>"; };
+		ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = OrbGooShader.metal; sourceTree = "<group>"; };
 		BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInPresets.swift; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB05E1BC11534652810B091F /* OutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputManager.swift; sourceTree = "<group>"; };
@@ -275,6 +274,7 @@
 		AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIEnhancementService+ResolvedAssignment.swift"; sourceTree = "<group>"; };
 		STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingRefinementCoordinator.swift; sourceTree = "<group>"; };
 		OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSink.swift; sourceTree = "<group>"; };
+		STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingSessionController.swift; sourceTree = "<group>"; };
 		LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptState.swift; sourceTree = "<group>"; };
 		OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSinkTests.swift; sourceTree = "<group>"; };
 		STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetrics.swift; sourceTree = "<group>"; };
@@ -461,9 +461,8 @@
 				MAINGROUP1A2B3C4D5E6F7 /* Main */,
 				A1B2C3D4E5F6789012345678 /* Settings */,
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
-				96470B64AAE9166C1690EEEB /* FloatingIndicator.swift */,
-				BUBBLEINDFILE01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift */,
-				DOTINDFILE001A2B3C4D5E6F71 /* DotFloatingIndicator.swift */,
+				ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */,
+				ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */,
 				FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
 				LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */,
 				PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
@@ -525,6 +524,7 @@
 				AIENHV2FILE01A2B3C4D5E6 /* AIEnhancementService+ResolvedAssignment.swift */,
 				STREAMREFFILE01A2B3C4D5E6 /* StreamingRefinementCoordinator.swift */,
 				OVERLAYSINKFILE01A2B3C4D5 /* OverlayStreamingSink.swift */,
+				STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */,
 				STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */,
 				DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */,
 				APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */,
@@ -1034,14 +1034,14 @@
 				AIENHV2BUILD01A2B3C4D5E /* AIEnhancementService+ResolvedAssignment.swift in Sources */,
 				STREAMREFBUILD01A2B3C4D5E /* StreamingRefinementCoordinator.swift in Sources */,
 				OVERLAYSINKBUILD01A2B3C4D /* OverlayStreamingSink.swift in Sources */,
+				STREAMSESSBUILD01A2B3C4D5 /* StreamingSessionController.swift in Sources */,
 				LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */,
 				STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */,
 				DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */,
 				APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */,
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
-				C8D207D26857A8C43B750159 /* FloatingIndicator.swift in Sources */,
-				BUBBLEINDBUILD01A2B3C4D5E6F /* CaretBubbleFloatingIndicator.swift in Sources */,
-				DOTINDBUILD001A2B3C4D5E6F70 /* DotFloatingIndicator.swift in Sources */,
+				ORBINDBUILD001A2B3C4D5E6F70 /* OrbFloatingIndicator.swift in Sources */,
+				ORBSHDBUILD001A2B3C4D5E6F72 /* OrbGooShader.metal in Sources */,
 				FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */,
 				PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
 				TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */,

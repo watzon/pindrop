@@ -246,13 +246,12 @@ final class SettingsStore: ObservableObject {
       static let aiModel = "openai/gpt-4o-mini"
       static let aiEnhancementPrompt =
          "You are a text enhancement assistant. Improve the grammar, punctuation, and formatting of the provided text while preserving its original meaning and tone. Return only the enhanced text without any additional commentary."
-      static let floatingIndicatorEnabled = true
-      static let floatingIndicatorType = FloatingIndicatorType.dot.rawValue
+      static let floatingIndicatorType = FloatingIndicatorType.orb.rawValue
       static let pillFloatingIndicatorOffsetX = 0.0
       static let pillFloatingIndicatorOffsetY = 0.0
-      static let dotFloatingIndicatorOffsetX = 0.0
-      static let dotFloatingIndicatorOffsetY = 0.0
-      static let dotFloatingIndicatorSize = "large"
+      static let orbFloatingIndicatorOffsetX = 0.0
+      static let orbFloatingIndicatorOffsetY = 0.0
+      static let orbFloatingIndicatorSize = "medium"
       static let noteEnhancementPrompt = """
          You are a note formatting assistant. Transform the transcribed text into a well-structured note.
 
@@ -366,20 +365,18 @@ final class SettingsStore: ObservableObject {
    var noteEnhancementPrompt: String = Defaults.noteEnhancementPrompt
    @AppStorage("didMigrateToCleanTranscriptDefault", store: SettingsStoreRuntime.appStorageStore)
    var didMigrateToCleanTranscriptDefault: Bool = false
-   @AppStorage("floatingIndicatorEnabled", store: SettingsStoreRuntime.appStorageStore)
-   var floatingIndicatorEnabled: Bool = Defaults.floatingIndicatorEnabled
    @AppStorage("floatingIndicatorType", store: SettingsStoreRuntime.appStorageStore)
    var floatingIndicatorType: String = Defaults.floatingIndicatorType
    @AppStorage("pillFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
    var pillFloatingIndicatorOffsetX: Double = Defaults.pillFloatingIndicatorOffsetX
    @AppStorage("pillFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
    var pillFloatingIndicatorOffsetY: Double = Defaults.pillFloatingIndicatorOffsetY
-   @AppStorage("dotFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
-   var dotFloatingIndicatorOffsetX: Double = Defaults.dotFloatingIndicatorOffsetX
-   @AppStorage("dotFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
-   var dotFloatingIndicatorOffsetY: Double = Defaults.dotFloatingIndicatorOffsetY
-   @AppStorage("dotFloatingIndicatorSize", store: SettingsStoreRuntime.appStorageStore)
-   var dotFloatingIndicatorSize: String = Defaults.dotFloatingIndicatorSize
+   @AppStorage("orbFloatingIndicatorOffsetX", store: SettingsStoreRuntime.appStorageStore)
+   var orbFloatingIndicatorOffsetX: Double = Defaults.orbFloatingIndicatorOffsetX
+   @AppStorage("orbFloatingIndicatorOffsetY", store: SettingsStoreRuntime.appStorageStore)
+   var orbFloatingIndicatorOffsetY: Double = Defaults.orbFloatingIndicatorOffsetY
+   @AppStorage("orbFloatingIndicatorSize", store: SettingsStoreRuntime.appStorageStore)
+   var orbFloatingIndicatorSize: String = Defaults.orbFloatingIndicatorSize
    @AppStorage("sidebarPosition", store: SettingsStoreRuntime.appStorageStore)
    var sidebarPosition: String = Defaults.sidebarPosition
    @AppStorage("sidebarExpanded", store: SettingsStoreRuntime.appStorageStore)
@@ -520,7 +517,9 @@ final class SettingsStore: ObservableObject {
    }
 
    var selectedFloatingIndicatorType: FloatingIndicatorType {
-      get { FloatingIndicatorType(rawValue: floatingIndicatorType) ?? .pill }
+      // The retired "dot" indicator (and any unknown value) maps to the Orb,
+      // its successor in the corner slot.
+      get { FloatingIndicatorType(rawValue: floatingIndicatorType) ?? .orb }
       set {
          let previousValue = selectedFloatingIndicatorType
          floatingIndicatorType = newValue.rawValue
@@ -629,23 +628,23 @@ final class SettingsStore: ObservableObject {
       )
    }
 
-   var dotFloatingIndicatorOffset: CGSize {
+   var orbFloatingIndicatorOffset: CGSize {
       get {
          CGSize(
-            width: dotFloatingIndicatorOffsetX,
-            height: dotFloatingIndicatorOffsetY
+            width: orbFloatingIndicatorOffsetX,
+            height: orbFloatingIndicatorOffsetY
          )
       }
       set {
-         dotFloatingIndicatorOffsetX = newValue.width
-         dotFloatingIndicatorOffsetY = newValue.height
+         orbFloatingIndicatorOffsetX = newValue.width
+         orbFloatingIndicatorOffsetY = newValue.height
       }
    }
 
-   func resetDotFloatingIndicatorOffset() {
-      dotFloatingIndicatorOffset = CGSize(
-         width: Defaults.dotFloatingIndicatorOffsetX,
-         height: Defaults.dotFloatingIndicatorOffsetY
+   func resetOrbFloatingIndicatorOffset() {
+      orbFloatingIndicatorOffset = CGSize(
+         width: Defaults.orbFloatingIndicatorOffsetX,
+         height: Defaults.orbFloatingIndicatorOffsetY
       )
    }
 
@@ -1012,7 +1011,6 @@ final class SettingsStore: ObservableObject {
          try? deleteProviderAPIKey(forProviderID: config.id)
          try? deleteProviderEndpoint(forProviderID: config.id)
       }
-      floatingIndicatorEnabled = Defaults.floatingIndicatorEnabled
       floatingIndicatorType = Defaults.floatingIndicatorType
       resetPillFloatingIndicatorOffset()
       pauseMediaOnRecording = false

@@ -96,8 +96,6 @@ best:
   _self: "Parhaat"
 better:
   _self: "Paremmin"
-bubble:
-  _self: "Kupla"
 built:
   in_presets: "Sisäänrakennetut esiasetukset"
   in_read_only: "Sisäänrakennettu (vain luku)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Valitse sijainti esiasetusten tallentamista varten"
   the_daytime_shell_used_in_light_mode: "Valitse valotilassa käytettävä päiväkuori."
   the_low_glare_shell_used_in_dark_mode: "Valitse pimeässä tilassa käytettävä vähän häikäisevä kuori."
-  which_floating_indicator_style_appears_wh: "Valitse, mikä kelluva ilmaisintyyli näkyy, kun peittokuva on käytössä."
   which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Pindropin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
   which_side_the_navigation_sidebar_appears: "Valitse, millä puolella navigoinnin sivupalkki näkyy."
+  how_pindrop_appears_on_screen_while_you_d: "Valitse, miten Pindrop näkyy näytöllä sanelun aikana."
 clean:
   up_filler_words: "Puhdista täytesanat"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Näytä Pindrop Dockissa sen sijaan, että se toimisi vain valikkorivisovelluksena."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kiinnitä sivupalkki ikkunan vasempaan tai oikeaan reunaan."
-dot:
-  _self: "Piste"
 download:
   _self: "Lataa"
   complete: "Lataus valmis!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Ota AI Enhancement käyttöön"
   live_session_updates_during_recording: "Ota live-istunnon päivitykset käyttöön tallennuksen aikana"
-  the_floating_indicator_to_choose_a_style: "Ota kelluva ilmaisin käyttöön valitaksesi tyyli."
   vibe_mode_ui_context: "Ota Vibe-tila käyttöön (käyttöliittymäkonteksti)"
 enabled:
   _self: "Käytössä"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Korjaa välimerkit ja isot kirjaimet"
 floating:
   indicator: "%@ kelluva ilmaisin"
-  indicator_3bad78a5: "Kelluva ilmaisin: %@"
   indicator_e0349402: "Kelluva ilmaisin"
 folder:
   deleted: "Kansio poistettu."
@@ -487,6 +481,7 @@ media:
   library: "Mediakirjasto"
   transcription: "Median transkriptio"
   unavailable: "Media ei ole käytettävissä"
+  saved: "Media tallennettu"
 medium:
   _self: "Keskikokoinen"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Ei valittu"
   set: "Ei asetettu"
   set_93039e60: "Ei asetettu"
-notch:
-  _self: "Lovi"
 note:
   _self: "Huom"
   capture_push_to_talk: "Muistiinpano (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Huomautus kohteesta"
   metadata: "Huomautus Metatiedot"
   title: "Huomaa otsikko"
+  saved: "Muistiinpano tallennettu"
 notes:
   _self: "Huomautuksia"
   3add7b96: "muistiinpanoja"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Kiinnitä näyttöön (aina päällä)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop-piste"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop on käyttövalmis.
     Aloita napsauttamalla valikkopalkin kuvaketta.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop GitHubissa"
   pill: "Pindrop-pilleri"
   theme: "Pindrop-teema"
+  orb: "Pindrop-pallo"
 play:
   _self: "Pelata"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Näytä sovellus"
   app_in_finder: "Näytä sovellus Finderissa"
-  floating_indicator: "Näytä kelluva ilmaisin"
   in_dock: "Näytä Dockissa"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Näkyy pisteenä näytön kulmassa"
   as_a_pill_at_the_bottom_of_the_screen: "Näkyy pillerinä näytön alareunassa"
-  beside_the_focused_text_field_caret: "Näkyy kohdistetun tekstikentän/merkin vieressä"
-  in_the_menu_bar_notch_area: "Näkyy valikkopalkissa/lovialueella"
-  recording_state_in_a_lightweight_overlay_w: "Näyttää tallennustilan kevyessä peittoikkunassa."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Näkyy nestelasisena pallona näytön kulmassa"
 sidebar:
   position: "Sivupalkin sijainti"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkriptio käynnissä"
   metadata: "Transkription metatiedot"
   update: "Transkription päivitys"
+  saved: "Transkriptio tallennettu"
 transcriptions:
   _self: "Transkriptiot"
   f0972acc: "transkriptioita"
@@ -1015,3 +1006,7 @@ your:
     Voit muokata niitä myöhemmin asetuksissa.
   model_is_ready_to_use: "Mallisi on käyttövalmis."
   stats: "Omat tilastot"
+orb:
+  _self: "Pallo"
+meeting:
+  saved: "Kokous tallennettu"

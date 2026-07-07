@@ -96,8 +96,6 @@ best:
   _self: "Beste"
 better:
   _self: "Besser"
-bubble:
-  _self: "Blase"
 built:
   in_presets: "Eingebaute Voreinstellungen"
   in_read_only: "Eingebaut (nur lesen)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Speicherort für Voreinstellungen wählen"
   the_daytime_shell_used_in_light_mode: "Wählen Sie die Tagschale, die im Hellmodus verwendet wird."
   the_low_glare_shell_used_in_dark_mode: "Wählen Sie die blendfreie Schale, die im Dunkelmodus verwendet wird."
-  which_floating_indicator_style_appears_wh: "Wählen Sie, welcher schwebende Indikator-Stil angezeigt wird, wenn das Overlay aktiviert ist."
   which_microphone_pindrop_should_use_for_d: "Wählen Sie, welches Mikrofon Pindrop für die Diktierung verwenden soll und wie es sich während der Aufnahme verhält."
   which_side_the_navigation_sidebar_appears: "Wähle, auf welcher Seite die Navigationsleiste angezeigt wird."
+  how_pindrop_appears_on_screen_while_you_d: "Wähle, wie Pindrop während des Diktierens auf dem Bildschirm erscheint."
 clean:
   up_filler_words: "Füllwörter bereinigen"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Zeigen Sie Pindrop im Dock an, anstatt es nur als Menüleisten-App auszuführen."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Docken Sie die Seitenleiste an den linken oder rechten Rand des Fensters."
-dot:
-  _self: "Dot"
 download:
   _self: "Herunterladen"
   complete: "Download abgeschlossen!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "KI-Verbesserung aktivieren"
   live_session_updates_during_recording: "Live-Session-Updates während der Aufnahme aktivieren"
-  the_floating_indicator_to_choose_a_style: "Aktivieren Sie den schwebenden Indikator, um einen Stil zu wählen."
   vibe_mode_ui_context: "Vibe-Modus aktivieren (UI-Kontext)"
 enabled:
   _self: "Aktiviert"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Zeichensetzung und Großschreibung korrigieren"
 floating:
   indicator: "Schwebender Indikator %@"
-  indicator_3bad78a5: "Schwebender Indikator: %@"
   indicator_e0349402: "Schwebender Indikator"
 folder:
   deleted: "Ordner gelöscht."
@@ -487,6 +481,7 @@ media:
   library: "Medienbibliothek"
   transcription: "Medientranskription"
   unavailable: "Medien nicht verfügbar"
+  saved: "Medien gespeichert"
 medium:
   _self: "Mittel"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Nicht ausgewählt"
   set: "Nicht festgelegt"
   set_93039e60: "Nicht festgelegt"
-notch:
-  _self: "Kerbe"
 note:
   _self: "Notiz"
   capture_push_to_talk: "Notizerfassung (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Notiz von"
   metadata: "Hinweis Metadaten"
   title: "Notiztitel"
+  saved: "Notiz gespeichert"
 notes:
   _self: "Notizen"
   3add7b96: "Notizen"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "An Bildschirm anheften (immer im Vordergrund)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop ist bereit zur Verwendung.
     Klicken Sie auf das Menüleisten-Symbol, um zu beginnen.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop auf GitHub"
   pill: "Pindrop-Pille"
   theme: "Pindrop-Thema"
+  orb: "Pindrop-Orb"
 play:
   _self: "Abspielen"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "App anzeigen"
   app_in_finder: "App im Finder anzeigen"
-  floating_indicator: "Schwebenden Indikator anzeigen"
   in_dock: "Im Dock anzeigen"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Zeigt sich als Pille am unteren Bildschirmrand"
-  beside_the_focused_text_field_caret: "Zeigt sich neben dem fokussierten Textfeld/Caret"
-  in_the_menu_bar_notch_area: "Zeigt sich in der Menüleiste/Notch-Bereich"
-  recording_state_in_a_lightweight_overlay_w: "Zeigt den Aufnahmestatus in einem leichten Überlagerungsfenster."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Wird als Orb aus flüssigem Glas in der Bildschirmecke angezeigt"
 sidebar:
   position: "Seitenleistenposition"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkription läuft"
   metadata: "Transkriptionsmetadaten"
   update: "Transkriptions-Update"
+  saved: "Transkription gespeichert"
 transcriptions:
   _self: "Transkriptionen"
   f0972acc: "Transkriptionen"
@@ -1015,3 +1006,7 @@ your:
     Sie können sie später in den Einstellungen anpassen.
   model_is_ready_to_use: "Ihr Modell ist bereit zur Verwendung."
   stats: "Ihre Statistiken"
+orb:
+  _self: "Orb"
+meeting:
+  saved: "Meeting gespeichert"

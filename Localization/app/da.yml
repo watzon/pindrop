@@ -96,8 +96,6 @@ best:
   _self: "Bedst"
 better:
   _self: "Bedre"
-bubble:
-  _self: "Boble"
 built:
   in_presets: "Indbyggede forudindstillinger"
   in_read_only: "Indbygget (skrivebeskyttet)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Vælg placering for at gemme forudindstillinger"
   the_daytime_shell_used_in_light_mode: "Vælg den dagsskal, der bruges i lystilstand."
   the_low_glare_shell_used_in_dark_mode: "Vælg skal med lav blænding, der bruges i mørk tilstand."
-  which_floating_indicator_style_appears_wh: "Vælg hvilken flydende indikatorstil, der vises, når overlejringen er aktiveret."
   which_microphone_pindrop_should_use_for_d: "Vælg hvilken mikrofon Pindrop skal bruge til diktering, og hvordan den opfører sig under optagelse."
   which_side_the_navigation_sidebar_appears: "Vælg, hvilken side navigationssidebjælken skal vises på."
+  how_pindrop_appears_on_screen_while_you_d: "Vælg, hvordan Pindrop vises på skærmen, mens du dikterer."
 clean:
   up_filler_words: "Ryd op i fyldord"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Vis Pindrop i Dock i stedet for kun at køre som en menulinjeapp."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dok sidebjælken til venstre eller højre kant af vinduet."
-dot:
-  _self: "Prik"
 download:
   _self: "Hent"
   complete: "Download fuldført!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Aktiver AI Enhancement"
   live_session_updates_during_recording: "Aktiver live-sessionsopdateringer under optagelse"
-  the_floating_indicator_to_choose_a_style: "Aktiver den flydende indikator for at vælge en stil."
   vibe_mode_ui_context: "Aktiver vibetilstand (UI-kontekst)"
 enabled:
   _self: "Aktiveret"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Ret tegnsætning og store bogstaver"
 floating:
   indicator: "%@ flydende indikator"
-  indicator_3bad78a5: "Flydende indikator: %@"
   indicator_e0349402: "Flydende indikator"
 folder:
   deleted: "Mappe slettet."
@@ -487,6 +481,7 @@ media:
   library: "Mediebibliotek"
   transcription: "Medietransskription"
   unavailable: "Medier er ikke tilgængelige"
+  saved: "Medie gemt"
 medium:
   _self: "Mellem"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Ikke valgt"
   set: "Ikke indstillet"
   set_93039e60: "Ikke indstillet"
-notch:
-  _self: "Hak"
 note:
   _self: "Note"
   capture_push_to_talk: "Notefangst (Tryk-for-at-tale)"
@@ -556,6 +549,7 @@ note:
   from: "Notat fra"
   metadata: "Bemærk Metadata"
   title: "Bemærk titel"
+  saved: "Note gemt"
 notes:
   _self: "Noter"
   3add7b96: "noter"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Fastgør til skærmen (altid øverst)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop er klar til brug.
     Klik på menulinjeikonet for at komme i gang.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop på GitHub"
   pill: "Pindrop pille"
   theme: "Pindrop-tema"
+  orb: "Pindrop-kugle"
 play:
   _self: "Spil"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Vis app"
   app_in_finder: "Vis app i Finder"
-  floating_indicator: "Vis flydende indikator"
   in_dock: "Vis i Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Vises som en prik i hjørnet af skærmen"
   as_a_pill_at_the_bottom_of_the_screen: "Vises som en pille nederst på skærmen"
-  beside_the_focused_text_field_caret: "Vises ved siden af ​​det fokuserede tekstfelt/markør"
-  in_the_menu_bar_notch_area: "Vises i menulinjen/hakområdet"
-  recording_state_in_a_lightweight_overlay_w: "Viser optagetilstand i et let overlejringsvindue."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Vises som en kugle af flydende glas i hjørnet af skærmen"
 sidebar:
   position: "Sidepanelposition"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transskription i gang"
   metadata: "Transskriptionsmetadata"
   update: "Transskriptionsopdatering"
+  saved: "Transskription gemt"
 transcriptions:
   _self: "Transskriptioner"
   f0972acc: "transskriptioner"
@@ -1015,3 +1006,7 @@ your:
     Du kan tilpasse dem senere i Indstillinger.
   model_is_ready_to_use: "Din model er klar til brug."
   stats: "Dine statistikker"
+orb:
+  _self: "Kugle"
+meeting:
+  saved: "Møde gemt"

@@ -96,8 +96,6 @@ best:
   _self: "Лучший"
 better:
   _self: "Лучше"
-bubble:
-  _self: "Пузырь"
 built:
   in_presets: "Встроенные пресеты"
   in_read_only: "Встроенный (только для чтения)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Выберите место для сохранения пресетов"
   the_daytime_shell_used_in_light_mode: "Выберите дневную оболочку, используемую в светлом режиме."
   the_low_glare_shell_used_in_dark_mode: "Выберите корпус с низким уровнем бликов, используемый в темном режиме."
-  which_floating_indicator_style_appears_wh: "Выберите, какой стиль плавающего индикатора будет отображаться, когда наложение включено."
   which_microphone_pindrop_should_use_for_d: "Выберите, какой микрофон Pindrop должен использовать для диктовки и как он будет вести себя во время записи."
   which_side_the_navigation_sidebar_appears: "Выберите, на какой стороне будет отображаться боковая панель навигации."
+  how_pindrop_appears_on_screen_while_you_d: "Выберите, как Pindrop отображается на экране во время диктовки."
 clean:
   up_filler_words: "Очистите слова-паразиты"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Отображайте Pindrop в Dock вместо того, чтобы запускать его только как приложение в строке меню."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Прикрепите боковую панель к левому или правому краю окна."
-dot:
-  _self: "Точка"
 download:
   _self: "Скачать"
   complete: "Загрузка завершена!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Включить улучшение ИИ"
   live_session_updates_during_recording: "Включить обновления сеанса в реальном времени во время записи"
-  the_floating_indicator_to_choose_a_style: "Включите плавающий индикатор, чтобы выбрать стиль."
   vibe_mode_ui_context: "Включить режим Vibe (контекст пользовательского интерфейса)"
 enabled:
   _self: "Включено"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Исправьте пунктуацию и заглавные буквы"
 floating:
   indicator: "Плавающий индикатор %@"
-  indicator_3bad78a5: "Плавающий индикатор: %@"
   indicator_e0349402: "Плавающий индикатор"
 folder:
   deleted: "Папка удалена."
@@ -487,6 +481,7 @@ media:
   library: "Медиатека"
   transcription: "Транскрипция СМИ"
   unavailable: "Медиа недоступны"
+  saved: "Медиа сохранено"
 medium:
   _self: "Середина"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Не выбрано"
   set: "Не установлено"
   set_93039e60: "Не установлено"
-notch:
-  _self: "Нотч"
 note:
   _self: "Примечание"
   capture_push_to_talk: "Захват заметок (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Примечание от"
   metadata: "Метаданные заметки"
   title: "Название заметки"
+  saved: "Заметка сохранена"
 notes:
   _self: "Примечания"
   3add7b96: "примечания"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Закрепить на экране (всегда сверху)"
 pindrop:
   _self: "Pindrop"
-  dot: "Пиндроп Дот"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Пиндроп готов к использованию.
     Нажмите значок в строке меню, чтобы начать.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Пиндроп на GitHub"
   pill: "Таблетка Пиндроп"
   theme: "Тема Пиндроп"
+  orb: "Сфера Pindrop"
 play:
   _self: "Играть"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Показать приложение"
   app_in_finder: "Показать приложение в Finder"
-  floating_indicator: "Показать плавающий индикатор"
   in_dock: "Показать в доке"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Отображается точкой в ​​углу экрана"
   as_a_pill_at_the_bottom_of_the_screen: "Отображается в виде таблетки внизу экрана."
-  beside_the_focused_text_field_caret: "Показывает рядом с выделенным текстовым полем/кареткой"
-  in_the_menu_bar_notch_area: "Отображается в строке меню/области выреза."
-  recording_state_in_a_lightweight_overlay_w: "Показывает состояние записи в облегченном окне наложения."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Отображается как сфера из жидкого стекла в углу экрана"
 sidebar:
   position: "Положение боковой панели"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Транскрипция в процессе"
   metadata: "Метаданные транскрипции"
   update: "Обновление транскрипции"
+  saved: "Расшифровка сохранена"
 transcriptions:
   _self: "Транскрипции"
   f0972acc: "транскрипции"
@@ -1015,3 +1006,7 @@ your:
     Вы можете настроить их позже в настройках.
   model_is_ready_to_use: "Ваша модель готова к использованию."
   stats: "Ваша статистика"
+orb:
+  _self: "Сфера"
+meeting:
+  saved: "Встреча сохранена"

@@ -311,7 +311,7 @@ struct DashboardView: View {
                     .foregroundStyle(AppColors.textSecondary)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
             case .completed(let kind):
-                Text(localized(kind.title, locale: locale))
+                Text(kind.title(locale: locale))
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.success)
                     .transition(.blurReplace)

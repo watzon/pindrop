@@ -96,8 +96,6 @@ best:
   _self: "최상의"
 better:
   _self: "더 나은"
-bubble:
-  _self: "거품"
 built:
   in_presets: "내장 사전 설정"
   in_read_only: "내장(읽기 전용)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "사전 설정을 저장할 위치를 선택하세요."
   the_daytime_shell_used_in_light_mode: "조명 모드에서 사용되는 주간 쉘을 선택하십시오."
   the_low_glare_shell_used_in_dark_mode: "다크 모드에서 사용되는 눈부심 방지 쉘을 선택하세요."
-  which_floating_indicator_style_appears_wh: "오버레이가 활성화되면 어떤 부동 표시기 스타일이 나타날지 선택합니다."
   which_microphone_pindrop_should_use_for_d: "받아쓰기에 Pindrop이 사용할 마이크와 녹음하는 동안 마이크가 어떻게 작동하는지 선택하세요."
   which_side_the_navigation_sidebar_appears: "탐색 사이드바가 표시될 위치를 선택하세요."
+  how_pindrop_appears_on_screen_while_you_d: "받아쓰기 중 Pindrop이 화면에 표시되는 방식을 선택하세요."
 clean:
   up_filler_words: "필러 단어 정리"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "메뉴 막대 앱으로만 실행하는 대신 Dock에 Pindrop을 표시합니다."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "사이드바를 창의 왼쪽 또는 오른쪽 가장자리에 고정합니다."
-dot:
-  _self: "Dot"
 download:
   _self: "다운로드"
   complete: "다운로드 완료!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "AI 향상 활성화"
   live_session_updates_during_recording: "녹화 중 실시간 세션 업데이트 활성화"
-  the_floating_indicator_to_choose_a_style: "스타일을 선택하려면 플로팅 표시기를 활성화하세요."
   vibe_mode_ui_context: "분위기 모드 활성화(UI 컨텍스트)"
 enabled:
   _self: "활성화됨"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "구두점 및 대소문자 수정"
 floating:
   indicator: "%@ 부동 표시기"
-  indicator_3bad78a5: "부동 표시기: %@"
   indicator_e0349402: "부동 표시기"
 folder:
   deleted: "폴더가 삭제되었습니다."
@@ -487,6 +481,7 @@ media:
   library: "미디어 라이브러리"
   transcription: "미디어 전사"
   unavailable: "미디어를 사용할 수 없음"
+  saved: "미디어가 저장됨"
 medium:
   _self: "중간"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "선택되지 않음"
   set: "설정되지 않음"
   set_93039e60: "설정되지 않음"
-notch:
-  _self: "골짜기"
 note:
   _self: "메모"
   capture_push_to_talk: "메모 캡처(Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "메모"
   metadata: "참고 메타데이터"
   title: "참고 제목"
+  saved: "메모가 저장됨"
 notes:
   _self: "메모"
   3add7b96: "메모"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "화면에 고정(항상 맨 위에)"
 pindrop:
   _self: "핀드롭"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     핀드롭을 사용할 준비가 되었습니다.
     시작하려면 메뉴 표시줄 아이콘을 클릭하세요.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "GitHub의 핀드롭"
   pill: "핀드롭 알약"
   theme: "핀드롭 테마"
+  orb: "Pindrop 오브"
 play:
   _self: "놀다"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "앱 표시"
   app_in_finder: "Finder에 앱 표시"
-  floating_indicator: "부동 표시기 표시"
   in_dock: "Dock에 표시"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "화면 하단에 알약으로 표시됩니다."
-  beside_the_focused_text_field_caret: "초점이 맞춰진 텍스트 필드/캐럿 옆에 표시됩니다."
-  in_the_menu_bar_notch_area: "메뉴바/노치 영역에 표시"
-  recording_state_in_a_lightweight_overlay_w: "경량 오버레이 창에 녹음 상태를 표시합니다."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "화면 모서리에 리퀴드 글래스 오브로 표시됩니다"
 sidebar:
   position: "사이드바 위치"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "스크립트 작성 중"
   metadata: "전사 메타데이터"
   update: "전사 업데이트"
+  saved: "전사 내용이 저장됨"
 transcriptions:
   _self: "전사"
   f0972acc: "필사본"
@@ -1015,3 +1006,7 @@ your:
     나중에 설정에서 맞춤설정할 수 있습니다.
   model_is_ready_to_use: "모델을 사용할 준비가 되었습니다."
   stats: "귀하의 통계"
+orb:
+  _self: "오브"
+meeting:
+  saved: "회의가 저장됨"

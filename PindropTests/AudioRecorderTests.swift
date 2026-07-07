@@ -280,3 +280,75 @@ struct AudioRecorderTests {
         #expect(fixture.mockBackend.lastPreferredInputDeviceUID == "usb-mic")
     }
 }
+
+@Suite
+struct AudioLevelNormalizerTests {
+    @Test func quietSourceIsBoostedToVisualRange() {
+        let sut = AudioLevelNormalizer()
+
+        // A soft mic whose speech peaks sit around 0.15 raw: after a few updates
+        // the envelope tracks 0.15 and peaks land near full scale.
+        var last: Float = 0
+        for _ in 0..<5 {
+            last = sut.normalize(0.15)
+        }
+
+        #expect(last > 0.85)
+        #expect(last <= 1.0)
+    }
+
+    @Test func loudSourceIsNotAmplifiedPastFullScale() {
+        let sut = AudioLevelNormalizer()
+
+        let normalized = sut.normalize(0.9)
+
+        #expect(normalized <= 1.0)
+        #expect(normalized > 0.85)
+    }
+
+    @Test func silenceIsNotBoostedToFullScale() {
+        let sut = AudioLevelNormalizer()
+
+        // Room noise well under the envelope floor must stay visually quiet even
+        // though nothing louder has been heard.
+        let normalized = sut.normalize(0.01)
+
+        #expect(normalized < 0.2)
+    }
+
+    @Test func gainRelaxesSlowlyAfterLoudPassage() {
+        let sut = AudioLevelNormalizer()
+
+        _ = sut.normalize(0.9)
+        let gainAfterLoud = sut.currentGain
+        // A handful of quiet updates should barely move the gain (slow release).
+        for _ in 0..<10 {
+            _ = sut.normalize(0.01)
+        }
+
+        #expect(sut.currentGain < gainAfterLoud * 1.2)
+    }
+
+    @Test func bandsScaleByASharedGain() {
+        let sut = AudioLevelNormalizer()
+        _ = sut.normalize(0.15)
+
+        let bands = sut.scaled(AudioBandLevels(low: 0.12, mid: 0.06, high: 0.03))
+
+        // Relative structure preserved: low > mid > high with the same ratios.
+        #expect(bands.low > bands.mid)
+        #expect(bands.mid > bands.high)
+        #expect(abs(bands.mid / bands.low - 0.5) < 0.01)
+        #expect(bands.low <= 1.0)
+    }
+
+    @Test func resetClearsTheEnvelope() {
+        let sut = AudioLevelNormalizer()
+        _ = sut.normalize(0.9)
+        let adaptedGain = sut.currentGain
+
+        sut.reset()
+
+        #expect(sut.currentGain > adaptedGain)
+    }
+}

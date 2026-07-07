@@ -1052,6 +1052,137 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
     }
 }
 
+// MARK: - Band levels
+
+/// Per-band RMS levels for the current audio buffer, normalized 0…1 with the same
+/// gain curve as `AudioCaptureUtilities.calculateAudioLevel`. Drives the Orb
+/// indicator's layered EKG traces.
+struct AudioBandLevels: Equatable {
+    var low: Float
+    var mid: Float
+    var high: Float
+
+    static let zero = AudioBandLevels(low: 0, mid: 0, high: 0)
+}
+
+/// Splits incoming buffers into three frequency bands (≲300 Hz, 300 Hz–2 kHz,
+/// ≳2 kHz) using two cascaded one-pole low-pass filters, then reports per-band
+/// RMS. Filter state persists across buffers; instances must only be used from
+/// the capture callback's serial context.
+final class ThreeBandLevelAnalyzer {
+    private var lowState: Float = 0
+    private var midState: Float = 0
+    private var coefficientsSampleRate: Double = 0
+    private var alphaLow: Float = 0
+    private var alphaMid: Float = 0
+
+    private static let lowCrossoverHz = 300.0
+    private static let midCrossoverHz = 2000.0
+    /// Speech carries far less energy in the upper bands; these gains rebalance
+    /// the traces so all three read at comparable visual amplitude.
+    private static let midGain: Float = 1.6
+    private static let highGain: Float = 2.6
+
+    func process(_ buffer: AVAudioPCMBuffer) -> AudioBandLevels {
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0,
+              buffer.format.commonFormat == .pcmFormatFloat32,
+              let channelData = buffer.floatChannelData else {
+            return .zero
+        }
+
+        updateCoefficientsIfNeeded(sampleRate: buffer.format.sampleRate)
+
+        let samples = UnsafeBufferPointer(start: channelData[0], count: frameLength)
+        var sumLow: Float = 0
+        var sumMid: Float = 0
+        var sumHigh: Float = 0
+
+        for sample in samples {
+            lowState += alphaLow * (sample - lowState)
+            midState += alphaMid * (sample - midState)
+            let low = lowState
+            let mid = midState - lowState
+            let high = sample - midState
+            sumLow += low * low
+            sumMid += mid * mid
+            sumHigh += high * high
+        }
+
+        let count = Float(frameLength)
+        return AudioBandLevels(
+            low: normalize(sqrt(sumLow / count)),
+            mid: normalize(sqrt(sumMid / count) * Self.midGain),
+            high: normalize(sqrt(sumHigh / count) * Self.highGain)
+        )
+    }
+
+    func reset() {
+        lowState = 0
+        midState = 0
+    }
+
+    private func normalize(_ rms: Float) -> Float {
+        min(1.0, rms * 15)
+    }
+
+    private func updateCoefficientsIfNeeded(sampleRate: Double) {
+        guard sampleRate > 0, sampleRate != coefficientsSampleRate else { return }
+        coefficientsSampleRate = sampleRate
+        alphaLow = Float(1 - exp(-2 * Double.pi * Self.lowCrossoverHz / sampleRate))
+        alphaMid = Float(1 - exp(-2 * Double.pi * Self.midCrossoverHz / sampleRate))
+    }
+}
+
+// MARK: - Level normalization
+
+/// Visualization-only automatic gain control. Tracks a slow-decaying envelope of
+/// the incoming overall level and rescales levels so quiet sources (soft voices,
+/// low-gain mics, far-field devices) still fill the visual range while loud
+/// sources don't change. Only indicator waveforms and the orb's EKG consume the
+/// normalized values — recorded audio and transcription input are untouched.
+/// Instances must only be used from the capture callback's serial context.
+final class AudioLevelNormalizer {
+    /// The envelope never adapts below this, so silence and room noise are not
+    /// boosted to full scale during pauses.
+    static let envelopeFloor: Float = 0.08
+    /// Fraction of the envelope that maps to full visual scale — peaks at the
+    /// tracked loudness land just below 1.0.
+    static let targetPeak: Float = 0.9
+    /// Per-update decay; at typical tap cadence the envelope relaxes over a few
+    /// seconds, so the gain follows gradual loudness changes without pumping on
+    /// every syllable.
+    static let decay: Float = 0.994
+
+    private var envelope: Float = 0
+
+    func reset() {
+        envelope = 0
+    }
+
+    /// Gain derived from the current envelope. Bands are scaled by this same
+    /// factor so their relative structure (voice body vs sibilance) is preserved.
+    var currentGain: Float {
+        Self.targetPeak / max(envelope, Self.envelopeFloor)
+    }
+
+    /// Feed the latest overall level (instant attack, slow release) and return
+    /// its normalized value.
+    func normalize(_ level: Float) -> Float {
+        envelope = max(level, envelope * Self.decay)
+        return min(1.0, level * currentGain)
+    }
+
+    func scaled(_ bands: AudioBandLevels) -> AudioBandLevels {
+        let gain = currentGain
+        return AudioBandLevels(
+            low: min(1.0, bands.low * gain),
+            mid: min(1.0, bands.mid * gain),
+            high: min(1.0, bands.high * gain)
+        )
+    }
+}
+
 // MARK: - AudioRecorder
 
 @MainActor
@@ -1073,7 +1204,13 @@ final class AudioRecorder {
     
     var onAudioLevel: ((Float) -> Void)?
     var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
-    
+    var onAudioBandLevels: ((AudioBandLevels) -> Void)?
+
+    /// Touched only from the capture backend's buffer callback (serial).
+    private let bandLevelAnalyzer = ThreeBandLevelAnalyzer()
+    /// Touched only from the capture backend's callbacks (serial).
+    private let levelNormalizer = AudioLevelNormalizer()
+
     init(
         permissionManager: some PermissionProviding,
         captureBackend: AudioCaptureBackend? = nil,
@@ -1121,16 +1258,25 @@ final class AudioRecorder {
             captureBackend.setPreferredInputDeviceUID(preferredInputDeviceUID)
         }
 
+        bandLevelAnalyzer.reset()
+        levelNormalizer.reset()
         do {
+            let bandLevelAnalyzer = self.bandLevelAnalyzer
+            let levelNormalizer = self.levelNormalizer
             try captureBackend.startCapture(
                 onBuffer: { [weak self] buffer in
+                    // Bands use the gain from the previous level update — a
+                    // one-buffer lag that is invisible at tap cadence.
+                    let bands = levelNormalizer.scaled(bandLevelAnalyzer.process(buffer))
                     Task { @MainActor [weak self] in
                         self?.onAudioBuffer?(buffer)
+                        self?.onAudioBandLevels?(bands)
                     }
                 },
                 onAudioLevel: { [weak self] level in
+                    let normalized = levelNormalizer.normalize(level)
                     Task { @MainActor [weak self] in
-                        self?.onAudioLevel?(level)
+                        self?.onAudioLevel?(normalized)
                     }
                 }
             )

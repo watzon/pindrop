@@ -96,8 +96,6 @@ best:
   _self: "En iyi"
 better:
   _self: "Daha iyi"
-bubble:
-  _self: "Kabarcık"
 built:
   in_presets: "Yerleşik Ön Ayarlar"
   in_read_only: "Yerleşik (salt okunur)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Ön ayarların kaydedileceği konumu seçin"
   the_daytime_shell_used_in_light_mode: "Işık modunda kullanılan gündüz kabuğunu seçin."
   the_low_glare_shell_used_in_dark_mode: "Karanlık modda kullanılan düşük parlamalı kabuğu seçin."
-  which_floating_indicator_style_appears_wh: "Yer paylaşımı etkinleştirildiğinde hangi kayan gösterge stilinin görüneceğini seçin."
   which_microphone_pindrop_should_use_for_d: "Pindrop'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
   which_side_the_navigation_sidebar_appears: "Gezinme kenar çubuğunun hangi tarafta görüneceğini seçin."
+  how_pindrop_appears_on_screen_while_you_d: "Dikte ederken Pindrop'un ekranda nasıl görüneceğini seçin."
 clean:
   up_filler_words: "Dolgu sözcüklerini temizle"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Pindrop'u yalnızca bir menü çubuğu uygulaması olarak çalıştırmak yerine Dock'ta görüntüleyin."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kenar çubuğunu pencerenin sol veya sağ kenarına sabitleyin."
-dot:
-  _self: "Dot"
 download:
   _self: "İndirmek"
   complete: "İndirme Tamamlandı!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Yapay Zeka Geliştirmeyi Etkinleştir"
   live_session_updates_during_recording: "Kayıt sırasında canlı oturum güncellemelerini etkinleştirin"
-  the_floating_indicator_to_choose_a_style: "Bir stil seçmek için kayan göstergeyi etkinleştirin."
   vibe_mode_ui_context: "Vibe modunu etkinleştir (kullanıcı arayüzü bağlamı)"
 enabled:
   _self: "Etkinleştirilmiş"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Noktalama işaretlerini ve büyük harf kullanımını düzeltin"
 floating:
   indicator: "%@ kayan gösterge"
-  indicator_3bad78a5: "Kayan Gösterge: %@"
   indicator_e0349402: "Yüzen Gösterge"
 folder:
   deleted: "Klasör silindi."
@@ -487,6 +481,7 @@ media:
   library: "Medya Kitaplığı"
   transcription: "Medya Transkripsiyonu"
   unavailable: "Medya kullanılamıyor"
+  saved: "Medya kaydedildi"
 medium:
   _self: "Orta"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Seçilmedi"
   set: "Ayarlanmadı"
   set_93039e60: "Ayarlanmadı"
-notch:
-  _self: "Çentik"
 note:
   _self: "Not"
   capture_push_to_talk: "Not Yakalama (Bas-Konuş)"
@@ -556,6 +549,7 @@ note:
   from: "Not:"
   metadata: "Not Meta Verileri"
   title: "Not Başlığı"
+  saved: "Not kaydedildi"
 notes:
   _self: "Notlar"
   3add7b96: "notlar"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Ekrana sabitle (her zaman üstte)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop kullanıma hazırdır.
     Başlamak için menü çubuğu simgesini tıklayın.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "GitHub'da Pindrop"
   pill: "Pindrop Hapı"
   theme: "Pindrop Teması"
+  orb: "Pindrop Küresi"
 play:
   _self: "Oynamak"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Uygulamayı Göster"
   app_in_finder: "Uygulamayı Finder'da Göster"
-  floating_indicator: "Kayan göstergeyi göster"
   in_dock: "Dock'ta göster"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Ekranın alt kısmında hap olarak gösterilir"
-  beside_the_focused_text_field_caret: "Odaklanılan metin alanının/işaret işaretinin yanında gösterilir"
-  in_the_menu_bar_notch_area: "Menü çubuğu/çentik alanında gösterilir"
-  recording_state_in_a_lightweight_overlay_w: "Hafif bir kaplama penceresinde kayıt durumunu gösterir."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Ekranın köşesinde sıvı cam küre olarak görünür"
 sidebar:
   position: "Kenar çubuğu konumu"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkripsiyon devam ediyor"
   metadata: "Transkripsiyon Meta Verileri"
   update: "Transkripsiyon güncellemesi"
+  saved: "Transkripsiyon kaydedildi"
 transcriptions:
   _self: "Transkripsiyonlar"
   f0972acc: "transkripsiyonlar"
@@ -1015,3 +1006,7 @@ your:
     Bunları daha sonra Ayarlar'da özelleştirebilirsiniz.
   model_is_ready_to_use: "Modeliniz kullanıma hazır."
   stats: "İstatistikleriniz"
+orb:
+  _self: "Küre"
+meeting:
+  saved: "Toplantı kaydedildi"

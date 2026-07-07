@@ -96,8 +96,6 @@ best:
   _self: "Melhor"
 better:
   _self: "Melhorar"
-bubble:
-  _self: "Bolha"
 built:
   in_presets: "Predefinições integradas"
   in_read_only: "Integrado (somente leitura)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Escolha o local para salvar as predefinições"
   the_daytime_shell_used_in_light_mode: "Escolha o shell diurno usado no modo claro."
   the_low_glare_shell_used_in_dark_mode: "Escolha a concha de baixo brilho usada no modo escuro."
-  which_floating_indicator_style_appears_wh: "Escolha qual estilo de indicador flutuante aparece quando a sobreposição está habilitada."
   which_microphone_pindrop_should_use_for_d: "Escolha qual microfone o Pindrop deve usar para ditado e como ele se comporta durante a gravação."
   which_side_the_navigation_sidebar_appears: "Escolha em qual lado a barra de navegação lateral aparece."
+  how_pindrop_appears_on_screen_while_you_d: "Escolha como o Pindrop aparece na tela enquanto você dita."
 clean:
   up_filler_words: "Limpe palavras de preenchimento"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Exiba o Pindrop no Dock em vez de executá-lo apenas como um aplicativo da barra de menus."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Encaixe a barra lateral na borda esquerda ou direita da janela."
-dot:
-  _self: "Dot"
 download:
   _self: "Download"
   complete: "Download completo!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Habilitar aprimoramento de IA"
   live_session_updates_during_recording: "Habilite atualizações de sessão ao vivo durante a gravação"
-  the_floating_indicator_to_choose_a_style: "Ative o indicador flutuante para escolher um estilo."
   vibe_mode_ui_context: "Ativar o modo vibe (contexto da IU)"
 enabled:
   _self: "Habilitado"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Corrigir pontuação e letras maiúsculas"
 floating:
   indicator: "%@ indicador flutuante"
-  indicator_3bad78a5: "Indicador flutuante: %@"
   indicator_e0349402: "Indicador flutuante"
 folder:
   deleted: "Pasta excluída."
@@ -487,6 +481,7 @@ media:
   library: "Biblioteca de mídia"
   transcription: "Transcrição de mídia"
   unavailable: "Mídia indisponível"
+  saved: "Mídia salva"
 medium:
   _self: "Médio"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Não selecionado"
   set: "Não definido"
   set_93039e60: "Não definido"
-notch:
-  _self: "Entalhe"
 note:
   _self: "Observação"
   capture_push_to_talk: "Captura de notas (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Nota de"
   metadata: "Nota Metadados"
   title: "Título da nota"
+  saved: "Nota salva"
 notes:
   _self: "Notas"
   3add7b96: "notas"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Fixar na tela (sempre no topo)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     O Pindrop está pronto para uso.
     Clique no ícone da barra de menu para começar.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop no GitHub"
   pill: "Pílula Pindrop"
   theme: "Tema Pindrop"
+  orb: "Orbe do Pindrop"
 play:
   _self: "Jogar"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Mostrar aplicativo"
   app_in_finder: "Mostrar aplicativo no Finder"
-  floating_indicator: "Mostrar indicador flutuante"
   in_dock: "Mostrar no Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Mostra como uma pílula na parte inferior da tela"
-  beside_the_focused_text_field_caret: "Mostra ao lado do campo de texto/acento circunflexo em foco"
-  in_the_menu_bar_notch_area: "Mostra na barra de menu/área de entalhe"
-  recording_state_in_a_lightweight_overlay_w: "Mostra o estado da gravação em uma janela de sobreposição leve."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Aparece como um orbe de vidro líquido no canto da tela"
 sidebar:
   position: "Posição da barra lateral"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transcrição em andamento"
   metadata: "Metadados de transcrição"
   update: "Atualização de transcrição"
+  saved: "Transcrição salva"
 transcriptions:
   _self: "Transcrições"
   f0972acc: "transcrições"
@@ -1015,3 +1006,7 @@ your:
     Você pode personalizá-los posteriormente em Configurações.
   model_is_ready_to_use: "Seu modelo está pronto para uso."
   stats: "Suas estatísticas"
+orb:
+  _self: "Orbe"
+meeting:
+  saved: "Reunião salva"

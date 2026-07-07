@@ -1,0 +1,1308 @@
+//
+//  OrbFloatingIndicator.swift
+//  Pindrop
+//
+//  Created on 2026-07-06.
+//
+//  The Orb floating indicator: a liquid-glass orb resting in a screen corner
+//  (bottom-right by default). Its interior renders a layered, EKG-style waveform —
+//  one scrolling trace per frequency band. While recording, a compact pill pops
+//  out of the orb's side carrying the timer and stop control; while overlay
+//  streaming is active the same pill grows to hold the live transcript with the
+//  timer/actions row on top. Orb and pill are rendered as one liquid surface via
+//  the `orbGoo` Metal layer effect (blur + alpha threshold + rim light).
+//
+
+import SwiftUI
+import AppKit
+import Combine
+
+// MARK: - Layout constants (size-independent only)
+
+private enum OrbMetrics {
+    /// Padding between panel edge and the liquid assembly.
+    static let edgeInset: CGFloat = 10
+    /// Minimum gap between the orb centre and the visible screen boundary.
+    static let screenInset: CGFloat = 16
+
+    static let hoverMonitorInterval: TimeInterval = 1.0 / 60.0
+    static let hoverCollapseDelay: TimeInterval = 0.18
+    static let hoverActivationInset: CGFloat = 22
+
+    static let showDuration: TimeInterval = 0.22
+    static let hideDuration: TimeInterval = 0.15
+
+    /// Blur radius feeding the goo threshold shader. Must stay below `edgeInset`
+    /// so the liquid surface never clips at the panel bounds.
+    static let gooBlur: CGFloat = 6
+
+    /// Resting gap between the orb's edge and the detached pill. Must exceed the
+    /// goo shader's bridging distance (~1.5 × `gooBlur`) so the two read as fully
+    /// separate surfaces at rest — the liquid merge only appears mid-transition,
+    /// while the pill's near edge travels through the orb's alpha field.
+    static let pillSeparationGap: CGFloat = 14
+
+    /// Screen-width fractions that pick the pill's exit side: orb in the right
+    /// zone → pill exits left, left zone → exits right, middle band → exits
+    /// vertically (up from the bottom half, down from the top half).
+    static let leftZoneEnd: CGFloat = 0.4
+    static let rightZoneStart: CGFloat = 0.6
+}
+
+/// Which side of the orb the pill extrudes from, named by the direction the pill
+/// travels. Chosen from the orb's position on screen so the pill always opens
+/// toward the roomy side.
+enum OrbPillExitEdge {
+    case left, right, up, down
+
+    var isHorizontal: Bool { self == .left || self == .right }
+}
+
+// MARK: - Size
+
+/// Governs ALL dimensions of the indicator — the idle orb AND the pop-out pill.
+enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
+    case small  = "small"
+    case medium = "medium"
+    case large  = "large"
+
+    var id: String { rawValue }
+
+    // MARK: Orb
+
+    var orbIdleDiameter: CGFloat {
+        switch self {
+        case .small:  return 26
+        case .medium: return 32
+        case .large:  return 38
+        }
+    }
+
+    var orbActiveDiameter: CGFloat {
+        switch self {
+        case .small:  return 44
+        case .medium: return 52
+        case .large:  return 60
+        }
+    }
+
+    // MARK: Pill
+
+    var pillHeight: CGFloat {
+        switch self {
+        case .small:  return 26
+        case .medium: return 30
+        case .large:  return 34
+        }
+    }
+
+    var pillHoverWidth: CGFloat {
+        switch self {
+        case .small:  return 150
+        case .medium: return 176
+        case .large:  return 200
+        }
+    }
+
+    var pillRecordingWidth: CGFloat {
+        switch self {
+        case .small:  return 98
+        case .medium: return 112
+        case .large:  return 126
+        }
+    }
+
+    var pillStreamingWidth: CGFloat {
+        switch self {
+        case .small:  return 264
+        case .medium: return 304
+        case .large:  return 344
+        }
+    }
+
+    var pillStreamingHeight: CGFloat {
+        switch self {
+        case .small:  return 78
+        case .medium: return 92
+        case .large:  return 104
+        }
+    }
+
+    /// Vertical lift that keeps the compact pill centred on the orb when it exits
+    /// horizontally; the streaming pill keeps this bottom edge and grows upward.
+    var pillLift: CGFloat { (orbActiveDiameter - pillHeight) / 2 }
+
+    // MARK: Type
+
+    var timerFontSize: CGFloat {
+        switch self {
+        case .small:  return 10
+        case .medium: return 11.5
+        case .large:  return 13
+        }
+    }
+
+    var textFontSize: CGFloat {
+        switch self {
+        case .small:  return 10
+        case .medium: return 11
+        case .large:  return 12
+        }
+    }
+
+    var transcriptLineLimit: Int {
+        switch self {
+        case .small:  return 2
+        case .medium: return 3
+        case .large:  return 3
+        }
+    }
+
+    // MARK: Controls
+
+    var stopButtonDiameter: CGFloat {
+        switch self {
+        case .small:  return 14
+        case .medium: return 16
+        case .large:  return 18
+        }
+    }
+
+    var recordButtonDiameter: CGFloat {
+        switch self {
+        case .small:  return 18
+        case .medium: return 21
+        case .large:  return 24
+        }
+    }
+
+    // MARK: Panel
+
+    /// Panel dimensions depend on the pill's exit direction: horizontal exits lay
+    /// orb and pill side by side; vertical exits stack them. The streaming pill
+    /// sits `pillLift` above the assembly bottom on horizontal exits, so the panel
+    /// reserves that lift or the pill's top edge clips at the panel bounds.
+    func panelSize(for edge: OrbPillExitEdge) -> CGSize {
+        let inset = OrbMetrics.edgeInset * 2
+        if edge.isHorizontal {
+            return CGSize(
+                width: pillStreamingWidth + OrbMetrics.pillSeparationGap + orbActiveDiameter + inset,
+                height: max(orbActiveDiameter, pillStreamingHeight + pillLift) + inset
+            )
+        }
+        return CGSize(
+            width: max(pillStreamingWidth, orbActiveDiameter) + inset,
+            height: pillStreamingHeight + OrbMetrics.pillSeparationGap + orbActiveDiameter + inset
+        )
+    }
+
+    // MARK: Localised display name
+
+    func displayName(locale: Locale) -> String {
+        switch self {
+        case .small:  return localized("Small",  locale: locale)
+        case .medium: return localized("Medium", locale: locale)
+        case .large:  return localized("Large",  locale: locale)
+        }
+    }
+}
+
+// MARK: - Hosting view (enables right-click context menu)
+
+private final class OrbHostingView: NSHostingView<AnyView> {
+    var onRightMouseDown: ((NSEvent) -> Void)?
+
+    override func rightMouseDown(with event: NSEvent) {
+        onRightMouseDown?(event)
+    }
+
+    override func otherMouseDown(with event: NSEvent) {
+        if event.buttonNumber == 2 {
+            onRightMouseDown?(event)
+        } else {
+            super.otherMouseDown(with: event)
+        }
+    }
+}
+
+// MARK: - Controller
+
+@MainActor
+final class OrbFloatingIndicatorController: NSObject, ObservableObject, FloatingIndicatorPresenting,
+                                             NSMenuDelegate {
+
+    let type: FloatingIndicatorType = .orb
+    let state: FloatingIndicatorState
+    let liveTranscript: LiveTranscriptState
+
+    @Published var isHovered: Bool = false
+    @Published private(set) var pillExitEdge: OrbPillExitEdge = .left
+    @Published private(set) var isDragging: Bool = false
+    @Published var orbIndicatorSize: OrbFloatingIndicatorSize
+
+    private let settingsStore: SettingsStore
+    private var panel: NSPanel?
+    private var hostingView: OrbHostingView?
+    private var hoverTimer: Timer?
+    private var actions = FloatingIndicatorActions()
+    private var isVisible = false
+    private var lastHoverContactAt: Date = .distantPast
+    private var dragStartMouseLocation: CGPoint?
+    private var dragStartOffset: CGSize = .zero
+    private var dragOffset: CGSize = .zero
+    private var lastScreen: NSScreen?
+
+    private var contextMenu: NSMenu?
+    private var microphoneMenu: NSMenu?
+    private var microphoneItem: NSMenuItem?
+    private var languageMenu: NSMenu?
+    private var languageItem: NSMenuItem?
+    private var sizeMenu: NSMenu?
+    private var sizeItem: NSMenuItem?
+    private var isContextMenuOpen = false
+
+    init(
+        state: FloatingIndicatorState,
+        settingsStore: SettingsStore,
+        liveTranscript: LiveTranscriptState
+    ) {
+        self.state = state
+        self.settingsStore = settingsStore
+        self.liveTranscript = liveTranscript
+        self.dragOffset = settingsStore.orbFloatingIndicatorOffset
+        self.orbIndicatorSize = OrbFloatingIndicatorSize(rawValue: settingsStore.orbFloatingIndicatorSize) ?? .medium
+        super.init()
+        contextMenu = makeContextMenu()
+    }
+
+    func configure(actions: FloatingIndicatorActions) {
+        self.actions = actions
+    }
+
+    func reloadLocalizedStrings() {
+        contextMenu = makeContextMenu()
+        hostingView?.rootView = makeRootView()
+    }
+
+    // MARK: FloatingIndicatorPresenting
+
+    func showIdleIndicator() {
+        guard !isVisible else { panel?.orderFrontRegardless(); return }
+        show()
+    }
+
+    func showForCurrentState() {
+        if !isVisible { show() } else { panel?.orderFrontRegardless() }
+    }
+
+    func startRecording() {
+        isHovered = false
+        lastHoverContactAt = .distantPast
+        state.startRecording()
+        if !isVisible { show() }
+    }
+
+    func transitionToProcessing() {
+        state.transitionToProcessing()
+        isHovered = false
+        lastHoverContactAt = .distantPast
+    }
+
+    func finishProcessing() {
+        state.finishSession()
+        isHovered = false
+        lastHoverContactAt = .distantPast
+        hide()
+    }
+
+    func hide() {
+        stopHoverMonitoring()
+        guard let panel else { isVisible = false; return }
+        isVisible = false
+        isHovered = false
+        isDragging = false
+        isContextMenuOpen = false
+        lastScreen = nil
+
+        let localPanel = panel
+        let localHostingView = hostingView
+
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = OrbMetrics.hideDuration
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            localPanel.animator().alphaValue = 0
+        }) { [weak self] in
+            localPanel.close()
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if self.panel === localPanel { self.panel = nil }
+                if self.hostingView === localHostingView { self.hostingView = nil }
+            }
+        }
+    }
+
+    // MARK: Action forwarding
+
+    func handleStartTapped() { actions.onStartRecording?(type) }
+    func handleStopTapped()  { actions.onStopRecording?(type) }
+
+    // MARK: Drag
+
+    func beginDrag() {
+        guard isVisible, !isDragging else { return }
+        isDragging = true
+        isHovered = false
+
+        let mouse = NSEvent.mouseLocation
+        let screen = preferredScreen()
+        let visible = screen.visibleFrame
+        let r = orbIndicatorSize.orbActiveDiameter / 2
+
+        let defaultOrbCX = visible.maxX - OrbMetrics.screenInset - r
+        let defaultOrbCY = visible.minY + OrbMetrics.screenInset + r
+        dragStartOffset = CGSize(width: mouse.x - defaultOrbCX, height: mouse.y - defaultOrbCY)
+        dragOffset = dragStartOffset
+        dragStartMouseLocation = mouse
+
+        panel?.setFrame(panelFrame(for: screen), display: true)
+    }
+
+    func updateDrag(translation: CGSize) {
+        guard isDragging, let start = dragStartMouseLocation else { return }
+        dragOffset = CGSize(
+            width:  dragStartOffset.width  + (NSEvent.mouseLocation.x - start.x),
+            height: dragStartOffset.height + (NSEvent.mouseLocation.y - start.y)
+        )
+        if let panel {
+            panel.setFrame(panelFrame(for: preferredScreen()), display: false)
+        }
+    }
+
+    func endDrag(translation: CGSize) {
+        guard isDragging else { return }
+        updateDrag(translation: translation)
+        settingsStore.orbFloatingIndicatorOffset = dragOffset
+        dragStartOffset = dragOffset
+        isDragging = false
+        dragStartMouseLocation = nil
+        if let panel {
+            panel.setFrame(panelFrame(for: preferredScreen()), display: true)
+        }
+    }
+
+    // MARK: Context menu
+
+    private func makeContextMenu() -> NSMenu {
+        let locale = settingsStore.selectedAppLocale.locale
+        let menu = NSMenu(title: localized("Pindrop Orb", locale: locale))
+        menu.delegate = self
+
+        let sizeMenu = NSMenu(title: localized("Size", locale: locale))
+        self.sizeMenu = sizeMenu
+        let sizeItem = NSMenuItem(title: localized("Size", locale: locale), action: nil, keyEquivalent: "")
+        sizeItem.submenu = sizeMenu
+        self.sizeItem = sizeItem
+        menu.addItem(sizeItem)
+
+        menu.addItem(.separator())
+
+        let items: [(String, Selector)] = [
+            (localized("Hide this for 1 hour",   locale: locale), #selector(handleHideForOneHourMenuItem)),
+            (localized("Report an issue",         locale: locale), #selector(handleReportIssueMenuItem)),
+            (localized("Go to settings",          locale: locale), #selector(handleGoToSettingsMenuItem)),
+        ]
+        for (title, action) in items {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
+            item.target = self
+            menu.addItem(item)
+        }
+
+        menu.addItem(.separator())
+
+        let micMenu = NSMenu(title: localized("Change microphone", locale: locale))
+        self.microphoneMenu = micMenu
+        let micItem = NSMenuItem(title: localized("Change microphone", locale: locale), action: nil, keyEquivalent: "")
+        micItem.submenu = micMenu
+        self.microphoneItem = micItem
+        menu.addItem(micItem)
+
+        let langMenu = NSMenu(title: localized("Select language", locale: locale))
+        self.languageMenu = langMenu
+        let langItem = NSMenuItem(title: localized("Select language", locale: locale), action: nil, keyEquivalent: "")
+        langItem.submenu = langMenu
+        self.languageItem = langItem
+        menu.addItem(langItem)
+
+        menu.addItem(.separator())
+
+        let historyItem = NSMenuItem(
+            title: localized("View transcript history", locale: locale),
+            action: #selector(handleViewTranscriptHistoryMenuItem), keyEquivalent: "")
+        historyItem.target = self
+        menu.addItem(historyItem)
+
+        let pasteItem = NSMenuItem(
+            title: localized("Paste last transcript ⌃⌘V", locale: locale),
+            action: #selector(handlePasteLastTranscriptMenuItem), keyEquivalent: "")
+        pasteItem.target = self
+        menu.addItem(pasteItem)
+
+        refreshContextMenuState()
+        applyInterfaceLayoutDirection(to: menu, locale: locale)
+        return menu
+    }
+
+    private func refreshContextMenuState() {
+        refreshSizeMenuItems()
+        refreshMicrophoneMenuItems()
+        refreshLanguageMenuItems()
+    }
+
+    private func refreshSizeMenuItems() {
+        guard let sizeMenu else { return }
+        sizeMenu.removeAllItems()
+        let locale = settingsStore.selectedAppLocale.locale
+        for size in OrbFloatingIndicatorSize.allCases {
+            let item = NSMenuItem(title: size.displayName(locale: locale),
+                                  action: #selector(handleSizeMenuItem(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = size.rawValue
+            item.state = orbIndicatorSize == size ? .on : .off
+            sizeMenu.addItem(item)
+        }
+        sizeItem?.isEnabled = true
+    }
+
+    private func refreshMicrophoneMenuItems() {
+        guard let microphoneMenu else { return }
+        microphoneMenu.removeAllItems()
+        let selectedUID = actions.selectedInputDeviceUIDProvider?() ?? ""
+        let devices = actions.availableInputDevicesProvider?() ?? []
+        let locale = settingsStore.selectedAppLocale.locale
+
+        let sysItem = NSMenuItem(title: localized("System Default", locale: locale),
+                                 action: #selector(handleSelectInputDeviceMenuItem(_:)), keyEquivalent: "")
+        sysItem.target = self; sysItem.representedObject = ""
+        sysItem.state = selectedUID.isEmpty ? .on : .off
+        microphoneMenu.addItem(sysItem)
+
+        if !devices.isEmpty { microphoneMenu.addItem(.separator()) }
+        for device in devices {
+            let item = NSMenuItem(title: device.displayName,
+                                  action: #selector(handleSelectInputDeviceMenuItem(_:)), keyEquivalent: "")
+            item.target = self; item.representedObject = device.uid
+            item.state = device.uid == selectedUID ? .on : .off
+            microphoneMenu.addItem(item)
+        }
+        if !selectedUID.isEmpty, !devices.contains(where: { $0.uid == selectedUID }) {
+            microphoneMenu.addItem(.separator())
+            let unavailable = NSMenuItem(title: localized("Unavailable device", locale: locale),
+                                         action: nil, keyEquivalent: "")
+            unavailable.isEnabled = false; unavailable.state = .on
+            microphoneMenu.addItem(unavailable)
+        }
+        microphoneItem?.isEnabled = true
+    }
+
+    private func refreshLanguageMenuItems() {
+        guard let languageMenu else { return }
+        languageMenu.removeAllItems()
+        let selected = actions.selectedLanguageProvider?() ?? .automatic
+        let locale = settingsStore.selectedAppLocale.locale
+        for language in AppLanguage.allCases.filter(\.isSelectable) {
+            let item = NSMenuItem(title: language.displayName(locale: locale),
+                                  action: #selector(handleSelectLanguageMenuItem(_:)), keyEquivalent: "")
+            item.target = self; item.representedObject = language.rawValue
+            item.state = selected == language ? .on : .off
+            languageMenu.addItem(item)
+        }
+        let tier2 = AppLanguage.allCases.filter { !$0.isSelectable }
+        if !tier2.isEmpty {
+            languageMenu.addItem(.separator())
+            let soon = NSMenuItem(title: localized("Coming Soon", locale: locale), action: nil, keyEquivalent: "")
+            soon.isEnabled = false
+            languageMenu.addItem(soon)
+            for language in tier2 {
+                let item = NSMenuItem(title: language.pickerLabel(locale: locale), action: nil, keyEquivalent: "")
+                item.isEnabled = false
+                languageMenu.addItem(item)
+            }
+        }
+        languageItem?.isEnabled = true
+    }
+
+    private func handleRightMouseDown(_ event: NSEvent) {
+        guard isVisible, !state.isRecording, !state.isProcessing else { return }
+        guard let hostingView, let contextMenu else { return }
+        isContextMenuOpen = true; isHovered = true; lastHoverContactAt = Date()
+        refreshContextMenuState()
+        contextMenu.update()
+        contextMenu.appearance = NSApp.appearance
+        let menuWidth = max(contextMenu.size.width, 240)
+        let bounds = hostingView.bounds
+        let anchorX: CGFloat
+        switch pillExitEdge {
+        case .left:
+            anchorX = bounds.width - OrbMetrics.edgeInset - orbIndicatorSize.orbActiveDiameter / 2
+        case .right:
+            anchorX = OrbMetrics.edgeInset + orbIndicatorSize.orbActiveDiameter / 2
+        case .up, .down:
+            anchorX = bounds.midX
+        }
+        // The orb sits at the panel top for `.down` exits and at the bottom otherwise.
+        let orbAtPanelTop = pillExitEdge == .down
+        let originX = anchorX - menuWidth * 0.5 + 3
+        let nearBottom: CGFloat = 10
+        let nearTop = bounds.height - 10
+        let originY: CGFloat
+        if hostingView.isFlipped {
+            originY = orbAtPanelTop ? nearBottom : nearTop
+        } else {
+            originY = orbAtPanelTop ? nearTop : nearBottom
+        }
+        contextMenu.popUp(positioning: nil, at: NSPoint(x: originX, y: originY), in: hostingView)
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        guard menu === contextMenu else { return }
+        refreshContextMenuState(); isContextMenuOpen = true; isHovered = true; lastHoverContactAt = Date()
+    }
+
+    func menuDidClose(_ menu: NSMenu) {
+        guard menu === contextMenu else { return }
+        isContextMenuOpen = false; lastHoverContactAt = Date()
+    }
+
+    @objc private func handleSizeMenuItem(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let size = OrbFloatingIndicatorSize(rawValue: rawValue) else { return }
+        orbIndicatorSize = size
+        settingsStore.orbFloatingIndicatorSize = rawValue
+        refreshPanelFrame()
+    }
+
+    @objc private func handleHideForOneHourMenuItem()      { actions.onHideForOneHour?() }
+    @objc private func handleReportIssueMenuItem()         { actions.onReportIssue?() }
+    @objc private func handleGoToSettingsMenuItem()        { actions.onGoToSettings?() }
+    @objc private func handleViewTranscriptHistoryMenuItem() { actions.onViewTranscriptHistory?() }
+    @objc private func handlePasteLastTranscriptMenuItem() {
+        Task { @MainActor in await actions.onPasteLastTranscript?() }
+    }
+    @objc private func handleSelectInputDeviceMenuItem(_ sender: NSMenuItem) {
+        guard let uid = sender.representedObject as? String else { return }
+        actions.onSelectInputDeviceUID?(uid)
+    }
+    @objc private func handleSelectLanguageMenuItem(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let language = AppLanguage(rawValue: rawValue) else { return }
+        actions.onSelectLanguage?(language)
+        refreshLanguageMenuItems()
+    }
+
+    // MARK: Private — panel lifecycle
+
+    private func show() {
+        let screen = preferredScreen()
+        let frame = panelFrame(for: screen)
+        let panel = makePanel(contentRect: frame)
+        let hostingView = OrbHostingView(rootView: makeRootView())
+        hostingView.layer?.backgroundColor = .clear
+        hostingView.wantsLayer = true
+        hostingView.frame = NSRect(origin: .zero, size: frame.size)
+        hostingView.autoresizingMask = [.width, .height]
+        hostingView.userInterfaceLayoutDirection = .leftToRight
+        hostingView.onRightMouseDown = { [weak self] event in self?.handleRightMouseDown(event) }
+        panel.contentView = hostingView
+        panel.alphaValue = 0
+        panel.orderFrontRegardless()
+        self.panel = panel; self.hostingView = hostingView
+        self.isVisible = true; self.lastScreen = screen
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = OrbMetrics.showDuration
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().alphaValue = 1
+        }
+        startHoverMonitoring()
+    }
+
+    private func makePanel(contentRect: NSRect) -> NSPanel {
+        let panel = NSPanel(
+            contentRect: contentRect,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered, defer: false)
+        panel.isFloatingPanel = true; panel.isOpaque = false
+        panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
+        panel.backgroundColor = .clear; panel.isMovable = false; panel.hasShadow = false
+        panel.level = .mainMenu + 1
+        panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
+        panel.isReleasedWhenClosed = false
+        return panel
+    }
+
+    private func makeRootView() -> AnyView {
+        let locale = settingsStore.selectedAppLocale.locale
+        return AnyView(
+            OrbIndicatorView(controller: self, state: state, transcript: liveTranscript)
+                .environment(\.locale, locale)
+                .environment(\.layoutDirection, .leftToRight)
+        )
+    }
+
+    private func refreshPanelFrame() {
+        guard let panel, isVisible else { return }
+        let screen = preferredScreen()
+        let frame = panelFrame(for: screen)
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.22
+            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            panel.animator().setFrame(frame, display: false)
+        }
+        hostingView?.frame = NSRect(origin: .zero, size: frame.size)
+    }
+
+    // MARK: Private — hover monitoring
+
+    private func startHoverMonitoring() {
+        hoverTimer?.invalidate()
+        hoverTimer = Timer.pindrop_scheduleRepeating(interval: OrbMetrics.hoverMonitorInterval) { [weak self] _ in
+            Task { @MainActor in self?.monitorTick() }
+        }
+    }
+
+    private func stopHoverMonitoring() {
+        hoverTimer?.invalidate(); hoverTimer = nil; lastHoverContactAt = .distantPast
+    }
+
+    private func monitorTick() {
+        guard isVisible else { return }
+        checkScreenPosition()
+        evaluateHover()
+    }
+
+    private func evaluateHover() {
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
+        guard let panel else { return }
+        let mouse = NSEvent.mouseLocation; let now = Date()
+        let orbRect = orbScreenRect(for: panel.frame)
+        let activationRect = orbRect.insetBy(dx: -OrbMetrics.hoverActivationInset, dy: -OrbMetrics.hoverActivationInset)
+        let retentionRect = panel.frame.insetBy(dx: -12, dy: -10)
+        if isHovered {
+            if isContextMenuOpen || retentionRect.contains(mouse) { lastHoverContactAt = now; return }
+            if now.timeIntervalSince(lastHoverContactAt) >= OrbMetrics.hoverCollapseDelay { setHoverState(false) }
+            return
+        }
+        if activationRect.contains(mouse) { lastHoverContactAt = now; setHoverState(true) }
+    }
+
+    private func orbScreenRect(for panelFrame: NSRect) -> NSRect {
+        let d = orbIndicatorSize.orbActiveDiameter
+        let x: CGFloat
+        let y: CGFloat
+        switch pillExitEdge {
+        case .left:
+            x = panelFrame.maxX - OrbMetrics.edgeInset - d
+            y = panelFrame.minY + OrbMetrics.edgeInset
+        case .right:
+            x = panelFrame.minX + OrbMetrics.edgeInset
+            y = panelFrame.minY + OrbMetrics.edgeInset
+        case .up:
+            x = panelFrame.midX - d / 2
+            y = panelFrame.minY + OrbMetrics.edgeInset
+        case .down:
+            x = panelFrame.midX - d / 2
+            y = panelFrame.maxY - OrbMetrics.edgeInset - d
+        }
+        return NSRect(x: x, y: y, width: d, height: d)
+    }
+
+    private func checkScreenPosition() {
+        guard isVisible, let panel else { return }
+        let currentScreen = preferredScreen()
+        if lastScreen?.pindrop_isSameDisplay(as: currentScreen) == false {
+            lastScreen = currentScreen
+            let newFrame = panelFrame(for: currentScreen)
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0; context.allowsImplicitAnimation = false
+                panel.setFrame(newFrame, display: false, animate: false)
+            }
+            return
+        }
+        if !isDragging {
+            let orbRect = orbScreenRect(for: panel.frame)
+            let newEdge = exitEdge(forOrbCenter: CGPoint(x: orbRect.midX, y: orbRect.midY), on: currentScreen)
+            if newEdge != pillExitEdge {
+                pillExitEdge = newEdge
+                // Panel dimensions and origin both change with the exit direction.
+                refreshPanelFrame()
+            }
+        }
+    }
+
+    func setHoverState(_ hovering: Bool) {
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
+        guard isHovered != hovering else { return }
+        isHovered = hovering
+        if hovering { lastHoverContactAt = Date() }
+    }
+
+    // MARK: Private — layout maths
+
+    /// The pill opens toward the roomy side of the screen: orb on the right half →
+    /// pill exits left, left half → exits right, and in the middle band it exits
+    /// vertically — up from the bottom half of the screen, down from the top half.
+    private func exitEdge(forOrbCenter center: CGPoint, on screen: NSScreen) -> OrbPillExitEdge {
+        let visible = screen.visibleFrame
+        let fraction = (center.x - visible.minX) / max(1, visible.width)
+        if fraction >= OrbMetrics.rightZoneStart { return .left }
+        if fraction <= OrbMetrics.leftZoneEnd { return .right }
+        return center.y <= visible.midY ? .up : .down
+    }
+
+    private func panelFrame(for screen: NSScreen) -> NSRect {
+        let visible = screen.visibleFrame
+        let offset = isDragging ? dragOffset : settingsStore.orbFloatingIndicatorOffset
+        let r = orbIndicatorSize.orbActiveDiameter / 2
+        let e = OrbMetrics.edgeInset
+
+        let defaultOrbCX = visible.maxX - OrbMetrics.screenInset - r
+        let defaultOrbCY = visible.minY + OrbMetrics.screenInset + r
+        let rawOrbCX = defaultOrbCX + offset.width
+        let rawOrbCY = defaultOrbCY + offset.height
+
+        let orbCX = max(visible.minX + OrbMetrics.screenInset + r,
+                        min(rawOrbCX, visible.maxX - OrbMetrics.screenInset - r))
+
+        let edge = exitEdge(forOrbCenter: CGPoint(x: orbCX, y: rawOrbCY), on: screen)
+        if edge != pillExitEdge { pillExitEdge = edge }
+        let size = orbIndicatorSize.panelSize(for: edge)
+
+        // The panel extends past the orb in the pill's travel direction (headroom
+        // for the streaming pill), so the orb's clamp on that axis is set by the
+        // panel staying on-screen. Folding it into the orb-centre clamp keeps the
+        // rendered orb tracking the cursor 1:1 during drags — no dead zone where a
+        // panel clamp pins the orb while the offset keeps growing.
+        let minOrbCY: CGFloat
+        let maxOrbCY: CGFloat
+        switch edge {
+        case .left, .right, .up:
+            // Orb anchors at the panel bottom; the panel rises `size.height` above it.
+            minOrbCY = visible.minY + OrbMetrics.screenInset + r
+            maxOrbCY = min(visible.maxY - OrbMetrics.screenInset - r,
+                           visible.maxY - size.height + e + r)
+        case .down:
+            // Orb anchors at the panel top; the panel hangs `size.height` below it.
+            minOrbCY = max(visible.minY + OrbMetrics.screenInset + r,
+                           visible.minY + size.height - e - r)
+            maxOrbCY = visible.maxY - OrbMetrics.screenInset - r
+        }
+        let orbCY = max(minOrbCY, min(rawOrbCY, maxOrbCY))
+
+        var panelX: CGFloat
+        let panelY: CGFloat
+        switch edge {
+        case .left:
+            panelX = orbCX + r + e - size.width
+            panelY = orbCY - r - e
+        case .right:
+            panelX = orbCX - r - e
+            panelY = orbCY - r - e
+        case .up:
+            panelX = orbCX - size.width / 2
+            panelY = orbCY - r - e
+        case .down:
+            panelX = orbCX - size.width / 2
+            panelY = orbCY + r + e - size.height
+        }
+        panelX = max(visible.minX, min(panelX, visible.maxX - size.width))
+
+        return NSRect(x: panelX, y: max(visible.minY, panelY), width: size.width, height: size.height)
+    }
+
+    private func preferredScreen() -> NSScreen {
+        actions.preferredScreenProvider?() ?? NSScreen.screenUnderMouse()
+    }
+}
+
+// MARK: - SwiftUI view
+
+struct OrbIndicatorView: View {
+    @ObservedObject var controller: OrbFloatingIndicatorController
+    @ObservedObject var state: FloatingIndicatorState
+    @ObservedObject var transcript: LiveTranscriptState
+    @ObservedObject private var theme = PindropThemeController.shared
+    @Environment(\.locale) private var locale
+
+    private var sz: OrbFloatingIndicatorSize { controller.orbIndicatorSize }
+
+    private var isActive: Bool { state.isRecording || state.isProcessing }
+    private var showsTranscript: Bool { transcript.isActive && isActive }
+    private var showsPill: Bool { isActive || controller.isHovered }
+
+    private var orbDiameter: CGFloat { isActive ? sz.orbActiveDiameter : sz.orbIdleDiameter }
+
+    private var exit: OrbPillExitEdge { controller.pillExitEdge }
+
+    private var pillRestingSize: CGSize {
+        if showsTranscript {
+            return CGSize(width: sz.pillStreamingWidth, height: sz.pillStreamingHeight)
+        }
+        if state.isRecording {
+            return CGSize(width: sz.pillRecordingWidth, height: sz.pillHeight)
+        }
+        return CGSize(width: sz.pillHoverWidth, height: sz.pillHeight)
+    }
+
+    /// Hidden, the pill collapses along its travel axis so the pop-out reads as an
+    /// extrusion from the orb rather than a fade-in.
+    private var pillSize: CGSize {
+        guard showsPill else {
+            return exit.isHorizontal
+                ? CGSize(width: 0, height: pillRestingSize.height)
+                : CGSize(width: pillRestingSize.width, height: 0)
+        }
+        return pillRestingSize
+    }
+
+    private var pillCornerRadius: CGFloat {
+        showsTranscript ? 16 : sz.pillHeight / 2
+    }
+
+    /// Distance from the orb-side content edge to the pill's near edge. At rest the
+    /// pill floats fully detached (gap wider than the goo shader's bridging range);
+    /// hidden, its near edge sits inside the orb, so the pop-out travels through the
+    /// orb's alpha field and the shader renders an organic liquid separation.
+    private var pillNearInset: CGFloat {
+        showsPill
+            ? sz.orbActiveDiameter + OrbMetrics.pillSeparationGap
+            : sz.orbActiveDiameter * 0.35
+    }
+
+    private var assemblyAlignment: Alignment {
+        switch exit {
+        case .left:  return .bottomTrailing
+        case .right: return .bottomLeading
+        case .up:    return .bottom
+        case .down:  return .top
+        }
+    }
+
+    var body: some View {
+        let panel = sz.panelSize(for: exit)
+        return ZStack(alignment: assemblyAlignment) {
+            gooLayer
+            contentLayer
+        }
+        .padding(OrbMetrics.edgeInset)
+        .frame(width: panel.width, height: panel.height, alignment: assemblyAlignment)
+        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsPill)
+        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsTranscript)
+        .animation(.spring(response: 0.34, dampingFraction: 0.84), value: isActive)
+        .animation(.spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
+        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: exit)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 4)
+                .onChanged { _ in
+                    if !controller.isDragging { controller.beginDrag() }
+                    controller.updateDrag(translation: .zero)
+                }
+                .onEnded { _ in controller.endDrag(translation: .zero) }
+        )
+        .themeRefresh()
+    }
+
+    // MARK: Liquid surface (goo silhouette → threshold shader)
+
+    private var gooLayer: some View {
+        liquidSilhouette
+            .compositingGroup()
+            .blur(radius: OrbMetrics.gooBlur)
+            .layerEffect(
+                ShaderLibrary.orbGoo(
+                    .color(OrbPalette.surface),
+                    .color(OrbPalette.rim)
+                ),
+                maxSampleOffset: .zero
+            )
+            .allowsHitTesting(false)
+    }
+
+    private var liquidSilhouette: some View {
+        ZStack(alignment: assemblyAlignment) {
+            RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
+                .fill(Color.black)
+                .frame(width: pillSize.width, height: pillSize.height)
+                .padding(pillEdgeInsets)
+            Circle()
+                .fill(Color.black)
+                .frame(width: orbDiameter, height: orbDiameter)
+                .frame(width: sz.orbActiveDiameter, height: sz.orbActiveDiameter)
+        }
+    }
+
+    /// Positions the pill's near edge relative to the orb along the exit axis;
+    /// horizontal exits also lift the pill so its compact form centres on the orb.
+    private var pillEdgeInsets: EdgeInsets {
+        switch exit {
+        case .left:
+            return EdgeInsets(top: 0, leading: 0, bottom: sz.pillLift, trailing: pillNearInset)
+        case .right:
+            return EdgeInsets(top: 0, leading: pillNearInset, bottom: sz.pillLift, trailing: 0)
+        case .up:
+            return EdgeInsets(top: 0, leading: 0, bottom: pillNearInset, trailing: 0)
+        case .down:
+            return EdgeInsets(top: pillNearInset, leading: 0, bottom: 0, trailing: 0)
+        }
+    }
+
+    // MARK: Content overlay
+
+    private var contentLayer: some View {
+        ZStack(alignment: assemblyAlignment) {
+            pillContent
+                .frame(width: pillSize.width, height: pillSize.height, alignment: .top)
+                .clipShape(RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous))
+                .padding(pillEdgeInsets)
+                .opacity(showsPill ? 1 : 0)
+                .allowsHitTesting(showsPill)
+
+            orbContent
+                .frame(width: sz.orbActiveDiameter, height: sz.orbActiveDiameter)
+                .overlay(alignment: .top) {
+                    if let completion = state.recentCompletion, !state.isRecording, !state.isProcessing {
+                        IndicatorCompletionOverlay(completion: completion)
+                            .fixedSize()
+                            .offset(y: exit == .down ? sz.orbActiveDiameter + 8 : -30)
+                            .allowsHitTesting(false)
+                            .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
+                    }
+                }
+        }
+    }
+
+    private var orbContent: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [Color.white.opacity(0.26), Color.white.opacity(0.03), .clear],
+                        center: .init(x: 0.32, y: 0.22),
+                        startRadius: 0,
+                        endRadius: orbDiameter * 0.75
+                    )
+                )
+
+            OrbBlobsView(state: state, isLive: isActive)
+                .padding(orbDiameter * 0.04)
+                .clipShape(Circle())
+
+            Circle()
+                .strokeBorder(OrbPalette.rimSoft, lineWidth: 1)
+                .blendMode(.plusLighter)
+
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [.clear, OrbPalette.depthTint],
+                        center: .init(x: 0.5, y: 0.28),
+                        startRadius: orbDiameter * 0.28,
+                        endRadius: orbDiameter * 0.72
+                    )
+                )
+                .allowsHitTesting(false)
+        }
+        .frame(width: orbDiameter, height: orbDiameter)
+        .contentShape(Circle())
+    }
+
+    // MARK: Pill content
+
+    private var pillContent: some View {
+        VStack(spacing: 0) {
+            pillTopRow
+                .frame(height: sz.pillHeight)
+            if showsTranscript {
+                LiveTranscriptView(
+                    transcript: transcript,
+                    fontSize: sz.textFontSize,
+                    lineLimit: sz.transcriptLineLimit
+                )
+                .padding(.horizontal, 13)
+                .padding(.bottom, 9)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pillTopRow: some View {
+        if state.isRecording {
+            HStack(spacing: 8) {
+                Text(formattedDuration)
+                    .font(.system(size: sz.timerFontSize, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(AppColors.overlayTextPrimary)
+                    .contentTransition(.numericText(countsDown: false))
+                    .animation(AppTheme.Animation.fast, value: state.recordingDuration)
+                    .fixedSize()
+
+                Spacer(minLength: 0)
+
+                Button { controller.handleStopTapped() } label: {
+                    ZStack {
+                        Circle()
+                            .fill(AppColors.overlayRecording)
+                            .frame(width: sz.stopButtonDiameter, height: sz.stopButtonDiameter)
+                            .shadow(color: AppColors.overlayRecording.opacity(0.30), radius: 5, y: 2)
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(AppColors.overlayTextPrimary)
+                            .frame(width: sz.stopButtonDiameter * 0.38, height: sz.stopButtonDiameter * 0.38)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+        } else if state.isProcessing {
+            HStack(spacing: 7) {
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3.5)
+                Text(localized("Processing transcript", locale: locale))
+                    .font(.system(size: sz.textFontSize, weight: .medium, design: .rounded))
+                    .foregroundStyle(AppColors.overlayTextPrimary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 12)
+        } else {
+            HStack(spacing: 8) {
+                Button { controller.handleStartTapped() } label: {
+                    ZStack {
+                        Circle()
+                            .fill(AppColors.overlayRecording)
+                            .frame(width: sz.recordButtonDiameter, height: sz.recordButtonDiameter)
+                            .shadow(color: AppColors.overlayRecording.opacity(0.28), radius: 6, y: 3)
+                        Circle()
+                            .fill(AppColors.overlayTextPrimary)
+                            .frame(width: sz.recordButtonDiameter * 0.42, height: sz.recordButtonDiameter * 0.42)
+                    }
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                }
+
+                Text(localized("Ready to record", locale: locale))
+                    .font(.system(size: sz.textFontSize, weight: .regular, design: .rounded))
+                    .foregroundStyle(AppColors.overlayTextSecondary)
+                    .lineLimit(1)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 10)
+        }
+    }
+
+    private var formattedDuration: String {
+        String(format: "%d:%02d", Int(state.recordingDuration) / 60, Int(state.recordingDuration) % 60)
+    }
+}
+
+// MARK: - Palette
+
+/// The orb's liquid surface and band colors. Fixed rather than theme-driven: the
+/// indicator floats over arbitrary desktop content, so it keeps its own dark-glass
+/// identity in both app themes (mirroring how the notch stays black).
+enum OrbPalette {
+    static let surface = Color(red: 0.066, green: 0.106, blue: 0.145)
+    static let rim = Color(red: 0.745, green: 0.882, blue: 1.0).opacity(0.55)
+    static let rimSoft = Color(red: 0.745, green: 0.882, blue: 1.0).opacity(0.20)
+    static let depthTint = Color(red: 0.18, green: 0.435, blue: 0.91).opacity(0.28)
+
+    static let bandLow = Color(red: 0.24, green: 0.43, blue: 0.94)
+    static let bandMid = Color(red: 0.25, green: 0.82, blue: 0.91)
+    static let bandHigh = Color(red: 0.78, green: 0.97, blue: 0.87)
+}
+
+// MARK: - Band blobs (audio-reactive orb interior)
+
+/// Phase state for the three band-driven blobs. Wobble and drift phases are
+/// integrated per frame (dt-based) so churn speed can follow band energy without
+/// phase jumps, and the levels get VU-meter ballistics (fast attack, slow
+/// release) so the motion stays flowy instead of tracking every syllable spike.
+final class OrbBlobModel {
+    struct Blob {
+        var wobblePhases: [Double]
+        var driftPhase: Double
+    }
+
+    /// Integer harmonics keep each blob's outline closed (periodic in θ).
+    static let harmonics: [Double] = [2, 3, 5]
+    static let harmonicWeights: [Double] = [0.55, 0.30, 0.15]
+
+    private(set) var blobs: [Blob]
+    /// Smoothed low/mid/high levels, 0…1.
+    private(set) var levels: [Double] = [0, 0, 0]
+    private var lastTime: TimeInterval = 0
+
+    init() {
+        blobs = (0..<3).map { index in
+            Blob(
+                wobblePhases: [0.0, 2.1, 4.2].map { $0 + Double(index) * 1.3 },
+                driftPhase: Double(index) * 2.09
+            )
+        }
+    }
+
+    func advance(to time: TimeInterval, bands: AudioBandLevels, overall: Float, isLive: Bool) {
+        let dt = lastTime == 0 ? 1.0 / 40.0 : min(0.1, max(0.0, time - lastTime))
+        lastTime = time
+
+        // Fall back to the overall level when band data isn't flowing (e.g. capture
+        // backends that only report RMS) so the orb never looks dead while recording.
+        var targets = [Double(bands.low), Double(bands.mid), Double(bands.high)]
+        if targets.reduce(0, +) < 0.01 {
+            let level = Double(overall)
+            targets = [level, level * 0.7, level * 0.45]
+        }
+        if !isLive {
+            // Idle: lazy drifting blobs with a slow breathing swell.
+            let breath = 0.16 + 0.06 * sin(time * 1.1)
+            targets = [breath, breath * 0.75, breath * 0.55]
+        }
+
+        for index in levels.indices {
+            let target = min(1.0, targets[index])
+            let rate = target > levels[index] ? 9.0 : 2.0
+            levels[index] += (target - levels[index]) * min(1.0, rate * dt)
+        }
+
+        for index in blobs.indices {
+            let churn = 0.5 + levels[index] * 2.6
+            for k in blobs[index].wobblePhases.indices {
+                blobs[index].wobblePhases[k] += dt * churn * (0.8 + Double(k) * 0.5)
+            }
+            blobs[index].driftPhase += dt * (0.3 + levels[index] * 1.1)
+        }
+    }
+}
+
+/// The orb's interior: three translucent morphing blobs, one per frequency band,
+/// drifting and churning with the voice under additive blending, plus a hot core
+/// highlight — the flowy, organic look rather than a spiky trace.
+struct OrbBlobsView: View {
+    @ObservedObject var state: FloatingIndicatorState
+    let isLive: Bool
+
+    @State private var model = OrbBlobModel()
+
+    private static let blobColors = [OrbPalette.bandLow, OrbPalette.bandMid, OrbPalette.bandHigh]
+    private static let baseRadiusFractions: [CGFloat] = [0.40, 0.34, 0.27]
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 40.0)) { timeline in
+            Canvas { context, size in
+                model.advance(
+                    to: timeline.date.timeIntervalSinceReferenceDate,
+                    bands: state.bandLevels,
+                    overall: state.audioLevel,
+                    isLive: isLive
+                )
+                context.blendMode = .plusLighter
+
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
+                let scale = min(size.width, size.height) / 2
+                for index in model.blobs.indices {
+                    drawBlob(index: index, in: &context, center: center, scale: scale)
+                }
+                drawCore(in: &context, center: center, scale: scale)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func drawBlob(index: Int, in context: inout GraphicsContext, center: CGPoint, scale: CGFloat) {
+        let blob = model.blobs[index]
+        let level = model.levels[index]
+        let color = Self.blobColors[index]
+
+        // The blob swells with its band and wanders around the orb centre.
+        let radius = scale * Self.baseRadiusFractions[index] * (0.8 + level * 0.55)
+        let wander = scale * (0.16 + level * 0.10)
+        let blobCenter = CGPoint(
+            x: center.x + cos(blob.driftPhase) * wander,
+            y: center.y + sin(blob.driftPhase * 1.31 + Double(index)) * wander
+        )
+        let wobbleAmplitude = 0.10 + level * 0.35
+
+        var path = Path()
+        let steps = 72
+        for step in 0...steps {
+            let theta = Double(step) / Double(steps) * 2 * .pi
+            var wobble = 0.0
+            for (k, harmonic) in OrbBlobModel.harmonics.enumerated() {
+                wobble += sin(harmonic * theta + blob.wobblePhases[k]) * OrbBlobModel.harmonicWeights[k]
+            }
+            let r = radius * (1 + wobble * wobbleAmplitude)
+            let point = CGPoint(
+                x: blobCenter.x + cos(theta) * r,
+                y: blobCenter.y + sin(theta) * r
+            )
+            if step == 0 { path.move(to: point) } else { path.addLine(to: point) }
+        }
+        path.closeSubpath()
+
+        let shading = GraphicsContext.Shading.radialGradient(
+            Gradient(colors: [color.opacity(0.72 + level * 0.2), color.opacity(0.05)]),
+            center: blobCenter,
+            startRadius: 0,
+            endRadius: radius * 1.35
+        )
+        context.drawLayer { layer in
+            layer.addFilter(.blur(radius: 1.6))
+            layer.fill(path, with: shading)
+        }
+    }
+
+    private func drawCore(in context: inout GraphicsContext, center: CGPoint, scale: CGFloat) {
+        let energy = model.levels.reduce(0, +) / 3
+        let radius = scale * (0.16 + energy * 0.16)
+        let rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        let shading = GraphicsContext.Shading.radialGradient(
+            Gradient(colors: [Color.white.opacity(0.55 + energy * 0.35), Color.white.opacity(0)]),
+            center: center,
+            startRadius: 0,
+            endRadius: radius
+        )
+        context.fill(Path(ellipseIn: rect), with: shading)
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Orb – Idle")       { orbPreview { _ in } }
+#Preview("Orb – Hover")      { orbPreview { $0.isHovered = true } }
+#Preview("Orb – Recording")  { orbPreview { $0.state.isRecording = true; $0.state.audioLevel = 0.65 } }
+#Preview("Orb – Processing") { orbPreview { $0.state.isProcessing = true } }
+#Preview("Orb – Streaming")  {
+    orbPreview {
+        $0.state.isRecording = true
+        $0.state.audioLevel = 0.6
+        $0.liveTranscript.begin()
+        $0.liveTranscript.update(
+            committed: "Remind me to review the release notes",
+            tentative: "before thursday's build"
+        )
+    }
+}
+
+@MainActor
+private func orbPreview(_ configure: (OrbFloatingIndicatorController) -> Void) -> some View {
+    let controller = OrbFloatingIndicatorController(
+        state: FloatingIndicatorState(),
+        settingsStore: SettingsStore(),
+        liveTranscript: LiveTranscriptState()
+    )
+    configure(controller)
+    return OrbIndicatorView(controller: controller, state: controller.state, transcript: controller.liveTranscript)
+        .frame(
+            width: OrbFloatingIndicatorSize.medium.panelSize(for: .left).width,
+            height: OrbFloatingIndicatorSize.medium.panelSize(for: .left).height
+        )
+        .background(AppColors.windowBackground)
+}

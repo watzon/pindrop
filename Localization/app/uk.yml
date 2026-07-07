@@ -96,8 +96,6 @@ best:
   _self: "Найкращий"
 better:
   _self: "краще"
-bubble:
-  _self: "міхур"
 built:
   in_presets: "Вбудовані пресети"
   in_read_only: "Вбудований (лише читання)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Виберіть місце для збереження попередніх налаштувань"
   the_daytime_shell_used_in_light_mode: "Вибирайте денну оболонку, яка використовується в світлому режимі."
   the_low_glare_shell_used_in_dark_mode: "Виберіть оболонку з низьким відблиском, яка використовується в темному режимі."
-  which_floating_indicator_style_appears_wh: "Виберіть, який стиль плаваючого індикатора відображатиметься, коли ввімкнено накладання."
   which_microphone_pindrop_should_use_for_d: "Виберіть, який мікрофон Pindrop використовуватиме для диктування та як він поводитиметься під час запису."
   which_side_the_navigation_sidebar_appears: "Виберіть, з якого боку відображатиметься бічна панель навігації."
+  how_pindrop_appears_on_screen_while_you_d: "Виберіть, як Pindrop відображається на екрані під час диктування."
 clean:
   up_filler_words: "Очистіть слова-заповнювачі"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Відображати Pindrop у Dock замість running лише як програму на панелі меню."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Прикріпіть бічну панель до лівого або правого краю вікна."
-dot:
-  _self: "Крапка"
 download:
   _self: "Завантажити"
   complete: "Завантаження завершено!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Увімкнути AI Enhancement"
   live_session_updates_during_recording: "Увімкніть оновлення сеансу в реальному часі під час запису"
-  the_floating_indicator_to_choose_a_style: "Увімкніть плаваючий індикатор, щоб вибрати стиль."
   vibe_mode_ui_context: "Увімкнути режим Vibe (контекст інтерфейсу користувача)"
 enabled:
   _self: "Увімкнено"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Виправити розділові знаки та великі літери"
 floating:
   indicator: "%@ плаваючий індикатор"
-  indicator_3bad78a5: "Плаваючий індикатор: %@"
   indicator_e0349402: "Плаваючий індикатор"
 folder:
   deleted: "Папку видалено."
@@ -487,6 +481,7 @@ media:
   library: "Медіатека"
   transcription: "Транскрипція медіа"
   unavailable: "Медіа недоступні"
+  saved: "Медіа збережено"
 medium:
   _self: "Середній"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Не вибрано"
   set: "Не встановлено"
   set_93039e60: "Не встановлено"
-notch:
-  _self: "Виїмка"
 note:
   _self: "Примітка"
   capture_push_to_talk: "Запис нотаток (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Записка від"
   metadata: "Примітка Метадані"
   title: "Заголовок примітки"
+  saved: "Нотатку збережено"
 notes:
   _self: "Примітки"
   3add7b96: "примітки"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Закріпити на екрані (завжди зверху)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop готовий до використання.
     Щоб розпочати, натисніть значок панелі меню.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop на GitHub"
   pill: "Pindrop Pill"
   theme: "Тема Pindrop"
+  orb: "Сфера Pindrop"
 play:
   _self: "грати"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Показати додаток"
   app_in_finder: "Показати додаток у Finder"
-  floating_indicator: "Показати плаваючий індикатор"
   in_dock: "Показати в Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Відображається крапкою в кутку екрана"
   as_a_pill_at_the_bottom_of_the_screen: "Відображається як таблетка внизу екрана"
-  beside_the_focused_text_field_caret: "Відображається поруч із виділеним текстовим полем/кареткою"
-  in_the_menu_bar_notch_area: "Відображається на панелі меню/області виїмки"
-  recording_state_in_a_lightweight_overlay_w: "Показує стан запису в легкому вікні накладання."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Відображається як сфера з рідкого скла в куті екрана"
 sidebar:
   position: "Розташування бічної панелі"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Виконується транскрипція"
   metadata: "Метадані транскрипції"
   update: "Оновлення транскрипції"
+  saved: "Розшифровку збережено"
 transcriptions:
   _self: "транскрипції"
   f0972acc: "транскрипції"
@@ -1015,3 +1006,7 @@ your:
     Ви можете налаштувати їх пізніше в налаштуваннях.
   model_is_ready_to_use: "Ваша модель готова до використання."
   stats: "Ваша статистика"
+orb:
+  _self: "Сфера"
+meeting:
+  saved: "Зустріч збережено"

@@ -121,13 +121,14 @@ private struct _IndicatorProcessingDot: View {
 /// when `state.recentCompletion` returns to nil.
 struct IndicatorCompletionOverlay: View {
     let completion: FloatingIndicatorState.CompletionKind
+    @Environment(\.locale) private var locale
 
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: completion.icon)
                 .font(.system(size: 9, weight: .semibold))
                 .foregroundStyle(AppColors.overlayTooltipAccent)
-            Text(completion.title)
+            Text(completion.title(locale: locale))
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .foregroundStyle(AppColors.overlayTextPrimary)
         }
@@ -249,17 +250,6 @@ struct FloatingIndicatorWaveformStyle {
     let color: Color
     let animationInterval: TimeInterval
 
-    static let notch = FloatingIndicatorWaveformStyle(
-        layout: .dynamic(minimumCount: 14, edgeAttenuation: 0.45),
-        barWidth: 2,
-        barSpacing: 1.6,
-        minimumHeight: 2,
-        maximumHeight: 16,
-        idleHeight: 2,
-        color: AppColors.overlayWaveform,
-        animationInterval: 0.05
-    )
-
     static let pill = FloatingIndicatorWaveformStyle(
         layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
         barWidth: 2,
@@ -268,17 +258,6 @@ struct FloatingIndicatorWaveformStyle {
         maximumHeight: 14,
         idleHeight: 3,
         color: AppColors.overlayTextPrimary,
-        animationInterval: 0.05
-    )
-
-    static let bubble = FloatingIndicatorWaveformStyle(
-        layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
-        barWidth: 3,
-        barSpacing: 2,
-        minimumHeight: 3,
-        maximumHeight: 14,
-        idleHeight: 3,
-        color: AppColors.overlayWaveform,
         animationInterval: 0.05
     )
 
@@ -293,16 +272,6 @@ struct FloatingIndicatorWaveformStyle {
         animationInterval: 0.05
     )
 
-    static let dot = FloatingIndicatorWaveformStyle(
-        layout: .fixed(count: 7, heightScale: [0.37, 0.74, 1.0, 0.53, 0.84, 0.42, 0.63]),
-        barWidth: 5,
-        barSpacing: 5,
-        minimumHeight: 4,
-        maximumHeight: 38,
-        idleHeight: 4,
-        color: AppColors.overlayRecording,
-        animationInterval: 0.05
-    )
 }
 
 struct FloatingIndicatorWaveformView: View {
@@ -419,7 +388,6 @@ struct FloatingIndicatorActions {
     var availableInputDevicesProvider: (() -> [(uid: String, displayName: String)])?
     var selectedInputDeviceUIDProvider: (() -> String)?
     var selectedLanguageProvider: (() -> AppLanguage)?
-    var anchorProvider: (() -> CGRect?)?
     var preferredScreenProvider: (() -> NSScreen?)?
 }
 
@@ -445,12 +413,12 @@ final class FloatingIndicatorState: ObservableObject {
         case note
         case mediaTranscription
 
-        var title: String {
+        func title(locale: Locale) -> String {
             switch self {
-            case .transcription: return "Transcription saved"
-            case .meeting: return "Meeting saved"
-            case .note: return "Note saved"
-            case .mediaTranscription: return "Media saved"
+            case .transcription: return localized("Transcription saved", locale: locale)
+            case .meeting: return localized("Meeting saved", locale: locale)
+            case .note: return localized("Note saved", locale: locale)
+            case .mediaTranscription: return localized("Media saved", locale: locale)
             }
         }
 
@@ -467,6 +435,7 @@ final class FloatingIndicatorState: ObservableObject {
     @Published var isRecording = false
     @Published var recordingDuration: TimeInterval = 0
     @Published var audioLevel: Float = 0.0
+    @Published var bandLevels = AudioBandLevels.zero
     @Published var isProcessing = false
     @Published var escapePrimed = false
     @Published var toggleRecordingHotkey = ""
@@ -504,6 +473,17 @@ final class FloatingIndicatorState: ObservableObject {
     func updateAudioLevel(_ level: Float) {
         let smoothed = audioLevel * 0.3 + level * 0.7
         audioLevel = min(1.0, max(0.0, smoothed))
+    }
+
+    func updateBandLevels(_ levels: AudioBandLevels) {
+        func smooth(_ old: Float, _ new: Float) -> Float {
+            min(1.0, max(0.0, old * 0.3 + new * 0.7))
+        }
+        bandLevels = AudioBandLevels(
+            low: smooth(bandLevels.low, levels.low),
+            mid: smooth(bandLevels.mid, levels.mid),
+            high: smooth(bandLevels.high, levels.high)
+        )
     }
 
     func updateHotkeys(toggleHotkey: String, pushToTalkHotkey: String) {

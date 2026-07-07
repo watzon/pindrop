@@ -96,8 +96,6 @@ best:
   _self: "Tốt nhất"
 better:
   _self: "Tốt hơn"
-bubble:
-  _self: "bong bóng"
 built:
   in_presets: "Cài đặt sẵn tích hợp"
   in_read_only: "Tích hợp (chỉ đọc)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Chọn vị trí để lưu cài đặt trước"
   the_daytime_shell_used_in_light_mode: "Chọn vỏ ban ngày được sử dụng ở chế độ ánh sáng."
   the_low_glare_shell_used_in_dark_mode: "Chọn lớp vỏ có độ chói thấp được sử dụng ở chế độ tối."
-  which_floating_indicator_style_appears_wh: "Chọn kiểu chỉ báo nổi sẽ xuất hiện khi lớp phủ được bật."
   which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Pindrop sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
   which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
+  how_pindrop_appears_on_screen_while_you_d: "Chọn cách Pindrop hiển thị trên màn hình khi bạn đọc chính tả."
 clean:
   up_filler_words: "Làm sạch các từ đệm"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Hiển thị Pindrop trong Dock thay vì chỉ chạy dưới dạng ứng dụng trên thanh menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Gắn thanh bên vào cạnh trái hoặc phải của cửa sổ."
-dot:
-  _self: "chấm"
 download:
   _self: "Tải xuống"
   complete: "Tải xuống hoàn tất!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Kích hoạt tính năng nâng cao AI"
   live_session_updates_during_recording: "Bật cập nhật phiên trực tiếp trong khi ghi"
-  the_floating_indicator_to_choose_a_style: "Bật chỉ báo nổi để chọn kiểu."
   vibe_mode_ui_context: "Bật chế độ rung cảm (ngữ cảnh giao diện người dùng)"
 enabled:
   _self: "Đã bật"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Sửa dấu câu và viết hoa"
 floating:
   indicator: "%@ chỉ báo nổi"
-  indicator_3bad78a5: "Chỉ báo nổi: %@"
   indicator_e0349402: "Chỉ báo nổi"
 folder:
   deleted: "Đã xóa thư mục."
@@ -415,7 +409,7 @@ keep:
   pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Pindrop hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
 key:
   _self: "#%@"
-  a979ef10: null
+  a979ef10: "null"
   ab8f46d5: "%1$@ %2$@"
 keyboard:
   shortcuts: "Phím tắt"
@@ -487,6 +481,7 @@ media:
   library: "Thư viện phương tiện"
   transcription: "Phiên âm phương tiện"
   unavailable: "Phương tiện không có sẵn"
+  saved: "Đã lưu phương tiện"
 medium:
   _self: "Trung bình"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Không được chọn"
   set: "Chưa đặt"
   set_93039e60: "Chưa đặt"
-notch:
-  _self: "Notch"
 note:
   _self: "Ghi chú"
   capture_push_to_talk: "Ghi chú (Nhấn để nói)"
@@ -556,6 +549,7 @@ note:
   from: "Lưu ý từ"
   metadata: "Siêu dữ liệu ghi chú"
   title: "Tiêu đề ghi chú"
+  saved: "Đã lưu ghi chú"
 notes:
   _self: "Ghi chú"
   3add7b96: "ghi chú"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Ghim vào màn hình (luôn ở trên cùng)"
 pindrop:
   _self: "ghim"
-  dot: "chấm ghim"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop đã sẵn sàng để sử dụng.
     Nhấp vào biểu tượng thanh menu để bắt đầu.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Ghim trên GitHub"
   pill: "Thuốc nhỏ giọt"
   theme: "Chủ đề ghim"
+  orb: "Quả cầu Pindrop"
 play:
   _self: "Chơi"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Hiển thị ứng dụng"
   app_in_finder: "Hiển thị ứng dụng trong Finder"
-  floating_indicator: "Hiển thị chỉ báo nổi"
   in_dock: "Hiển thị trong Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Hiển thị dưới dạng dấu chấm ở góc màn hình"
   as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
-  beside_the_focused_text_field_caret: "Hiển thị bên cạnh trường văn bản/dấu mũ tập trung"
-  in_the_menu_bar_notch_area: "Hiển thị trong thanh menu/khu vực khía cạnh"
-  recording_state_in_a_lightweight_overlay_w: "Hiển thị trạng thái ghi trong cửa sổ lớp phủ nhẹ."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Hiển thị dưới dạng quả cầu thủy tinh lỏng ở góc màn hình"
 sidebar:
   position: "Vị trí thanh bên"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Đang phiên âm"
   metadata: "Siêu dữ liệu phiên mã"
   update: "Cập nhật phiên âm"
+  saved: "Đã lưu bản chép lời"
 transcriptions:
   _self: "Phiên âm"
   f0972acc: "phiên âm"
@@ -1015,3 +1006,7 @@ your:
     Bạn có thể tùy chỉnh chúng sau trong Cài đặt.
   model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
   stats: "Số liệu thống kê của bạn"
+orb:
+  _self: "Quả cầu"
+meeting:
+  saved: "Đã lưu cuộc họp"

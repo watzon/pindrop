@@ -42,7 +42,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var languageMenuItem: NSMenuItem?
     private var languageMenu: NSMenu?
 
-    private var toggleFloatingIndicatorItem: NSMenuItem?
     private var launchAtLoginItem: NSMenuItem?
     private var openHistoryItem: NSMenuItem?
 
@@ -69,7 +68,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onToggleOutputMode: (() -> Void)?
     var onToggleAIControlled: (() -> Void)?
     var onSelectPromptPreset: ((String?) -> Void)?
-    var onToggleFloatingIndicator: (() -> Void)?
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
     var onReportIssue: (() -> Void)?
@@ -367,15 +365,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        toggleFloatingIndicatorItem = NSMenuItem(
-            title: String(format: localized("Floating Indicator: %@", locale: locale), localized("Off", locale: locale)),
-            action: #selector(toggleFloatingIndicator),
-            keyEquivalent: "f"
-        )
-        toggleFloatingIndicatorItem?.target = self
-        toggleFloatingIndicatorItem?.image = NSImage(systemSymbolName: "pip", accessibilityDescription: nil)
-        menu.addItem(toggleFloatingIndicatorItem!)
-
         launchAtLoginItem = NSMenuItem(
             title: String(format: localized("Launch at Login: %@", locale: locale), localized("Off", locale: locale)),
             action: #selector(toggleLaunchAtLogin),
@@ -525,10 +514,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         // Update prompt preset checkmarks
         updatePromptPresetCheckmarks()
-
-        // Update floating indicator
-        let indicatorText = settingsStore.floatingIndicatorEnabled ? localized("On", locale: locale) : localized("Off", locale: locale)
-        toggleFloatingIndicatorItem?.title = String(format: localized("Floating Indicator: %@", locale: locale), indicatorText)
 
         // Update launch at login
         let launchAtLoginText = settingsStore.launchAtLogin ? localized("On", locale: locale) : localized("Off", locale: locale)
@@ -842,10 +827,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         guard let identifier = sender.identifier?.rawValue else { return }
         let presetId: String? = identifier == "preset_custom" ? nil : identifier.replacingOccurrences(of: "preset_", with: "")
         onSelectPromptPreset?(presetId)
-    }
-
-    @objc private func toggleFloatingIndicator() {
-        onToggleFloatingIndicator?()
     }
 
     @objc private func toggleLaunchAtLogin() {

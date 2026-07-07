@@ -26,24 +26,7 @@ struct FloatingIndicatorSettingsCard: View {
     var body: some View {
         SettingsCard(title: localized("Floating Indicator", locale: locale), icon: "waveform.path.ecg") {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(localized("Show floating indicator", locale: locale))
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.textPrimary)
-                        Text(localized("Shows recording state in a lightweight overlay window.", locale: locale))
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.textSecondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $settings.floatingIndicatorEnabled)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-
-                Text(localized("Choose which floating indicator style appears when the overlay is enabled.", locale: locale))
+                Text(localized("Choose how Pindrop appears on screen while you dictate.", locale: locale))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textSecondary)
 
@@ -52,13 +35,10 @@ struct FloatingIndicatorSettingsCard: View {
                         FloatingIndicatorOptionCard(
                             type: type,
                             isSelected: selectedType.wrappedValue == type,
-                            isEnabled: settings.floatingIndicatorEnabled,
                             onSelect: { selectedType.wrappedValue = type }
                         )
                     }
                 }
-                .disabled(!settings.floatingIndicatorEnabled)
-                .opacity(settings.floatingIndicatorEnabled ? 1 : 0.56)
             }
         }
     }
@@ -68,7 +48,6 @@ private struct FloatingIndicatorOptionCard: View {
     @Environment(\.locale) private var locale
     let type: FloatingIndicatorType
     let isSelected: Bool
-    let isEnabled: Bool
     let onSelect: () -> Void
 
     var body: some View {
@@ -104,7 +83,7 @@ private struct FloatingIndicatorOptionCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(type.displayName) floating indicator")
         .accessibilityValue(isSelected ? localized("Selected", locale: locale) : localized("Not selected", locale: locale))
-        .accessibilityHint(isEnabled ? localized("Select this floating indicator style.", locale: locale) : localized("Enable the floating indicator to choose a style.", locale: locale))
+        .accessibilityHint(localized("Select this floating indicator style.", locale: locale))
     }
 
     private var background: some View {
@@ -139,14 +118,10 @@ private struct FloatingIndicatorPreviewGlyph: View {
                 )
 
             switch type {
-            case .notch:
-                NotchIndicatorSelectionGlyph()
             case .pill:
                 PillIndicatorSelectionGlyph()
-            case .bubble:
-                CaretBubbleIndicatorSelectionGlyph()
-            case .dot:
-                DotIndicatorSelectionGlyph()
+            case .orb:
+                OrbIndicatorSelectionGlyph()
             }
         }
         .frame(height: 92)
@@ -155,66 +130,6 @@ private struct FloatingIndicatorPreviewGlyph: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous),
             style: AppColors.border.opacity(0.6)
         )
-    }
-}
-
-private struct NotchIndicatorSelectionGlyph: View {
-    private let centerWidth: CGFloat = 70
-    private let sideWidth: CGFloat = 44
-    private let indicatorHeight: CGFloat = 30
-    private let statusBarHeight: CGFloat = 30
-
-    var body: some View {
-        ZStack(alignment: .top) {
-            Rectangle()
-                .fill(AppColors.overlaySurface.opacity(0.18))
-                .frame(height: statusBarHeight)
-                .frame(maxWidth: .infinity, alignment: .top)
-
-            HStack(spacing: 0) {
-                leftSegment
-                centerSegment
-                rightSegment
-            }
-            .frame(width: centerWidth + (sideWidth * 2), height: indicatorHeight)
-            .background(AppColors.overlaySurfaceStrong)
-            .clipShape(NotchShape(cornerRadius: 12))
-            .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
-            .offset(y: 1)
-        }
-        .frame(maxHeight: .infinity, alignment: .top)
-    }
-
-    private var leftSegment: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(AppColors.recording)
-                .frame(width: 8, height: 8)
-
-            RoundedRectangle(cornerRadius: 1.5)
-                .fill(AppColors.overlayTextPrimary.opacity(0.82))
-                .frame(width: 18, height: 3)
-        }
-        .padding(.horizontal, 8)
-        .frame(width: sideWidth, height: indicatorHeight)
-    }
-
-    private var centerSegment: some View {
-        Rectangle()
-            .fill(AppColors.overlaySurfaceStrong)
-            .frame(width: centerWidth, height: indicatorHeight)
-    }
-
-    private var rightSegment: some View {
-        HStack(alignment: .center, spacing: 2) {
-            ForEach(Array([5.0, 10.0, 7.0, 12.0, 6.0].enumerated()), id: \.offset) { _, height in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(AppColors.overlayWaveform)
-                    .frame(width: 3, height: height)
-            }
-        }
-        .padding(.horizontal, 8)
-        .frame(width: sideWidth, height: indicatorHeight)
     }
 }
 
@@ -263,65 +178,59 @@ private struct PillIndicatorSelectionGlyph: View {
     }
 }
 
-private struct CaretBubbleIndicatorSelectionGlyph: View {
-    var body: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(AppColors.overlaySurface)
-                .frame(width: 18, height: 18)
-                .overlay(
-                    Image(systemName: "xmark")
-                        .font(.system(size: 7, weight: .bold))
-                        .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.92))
-                )
-
-            Capsule()
-                .fill(AppColors.overlaySurface)
-                .frame(width: 42, height: 28)
-                .overlay {
-                    HStack(spacing: 2) {
-                        ForEach(Array([4.0, 8.0, 12.0, 8.0, 5.0].enumerated()), id: \.offset) { _, height in
-                            RoundedRectangle(cornerRadius: 1)
-                                .fill(AppColors.overlayWaveform)
-                                .frame(width: 3, height: height)
-                        }
-                    }
-                }
-                .shadow(color: AppColors.shadowColor.opacity(0.16), radius: 8, y: 4)
-
-            Circle()
-                .fill(AppColors.overlayRecording)
-                .frame(width: 18, height: 18)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 1.5)
-                        .fill(AppColors.overlayTextPrimary)
-                        .frame(width: 6, height: 6)
-                )
-                .shadow(color: AppColors.overlayRecording.opacity(0.22), radius: 4)
-        }
-        .padding(.top, 6)
-    }
-}
-
-private struct DotIndicatorSelectionGlyph: View {
+private struct OrbIndicatorSelectionGlyph: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(AppColors.overlaySurfaceStrong)
+                .fill(OrbPalette.surface)
                 .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 10, y: 5)
-                .hairlineStroke(Circle(), style: AppColors.overlayLine.opacity(0.6))
+                .hairlineStroke(Circle(), style: OrbPalette.rimSoft)
 
             Circle()
                 .fill(
-                    LinearGradient(
-                        colors: [AppColors.overlayTooltipAccent, AppColors.accent],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+                    RadialGradient(
+                        colors: [Color.white.opacity(0.24), .clear],
+                        center: .init(x: 0.32, y: 0.22),
+                        startRadius: 0,
+                        endRadius: 28
                     )
                 )
-                .frame(width: 16, height: 16)
+
+            // Static hint of the band blobs inside the orb.
+            glyphBlob(diameter: 22, color: OrbPalette.bandLow, offset: CGSize(width: -4, height: 3))
+            glyphBlob(diameter: 18, color: OrbPalette.bandMid, offset: CGSize(width: 5, height: -3))
+            glyphBlob(diameter: 13, color: OrbPalette.bandHigh, offset: CGSize(width: 1, height: 4))
+
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [Color.white.opacity(0.7), .clear],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 5
+                    )
+                )
+                .frame(width: 10, height: 10)
+                .blendMode(.plusLighter)
         }
         .frame(width: 40, height: 40)
+        .clipShape(Circle())
+    }
+
+    private func glyphBlob(diameter: CGFloat, color: Color, offset: CGSize) -> some View {
+        Circle()
+            .fill(
+                RadialGradient(
+                    colors: [color.opacity(0.85), color.opacity(0.05)],
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: diameter / 2
+                )
+            )
+            .frame(width: diameter, height: diameter)
+            .offset(offset)
+            .blur(radius: 1.2)
+            .blendMode(.plusLighter)
     }
 }
 

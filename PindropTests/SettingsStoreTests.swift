@@ -181,8 +181,7 @@ struct SettingsStoreTests {
         #expect(store.outputMode == "clipboard")
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
-        #expect(store.floatingIndicatorEnabled)
-        #expect(store.floatingIndicatorType == FloatingIndicatorType.dot.rawValue)
+        #expect(store.floatingIndicatorType == FloatingIndicatorType.orb.rawValue)
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)
     }
@@ -294,19 +293,28 @@ struct SettingsStoreTests {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }
 
-        settingsStore.selectedFloatingIndicatorType = .notch
+        settingsStore.selectedFloatingIndicatorType = .pill
 
-        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.notch.rawValue)
-        #expect(settingsStore.selectedFloatingIndicatorType == .notch)
+        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.pill.rawValue)
+        #expect(settingsStore.selectedFloatingIndicatorType == .pill)
     }
 
-    @Test func testSelectedFloatingIndicatorTypeFallsBackToPillForUnknownValue() {
+    @Test func testSelectedFloatingIndicatorTypeFallsBackToOrbForUnknownValue() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }
 
         settingsStore.floatingIndicatorType = "unknown"
 
-        #expect(settingsStore.selectedFloatingIndicatorType == .pill)
+        #expect(settingsStore.selectedFloatingIndicatorType == .orb)
+    }
+
+    @Test func testSelectedFloatingIndicatorTypeMigratesRetiredDotToOrb() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.floatingIndicatorType = "dot"
+
+        #expect(settingsStore.selectedFloatingIndicatorType == .orb)
     }
 
     @Test func testPillFloatingIndicatorOffsetBridgesStoredValue() {
@@ -328,7 +336,7 @@ struct SettingsStoreTests {
         settingsStore.selectedFloatingIndicatorType = .pill
         settingsStore.pillFloatingIndicatorOffset = CGSize(width: 36, height: 12)
 
-        settingsStore.selectedFloatingIndicatorType = .bubble
+        settingsStore.selectedFloatingIndicatorType = .orb
 
         #expect(settingsStore.pillFloatingIndicatorOffset.width == 0)
         #expect(settingsStore.pillFloatingIndicatorOffset.height == 0)

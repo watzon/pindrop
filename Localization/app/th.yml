@@ -96,8 +96,6 @@ best:
   _self: "ดีที่สุด"
 better:
   _self: "ดีกว่า"
-bubble:
-  _self: "ฟอง"
 built:
   in_presets: "ค่าที่ตั้งไว้ล่วงหน้าในตัว"
   in_read_only: "ในตัว (อ่านอย่างเดียว)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "เลือกตำแหน่งที่จะบันทึกค่าที่ตั้งล่วงหน้า"
   the_daytime_shell_used_in_light_mode: "เลือกเปลือกเวลากลางวันที่ใช้ในโหมดแสง"
   the_low_glare_shell_used_in_dark_mode: "เลือกเปลือกแสงสะท้อนต่ำที่ใช้ในโหมดมืด"
-  which_floating_indicator_style_appears_wh: "เลือกรูปแบบตัวบ่งชี้แบบลอยตัวที่จะปรากฏเมื่อเปิดใช้งานการซ้อนทับ"
   which_microphone_pindrop_should_use_for_d: "เลือกไมโครโฟน Pindrop ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
   which_side_the_navigation_sidebar_appears: "เลือกด้านที่แถบนำทางด้านข้างจะปรากฏ"
+  how_pindrop_appears_on_screen_while_you_d: "เลือกวิธีที่ Pindrop จะปรากฏบนหน้าจอขณะที่คุณป้อนตามคำบอก"
 clean:
   up_filler_words: "ทำความสะอาดคำเติม"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "แสดง Pindrop ใน Dock แทนที่จะทำงานเป็นแอปแถบเมนูเท่านั้น"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "วางแถบด้านข้างไว้ที่ขอบซ้ายหรือขวาของหน้าต่าง"
-dot:
-  _self: "จุด"
 download:
   _self: "ดาวน์โหลด"
   complete: "ดาวน์โหลดเสร็จสมบูรณ์!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
   live_session_updates_during_recording: "เปิดใช้งานการอัปเดตเซสชันสดระหว่างการบันทึก"
-  the_floating_indicator_to_choose_a_style: "เปิดใช้งานตัวบ่งชี้แบบลอยเพื่อเลือกสไตล์"
   vibe_mode_ui_context: "เปิดใช้งานโหมดความรู้สึก (บริบท UI)"
 enabled:
   _self: "เปิดใช้งานแล้ว"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "แก้ไขเครื่องหมายวรรคตอนและการใช้อักษรตัวพิมพ์ใหญ่"
 floating:
   indicator: "%@ ตัวบ่งชี้ลอยตัว"
-  indicator_3bad78a5: "ตัวบ่งชี้ลอยตัว: %@"
   indicator_e0349402: "ตัวบ่งชี้ลอยตัว"
 folder:
   deleted: "ลบโฟลเดอร์แล้ว"
@@ -487,6 +481,7 @@ media:
   library: "ห้องสมุดสื่อ"
   transcription: "การถอดความสื่อ"
   unavailable: "สื่อไม่พร้อมใช้งาน"
+  saved: "บันทึกสื่อแล้ว"
 medium:
   _self: "ปานกลาง"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "ไม่ได้เลือก"
   set: "ไม่ได้ตั้งค่า"
   set_93039e60: "ไม่ได้ตั้งค่า"
-notch:
-  _self: "รอยบาก"
 note:
   _self: "บันทึก"
   capture_push_to_talk: "บันทึกย่อ (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "หมายเหตุจาก"
   metadata: "หมายเหตุ ข้อมูลเมตา"
   title: "หมายเหตุ ชื่อเรื่อง"
+  saved: "บันทึกโน้ตแล้ว"
 notes:
   _self: "หมายเหตุ"
   3add7b96: "บันทึกย่อ"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "ปักหมุดที่หน้าจอ (อยู่ด้านบนเสมอ)"
 pindrop:
   _self: "พินดรอป"
-  dot: "พินดรอปดอท"
   is_ready_to_use_click_the_menu_bar_icon: |-
     พินดรอปพร้อมใช้งานแล้ว
     คลิกไอคอนแถบเมนูเพื่อเริ่มต้น
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop บน GitHub"
   pill: "ยาพินดรอป"
   theme: "ธีมพินดรอป"
+  orb: "ออร์บ Pindrop"
 play:
   _self: "เล่น"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "แสดงแอป"
   app_in_finder: "แสดงแอปใน Finder"
-  floating_indicator: "แสดงตัวบ่งชี้ลอยตัว"
   in_dock: "แสดงในด็อค"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "แสดงเป็นจุดที่มุมของหน้าจอ"
   as_a_pill_at_the_bottom_of_the_screen: "แสดงเป็นเม็ดยาที่ด้านล่างของหน้าจอ"
-  beside_the_focused_text_field_caret: "แสดงข้างช่องข้อความ/คาเร็ตที่โฟกัส"
-  in_the_menu_bar_notch_area: "แสดงในแถบเมนู/พื้นที่รอยบาก"
-  recording_state_in_a_lightweight_overlay_w: "แสดงสถานะการบันทึกในหน้าต่างซ้อนทับแบบน้ำหนักเบา"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "แสดงเป็นออร์บแก้วเหลวที่มุมหน้าจอ"
 sidebar:
   position: "ตำแหน่งแถบด้านข้าง"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "อยู่ระหว่างการถอดเสียง"
   metadata: "ข้อมูลเมตาของการถอดเสียง"
   update: "อัปเดตการถอดเสียงเป็นคำ"
+  saved: "บันทึกการถอดเสียงแล้ว"
 transcriptions:
   _self: "การถอดเสียง"
   f0972acc: "การถอดเสียง"
@@ -1015,3 +1006,7 @@ your:
     คุณสามารถปรับแต่งได้ในภายหลังในการตั้งค่า
   model_is_ready_to_use: "โมเดลของคุณพร้อมใช้งานแล้ว"
   stats: "สถิติของคุณ"
+orb:
+  _self: "ออร์บ"
+meeting:
+  saved: "บันทึกการประชุมแล้ว"

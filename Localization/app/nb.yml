@@ -43,9 +43,9 @@ all:
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Det oppstod en feil under forbedring av transkripsjonen:
-
+    
     %@
-
+    
     Den originale transkripsjonen ble lagret uten forbedring.
     Du kan prøve å aktivere AI-forbedring igjen i Innstillinger.
   error_occurred_while_enhancing_your_transcrip_8c664cb4: "Det oppstod en feil under forbedring av transkripsjonen din:nn%@nnDen originale transkripsjonen ble lagret uten forbedring.nDu kan prøve å aktivere AI-forbedring igjen i Innstillinger."
@@ -96,8 +96,6 @@ best:
   _self: "Beste"
 better:
   _self: "Bedre"
-bubble:
-  _self: "Boble"
 built:
   in_presets: "Innebygde forhåndsinnstillinger"
   in_read_only: "Innebygd (skrivebeskyttet)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Velg plassering for å lagre forhåndsinnstillinger"
   the_daytime_shell_used_in_light_mode: "Velg dagskallet som brukes i lysmodus."
   the_low_glare_shell_used_in_dark_mode: "Velg skallet med lav gjenskinn som brukes i mørk modus."
-  which_floating_indicator_style_appears_wh: "Velg hvilken flytende indikatorstil som skal vises når overlegget er aktivert."
   which_microphone_pindrop_should_use_for_d: "Velg hvilken mikrofon Pindrop skal bruke til diktering og hvordan den oppfører seg under opptak."
   which_side_the_navigation_sidebar_appears: "Velg hvilken side navigasjonssidefeltet skal vises på."
+  how_pindrop_appears_on_screen_while_you_d: "Velg hvordan Pindrop vises på skjermen mens du dikterer."
 clean:
   up_filler_words: "Rydd opp i fyllord"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Vis Pindrop i Dock i stedet for å kjøre bare som en menylinjeapp."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Fest sidefeltet til venstre eller høyre kant av vinduet."
-dot:
-  _self: "Prikk"
 download:
   _self: "Last ned"
   complete: "Nedlasting fullført!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Aktiver AI Enhancement"
   live_session_updates_during_recording: "Aktiver live øktoppdateringer under opptak"
-  the_floating_indicator_to_choose_a_style: "Aktiver den flytende indikatoren for å velge en stil."
   vibe_mode_ui_context: "Aktiver vibe-modus (UI-kontekst)"
 enabled:
   _self: "Aktivert"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Rett opp tegnsetting og store bokstaver"
 floating:
   indicator: "%@ flytende indikator"
-  indicator_3bad78a5: "Flytende indikator: %@"
   indicator_e0349402: "Flytende indikator"
 folder:
   deleted: "Mappe slettet."
@@ -415,7 +409,7 @@ keep:
   pindrop_current_automatically_or_trigger_a: "Hold Pindrop oppdatert automatisk, eller utløs en manuell sjekk når du vil."
 key:
   _self: "#%@"
-  a979ef10:
+  a979ef10: ""
   ab8f46d5: "%1$@ %2$@"
 keyboard:
   shortcuts: "Tastatursnarveier"
@@ -487,6 +481,7 @@ media:
   library: "Mediebibliotek"
   transcription: "Medietranskripsjon"
   unavailable: "Media utilgjengelig"
+  saved: "Medier lagret"
 medium:
   _self: "Medium"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Ikke valgt"
   set: "Ikke satt"
   set_93039e60: "Ikke satt"
-notch:
-  _self: "Hakk"
 note:
   _self: "Note"
   capture_push_to_talk: "Notatfangst (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Merknad fra"
   metadata: "Merk Metadata"
   title: "Merknadstittel"
+  saved: "Notat lagret"
 notes:
   _self: "Notater"
   3add7b96: "notater"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Fest til skjermen (alltid øverst)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop er klar til bruk.
     Klikk på menylinjeikonet for å komme i gang.
@@ -636,13 +629,14 @@ pindrop:
   on_github: "Pindrop på GitHub"
   pill: "Pindrop pille"
   theme: "Pindrop-tema"
+  orb: "Pindrop-kule"
 play:
   _self: "Spille"
 please:
   check_your_internet_connection_and_try_ag: "Kontroller Internett-tilkoblingen din og prøv igjen."
   download_a_whisper_model_in_settings_befo: |-
     Last ned en Whisper-modell i Innstillinger før opptak.
-
+    
     Gå til Innstillinger → Modeller for å laste ned en modell.
   download_a_whisper_model_in_settings_befo_a71d286e: "Last ned en Whisper-modell i Innstillinger før opptak.nnGå til Innstillinger → Modeller for å laste ned en modell."
   wait: "Vennligst vent..."
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Vis app"
   app_in_finder: "Vis appen i Finder"
-  floating_indicator: "Vis flytende indikator"
   in_dock: "Vis i Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Vises som en prikk i hjørnet av skjermen"
   as_a_pill_at_the_bottom_of_the_screen: "Vises som en pille nederst på skjermen"
-  beside_the_focused_text_field_caret: "Vises ved siden av det fokuserte tekstfeltet/karetten"
-  in_the_menu_bar_notch_area: "Vises i menylinjen/hakkområdet"
-  recording_state_in_a_lightweight_overlay_w: "Viser opptaksstatus i et lett overleggsvindu."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Vises som en kule av flytende glass i hjørnet av skjermen"
 sidebar:
   position: "Sidebar posisjon"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transkripsjon pågår"
   metadata: "Transkripsjonsmetadata"
   update: "Transkripsjonsoppdatering"
+  saved: "Transkripsjon lagret"
 transcriptions:
   _self: "Transkripsjoner"
   f0972acc: "transkripsjoner"
@@ -1015,3 +1006,7 @@ your:
     Du kan tilpasse dem senere i Innstillinger.
   model_is_ready_to_use: "Modellen din er klar til bruk."
   stats: "Din statistikk"
+orb:
+  _self: "Kule"
+meeting:
+  saved: "Møte lagret"

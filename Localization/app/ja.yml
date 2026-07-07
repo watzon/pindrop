@@ -96,8 +96,6 @@ best:
   _self: "最高"
 better:
   _self: "より良い"
-bubble:
-  _self: "バブル"
 built:
   in_presets: "内蔵プリセット"
   in_read_only: "組み込み (読み取り専用)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "プリセットを保存する場所を選択してください"
   the_daytime_shell_used_in_light_mode: "ライトモードで使用するデイタイムシェルを選択します。"
   the_low_glare_shell_used_in_dark_mode: "ダークモードで使用される低光沢シェルを選択してください。"
-  which_floating_indicator_style_appears_wh: "オーバーレイが有効なときに表示されるフローティング インジケーター スタイルを選択します。"
   which_microphone_pindrop_should_use_for_d: "Pindrop がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
   which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
+  how_pindrop_appears_on_screen_while_you_d: "音声入力中に Pindrop を画面にどう表示するかを選択します。"
 clean:
   up_filler_words: "つなぎ言葉をクリーンアップする"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "メニュー バー アプリとしてのみ実行するのではなく、Dock に Pindrop を表示します。"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "サイドバーをウィンドウの左端または右端にドッキングします。"
-dot:
-  _self: "Dot"
 download:
   _self: "ダウンロード"
   complete: "ダウンロード完了！"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "AI 強化を有効にする"
   live_session_updates_during_recording: "録画中のライブセッション更新を有効にする"
-  the_floating_indicator_to_choose_a_style: "フローティング インジケーターを有効にしてスタイルを選択します。"
   vibe_mode_ui_context: "バイブモードを有効にする (UI コンテキスト)"
 enabled:
   _self: "有効"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "句読点と大文字の使用を修正する"
 floating:
   indicator: "%@ フローティングインジケーター"
-  indicator_3bad78a5: "フローティングインジケーター: %@"
   indicator_e0349402: "フローティングインジケーター"
 folder:
   deleted: "フォルダーが削除されました。"
@@ -487,6 +481,7 @@ media:
   library: "メディアライブラリ"
   transcription: "メディア転写"
   unavailable: "メディアが利用できません"
+  saved: "メディアを保存しました"
 medium:
   _self: "中くらい"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "未選択"
   set: "未設定"
   set_93039e60: "未設定"
-notch:
-  _self: "ノッチ"
 note:
   _self: "注記"
   capture_push_to_talk: "ノートキャプチャ (プッシュツートーク)"
@@ -556,6 +549,7 @@ note:
   from: "からのメモ"
   metadata: "メモのメタデータ"
   title: "メモのタイトル"
+  saved: "メモを保存しました"
 notes:
   _self: "注意事項"
   3add7b96: "メモ"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "画面にピン留めする (常に一番上)"
 pindrop:
   _self: "ピンドロップ"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     ピンドロップを使用する準備ができました。
     メニューバーのアイコンをクリックして開始します。
@@ -636,6 +629,7 @@ pindrop:
   on_github: "GitHub のピンドロップ"
   pill: "ピンドロップピル"
   theme: "ピンドロップのテーマ"
+  orb: "Pindrop オーブ"
 play:
   _self: "遊ぶ"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "アプリを表示"
   app_in_finder: "Finder にアプリを表示"
-  floating_indicator: "フローティングインジケーターを表示"
   in_dock: "ドックに表示"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
-  beside_the_focused_text_field_caret: "フォーカスされたテキストフィールド/キャレットの横に表示されます"
-  in_the_menu_bar_notch_area: "メニューバー/ノッチエリアに表示されます"
-  recording_state_in_a_lightweight_overlay_w: "軽量オーバーレイ ウィンドウに録画状態を表示します。"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
 sidebar:
   position: "サイドバーの位置"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "文字起こし中です"
   metadata: "転写メタデータ"
   update: "文字起こしの更新"
+  saved: "文字起こしを保存しました"
 transcriptions:
   _self: "転写"
   f0972acc: "転写"
@@ -1015,3 +1006,7 @@ your:
     後で [設定] でカスタマイズできます。
   model_is_ready_to_use: "モデルを使用する準備ができました。"
   stats: "あなたの統計"
+orb:
+  _self: "オーブ"
+meeting:
+  saved: "ミーティングを保存しました"

@@ -96,8 +96,6 @@ best:
   _self: "সেরা"
 better:
   _self: "ভালো"
-bubble:
-  _self: "বুদবুদ"
 built:
   in_presets: "অন্তর্নির্মিত প্রিসেট"
   in_read_only: "অন্তর্নির্মিত (শুধু পড়ার জন্য)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "প্রিসেট সংরক্ষণ করতে অবস্থান চয়ন করুন"
   the_daytime_shell_used_in_light_mode: "হালকা মোডে ব্যবহৃত দিনের সময় শেল চয়ন করুন।"
   the_low_glare_shell_used_in_dark_mode: "অন্ধকার মোডে ব্যবহৃত লো-গ্লেয়ার শেল বেছে নিন।"
-  which_floating_indicator_style_appears_wh: "ওভারলে সক্ষম হলে কোন ভাসমান সূচক শৈলী প্রদর্শিত হবে তা চয়ন করুন৷"
   which_microphone_pindrop_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Pindrop ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
   which_side_the_navigation_sidebar_appears: "নেভিগেশন সাইডবার কোন দিকে প্রদর্শিত হবে তা চয়ন করুন৷"
+  how_pindrop_appears_on_screen_while_you_d: "ডিক্টেশনের সময় Pindrop স্ক্রিনে কীভাবে দেখা যাবে তা বেছে নিন।"
 clean:
   up_filler_words: "ফিলার শব্দ পরিষ্কার করুন"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "শুধুমাত্র একটি মেনু বার অ্যাপ হিসাবে চালানোর পরিবর্তে ডকে পিনড্রপ প্রদর্শন করুন।"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "উইন্ডোর বাম বা ডান প্রান্তে সাইডবার ডক করুন।"
-dot:
-  _self: "ডট"
 download:
   _self: "ডাউনলোড করুন"
   complete: "ডাউনলোড সম্পূর্ণ!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "এআই এনহান্সমেন্ট সক্ষম করুন"
   live_session_updates_during_recording: "রেকর্ডিংয়ের সময় লাইভ সেশন আপডেটগুলি সক্ষম করুন"
-  the_floating_indicator_to_choose_a_style: "একটি শৈলী চয়ন করতে ভাসমান সূচক সক্রিয় করুন৷"
   vibe_mode_ui_context: "ভাইব মোড সক্ষম করুন (UI প্রসঙ্গ)"
 enabled:
   _self: "সক্রিয়"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "বিরাম চিহ্ন এবং ক্যাপিটালাইজেশন ঠিক করুন"
 floating:
   indicator: "%@ ভাসমান সূচক"
-  indicator_3bad78a5: "ভাসমান সূচক: %@"
   indicator_e0349402: "ভাসমান সূচক"
 folder:
   deleted: "ফোল্ডার মুছে ফেলা হয়েছে।"
@@ -488,6 +482,7 @@ media:
   library: "মিডিয়া লাইব্রেরি"
   transcription: "মিডিয়া ট্রান্সক্রিপশন"
   unavailable: "মিডিয়া অনুপলব্ধ"
+  saved: "মিডিয়া সংরক্ষিত হয়েছে"
 medium:
   _self: "মাঝারি"
 microphone:
@@ -547,8 +542,6 @@ not:
   selected: "নির্বাচিত হয়নি"
   set: "সেট নয়"
   set_93039e60: "সেট করা হয়নি"
-notch:
-  _self: "খাঁজ"
 note:
   _self: "দ্রষ্টব্য"
   capture_push_to_talk: "নোট ক্যাপচার (পুশ-টু-টক)"
@@ -557,6 +550,7 @@ note:
   from: "থেকে নোট"
   metadata: "মেটাডেটা নোট করুন"
   title: "নোট শিরোনাম"
+  saved: "নোট সংরক্ষিত হয়েছে"
 notes:
   _self: "নোট"
   3add7b96: "নোট"
@@ -623,7 +617,6 @@ pin:
   to_screen_always_on_top: "স্ক্রিনে পিন করুন (সর্বদা উপরে)"
 pindrop:
   _self: "পিনড্রপ"
-  dot: "পিনড্রপ ডট"
   is_ready_to_use_click_the_menu_bar_icon: |-
     পিনড্রপ ব্যবহারের জন্য প্রস্তুত।
     
@@ -639,6 +632,7 @@ pindrop:
   on_github: "GitHub-এ পিনড্রপ"
   pill: "পিনড্রপ পিল"
   theme: "পিনড্রপ থিম"
+  orb: "Pindrop অর্ব"
 play:
   _self: "খেলা"
 please:
@@ -799,14 +793,10 @@ setup:
 show:
   app: "অ্যাপ দেখান"
   app_in_finder: "ফাইন্ডারে অ্যাপ দেখান"
-  floating_indicator: "ভাসমান সূচক দেখান"
   in_dock: "ডকে দেখান"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "স্ক্রিনের কোণে একটি বিন্দু হিসাবে দেখায়"
   as_a_pill_at_the_bottom_of_the_screen: "পর্দার নীচে একটি বড়ি হিসাবে দেখায়"
-  beside_the_focused_text_field_caret: "ফোকাস করা টেক্সট ফিল্ড/ক্যারেটের পাশে দেখায়"
-  in_the_menu_bar_notch_area: "মেনু বার/খাঁজ এলাকায় দেখায়"
-  recording_state_in_a_lightweight_overlay_w: "একটি হালকা ওভারলে উইন্ডোতে রেকর্ডিং অবস্থা দেখায়।"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "স্ক্রিনের কোণে একটি তরল কাচের গোলক হিসেবে দেখায়"
 sidebar:
   position: "সাইডবার অবস্থান"
 simplified:
@@ -926,6 +916,7 @@ transcription:
   in_progress: "ট্রান্সক্রিপশন চলছে"
   metadata: "ট্রান্সক্রিপশন মেটাডেটা"
   update: "ট্রান্সক্রিপশন আপডেট"
+  saved: "প্রতিলিপি সংরক্ষিত হয়েছে"
 transcriptions:
   _self: "ট্রান্সক্রিপশন"
   f0972acc: "প্রতিলিপি"
@@ -1023,3 +1014,7 @@ your:
     আপনি সেগুলিকে পরে সেটিংসে কাস্টমাইজ করতে পারেন৷
   model_is_ready_to_use: "আপনার মডেল ব্যবহারের জন্য প্রস্তুত."
   stats: "আপনার পরিসংখ্যান"
+orb:
+  _self: "অর্ব"
+meeting:
+  saved: "মিটিং সংরক্ষিত হয়েছে"

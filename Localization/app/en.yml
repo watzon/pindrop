@@ -96,8 +96,6 @@ best:
   _self: "Best"
 better:
   _self: "Better"
-bubble:
-  _self: "Bubble"
 built:
   in_presets: "Built-in Presets"
   in_read_only: "Built-in (read-only)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Choose location to save presets"
   the_daytime_shell_used_in_light_mode: "Choose the daytime shell used in light mode."
   the_low_glare_shell_used_in_dark_mode: "Choose the low-glare shell used in dark mode."
-  which_floating_indicator_style_appears_wh: "Choose which floating indicator style appears when the overlay is enabled."
   which_microphone_pindrop_should_use_for_d: "Choose which microphone Pindrop should use for dictation and how it behaves while recording."
   which_side_the_navigation_sidebar_appears: "Choose which side the navigation sidebar appears on."
+  how_pindrop_appears_on_screen_while_you_d: "Choose how Pindrop appears on screen while you dictate."
 clean:
   up_filler_words: "Clean up filler words"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Display Pindrop in the Dock instead of running only as a menu bar app."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dock the sidebar to the left or right edge of the window."
-dot:
-  _self: "Dot"
 download:
   _self: "Download"
   complete: "Download Complete!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Enable AI Enhancement"
   live_session_updates_during_recording: "Enable live session updates during recording"
-  the_floating_indicator_to_choose_a_style: "Enable the floating indicator to choose a style."
   vibe_mode_ui_context: "Enable vibe mode (UI context)"
 enabled:
   _self: "Enabled"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Fix punctuation and capitalization"
 floating:
   indicator: "%@ floating indicator"
-  indicator_3bad78a5: "Floating Indicator: %@"
   indicator_e0349402: "Floating Indicator"
 folder:
   deleted: "Folder deleted."
@@ -487,6 +481,7 @@ media:
   library: "Media Library"
   transcription: "Media Transcription"
   unavailable: "Media unavailable"
+  saved: "Media saved"
 medium:
   _self: "Medium"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Not selected"
   set: "Not Set"
   set_93039e60: "Not set"
-notch:
-  _self: "Notch"
 note:
   _self: "Note"
   capture_push_to_talk: "Note Capture (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Note from"
   metadata: "Note Metadata"
   title: "Note Title"
+  saved: "Note saved"
 notes:
   _self: "Notes"
   3add7b96: "notes"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Pin to screen (always on top)"
 pindrop:
   _self: "Pindrop"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop is ready to use.
     Click the menu bar icon to get started.
@@ -636,6 +629,7 @@ pindrop:
   on_github: "Pindrop on GitHub"
   pill: "Pindrop Pill"
   theme: "Pindrop Theme"
+  orb: "Pindrop Orb"
 play:
   _self: "Play"
 please:
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Show App"
   app_in_finder: "Show App in Finder"
-  floating_indicator: "Show floating indicator"
   in_dock: "Show in Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Shows as a dot in the corner of the screen"
   as_a_pill_at_the_bottom_of_the_screen: "Shows as a pill at the bottom of the screen"
-  beside_the_focused_text_field_caret: "Shows beside the focused text field/caret"
-  in_the_menu_bar_notch_area: "Shows in the menu bar/notch area"
-  recording_state_in_a_lightweight_overlay_w: "Shows recording state in a lightweight overlay window."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Shows as a liquid glass orb in the corner of the screen"
 sidebar:
   position: "Sidebar position"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Transcription in progress"
   metadata: "Transcription Metadata"
   update: "Transcription update"
+  saved: "Transcription saved"
 transcriptions:
   _self: "Transcriptions"
   f0972acc: "transcriptions"
@@ -1015,3 +1006,7 @@ your:
     You can customize them later in Settings.
   model_is_ready_to_use: "Your model is ready to use."
   stats: "Your Stats"
+orb:
+  _self: "Orb"
+meeting:
+  saved: "Meeting saved"

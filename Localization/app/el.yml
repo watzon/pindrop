@@ -43,9 +43,9 @@ all:
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Παρουσιάστηκε σφάλμα κατά τη βελτίωση της μεταγραφής σας:
-
+    
     %@
-
+    
     Η αρχική μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.
     Μπορείτε να δοκιμάσετε να ενεργοποιήσετε ξανά τη βελτίωση AI στις Ρυθμίσεις.
   error_occurred_while_enhancing_your_transcrip_8c664cb4: "Παρουσιάστηκε σφάλμα κατά τη βελτίωση της μεταγραφής σας:nn%@nnΗ αρχική μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.nΜπορείτε να δοκιμάσετε να ενεργοποιήσετε ξανά τη βελτίωση τεχνητής νοημοσύνης στις Ρυθμίσεις."
@@ -96,8 +96,6 @@ best:
   _self: "Καλύτερος"
 better:
   _self: "Καλύτερα"
-bubble:
-  _self: "Φυσαλλίδα"
 built:
   in_presets: "Ενσωματωμένες προεπιλογές"
   in_read_only: "Ενσωματωμένο (μόνο για ανάγνωση)"
@@ -131,9 +129,9 @@ choose:
   location_to_save_presets: "Επιλέξτε τοποθεσία για αποθήκευση προεπιλογών"
   the_daytime_shell_used_in_light_mode: "Επιλέξτε το κέλυφος ημέρας που χρησιμοποιείται στη λειτουργία φωτός."
   the_low_glare_shell_used_in_dark_mode: "Επιλέξτε το κέλυφος χαμηλής λάμψης που χρησιμοποιείται στη σκοτεινή λειτουργία."
-  which_floating_indicator_style_appears_wh: "Επιλέξτε ποιο στυλ κινητής ένδειξης θα εμφανίζεται όταν είναι ενεργοποιημένη η επικάλυψη."
   which_microphone_pindrop_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Pindrop για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
   which_side_the_navigation_sidebar_appears: "Επιλέξτε σε ποια πλευρά θα εμφανίζεται η πλαϊνή γραμμή πλοήγησης."
+  how_pindrop_appears_on_screen_while_you_d: "Επιλέξτε πώς εμφανίζεται το Pindrop στην οθόνη ενώ υπαγορεύετε."
 clean:
   up_filler_words: "Καθαρίστε τις λέξεις πλήρωσης"
 clear:
@@ -242,8 +240,6 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Εμφανίστε το Pindrop στο Dock αντί να εκτελείται μόνο ως εφαρμογή γραμμής μενού."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Στερεώστε την πλαϊνή γραμμή στην αριστερή ή τη δεξιά άκρη του παραθύρου."
-dot:
-  _self: "Τελεία"
 download:
   _self: "Λήψη"
   complete: "Η λήψη ολοκληρώθηκε!"
@@ -271,7 +267,6 @@ empty:
 enable:
   ai_enhancement: "Ενεργοποίηση AI Enhancement"
   live_session_updates_during_recording: "Ενεργοποιήστε τις ζωντανές ενημερώσεις περιόδου λειτουργίας κατά την εγγραφή"
-  the_floating_indicator_to_choose_a_style: "Ενεργοποιήστε την αιωρούμενη ένδειξη για να επιλέξετε στυλ."
   vibe_mode_ui_context: "Ενεργοποίηση λειτουργίας vibe (περιβάλλον διεπαφής χρήστη)"
 enabled:
   _self: "Ενεργοποιημένο"
@@ -338,7 +333,6 @@ fix:
   punctuation_and_capitalization: "Διορθώστε τα σημεία στίξης και τα κεφαλαία"
 floating:
   indicator: "%@ αιωρούμενος δείκτης"
-  indicator_3bad78a5: "Πλωτός δείκτης: %@"
   indicator_e0349402: "Πλωτός δείκτης"
 folder:
   deleted: "Ο φάκελος διαγράφηκε."
@@ -487,6 +481,7 @@ media:
   library: "Βιβλιοθήκη πολυμέσων"
   transcription: "Μεταγραφή μέσων"
   unavailable: "Μη διαθέσιμα μέσα"
+  saved: "Τα πολυμέσα αποθηκεύτηκαν"
 medium:
   _self: "Μέσον"
 microphone:
@@ -546,8 +541,6 @@ not:
   selected: "Δεν έχει επιλεγεί"
   set: "Δεν έχει οριστεί"
   set_93039e60: "Δεν έχει οριστεί"
-notch:
-  _self: "Εγκοπή"
 note:
   _self: "Σημείωμα"
   capture_push_to_talk: "Λήψη σημειώσεων (Push-to-Talk)"
@@ -556,6 +549,7 @@ note:
   from: "Σημείωση από"
   metadata: "Σημείωση Μεταδεδομένα"
   title: "Σημείωση Τίτλος"
+  saved: "Η σημείωση αποθηκεύτηκε"
 notes:
   _self: "Σημειώσεις"
   3add7b96: "σημειώσεις"
@@ -622,7 +616,6 @@ pin:
   to_screen_always_on_top: "Καρφίτσωμα στην οθόνη (πάντα στην κορυφή)"
 pindrop:
   _self: "Πίνδροπ"
-  dot: "Pindrop Dot"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Το Pindrop είναι έτοιμο για χρήση.
     Κάντε κλικ στο εικονίδιο της γραμμής μενού για να ξεκινήσετε.
@@ -636,13 +629,14 @@ pindrop:
   on_github: "Pindrop στο GitHub"
   pill: "Χάπι Pindrop"
   theme: "Θέμα Pindrop"
+  orb: "Σφαίρα Pindrop"
 play:
   _self: "Παιχνίδι"
 please:
   check_your_internet_connection_and_try_ag: "Ελέγξτε τη σύνδεσή σας στο Διαδίκτυο και δοκιμάστε ξανά."
   download_a_whisper_model_in_settings_befo: |-
     Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν την εγγραφή.
-
+    
     Μεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου.
   download_a_whisper_model_in_settings_befo_a71d286e: "Κάντε λήψη ενός μοντέλου Whisper στις Ρυθμίσεις πριν από την εγγραφή.nnΜεταβείτε στις Ρυθμίσεις → Μοντέλα για λήψη ενός μοντέλου."
   wait: "Παρακαλώ περιμένετε..."
@@ -795,14 +789,10 @@ setup:
 show:
   app: "Εμφάνιση εφαρμογής"
   app_in_finder: "Εμφάνιση εφαρμογής στο Finder"
-  floating_indicator: "Εμφάνιση κινητής ένδειξης"
   in_dock: "Εμφάνιση στο Dock"
 shows:
-  as_a_dot_in_the_corner_of_the_screen: "Εμφανίζεται ως τελεία στη γωνία της οθόνης"
   as_a_pill_at_the_bottom_of_the_screen: "Εμφανίζεται ως χάπι στο κάτω μέρος της οθόνης"
-  beside_the_focused_text_field_caret: "Εμφανίζεται δίπλα στο εστιασμένο πεδίο κειμένου/φρεάτιο"
-  in_the_menu_bar_notch_area: "Εμφανίζεται στη γραμμή μενού/την περιοχή εγκοπής"
-  recording_state_in_a_lightweight_overlay_w: "Εμφανίζει την κατάσταση εγγραφής σε ένα ελαφρύ παράθυρο επικάλυψης."
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Εμφανίζεται ως σφαίρα από υγρό γυαλί στη γωνία της οθόνης"
 sidebar:
   position: "Θέση πλευρικής γραμμής"
 simplified:
@@ -919,6 +909,7 @@ transcription:
   in_progress: "Η μεταγραφή σε εξέλιξη"
   metadata: "Μεταδεδομένα μεταγραφής"
   update: "Ενημέρωση μεταγραφής"
+  saved: "Η απομαγνητοφώνηση αποθηκεύτηκε"
 transcriptions:
   _self: "Μεταγραφές"
   f0972acc: "μεταγραφές"
@@ -1015,3 +1006,7 @@ your:
     Μπορείτε να τα προσαρμόσετε αργότερα στις Ρυθμίσεις.
   model_is_ready_to_use: "Το μοντέλο σας είναι έτοιμο για χρήση."
   stats: "Τα στατιστικά σας"
+orb:
+  _self: "Σφαίρα"
+meeting:
+  saved: "Η σύσκεψη αποθηκεύτηκε"
