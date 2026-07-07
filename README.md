@@ -1,17 +1,17 @@
 # Pindrop 🎤
 
-> The only 100% open source, truly Mac-native AI dictation app
+> The first 100% open source, truly Mac-native AI dictation app
 
-[![GitHub stars](https://img.shields.io/github/stars/watzon/pindrop?style=flat-square)](https://github.com/watzon/pindrop/stargazers)
-[![GitHub license](https://img.shields.io/github/license/watzon/pindrop?style=flat-square)](LICENSE)
-[![macOS](https://img.shields.io/badge/macOS-14.0+-blue?style=flat-square&logo=apple)](https://www.apple.com/macos/)
-[![Swift](https://img.shields.io/badge/Swift-5.9+-orange?style=flat-square&logo=swift)](https://swift.org/)
+![GitHub stars](https://img.shields.io/github/stars/watzon/pindrop?style=flat-square)
+![GitHub license](https://img.shields.io/github/license/watzon/pindrop?style=flat-square)
+![macOS](https://img.shields.io/badge/macOS-14.0+-blue?style=flat-square&logo=apple)
+![Swift](https://img.shields.io/badge/Swift-5.9+-orange?style=flat-square&logo=swift)
 
 ![Pindrop Screenshot](assets/images/screenshot.png)
 
 **Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI, packaged with Xcode + SwiftPM, and powered by WhisperKit for optimal Apple Silicon performance.
 
-**[Download Latest Release](https://github.com/watzon/pindrop/releases)** · **[Documentation](#documentation)** · **[Contributing](#contributing)** · **[Community](#community)**
+[**Download Latest Release**](https://github.com/watzon/pindrop/releases) · [**Documentation**](#documentation) · [**Contributing**](#contributing) · [**Community**](#community)
 
 ---
 
@@ -19,16 +19,19 @@
 
 While other dictation apps compromise on privacy, performance, or platform fidelity, Pindrop is designed specifically for Mac users who refuse to compromise.
 
-| Pillar                         | What It Means                                                              |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| 🍎 **Mac-Native**              | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it.           |
-| 🔒 **Privacy-First**           | 100% local transcription. Your voice never leaves your Mac.                |
+
+| Pillar                        | What It Means                                                              |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| 🍎 **Mac-Native**             | Pure Swift/SwiftUI—not a web wrapper. Feels like Apple built it.           |
+| 🔒 **Privacy-First**          | 100% local transcription. Your voice never leaves your Mac.                |
 | ⚡ **Apple Silicon Optimized** | WhisperKit + Core ML = 2-3x faster than generic Whisper on M-series chips. |
-| 🏆 **100% Open Source**        | No freemium tiers, no "Pro" features, no lock-in. Ever.                    |
+| 🏆 **100% Open Source**       | No freemium tiers, no "Pro" features, no lock-in. Ever.                    |
+
 
 ---
 
 ## Comparison
+
 
 | Feature             | Pindrop                    | Handy                 | OpenWhispr                     |
 | ------------------- | -------------------------- | --------------------- | ------------------------------ |
@@ -39,6 +42,7 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 | **Source Code**     | 100% open source           | 100% open source      | Freemium (paid "Lazy Edition") |
 | **Battery Impact**  | Minimal (native)           | Higher (web runtime)  | Higher (web runtime)           |
 | **Menu Bar Design** | First-class native         | Web-based UI          | Web-based UI                   |
+
 
 **The bottom line:** If you want the best dictation experience on a Mac—maximum speed, minimal battery drain, and true native feel—Pindrop is the only choice.
 
@@ -63,12 +67,12 @@ While other dictation apps compromise on privacy, performance, or platform fidel
 
 ## Built With
 
-- **[Swift](https://swift.org/)** — Apple's modern, fast, and safe programming language
-- **[SwiftUI](https://developer.apple.com/swiftui/)** — Declarative UI framework for truly native Mac apps
-- **[WhisperKit](https://www.argmaxinc.com/whisperkit)** — High-performance Core ML implementation of OpenAI Whisper by Argmax, Inc.
-- **[SwiftData](https://developer.apple.com/documentation/swiftdata)** — Modern data persistence framework
-- **[FluidAudio](https://github.com/FluidInference/FluidAudio)** — Native macOS speech model support for Parakeet
-- **[Sparkle](https://sparkle-project.org/)** — Native macOS update framework
+- [**Swift**](https://swift.org/) — Apple's modern, fast, and safe programming language
+- [**SwiftUI**](https://developer.apple.com/swiftui/) — Declarative UI framework for truly native Mac apps
+- [**WhisperKit**](https://www.argmaxinc.com/whisperkit) — High-performance Core ML implementation of OpenAI Whisper by Argmax, Inc.
+- [**SwiftData**](https://developer.apple.com/documentation/swiftdata) — Modern data persistence framework
+- [**FluidAudio**](https://github.com/FluidInference/FluidAudio) — Native macOS speech model support for Parakeet
+- [**Sparkle**](https://sparkle-project.org/) — Native macOS update framework
 
 Pindrop is developed as a native macOS app with Xcode, SwiftPM, and SwiftUI. Normal development stays entirely within the Apple toolchain.
 
@@ -87,15 +91,15 @@ Pindrop releases are now signed with the project's Apple Developer identity. Aft
 2. Open the DMG and drag Pindrop to Applications
 3. Launch Pindrop from Applications
 4. If you downloaded a build that has not been notarized yet, macOS may still warn on first launch:
-   - Right-click Pindrop → Open, or
-   - Open System Settings → Privacy & Security and use "Open Anyway"
+  - Right-click Pindrop → Open, or
+  - Open System Settings → Privacy &amp; Security and use "Open Anyway"
 5. After notarization, Pindrop should launch without the old self-signed workaround
 
 **For maintainers:** the default local release flow now exports a signed app bundle before packaging the DMG. `just dmg-self-signed` remains available only as a fallback when Apple signing is unavailable.
 
 ## Screenshots
 
-*Coming soon: Notes & History dashboard, AI Enhancement settings, Recording indicator*
+*Coming soon: Notes &amp; History dashboard, AI Enhancement settings, Recording indicator*
 
 ## Building from Source
 
@@ -271,6 +275,7 @@ Access all your past transcriptions:
 
 ### Models
 
+
 | Model  | Size    | Speed   | Accuracy |
 | ------ | ------- | ------- | -------- |
 | Tiny   | ~75 MB  | Fastest | Good     |
@@ -278,6 +283,7 @@ Access all your past transcriptions:
 | Small  | ~500 MB | Medium  | Better   |
 | Medium | ~1.5 GB | Slower  | High     |
 | Large  | ~3 GB   | Slowest | Highest  |
+
 
 Start with Tiny or Base for daily use. Switch to Medium or Large when you need maximum accuracy.
 
@@ -295,13 +301,13 @@ Pindrop is a menu bar-only app—it intentionally has no dock icon. Look for the
 
 ### Microphone permission denied
 
-1. Open **System Settings → Privacy & Security → Microphone**
+1. Open **System Settings → Privacy &amp; Security → Microphone**
 2. Enable permission for Pindrop
 3. Restart the app
 
 ### Direct text insertion not working
 
-1. Open **System Settings → Privacy & Security → Accessibility**
+1. Open **System Settings → Privacy &amp; Security → Accessibility**
 2. Click "+" and add Pindrop
 3. Restart the app
 4. Clipboard output still works without this permission
@@ -432,8 +438,8 @@ xcodebuild test -scheme Pindrop -destination 'platform=macOS'
 
 Join the conversation and get help:
 
-- **[GitHub Discussions](https://github.com/watzon/pindrop/discussions)** — Ask questions, share ideas, and connect with other users
-- **[GitHub Issues](https://github.com/watzon/pindrop/issues)** — Report bugs or request features
+- [**GitHub Discussions**](https://github.com/watzon/pindrop/discussions) — Ask questions, share ideas, and connect with other users
+- [**GitHub Issues**](https://github.com/watzon/pindrop/issues) — Report bugs or request features
 
 ## Contributing
 
@@ -456,4 +462,4 @@ MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=watzon/pindrop&type=date&legend=top-left)](https://www.star-history.com/#watzon/pindrop&type=date&legend=top-left)
+![Star History Chart](https://api.star-history.com/svg?repos=watzon/pindrop&type=date&legend=top-left)
