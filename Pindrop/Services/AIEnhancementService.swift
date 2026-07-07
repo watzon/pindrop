@@ -992,8 +992,10 @@ final class AIEnhancementService {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let error = json["error"] as? [String: Any],
                    let message = error["message"] as? String {
+                    Self.logAPIError(message, statusCode: httpResponse.statusCode)
                     throw EnhancementError.apiError(message)
                 }
+                Self.logAPIError(nil, statusCode: httpResponse.statusCode)
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
@@ -1079,12 +1081,10 @@ final class AIEnhancementService {
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
 
-                let requestBody: [String: Any] = [
-                    "model": model,
-                    "messages": messages,
-                    "temperature": 0,
-                    "max_tokens": 2048
-                ]
+                let requestBody = AIEnhancementService.buildOpenAICompatibleRequestBody(
+                    model: model,
+                    messages: messages
+                )
 
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
             }
@@ -1106,8 +1106,10 @@ final class AIEnhancementService {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let error = json["error"] as? [String: Any],
                    let message = error["message"] as? String {
+                    Self.logAPIError(message, statusCode: httpResponse.statusCode)
                     throw EnhancementError.apiError(message)
                 }
+                Self.logAPIError(nil, statusCode: httpResponse.statusCode)
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
@@ -1154,19 +1156,56 @@ final class AIEnhancementService {
             }
             request.setValue("Pindrop/1.0", forHTTPHeaderField: "X-Title")
 
-            let requestBody: [String: Any] = [
-                "model": model,
-                "messages": [
-                    ["role": "system", "content": systemPrompt],
-                    ["role": "user", "content": userContent]
-                ],
-                "temperature": 0,
-                "max_tokens": 2048
+            let messages: [[String: Any]] = [
+                ["role": "system", "content": systemPrompt],
+                ["role": "user", "content": userContent]
             ]
+            let requestBody = Self.buildOpenAICompatibleRequestBody(model: model, messages: messages)
             request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
         }
 
         return request
+    }
+
+    static func requiresModernOpenAIChatParameters(model: String) -> Bool {
+        let normalizedModelID = model.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return hasModelFamilyPrefix("gpt-5", modelID: normalizedModelID)
+            || hasModelFamilyPrefix("o1", modelID: normalizedModelID)
+            || hasModelFamilyPrefix("o3", modelID: normalizedModelID)
+            || hasModelFamilyPrefix("o4", modelID: normalizedModelID)
+    }
+
+    static func buildOpenAICompatibleRequestBody(model: String, messages: [[String: Any]]) -> [String: Any] {
+        var requestBody: [String: Any] = [
+            "model": model,
+            "messages": messages
+        ]
+
+        if requiresModernOpenAIChatParameters(model: model) {
+            requestBody["max_completion_tokens"] = 2048
+        } else {
+            requestBody["temperature"] = 0
+            requestBody["max_tokens"] = 2048
+        }
+
+        return requestBody
+    }
+
+    private static func hasModelFamilyPrefix(_ prefix: String, modelID: String) -> Bool {
+        guard modelID.hasPrefix(prefix) else { return false }
+        guard modelID.count > prefix.count else { return true }
+
+        let separatorIndex = modelID.index(modelID.startIndex, offsetBy: prefix.count)
+        let separator = modelID[separatorIndex]
+        return separator == "-" || separator == "."
+    }
+
+    private static func logAPIError(_ message: String?, statusCode: Int) {
+        if let message, !message.isEmpty {
+            Log.aiEnhancement.error("AI enhancement API error (status=\(statusCode)): \(message)")
+        } else {
+            Log.aiEnhancement.error("AI enhancement API error (status=\(statusCode))")
+        }
     }
 
     private func parseAPIResponse(data: Data, provider: AIProvider) throws -> String {
@@ -1586,8 +1625,10 @@ final class AIEnhancementService {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let error = json["error"] as? [String: Any],
                    let message = error["message"] as? String {
+                    Self.logAPIError(message, statusCode: httpResponse.statusCode)
                     throw EnhancementError.apiError(message)
                 }
+                Self.logAPIError(nil, statusCode: httpResponse.statusCode)
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
@@ -1669,8 +1710,10 @@ final class AIEnhancementService {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let error = json["error"] as? [String: Any],
                    let message = error["message"] as? String {
+                    Self.logAPIError(message, statusCode: httpResponse.statusCode)
                     throw EnhancementError.apiError(message)
                 }
+                Self.logAPIError(nil, statusCode: httpResponse.statusCode)
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
