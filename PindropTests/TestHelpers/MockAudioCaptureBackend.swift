@@ -17,6 +17,7 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
 
     var shouldThrowOnStart: Error?
     var shouldThrowOnStop: Error?
+    var shouldThrowOnSetPreferredInputDeviceUID: Error?
     var simulatedBuffers: [AVAudioPCMBuffer] = []
 
     var startCaptureCallCount: Int = 0
@@ -28,6 +29,7 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
 
     var capturedOnBuffer: ((AVAudioPCMBuffer) -> Void)?
     var capturedOnAudioLevel: ((Float) -> Void)?
+    var capturedOnError: ((Error) -> Void)?
 
     init(identifier: String = UUID().uuidString) {
         self.identifier = identifier
@@ -48,12 +50,14 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
 
     func startCapture(
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
-        onAudioLevel: @escaping (Float) -> Void
+        onAudioLevel: @escaping (Float) -> Void,
+        onError: @escaping (Error) -> Void
     ) throws {
         startCaptureCallCount += 1
         if let error = shouldThrowOnStart { throw error }
         capturedOnBuffer = onBuffer
         capturedOnAudioLevel = onAudioLevel
+        capturedOnError = onError
         isCapturing = true
     }
 
@@ -74,9 +78,12 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
         isCapturing = false
     }
 
-    func setPreferredInputDeviceUID(_ uid: String) {
+    func setPreferredInputDeviceUID(_ uid: String) throws {
         setPreferredInputDeviceUIDCallCount += 1
         lastPreferredInputDeviceUID = uid
+        if let error = shouldThrowOnSetPreferredInputDeviceUID {
+            throw error
+        }
     }
 
     // MARK: - Test Helpers

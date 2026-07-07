@@ -397,7 +397,11 @@ final class AppCoordinator {
             },
             speakerIdentityService: speakerIdentityService
         )
-        self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
+        do {
+            try self.audioRecorder.setPreferredInputDeviceUID(settingsStore.selectedInputDeviceUID)
+        } catch {
+            Log.audio.error("Failed to apply initial preferred input device: \(error.localizedDescription)")
+        }
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
         self.outputManager = OutputManager(outputMode: initialOutputMode)
@@ -585,6 +589,10 @@ final class AppCoordinator {
         self.streamingSession.configure(postStopEnhance: { [weak self] text in
             await self?.runBasicPostStopEnhance(text: text)
         })
+
+        self.audioRecorder.onCaptureError = { [weak self] error in
+            self?.handleAudioCaptureFailure(error)
+        }
 
         let floatingIndicatorActions = FloatingIndicatorActions(
             onStartRecording: { [weak self] type in
@@ -1422,7 +1430,7 @@ final class AppCoordinator {
                     }
 
                     if previousSnapshot.selectedInputDeviceUID != snapshot.selectedInputDeviceUID {
-                        self.audioRecorder.setPreferredInputDeviceUID(snapshot.selectedInputDeviceUID)
+                        self.applyPreferredInputDeviceUID(snapshot.selectedInputDeviceUID)
                     }
 
                     if previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
@@ -3442,6 +3450,39 @@ final class AppCoordinator {
         finishIndicatorSession()
     }
 
+    private func handleAudioCaptureFailure(_ failure: Error) {
+        error = failure
+        Log.app.error("Audio capture failed: \(failure.localizedDescription)")
+
+        let hadStreamingSession = streamingSession.isSessionActive
+        streamingSession.cancelDetached()
+        recordingState.endRecording(message: "Recording stopped: \(failure.localizedDescription)")
+        recordingState.clearCurrentJob()
+        if hadStreamingSession {
+            Log.transcription.info("Cancelled streaming transcription after audio capture failure")
+        }
+
+        mediaPauseService.endRecordingSession()
+        isRecording = false
+        isProcessing = false
+        isRecordingFeatureCaptureActive = false
+        recordingStartTime = nil
+        capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
+        stopLiveContextSession()
+        updateVibeRuntimeStateFromSettings()
+
+        statusBarController.setIdleState()
+        statusBarController.updateMenuState()
+        finishIndicatorSession()
+
+        toastService.show(
+            ToastPayload(message: "Recording stopped: \(failure.localizedDescription)", style: .error)
+        )
+    }
+
     private func resetProcessingState() {
         mediaPauseService.endRecordingSession()
         isProcessing = false
@@ -3492,9 +3533,21 @@ final class AppCoordinator {
         NSWorkspace.shared.open(supportURL)
     }
 
+    private func applyPreferredInputDeviceUID(_ uid: String) {
+        do {
+            try audioRecorder.setPreferredInputDeviceUID(uid)
+        } catch {
+            self.error = error
+            Log.audio.error("Failed to switch input device: \(error.localizedDescription)")
+            toastService.show(
+                ToastPayload(message: "Could not switch microphone: \(error.localizedDescription)", style: .error)
+            )
+        }
+    }
+
     private func handleSelectInputDeviceUID(_ uid: String) {
         settingsStore.selectedInputDeviceUID = uid
-        audioRecorder.setPreferredInputDeviceUID(uid)
+        applyPreferredInputDeviceUID(uid)
 
         if uid.isEmpty {
             Log.audio.info("Selected input device: system default")
