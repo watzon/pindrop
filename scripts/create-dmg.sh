@@ -47,20 +47,43 @@ BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${APP_BUNDLE}/Conten
 
 echo -e "${GREEN}📦 Creating DMG for ${APP_NAME} v${VERSION} (${BUILD})${NC}"
 
+BACKGROUND_IMG="assets/images/dmg-background.png"
+
 # Create DMG with create-dmg
 # Documentation: https://github.com/create-dmg/create-dmg
-create-dmg \
-    --volname "${VOLUME_NAME}" \
-    --volicon "${APP_BUNDLE}/Contents/Resources/${APP_NAME}.icns" \
-    --window-pos 200 120 \
-    --window-size 600 400 \
-    --icon-size 100 \
-    --icon "${APP_NAME}.app" 150 190 \
-    --hide-extension "${APP_NAME}.app" \
-    --app-drop-link 450 190 \
-    --no-internet-enable \
-    "${DMG_PATH}" \
-    "${APP_BUNDLE}"
+# Layout for 800x400 background (if present):
+#   - App icon centered ~x=200
+#   - Drop link (Applications) centered ~x=600
+if [ -f "${BACKGROUND_IMG}" ]; then
+    echo -e "${GREEN}🖼️  Using custom DMG background${NC}"
+    create-dmg \
+        --volname "${VOLUME_NAME}" \
+        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_NAME}.icns" \
+        --window-pos 200 120 \
+        --window-size 800 400 \
+        --background "${BACKGROUND_IMG}" \
+        --icon-size 100 \
+        --icon "${APP_NAME}.app" 200 185 \
+        --hide-extension "${APP_NAME}.app" \
+        --app-drop-link 600 185 \
+        --no-internet-enable \
+        "${DMG_PATH}" \
+        "${APP_BUNDLE}"
+else
+    echo -e "${YELLOW}⚠️  No custom background found, using default layout${NC}"
+    create-dmg \
+        --volname "${VOLUME_NAME}" \
+        --volicon "${APP_BUNDLE}/Contents/Resources/${APP_NAME}.icns" \
+        --window-pos 200 120 \
+        --window-size 600 400 \
+        --icon-size 100 \
+        --icon "${APP_NAME}.app" 150 190 \
+        --hide-extension "${APP_NAME}.app" \
+        --app-drop-link 450 190 \
+        --no-internet-enable \
+        "${DMG_PATH}" \
+        "${APP_BUNDLE}"
+fi
 
 # Check if DMG was created successfully
 if [ -f "$DMG_PATH" ]; then

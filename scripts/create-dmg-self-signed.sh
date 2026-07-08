@@ -23,10 +23,10 @@ if [ ! -f "${BACKGROUND_IMG}" ]; then
       "${APP_BUNDLE}"
 else
     # Create DMG with custom background
-    # Background image: 800x400 pixels (standard DMG size)
-    # Window size must match background image dimensions
-    # Pindrop app position: left box center ~200,185
-    # Applications shortcut position: right box center ~600,185
+    # Background image: 800x400 pixels
+    # Window size must match background image dimensions exactly
+    # App icon position: ~200,185 (left)
+    # Applications drop position: ~600,185 (right)
     create-dmg \
       --volname "${APP_NAME}" \
       --window-pos 200 120 \
