@@ -533,60 +533,18 @@ final class AppCoordinator {
             await self?.handleCancelOperation()
         }
 
-        self.statusBarController.onToggleOutputMode = { [weak self] in
-            self?.handleToggleOutputMode()
-        }
-
-        self.statusBarController.onToggleAIControlled = { [weak self] in
-            self?.handleToggleAIEnhancement()
-        }
-
-        self.statusBarController.onSelectPromptPreset = { [weak self] presetId in
-            self?.handleSelectPromptPreset(presetId)
-        }
-
-        self.statusBarController.onToggleLaunchAtLogin = { [weak self] in
-            self?.handleToggleLaunchAtLogin()
-        }
-
         self.statusBarController.onOpenHistory = { [weak self] in
             self?.handleOpenHistory()
-        }
-
-
-        self.statusBarController.onReportIssue = { [weak self] in
-            self?.handleReportIssue()
-        }
-
-        self.statusBarController.onSelectInputDeviceUID = { [weak self] uid in
-            self?.handleSelectInputDeviceUID(uid)
-        }
-
-        self.statusBarController.onSelectLanguage = { [weak self] language in
-            self?.handleSelectLanguage(language)
         }
 
         self.statusBarController.onShowApp = { [weak self] in
             self?.handleShowApp()
         }
 
-        self.statusBarController.onShowWhatsNew = { [weak self] in
-            self?.handleShowWhatsNew()
-        }
-
-        self.statusBarController.onSelectModel = { [weak self] modelName in
-            Task { @MainActor in
-                await self?.switchToModel(named: modelName)
-            }
-        }
-
-        self.statusBarController.onMenuWillOpen = { [weak self] in
-            await self?.refreshStatusBarModelMenu()
-        }
-
-        self.statusBarController.onCheckForUpdates = { [weak self] in
-            self?.handleCheckForUpdates()
-        }
+        // No-op: the pruned status menu has no dynamic content left that needs a
+        // refresh hook when the menu opens (StatusBarController.updateDynamicItems()
+        // already runs unconditionally on menuWillOpen).
+        self.statusBarController.onMenuWillOpen = {}
 
         self.statusBarController.setMainWindowController(mainWindowController)
         
@@ -733,7 +691,6 @@ final class AppCoordinator {
 
         Log.boot.info("Taking normal startup path: seed presets, splash, startNormalOperation")
         seedBuiltInPresetsIfNeeded()
-        refreshStatusBarPresets()
 
         splashController.show()
         
@@ -794,7 +751,6 @@ final class AppCoordinator {
     private func finishPostOnboardingSetup() async {
         Log.boot.info("finishPostOnboardingSetup begin")
         seedBuiltInPresetsIfNeeded()
-        refreshStatusBarPresets()
         registerHotkeysFromSettings()
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "post-onboarding", showFallbackAlert: false)
@@ -850,25 +806,8 @@ final class AppCoordinator {
         settingsStore.didMigrateToCleanTranscriptDefault = true
     }
 
-    private func refreshStatusBarPresets() {
-        do {
-            let presets = try promptPresetStore.fetchAll()
-            let mapped = presets.map { (id: $0.id.uuidString, name: $0.name) }
-            statusBarController.updatePromptPresets(mapped)
-        } catch {
-            Log.app.error("Failed to refresh status bar presets: \(error)")
-        }
-    }
-
-    private func refreshStatusBarModelMenu() async {
-        let downloadedModels = await modelManager.getDownloadedModels()
-        let mappedModels = downloadedModels.map { (name: $0.name, displayName: $0.displayName) }
-        statusBarController.updateSwitchableModels(mappedModels)
-    }
-
     private func setActiveModel(_ modelName: String) {
         activeModelName = modelName
-        statusBarController.updateSelectedModel(modelName)
         NotificationCenter.default.post(
             name: .modelActiveChanged,
             object: nil,
@@ -1113,8 +1052,7 @@ final class AppCoordinator {
 
         // Load recent transcripts for the menu
         updateRecentTranscriptsMenu()
-        await refreshStatusBarModelMenu()
-        
+
         updateFloatingIndicatorVisibility()
 
         updateVibeRuntimeStateFromSettings()

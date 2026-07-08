@@ -25,34 +25,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var toggleRecordingItem: NSMenuItem?
     private var clearAudioBufferItem: NSMenuItem?
     private var cancelOperationItem: NSMenuItem?
+    private var contextualItemsInserted = false
 
     private var transcriptsMenu: NSMenu?
     private var copyLastTranscriptItem: NSMenuItem?
     private var pasteLastTranscriptItem: NSMenuItem?
     private var exportLastTranscriptItem: NSMenuItem?
-    private var recentTranscriptsSeparator: NSMenuItem?
 
-    private var outputModeItem: NSMenuItem?
-    private var aiEnhancementItem: NSMenuItem?
-    private var promptPresetMenuItem: NSMenuItem?
-    private var promptPresetMenu: NSMenu?
-    private var reportIssueItem: NSMenuItem?
-    private var inputDeviceMenuItem: NSMenuItem?
-    private var inputDeviceMenu: NSMenu?
-    private var languageMenuItem: NSMenuItem?
-    private var languageMenu: NSMenu?
-
-    private var launchAtLoginItem: NSMenuItem?
     private var openHistoryItem: NSMenuItem?
-
-    private var modelMenu: NSMenu?
-    private var currentModelItem: NSMenuItem?
-    private var checkForUpdatesItem: NSMenuItem?
-    private var switchableModels: [(name: String, displayName: String)] = []
-
-    private var aiModelMenu: NSMenu?
-    private var currentAIModelItem: NSMenuItem?
-    private let aiModelService = AIModelService()
 
     private var welcomePopover: NSPopover?
 
@@ -65,24 +45,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onExportLastTranscript: (() async -> Void)?
     var onClearAudioBuffer: (() async -> Void)?
     var onCancelOperation: (() async -> Void)?
-    var onToggleOutputMode: (() -> Void)?
-    var onToggleAIControlled: (() -> Void)?
-    var onSelectPromptPreset: ((String?) -> Void)?
-    var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenHistory: (() -> Void)?
-    var onReportIssue: (() -> Void)?
-    var onSelectInputDeviceUID: ((String) -> Void)?
-    var onSelectLanguage: ((AppLanguage) -> Void)?
-    var onSelectModel: ((String) -> Void)?
-    var onSelectAIModel: ((String) -> Void)?
-    var onShowWhatsNew: (() -> Void)?
-    var onCheckForUpdates: (() -> Void)?
     var onMenuWillOpen: (() async -> Void)?
 
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
 
-    // MARK: - StateNo idea
+    // MARK: - State
 
     private var currentState: RecordingState = .idle {
         didSet {
@@ -122,18 +91,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func updateRecentTranscripts(_ transcripts: [(id: UUID, text: String, timestamp: Date)]) {
         self.recentTranscripts = Array(transcripts.prefix(5))
         updateRecentTranscriptsMenu()
-    }
-
-    func updateSelectedModel(_ modelName: String) {
-        if let currentModel = switchableModels.first(where: { $0.name == modelName }) {
-            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModel.displayName)
-        } else {
-            currentModelItem?.title = String(
-                format: localized("Current: %@", locale: locale),
-                modelName.replacingOccurrences(of: "openai_whisper-", with: "")
-            )
-        }
-        refreshModelMenuItems()
     }
 
     private var locale: Locale {
@@ -192,37 +149,33 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private func setupMenu() {
         menu.removeAllItems()
         menu.delegate = self
+        contextualItemsInserted = false
 
-        // === RECORDING SECTION ===
-        let recordingHeader = createHeaderItem(localized("Recording", locale: locale))
-        menu.addItem(recordingHeader)
-
-        recordingStatusItem = NSMenuItem(title: localized("● Ready", locale: locale), action: nil, keyEquivalent: "")
+        // === STATUS ROW ===
+        recordingStatusItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
         recordingStatusItem?.isEnabled = false
-        recordingStatusItem?.attributedTitle = NSAttributedString(
-            string: localized("● Ready", locale: locale),
-            attributes: [.foregroundColor: NSColor.secondaryLabelColor]
-        )
         menu.addItem(recordingStatusItem!)
 
+        // === START/STOP RECORDING ===
         toggleRecordingItem = NSMenuItem(
             title: localized("Start Recording", locale: locale),
             action: #selector(toggleRecording),
-            keyEquivalent: "r"
+            keyEquivalent: ""
         )
         toggleRecordingItem?.target = self
         toggleRecordingItem?.image = NSImage(systemSymbolName: "record.circle", accessibilityDescription: nil)
         menu.addItem(toggleRecordingItem!)
 
+        // Contextual items (Clear Audio Buffer / Cancel Operation) are created here but only
+        // inserted into the menu while recording/processing — see updateMenuState().
         clearAudioBufferItem = NSMenuItem(
             title: localized("Clear Audio Buffer", locale: locale),
             action: #selector(clearAudioBuffer),
-            keyEquivalent: "x"
+            keyEquivalent: ""
         )
         clearAudioBufferItem?.target = self
         clearAudioBufferItem?.isEnabled = false
         clearAudioBufferItem?.image = NSImage(systemSymbolName: "clear", accessibilityDescription: nil)
-        menu.addItem(clearAudioBufferItem!)
 
         cancelOperationItem = NSMenuItem(
             title: localized("Cancel Operation", locale: locale),
@@ -232,22 +185,23 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         cancelOperationItem?.target = self
         cancelOperationItem?.isEnabled = false
         cancelOperationItem?.image = NSImage(systemSymbolName: "stop.circle", accessibilityDescription: nil)
-        menu.addItem(cancelOperationItem!)
 
         menu.addItem(NSMenuItem.separator())
 
-        // === TRANSCRIPTS SECTION ===
-        let transcriptsHeader = createHeaderItem(localized("Transcripts", locale: locale))
-        menu.addItem(transcriptsHeader)
-
-        transcriptsMenu = NSMenu()
+        // === COPY LAST TRANSCRIPT ===
         copyLastTranscriptItem = NSMenuItem(
             title: localized("Copy Last Transcript", locale: locale),
             action: #selector(copyLastTranscript),
-            keyEquivalent: "c"
+            keyEquivalent: ""
         )
         copyLastTranscriptItem?.target = self
-        transcriptsMenu?.addItem(copyLastTranscriptItem!)
+        menu.addItem(copyLastTranscriptItem!)
+
+        // === RECENT TRANSCRIPTS SUBMENU ===
+        // Recent transcript entries are inserted at the top of this submenu by
+        // updateRecentTranscriptsMenu(); this skeleton just holds the trailing actions.
+        transcriptsMenu = NSMenu()
+        transcriptsMenu?.addItem(NSMenuItem.separator())
 
         pasteLastTranscriptItem = NSMenuItem(
             title: localized("Paste Last Transcript", locale: locale),
@@ -260,16 +214,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         exportLastTranscriptItem = NSMenuItem(
             title: localized("Export Last Transcript...", locale: locale),
             action: #selector(exportLastTranscript),
-            keyEquivalent: "e"
+            keyEquivalent: ""
         )
         exportLastTranscriptItem?.target = self
         transcriptsMenu?.addItem(exportLastTranscriptItem!)
-
-        transcriptsMenu?.addItem(NSMenuItem.separator())
-
-        recentTranscriptsSeparator = NSMenuItem(title: localized("Recent", locale: locale), action: nil, keyEquivalent: "")
-        recentTranscriptsSeparator?.isEnabled = false
-        transcriptsMenu?.addItem(recentTranscriptsSeparator!)
 
         let recentMenuItem = NSMenuItem(title: localized("Recent Transcripts", locale: locale), action: nil, keyEquivalent: "")
         recentMenuItem.submenu = transcriptsMenu
@@ -278,81 +226,28 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        // === OUTPUT SECTION ===
-        let outputHeader = createHeaderItem(localized("Output", locale: locale))
-        menu.addItem(outputHeader)
-
-        outputModeItem = NSMenuItem(
-            title: String(format: localized("Mode: %@", locale: locale), localized("Clipboard", locale: locale)),
-            action: #selector(toggleOutputMode),
-            keyEquivalent: "o"
-        )
-        outputModeItem?.target = self
-        outputModeItem?.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: nil)
-        menu.addItem(outputModeItem!)
-
-        aiEnhancementItem = NSMenuItem(
-            title: String(format: localized("AI Enhancement: %@", locale: locale), localized("Off", locale: locale)),
-            action: #selector(toggleAIEnhancement),
-            keyEquivalent: "a"
-        )
-        aiEnhancementItem?.target = self
-        aiEnhancementItem?.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: nil)
-        menu.addItem(aiEnhancementItem!)
-
-        promptPresetMenu = NSMenu()
-        let customItem = NSMenuItem(
-            title: "Custom",
-            action: #selector(selectPromptPreset(_:)),
-            keyEquivalent: ""
-        )
-        customItem.target = self
-        customItem.identifier = NSUserInterfaceItemIdentifier("preset_custom")
-        customItem.state = settingsStore.selectedPresetId == nil ? .on : .off
-        promptPresetMenu?.addItem(customItem)
-
-        promptPresetMenuItem = NSMenuItem(title: localized("Prompt Preset", locale: locale), action: nil, keyEquivalent: "")
-        promptPresetMenuItem?.submenu = promptPresetMenu
-        promptPresetMenuItem?.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: nil)
-        menu.addItem(promptPresetMenuItem!)
-
-        menu.addItem(NSMenuItem.separator())
-
-        // === VIEW SECTION ===
-        let viewHeader = createHeaderItem(localized("View", locale: locale))
-        menu.addItem(viewHeader)
-
-        let showAppItem = NSMenuItem(
-            title: localized("Show App", locale: locale),
-            action: #selector(showApp),
-            keyEquivalent: "0"
-        )
-        showAppItem.target = self
-        showAppItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
-        menu.addItem(showAppItem)
-
+        // === OPEN HISTORY / SHOW APP ===
         openHistoryItem = NSMenuItem(
             title: localized("Open History", locale: locale),
             action: #selector(openHistory),
-            keyEquivalent: "h"
+            keyEquivalent: ""
         )
         openHistoryItem?.target = self
         openHistoryItem?.image = NSImage(systemSymbolName: "clock.arrow.circlepath", accessibilityDescription: nil)
         menu.addItem(openHistoryItem!)
 
-        if AnnouncementCatalog.current != nil {
-            menu.addItem(NSMenuItem.separator())
+        let showAppItem = NSMenuItem(
+            title: localized("Show App", locale: locale),
+            action: #selector(showApp),
+            keyEquivalent: ""
+        )
+        showAppItem.target = self
+        showAppItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
+        menu.addItem(showAppItem)
 
-            let whatsNewItem = NSMenuItem(
-                title: localized("What's New…", locale: locale),
-                action: #selector(showWhatsNew),
-                keyEquivalent: ""
-            )
-            whatsNewItem.target = self
-            whatsNewItem.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: nil)
-            menu.addItem(whatsNewItem)
-        }
+        menu.addItem(NSMenuItem.separator())
 
+        // === SETTINGS / QUIT ===
         let settingsItem = NSMenuItem(
             title: localized("Settings...", locale: locale),
             action: #selector(openSettings),
@@ -360,98 +255,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         )
         settingsItem.target = self
         menu.addItem(settingsItem)
-        inputDeviceMenu = NSMenu(title: localized("Change Microphone", locale: locale))
-        inputDeviceMenuItem = NSMenuItem(title: localized("Change Microphone", locale: locale), action: nil, keyEquivalent: "")
-        inputDeviceMenuItem?.submenu = inputDeviceMenu
-        inputDeviceMenuItem?.image = NSImage(systemSymbolName: "mic", accessibilityDescription: nil)
-        if let inputDeviceMenuItem {
-            menu.addItem(inputDeviceMenuItem)
-        }
-
-        languageMenu = NSMenu(title: localized("Select Language", locale: locale))
-        languageMenuItem = NSMenuItem(title: localized("Select Language", locale: locale), action: nil, keyEquivalent: "")
-        languageMenuItem?.submenu = languageMenu
-        languageMenuItem?.image = NSImage(systemSymbolName: "character.book.closed", accessibilityDescription: nil)
-        if let languageMenuItem {
-            menu.addItem(languageMenuItem)
-        }
-        refreshLanguageMenuItems()
-
-        menu.addItem(NSMenuItem.separator())
-
-        launchAtLoginItem = NSMenuItem(
-            title: String(format: localized("Launch at Login: %@", locale: locale), localized("Off", locale: locale)),
-            action: #selector(toggleLaunchAtLogin),
-            keyEquivalent: "l"
-        )
-        launchAtLoginItem?.target = self
-        launchAtLoginItem?.image = NSImage(systemSymbolName: "power", accessibilityDescription: nil)
-        menu.addItem(launchAtLoginItem!)
-
-        menu.addItem(NSMenuItem.separator())
-
-        // === MODEL SECTION ===
-        let modelHeader = createHeaderItem(localized("Model", locale: locale))
-        menu.addItem(modelHeader)
-
-        modelMenu = NSMenu()
-        currentModelItem = NSMenuItem(
-            title: String(format: localized("Current: %@", locale: locale), settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")),
-            action: nil,
-            keyEquivalent: ""
-        )
-        currentModelItem?.isEnabled = false
-        modelMenu?.addItem(currentModelItem!)
-
-        modelMenu?.addItem(NSMenuItem.separator())
-        refreshModelMenuItems()
-
-        let modelMenuItem = NSMenuItem(title: localized("Select Voice Model", locale: locale), action: nil, keyEquivalent: "")
-        modelMenuItem.submenu = modelMenu
-        modelMenuItem.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
-        menu.addItem(modelMenuItem)
-
-        aiModelMenu = NSMenu()
-        currentAIModelItem = NSMenuItem(
-            title: String(format: localized("Current: %@", locale: locale), settingsStore.assignment(for: .transcriptionEnhancement)?.modelID ?? ""),
-            action: nil,
-            keyEquivalent: ""
-        )
-        currentAIModelItem?.isEnabled = false
-        aiModelMenu?.addItem(currentAIModelItem!)
-
-        aiModelMenu?.addItem(NSMenuItem.separator())
-        refreshAIModelMenuItems()
-
-        let aiModelMenuItem = NSMenuItem(title: localized("Select AI Model", locale: locale), action: nil, keyEquivalent: "")
-        aiModelMenuItem.submenu = aiModelMenu
-        aiModelMenuItem.image = NSImage(systemSymbolName: "bolt", accessibilityDescription: nil)
-        menu.addItem(aiModelMenuItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        reportIssueItem = NSMenuItem(
-            title: localized("Report an Issue", locale: locale),
-            action: #selector(reportIssue),
-            keyEquivalent: ""
-        )
-        reportIssueItem?.target = self
-        reportIssueItem?.image = NSImage(systemSymbolName: "exclamationmark.bubble", accessibilityDescription: nil)
-        if let reportIssueItem {
-            menu.addItem(reportIssueItem)
-        }
-
-
-        checkForUpdatesItem = NSMenuItem(
-            title: localized("Check for Updates...", locale: locale),
-            action: #selector(checkForUpdates),
-            keyEquivalent: "u"
-        )
-        checkForUpdatesItem?.target = self
-        checkForUpdatesItem?.image = NSImage(systemSymbolName: "arrow.down.circle", accessibilityDescription: nil)
-        menu.addItem(checkForUpdatesItem!)
-
-        menu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(
             title: localized("Quit Pindrop", locale: locale),
@@ -467,37 +270,45 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         applyInterfaceLayoutDirection(to: menu, locale: locale)
     }
 
-    func updateSwitchableModels(_ models: [(name: String, displayName: String)]) {
-        switchableModels = models.sorted {
-            $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
-        }
-        refreshModelMenuItems()
+    /// Inserts the contextual "Clear Audio Buffer" / "Cancel Operation" rows directly
+    /// after the Start/Stop Recording row. No-ops if already inserted.
+    private func insertContextualItemsIfNeeded() {
+        guard !contextualItemsInserted,
+              let toggleRecordingItem,
+              let clearAudioBufferItem,
+              let cancelOperationItem else { return }
+
+        let toggleIndex = menu.index(of: toggleRecordingItem)
+        guard toggleIndex >= 0 else { return }
+
+        menu.insertItem(clearAudioBufferItem, at: toggleIndex + 1)
+        menu.insertItem(cancelOperationItem, at: toggleIndex + 2)
+        contextualItemsInserted = true
     }
 
-    private func createHeaderItem(_ title: String) -> NSMenuItem {
-        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        item.isEnabled = false
-        item.attributedTitle = NSAttributedString(
-            string: title,
-            attributes: [
-                .foregroundColor: NSColor.secondaryLabelColor,
-                .font: NSFont.systemFont(ofSize: 11, weight: .semibold)
-            ]
-        )
-        return item
+    /// Removes the contextual "Clear Audio Buffer" / "Cancel Operation" rows. No-ops if
+    /// not currently inserted.
+    private func removeContextualItemsIfNeeded() {
+        guard contextualItemsInserted,
+              let clearAudioBufferItem,
+              let cancelOperationItem else { return }
+
+        menu.removeItem(clearAudioBufferItem)
+        menu.removeItem(cancelOperationItem)
+        contextualItemsInserted = false
     }
 
     private func updateRecentTranscriptsMenu() {
         guard let transcriptsMenu = transcriptsMenu else { return }
 
-        // Remove old recent items (keep first 4: copy, export, separator, header)
+        // Remove old recent items
         let itemsToRemove = transcriptsMenu.items.filter { item in
             guard let identifier = item.identifier?.rawValue else { return false }
             return identifier.starts(with: "recent_")
         }
         itemsToRemove.forEach { transcriptsMenu.removeItem($0) }
 
-        // Add new recent items
+        // Insert the current recents at the top of the submenu, most recent first.
         for (index, transcript) in recentTranscripts.enumerated() {
             let truncatedText = String(transcript.text.prefix(40))
             let displayText = truncatedText.isEmpty ? localized("(Empty)", locale: locale) : truncatedText
@@ -507,278 +318,84 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             let item = NSMenuItem(
                 title: "\(displayText)... (\(timeFormatter.string(from: transcript.timestamp)))",
                 action: #selector(copyRecentTranscript(_:)),
-                keyEquivalent: String(index + 1)
+                keyEquivalent: ""
             )
             item.target = self
             item.identifier = NSUserInterfaceItemIdentifier("recent_\(transcript.id)")
-            transcriptsMenu.addItem(item)
+            transcriptsMenu.insertItem(item, at: index)
         }
     }
 
     func updateDynamicItems() {
-        // Update output mode
-        let outputModeText = settingsStore.outputMode == "clipboard"
-            ? localized("Clipboard", locale: locale)
-            : localized("Direct Insert", locale: locale)
-        outputModeItem?.title = String(format: localized("Mode: %@", locale: locale), outputModeText)
-
-        // Update AI enhancement
-        let aiText = settingsStore.assignment(for: .transcriptionEnhancement) != nil ? localized("On", locale: locale) : localized("Off", locale: locale)
-        aiEnhancementItem?.title = String(format: localized("AI Enhancement: %@", locale: locale), aiText)
-
-        // Update prompt preset checkmarks
-        updatePromptPresetCheckmarks()
-
-        // Update launch at login
-        let launchAtLoginText = settingsStore.launchAtLogin ? localized("On", locale: locale) : localized("Off", locale: locale)
-        launchAtLoginItem?.title = String(format: localized("Launch at Login: %@", locale: locale), launchAtLoginText)
-
-        // Update model
-        if let currentModel = switchableModels.first(where: { $0.name == settingsStore.selectedModel }) {
-            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModel.displayName)
-        } else {
-            let modelShortName = settingsStore.selectedModel.replacingOccurrences(of: "openai_whisper-", with: "")
-            currentModelItem?.title = String(format: localized("Current: %@", locale: locale), modelShortName)
-        }
-        refreshModelMenuItems()
-
-
-        refreshInputDeviceMenu()
-        refreshLanguageMenuItems()
-        refreshAIModelMenuItems()
+        updateStatusRow()
     }
 
-    private func refreshModelMenuItems() {
-        guard let modelMenu = modelMenu else { return }
-
-        while modelMenu.items.count > 2 {
-            modelMenu.removeItem(at: 2)
-        }
-
-        if switchableModels.isEmpty {
-            let emptyItem = NSMenuItem(title: localized("No downloaded models", locale: locale), action: nil, keyEquivalent: "")
-            emptyItem.isEnabled = false
-            modelMenu.addItem(emptyItem)
-            return
-        }
-
-        for model in switchableModels {
-            let item = NSMenuItem(
-                title: model.displayName,
-                action: #selector(selectModel(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            item.representedObject = model.name
-            item.state = settingsStore.selectedModel == model.name ? NSControl.StateValue.on : NSControl.StateValue.off
-            modelMenu.addItem(item)
-        }
-    }
-
-    private func refreshAIModelMenuItems() {
-        guard let aiModelMenu = aiModelMenu else { return }
-
-        // Remove all items after the separator (index 1)
-        while aiModelMenu.items.count > 2 {
-            aiModelMenu.removeItem(at: 2)
-        }
-
-        let assignment = settingsStore.assignment(for: .transcriptionEnhancement)
-        let currentModelID = assignment?.modelID ?? ""
-        let provider: AIProvider = assignment
-            .flatMap { settingsStore.provider(withID: $0.providerID)?.kind }
-            ?? .openai
-
-        // Update current model display
-        currentAIModelItem?.title = String(format: localized("Current: %@", locale: locale), currentModelID)
-
-        guard provider == .openai || provider == .openrouter else {
-            let noModelsItem = NSMenuItem(title: localized("No models available", locale: locale), action: nil, keyEquivalent: "")
-            noModelsItem.isEnabled = false
-            aiModelMenu.addItem(noModelsItem)
-            return
-        }
-
-        guard let cachedModels = aiModelService.getCachedModels(for: provider), !cachedModels.isEmpty else {
-            let fetchItem = NSMenuItem(title: localized("Fetch models in Models", locale: locale), action: nil, keyEquivalent: "")
-            fetchItem.isEnabled = false
-            aiModelMenu.addItem(fetchItem)
-            return
-        }
-
-        for model in cachedModels {
-            let item = NSMenuItem(
-                title: model.name,
-                action: #selector(selectAIModel(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            item.representedObject = model.id
-            item.state = currentModelID == model.id ? NSControl.StateValue.on : NSControl.StateValue.off
-            aiModelMenu.addItem(item)
-        }
-    }
-
-    private func refreshInputDeviceMenu() {
-        guard let inputDeviceMenu = inputDeviceMenu else { return }
-
-        inputDeviceMenu.removeAllItems()
-
+    /// Resolves the display name for the currently selected input device, falling back
+    /// to the localized "System Default" label when no device is selected or the
+    /// previously selected device is no longer available.
+    private func currentInputDeviceDisplayName() -> String {
         let selectedUID = settingsStore.selectedInputDeviceUID
-        let availableDevices = AudioDeviceManager.inputDevices()
+        guard !selectedUID.isEmpty else {
+            return localized("System Default", locale: locale)
+        }
 
-        let systemDefaultItem = NSMenuItem(
-            title: localized("System Default", locale: locale),
-            action: #selector(selectInputDevice(_:)),
-            keyEquivalent: ""
+        guard let device = AudioDeviceManager.inputDevices().first(where: { $0.uid == selectedUID }) else {
+            return localized("System Default", locale: locale)
+        }
+
+        return device.displayName
+    }
+
+    private func statusRowBaseText(for state: RecordingState) -> String {
+        switch state {
+        case .idle:
+            return localized("● Ready", locale: locale)
+        case .recording:
+            return localized("🔴 Recording", locale: locale)
+        case .processing:
+            return localized("⏳ Processing", locale: locale)
+        }
+    }
+
+    private func statusRowColor(for state: RecordingState) -> NSColor {
+        switch state {
+        case .idle:
+            return .secondaryLabelColor
+        case .recording:
+            return .systemRed
+        case .processing:
+            return .systemBlue
+        }
+    }
+
+    private func updateStatusRow() {
+        let title = "\(statusRowBaseText(for: currentState)) — \(currentInputDeviceDisplayName())"
+        recordingStatusItem?.attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [.foregroundColor: statusRowColor(for: currentState)]
         )
-        systemDefaultItem.target = self
-        systemDefaultItem.representedObject = ""
-        systemDefaultItem.state = selectedUID.isEmpty ? NSControl.StateValue.on : NSControl.StateValue.off
-        inputDeviceMenu.addItem(systemDefaultItem)
-
-        if !availableDevices.isEmpty {
-            inputDeviceMenu.addItem(.separator())
-        }
-
-        for device in availableDevices {
-            let item = NSMenuItem(
-                title: device.displayName,
-                action: #selector(selectInputDevice(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            item.representedObject = device.uid
-            item.state = selectedUID == device.uid ? NSControl.StateValue.on : NSControl.StateValue.off
-            inputDeviceMenu.addItem(item)
-        }
-
-        if !selectedUID.isEmpty && !availableDevices.contains(where: { $0.uid == selectedUID }) {
-            inputDeviceMenu.addItem(.separator())
-
-            let unavailableItem = NSMenuItem(title: localized("Unavailable device", locale: locale), action: nil, keyEquivalent: "")
-            unavailableItem.isEnabled = false
-            unavailableItem.state = NSControl.StateValue.on
-            inputDeviceMenu.addItem(unavailableItem)
-        }
-    }
-
-    private func refreshLanguageMenuItems() {
-        guard let languageMenu = languageMenu else { return }
-
-        languageMenu.removeAllItems()
-
-        let selectedLanguage = settingsStore.selectedAppLanguage
-        let tier1Languages = AppLanguage.allCases.filter(\.isSelectable)
-        let tier2Languages = AppLanguage.allCases.filter { !$0.isSelectable }
-
-        for language in tier1Languages {
-            let item = NSMenuItem(
-                title: language.displayName(locale: locale),
-                action: #selector(selectLanguage(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            item.representedObject = language.rawValue
-            item.state = selectedLanguage == language ? .on : .off
-            languageMenu.addItem(item)
-        }
-
-        if !tier2Languages.isEmpty {
-            languageMenu.addItem(.separator())
-
-            let upcomingItem = NSMenuItem(title: localized("Coming Soon", locale: locale), action: nil, keyEquivalent: "")
-            upcomingItem.isEnabled = false
-            languageMenu.addItem(upcomingItem)
-
-            for language in tier2Languages {
-                let item = NSMenuItem(title: language.pickerLabel(locale: locale), action: nil, keyEquivalent: "")
-                item.isEnabled = false
-                languageMenu.addItem(item)
-            }
-        }
-    }
-
-    func updatePromptPresets(_ presets: [(id: String, name: String)]) {
-        guard let promptPresetMenu = promptPresetMenu else { return }
-
-        promptPresetMenu.removeAllItems()
-
-        // "Custom" item (no preset selected)
-        let customItem = NSMenuItem(
-            title: localized("Custom", locale: locale),
-            action: #selector(selectPromptPreset(_:)),
-            keyEquivalent: ""
-        )
-        customItem.target = self
-        customItem.identifier = NSUserInterfaceItemIdentifier("preset_custom")
-        customItem.state = settingsStore.selectedPresetId == nil ? .on : .off
-        promptPresetMenu.addItem(customItem)
-
-        if !presets.isEmpty {
-            promptPresetMenu.addItem(NSMenuItem.separator())
-        }
-
-        for preset in presets {
-            let item = NSMenuItem(
-                title: preset.name,
-                action: #selector(selectPromptPreset(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            item.identifier = NSUserInterfaceItemIdentifier("preset_\(preset.id)")
-            item.state = settingsStore.selectedPresetId == preset.id ? .on : .off
-            promptPresetMenu.addItem(item)
-        }
-    }
-
-    private func updatePromptPresetCheckmarks() {
-        guard let promptPresetMenu = promptPresetMenu else { return }
-
-        for item in promptPresetMenu.items {
-            guard let identifier = item.identifier?.rawValue else { continue }
-            if identifier == "preset_custom" {
-                item.state = settingsStore.selectedPresetId == nil ? .on : .off
-            } else {
-                let presetId = identifier.replacingOccurrences(of: "preset_", with: "")
-                item.state = settingsStore.selectedPresetId == presetId ? .on : .off
-            }
-        }
     }
 
     func updateMenuState() {
         switch currentState {
         case .recording:
-            recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: localized("🔴 Recording", locale: locale),
-                attributes: [.foregroundColor: NSColor.systemRed]
-            )
             toggleRecordingItem?.title = localized("Stop Recording", locale: locale)
             toggleRecordingItem?.isEnabled = true
+            insertContextualItemsIfNeeded()
             clearAudioBufferItem?.isEnabled = true
             cancelOperationItem?.isEnabled = true
-            checkForUpdatesItem?.isEnabled = false
         case .processing:
-            recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: localized("⏳ Processing", locale: locale),
-                attributes: [.foregroundColor: NSColor.systemBlue]
-            )
             toggleRecordingItem?.title = localized("Processing...", locale: locale)
             toggleRecordingItem?.isEnabled = false
+            insertContextualItemsIfNeeded()
             clearAudioBufferItem?.isEnabled = false
             cancelOperationItem?.isEnabled = true
-            checkForUpdatesItem?.isEnabled = false
         case .idle:
-            recordingStatusItem?.attributedTitle = NSAttributedString(
-                string: localized("● Ready", locale: locale),
-                attributes: [.foregroundColor: NSColor.secondaryLabelColor]
-            )
             toggleRecordingItem?.title = localized("Start Recording", locale: locale)
             toggleRecordingItem?.isEnabled = true
-            clearAudioBufferItem?.isEnabled = false
-            cancelOperationItem?.isEnabled = false
-            checkForUpdatesItem?.isEnabled = true
+            removeContextualItemsIfNeeded()
         }
+        updateStatusRow()
     }
 
     // MARK: - Actions
@@ -829,68 +446,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
-    @objc private func toggleOutputMode() {
-        onToggleOutputMode?()
-    }
-
-    @objc private func toggleAIEnhancement() {
-        onToggleAIControlled?()
-    }
-
-    @objc private func selectPromptPreset(_ sender: NSMenuItem) {
-        guard let identifier = sender.identifier?.rawValue else { return }
-        let presetId: String? = identifier == "preset_custom" ? nil : identifier.replacingOccurrences(of: "preset_", with: "")
-        onSelectPromptPreset?(presetId)
-    }
-
-    @objc private func toggleLaunchAtLogin() {
-        onToggleLaunchAtLogin?()
-    }
-
     @objc private func openHistory() {
         onOpenHistory?()
     }
 
-
-    @objc private func reportIssue() {
-        onReportIssue?()
-    }
-
-    @objc private func selectInputDevice(_ sender: NSMenuItem) {
-        guard let uid = sender.representedObject as? String else { return }
-        onSelectInputDeviceUID?(uid)
-    }
-
-    @objc private func selectLanguage(_ sender: NSMenuItem) {
-        guard let rawValue = sender.representedObject as? String,
-              let language = AppLanguage(rawValue: rawValue) else { return }
-        settingsStore.selectedAppLanguage = language
-        onSelectLanguage?(language)
-        refreshLanguageMenuItems()
-    }
-
-    @objc private func selectModel(_ sender: NSMenuItem) {
-        guard let modelName = sender.representedObject as? String else { return }
-        onSelectModel?(modelName)
-    }
-
-    @objc private func selectAIModel(_ sender: NSMenuItem) {
-        guard let modelId = sender.representedObject as? String else { return }
-        if let existing = settingsStore.assignment(for: .transcriptionEnhancement) {
-            var updated = existing
-            updated.modelID = modelId
-            settingsStore.setAssignment(updated, for: .transcriptionEnhancement)
-        }
-        onSelectAIModel?(modelId)
-        refreshAIModelMenuItems()
-    }
-
     @objc private func showApp() {
         onShowApp?()
-    }
-
-    @objc private func showWhatsNew() {
-        onShowWhatsNew?()
     }
 
     @objc private func openSettings() {
@@ -899,10 +460,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
-    }
-
-    @objc private func checkForUpdates() {
-        onCheckForUpdates?()
     }
 
     func menuWillOpen(_ menu: NSMenu) {

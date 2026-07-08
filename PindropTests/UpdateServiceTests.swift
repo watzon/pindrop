@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftData
 import Testing
 @testable import Pindrop
 
@@ -122,26 +121,5 @@ struct UpdateServiceTests {
         #expect(errors[0].errorDescription == "Update service not initialized")
         #expect(errors[1].errorDescription == "Update check failed: network timeout")
         #expect(errors[2].errorDescription == "An update is already in progress")
-    }
-
-    @Test func appCoordinatorWiresCheckForUpdatesAction() throws {
-        let schema = Schema([
-            TranscriptionRecord.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            PromptPreset.self,
-        ])
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let modelContainer = try ModelContainer(for: schema, configurations: [configuration])
-
-        let coordinator = AppCoordinator(
-            modelContext: modelContainer.mainContext,
-            modelContainer: modelContainer
-        )
-
-        #expect(coordinator.statusBarController.onCheckForUpdates != nil)
-
-        coordinator.cleanup()
     }
 }
