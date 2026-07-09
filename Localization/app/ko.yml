@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "로그인 시 Pindrop 실행 여부와 Dock 표시 여부를 선택합니다."
   which_edge_of_the_main_window_holds_the_n: "메인 창의 어느 쪽에 탐색 사이드바를 둘지 선택합니다."
   which_microphone_pindrop_uses_for_dictati: "받아쓰기에 사용할 마이크를 선택합니다."
+  model: "모델 선택…"
 clean:
   up_filler_words: "필러 단어 정리"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "다시 하다"
 refresh:
   _self: "새로 고치다"
+  the_provider_or_open_edit_to_fetch_model: "제공자를 새로 고치거나 편집을 열어 모델을 가져오세요."
 remove:
   _self: "제거하다"
   and_clear_any_assignments_that_reference: "\"%@\"을 제거하고 이를 참조하는 모든 할당을 지우시겠습니까? 저장된 자격 증명이 삭제됩니다."

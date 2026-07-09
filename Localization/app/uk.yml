@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  model: "Choose Model…"
 clean:
   up_filler_words: "Очистіть слова-заповнювачі"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "Повторити"
 refresh:
   _self: "Оновити"
+  the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
   _self: "видалити"
   and_clear_any_assignments_that_reference: "Видалити \"%@\" та видалити всі призначення, які посилаються на нього? Збережені облікові дані буде видалено."

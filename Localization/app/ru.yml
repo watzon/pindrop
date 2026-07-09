@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "Выберите, запускать ли Pindrop при входе и показывать ли его в Dock."
   which_edge_of_the_main_window_holds_the_n: "Выберите, с какой стороны главного окна располагается панель навигации."
   which_microphone_pindrop_uses_for_dictati: "Выберите микрофон, который Pindrop использует для диктовки."
+  model: "Выбрать модель…"
 clean:
   up_filler_words: "Очистите слова-паразиты"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "Повторить"
 refresh:
   _self: "Обновить"
+  the_provider_or_open_edit_to_fetch_model: "Обновите провайдера или откройте «Изменить», чтобы загрузить модели."
 remove:
   _self: "Удалять"
   and_clear_any_assignments_that_reference: "Удалить «%@» и очистить все назначения, которые ссылаются на него? Сохраненные учетные данные будут удалены."

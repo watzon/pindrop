@@ -34,6 +34,7 @@ struct AIEnhancementSettingsView: View {
    @State private var modelListLoading: Set<UUID> = []
    @State private var modelListErrors: [UUID: String] = [:]
    @State private var modelService = AIModelService()
+   @State private var modelPickerPurpose: EnhancementPurpose?
 
    // Inline prompt-override drafts per purpose, keyed by purpose.rawValue.
    @State private var promptOverrideDrafts: [String: String] = [:]
@@ -74,6 +75,9 @@ struct AIEnhancementSettingsView: View {
       .sheet(isPresented: $showPresetManagement) {
          PresetManagementSheet()
             .onDisappear { loadPresets() }
+      }
+      .sheet(item: $modelPickerPurpose) { purpose in
+         modelPickerSheet(for: purpose)
       }
       .alert(
          localized("Remove Provider", locale: locale),
@@ -426,6 +430,7 @@ struct AIEnhancementSettingsView: View {
                text: modelTextFieldBinding(for: purpose, provider: provider)
             )
             .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier("settings.field.model.\(purpose.rawValue)")
          } else {
             let models = modelListCache[provider.id] ?? []
             if models.isEmpty {
@@ -450,15 +455,24 @@ struct AIEnhancementSettingsView: View {
                   Button(localized("Refresh", locale: locale)) {
                      Task { await refreshModels(for: provider, force: true) }
                   }
+                  .accessibilityIdentifier("settings.button.refreshModels.\(purpose.rawValue)")
                }
             } else {
-               SearchableDropdown(
-                  items: models,
-                  selection: modelSelectionBinding(for: purpose, provider: provider),
-                  placeholder: localized("Select a model", locale: locale),
-                  emptyMessage: localized("No models found.", locale: locale),
-                  searchPlaceholder: localized("Search models...", locale: locale)
-               )
+               Button {
+                  modelPickerPurpose = purpose
+               } label: {
+                  HStack {
+                     Text(selectedModelLabel(for: purpose, models: models))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                     Spacer(minLength: 4)
+                     Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                  }
+               }
+               .buttonStyle(.bordered)
+               .accessibilityIdentifier("settings.button.chooseModel.\(purpose.rawValue)")
             }
          }
       } else {
@@ -467,25 +481,42 @@ struct AIEnhancementSettingsView: View {
       }
    }
 
-   private func modelSelectionBinding(
+   private func selectedModelLabel(
       for purpose: EnhancementPurpose,
-      provider: ProviderConfig
-   ) -> Binding<String?> {
-      Binding(
-         get: {
-            let currentID = settings.assignment(for: purpose)?.modelID
-            if let currentID, !currentID.isEmpty { return currentID }
-            return nil
-         },
-         set: { newValue in
-            guard let newValue else { return }
+      models: [AIModelService.AIModel]
+   ) -> String {
+      let currentID = settings.assignment(for: purpose)?.modelID
+      if let currentID, !currentID.isEmpty {
+         if let match = models.first(where: { $0.id == currentID }) {
+            return match.name
+         }
+         return currentID
+      }
+      return localized("Choose Model…", locale: locale)
+   }
+
+   @ViewBuilder
+   private func modelPickerSheet(for purpose: EnhancementPurpose) -> some View {
+      let assignment = settings.assignment(for: purpose)
+      let provider = assignment.flatMap { settings.provider(withID: $0.providerID) }
+      let models = provider.map { modelListCache[$0.id] ?? [] } ?? []
+      let titleParts = [
+         purposeLabel(purpose),
+         provider?.displayName,
+      ].compactMap { $0 }
+      ModelPickerSheet(
+         title: titleParts.joined(separator: " · "),
+         models: models,
+         selected: assignment?.modelID,
+         onSelect: { modelID in
+            guard let provider else { return }
             var existing = settings.assignment(for: purpose)
                ?? ModelAssignment(
                   providerID: provider.id,
-                  modelID: newValue,
+                  modelID: modelID,
                   promptPresetID: defaultPresetID(for: purpose)
                )
-            existing.modelID = newValue
+            existing.modelID = modelID
             existing.providerID = provider.id
             settings.setAssignment(existing, for: purpose)
          }
@@ -857,6 +888,12 @@ struct AIEnhancementSettingsView: View {
 
    private var unassignedProviderID: String { "__unassigned__" }
    private var customPresetSentinel: String { "__custom__" }
+}
+
+// MARK: - Sheet identity
+
+extension EnhancementPurpose: Identifiable {
+   public var id: String { rawValue }
 }
 
 // MARK: - Model conformance

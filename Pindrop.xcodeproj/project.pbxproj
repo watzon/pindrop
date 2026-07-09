@@ -43,6 +43,7 @@
 		862E74C35C4D46713D5A1B80 /* TranscriptionRecordSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */; };
 		987212BCF53288AC6E5C81D6 /* TaskScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */; };
 		9AD845AB6A464CB0A312F1F8 /* AIEnhancementSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */; };
+		MODELPICKERSHEETBUILD01A2B3C4 /* ModelPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = MODELPICKERSHEETFILE01A2B3C4D5 /* ModelPickerSheet.swift */; };
 		A1B2C3D4E5F6789012345679 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E6F7890A1B2C3D /* SettingsStore.swift */; };
 		A428D3EC1196D7E8CE77FB0D /* ModelDownloadStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC39B390BEA69DE4C8348EB9 /* ModelDownloadStepView.swift */; };
 		A9D8C7B6E5F40123456789AB /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */; };
@@ -222,6 +223,7 @@
 		31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecord.swift; sourceTree = "<group>"; };
 		440249056D0941BF82CA74EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementSettingsView.swift; sourceTree = "<group>"; };
+		MODELPICKERSHEETFILE01A2B3C4D5 /* ModelPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelPickerSheet.swift; sourceTree = "<group>"; };
 		49CB4FF0EA78C24EFBB3F08A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		509539AB0B5D433489196E46 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelSelectionStepView.swift; sourceTree = "<group>"; };
@@ -595,6 +597,7 @@
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
 				44EA00B68B5647C5A7ED8537 /* AIEnhancementSettingsView.swift */,
+				MODELPICKERSHEETFILE01A2B3C4D5 /* ModelPickerSheet.swift */,
 				83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */,
 				MCPSETTVIEWFILE01A2B3C4D5E6F /* MCPSettingsView.swift */,
 			);
@@ -1048,6 +1051,7 @@
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
 				83556706A5B946DA8E8D1F05 /* AboutSettingsView.swift in Sources */,
 				9AD845AB6A464CB0A312F1F8 /* AIEnhancementSettingsView.swift in Sources */,
+				MODELPICKERSHEETBUILD01A2B3C4 /* ModelPickerSheet.swift in Sources */,
 				A1B2C3D4E5F6789012345679 /* SettingsStore.swift in Sources */,
 				SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */,
 				AICONFIGV2BUILD01A2B3C4D /* AIConfigurationV2.swift in Sources */,

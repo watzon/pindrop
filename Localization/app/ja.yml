@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "ログイン時に Pindrop を起動し、Dock に表示するかを選びます。"
   which_edge_of_the_main_window_holds_the_n: "メインウィンドウのどちら側にナビゲーションサイドバーを置くか選びます。"
   which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
+  model: "モデルを選択…"
 clean:
   up_filler_words: "つなぎ言葉をクリーンアップする"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "やり直し"
 refresh:
   _self: "リフレッシュ"
+  the_provider_or_open_edit_to_fetch_model: "プロバイダを更新するか、編集を開いてモデルを取得してください。"
 remove:
   _self: "取り除く"
   and_clear_any_assignments_that_reference: "「%@」を削除し、それを参照する割り当てをクリアしますか?保存されている認証情報は削除されます。"

@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "選擇是否在登入時啟動 Pindrop 並顯示在 Dock。"
   which_edge_of_the_main_window_holds_the_n: "選擇主視窗導覽側邊欄所在的一側。"
   which_microphone_pindrop_uses_for_dictati: "選擇 Pindrop 用於聽寫的麥克風。"
+  model: "選擇模型…"
 clean:
   up_filler_words: "清理填充詞"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "重做"
 refresh:
   _self: "重新整理"
+  the_provider_or_open_edit_to_fetch_model: "請重新整理提供者或開啟「編輯」以取得模型。"
 remove:
   _self: "消除"
   and_clear_any_assignments_that_reference: "刪除“%@”並清除引用它的所有作業？儲存的憑據將被刪除。"

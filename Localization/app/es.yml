@@ -145,6 +145,7 @@ choose:
   whether_pindrop_starts_when_you_sign_in_a: "Elige si Pindrop se inicia al iniciar sesión y aparece en el Dock."
   which_edge_of_the_main_window_holds_the_n: "Elige en qué lado de la ventana principal está la barra de navegación."
   which_microphone_pindrop_uses_for_dictati: "Elige el micrófono que Pindrop usa para el dictado."
+  model: "Elegir modelo…"
 clean:
   up_filler_words: "Eliminar muletillas"
 clear:
@@ -756,6 +757,7 @@ redo:
   _self: "Redo"
 refresh:
   _self: "Actualizar"
+  the_provider_or_open_edit_to_fetch_model: "Actualiza el proveedor o abre Editar para obtener modelos."
 remove:
   _self: "Eliminar"
   and_clear_any_assignments_that_reference: "¿Eliminar \"%@\" y borrar cualquier asignación que haga referencia a él? Se eliminarán las credenciales almacenadas."
