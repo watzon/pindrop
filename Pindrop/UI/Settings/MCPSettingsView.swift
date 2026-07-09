@@ -35,14 +35,19 @@ struct MCPSettingsView: View {
                 if settings.mcpServerEnabled {
                     LabeledContent(localized("Port", locale: locale)) {
                         TextField("46337", text: $portText)
-                            .frame(width: 84)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.body.monospacedDigit())
                             .multilineTextAlignment(.trailing)
+                            .lineLimit(1)
+                            .frame(width: 88)
+                            .fixedSize(horizontal: true, vertical: true)
                             .onSubmit { applyPort() }
                             .onChange(of: portText) { _, newValue in
-                                let digits = newValue.filter(\.isNumber)
+                                let digits = String(newValue.filter(\.isNumber).prefix(5))
                                 if digits != newValue {
                                     portText = digits
                                 }
+                                applyPortIfValid()
                             }
                             .accessibilityIdentifier("settings.field.mcpPort")
                     }
@@ -172,11 +177,21 @@ struct MCPSettingsView: View {
     }
 
     private func applyPort() {
-        guard let port = Int(portText), port > 1024, port < 65535 else {
+        guard applyPortIfValid() else {
             portText = "\(settings.mcpServerPort)"
             return
         }
-        settings.mcpServerPort = port
+    }
+
+    @discardableResult
+    private func applyPortIfValid() -> Bool {
+        guard let port = Int(portText), port > 1024, port < 65535 else {
+            return false
+        }
+        if settings.mcpServerPort != port {
+            settings.mcpServerPort = port
+        }
+        return true
     }
 
     private func copyToken() {
