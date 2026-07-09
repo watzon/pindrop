@@ -30,8 +30,6 @@ struct PresetManagementSheet: View {
     @State private var showingImportStrategyDialog = false
     @State private var importDataCache: Data?
 
-    @State private var hoveredRowID: UUID?
-
     private var builtInPresets: [PromptPreset] {
         presets.filter { $0.isBuiltIn }.sorted(by: { $0.sortOrder < $1.sortOrder })
     }
@@ -44,26 +42,24 @@ struct PresetManagementSheet: View {
         VStack(spacing: 0) {
             header
 
-            ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
-
+            Form {
+                Section(localized("Create Preset", locale: locale)) {
                     if isCreating {
                         createForm
                     } else {
                         createButton
                     }
-
-                    if !builtInPresets.isEmpty {
-                        builtInSection
-                    }
-
-                    customSection
                 }
-                .padding(AppTheme.Spacing.xl)
+
+                if !builtInPresets.isEmpty {
+                    builtInSection
+                }
+
+                customSection
             }
+            .formStyle(.grouped)
         }
         .frame(width: 600, height: 700)
-        .background(AppColors.windowBackground)
         .onAppear {
             store = PromptPresetStore(modelContext: modelContext)
             loadData()
@@ -108,274 +104,128 @@ struct PresetManagementSheet: View {
     private var header: some View {
         HStack {
             Text(localized("Manage Presets", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
+                .font(.headline)
 
             Spacer()
 
-            HStack(spacing: AppTheme.Spacing.xs) {
-                Button(action: handleImport) {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.system(size: 12))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .help(localized("Import Presets", locale: locale))
+            HStack {
+                Button(localized("Import", locale: locale), systemImage: "square.and.arrow.down", action: handleImport)
+                    .help(localized("Import Presets", locale: locale))
 
-                Button(action: handleExport) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 12))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .help(localized("Export Presets", locale: locale))
+                Button(localized("Export", locale: locale), systemImage: "square.and.arrow.up", action: handleExport)
+                    .help(localized("Export Presets", locale: locale))
             }
+            .labelStyle(.iconOnly)
 
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(AppColors.surfaceBackground)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
+            Button(localized("Done", locale: locale)) { dismiss() }
+                .keyboardShortcut(.defaultAction)
         }
-        .padding(AppTheme.Spacing.lg)
-        .background(AppColors.surfaceBackground)
-        .overlay(
-            Rectangle()
-                .frame(height: 1)
-                .foregroundStyle(AppColors.divider),
-            alignment: .bottom
-        )
+        .padding()
     }
 
     // MARK: - Create Section
 
     private var createButton: some View {
         Button {
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation {
                 isCreating = true
                 newName = ""
                 newPrompt = ""
             }
         } label: {
-            HStack(spacing: AppTheme.Spacing.sm) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16))
-
-                Text(localized("Create New Preset", locale: locale))
-                    .font(AppTypography.subheadline)
-                    .fontWeight(.semibold)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(AppTheme.Spacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(AppColors.accent.opacity(0.1))
-            )
-            .hairlineBorder(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
-                style: AppColors.accent.opacity(0.3)
-            )
-            .foregroundStyle(AppColors.accent)
+            Label(localized("Create New Preset", locale: locale), systemImage: "plus")
         }
-        .buttonStyle(.plain)
     }
 
     private var createForm: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            Text(localized("New Preset", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
+        VStack(alignment: .leading, spacing: 12) {
             TextField(localized("Preset Name", locale: locale), text: $newName)
-                .textFieldStyle(.plain)
-                .font(AppTypography.body)
-                .aiSettingsInputChrome()
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(localized("Prompt", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 TextEditor(text: $newPrompt)
-                    .font(AppTypography.body)
                     .frame(height: 100)
-                    .padding(4)
-                    .background(AppColors.surfaceBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .hairlineBorder(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
-                        style: AppColors.border
-                    )
 
                 Text(localized("Use ${transcription} as a placeholder for the transcribed text.", locale: locale))
-                    .font(AppTypography.tiny)
-                    .foregroundStyle(AppColors.textTertiary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack {
                 Button(localized("Cancel", locale: locale)) {
-                    withAnimation(AppTheme.Animation.fast) {
+                    withAnimation {
                         isCreating = false
                     }
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
 
                 Spacer()
 
                 Button(localized("Create", locale: locale)) {
                     saveNewPreset()
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.sm)
-                .background(AppColors.accent)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.md))
+                .buttonStyle(.borderedProminent)
                 .disabled(newName.isEmpty || newPrompt.isEmpty)
-                .opacity(newName.isEmpty || newPrompt.isEmpty ? 0.5 : 1)
             }
         }
-        .padding(AppTheme.Spacing.lg)
-        .background(AppColors.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .hairlineBorder(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-            style: AppColors.border
-        )
     }
 
     // MARK: - Built-in Section
 
     private var builtInSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text(localized("Built-in Presets", locale: locale))
-                .font(AppTypography.subheadline)
-                .foregroundStyle(AppColors.textSecondary)
-                .padding(.horizontal, AppTheme.Spacing.xs)
-
-            VStack(spacing: 0) {
-                ForEach(builtInPresets) { preset in
-                    PresetRow(
-                        preset: preset,
-                        isEditing: false,
-                        editName: .constant(""),
-                        editPrompt: .constant(""),
-                        onStartEdit: {},
-                        onSaveEdit: {},
-                        onCancelEdit: {},
-                        onDelete: {},
-                        onDuplicate: { duplicatePreset(preset) }
-                    )
-                    .background(
-                        hoveredRowID == preset.id ? AppColors.surfaceBackground : Color.clear
-                    )
-                    .onHover { isHovered in
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            hoveredRowID = isHovered ? preset.id : nil
-                        }
-                    }
-
-                    if preset.id != builtInPresets.last?.id {
-                        Divider().background(AppColors.divider)
-                    }
-                }
+        Section(localized("Built-in Presets", locale: locale)) {
+            ForEach(builtInPresets) { preset in
+                PresetRow(
+                    preset: preset,
+                    isEditing: false,
+                    editName: .constant(""),
+                    editPrompt: .constant(""),
+                    onStartEdit: {},
+                    onSaveEdit: {},
+                    onCancelEdit: {},
+                    onDelete: {},
+                    onDuplicate: { duplicatePreset(preset) }
+                )
             }
-            .background(AppColors.contentBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-            .hairlineBorder(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-                style: AppColors.border
-            )
         }
     }
 
     // MARK: - Custom Section
 
     private var customSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text(localized("Custom Presets", locale: locale))
-                .font(AppTypography.subheadline)
-                .foregroundStyle(AppColors.textSecondary)
-                .padding(.horizontal, AppTheme.Spacing.xs)
-
+        Section(localized("Custom Presets", locale: locale)) {
             if customPresets.isEmpty {
                 emptyCustomState
             } else {
-                VStack(spacing: 0) {
-                    ForEach(customPresets) { preset in
-                        PresetRow(
-                            preset: preset,
-                            isEditing: editingPresetID == preset.id,
-                            editName: $editName,
-                            editPrompt: $editPrompt,
-                            onStartEdit: { startEditing(preset) },
-                            onSaveEdit: { saveEdit(preset) },
-                            onCancelEdit: { cancelEditing() },
-                            onDelete: {
-                                presetToDelete = preset
-                                showDeleteConfirmation = true
-                            },
-                            onDuplicate: { duplicatePreset(preset) }
-                        )
-                        .background(
-                            hoveredRowID == preset.id ? AppColors.surfaceBackground : Color.clear
-                        )
-                        .onHover { isHovered in
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                hoveredRowID = isHovered ? preset.id : nil
-                            }
-                        }
-
-                        if preset.id != customPresets.last?.id {
-                            Divider().background(AppColors.divider)
-                        }
-                    }
+                ForEach(customPresets) { preset in
+                    PresetRow(
+                        preset: preset,
+                        isEditing: editingPresetID == preset.id,
+                        editName: $editName,
+                        editPrompt: $editPrompt,
+                        onStartEdit: { startEditing(preset) },
+                        onSaveEdit: { saveEdit(preset) },
+                        onCancelEdit: { cancelEditing() },
+                        onDelete: {
+                            presetToDelete = preset
+                            showDeleteConfirmation = true
+                        },
+                        onDuplicate: { duplicatePreset(preset) }
+                    )
                 }
-                .background(AppColors.contentBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-                .hairlineBorder(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-                    style: AppColors.border
-                )
             }
         }
     }
 
     private var emptyCustomState: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            Image(systemName: "text.quote")
-                .font(.system(size: 32))
-                .foregroundStyle(AppColors.textTertiary)
-
-            Text(localized("No Custom Presets", locale: locale))
-                .font(AppTypography.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(AppColors.textSecondary)
-
-            Text(localized("Create your own presets or duplicate built-in ones to customize them.", locale: locale))
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textTertiary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.xxl)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .fill(AppColors.surfaceBackground.opacity(0.5))
-        )
-        .hairlineBorder(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-            style: AppColors.border,
-            dash: [5]
+        ContentUnavailableView(
+            localized("No Custom Presets", locale: locale),
+            systemImage: "text.quote",
+            description: Text(
+                localized("Create your own presets or duplicate built-in ones to customize them.", locale: locale)
+            )
         )
     }
 
@@ -403,7 +253,7 @@ struct PresetManagementSheet: View {
         do {
             try store.add(preset)
             loadData()
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation {
                 isCreating = false
             }
         } catch {
@@ -529,141 +379,81 @@ struct PresetRow: View {
     let onDelete: () -> Void
     let onDuplicate: () -> Void
 
-    @State private var isHovered = false
-
     var body: some View {
-        VStack(spacing: 0) {
-            if isEditing {
-                editingView
-            } else {
-                displayView
-            }
-        }
-        .padding(AppTheme.Spacing.md)
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
-            }
+        if isEditing {
+            editingView
+        } else {
+            displayView
         }
     }
 
     private var displayView: some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: preset.isBuiltIn ? "lock.fill" : "person.fill")
-                .font(.system(size: 14))
-                .foregroundStyle(preset.isBuiltIn ? AppColors.textTertiary : AppColors.accent)
-                .frame(width: 24, height: 24)
-                .background(
-                    Circle()
-                        .fill(preset.isBuiltIn ? AppColors.surfaceBackground : AppColors.accent.opacity(0.1))
-                )
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(preset.name)
-                    .font(AppTypography.body)
                     .fontWeight(.medium)
-                    .foregroundStyle(AppColors.textPrimary)
 
                 Text(preset.prompt)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
 
             Spacer()
 
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack {
                 if !preset.isBuiltIn {
-                    Button(action: onStartEdit) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.elevatedSurface : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                    .help(localized("Edit Preset", locale: locale))
+                    Button(localized("Edit Preset", locale: locale), systemImage: "pencil", action: onStartEdit)
+                        .help(localized("Edit Preset", locale: locale))
                 }
 
-                Button(action: onDuplicate) {
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 12))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .frame(width: 28, height: 28)
-                .background(isHovered ? AppColors.elevatedSurface : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                .opacity(isHovered ? 1 : 0)
+                Button(
+                    localized("Duplicate Preset", locale: locale),
+                    systemImage: "doc.on.doc",
+                    action: onDuplicate
+                )
                 .help(localized("Duplicate Preset", locale: locale))
 
                 if !preset.isBuiltIn {
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.error)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                    .help(localized("Delete Preset", locale: locale))
+                    Button(
+                        localized("Delete Preset", locale: locale),
+                        systemImage: "trash",
+                        role: .destructive,
+                        action: onDelete
+                    )
+                        .help(localized("Delete Preset", locale: locale))
                 }
             }
+            .labelStyle(.iconOnly)
         }
     }
 
     private var editingView: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 12) {
             TextField(localized("Preset Name", locale: locale), text: $editName)
-                .textFieldStyle(.plain)
-                .font(AppTypography.body)
-                .aiSettingsInputChrome()
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 6) {
                 TextEditor(text: $editPrompt)
-                    .font(AppTypography.body)
                     .frame(height: 80)
-                    .padding(4)
-                    .background(AppColors.surfaceBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .hairlineBorder(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.sm),
-                        style: AppColors.border
-                    )
 
                 Text(localized("Use ${transcription} as placeholder", locale: locale))
-                    .font(AppTypography.tiny)
-                    .foregroundStyle(AppColors.textTertiary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             HStack {
                 Spacer()
 
-                Button(action: onCancelEdit) {
-                    Text(localized("Cancel", locale: locale))
-                        .font(AppTypography.caption)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .padding(.horizontal, 8)
+                Button(localized("Cancel", locale: locale), action: onCancelEdit)
 
-                Button(action: onSaveEdit) {
-                    Text(localized("Save", locale: locale))
-                        .font(AppTypography.caption)
-                        .fontWeight(.semibold)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.accent)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(AppColors.accent.opacity(0.1))
-                .clipShape(Capsule())
+                Button(localized("Save", locale: locale), action: onSaveEdit)
+                    .buttonStyle(.borderedProminent)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, 4)
     }
 }

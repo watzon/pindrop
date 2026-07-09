@@ -5,314 +5,150 @@
 //  Created on 2026-01-25.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct AboutSettingsView: View {
-   @Environment(\.locale) private var locale
-   @State private var showCopyConfirmation = false
-   @State private var updateService = UpdateService()
-   @AppStorage("automaticallyCheckForUpdates") private var automaticallyCheckForUpdates = true
+    @ObservedObject var settings: SettingsStore
+    @Environment(\.locale) private var locale
+    @State private var copiedSystemInfo = false
 
-   var body: some View {
-      VStack(spacing: AppTheme.Spacing.xl) {
-         appInfoSection
-         updatesSection
-         acknowledgmentsSection
-         linksSection
-      }
-      .onAppear {
-         updateService.automaticallyChecksForUpdates = automaticallyCheckForUpdates
-      }
-   }
+    var body: some View {
+        Form {
+            Section {
+                HStack(alignment: .top, spacing: 16) {
+                    appIcon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-   // MARK: - Updates
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Pindrop")
+                            .font(.title2.weight(.semibold))
 
-   private var updatesSection: some View {
-      SettingsCard(
-         title: localized("Updates", locale: locale),
-         icon: "arrow.triangle.2.circlepath",
-         detail: localized("Keep Pindrop current automatically, or trigger a manual check whenever you want.", locale: locale)
-      ) {
-         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-            SettingsToggleRow(
-               title: localized("Automatic updates", locale: locale),
-               detail: localized("Automatically check for new versions in the background.", locale: locale),
-               isOn: $automaticallyCheckForUpdates
-            )
-            .onChange(of: automaticallyCheckForUpdates) { _, newValue in
-               updateService.automaticallyChecksForUpdates = newValue
+                        Text(localized("Local speech-to-text with WhisperKit", locale: locale))
+                            .foregroundStyle(.secondary)
+
+                        Text(
+                            String(
+                                format: localized("Version %@ (%@)", locale: locale),
+                                appVersion,
+                                buildNumber
+                            )
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+                }
+
+                Text(localized("A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement.", locale: locale))
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            SettingsDivider()
-
-            HStack {
-               VStack(alignment: .leading, spacing: 2) {
-                  Text(localized("Check for updates", locale: locale))
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textPrimary)
-                  Text(localized("Manually check for new versions now.", locale: locale))
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textSecondary)
-               }
-
-               Spacer()
-
-               if AnnouncementCatalog.current != nil {
-                  Button(localized("What's New…", locale: locale)) {
-                     NotificationCenter.default.post(name: .showWhatsNew, object: nil)
-                  }
-               }
-
-               Button(localized("Check Now", locale: locale)) {
-                  updateService.checkForUpdates()
-               }
-               .disabled(!updateService.canCheckForUpdates)
-            }
-         }
-      }
-   }
-
-   private var appInfoSection: some View {
-      SettingsCard(title: localized("About Pindrop", locale: locale), icon: "mic.fill") {
-         VStack(spacing: AppTheme.Spacing.lg) {
-            HStack(spacing: AppTheme.Spacing.xl) {
-               appIcon
-                  .resizable()
-                  .scaledToFit()
-                  .frame(width: 80, height: 80)
-                  .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-
-               VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                  Text("Pindrop")
-                     .font(AppTypography.title)
-                     .foregroundStyle(AppColors.textPrimary)
-
-                  Text(localized("Local speech-to-text with WhisperKit", locale: locale))
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textSecondary)
-
-                  Spacer()
-
-                  Text(String(format: localized("Version %@ (%@)", locale: locale), appVersion, buildNumber))
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textTertiary)
-               }
-               .frame(maxWidth: .infinity, alignment: .leading)
+            Section(localized("Acknowledgments", locale: locale)) {
+                Link(localized("WhisperKit", locale: locale), destination: URL(string: "https://github.com/argmaxinc/WhisperKit")!)
+                Link(localized("OpenAI Whisper", locale: locale), destination: URL(string: "https://github.com/openai/whisper")!)
+                Link(localized("Pindrop on GitHub", locale: locale), destination: URL(string: "https://github.com/watzon/pindrop")!)
             }
 
-            Divider()
-               .background(AppColors.divider)
+            Section {
+                Link(localized("Report an Issue", locale: locale), destination: URL(string: "https://github.com/watzon/pindrop/issues")!)
 
-            Text(
-                localized("A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement.", locale: locale)
-            )
-            .font(AppTypography.bodySmall)
-            .foregroundStyle(AppColors.textSecondary)
-            .multilineTextAlignment(.leading)
-         }
-      }
-   }
+                Button {
+                    copySystemInfo()
+                } label: {
+                    Label(
+                        copiedSystemInfo
+                            ? localized("Copied!", locale: locale)
+                            : localized("Copy System Info", locale: locale),
+                        systemImage: copiedSystemInfo ? "checkmark" : "doc.on.doc"
+                    )
+                }
+                .disabled(copiedSystemInfo)
+                .accessibilityIdentifier("settings.button.copySystemInfo")
 
-   private var acknowledgmentsSection: some View {
-      SettingsCard(title: localized("Acknowledgments", locale: locale), icon: "heart.fill") {
-         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Link(destination: URL(string: "https://github.com/argmaxinc/WhisperKit")!) {
-               HStack {
-                  Text("WhisperKit")
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textPrimary)
-                  Spacer()
-                  Image(systemName: "arrow.up.right.square")
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textTertiary)
-               }
+                Button(localized("Open Logs in Finder", locale: locale)) {
+                    revealLogsInFinder()
+                }
+                .accessibilityIdentifier("settings.button.openLogs")
+            } header: {
+                Text(localized("Support", locale: locale))
+            } footer: {
+                Text(localized("Attach logs from this folder when filing a GitHub issue.", locale: locale))
             }
 
-            Divider()
-               .background(AppColors.divider)
-
-            Link(destination: URL(string: "https://github.com/openai/whisper")!) {
-               HStack {
-                  Text("OpenAI Whisper")
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textPrimary)
-                  Spacer()
-                  Image(systemName: "arrow.up.right.square")
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textTertiary)
-               }
+            Section {
+                Text(localized("MIT License", locale: locale))
+            } header: {
+                Text(localized("License", locale: locale))
+            } footer: {
+                Text(localized("Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License.", locale: locale))
             }
+        }
+        .formStyle(.grouped)
+    }
 
-            Divider()
-               .background(AppColors.divider)
+    private func copySystemInfo() {
+        let info = """
+            Pindrop: \(appVersion) (\(buildNumber))
+            macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
+            Chip: \(chipType)
+            Model: \(activeModel)
+            """
 
-            Link(destination: URL(string: "https://github.com/watzon/pindrop")!) {
-               HStack {
-                  Text("Pindrop on GitHub")
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textPrimary)
-                  Spacer()
-                  Image(systemName: "arrow.up.right.square")
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textTertiary)
-               }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(info, forType: .string)
+        copiedSystemInfo = true
+
+        Task {
+            try? await Task.sleep(for: .seconds(2))
+            copiedSystemInfo = false
+        }
+    }
+
+    private func revealLogsInFinder() {
+        NSWorkspace.shared.activateFileViewerSelecting([Log.currentLogFileURL])
+    }
+
+    private var chipType: String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machine = withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                String(validatingUTF8: $0)
             }
-         }
-      }
-   }
+        }
 
-   private var linksSection: some View {
-      SettingsCard(title: localized("Support", locale: locale), icon: "questionmark.circle.fill") {
-         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Link(destination: URL(string: "https://github.com/watzon/pindrop/issues")!) {
-               HStack {
-                  Text(localized("Report an Issue", locale: locale))
-                     .font(AppTypography.body)
-                     .foregroundStyle(AppColors.textPrimary)
-                  Spacer()
-                  Image(systemName: "arrow.up.right.square")
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textTertiary)
-               }
-            }
+        switch machine {
+        case "arm64": return "Apple Silicon"
+        case "x86_64": return "Intel"
+        default: return machine ?? "Unknown"
+        }
+    }
 
-            Divider()
-               .background(AppColors.divider)
+    private var activeModel: String {
+        settings.selectedModel.isEmpty ? "Not loaded" : settings.selectedModel
+    }
 
-            HStack {
-               Text(localized("Copy System Info for Bug Report", locale: locale))
-                  .font(AppTypography.body)
-                  .foregroundStyle(AppColors.textPrimary)
-               Spacer()
-               Button(action: copySystemInfo) {
-                  Image(systemName: showCopyConfirmation ? "checkmark" : "doc.on.doc")
-                     .font(AppTypography.caption)
-                     .foregroundStyle(showCopyConfirmation ? .green : AppColors.textTertiary)
-               }
-               .buttonStyle(.plain)
-               .disabled(showCopyConfirmation)
-            }
+    private static var isPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
 
-            Divider()
-               .background(AppColors.divider)
+    private var appIcon: Image {
+        Self.isPreview ? Image(systemName: "mic.fill") : Image(nsImage: NSApp.applicationIconImage)
+    }
 
-            HStack {
-                Text(localized("Open Logs in Finder", locale: locale))
-                  .font(AppTypography.body)
-                  .foregroundStyle(AppColors.textPrimary)
-               Spacer()
-                Button(localized("Open", locale: locale)) {
-                  revealLogsInFinder()
-               }
-               .font(AppTypography.caption)
-               .buttonStyle(.plain)
-               .foregroundStyle(AppColors.textTertiary)
-            }
+    private var appVersion: String {
+        Self.isPreview ? "1.0.0" : Bundle.main.appShortVersionString
+    }
 
-             Text(localized("Attach logs from this folder when filing a GitHub issue.", locale: locale))
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textTertiary)
-
-            Divider()
-               .background(AppColors.divider)
-
-             Text(localized("MIT License", locale: locale))
-               .font(AppTypography.body)
-               .foregroundStyle(AppColors.textSecondary)
-               .padding(.top, AppTheme.Spacing.xs)
-
-             Text(localized("Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License.", locale: locale))
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textTertiary)
-               .fixedSize(horizontal: false, vertical: true)
-         }
-      }
-   }
-
-   // MARK: - System Info
-
-   private func copySystemInfo() {
-      let info = """
-         Pindrop: \(appVersion) (\(buildNumber))
-         macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
-         Chip: \(chipType)
-         Model: \(activeModel)
-         """
-
-      NSPasteboard.general.clearContents()
-      NSPasteboard.general.setString(info, forType: .string)
-
-      withAnimation {
-         showCopyConfirmation = true
-      }
-
-      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-         withAnimation {
-            showCopyConfirmation = false
-         }
-      }
-   }
-
-   private func revealLogsInFinder() {
-      NSWorkspace.shared.activateFileViewerSelecting([Log.currentLogFileURL])
-   }
-
-   private var chipType: String {
-      var sysinfo = utsname()
-      uname(&sysinfo)
-      let machine = withUnsafePointer(to: &sysinfo.machine) {
-         $0.withMemoryRebound(to: CChar.self, capacity: 1) {
-            String(validatingUTF8: $0)
-         }
-      }
-      // Map common arch values
-      switch machine {
-      case "arm64":
-         return "Apple Silicon"
-      case "x86_64":
-         return "Intel"
-      default:
-         return machine ?? "Unknown"
-      }
-   }
-
-   private var activeModel: String {
-      // Get from SettingsStore
-      let modelName = SettingsStore().selectedModel
-      return modelName.isEmpty ? "Not loaded" : modelName
-   }
-
-   // MARK: - Preview Detection
-
-   private static var isPreview: Bool {
-      ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-   }
-
-   private var appIcon: Image {
-      if Self.isPreview {
-         return Image(systemName: "mic.fill")
-      }
-      return Image(nsImage: NSApp.applicationIconImage)
-   }
-
-   private var appVersion: String {
-      if Self.isPreview {
-         return "1.0.0"
-      }
-      return Bundle.main.appShortVersionString
-   }
-
-   private var buildNumber: String {
-      if Self.isPreview {
-         return "1"
-      }
-      return Bundle.main.appBuildVersionString
-   }
+    private var buildNumber: String {
+        Self.isPreview ? "1" : Bundle.main.appBuildVersionString
+    }
 }
 
 #Preview {
-   AboutSettingsView()
-      .padding()
-      .frame(width: 500)
+    AboutSettingsView(settings: SettingsStore())
+        .frame(width: 620, height: 560)
 }

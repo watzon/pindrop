@@ -5,6 +5,7 @@
 //  Created on 2026-04-15.
 //
 
+import AppKit
 import SwiftUI
 
 struct MCPSettingsView: View {
@@ -12,195 +13,162 @@ struct MCPSettingsView: View {
     @Environment(\.locale) private var locale
 
     @State private var selectedClient: MCPClient = .claudeCode
-    @State private var opencodeIsGlobal: Bool = true
-    @State private var portText: String = ""
-    @State private var showCopiedFeedback = false
-    @State private var showTokenCopiedFeedback = false
+    @State private var opencodeIsGlobal = true
+    @State private var portText = ""
+    @State private var copiedSnippet = false
+    @State private var copiedToken = false
+    @State private var errorMessage: String?
 
     private var token: String {
-        settings.loadMCPToken() ?? "(not generated yet — enable the server)"
+        settings.loadMCPToken() ?? localized("Not generated yet — enable the server", locale: locale)
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
-            serverCard
+        Form {
+            Section {
+                Toggle(
+                    localized("Enable MCP Server", locale: locale),
+                    isOn: $settings.mcpServerEnabled
+                )
+                .accessibilityIdentifier("settings.toggle.mcpServerEnabled")
+
+                if settings.mcpServerEnabled {
+                    LabeledContent(localized("Port", locale: locale)) {
+                        TextField("46337", text: $portText)
+                            .frame(width: 84)
+                            .multilineTextAlignment(.trailing)
+                            .onSubmit { applyPort() }
+                            .onChange(of: portText) { _, newValue in
+                                let digits = newValue.filter(\.isNumber)
+                                if digits != newValue {
+                                    portText = digits
+                                }
+                            }
+                            .accessibilityIdentifier("settings.field.mcpPort")
+                    }
+
+                    LabeledContent(localized("Bearer Token", locale: locale)) {
+                        HStack {
+                            Button {
+                                copyToken()
+                            } label: {
+                                Label(
+                                    copiedToken ? localized("Copied!", locale: locale) : token,
+                                    systemImage: copiedToken ? "checkmark" : "doc.on.doc"
+                                )
+                                .font(.system(.caption, design: .monospaced))
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            }
+                            .accessibilityIdentifier("settings.button.copyMCPToken")
+
+                            Button(localized("Regenerate", locale: locale)) {
+                                regenerateToken()
+                            }
+                        }
+                    }
+                }
+            } header: {
+                Text(localized("MCP Server", locale: locale))
+            } footer: {
+                Text(
+                    settings.mcpServerEnabled
+                        ? localized("Port changes take effect the next time the server starts.", locale: locale)
+                        : localized("Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers.", locale: locale)
+                )
+            }
+
             if settings.mcpServerEnabled {
-                integrationsCard
+                Section {
+                    Picker(localized("Client", locale: locale), selection: $selectedClient) {
+                        ForEach(MCPClient.allCases) { client in
+                            Text(client.displayName)
+                                .tag(client)
+                        }
+                    }
+                    .accessibilityIdentifier("settings.picker.mcpClient")
+                    .onChange(of: selectedClient) { _, _ in copiedSnippet = false }
+
+                    if selectedClient == .opencode {
+                        Picker(localized("Configuration Scope", locale: locale), selection: $opencodeIsGlobal) {
+                            Text(localized("Global", locale: locale)).tag(true)
+                            Text(localized("Project", locale: locale)).tag(false)
+                        }
+                        .pickerStyle(.segmented)
+                        .onChange(of: opencodeIsGlobal) { _, _ in copiedSnippet = false }
+                    }
+
+                    Text(selectedClient.instructions(isGlobal: opencodeIsGlobal, locale: locale))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    LabeledContent(localized("Configuration File", locale: locale)) {
+                        Text(selectedClient.configFilePath(isGlobal: opencodeIsGlobal))
+                            .font(.system(.caption, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text(localized("Configuration Snippet", locale: locale))
+                            Spacer()
+                            Button(
+                                copiedSnippet
+                                    ? localized("Copied!", locale: locale)
+                                    : localized("Copy", locale: locale)
+                            ) {
+                                copySnippet()
+                            }
+                            .accessibilityIdentifier("settings.button.copyMCPSnippet")
+                        }
+
+                        ScrollView([.horizontal, .vertical]) {
+                            Text(configSnippet)
+                                .font(.system(.caption, design: .monospaced))
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(8)
+                        }
+                        .frame(minHeight: 150, maxHeight: 240)
+                        .background(Color(nsColor: .textBackgroundColor))
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(Color(nsColor: .separatorColor))
+                        }
+                    }
+                } header: {
+                    Text(localized("Agent Setup", locale: locale))
+                } footer: {
+                    Text(localized("Copy the configuration snippet into your preferred AI agent host.", locale: locale))
+                }
             }
         }
+        .formStyle(.grouped)
         .onAppear {
             portText = "\(settings.mcpServerPort)"
         }
-    }
-
-    // MARK: - Server Card
-
-    private var serverCard: some View {
-        SettingsCard(
-            title: localized("MCP Server", locale: locale),
-            icon: "network",
-            detail: localized("Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers — without touching the Pindrop UI.", locale: locale)
-        ) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-                SettingsToggleRow(
-                    title: localized("Enable MCP Server", locale: locale),
-                    detail: localized("Starts a local HTTP server on the configured port.", locale: locale),
-                    isOn: $settings.mcpServerEnabled
-                )
-
-                if settings.mcpServerEnabled {
-                    SettingsDivider()
-
-                    portRow
-                    tokenRow
-                }
-            }
-        }
-    }
-
-    private var portRow: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(localized("Port", locale: locale))
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textPrimary)
-                Text(localized("Default: 46337. Changes take effect on next server restart.", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-            }
-            Spacer()
-            TextField("46337", text: $portText)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 80)
-                .multilineTextAlignment(.center)
-                .onSubmit { applyPort() }
-                .onChange(of: portText) { _, new in
-                    let digits = new.filter(\.isNumber)
-                    if digits != new { portText = digits }
-                }
-        }
-    }
-
-    private var tokenRow: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(localized("Bearer Token", locale: locale))
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textPrimary)
-                    Text(localized("Click the token to copy it to your clipboard.", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
-                }
-                Spacer()
-                Button(localized("Regenerate", locale: locale)) {
-                    regenerateToken()
-                }
-                .buttonStyle(.plain)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textSecondary)
-            }
-
-            Button {
-                copyToken()
-            } label: {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Text(showTokenCopiedFeedback ? localized("Copied!", locale: locale) : token)
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(showTokenCopiedFeedback ? AppColors.accent : AppColors.textSecondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Image(systemName: showTokenCopiedFeedback ? "checkmark" : "doc.on.doc")
-                        .font(.system(size: 11))
-                        .foregroundStyle(showTokenCopiedFeedback ? AppColors.accent : AppColors.textTertiary)
-                }
-                .padding(AppTheme.Spacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous)
-                        .fill(AppColors.inputBackground)
-                )
-            }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
-        }
-    }
-
-    // MARK: - Integrations Card
-
-    private var integrationsCard: some View {
-        SettingsCard(
-            title: localized("Integration Instructions", locale: locale),
-            icon: "doc.plaintext",
-            detail: localized("Copy the configuration snippet for your preferred AI agent host.", locale: locale)
-        ) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-                Picker("", selection: $selectedClient) {
-                    ForEach(MCPClient.allCases) { client in
-                        Text(client.displayName).tag(client)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .onChange(of: selectedClient) { _, _ in showCopiedFeedback = false }
-
-                if selectedClient == .opencode {
-                    Picker("", selection: $opencodeIsGlobal) {
-                        Text(localized("Global", locale: locale)).tag(true)
-                        Text(localized("Project", locale: locale)).tag(false)
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .frame(maxWidth: 180, alignment: .leading)
-                    .onChange(of: opencodeIsGlobal) { _, _ in showCopiedFeedback = false }
-                }
-
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                    Text(selectedClient.instructions(isGlobal: opencodeIsGlobal))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
-
-                    configSnippetView
-                }
-            }
-        }
-    }
-
-    private var configSnippetView: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-            HStack {
-                Text(selectedClient.configFilePath(isGlobal: opencodeIsGlobal))
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(AppColors.textTertiary)
-                Spacer()
-                Button(showCopiedFeedback ? localized("Copied!", locale: locale) : localized("Copy snippet", locale: locale)) {
-                    copySnippet()
-                }
-                .buttonStyle(.plain)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.accent)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                Text(configSnippet)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .textSelection(.enabled)
-                    .padding(AppTheme.Spacing.sm)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.sm, style: .continuous)
-                    .fill(AppColors.inputBackground)
+        .alert(
+            localized("MCP Configuration Error", locale: locale),
+            isPresented: Binding(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
             )
+        ) {
+            Button(localized("OK", locale: locale), role: .cancel) {}
+        } message: {
+            if let errorMessage {
+                Text(errorMessage)
+            }
         }
     }
-
-    // MARK: - Helpers
 
     private var configSnippet: String {
-        selectedClient.configSnippet(port: settings.mcpServerPort, token: token, isGlobal: opencodeIsGlobal)
+        selectedClient.configSnippet(
+            port: settings.mcpServerPort,
+            token: token,
+            isGlobal: opencodeIsGlobal
+        )
     }
 
     private func applyPort() {
@@ -214,77 +182,78 @@ struct MCPSettingsView: View {
     private func copyToken() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(token, forType: .string)
-        showTokenCopiedFeedback = true
+        copiedToken = true
         Task {
             try? await Task.sleep(for: .seconds(2))
-            showTokenCopiedFeedback = false
+            copiedToken = false
         }
     }
 
     private func copySnippet() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(configSnippet, forType: .string)
-        showCopiedFeedback = true
+        copiedSnippet = true
         Task {
             try? await Task.sleep(for: .seconds(2))
-            showCopiedFeedback = false
+            copiedSnippet = false
         }
     }
 
     private func regenerateToken() {
-        let newToken = MCPTokenGenerator.generate()
-        try? settings.saveMCPToken(newToken)
+        do {
+            try settings.saveMCPToken(MCPTokenGenerator.generate())
+        } catch {
+            Log.ui.error("Failed to regenerate MCP token: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
     }
 }
 
-// MARK: - MCP Client Definitions
-
 enum MCPClient: String, CaseIterable, Identifiable {
     case claudeCode = "claude_code"
-    case cursor = "cursor"
-    case codex = "codex"
-    case opencode = "opencode"
+    case cursor
+    case codex
+    case opencode
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .claudeCode: return "Claude Code"
-        case .cursor:     return "Cursor"
-        case .codex:      return "Codex CLI"
-        case .opencode:   return "OpenCode"
+        case .claudeCode: "Claude Code"
+        case .cursor: "Cursor"
+        case .codex: "Codex CLI"
+        case .opencode: "OpenCode"
         }
     }
 
-    /// `isGlobal` is only meaningful for .opencode; ignored by other cases.
     func configFilePath(isGlobal: Bool = true) -> String {
         switch self {
-        case .claudeCode: return ".claude/settings.json"
-        case .cursor:     return ".cursor/mcp.json"
-        case .codex:      return "~/.codex/config.toml"
-        case .opencode:   return isGlobal ? "~/.config/opencode/opencode.json" : "opencode.json"
+        case .claudeCode: ".claude/settings.json"
+        case .cursor: ".cursor/mcp.json"
+        case .codex: "~/.codex/config.toml"
+        case .opencode: isGlobal ? "~/.config/opencode/opencode.json" : "opencode.json"
         }
     }
 
-    func instructions(isGlobal: Bool = true) -> String {
+    func instructions(isGlobal: Bool = true, locale: Locale) -> String {
         switch self {
         case .claudeCode:
-            return "Add to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+            localized("Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access.", locale: locale)
         case .cursor:
-            return "Add to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json to apply to all projects. Restart Cursor after saving."
+            localized("Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving.", locale: locale)
         case .codex:
-            return "Add to ~/.codex/config.toml. Project-scoped config can live in .codex/config.toml (trusted projects only)."
+            localized("Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects.", locale: locale)
         case .opencode:
-            return isGlobal
-                ? "Add to ~/.config/opencode/opencode.json for user-wide access across all projects."
-                : "Add to opencode.json in your project root for project-specific access."
+            isGlobal
+                ? localized("Add this to ~/.config/opencode/opencode.json for user-wide access across all projects.", locale: locale)
+                : localized("Add this to opencode.json in your project root for project-specific access.", locale: locale)
         }
     }
 
     func configSnippet(port: Int, token: String, isGlobal: Bool = true) -> String {
         switch self {
         case .claudeCode:
-            return """
+            """
             {
               "mcpServers": {
                 "pindrop": {
@@ -298,8 +267,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
             }
             """
         case .cursor:
-            // Cursor HTTP servers: url + headers, no type field required
-            return """
+            """
             {
               "mcpServers": {
                 "pindrop": {
@@ -312,15 +280,13 @@ enum MCPClient: String, CaseIterable, Identifiable {
             }
             """
         case .codex:
-            // Codex CLI uses TOML at ~/.codex/config.toml
-            return """
+            """
             [mcp_servers.pindrop]
             url = "http://localhost:\(port)/mcp"
             http_headers = { "Authorization" = "Bearer \(token)" }
             """
         case .opencode:
-            // OpenCode uses JSON with a top-level "mcp" key and type "remote"
-            return """
+            """
             {
               "$schema": "https://opencode.ai/config.json",
               "mcp": {
@@ -336,4 +302,9 @@ enum MCPClient: String, CaseIterable, Identifiable {
             """
         }
     }
+}
+
+#Preview {
+    MCPSettingsView(settings: SettingsStore())
+        .frame(width: 620, height: 600)
 }

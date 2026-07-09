@@ -474,7 +474,9 @@ final class AppCoordinator {
         self.splashController = SplashWindowController(state: splashState)
         self.settingsWindowController = SettingsWindowController(
             settings: settingsStore,
-            modelContainer: modelContainer
+            modelContainer: modelContainer,
+            launchAtLoginManager: launchAtLoginManager,
+            updateService: updateService
         )
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)

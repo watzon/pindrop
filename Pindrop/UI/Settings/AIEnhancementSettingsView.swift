@@ -43,12 +43,13 @@ struct AIEnhancementSettingsView: View {
    }
 
    var body: some View {
-      VStack(spacing: AppTheme.Spacing.xl) {
+      Form {
          providersCard
          assignmentsCard
          streamingEnhancementCard
          contextCard
       }
+      .formStyle(.grouped)
       .task {
          loadPresets()
          refreshPermissionStates()
@@ -113,112 +114,63 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Providers Card
 
    private var providersCard: some View {
-      SettingsCard(
-         title: localized("Providers", locale: locale),
-         icon: "server.rack",
-         detail: localized("Configure AI providers and credentials. Apple Intelligence runs on-device; other providers require API keys.", locale: locale)
-      ) {
-         VStack(spacing: 10) {
-            if settings.providers.isEmpty {
-               emptyProvidersPlaceholder
-            } else {
-               ForEach(settings.providers) { provider in
-                  providerRow(provider)
-               }
-            }
-
-            HStack {
-               Spacer()
-               Button {
-                  editingProvider = ProviderEditState.newProvider()
-               } label: {
-                  HStack(spacing: 6) {
-                     Image(systemName: "plus")
-                     Text(localized("Add Provider", locale: locale))
-                  }
-               }
-               .buttonStyle(.borderedProminent)
+      Section {
+         if settings.providers.isEmpty {
+            emptyProvidersPlaceholder
+         } else {
+            ForEach(settings.providers) { provider in
+               providerRow(provider)
             }
          }
+
+         Button {
+            editingProvider = ProviderEditState.newProvider()
+         } label: {
+            Label(localized("Add Provider", locale: locale), systemImage: "plus")
+         }
+         .accessibilityIdentifier("settings.button.addProvider")
+      } header: {
+         Text(localized("Providers", locale: locale))
+      } footer: {
+         Text(localized("Configure AI providers and credentials. Apple Intelligence runs on-device; other providers require API keys.", locale: locale))
       }
    }
 
    private var emptyProvidersPlaceholder: some View {
-      VStack(spacing: 8) {
-         IconView(icon: .server, size: 28)
-            .foregroundStyle(AppColors.textSecondary)
-         Text(localized("No providers configured yet.", locale: locale))
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.textPrimary)
+      ContentUnavailableView {
+         Label(localized("No providers configured yet", locale: locale), systemImage: "server.rack")
+      } description: {
          Text(localized("Add a provider to start using AI enhancement.", locale: locale))
-            .font(AppTypography.caption)
-            .foregroundStyle(AppColors.textSecondary)
       }
-      .frame(maxWidth: .infinity)
-      .padding(.vertical, 16)
    }
 
    private func providerRow(_ provider: ProviderConfig) -> some View {
-      HStack(alignment: .center, spacing: 12) {
-         ZStack {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-               .fill(AppColors.accentBackground)
-               .frame(width: 32, height: 32)
-            IconView(icon: provider.kind.icon, size: 16)
-               .foregroundStyle(AppColors.accent)
-         }
+      LabeledContent {
+         HStack {
+            if provider.kind == .apple {
+               Button(localized("Rename", locale: locale)) {
+                  editingProvider = ProviderEditState(existing: provider, settings: settings)
+               }
+            } else {
+               Button(localized("Edit", locale: locale)) {
+                  editingProvider = ProviderEditState(existing: provider, settings: settings)
+               }
 
+               Button(localized("Remove", locale: locale), role: .destructive) {
+                  providerPendingDeletion = provider
+               }
+            }
+         }
+      } label: {
          VStack(alignment: .leading, spacing: 2) {
             Text(provider.displayName)
-               .font(AppTypography.body)
-               .foregroundStyle(AppColors.textPrimary)
-
-            HStack(spacing: 6) {
-               Text(providerKindLabel(provider))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-
-               Text("•")
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-
-               Text(providerStatusLine(provider))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-                  .lineLimit(1)
-                  .truncationMode(.middle)
-            }
-         }
-
-         Spacer(minLength: 0)
-
-         if provider.kind == .apple {
-            Button(localized("Rename", locale: locale)) {
-               editingProvider = ProviderEditState(existing: provider, settings: settings)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-         } else {
-            Button(localized("Edit", locale: locale)) {
-               editingProvider = ProviderEditState(existing: provider, settings: settings)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-
-            Button(localized("Remove", locale: locale)) {
-               providerPendingDeletion = provider
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .tint(AppColors.error)
+            Text("\(providerKindLabel(provider)) · \(providerStatusLine(provider))")
+               .font(.caption)
+               .foregroundStyle(.secondary)
+               .lineLimit(1)
+               .truncationMode(.middle)
          }
       }
-      .padding(12)
-      .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-      .overlay(
-         RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
-      )
    }
 
    private func providerKindLabel(_ provider: ProviderConfig) -> String {
@@ -279,19 +231,14 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Assignments Card
 
    private var assignmentsCard: some View {
-      SettingsCard(
-         title: localized("Assignments", locale: locale),
-         icon: "arrow.triangle.branch",
-         detail: localized("Pick which provider and model handles each AI task. Leave as \"Not assigned\" to skip a purpose.", locale: locale)
-      ) {
-         VStack(spacing: AppTheme.Spacing.lg) {
-            ForEach(EnhancementPurpose.allCases, id: \.self) { purpose in
-               assignmentRow(for: purpose)
-               if purpose != EnhancementPurpose.allCases.last {
-                  Divider().overlay(AppColors.divider)
-               }
-            }
+      Section {
+         ForEach(EnhancementPurpose.allCases, id: \.self) { purpose in
+            assignmentRow(for: purpose)
          }
+      } header: {
+         Text(localized("Assignments", locale: locale))
+      } footer: {
+         Text(localized("Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it.", locale: locale))
       }
    }
 
@@ -300,100 +247,78 @@ struct AIEnhancementSettingsView: View {
       let assignment = settings.assignment(for: purpose)
       let selectedProvider = assignment.flatMap { settings.provider(withID: $0.providerID) }
 
-      VStack(alignment: .leading, spacing: 10) {
-         HStack(alignment: .firstTextBaseline) {
-            Text(purposeLabel(purpose))
-               .font(AppTypography.body)
-               .fontWeight(.medium)
-               .foregroundStyle(AppColors.textPrimary)
-
-            Spacer()
-         }
+      VStack(alignment: .leading, spacing: 8) {
+         Text(purposeLabel(purpose))
+            .font(.headline)
 
          if let helper = purposeHelperText(purpose) {
             Text(helper)
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textSecondary)
+               .font(.caption)
+               .foregroundStyle(.secondary)
                .fixedSize(horizontal: false, vertical: true)
          }
 
-         // Provider picker
-         HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-               Text(localized("Provider", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-               SelectField(
-                  options: providerOptions,
-                  selection: providerSelectionBinding(for: purpose),
-                  placeholder: localized("Not assigned", locale: locale)
-               )
+         Picker(
+            localized("Provider", locale: locale),
+            selection: providerSelectionBinding(for: purpose)
+         ) {
+            Text(localized("Not assigned", locale: locale))
+               .tag(unassignedProviderID)
+            ForEach(settings.providers) { provider in
+               Text(provider.displayName)
+                  .tag(provider.id.uuidString)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            VStack(alignment: .leading, spacing: 4) {
-               Text(localized("Model", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-               modelPicker(for: purpose, provider: selectedProvider)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
          }
 
-         // Preset picker + inline custom editor — only exposed for purposes whose prompt
-         // the user can customize. Locked purposes (streaming refinement, metadata
-         // generators) use a built-in prompt that's tuned for a specific output schema or
-         // coordinator diff path; letting users change it silently breaks those systems.
+         LabeledContent(localized("Model", locale: locale)) {
+            modelPicker(for: purpose, provider: selectedProvider)
+               .frame(maxWidth: 300)
+         }
+
          if purpose.supportsUserPrompt {
-            VStack(alignment: .leading, spacing: 4) {
+            LabeledContent(localized("Prompt Preset", locale: locale)) {
                HStack {
-                  Text(localized("Prompt Preset", locale: locale))
-                     .font(AppTypography.caption)
-                     .foregroundStyle(AppColors.textSecondary)
-                  Spacer()
-                  Button(localized("Manage Presets...", locale: locale)) {
+                  Picker("", selection: presetSelectionBinding(for: purpose)) {
+                     Text(localized("Custom", locale: locale))
+                        .tag(customPresetSentinel)
+                     ForEach(presets) { preset in
+                        Text(preset.name)
+                           .tag(preset.builtInIdentifier ?? preset.id.uuidString)
+                     }
+                  }
+                  .labelsHidden()
+                  .disabled(selectedProvider == nil)
+
+                  Button(localized("Manage Presets…", locale: locale)) {
                      showPresetManagement = true
                   }
-                  .buttonStyle(.borderless)
-                  .controlSize(.small)
-                  .font(.caption)
-               }
-               SelectField(
-                  options: presetOptions,
-                  selection: presetSelectionBinding(for: purpose),
-                  placeholder: localized("Custom", locale: locale)
-               )
-               .disabled(selectedProvider == nil)
-
-               if isCustomPresetSelected(for: purpose) {
-                  customPromptEditor(for: purpose)
                }
             }
+
+            if isCustomPresetSelected(for: purpose) {
+               customPromptEditor(for: purpose)
+            }
          } else {
-            Text(localized("Uses a built-in prompt tuned for this task.", locale: locale))
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textSecondary)
-               .fixedSize(horizontal: false, vertical: true)
+            Label(
+               localized("Uses a built-in prompt tuned for this task.", locale: locale),
+               systemImage: "lock.fill"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
          }
 
-         // Apple availability inline warning
          if let provider = selectedProvider, provider.kind == .apple,
             !isAppleIntelligenceAvailable
          {
-            HStack(alignment: .top, spacing: 6) {
-               IconView(icon: .warning, size: 12)
-                  .foregroundStyle(AppColors.warning)
-               Text(localized("Apple Intelligence is unavailable on this system. This assignment will not resolve until Apple Intelligence is enabled.", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-                  .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColors.warningBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Label(
+               localized("Apple Intelligence is unavailable on this system. This assignment will not resolve until Apple Intelligence is enabled.", locale: locale),
+               systemImage: "exclamationmark.triangle.fill"
+            )
+            .font(.caption)
+            .foregroundStyle(.orange)
          }
       }
-      .padding(.vertical, 4)
+      .padding(.vertical, 2)
    }
 
    private func purposeLabel(_ purpose: EnhancementPurpose) -> String {
@@ -423,18 +348,6 @@ struct AIEnhancementSettingsView: View {
    }
 
    // MARK: - Provider selection binding
-
-   private var providerOptions: [SelectFieldOption] {
-      var opts: [SelectFieldOption] = [
-         SelectFieldOption(id: unassignedProviderID, displayName: localized("Not assigned", locale: locale))
-      ]
-      opts.append(
-         contentsOf: settings.providers.map {
-            SelectFieldOption(id: $0.id.uuidString, displayName: $0.displayName)
-         }
-      )
-      return opts
-   }
 
    private func providerSelectionBinding(for purpose: EnhancementPurpose) -> Binding<String> {
       Binding(
@@ -504,10 +417,7 @@ struct AIEnhancementSettingsView: View {
       if let provider {
          if provider.kind == .apple {
             Text(localized("Apple Foundation Models (on-device)", locale: locale))
-               .font(AppTypography.body)
-               .foregroundStyle(AppColors.textSecondary)
-               .frame(maxWidth: .infinity, alignment: .leading)
-               .aiSettingsInputChrome()
+               .foregroundStyle(.secondary)
          } else if provider.kind == .custom
             && !(provider.customKind ?? .custom).supportsModelListing
          {
@@ -515,8 +425,7 @@ struct AIEnhancementSettingsView: View {
                (provider.customKind ?? .custom).modelPlaceholder,
                text: modelTextFieldBinding(for: purpose, provider: provider)
             )
-            .textFieldStyle(.plain)
-            .aiSettingsInputChrome()
+            .textFieldStyle(.roundedBorder)
          } else {
             let models = modelListCache[provider.id] ?? []
             if models.isEmpty {
@@ -524,29 +433,24 @@ struct AIEnhancementSettingsView: View {
                   if modelListLoading.contains(provider.id) {
                      ProgressView().controlSize(.small)
                      Text(localized("Loading models...", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                   } else if let err = modelListErrors[provider.id] {
                      Text(err)
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
                         .lineLimit(1)
                         .truncationMode(.tail)
                   } else {
                      Text(localized("No models loaded. Open Edit to fetch models.", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                   }
                   Spacer()
                   Button(localized("Refresh", locale: locale)) {
                      Task { await refreshModels(for: provider, force: true) }
                   }
-                  .buttonStyle(.borderless)
-                  .font(.caption)
-                  .controlSize(.small)
                }
-               .frame(maxWidth: .infinity, alignment: .leading)
-               .aiSettingsInputChrome()
             } else {
                SearchableDropdown(
                   items: models,
@@ -559,10 +463,7 @@ struct AIEnhancementSettingsView: View {
          }
       } else {
          Text(localized("Choose a provider first", locale: locale))
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .aiSettingsInputChrome()
+            .foregroundStyle(.secondary)
       }
    }
 
@@ -613,21 +514,6 @@ struct AIEnhancementSettingsView: View {
 
    // MARK: - Preset binding
 
-   private var presetOptions: [SelectFieldOption] {
-      var opts: [SelectFieldOption] = [
-         SelectFieldOption(id: customPresetSentinel, displayName: localized("Custom", locale: locale))
-      ]
-      opts.append(
-         contentsOf: presets.map {
-            SelectFieldOption(
-               id: $0.builtInIdentifier ?? $0.id.uuidString,
-               displayName: $0.name
-            )
-         }
-      )
-      return opts
-   }
-
    private func presetSelectionBinding(for purpose: EnhancementPurpose) -> Binding<String> {
       Binding(
          get: {
@@ -670,15 +556,8 @@ struct AIEnhancementSettingsView: View {
       let binding = promptOverrideBinding(for: purpose)
       VStack(alignment: .leading, spacing: 6) {
          TextEditor(text: binding)
-            .font(AppTypography.body)
             .frame(minHeight: 110, maxHeight: 220)
-            .padding(8)
-            .scrollContentBackground(.hidden)
-            .background(AppColors.inputBackground, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(
-               RoundedRectangle(cornerRadius: 8, style: .continuous)
-                  .strokeBorder(AppColors.inputBorder, lineWidth: 1)
-            )
+            .accessibilityIdentifier("settings.editor.prompt.\(purpose.rawValue)")
 
          Text(
             String(
@@ -686,8 +565,8 @@ struct AIEnhancementSettingsView: View {
                binding.wrappedValue.count
             )
          )
-         .font(AppTypography.caption)
-         .foregroundStyle(AppColors.textSecondary)
+         .font(.caption)
+         .foregroundStyle(.secondary)
          .frame(maxWidth: .infinity, alignment: .trailing)
       }
    }
@@ -742,28 +621,19 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Streaming Enhancement Card
 
    private var streamingEnhancementCard: some View {
-      SettingsCard(
-         title: localized("Streaming Enhancement", locale: locale),
-         icon: "text.bubble.fill",
-         detail: localized("Controls how the live dictation path polishes transcripts. The deterministic cleaner (filler removal, capitalization, spoken punctuation, number normalization, split-word merging) runs either way — this toggle gates the optional LLM polish pass that fires once dictation stops.", locale: locale)
-      ) {
-         VStack(alignment: .leading, spacing: 12) {
-            Toggle(
-               localized("Run LLM polish after dictation stops", locale: locale),
-               isOn: $settings.streamingPostStopEnhancementEnabled
-            )
-            .toggleStyle(.switch)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            if settings.streamingPostStopEnhancementEnabled {
-               Text(localized("Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is.", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-            } else {
-               Text(localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks (preamble, conversational replies).", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-            }
+      Section {
+         Toggle(
+            localized("Run LLM polish after dictation stops", locale: locale),
+            isOn: $settings.streamingPostStopEnhancementEnabled
+         )
+         .accessibilityIdentifier("settings.toggle.streamingPostStopEnhancement")
+      } header: {
+         Text(localized("Dictation Polish", locale: locale))
+      } footer: {
+         if settings.streamingPostStopEnhancementEnabled {
+            Text(localized("Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is.", locale: locale))
+         } else {
+            Text(localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.", locale: locale))
          }
       }
    }
@@ -771,90 +641,70 @@ struct AIEnhancementSettingsView: View {
    // MARK: - Context Card (vibe mode)
 
    private var contextCard: some View {
-      SettingsCard(title: localized("Vibe Mode", locale: locale), icon: "wand.and.stars") {
-         VStack(alignment: .leading, spacing: 16) {
-            Text(localized("Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference.", locale: locale))
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textSecondary)
-
-            Toggle(
-               localized("Enable vibe mode (UI context)", locale: locale),
-               isOn: Binding(
-                  get: { settings.enableUIContext },
-                  set: { newValue in
-                     settings.enableUIContext = newValue
-                     if newValue {
-                        requestAccessibilityPermissionIfNeeded()
-                     }
+      Section {
+         Toggle(
+            localized("Enable vibe mode (UI context)", locale: locale),
+            isOn: Binding(
+               get: { settings.enableUIContext },
+               set: { newValue in
+                  settings.enableUIContext = newValue
+                  if newValue {
+                     requestAccessibilityPermissionIfNeeded()
                   }
-               )
+               }
             )
-            .toggleStyle(.switch)
-            .frame(maxWidth: .infinity, alignment: .leading)
+         )
+         .accessibilityIdentifier("settings.toggle.enableUIContext")
 
+         if settings.enableUIContext {
             Toggle(
                localized("Enable live session updates during recording", locale: locale),
                isOn: $settings.vibeLiveSessionEnabled
             )
-            .toggleStyle(.switch)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("settings.toggle.vibeLiveSessionEnabled")
 
-            HStack(spacing: 6) {
-               IconView(icon: accessibilityPermissionGranted ? .check : .info, size: 12)
-                  .foregroundStyle(accessibilityPermissionGranted ? AppColors.success : AppColors.textSecondary)
-               Text(
+            Toggle(
+               localized("Include clipboard text", locale: locale),
+               isOn: $settings.enableClipboardContext
+            )
+            .accessibilityIdentifier("settings.toggle.enableClipboardContext")
+         }
+
+         LabeledContent(localized("Accessibility Permission", locale: locale)) {
+            HStack {
+               Label(
                   accessibilityPermissionGranted
-                     ? localized("Accessibility permission is enabled. Full UI context is available.", locale: locale)
-                     : localized("Accessibility permission is not granted. Vibe mode remains non-blocking with limited context.", locale: locale)
+                     ? localized("Enabled", locale: locale)
+                     : localized("Not Granted", locale: locale),
+                  systemImage: accessibilityPermissionGranted ? "checkmark.circle.fill" : "info.circle"
                )
-               .font(AppTypography.caption)
-               .foregroundStyle(AppColors.textSecondary)
+               .foregroundStyle(accessibilityPermissionGranted ? .green : .secondary)
 
                if !accessibilityPermissionGranted {
-                  Spacer(minLength: 8)
-                  Button(localized("Open Settings", locale: locale)) {
+                  Button(localized("Open System Settings", locale: locale)) {
                      PermissionManager().openAccessibilityPreferences()
                   }
-                  .buttonStyle(.borderless)
-                  .font(.caption)
                }
             }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(
-               RoundedRectangle(cornerRadius: 8, style: .continuous)
-                  .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
-            )
+         }
 
-            VStack(alignment: .leading, spacing: 6) {
+         LabeledContent(localized("Runtime Status", locale: locale)) {
+            VStack(alignment: .trailing, spacing: 2) {
                HStack(spacing: 6) {
                   Circle()
                      .fill(vibeRuntimeColor)
                      .frame(width: 8, height: 8)
-                  Text(String(format: localized("Runtime: %@", locale: locale), vibeRuntimeLabel))
-                     .font(.caption.weight(.semibold))
-                     .foregroundStyle(vibeRuntimeColor)
+                  Text(vibeRuntimeLabel)
                }
-
                Text(settings.vibeRuntimeDetail)
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(
-               RoundedRectangle(cornerRadius: 8, style: .continuous)
-                  .strokeBorder(AppColors.border.opacity(0.5), lineWidth: 1)
-            )
-
-            VStack(spacing: 12) {
-               Toggle(localized("Include clipboard text", locale: locale), isOn: $settings.enableClipboardContext)
-                  .toggleStyle(.switch)
-                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
             }
          }
+      } header: {
+         Text(localized("Vibe Mode", locale: locale))
+      } footer: {
+         Text(localized("Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference.", locale: locale))
       }
    }
 
@@ -868,9 +718,9 @@ struct AIEnhancementSettingsView: View {
 
    private var vibeRuntimeColor: Color {
       switch settings.vibeRuntimeState {
-      case .ready: return AppColors.success
-      case .limited: return AppColors.warning
-      case .degraded: return AppColors.error
+      case .ready: return .green
+      case .limited: return .orange
+      case .degraded: return .red
       }
    }
 
@@ -1082,7 +932,7 @@ struct ProviderEditState: Identifiable {
 private struct ProviderEditSheet: View {
    @ObservedObject var settings: SettingsStore
    let modelService: AIModelService
-   @State var initial: ProviderEditState
+   @State private var initial: ProviderEditState
    let onSave: (ProviderConfig) -> Void
    let onCancel: () -> Void
 
@@ -1095,193 +945,147 @@ private struct ProviderEditSheet: View {
    private var isApple: Bool { initial.kind == .apple }
    private var isCustom: Bool { initial.kind == .custom }
 
-   var body: some View {
-      VStack(alignment: .leading, spacing: 16) {
-         Text(initial.isNew
-            ? localized("Add Provider", locale: locale)
-            : localized("Edit Provider", locale: locale))
-            .font(.title2.weight(.semibold))
+   init(
+      settings: SettingsStore,
+      modelService: AIModelService,
+      initial: ProviderEditState,
+      onSave: @escaping (ProviderConfig) -> Void,
+      onCancel: @escaping () -> Void
+   ) {
+      self.settings = settings
+      self.modelService = modelService
+      _initial = State(initialValue: initial)
+      self.onSave = onSave
+      self.onCancel = onCancel
+   }
 
-         // Provider kind picker (only on new; for Apple we allow renaming only)
-         if initial.isNew {
-            VStack(alignment: .leading, spacing: 6) {
-               Text(localized("Provider Kind", locale: locale))
-                  .font(.subheadline.weight(.medium))
-               SelectField(
-                  options: kindOptions,
-                  selection: Binding(
-                     get: { initial.kind.rawValue },
-                     set: { newRaw in
-                        if let provider = AIProvider(rawValue: newRaw) {
-                           initial.kind = provider
-                           initial.displayName = Self.defaultDisplayName(
-                              for: provider, customKind: initial.customKind
-                           )
-                           loadedModelCount = nil
+   var body: some View {
+      VStack(spacing: 0) {
+         Form {
+            Section {
+               if initial.isNew {
+                  Picker(localized("Provider Kind", locale: locale), selection: $initial.kind) {
+                     ForEach(AIProvider.allCases.filter(\.isImplemented), id: \.self) { kind in
+                        Text(Self.kindDisplayName(kind, locale: locale))
+                           .tag(kind)
+                     }
+                  }
+                  .onChange(of: initial.kind) { _, newKind in
+                     initial.displayName = Self.defaultDisplayName(
+                        for: newKind,
+                        customKind: initial.customKind
+                     )
+                     loadedModelCount = nil
+                  }
+
+                  if isCustom {
+                     Picker(localized("Provider Type", locale: locale), selection: $initial.customKind) {
+                        ForEach(CustomProviderType.allCases, id: \.self) { kind in
+                           Text(Self.customKindDisplayName(kind, locale: locale))
+                              .tag(kind)
                         }
                      }
-                  ),
-                  placeholder: localized("Select a provider kind", locale: locale)
-               )
-            }
+                     .onChange(of: initial.customKind) { _, newKind in
+                        initial.displayName = Self.defaultDisplayName(for: .custom, customKind: newKind)
+                        if initial.endpoint.isEmpty {
+                           initial.endpoint = newKind.defaultEndpoint
+                        }
+                     }
+                  }
+               }
 
-            if isCustom {
-               VStack(alignment: .leading, spacing: 6) {
-                  Text(localized("Provider Type", locale: locale))
-                     .font(.subheadline.weight(.medium))
-                  SelectField(
-                     options: customKindOptions,
-                     selection: Binding(
-                        get: { initial.customKind.rawValue },
-                        set: { newRaw in
-                           if let kind = CustomProviderType(rawValue: newRaw) {
-                              initial.customKind = kind
-                              initial.displayName = Self.defaultDisplayName(
-                                 for: .custom, customKind: kind
-                              )
-                              if initial.endpoint.isEmpty {
-                                 initial.endpoint = kind.defaultEndpoint
-                              }
+               TextField(localized("Display Name", locale: locale), text: $initial.displayName)
+
+               if !isApple {
+                  LabeledContent(localized("API Key", locale: locale)) {
+                     HStack {
+                        Group {
+                           if showingAPIKey {
+                              TextField(apiKeyPlaceholder, text: $initial.apiKey)
+                           } else {
+                              SecureField(apiKeyPlaceholder, text: $initial.apiKey)
                            }
                         }
-                     ),
-                     placeholder: localized("Select a provider type", locale: locale)
-                  )
-               }
-            }
-         }
 
-         // Display name
-         VStack(alignment: .leading, spacing: 6) {
-            Text(localized("Display Name", locale: locale))
-               .font(.subheadline.weight(.medium))
-            TextField(localized("Display name", locale: locale), text: $initial.displayName)
-               .textFieldStyle(.plain)
-               .aiSettingsInputChrome()
-         }
-
-         if !isApple {
-            // API key
-            VStack(alignment: .leading, spacing: 6) {
-               HStack(spacing: 8) {
-                  Text(localized("API Key", locale: locale))
-                     .font(.subheadline.weight(.medium))
-                  if isCustom && !initial.customKind.requiresAPIKey {
-                     Text(localized("Optional", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(AppColors.mutedSurface, in: Capsule())
-                  }
-               }
-               HStack(spacing: 8) {
-                  Group {
-                     if showingAPIKey {
-                        TextField(apiKeyPlaceholder, text: $initial.apiKey)
-                     } else {
-                        SecureField(apiKeyPlaceholder, text: $initial.apiKey)
+                        Button {
+                           showingAPIKey.toggle()
+                        } label: {
+                           Image(systemName: showingAPIKey ? "eye.slash" : "eye")
+                        }
+                        .help(
+                           showingAPIKey
+                              ? localized("Hide API Key", locale: locale)
+                              : localized("Show API Key", locale: locale)
+                        )
                      }
                   }
-                  .textFieldStyle(.plain)
 
-                  Button {
-                     showingAPIKey.toggle()
-                  } label: {
-                     IconView(icon: showingAPIKey ? .eyeOff : .eye, size: 16)
-                        .foregroundStyle(AppColors.textSecondary)
+                  if isCustom {
+                     TextField(
+                        localized("API Endpoint", locale: locale),
+                        text: $initial.endpoint,
+                        prompt: Text(initial.customKind.endpointPlaceholder)
+                     )
                   }
-                  .buttonStyle(.plain)
-               }
-               .aiSettingsInputChrome()
-            }
 
-            // Custom endpoint
-            if isCustom {
-               VStack(alignment: .leading, spacing: 6) {
-                  HStack {
-                     Text(localized("API Endpoint", locale: locale))
-                        .font(.subheadline.weight(.medium))
-                     Spacer()
-                     Text(initial.customKind == .custom
-                        ? localized("Must be OpenAI-compatible", locale: locale)
-                        : localized("OpenAI-compatible local server", locale: locale))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.textSecondary)
+                  LabeledContent(localized("Model Validation", locale: locale)) {
+                     HStack {
+                        Button(localized("Load Models", locale: locale)) {
+                           Task { await loadModels() }
+                        }
+                        .disabled(isLoadingModels || !canLoadModels)
+
+                        if isLoadingModels {
+                           ProgressView().controlSize(.small)
+                        }
+
+                        if let count = loadedModelCount {
+                           Label(
+                              String(format: localized("Loaded %d models", locale: locale), count),
+                              systemImage: "checkmark.circle.fill"
+                           )
+                           .foregroundStyle(.green)
+                        }
+                     }
                   }
-                  TextField(initial.customKind.endpointPlaceholder, text: $initial.endpoint)
-                     .textFieldStyle(.plain)
-                     .aiSettingsInputChrome()
+               } else {
+                  Label(
+                     localized("Apple Intelligence runs on-device and requires no credentials.", locale: locale),
+                     systemImage: "sparkles"
+                  )
+                  .foregroundStyle(.secondary)
+               }
+            } header: {
+               Text(
+                  initial.isNew
+                     ? localized("Add Provider", locale: locale)
+                     : localized("Edit Provider", locale: locale)
+               )
+            } footer: {
+               if !isApple {
+                  Text(localized("Credentials are stored securely in Keychain.", locale: locale))
                }
             }
 
-            // Credential validation
-            HStack(spacing: 8) {
-               Button(localized("Load Models", locale: locale)) {
-                  Task { await loadModels() }
+            if let errorText {
+               Section {
+                  Label(errorText, systemImage: "exclamationmark.triangle.fill")
+                     .foregroundStyle(.red)
                }
-               .buttonStyle(.bordered)
-               .disabled(isLoadingModels || !canLoadModels)
-
-               if isLoadingModels {
-                  ProgressView().controlSize(.small)
-               }
-
-               if let count = loadedModelCount {
-                  HStack(spacing: 6) {
-                     IconView(icon: .check, size: 12)
-                        .foregroundStyle(AppColors.success)
-                     Text(String(format: localized("Loaded %d models", locale: locale), count))
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.success)
-                  }
-               }
-
-               Spacer()
-            }
-
-            HStack(spacing: 6) {
-               IconView(icon: .shield, size: 12)
-                  .foregroundStyle(AppColors.textSecondary)
-               Text(localized("Credentials are stored securely in Keychain", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-            }
-         } else {
-            HStack(spacing: 8) {
-               IconView(icon: .sparkles, size: 14)
-                  .foregroundStyle(AppColors.accent)
-               Text(localized("Apple Intelligence runs on-device and requires no credentials.", locale: locale))
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.textSecondary)
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColors.mutedSurface, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-         }
-
-         if let errorText {
-            HStack(spacing: 6) {
-               IconView(icon: .warning, size: 12)
-                  .foregroundStyle(AppColors.error)
-               Text(errorText)
-                  .font(AppTypography.caption)
-                  .foregroundStyle(AppColors.error)
             }
          }
+         .formStyle(.grouped)
 
+         Divider()
          HStack {
             Spacer()
             Button(localized("Cancel", locale: locale)) { onCancel() }
-               .buttonStyle(.bordered)
             Button(localized("Save", locale: locale)) { save() }
-               .buttonStyle(.borderedProminent)
                .disabled(!canSave)
          }
-         .padding(.top, 6)
+         .padding()
       }
-      .padding(20)
-      .frame(minWidth: 520)
+      .frame(minWidth: 520, minHeight: 420)
    }
 
    private var apiKeyPlaceholder: String {
@@ -1365,26 +1169,6 @@ private struct ProviderEditSheet: View {
          onSave(config)
       } catch {
          errorText = String(format: localized("Failed to save: %@", locale: locale), error.localizedDescription)
-      }
-   }
-
-   private var kindOptions: [SelectFieldOption] {
-      AIProvider.allCases
-         .filter { $0.isImplemented }
-         .map {
-            SelectFieldOption(
-               id: $0.rawValue,
-               displayName: Self.kindDisplayName($0, locale: locale)
-            )
-         }
-   }
-
-   private var customKindOptions: [SelectFieldOption] {
-      CustomProviderType.allCases.map {
-         SelectFieldOption(
-            id: $0.rawValue,
-            displayName: Self.customKindDisplayName($0, locale: locale)
-         )
       }
    }
 

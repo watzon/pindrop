@@ -128,14 +128,42 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 struct SettingsPaneContent: View {
     @ObservedObject var settings: SettingsStore
     let tab: SettingsTab
+    let launchAtLoginManager: LaunchAtLoginManager
+    let updateService: UpdateService
+
+    init(
+        settings: SettingsStore,
+        tab: SettingsTab,
+        launchAtLoginManager: LaunchAtLoginManager,
+        updateService: UpdateService
+    ) {
+        self.settings = settings
+        self.tab = tab
+        self.launchAtLoginManager = launchAtLoginManager
+        self.updateService = updateService
+    }
+
+    @MainActor
+    init(settings: SettingsStore, tab: SettingsTab) {
+        self.init(
+            settings: settings,
+            tab: tab,
+            launchAtLoginManager: LaunchAtLoginManager(),
+            updateService: UpdateService()
+        )
+    }
 
     @ViewBuilder
     var body: some View {
         switch tab {
         case .general:
-            GeneralSettingsView(settings: settings)
+            GeneralSettingsView(
+                settings: settings,
+                launchAtLoginManager: launchAtLoginManager,
+                updateService: updateService
+            )
         case .dictation:
-            ParticipantsSettingsView()
+            DictationSettingsView(settings: settings)
         case .appearance:
             ThemeSettingsView(settings: settings)
         case .shortcuts:
@@ -145,7 +173,7 @@ struct SettingsPaneContent: View {
         case .advanced:
             MCPSettingsView(settings: settings)
         case .about:
-            AboutSettingsView()
+            AboutSettingsView(settings: settings)
         }
     }
 }
@@ -163,13 +191,22 @@ final class SettingsWindowController: NSWindowController {
 
     private let settings: SettingsStore
     private let modelContainer: ModelContainer
+    private let launchAtLoginManager: LaunchAtLoginManager
+    private let updateService: UpdateService
     private var tabViewController: SettingsTabViewController?
     private var settingsObservation: AnyCancellable?
     private var lastLocalizedAppLocale: AppLocale
 
-    init(settings: SettingsStore, modelContainer: ModelContainer) {
+    init(
+        settings: SettingsStore,
+        modelContainer: ModelContainer,
+        launchAtLoginManager: LaunchAtLoginManager,
+        updateService: UpdateService
+    ) {
         self.settings = settings
         self.modelContainer = modelContainer
+        self.launchAtLoginManager = launchAtLoginManager
+        self.updateService = updateService
         self.lastLocalizedAppLocale = settings.selectedAppLocale
         super.init(window: nil)
 
@@ -229,6 +266,8 @@ final class SettingsWindowController: NSWindowController {
             let rootView = SettingsTemporaryPaneRoot(
                 settings: settings,
                 modelContainer: modelContainer,
+                launchAtLoginManager: launchAtLoginManager,
+                updateService: updateService,
                 tab: tab
             )
             let hostingController = NSHostingController(rootView: AnyView(rootView))
@@ -323,14 +362,17 @@ private final class SettingsTabViewController: NSTabViewController {
 private struct SettingsTemporaryPaneRoot: View {
     @ObservedObject var settings: SettingsStore
     let modelContainer: ModelContainer
+    let launchAtLoginManager: LaunchAtLoginManager
+    let updateService: UpdateService
     let tab: SettingsTab
 
     var body: some View {
-        ScrollView {
-            SettingsPaneContent(settings: settings, tab: tab)
-                .padding(SettingsWindowController.Layout.contentPadding)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-        }
+        SettingsPaneContent(
+            settings: settings,
+            tab: tab,
+            launchAtLoginManager: launchAtLoginManager,
+            updateService: updateService
+        )
         .frame(
             minWidth: SettingsWindowController.Layout.contentWidth,
             idealWidth: SettingsWindowController.Layout.contentWidth,

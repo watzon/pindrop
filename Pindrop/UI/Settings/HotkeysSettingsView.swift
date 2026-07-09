@@ -29,109 +29,84 @@ struct HotkeysSettingsView: View {
     }
     
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
-            toggleHotkeyCard
-            pushToTalkCard
-            copyLastTranscriptCard
-            quickCapturePTTCard
-            quickCaptureToggleCard
+        Form {
+            Section(localized("Dictation", locale: locale)) {
+                hotkeySettingRow(
+                    title: localized("Toggle Recording", locale: locale),
+                    detail: localized("Press once to start recording, then press again to stop and transcribe.", locale: locale),
+                    hotkey: settings.toggleHotkey,
+                    isRecording: isRecordingToggle,
+                    onRecord: { startRecording(forToggle: true) },
+                    onClear: { settings.updateToggleHotkey("", keyCode: 0, modifiers: 0) }
+                )
+
+                hotkeySettingRow(
+                    title: localized("Push-to-Talk", locale: locale),
+                    detail: localized("Hold the shortcut to record, then release to transcribe.", locale: locale),
+                    hotkey: settings.pushToTalkHotkey,
+                    isRecording: isRecordingPushToTalk,
+                    onRecord: { startRecording() },
+                    onClear: { settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0) }
+                )
+
+                hotkeySettingRow(
+                    title: localized("Copy Last Transcript", locale: locale),
+                    detail: localized("Copy the most recent transcript to the clipboard.", locale: locale),
+                    hotkey: settings.copyLastTranscriptHotkey,
+                    isRecording: isRecordingCopyLastTranscript,
+                    onRecord: { startRecording(forCopyLastTranscript: true) },
+                    onClear: { settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0) }
+                )
+            }
+
+            Section(localized("Notes", locale: locale)) {
+                hotkeySettingRow(
+                    title: localized("Note Capture — Hold", locale: locale),
+                    detail: localized("Hold to record, then release to open the note editor with the transcription.", locale: locale),
+                    hotkey: settings.quickCapturePTTHotkey,
+                    isRecording: isRecordingQuickCapturePTT,
+                    onRecord: { startRecording(forQuickCapturePTT: true) },
+                    onClear: { settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0) }
+                )
+
+                hotkeySettingRow(
+                    title: localized("Note Capture — Toggle", locale: locale),
+                    detail: localized("Press once to start recording, then again to open the note editor.", locale: locale),
+                    hotkey: settings.quickCaptureToggleHotkey,
+                    isRecording: isRecordingQuickCaptureToggle,
+                    onRecord: { startRecording(forQuickCaptureToggle: true) },
+                    onClear: { settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0) }
+                )
+            }
         }
+        .formStyle(.grouped)
         .onDisappear {
             stopRecording()
         }
     }
-    
-    private var toggleHotkeyCard: some View {
-        SettingsCard(title: localized("Toggle Recording", locale: locale), icon: "record.circle", detail: localized("Press once to start recording, then press again to stop and transcribe.", locale: locale)) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text(localized("Press once to start recording, press again to stop and transcribe", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                HotkeyRecorderRow(
-                    hotkey: settings.toggleHotkey,
-                    isRecording: isRecordingToggle,
-                    onRecord: { startRecording(forToggle: true) },
-                    onClear: {
-                        settings.updateToggleHotkey("", keyCode: 0, modifiers: 0)
-                    }
-                )
-            }
-        }
-    }
-    
-    private var pushToTalkCard: some View {
-        SettingsCard(title: localized("Push-to-Talk", locale: locale), icon: "hand.tap", detail: localized("Hold the shortcut to record, then release to transcribe.", locale: locale)) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text(localized("Hold to record, release to stop and transcribe", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                HotkeyRecorderRow(
-                    hotkey: settings.pushToTalkHotkey,
-                    isRecording: isRecordingPushToTalk,
-                    onRecord: { startRecording(forToggle: false) },
-                    onClear: {
-                        settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
-                    }
-                )
-            }
-        }
-    }
 
-    private var copyLastTranscriptCard: some View {
-        SettingsCard(title: localized("Copy Last Transcript", locale: locale), icon: "doc.on.clipboard", detail: localized("Quickly pull your latest transcript back to the clipboard.", locale: locale)) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text(localized("Copy the most recent transcript to the clipboard", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-
-                HotkeyRecorderRow(
-                    hotkey: settings.copyLastTranscriptHotkey,
-                    isRecording: isRecordingCopyLastTranscript,
-                    onRecord: { startRecording(forCopyLastTranscript: true) },
-                    onClear: {
-                        settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
-                    }
-                )
-            }
-        }
-    }
-    
-    private var quickCapturePTTCard: some View {
-        SettingsCard(title: localized("Note Capture (Push-to-Talk)", locale: locale), icon: "hand.tap", detail: localized("Capture directly into the note editor with a hold-to-record flow.", locale: locale)) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text(localized("Hold to record, release to open note editor with transcription", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                HotkeyRecorderRow(
-                    hotkey: settings.quickCapturePTTHotkey,
-                    isRecording: isRecordingQuickCapturePTT,
-                    onRecord: { startRecording(forQuickCapturePTT: true) },
-                    onClear: {
-                        settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
-                    }
-                )
-            }
-        }
-    }
-
-    private var quickCaptureToggleCard: some View {
-        SettingsCard(title: localized("Note Capture (Toggle)", locale: locale), icon: "note.text", detail: localized("Use a tap-to-start, tap-to-finish shortcut for note capture.", locale: locale)) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                Text(localized("Press to start recording, press again to open note editor", locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                HotkeyRecorderRow(
-                    hotkey: settings.quickCaptureToggleHotkey,
-                    isRecording: isRecordingQuickCaptureToggle,
-                    onRecord: { startRecording(forQuickCaptureToggle: true) },
-                    onClear: {
-                        settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
-                    }
-                )
+    private func hotkeySettingRow(
+        title: String,
+        detail: String,
+        hotkey: String,
+        isRecording: Bool,
+        onRecord: @escaping () -> Void,
+        onClear: @escaping () -> Void
+    ) -> some View {
+        LabeledContent {
+            HotkeyRecorderRow(
+                hotkey: hotkey,
+                isRecording: isRecording,
+                onRecord: onRecord,
+                onClear: onClear
+            )
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -391,53 +366,39 @@ struct HotkeysSettingsView: View {
 }
 
 struct HotkeyRecorderRow: View {
+    @Environment(\.locale) private var locale
+
     let hotkey: String
     let isRecording: Bool
     let onRecord: () -> Void
     let onClear: () -> Void
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            HStack {
-                if hotkey.isEmpty {
-                    Text("Not set")
-                        .foregroundStyle(AppColors.textSecondary)
-                } else {
-                    Text(hotkey)
-                        .font(AppTypography.mono)
-                        .fontWeight(.medium)
-                        .foregroundStyle(AppColors.textPrimary)
-                }
-            }
-            .frame(minWidth: 120, alignment: .leading)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(AppColors.inputBackground, in: RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                    .strokeBorder(AppColors.inputBorder, lineWidth: 1)
-            )
+        HStack(spacing: 8) {
+            Text(hotkey.isEmpty ? localized("Not set", locale: locale) : hotkey)
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(hotkey.isEmpty ? .secondary : .primary)
+                .frame(minWidth: 90, alignment: .trailing)
 
             Button(action: onRecord) {
-                Text(isRecording ? "Press keys..." : "Record")
-                    .frame(minWidth: 80)
+                Text(
+                    isRecording
+                        ? localized("Press keys…", locale: locale)
+                        : localized("Record", locale: locale)
+                )
             }
-            .buttonStyle(.bordered)
-            .tint(isRecording ? AppColors.warning : nil)
 
             if isRecording {
-                Text("Press Esc to cancel")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.warning)
+                Text(localized("Press Esc to cancel", locale: locale))
+                    .font(.caption)
+                    .foregroundStyle(.orange)
             }
 
             if !hotkey.isEmpty && !isRecording {
                 Button(role: .destructive, action: onClear) {
-                    IconView(icon: .circleX, size: 16)
+                    Image(systemName: "xmark.circle")
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(AppColors.textSecondary)
-                .help("Clear hotkey")
+                .help(localized("Clear shortcut", locale: locale))
             }
         }
     }
@@ -445,6 +406,5 @@ struct HotkeyRecorderRow: View {
 
 #Preview {
     HotkeysSettingsView(settings: SettingsStore())
-        .padding()
-        .frame(width: 500)
+        .frame(width: 620, height: 560)
 }
