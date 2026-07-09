@@ -33,23 +33,31 @@ struct MCPSettingsView: View {
                 .accessibilityIdentifier("settings.toggle.mcpServerEnabled")
 
                 if settings.mcpServerEnabled {
-                    LabeledContent(localized("Port", locale: locale)) {
-                        TextField("46337", text: $portText)
-                            .textFieldStyle(.roundedBorder)
-                            .font(.body.monospacedDigit())
-                            .multilineTextAlignment(.trailing)
-                            .lineLimit(1)
-                            .frame(width: 88)
-                            .fixedSize(horizontal: true, vertical: true)
-                            .onSubmit { applyPort() }
-                            .onChange(of: portText) { _, newValue in
-                                let digits = String(newValue.filter(\.isNumber).prefix(5))
-                                if digits != newValue {
-                                    portText = digits
-                                }
-                                applyPortIfValid()
+                    // Avoid LabeledContent + titled TextField: Form lays out the field
+                    // prompt as a second, truncated trailing string ("463…") beside the value.
+                    HStack {
+                        Text(localized("Port", locale: locale))
+                        Spacer(minLength: 16)
+                        TextField(
+                            "",
+                            text: $portText,
+                            prompt: Text("46337")
+                        )
+                        .labelsHidden()
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body.monospacedDigit())
+                        .multilineTextAlignment(.trailing)
+                        .lineLimit(1)
+                        .frame(width: 100)
+                        .onSubmit { applyPort() }
+                        .onChange(of: portText) { _, newValue in
+                            let digits = String(newValue.filter(\.isNumber).prefix(5))
+                            if digits != newValue {
+                                portText = digits
                             }
-                            .accessibilityIdentifier("settings.field.mcpPort")
+                            applyPortIfValid()
+                        }
+                        .accessibilityIdentifier("settings.field.mcpPort")
                     }
 
                     LabeledContent(localized("Bearer Token", locale: locale)) {
