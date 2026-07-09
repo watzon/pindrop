@@ -42,10 +42,8 @@ Carthage/Build/
 # Test coverage
 *.profraw
 
-# Temporary scripts and build artifacts
-*.py
-!scripts/augment_appcast_release_notes.py
-!scripts/render_release_notes_html.py
+# Temporary scratch scripts at repo root (real tooling lives in scripts/ and training/)
+/*.py
 package-lock.json
 
 DerivedDataTests/
