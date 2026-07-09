@@ -141,6 +141,8 @@ struct DictationSettingsView: View {
                     } description: {
                         Text(localized("Rename speakers in transcripts to teach Pindrop to recognize voices automatically.", locale: locale))
                     }
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
                 } else {
                     ForEach(profiles) { profile in
                         profileRow(profile)
