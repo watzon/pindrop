@@ -296,6 +296,7 @@ final class AppCoordinator {
     let onboardingController: OnboardingWindowController
     let announcementController: AnnouncementWindowController
     let splashController: SplashWindowController
+    let settingsWindowController: SettingsWindowController
     let mainWindowController: MainWindowController
     let noteEditorWindowController: NoteEditorWindowController
     let toastWindowController: ToastWindowController
@@ -471,6 +472,10 @@ final class AppCoordinator {
         )
         let splashState = SplashScreenState()
         self.splashController = SplashWindowController(state: splashState)
+        self.settingsWindowController = SettingsWindowController(
+            settings: settingsStore,
+            modelContainer: modelContainer
+        )
         self.mainWindowController = MainWindowController()
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
@@ -546,7 +551,12 @@ final class AppCoordinator {
         // already runs unconditionally on menuWillOpen).
         self.statusBarController.onMenuWillOpen = {}
 
-        self.statusBarController.setMainWindowController(mainWindowController)
+        self.statusBarController.onOpenSettings = { [weak self] tab in
+            self?.settingsWindowController.show(tab: tab)
+        }
+        self.mainWindowController.onOpenSettings = { [weak self] tab in
+            self?.settingsWindowController.show(tab: tab)
+        }
         
         self.audioRecorder.onAudioLevel = { [weak self] level in
             self?.floatingIndicatorState.updateAudioLevel(level)

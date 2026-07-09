@@ -121,8 +121,14 @@ struct MainWindow: View {
     let onNewTranscription: (() -> Void)?
     let onStartMeetingCapture: (() -> Void)?
     let onStartNoteCapture: (() -> Void)?
+    let onOpenSettings: (SettingsTab) -> Void
 
     private func navigateTo(_ item: MainNavItem) {
+        if item == .settings {
+            onOpenSettings(.general)
+            return
+        }
+
         if item == .transcribe {
             mediaTranscriptionState?.showLibrary()
         }
@@ -131,8 +137,7 @@ struct MainWindow: View {
     }
 
     private func navigateToSettings(_ tab: SettingsTab) {
-        selectedSettingsTab = tab
-        selectedNav = .settings
+        onOpenSettings(tab)
     }
 
     var body: some View {
@@ -224,7 +229,7 @@ struct MainWindow: View {
             DashboardView(
                 floatingIndicatorState: floatingIndicatorState,
                 settingsStore: settingsStore,
-                onOpenHotkeys: { navigateToSettings(.hotkeys) },
+                onOpenHotkeys: { navigateToSettings(.shortcuts) },
                 onViewAllHistory: { navigateTo(.history) },
                 onNewTranscription: onNewTranscription,
                 onTranscribeFile: { navigateTo(.transcribe) },
@@ -481,6 +486,7 @@ final class MainWindowController {
     var onNewTranscription: (() -> Void)?
     var onStartMeetingCapture: (() -> Void)?
     var onStartNoteCapture: (() -> Void)?
+    var onOpenSettings: ((SettingsTab) -> Void)?
 
     func setModelContainer(_ container: ModelContainer) {
         self.modelContainer = container
@@ -533,7 +539,12 @@ final class MainWindowController {
     }
 
     func showSettings(tab: SettingsTab = .general) {
-        show(navigationItem: .settings, settingsTab: tab)
+        guard let onOpenSettings else {
+            Log.ui.error("Settings presenter not set - cannot show settings")
+            return
+        }
+
+        onOpenSettings(tab)
     }
 
     private func show(navigationItem: MainNavItem?, settingsTab: SettingsTab? = nil) {
@@ -558,7 +569,10 @@ final class MainWindowController {
                 onDownloadDiarizationModel: onDownloadDiarizationModel,
                 onNewTranscription: onNewTranscription,
                 onStartMeetingCapture: onStartMeetingCapture,
-                onStartNoteCapture: onStartNoteCapture
+                onStartNoteCapture: onStartNoteCapture,
+                onOpenSettings: onOpenSettings ?? { _ in
+                    Log.ui.error("Settings presenter not set - cannot show settings")
+                }
             )
                 .modelContainer(container)
             let hostingController = TitlebarlessHostingController(rootView: mainView)
@@ -697,7 +711,8 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
-        onStartNoteCapture: nil
+        onStartNoteCapture: nil,
+        onOpenSettings: { _ in }
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.light)
@@ -716,7 +731,8 @@ final class MainWindowController {
         onDownloadDiarizationModel: nil,
         onNewTranscription: nil,
         onStartMeetingCapture: nil,
-        onStartNoteCapture: nil
+        onStartNoteCapture: nil,
+        onOpenSettings: { _ in }
     )
         .modelContainer(PreviewContainer.empty)
         .preferredColorScheme(.dark)

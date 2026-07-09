@@ -17,7 +17,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private let audioRecorder: AudioRecorder
     private let settingsStore: SettingsStore
-    private var mainWindowController: MainWindowController?
 
     // MARK: - Menu Item References
 
@@ -46,6 +45,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onClearAudioBuffer: (() async -> Void)?
     var onCancelOperation: (() async -> Void)?
     var onOpenHistory: (() -> Void)?
+    var onOpenSettings: ((SettingsTab) -> Void)?
     var onMenuWillOpen: (() async -> Void)?
 
     // Recent transcripts for submenu
@@ -68,17 +68,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         setupMenu()
     }
 
-    func setMainWindowController(_ controller: MainWindowController) {
-        self.mainWindowController = controller
-    }
-
     func showSettings(tab: SettingsTab = .general) {
-        guard let mainWindowController else {
-            Log.ui.error("MainWindowController not set - cannot show settings")
+        guard let onOpenSettings else {
+            Log.ui.error("Settings presenter not set - cannot show settings")
             return
         }
 
-        mainWindowController.showSettings(tab: tab)
+        onOpenSettings(tab)
     }
 
     func reloadLocalizedStrings() {

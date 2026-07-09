@@ -8,116 +8,6 @@
 import SwiftData
 import SwiftUI
 
-enum SettingsTab: String, CaseIterable, Identifiable {
-    case general = "General"
-    case theme = "Theme"
-    case hotkeys = "Hotkeys"
-    case ai = "AI Enhancement"
-    case participants = "Participants"
-    case mcp = "MCP Server"
-    case about = "About"
-
-    var id: String { rawValue }
-
-    func title(locale: Locale) -> String {
-        switch self {
-        case .general: return localized("General", locale: locale)
-        case .theme: return localized("Theme", locale: locale)
-        case .hotkeys: return localized("Hotkeys", locale: locale)
-        case .ai: return localized("AI Enhancement", locale: locale)
-        case .participants: return localized("Participants", locale: locale)
-        case .mcp: return localized("MCP Server", locale: locale)
-        case .about: return localized("About", locale: locale)
-        }
-    }
-
-    var systemIcon: String {
-        switch self {
-        case .general: return "gear"
-        case .theme: return "paintbrush"
-        case .hotkeys: return "keyboard"
-        case .ai: return "sparkles"
-        case .participants: return "person.2"
-        case .mcp: return "network"
-        case .about: return "info.circle"
-        }
-    }
-
-    var subtitle: String {
-        subtitle(locale: .autoupdatingCurrent)
-    }
-
-    func subtitle(locale: Locale) -> String {
-        switch self {
-        case .general:
-            return localized("Output, audio, interface, and everyday behavior", locale: locale)
-        case .theme:
-            return localized("Light, dark, and curated palette presets", locale: locale)
-        case .hotkeys:
-            return localized("Configure keyboard shortcuts for recording and note capture", locale: locale)
-        case .ai:
-            return localized("Providers, prompts, and vibe mode controls", locale: locale)
-        case .participants:
-            return localized("Learned speaker voices and participant profiles", locale: locale)
-        case .mcp:
-            return localized("Local HTTP server for AI agent integration", locale: locale)
-        case .about:
-            return localized("App info, updates, acknowledgments, support, and logs", locale: locale)
-        }
-    }
-
-    private var searchKeywords: [String] {
-        switch self {
-        case .general:
-            return [
-                "output", "clipboard", "direct insert", "space", "microphone", "audio",
-                "input", "floating indicator", "dictionary", "launch at login", "dock",
-                "mute", "pause media", "reset", "language", "locale", "transcription language",
-                "interface language"
-            ]
-        case .theme:
-            return [
-                "appearance", "theme", "light", "dark", "system", "preset", "palette"
-            ]
-        case .hotkeys:
-            return [
-                "shortcut", "toggle recording", "push to talk", "copy last transcript",
-                "note capture", "keyboard"
-            ]
-        case .ai:
-            return [
-                "provider", "api key", "endpoint", "prompt", "preset", "vibe mode",
-                "clipboard context", "ui context", "model", "enhancement"
-            ]
-        case .participants:
-            return [
-                "speaker", "voice", "participant", "profile", "diarization",
-                "rename", "learned", "identity", "recognition"
-            ]
-        case .mcp:
-            return [
-                "mcp", "agent", "server", "api", "http", "token", "port", "claude code",
-                "cursor", "codex", "opencode", "integration", "automation"
-            ]
-        case .about:
-            return [
-                "support", "logs", "github", "license", "system info", "version",
-                "updates", "automatic updates", "check now"
-            ]
-        }
-    }
-
-    func matches(_ searchText: String) -> Bool {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return true }
-
-        let searchableText = ([rawValue, subtitle] + searchKeywords)
-            .joined(separator: " ")
-            .lowercased()
-        return searchableText.contains(query)
-    }
-}
-
 struct SettingsWindow: View {
     @ObservedObject var settings: SettingsStore
 
@@ -217,24 +107,7 @@ struct SettingsContainerView: View {
                 Divider()
                     .background(AppColors.divider)
 
-                Group {
-                    switch selectedTab {
-                    case .general:
-                        GeneralSettingsView(settings: settings)
-                    case .theme:
-                        ThemeSettingsView(settings: settings)
-                    case .hotkeys:
-                        HotkeysSettingsView(settings: settings)
-                    case .ai:
-                        AIEnhancementSettingsView(settings: settings)
-                    case .participants:
-                        ParticipantsSettingsView()
-                    case .mcp:
-                        MCPSettingsView(settings: settings)
-                    case .about:
-                        AboutSettingsView()
-                    }
-                }
+                SettingsPaneContent(settings: settings, tab: selectedTab)
             }
         }
     }
@@ -371,15 +244,6 @@ private extension SettingsContainerView {
     var matchCountText: String {
         let format = filteredTabs.count == 1 ? localized("%d match", locale: locale) : localized("%d matches", locale: locale)
         return String(format: format, filteredTabs.count)
-    }
-}
-
-private extension SettingsTab {
-    var accessibilityIdentifier: String {
-        let slug = rawValue
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "-")
-        return "settings.tab.\(slug)"
     }
 }
 
