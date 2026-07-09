@@ -183,7 +183,9 @@ final class SettingsWindowController: NSWindowController {
 
         let tabViewController = SettingsTabViewController()
         tabViewController.tabStyle = .toolbar
-        tabViewController.transitionOptions = [.crossfade, .allowUserInteraction]
+        // Empty transitions avoid a stale translucent overlay that can linger under the
+        // toolbar when crossfading NSHostingController children during tab switches.
+        tabViewController.transitionOptions = []
         tabViewController.onSelectionChange = { [weak self] in
             self?.updateWindowForSelectedTab()
         }
@@ -197,11 +199,10 @@ final class SettingsWindowController: NSWindowController {
                 tab: tab
             )
             let hostingController = NSHostingController(rootView: AnyView(rootView))
+            // Single size driver: SwiftUI reports preferredContentSize from the pane's
+            // natural layout. Do not also hardcode preferredContentSize (that fought
+            // SettingsPaneRoot's frame and left intermediate overlay frames at rest).
             hostingController.sizingOptions = [.preferredContentSize]
-            hostingController.preferredContentSize = NSSize(
-                width: Layout.contentWidth,
-                height: Layout.defaultContentHeight
-            )
             hostingController.title = tab.title(locale: settings.selectedAppLocale.locale)
 
             let item = NSTabViewItem(viewController: hostingController)
@@ -299,14 +300,10 @@ private struct SettingsPaneRoot: View {
             launchAtLoginManager: launchAtLoginManager,
             updateService: updateService
         )
-        .frame(
-            minWidth: SettingsWindowController.Layout.contentWidth,
-            idealWidth: SettingsWindowController.Layout.contentWidth,
-            maxWidth: SettingsWindowController.Layout.contentWidth,
-            minHeight: SettingsWindowController.Layout.minimumContentHeight,
-            idealHeight: SettingsWindowController.Layout.defaultContentHeight,
-            maxHeight: .infinity
-        )
+        // Fixed width only; height comes from Form content so preferredContentSize
+        // reflects the pane. Window contentMin/MaxSize clamp the host to 420…640.
+        .frame(width: SettingsWindowController.Layout.contentWidth)
+        .fixedSize(horizontal: false, vertical: true)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .modelContainer(modelContainer)
