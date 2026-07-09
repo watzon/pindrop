@@ -17,7 +17,6 @@ enum MainNavItem: String, Identifiable {
     case transcribe = "Transcribe"
     case models = "Models"
     case dictionary = "Dictionary"
-    case settings = "Settings"
 
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
@@ -40,16 +39,6 @@ enum MainNavItem: String, Identifiable {
         case .transcribe: return "waveform"
         case .models: return "cpu"
         case .dictionary: return "text.book.closed"
-        case .settings: return "gearshape"
-        }
-    }
-
-    var shortcutHint: String? {
-        switch self {
-        case .settings:
-            return "⌘,"
-        default:
-            return nil
         }
     }
 
@@ -60,7 +49,6 @@ enum MainNavItem: String, Identifiable {
 
 extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
-    static let navigateToSettingsTab = Notification.Name("navigateToSettingsTab")
     static let openHistoryRecord = Notification.Name("openHistoryRecord")
     static let sidebarStateChanged = Notification.Name("sidebarStateChanged")
 }
@@ -110,7 +98,6 @@ struct MainWindow: View {
     @ObservedObject private var theme = PindropThemeController.shared
     @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
-    @State private var selectedSettingsTab: SettingsTab = .general
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
@@ -124,11 +111,6 @@ struct MainWindow: View {
     let onOpenSettings: (SettingsTab) -> Void
 
     private func navigateTo(_ item: MainNavItem) {
-        if item == .settings {
-            onOpenSettings(.general)
-            return
-        }
-
         if item == .transcribe {
             mediaTranscriptionState?.showLibrary()
         }
@@ -173,12 +155,6 @@ struct MainWindow: View {
                 navigateTo(navItem)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .navigateToSettingsTab)) { notification in
-            if let rawValue = notification.userInfo?["settingsTab"] as? String,
-               let tab = SettingsTab(rawValue: rawValue) {
-                navigateToSettings(tab)
-            }
-        }
         .onChange(of: settingsStore.sidebarExpanded) { _, _ in
             NotificationCenter.default.post(name: .sidebarStateChanged, object: nil)
         }
@@ -192,7 +168,8 @@ struct MainWindow: View {
             isExpanded: $settingsStore.sidebarExpanded,
             position: settingsStore.selectedSidebarPosition,
             selectedNav: selectedNav,
-            onSelect: navigateTo
+            onSelect: navigateTo,
+            onOpenSettings: { onOpenSettings(.general) }
         )
         .frame(maxHeight: .infinity, alignment: .top)
     }
@@ -265,8 +242,6 @@ struct MainWindow: View {
             }
         case .dictionary:
             DictionaryView()
-        case .settings:
-            SettingsContainerView(settings: settingsStore, initialTab: selectedSettingsTab)
         }
     }
     
@@ -296,9 +271,11 @@ private struct MainSidebar: View {
     let position: SidebarPosition
     let selectedNav: MainNavItem
     let onSelect: (MainNavItem) -> Void
+    let onOpenSettings: () -> Void
 
     @State private var hoveredItem: MainNavItem?
     @State private var isCollapseHovered: Bool = false
+    @State private var isSettingsHovered: Bool = false
 
     private var currentWidth: CGFloat {
         isExpanded ? AppTheme.Window.sidebarWidth : AppTheme.Window.sidebarCollapsedWidth
@@ -376,10 +353,40 @@ private struct MainSidebar: View {
     private var bottomSection: some View {
         VStack(spacing: AppTheme.Spacing.xs) {
             collapseButton
-            sidebarItem(.settings)
+            settingsButton
         }
         .padding(.horizontal, AppTheme.Spacing.sm)
         .padding(.bottom, AppTheme.Spacing.lg)
+    }
+
+    private var settingsButton: some View {
+        Button(action: onOpenSettings) {
+            Group {
+                if isExpanded {
+                    HStack(spacing: AppTheme.Spacing.md) {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 14, weight: .medium))
+                            .frame(width: 20)
+                        Text(localized("Settings", locale: locale))
+                            .font(AppTypography.body)
+                        Spacer()
+                        Text("⌘,")
+                            .font(AppTypography.monoSmall)
+                            .foregroundStyle(AppColors.textTertiary)
+                    }
+                } else {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 14, weight: .medium))
+                        .frame(width: 20)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .foregroundStyle(AppColors.textSecondary)
+            .sidebarItemStyle(isSelected: false, isHovered: isSettingsHovered)
+        }
+        .buttonStyle(.plain)
+        .help(localized("Settings", locale: locale))
+        .onHover { hovering in isSettingsHovered = hovering }
     }
 
     private var collapseButton: some View {
@@ -442,10 +449,6 @@ private struct MainSidebar: View {
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Capsule().fill(AppColors.border))
-                        } else if let hint = item.shortcutHint {
-                            Text(hint)
-                                .font(AppTypography.monoSmall)
-                                .foregroundStyle(AppColors.textTertiary)
                         }
                     }
                 } else {
@@ -547,7 +550,7 @@ final class MainWindowController {
         onOpenSettings(tab)
     }
 
-    private func show(navigationItem: MainNavItem?, settingsTab: SettingsTab? = nil) {
+    private func show(navigationItem: MainNavItem?) {
         guard let container = modelContainer else {
             Log.ui.error("ModelContainer not set - cannot show MainWindow")
             return
@@ -629,15 +632,7 @@ final class MainWindowController {
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async { self.positionTrafficLights() }
 
-        if let settingsTab {
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(
-                    name: .navigateToSettingsTab,
-                    object: nil,
-                    userInfo: ["settingsTab": settingsTab.rawValue]
-                )
-            }
-        } else if let item = navigationItem {
+        if let item = navigationItem {
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
                     name: .navigateToMainNavItem,

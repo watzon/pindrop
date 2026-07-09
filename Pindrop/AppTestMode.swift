@@ -13,7 +13,6 @@ enum AppTestMode {
     static let uiTestModeKey = "PINDROP_UI_TEST_MODE"
     static let uiTestSurfaceKey = "PINDROP_UI_TEST_SURFACE"
     static let uiTestSettingsTabKey = "PINDROP_UI_TEST_SETTINGS_TAB"
-    static let uiTestSettingsSearchTextKey = "PINDROP_UI_TEST_SETTINGS_SEARCH_TEXT"
     static let testUserDefaultsSuiteKey = "PINDROP_TEST_USER_DEFAULTS_SUITE"
 
     static var environment: [String: String] {
@@ -52,8 +51,10 @@ enum AppUITestFixture {
     }
 
     static var settingsInitialTab: SettingsTab {
-        let rawValue = AppTestMode.environment[AppTestMode.uiTestSettingsTabKey]?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return SettingsTab(rawValue: rawValue?.capitalized ?? "") ?? .general
+        let rawValue = AppTestMode.environment[AppTestMode.uiTestSettingsTabKey]?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        return SettingsTab(rawValue: rawValue ?? "") ?? .general
     }
 
     @ViewBuilder
@@ -79,7 +80,9 @@ private struct SettingsFixtureRootView: View {
     let initialTab: SettingsTab
 
     var body: some View {
-        SettingsWindow(settings: settings, initialTab: initialTab)
+        SettingsPaneContent(settings: settings, tab: initialTab)
+            .frame(minWidth: 620, minHeight: 420)
             .environment(\.locale, settings.selectedAppLocale.locale)
+            .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
     }
 }

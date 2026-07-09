@@ -45,86 +45,12 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         }
     }
 
-    var subtitle: String {
-        subtitle(locale: .autoupdatingCurrent)
-    }
-
-    func subtitle(locale: Locale) -> String {
-        switch self {
-        case .general:
-            return localized("Interface, language, updates, and reset", locale: locale)
-        case .dictation:
-            return localized("Microphone, output, dictionary, and learned speakers", locale: locale)
-        case .appearance:
-            return localized("Theme, main window, and floating indicator", locale: locale)
-        case .shortcuts:
-            return localized("Configure keyboard shortcuts for dictation and note capture", locale: locale)
-        case .ai:
-            return localized("Providers, assignments, dictation polish, and vibe mode", locale: locale)
-        case .advanced:
-            return localized("Local server and agent integration", locale: locale)
-        case .about:
-            return localized("App info, acknowledgments, support, and logs", locale: locale)
-        }
-    }
-
     var accessibilityIdentifier: String {
         "settings.tab.\(rawValue)"
     }
-
-    private var searchKeywords: [String] {
-        switch self {
-        case .general:
-            return [
-                "interface", "language", "locale", "launch at login", "dock",
-                "updates", "automatic updates", "check now", "reset"
-            ]
-        case .dictation:
-            return [
-                "output", "clipboard", "direct insert", "space", "microphone", "audio",
-                "input", "dictionary", "mute", "pause media", "speaker", "participant",
-                "profile", "diarization", "transcription language", "dictation language"
-            ]
-        case .appearance:
-            return [
-                "appearance", "theme", "light", "dark", "system", "preset", "palette",
-                "sidebar", "floating indicator", "pill", "orb"
-            ]
-        case .shortcuts:
-            return [
-                "shortcut", "hotkey", "toggle recording", "push to talk",
-                "copy last transcript", "note capture", "keyboard"
-            ]
-        case .ai:
-            return [
-                "provider", "api key", "endpoint", "prompt", "preset", "vibe mode",
-                "clipboard context", "ui context", "model", "enhancement"
-            ]
-        case .advanced:
-            return [
-                "mcp", "agent", "server", "api", "http", "token", "port", "claude code",
-                "cursor", "codex", "opencode", "integration", "automation"
-            ]
-        case .about:
-            return [
-                "support", "logs", "github", "license", "system info", "version"
-            ]
-        }
-    }
-
-    func matches(_ searchText: String) -> Bool {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return true }
-
-        let searchableText = ([title(locale: .autoupdatingCurrent), subtitle] + searchKeywords)
-            .joined(separator: " ")
-            .lowercased()
-        return searchableText.contains(query)
-    }
 }
 
-/// Temporary bridge used while each pane is ported to its final grouped `Form`.
-/// Every current settings surface remains reachable during the phased migration.
+/// Routes a settings tab to its grouped-form pane view.
 struct SettingsPaneContent: View {
     @ObservedObject var settings: SettingsStore
     let tab: SettingsTab
@@ -263,7 +189,7 @@ final class SettingsWindowController: NSWindowController {
         }
 
         for tab in SettingsTab.allCases {
-            let rootView = SettingsTemporaryPaneRoot(
+            let rootView = SettingsPaneRoot(
                 settings: settings,
                 modelContainer: modelContainer,
                 launchAtLoginManager: launchAtLoginManager,
@@ -359,7 +285,7 @@ private final class SettingsTabViewController: NSTabViewController {
     }
 }
 
-private struct SettingsTemporaryPaneRoot: View {
+private struct SettingsPaneRoot: View {
     @ObservedObject var settings: SettingsStore
     let modelContainer: ModelContainer
     let launchAtLoginManager: LaunchAtLoginManager

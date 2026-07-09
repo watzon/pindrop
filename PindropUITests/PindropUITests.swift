@@ -14,7 +14,6 @@ final class PindropUITests: XCTestCase {
     private let uiTestModeKey = "PINDROP_UI_TEST_MODE"
     private let uiTestSurfaceKey = "PINDROP_UI_TEST_SURFACE"
     private let settingsTabKey = "PINDROP_UI_TEST_SETTINGS_TAB"
-    private let settingsSearchTextKey = "PINDROP_UI_TEST_SETTINGS_SEARCH_TEXT"
     private let defaultsSuiteKey = "PINDROP_TEST_USER_DEFAULTS_SUITE"
     private var launchedApplication: XCUIApplication?
 
@@ -33,44 +32,54 @@ final class PindropUITests: XCTestCase {
     func testSettingsFixtureLaunches() throws {
         try skipIfTargetAppIsAlreadyRunning()
 
-        let app = configuredApplication()
+        let app = configuredApplication(settingsTab: "general")
         launchedApplication = app
         app.launch()
 
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
-        XCTAssertTrue(app.staticTexts["Settings"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.textFields["Search settings"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.buttons["General"].exists)
+        XCTAssertTrue(
+            app.descendants(matching: .any)["settings.toggle.launchAtLogin"]
+                .waitForExistence(timeout: 5)
+        )
+        XCTAssertTrue(app.staticTexts["Language"].exists)
     }
 
     @MainActor
-    func testSettingsSearchShowsEmptyStateForUnknownQuery() throws {
+    func testDictationTabFixtureLaunches() throws {
         try skipIfTargetAppIsAlreadyRunning()
 
-        let app = configuredApplication(searchText: "no-match-query")
+        let app = configuredApplication(settingsTab: "dictation")
         launchedApplication = app
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["No settings found"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        XCTAssertTrue(
+            app.descendants(matching: .any)["settings.picker.dictationLanguage"]
+                .waitForExistence(timeout: 5)
+        )
+        XCTAssertTrue(app.staticTexts["Microphone"].exists)
     }
 
     @MainActor
-    func testThemeTabFixtureLaunches() throws {
+    func testAppearanceTabFixtureLaunches() throws {
         try skipIfTargetAppIsAlreadyRunning()
 
-        let app = configuredApplication(settingsTab: "Theme")
+        let app = configuredApplication(settingsTab: "appearance")
         launchedApplication = app
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Theme"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Light Theme"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["Dark Theme"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+        XCTAssertTrue(
+            app.descendants(matching: .any)["settings.theme.mode"]
+                .waitForExistence(timeout: 5)
+        )
+        XCTAssertTrue(app.staticTexts["Theme"].exists)
+        XCTAssertTrue(app.staticTexts["Floating Indicator"].exists)
     }
 
     private func configuredApplication(
         surface: String = "settings",
-        settingsTab: String = "General",
-        searchText: String? = nil,
+        settingsTab: String = "general",
         defaultsSuite: String? = nil
     ) -> XCUIApplication {
         let app = XCUIApplication()
@@ -78,9 +87,6 @@ final class PindropUITests: XCTestCase {
         app.launchEnvironment[uiTestModeKey] = "1"
         app.launchEnvironment[uiTestSurfaceKey] = surface
         app.launchEnvironment[settingsTabKey] = settingsTab
-        if let searchText {
-            app.launchEnvironment[settingsSearchTextKey] = searchText
-        }
         if let defaultsSuite {
             app.launchEnvironment[defaultsSuiteKey] = defaultsSuite
         }

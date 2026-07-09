@@ -18,7 +18,6 @@
 		GENL10NKEYS01A2B3C4D5E6F1 /* L10nKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = GENL10NKEYS01A2B3C4D5E6F0 /* L10nKeys.swift */; };
 		232267860F877408134770BC /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */; };
 		299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */; };
-		2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */; };
 		8D0F64A2A0A44CE9B6B5A002 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0F64A2A0A44CE9B6B5A001 /* SettingsWindowController.swift */; };
 		8D0F64A2A0A44CE9B6B5A004 /* DictationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0F64A2A0A44CE9B6B5A003 /* DictationSettingsView.swift */; };
 		3A991DE907202841FF536AB0 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D32E4FB7C7333CC57974C6 /* WelcomeStepView.swift */; };
@@ -104,7 +103,6 @@
 		E8633ECAF9DFD1A3383E702C /* PindropUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F65084073F3C8D42F7A5D1B /* PindropUITests.swift */; };
 		FEATMODEL1A2B3C4D5E6F /* FeatureModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEATMODEL1A2B3C4D5E6F7 /* FeatureModelType.swift */; };
 		FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */; };
-		FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */; };
 		FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */; };
 		FLOATTYP001A2B3C4D5E6F70 /* FloatingIndicatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */; };
 		FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */; };
@@ -260,7 +258,6 @@
 		AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningServiceTests.swift; sourceTree = "<group>"; };
 		FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorFocusTracker.swift; sourceTree = "<group>"; };
 		FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorFocusTrackerTests.swift; sourceTree = "<group>"; };
-		B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
 		B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReadyStepView.swift; sourceTree = "<group>"; };
 		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
@@ -311,7 +308,6 @@
 		F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingWindow.swift; sourceTree = "<group>"; };
 		FEATMODEL1A2B3C4D5E6F7 /* FeatureModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureModelType.swift; sourceTree = "<group>"; };
 		FIXEDLAYOUT02A2B3C4D5E6F /* MainContentPageLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentPageLayout.swift; sourceTree = "<group>"; };
-		FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorSettingsCard.swift; sourceTree = "<group>"; };
 		FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorShared.swift; sourceTree = "<group>"; };
 		FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorType.swift; sourceTree = "<group>"; };
 		FLUIDDIARFILE01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidSpeakerDiarizer.swift; sourceTree = "<group>"; };
@@ -594,9 +590,7 @@
 				PRESETMANGSHEETFILE /* PresetManagementSheet.swift */,
 				8D0F64A2A0A44CE9B6B5A001 /* SettingsWindowController.swift */,
 				8D0F64A2A0A44CE9B6B5A003 /* DictationSettingsView.swift */,
-				B03BAE36B1E64FE6BB38D403 /* SettingsWindow.swift */,
 				8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
-				FLOATSETCARDFILE01A2B3C4D5E6F /* FloatingIndicatorSettingsCard.swift */,
 				THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */,
 				DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */,
 				643AABFF228E4861A399A74F /* ModelsSettingsView.swift */,
@@ -1047,10 +1041,8 @@
 				PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
 				8D0F64A2A0A44CE9B6B5A002 /* SettingsWindowController.swift in Sources */,
 				8D0F64A2A0A44CE9B6B5A004 /* DictationSettingsView.swift in Sources */,
-				2F1ECEC2A1DC49B6B4E4E5B6 /* SettingsWindow.swift in Sources */,
 				SETTINGSCOMPBUILD01A2B3C4D5E6F /* SettingsComponents.swift in Sources */,
 				0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */,
-				FLOATSETCARD01A2B3C4D5E6F70 /* FloatingIndicatorSettingsCard.swift in Sources */,
 				THEMESETTINGSBUILD01A2B3C4D5E6F /* ThemeSettingsView.swift in Sources */,
 				AD95CE8AF12F494FB66DA5EB /* HotkeysSettingsView.swift in Sources */,
 				4C54BB46B4564F05906BBC7C /* ModelsSettingsView.swift in Sources */,
