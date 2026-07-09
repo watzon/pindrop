@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "لم يتم منح إذن الوصول. يظل وضع Vibe غير محظور مع سياق محدود."
   permission_recommended: "يوصى باستخدام إذن الوصول"
   permission_required: "إذن الوصول مطلوب"
+  permission: "إذن إمكانية الوصول"
 accuracy:
   _self: "دقة"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "أضف بدائل الكلمات لتصحيح أخطاء النسخ الشائعة تلقائيًا."
   words_to_help_pindrop_recognize_them_properl: "أضف كلمات لمساعدة Pindrop في التعرف عليها بشكل صحيح"
   words_you_manually_correct_into_your_vocabul: "أضف الكلمات التي تقوم بتصحيحها يدويًا إلى مفرداتك لعمليات النسخ المستقبلية."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
 ai:
+  _self: "AI"
   enhancement: "تعزيز الذكاء الاصطناعي"
   enhancement_529f5583: "تحسين الذكاء الاصطناعي: %@"
   enhancement_failed: "فشل تحسين الذكاء الاصطناعي"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "اختر الميكروفون الذي يجب أن يستخدمه Pindrop للإملاء وكيف يتصرف أثناء التسجيل."
   which_side_the_navigation_sidebar_appears: "اختر الجانب الذي يظهر عليه شريط التنقل الجانبي."
   how_pindrop_appears_on_screen_while_you_d: "اختر كيف يظهر Pindrop على الشاشة أثناء الإملاء."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
 clean:
   up_filler_words: "تنظيف الكلمات الحشو"
 clear:
   audio_buffer: "مسح المخزن المؤقت للصوت"
   hotkey: "مسح مفتاح التشغيل السريع"
+  shortcut: "مسح الاختصار"
 clears:
   preferences_and_restarts_onboarding: "مسح التفضيلات وإعادة تشغيل الإعداد"
+  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
 click:
   or_hold: "انقر أو اضغط باستمرار"
   or_press: "انقر أو اضغط"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "انقر فوق هذا الرمز في أي وقت للقيام بما يلي:"
 clipboard:
   _self: "الحافظة"
+  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
 cloud:
   _self: "سحاب"
   model: "نموذج السحابة"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "انسخ أحدث نسخة إلى الحافظة"
   to_clipboard: "نسخ إلى الحافظة"
   transcript: "نسخ النص"
+  system_info: "Copy System Info"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "تصحيح الأخطاء النحوية"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "قم بإنشاء ملاحظتك الأولى للبدء"
   your_first_preset_or_duplicate_a_built_in: "قم بإنشاء أول إعداد مسبق لك أو قم بتكرار إعداد مضمن لتخصيصه."
   your_own_presets_or_duplicate_built_in_on: "قم بإنشاء الإعدادات المسبقة الخاصة بك أو نسخ الإعدادات المضمنة لتخصيصها."
+  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "يتم تخزين بيانات الاعتماد بشكل آمن في Keychain"
   saved_successfully: "تم حفظ بيانات الاعتماد بنجاح"
+  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "الحالي: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "يقطع"
 d:
   characters: "%d حرفًا"
+  samples: "%d samples · %@"
 dark:
   _self: "مظلم"
   preview: "معاينة الظلام"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "هل تريد حذف الإعداد المسبق؟"
   transcription: "حذف النسخ"
   transcription_f82187c4: "هل تريد حذف تحويل الصوت إلى نص؟"
+  all: "حذف الكل"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
 dictionary:
   _self: "قاموس"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "تمكين تعزيز الذكاء الاصطناعي"
   live_session_updates_during_recording: "تمكين تحديثات الجلسة المباشرة أثناء التسجيل"
   vibe_mode_ui_context: "تمكين وضع vibe (سياق واجهة المستخدم)"
+  mcp_server: "Enable MCP Server"
 enabled:
   _self: "ممكّن"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "ابدأ"
 global:
+  _self: "عام"
   keyboard_shortcuts: "اختصارات لوحة المفاتيح العالمية"
 go:
   back: "عُد"
@@ -372,6 +397,7 @@ great:
   _self: "عظيم"
 hide:
   this_for_1_hour: "إخفاء هذا لمدة 1 ساعة"
+  api_key: "إخفاء مفتاح API"
 history:
   _self: "تاريخ"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "اضغط مع الاستمرار للتسجيل، ثم حرره لفتح محرر الملاحظات مع النسخ"
   to_record_release_to_stop_and_transcribe: "اضغط باستمرار للتسجيل، ثم حرر للإيقاف والنسخ"
   to_record_release_to_transcribe: "اضغط للتسجيل، ثم حرر للنسخ"
+  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
 hotkey:
   conflict: "الصراع هوتكي"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "استيراد"
   dictionary: "استيراد القاموس"
   error: "خطأ في الاستيراد"
   export: "استيراد/تصدير"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "تضمين نص الحافظة"
 interface:
   _self: "واجهة"
+  language: "لغة الواجهة"
 is:
   assigned_to_both_and_only_the_first_action_wi: "تم تعيين %@ لكل من %@ و%@. سيكون الإجراء الأول فقط نشطًا. قم بتحديث مفاتيح التشغيل السريع في الإعدادات لحل هذا التعارض."
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "اليابانية"
 keep:
   pindrop_current_automatically_or_trigger_a: "حافظ على تحديث Pindrop تلقائيًا، أو قم بإجراء فحص يدوي وقتما تشاء."
+  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "الإطلاق عند تسجيل الدخول: %@"
   at_login_0b36c78f: "إطلاق عند تسجيل الدخول"
+  at_login_fd1a3b7b: "التشغيل عند تسجيل الدخول"
+  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
 layout:
   _self: "تَخطِيط"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "إدارة النماذج"
   presets: "إدارة الإعدادات المسبقة"
   presets_ab87986d: "إدارة الإعدادات المسبقة..."
+  presets_d5d4c2c2: "Manage Presets…"
 manually:
   check_for_new_versions_now: "تحقق يدويًا من وجود إصدارات جديدة الآن."
 media:
@@ -501,6 +534,7 @@ model:
   _self: "نموذج"
   loading_failed: "فشل تحميل النموذج"
   loading_timed_out: "انتهت مهلة تحميل النموذج"
+  validation: "Model Validation"
 models:
   _self: "نماذج"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "لم يتم العثور على إعدادات"
   transcriptions_yet: "لا يوجد نسخ بعد"
   vocabulary_words: "لا توجد كلمات المفردات"
+  learned_participants_yet: "No learned participants yet"
+  providers_configured_yet_e6bc0075: "No providers configured yet"
 not:
   assigned: "لم يتم تعيينه"
   selected: "لم يتم التحديد"
   set: "غير محدد"
   set_93039e60: "لم يتم ضبطه"
+  granted: "غير ممنوح"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "ملحوظة"
   capture_push_to_talk: "التقاط الملاحظات (اضغط لتتحدث)"
@@ -554,6 +593,8 @@ note:
   metadata: "ملاحظة البيانات الوصفية"
   title: "ملاحظة العنوان"
   saved: "تم حفظ الملاحظة"
+  capture_hold: "Note Capture — Hold"
+  capture_toggle_7139a240: "Note Capture — Toggle"
 notes:
   _self: "ملحوظات"
   3add7b96: "ملحوظات"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "الإخراج"
   audio_interface_and_everyday_behavior: "الإخراج والصوت والواجهة والسلوك اليومي"
+  mode: "وضع الإخراج"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "الأذونات"
 pick:
   which_provider_and_model_handles_each_ai_ta: "اختر الموفر والنموذج الذي يتعامل مع كل مهمة من مهام الذكاء الاصطناعي. اتركه كـ \"غير معين\" لتخطي أحد الأغراض."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "حبة"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "اضغط مرة واحدة لبدء التسجيل، واضغط مرة أخرى للإيقاف والنسخ"
   once_to_start_recording_then_press_again_t: "اضغط مرة واحدة لبدء التسجيل، ثم اضغط مرة أخرى للإيقاف والنسخ."
   to_start_recording_press_again_to_open_not: "اضغط لبدء التسجيل، ثم اضغط مرة أخرى لفتح محرر الملاحظات"
+  keys_98b8167e: "اضغط على المفاتيح…"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "النص الأساسي"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "مُستَحسَن"
   the_deterministic_cleaner_handles_mo: "موصى به: يتعامل المنظف الحتمي مع معظم الإملاء بشكل نظيف. قم بتمكين تمرير LLM فقط إذا كنت تريد تحسينًا إضافيًا وقبول المراوغات النموذجية العرضية (الديباجة والردود المحادثة)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "سِجِلّ"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "إعادة تسمية"
   folder: "إعادة تسمية المجلد"
+  participant: "Rename Participant"
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
 replace:
   all: "استبدال الكل"
   words_and_phrases: "استبدال الكلمات والعبارات"
@@ -739,14 +787,17 @@ reset:
   all_settings: "إعادة ضبط كافة الإعدادات؟"
   all_settings_7262c7b7: "إعادة ضبط جميع الإعدادات"
   to_default: "إعادة التعيين إلى الافتراضي"
+  all_settings_e5dbc5fc: "Reset All Settings…"
 retry:
   _self: "أعد المحاولة"
 right:
   _self: "يمين"
 run:
   llm_polish_after_dictation_stops: "قم بتشغيل LLM Polish بعد توقف الإملاء"
+  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
 runtime:
   _self: "وقت التشغيل: %@"
+  status: "حالة التشغيل"
 save:
   _self: "يحفظ"
   as_note: "حفظ كملاحظة"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "اختر اللغة"
   this_floating_indicator_style: "حدد نمط المؤشر العائم هذا."
   voice_model: "حدد النموذج الصوتي"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "مختارة"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "عرض التطبيق"
   app_in_finder: "إظهار التطبيق في Finder"
   in_dock: "عرض في قفص الاتهام"
+  api_key: "إظهار مفتاح API"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "يظهر على شكل حبة في أسفل الشاشة"
   as_a_liquid_glass_orb_in_the_corner_of_the: "يظهر ككرة زجاجية سائلة في زاوية الشاشة"
 sidebar:
   position: "موقف الشريط الجانبي"
+  position_916f66ea: "موضع الشريط الجانبي"
 simplified:
   chinese: "الصينية المبسطة"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "سمة"
   changes_apply_live_across_the_workspace_se: "يتم تطبيق تغييرات السمات مباشرة عبر مساحة العمل والإعدادات ومحرر الملاحظات والمؤشرات العائمة."
   mode: "وضع الموضوع"
+  mode_bb6b0b3d: "وضع السمة"
 this:
   preset_name_is_already_in_use: "هذا الاسم المحدد مسبقًا قيد الاستخدام بالفعل."
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "لا يمكن العثور على هذا النسخ."
   will_clear_all_your_settings_including_api: "سيؤدي هذا إلى مسح جميع إعداداتك، بما في ذلك مفاتيح API ومفاتيح التشغيل السريع وتفضيلات الطراز. سيتم إنهاء التطبيق وسيظهر الإعداد مرة أخرى عند الإطلاق التالي."
   will_permanently_remove_the_transcript_and: "سيؤدي هذا إلى إزالة النص وملف الوسائط المُدار الخاص به نهائيًا."
+  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
 time:
   saved: "الوقت المحفوظ"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "كلمات"
   efb89361: "كلمات"
   min: "الكلمات / دقيقة"
+  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
 wpm:
   _self: "وبم"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "الكرة"
 meeting:
   saved: "تم حفظ الاجتماع"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "ما الجديد في Pindrop"
   s_new: "ما الجديد…"
-
 meet:
   the_new_orb: "تعرّف على Orb الجديد"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "شكرًا لـ %@ على التحقيق وبدء الإصلاح (PR #64)."
   to_for_the_contribution_pr_61: "شكرًا لـ %@ على المساهمة (PR #61)."
-
 dictate:
   in_russian_and_ukrainian: "أملِ بالروسية والأوكرانية"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "لغتان جديدتان للإملاء، متصلتان بالكامل بتوصيات النماذج."
-
 also:
   new_rtl_layout_support_and_20_new_interface: "جديد أيضًا: دعم تخطيط RTL و20 لغة واجهة جديدة."
+advanced:
+  _self: "متقدم"
+agent:
+  setup: "إعداد الوكيل"
+appearance:
+  _self: "المظهر"
+bearer:
+  token: "رمز Bearer"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client:
+  _self: "العميل"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
+dictation:
+  _self: "الإملاء"
+  language: "لغة الإملاء"
+  polish: "تنقيح الإملاء"
+done:
+  _self: "تم"
+input:
+  device: "جهاز الإدخال"
+license:
+  _self: "الترخيص"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "خادم MCP"
+main:
+  window: "النافذة الرئيسية"
+name:
+  _self: "الاسم"
+port:
+  _self: "المنفذ"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project:
+  _self: "المشروع"
+regenerate:
+  _self: "إعادة الإنشاء"
+shortcuts:
+  _self: "اختصارات"
+speakers:
+  _self: "المتحدثون"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while:
+  recording: "أثناء التسجيل"

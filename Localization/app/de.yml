@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "Die Bedienungshilfen-Berechtigung wurde nicht erteilt. Der Vibe-Modus bleibt nicht blockierend mit begrenztem Kontext."
   permission_recommended: "Bedienungshilfen-Berechtigung empfohlen"
   permission_required: "Bedienungshilfen-Berechtigung erforderlich"
+  permission: "Bedienungshilfen-Berechtigung"
 accuracy:
   _self: "Genauigkeit"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "Fügen Sie Wortersatz hinzu, um häufige Transkriptionsfehler automatisch zu korrigieren."
   words_to_help_pindrop_recognize_them_properl: "Fügen Sie Wörter hinzu, um Pindrop zu helfen, sie korrekt zu erkennen"
   words_you_manually_correct_into_your_vocabul: "Fügen Sie manuell korrigierte Wörter zu Ihrem Vokabular für zukünftige Transkriptionen hinzu."
+  this_to_claude_settings_json_in_your_project: "Füge dies zu .claude/settings.json im Projektstamm hinzu oder zu ~/.claude/settings.json für benutzerweite Nutzung."
+  this_to_cursor_mcp_json_in_your_project_root: "Füge dies zu .cursor/mcp.json im Projektstamm hinzu oder zu ~/.cursor/mcp.json für alle Projekte. Cursor danach neu starten."
+  this_to_opencode_json_in_your_project_root_f: "Füge dies zu opencode.json im Projektstamm für projektspezifischen Zugriff hinzu."
+  this_to_codex_config_toml_project_scoped_con: "Füge dies zu ~/.codex/config.toml hinzu. Projektspezifische Konfiguration kann in .codex/config.toml für vertrauenswürdige Projekte liegen."
+  this_to_config_opencode_opencode_json_for_us: "Füge dies zu ~/.config/opencode/opencode.json für benutzerweiten Zugriff über alle Projekte hinzu."
 ai:
+  _self: "KI"
   enhancement: "KI-Verbesserung"
   enhancement_529f5583: "KI-Verbesserung: %@"
   enhancement_failed: "KI-Verbesserung fehlgeschlagen"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Wählen Sie, welches Mikrofon Pindrop für die Diktierung verwenden soll und wie es sich während der Aufnahme verhält."
   which_side_the_navigation_sidebar_appears: "Wähle, auf welcher Seite die Navigationsleiste angezeigt wird."
   how_pindrop_appears_on_screen_while_you_d: "Wähle, wie Pindrop während des Diktierens auf dem Bildschirm erscheint."
+  how_recording_and_processing_status_appea: "Wähle, wie Aufnahme- und Verarbeitungsstatus während der Arbeit angezeigt wird."
+  whether_pindrop_starts_when_you_sign_in_a: "Lege fest, ob Pindrop beim Anmelden startet und im Dock erscheint."
+  which_edge_of_the_main_window_holds_the_n: "Wähle, an welcher Seite des Hauptfensters die Navigationsleiste sitzt."
+  which_microphone_pindrop_uses_for_dictati: "Wähle das Mikrofon, das Pindrop für Diktat verwendet."
 clean:
   up_filler_words: "Füllwörter bereinigen"
 clear:
   audio_buffer: "Audiopuffer löschen"
   hotkey: "Tastenkürzel löschen"
+  shortcut: "Tastenkürzel löschen"
 clears:
   preferences_and_restarts_onboarding: "Löscht Einstellungen und startet das Onboarding neu"
+  preferences_and_restarts_onboarding_7d85115c: "Löscht Einstellungen und startet die Einführung neu."
 click:
   or_hold: "Klicken oder halten"
   or_press: "Klicken oder drücken"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "Klicken Sie jederzeit auf dieses Symbol, um:"
 clipboard:
   _self: "Zwischenablage"
+  temporarily_copies_the_transcript_for: "Zwischenablage kopiert das Transkript zum Einfügen. Direkteingabe tippt wenn möglich in die aktive App."
 cloud:
   _self: "Cloud"
   model: "Cloud-Modell"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "Die neueste Transkription in die Zwischenablage kopieren"
   to_clipboard: "In Zwischenablage kopieren"
   transcript: "Transkription kopieren"
+  system_info: "Systeminfo kopieren"
+  the_configuration_snippet_into_your_preferr: "Kopiere das Konfigurationssnippet in deinen bevorzugten AI-Agent-Host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Kopiert das neueste Transkript in die Zwischenablage."
 correct:
   grammar_mistakes: "Grammatikfehler korrigieren"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "Erstellen Sie Ihre erste Notiz, um zu beginnen"
   your_first_preset_or_duplicate_a_built_in: "Erstellen Sie Ihre erste Voreinstellung oder duplizieren Sie eine eingebaute, um sie anzupassen."
   your_own_presets_or_duplicate_built_in_on: "Erstellen Sie eigene Voreinstellungen oder duplizieren Sie eingebaute, um sie anzupassen."
+  preset: "Voreinstellung erstellen"
 credentials:
   are_stored_securely_in_keychain: "Anmeldedaten werden sicher im Schlüsselbund gespeichert"
   saved_successfully: "Anmeldedaten erfolgreich gespeichert"
+  are_stored_securely_in_keychain_5acff5d3: "Zugangsdaten werden sicher in der Schlüsselbund gespeichert."
 current:
   _self: "Aktuell: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "Ausschneiden"
 d:
   characters: "%d characters"
+  samples: "%d Samples · %@"
 dark:
   _self: "Dunkel"
   preview: "Dunkle Vorschau"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "Voreinstellung löschen?"
   transcription: "Transkription löschen"
   transcription_f82187c4: "Transkription löschen?"
+  all: "Alle löschen"
+  all_participants: "Alle Teilnehmer löschen?"
+  all_participants_60ed6e73: "Alle Teilnehmer löschen…"
 dictionary:
   _self: "Wörterbuch"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "KI-Verbesserung aktivieren"
   live_session_updates_during_recording: "Live-Session-Updates während der Aufnahme aktivieren"
   vibe_mode_ui_context: "Vibe-Modus aktivieren (UI-Kontext)"
+  mcp_server: "MCP-Server aktivieren"
 enabled:
   _self: "Aktiviert"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "Loslegen"
 global:
+  _self: "Global"
   keyboard_shortcuts: "Globale Tastenkürzel"
 go:
   back: "Zurück"
@@ -372,6 +397,7 @@ great:
   _self: "Großartig"
 hide:
   this_for_1_hour: "Für 1 Stunde ausblenden"
+  api_key: "API-Schlüssel ausblenden"
 history:
   _self: "Verlauf"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "Halten Sie zum Aufnehmen gedrückt, lassen Sie los, um den Notizeditor mit Transkription zu öffnen"
   to_record_release_to_stop_and_transcribe: "Halten Sie zum Aufnehmen gedrückt, lassen Sie los, um zu stoppen und zu transkribieren"
   to_record_release_to_transcribe: "Halten Sie zum Aufnehmen gedrückt, lassen Sie los, um zu transkribieren"
+  to_record_then_release_to_open_the_note_edi: "Halten zum Aufnehmen, loslassen öffnet den Notiz-Editor mit der Transkription."
 hotkey:
   conflict: "Tastenkürzel-Konflikt"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "Importieren"
   dictionary: "Wörterbuch importieren"
   error: "Importfehler"
   export: "Import/Export"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "Text der Zwischenablage einbeziehen"
 interface:
   _self: "Oberfläche"
+  language: "Oberflächensprache"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ ist sowohl %@ als auch %@ zugewiesen. Nur die erste Aktion wird aktiv sein. Aktualisieren Sie Ihre Tastenkürzel in den Einstellungen, um diesen Konflikt zu lösen."
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "Japanisch"
 keep:
   pindrop_current_automatically_or_trigger_a: "Halten Sie Pindrop automatisch aktuell oder lösen Sie eine manuelle Prüfung aus, wann immer Sie möchten."
+  pindrop_current_automatically_or_check_for: "Halte Pindrop automatisch aktuell oder prüfe jetzt auf eine neue Version."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "Beim Anmelden starten: %@"
   at_login_0b36c78f: "Beim Anmelden starten"
+  at_login_fd1a3b7b: "Beim Anmelden starten"
+  at_login_could_not_be_changed: "„Beim Anmelden starten“ konnte nicht geändert werden"
 layout:
   _self: "Layout"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "Modelle verwalten"
   presets: "Voreinstellungen verwalten"
   presets_ab87986d: "Voreinstellungen verwalten..."
+  presets_d5d4c2c2: "Voreinstellungen verwalten…"
 manually:
   check_for_new_versions_now: "Jetzt manuell auf neue Versionen prüfen."
 media:
@@ -501,6 +534,7 @@ model:
   _self: "Modell"
   loading_failed: "Modellladen fehlgeschlagen"
   loading_timed_out: "Zeitüberschreitung beim Modellladen"
+  validation: "Modellvalidierung"
 models:
   _self: "Modelle"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "Keine Einstellungen gefunden"
   transcriptions_yet: "Noch keine Transkriptionen"
   vocabulary_words: "Keine Vokabelwörter"
+  learned_participants_yet: "Noch keine gelernten Teilnehmer"
+  providers_configured_yet_e6bc0075: "Noch keine Anbieter konfiguriert"
 not:
   assigned: "Nicht zugewiesen"
   selected: "Nicht ausgewählt"
   set: "Nicht festgelegt"
   set_93039e60: "Nicht festgelegt"
+  granted: "Nicht erteilt"
+  enough_voice_data_yet: "Noch nicht genug Sprachdaten"
+  generated_yet_enable_the_server: "Noch nicht erzeugt — Server aktivieren"
 note:
   _self: "Notiz"
   capture_push_to_talk: "Notizerfassung (Push-to-Talk)"
@@ -554,6 +593,8 @@ note:
   metadata: "Hinweis Metadaten"
   title: "Notiztitel"
   saved: "Notiz gespeichert"
+  capture_hold: "Notizaufnahme — Halten"
+  capture_toggle_7139a240: "Notizaufnahme — Umschalten"
 notes:
   _self: "Notizen"
   3add7b96: "Notizen"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "Ausgabe"
   audio_interface_and_everyday_behavior: "Ausgabe, Audio, Oberfläche und alltägliches Verhalten"
+  mode: "Ausgabemodus"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "Berechtigungen"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Wählen Sie aus, welcher Anbieter und welches Modell die jeweilige KI-Aufgabe übernimmt. Belassen Sie es auf „Nicht zugewiesen“, um einen Zweck zu überspringen."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Wähle Anbieter und Modell für jede KI-Aufgabe. Unzugewiesene Zwecke werden übersprungen."
 pill:
   _self: "Pille"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "Einmal drücken, um die Aufnahme zu starten, erneut drücken, um zu stoppen und zu transkribieren"
   once_to_start_recording_then_press_again_t: "Einmal drücken, um die Aufnahme zu starten, dann erneut drücken, um zu stoppen und zu transkribieren."
   to_start_recording_press_again_to_open_not: "Drücken Sie, um die Aufnahme zu starten, drücken Sie erneut, um den Notizeditor zu öffnen"
+  keys_98b8167e: "Tasten drücken…"
+  once_to_start_recording_then_again_to_open: "Einmal drücken zum Starten, erneut zum Öffnen des Notiz-Editors."
 primary:
   text: "Primärtext"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "Empfohlen"
   the_deterministic_cleaner_handles_mo: "Empfohlen: Der deterministische Reiniger verarbeitet die meisten Diktate sauber. Aktiviere den LLM-Schritt nur, wenn du zusätzlichen Feinschliff möchtest und gelegentliche Modellauffälligkeiten (Einleitungen, Gesprächsantworten) akzeptierst."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Empfohlen: Der deterministische Cleaner erledigt die meiste Diktatur sauber. LLM-Nachbearbeitung nur bei Extra-Politur und akzeptierten Modell-Eigenheiten aktivieren."
 record:
   _self: "Aufnehmen"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "Umbenennen"
   folder: "Ordner umbenennen"
+  participant: "Teilnehmer umbenennen"
+  speakers_in_transcripts_to_teach_pindrop: "Benenne Sprecher in Transkripten um, damit Pindrop Stimmen automatisch erkennt."
 replace:
   all: "Alle ersetzen"
   words_and_phrases: "Wörter und Phrasen ersetzen"
@@ -739,14 +787,17 @@ reset:
   all_settings: "Alle Einstellungen zurücksetzen?"
   all_settings_7262c7b7: "Alle Einstellungen zurücksetzen"
   to_default: "Auf Standard zurücksetzen"
+  all_settings_e5dbc5fc: "Alle Einstellungen zurücksetzen…"
 retry:
   _self: "Wiederholen"
 right:
   _self: "Rechts"
 run:
   llm_polish_after_dictation_stops: "LLM-Nachschliff nach Ende des Diktats ausführen"
+  a_local_http_server_so_ai_agents_can_submit: "Startet einen lokalen HTTP-Server, damit AI-Agenten Transkriptionsjobs senden, Verlauf durchsuchen und Sprecher verwalten können."
 runtime:
   _self: "Laufzeit: %@"
+  status: "Laufzeitstatus"
 save:
   _self: "Speichern"
   as_note: "Als Notiz speichern"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "Sprache auswählen"
   this_floating_indicator_style: "Wählen Sie diesen schwebenden Indikator-Stil."
   voice_model: "Sprachmodell auswählen"
+  the_language_pindrop_should_expect_when_t: "Wähle die Sprache, die Pindrop beim Transkribieren erwartet."
 selected:
   _self: "Ausgewählt"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "App anzeigen"
   app_in_finder: "App im Finder anzeigen"
   in_dock: "Im Dock anzeigen"
+  api_key: "API-Schlüssel anzeigen"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Zeigt sich als Pille am unteren Bildschirmrand"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wird als Orb aus flüssigem Glas in der Bildschirmecke angezeigt"
 sidebar:
   position: "Seitenleistenposition"
+  position_916f66ea: "Seitenleistenposition"
 simplified:
   chinese: "Vereinfachtes Chinesisch"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "Thema"
   changes_apply_live_across_the_workspace_se: "Designänderungen werden live im gesamten Arbeitsbereich, in den Einstellungen, im Notizeditor und in den schwebenden Indikatoren angewendet."
   mode: "Design-Modus"
+  mode_bb6b0b3d: "Designmodus"
 this:
   preset_name_is_already_in_use: "Dieser Voreinstellungsname wird bereits verwendet."
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "Diese Transkription konnte nicht gefunden werden."
   will_clear_all_your_settings_including_api: "Dies löscht alle Ihre Einstellungen, einschließlich API-Schlüssel, Tastenkürzel und Modellpräferenzen. Die App wird beendet und beim nächsten Start erneut das Onboarding anzeigen."
   will_permanently_remove_the_transcript_and: "Dies entfernt die Transkription und ihre verwaltete Mediendatei dauerhaft."
+  removes_all_learned_voice_profiles_and_trai: "Dadurch werden alle gelernten Stimmprofile und Trainingsdaten entfernt. Das kann nicht rückgängig gemacht werden."
+  will_clear_all_your_settings_including_api_2841f4a1: "Dadurch werden alle Einstellungen inklusive API-Schlüssel gelöscht und die Einführung neu gestartet"
 time:
   saved: "Gesparte Zeit"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "Wörter"
   efb89361: "Wörter"
   min: "Wörter/Min"
+  you_manually_correct_can_be_added_to_your: "Manuell korrigierte Wörter können für künftige Diktate ins Vokabular aufgenommen werden."
 wpm:
   _self: "WPM"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "Orb"
 meeting:
   saved: "Meeting gespeichert"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "Neu in Pindrop"
   s_new: "Neuigkeiten…"
-
 meet:
   the_new_orb: "Lerne den neuen Orb kennen"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "Danke an %@ fürs Untersuchen und Anstoßen der Korrektur (PR #64)."
   to_for_the_contribution_pr_61: "Danke an %@ für den Beitrag (PR #61)."
-
 dictate:
   in_russian_and_ukrainian: "Diktiere auf Russisch und Ukrainisch"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "Zwei neue Diktiersprachen, vollständig in die Modellempfehlungen eingebunden."
-
 also:
   new_rtl_layout_support_and_20_new_interface: "Ebenfalls neu: RTL-Layout-Unterstützung und 20 neue Oberflächensprachen."
+advanced:
+  _self: "Erweitert"
+agent:
+  setup: "Agent-Einrichtung"
+appearance:
+  _self: "Erscheinungsbild"
+bearer:
+  token: "Bearer-Token"
+changes:
+  the_language_used_by_pindrop_s_interface: "Ändert die Sprache der Pindrop-Oberfläche."
+client:
+  _self: "Client"
+configuration:
+  file: "Konfigurationsdatei"
+  scope: "Konfigurationsbereich"
+  snippet: "Konfigurationssnippet"
+dictation:
+  _self: "Diktat"
+  language: "Diktatsprache"
+  polish: "Diktat-Politur"
+done:
+  _self: "Fertig"
+input:
+  device: "Eingabegerät"
+license:
+  _self: "Lizenz"
+mcp:
+  configuration_error: "MCP-Konfigurationsfehler"
+  server: "MCP-Server"
+main:
+  window: "Hauptfenster"
+name:
+  _self: "Name"
+port:
+  _self: "Port"
+  changes_take_effect_the_next_time_the_serve: "Portänderungen gelten beim nächsten Serverstart."
+project:
+  _self: "Projekt"
+regenerate:
+  _self: "Neu erzeugen"
+shortcuts:
+  _self: "Tastenkürzel"
+speakers:
+  _self: "Sprecher"
+these:
+  options_are_mutually_exclusive_enabling_on: "Diese Optionen schließen sich gegenseitig aus. Eine aktivieren schaltet die andere aus."
+while:
+  recording: "Während der Aufnahme"

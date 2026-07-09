@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "Oprávnění k usnadnění není uděleno. Vibe režim zůstává neblokující s omezeným kontextem."
   permission_recommended: "Doporučeno oprávnění k usnadnění"
   permission_required: "Je vyžadováno oprávnění k usnadnění"
+  permission: "Oprávnění usnadnění"
 accuracy:
   _self: "Přesnost"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "Přidáním náhrad slov automaticky opravíte běžné chyby v přepisu."
   words_to_help_pindrop_recognize_them_properl: "Přidejte slova, abyste je Pindrop mohli správně rozpoznat"
   words_you_manually_correct_into_your_vocabul: "Přidejte slova, která ručně opravíte, do své slovní zásoby pro budoucí přepisy."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
 ai:
+  _self: "AI"
   enhancement: "Vylepšení AI"
   enhancement_529f5583: "Vylepšení AI: %@"
   enhancement_failed: "Vylepšení AI se nezdařilo"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Pindrop používat pro diktování a jak se chová při nahrávání."
   which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
   how_pindrop_appears_on_screen_while_you_d: "Zvolte, jak se Pindrop zobrazuje na obrazovce během diktování."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
 clean:
   up_filler_words: "Vyčistěte výplňová slova"
 clear:
   audio_buffer: "Vymazat zvukovou vyrovnávací paměť"
   hotkey: "Vymazat klávesovou zkratku"
+  shortcut: "Vymazat zkratku"
 clears:
   preferences_and_restarts_onboarding: "Vymaže předvolby a restartuje registraci"
+  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Klikněte nebo podržte"
   or_press: "Klikněte nebo stiskněte"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "Kliknutím na tuto ikonu můžete kdykoli:"
 clipboard:
   _self: "Schránka"
+  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
 cloud:
   _self: "Mrak"
   model: "Cloudový model"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "Zkopírujte nejnovější přepis do schránky"
   to_clipboard: "Kopírovat do schránky"
   transcript: "Kopírovat přepis"
+  system_info: "Copy System Info"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Opravte gramatické chyby"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "Začněte vytvořením první poznámky"
   your_first_preset_or_duplicate_a_built_in: "Vytvořte svou první předvolbu nebo zkopírujte vestavěnou předvolbu a přizpůsobte ji."
   your_own_presets_or_duplicate_built_in_on: "Vytvořte si vlastní předvolby nebo duplikujte vestavěné a přizpůsobte je."
+  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Přihlašovací údaje jsou bezpečně uloženy v Keychain"
   saved_successfully: "Přihlašovací údaje byly úspěšně uloženy"
+  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Aktuální: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "Střih"
 d:
   characters: "%d znaků"
+  samples: "%d samples · %@"
 dark:
   _self: "Tmavý"
   preview: "Tmavý náhled"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "Smazat předvolbu?"
   transcription: "Smazat přepis"
   transcription_f82187c4: "Smazat přepis?"
+  all: "Smazat vše"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
 dictionary:
   _self: "Slovník"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "Povolit AI Enhancement"
   live_session_updates_during_recording: "Povolit aktualizace živé relace během nahrávání"
   vibe_mode_ui_context: "Povolit režim vibrace (kontext uživatelského rozhraní)"
+  mcp_server: "Enable MCP Server"
 enabled:
   _self: "Povoleno"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "Začněte"
 global:
+  _self: "Globální"
   keyboard_shortcuts: "Globální klávesové zkratky"
 go:
   back: "Vraťte se zpět"
@@ -372,6 +397,7 @@ great:
   _self: "Velký"
 hide:
   this_for_1_hour: "Skryjte to na 1 hodinu"
+  api_key: "Skrýt API klíč"
 history:
   _self: "Dějiny"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "Podržením nahrajete, uvolněním otevřete editor poznámek s přepisem"
   to_record_release_to_stop_and_transcribe: "Podržením záznam nahrajete, uvolněním zastavíte a přepíšete"
   to_record_release_to_transcribe: "Podržením zaznamenáte, uvolněním přepíšete"
+  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
 hotkey:
   conflict: "Konflikt klávesových zkratek"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "Importovat"
   dictionary: "Importovat slovník"
   error: "Chyba importu"
   export: "Import/Export"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "Zahrnout text ze schránky"
 interface:
   _self: "Rozhraní"
+  language: "Jazyk rozhraní"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ je přiřazeno k %@ i %@. Aktivní bude pouze první akce. Tento konflikt vyřešíte aktualizací klávesových zkratek v Nastavení."
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "japonský"
 keep:
   pindrop_current_automatically_or_trigger_a: "Udržujte Pindrop aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
+  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "Spustit při přihlášení: %@"
   at_login_0b36c78f: "Spusťte při přihlášení"
+  at_login_fd1a3b7b: "Spustit při přihlášení"
+  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
 layout:
   _self: "Rozložení"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "Správa modelů"
   presets: "Správa předvoleb"
   presets_ab87986d: "Spravovat předvolby..."
+  presets_d5d4c2c2: "Manage Presets…"
 manually:
   check_for_new_versions_now: "Nyní ručně zkontrolujte nové verze."
 media:
@@ -501,6 +534,7 @@ model:
   _self: "Model"
   loading_failed: "Načítání modelu se nezdařilo"
   loading_timed_out: "Vypršel časový limit načítání modelu"
+  validation: "Model Validation"
 models:
   _self: "Modelky"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "Nebylo nalezeno žádné nastavení"
   transcriptions_yet: "Zatím žádné přepisy"
   vocabulary_words: "Žádná slova slovní zásoby"
+  learned_participants_yet: "No learned participants yet"
+  providers_configured_yet_e6bc0075: "No providers configured yet"
 not:
   assigned: "Nezařazeno"
   selected: "Nevybráno"
   set: "Nenastaveno"
   set_93039e60: "Nenastaveno"
+  granted: "Neuděleno"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Poznámka"
   capture_push_to_talk: "Zachycení poznámek (Push-to-Talk)"
@@ -554,6 +593,8 @@ note:
   metadata: "Poznámka: Metadata"
   title: "Název poznámky"
   saved: "Poznámka uložena"
+  capture_hold: "Note Capture — Hold"
+  capture_toggle_7139a240: "Note Capture — Toggle"
 notes:
   _self: "Poznámky"
   3add7b96: "poznámky"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "Výstup"
   audio_interface_and_everyday_behavior: "Výstup, zvuk, rozhraní a každodenní chování"
+  mode: "Režim výstupu"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "Oprávnění"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Vyberte poskytovatele a model, který zpracuje jednotlivé úkoly AI. Chcete-li přeskočit účel, ponechte jako „Nepřiřazeno“."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Pilulka"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "Jedním stisknutím spustíte nahrávání, dalším stisknutím zastavíte a přepíšete"
   once_to_start_recording_then_press_again_t: "Jedním stisknutím zahájíte nahrávání, dalším stisknutím zastavíte a přepíšete."
   to_start_recording_press_again_to_open_not: "Stisknutím spustíte nahrávání, dalším stisknutím otevřete editor poznámek"
+  keys_98b8167e: "Stiskněte klávesy…"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Primární text"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "Doporučeno"
   the_deterministic_cleaner_handles_mo: "Doporučeno: deterministický čistič zvládne většinu diktátu čistě. Povolte průkaz LLM pouze v případě, že chcete extra lesk a přijímáte občasné modelové vtipy (preambule, konverzační odpovědi)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Záznam"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "Přejmenovat"
   folder: "Přejmenovat složku"
+  participant: "Rename Participant"
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
 replace:
   all: "Nahradit vše"
   words_and_phrases: "Nahraďte slova a fráze"
@@ -739,14 +787,17 @@ reset:
   all_settings: "Obnovit všechna nastavení?"
   all_settings_7262c7b7: "Obnovte všechna nastavení"
   to_default: "Obnovit výchozí"
+  all_settings_e5dbc5fc: "Reset All Settings…"
 retry:
   _self: "Zkuste to znovu"
 right:
   _self: "Právo"
 run:
   llm_polish_after_dictation_stops: "Po zastavení diktování spusťte LLM Polish"
+  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
 runtime:
   _self: "Doba běhu: %@"
+  status: "Stav běhu"
 save:
   _self: "Uložit"
   as_note: "Uložit jako poznámku"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "Vyberte jazyk"
   this_floating_indicator_style: "Vyberte tento styl plovoucího indikátoru."
   voice_model: "Vyberte Hlasový model"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Vybraný"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "Zobrazit aplikaci"
   app_in_finder: "Zobrazit aplikaci ve Finderu"
   in_dock: "Zobrazit v Docku"
+  api_key: "Zobrazit API klíč"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Zobrazuje se jako koule z tekutého skla v rohu obrazovky"
 sidebar:
   position: "Poloha bočního panelu"
+  position_916f66ea: "Pozice postranního panelu"
 simplified:
   chinese: "Zjednodušená čínština"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "Téma"
   changes_apply_live_across_the_workspace_se: "Změny motivu se projeví na pracovní ploše, v nastavení, v editoru poznámek a v plovoucích indikátorech."
   mode: "Tématický režim"
+  mode_bb6b0b3d: "Režim motivu"
 this:
   preset_name_is_already_in_use: "Tento název předvolby se již používá."
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "Tento přepis se nepodařilo nalézt."
   will_clear_all_your_settings_including_api: "Tím vymažete všechna vaše nastavení, včetně klíčů API, klávesových zkratek a předvoleb modelu. Aplikace se ukončí a při příštím spuštění se znovu zobrazí."
   will_permanently_remove_the_transcript_and: "Tím trvale odstraníte přepis a jeho spravovaný mediální soubor."
+  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
 time:
   saved: "Čas ušetřen"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "Slova"
   efb89361: "slova"
   min: "slova/min"
+  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
 wpm:
   _self: "WPM"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "Koule"
 meeting:
   saved: "Schůzka uložena"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "Co je nového v Pindropu"
   s_new: "Co je nového…"
-
 meet:
   the_new_orb: "Seznamte se s novým Orbem"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "Díky %@ za prozkoumání a nastartování opravy (PR #64)."
   to_for_the_contribution_pr_61: "Díky %@ za příspěvek (PR #61)."
-
 dictate:
   in_russian_and_ukrainian: "Diktujte rusky a ukrajinsky"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "Dva nové jazyky diktování, plně napojené na doporučení modelů."
-
 also:
   new_rtl_layout_support_and_20_new_interface: "Nově také: podpora rozvržení RTL a 20 nových jazyků rozhraní."
+advanced:
+  _self: "Pokročilé"
+agent:
+  setup: "Nastavení agenta"
+appearance:
+  _self: "Vzhled"
+bearer:
+  token: "Bearer token"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client:
+  _self: "Klient"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
+dictation:
+  _self: "Diktování"
+  language: "Jazyk diktování"
+  polish: "Vylepšení diktování"
+done:
+  _self: "Hotovo"
+input:
+  device: "Vstupní zařízení"
+license:
+  _self: "Licence"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "Server MCP"
+main:
+  window: "Hlavní okno"
+name:
+  _self: "Název"
+port:
+  _self: "Port"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project:
+  _self: "Projekt"
+regenerate:
+  _self: "Znovu vygenerovat"
+shortcuts:
+  _self: "Zkratky"
+speakers:
+  _self: "Řečníci"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while:
+  recording: "Během nahrávání"

@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "アクセシビリティ権限が付与されていません。 Vibe モードは、制限されたコンテキストでノンブロッキングのままです。"
   permission_recommended: "アクセシビリティ許可の推奨"
   permission_required: "アクセシビリティ許可が必要です"
+  permission: "アクセシビリティの許可"
 accuracy:
   _self: "正確さ"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "単語の置換を追加して、一般的な転写エラーを自動的に修正します。"
   words_to_help_pindrop_recognize_them_properl: "Pindrop が正しく認識できるように単語を追加します"
   words_you_manually_correct_into_your_vocabul: "今後の文字起こしのために、手動で修正した単語を語彙に追加します。"
+  this_to_claude_settings_json_in_your_project: "プロジェクト直下の .claude/settings.json、またはユーザー全体用の ~/.claude/settings.json に追加します。"
+  this_to_cursor_mcp_json_in_your_project_root: "プロジェクト直下の .cursor/mcp.json、または全プロジェクト用の ~/.cursor/mcp.json に追加し、保存後に Cursor を再起動します。"
+  this_to_opencode_json_in_your_project_root_f: "プロジェクト固有のアクセス用に、プロジェクト直下の opencode.json に追加します。"
+  this_to_codex_config_toml_project_scoped_con: "~/.codex/config.toml に追加します。信頼できるプロジェクトでは .codex/config.toml にプロジェクト設定を置けます。"
+  this_to_config_opencode_opencode_json_for_us: "すべてのプロジェクトでユーザー全体のアクセス用に ~/.config/opencode/opencode.json に追加します。"
 ai:
+  _self: "AI"
   enhancement: "AIの強化"
   enhancement_529f5583: "AI強化: %@"
   enhancement_failed: "AI強化に失敗しました"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Pindrop がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
   which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
   how_pindrop_appears_on_screen_while_you_d: "音声入力中に Pindrop を画面にどう表示するかを選択します。"
+  how_recording_and_processing_status_appea: "作業中の録音・処理ステータスの表示方法を選びます。"
+  whether_pindrop_starts_when_you_sign_in_a: "ログイン時に Pindrop を起動し、Dock に表示するかを選びます。"
+  which_edge_of_the_main_window_holds_the_n: "メインウィンドウのどちら側にナビゲーションサイドバーを置くか選びます。"
+  which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
 clean:
   up_filler_words: "つなぎ言葉をクリーンアップする"
 clear:
   audio_buffer: "クリアオーディオバッファ"
   hotkey: "ホットキーをクリア"
+  shortcut: "ショートカットをクリア"
 clears:
   preferences_and_restarts_onboarding: "設定をクリアしてオンボーディングを再開します"
+  preferences_and_restarts_onboarding_7d85115c: "設定を消去し、オンボーディングを再開します。"
 click:
   or_hold: "クリックまたはホールド"
   or_press: "クリックまたは押してください"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "このアイコンをクリックすると、いつでも次のことができます。"
 clipboard:
   _self: "クリップボード"
+  temporarily_copies_the_transcript_for: "クリップボードは貼り付け用に一時コピーします。直接入力は可能な場合アクティブなアプリに入力します。"
 cloud:
   _self: "雲"
   model: "クラウドモデル"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "最新のトランスクリプトをクリップボードにコピーします"
   to_clipboard: "クリップボードにコピー"
   transcript: "成績証明書のコピー"
+  system_info: "システム情報をコピー"
+  the_configuration_snippet_into_your_preferr: "設定スニペットを好みの AI エージェントホストにコピーします。"
+  the_most_recent_transcript_to_the_clipboard_b9736933: "最新の文字起こしをクリップボードにコピーします。"
 correct:
   grammar_mistakes: "文法の間違いを正す"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "始めるために最初のメモを作成します"
   your_first_preset_or_duplicate_a_built_in: "最初のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
   your_own_presets_or_duplicate_built_in_on: "独自のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
+  preset: "プリセットを作成"
 credentials:
   are_stored_securely_in_keychain: "認証情報はキーチェーンに安全に保存されます"
   saved_successfully: "認証情報が正常に保存されました"
+  are_stored_securely_in_keychain_5acff5d3: "認証情報はキーチェーンに安全に保存されます。"
 current:
   _self: "現在: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "カット"
 d:
   characters: "%d characters"
+  samples: "%d サンプル · %@"
 dark:
   _self: "暗い"
   preview: "ダークプレビュー"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "プリセットを削除しますか?"
   transcription: "文字起こしの削除"
   transcription_f82187c4: "転写を削除しますか?"
+  all: "すべて削除"
+  all_participants: "すべての参加者を削除しますか？"
+  all_participants_60ed6e73: "すべての参加者を削除…"
 dictionary:
   _self: "辞書"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "AI 強化を有効にする"
   live_session_updates_during_recording: "録画中のライブセッション更新を有効にする"
   vibe_mode_ui_context: "バイブモードを有効にする (UI コンテキスト)"
+  mcp_server: "MCP サーバーを有効化"
 enabled:
   _self: "有効"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "始めましょう"
 global:
+  _self: "グローバル"
   keyboard_shortcuts: "グローバルキーボードショートカット"
 go:
   back: "戻る"
@@ -372,6 +397,7 @@ great:
   _self: "素晴らしい"
 hide:
   this_for_1_hour: "これを1時間非表示にします"
+  api_key: "API キーを隠す"
 history:
   _self: "歴史"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "長押しして録音、離すと文字起こし付きのノートエディターが開きます"
   to_record_release_to_stop_and_transcribe: "押し続けると録音、放すと停止および転写"
   to_record_release_to_transcribe: "押し続けると録音、放すと文字起こし"
+  to_record_then_release_to_open_the_note_edi: "押し続けて録音し、離すと文字起こし付きのノート編集が開きます。"
 hotkey:
   conflict: "ホットキーの競合"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "読み込み"
   dictionary: "辞書のインポート"
   error: "インポートエラー"
   export: "インポート/エクスポート"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "クリップボードのテキストを含める"
 interface:
   _self: "インタフェース"
+  language: "インターフェース言語"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ は %@ と %@ の両方に割り当てられます。最初のアクションのみがアクティブになります。この競合を解決するには、設定でホットキーを更新してください。"
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "日本語"
 keep:
   pindrop_current_automatically_or_trigger_a: "Pindrop を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
+  pindrop_current_automatically_or_check_for: "Pindrop を自動更新するか、今すぐ新しいバージョンを確認します。"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "ログイン時に起動: %@"
   at_login_0b36c78f: "ログイン時に起動"
+  at_login_fd1a3b7b: "ログイン時に起動"
+  at_login_could_not_be_changed: "「ログイン時に起動」を変更できませんでした"
 layout:
   _self: "レイアウト"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "モデルの管理"
   presets: "プリセットの管理"
   presets_ab87986d: "プリセットを管理..."
+  presets_d5d4c2c2: "プリセットを管理…"
 manually:
   check_for_new_versions_now: "今すぐ新しいバージョンを手動で確認してください。"
 media:
@@ -501,6 +534,7 @@ model:
   _self: "モデル"
   loading_failed: "モデルのロードに失敗しました"
   loading_timed_out: "モデルの読み込みがタイムアウトしました"
+  validation: "モデル検証"
 models:
   _self: "モデル"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "設定が見つかりません"
   transcriptions_yet: "転写はまだありません"
   vocabulary_words: "語彙がありません"
+  learned_participants_yet: "学習済みの参加者はまだありません"
+  providers_configured_yet_e6bc0075: "プロバイダはまだ設定されていません"
 not:
   assigned: "割り当てられていません"
   selected: "未選択"
   set: "未設定"
   set_93039e60: "未設定"
+  granted: "未許可"
+  enough_voice_data_yet: "音声データがまだ不足しています"
+  generated_yet_enable_the_server: "未生成 — サーバーを有効にしてください"
 note:
   _self: "注記"
   capture_push_to_talk: "ノートキャプチャ (プッシュツートーク)"
@@ -554,6 +593,8 @@ note:
   metadata: "メモのメタデータ"
   title: "メモのタイトル"
   saved: "メモを保存しました"
+  capture_hold: "ノート録音 — 押し続け"
+  capture_toggle_7139a240: "ノート録音 — トグル"
 notes:
   _self: "注意事項"
   3add7b96: "メモ"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "出力"
   audio_interface_and_everyday_behavior: "出力、オーディオ、インターフェイス、日常の動作"
+  mode: "出力モード"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "権限"
 pick:
   which_provider_and_model_handles_each_ai_ta: "各 AI タスクを処理するプロバイダーとモデルを選択します。目的をスキップするには、「未割り当て」のままにします。"
+  which_provider_and_model_handles_each_ai_ta_b719504f: "各 AI タスクに使うプロバイダとモデルを選びます。未割り当てはスキップされます。"
 pill:
   _self: "ピル"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
   once_to_start_recording_then_press_again_t: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
   to_start_recording_press_again_to_open_not: "押すと録音が開始され、もう一度押すとノートエディタが開きます"
+  keys_98b8167e: "キーを押してください…"
+  once_to_start_recording_then_again_to_open: "一度押して録音を開始し、もう一度押してノート編集を開きます。"
 primary:
   text: "一次テキスト"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "推奨"
   the_deterministic_cleaner_handles_mo: "推奨: 決定論的クリーナーで大半の口述は十分に整形されます。さらに仕上げが欲しい場合のみ LLM 処理を有効にし、モデル特有の癖（前置き、会話的な返答）を許容してください。"
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "推奨: 決定論的クリーナーで大半の音声入力は十分です。追加の仕上げが必要でモデルの癖を許容する場合のみ LLM を有効にしてください。"
 record:
   _self: "記録"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "名前の変更"
   folder: "フォルダー名の変更"
+  participant: "参加者の名前を変更"
+  speakers_in_transcripts_to_teach_pindrop: "文字起こしで話者名を変え、Pindrop に声の自動認識を教えましょう。"
 replace:
   all: "すべて置換"
   words_and_phrases: "単語やフレーズを置き換える"
@@ -739,14 +787,17 @@ reset:
   all_settings: "すべての設定をリセットしますか?"
   all_settings_7262c7b7: "すべての設定をリセットする"
   to_default: "デフォルトにリセット"
+  all_settings_e5dbc5fc: "すべての設定をリセット…"
 retry:
   _self: "リトライ"
 right:
   _self: "右"
 run:
   llm_polish_after_dictation_stops: "口述停止後に LLM 仕上げを実行"
+  a_local_http_server_so_ai_agents_can_submit: "AI エージェントが文字起こしジョブ送信・履歴検索・話者管理できるようローカル HTTP サーバーを実行します。"
 runtime:
   _self: "ランタイム: %@"
+  status: "ランタイム状態"
 save:
   _self: "保存"
   as_note: "メモとして保存"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "言語を選択してください"
   this_floating_indicator_style: "このフローティング インジケーター スタイルを選択します。"
   voice_model: "音声モデルの選択"
+  the_language_pindrop_should_expect_when_t: "音声を文字起こしするときに想定する言語を選びます。"
 selected:
   _self: "選択済み"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "アプリを表示"
   app_in_finder: "Finder にアプリを表示"
   in_dock: "ドックに表示"
+  api_key: "API キーを表示"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
   as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
 sidebar:
   position: "サイドバーの位置"
+  position_916f66ea: "サイドバーの位置"
 simplified:
   chinese: "簡体字中国語"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "テーマ"
   changes_apply_live_across_the_workspace_se: "テーマの変更は、ワークスペース、設定、ノートエディター、フローティングインジケーター全体にライブで適用されます。"
   mode: "テーマモード"
+  mode_bb6b0b3d: "テーマモード"
 this:
   preset_name_is_already_in_use: "このプリセット名はすでに使用されています。"
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "この転写は見つかりませんでした。"
   will_clear_all_your_settings_including_api: "これにより、API キー、ホットキー、モデル設定を含むすべての設定がクリアされます。アプリは終了し、次回起動時に再びオンボーディングが表示されます。"
   will_permanently_remove_the_transcript_and: "これにより、トランスクリプトとその管理対象メディア ファイルが完全に削除されます。"
+  removes_all_learned_voice_profiles_and_trai: "学習済みの声プロファイルとトレーニングデータをすべて削除します。元に戻せません。"
+  will_clear_all_your_settings_including_api_2841f4a1: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
 time:
   saved: "時間の節約"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "言葉"
   efb89361: "言葉"
   min: "単語/分"
+  you_manually_correct_can_be_added_to_your: "手動で修正した語を語彙に追加し、今後の音声入力に使えます。"
 wpm:
   _self: "WPM"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "オーブ"
 meeting:
   saved: "ミーティングを保存しました"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "Pindrop の新機能"
   s_new: "新機能…"
-
 meet:
   the_new_orb: "新しい Orb を紹介"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "調査し修正のきっかけを作ってくれた %@ に感謝します (PR #64)。"
   to_for_the_contribution_pr_61: "貢献してくれた %@ に感謝します (PR #61)。"
-
 dictate:
   in_russian_and_ukrainian: "ロシア語とウクライナ語でディクテーション"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "2つの新しいディクテーション言語が、モデル推奨に完全に組み込まれました。"
-
 also:
   new_rtl_layout_support_and_20_new_interface: "そのほか、RTL レイアウト対応と20の新しいインターフェイス言語も追加されました。"
+advanced:
+  _self: "詳細"
+agent:
+  setup: "エージェント設定"
+appearance:
+  _self: "外観"
+bearer:
+  token: "ベアラートークン"
+changes:
+  the_language_used_by_pindrop_s_interface: "Pindrop のインターフェース言語を変更します。"
+client:
+  _self: "クライアント"
+configuration:
+  file: "設定ファイル"
+  scope: "設定スコープ"
+  snippet: "設定スニペット"
+dictation:
+  _self: "音声入力"
+  language: "音声入力の言語"
+  polish: "音声入力の仕上げ"
+done:
+  _self: "完了"
+input:
+  device: "入力デバイス"
+license:
+  _self: "ライセンス"
+mcp:
+  configuration_error: "MCP 設定エラー"
+  server: "MCP サーバー"
+main:
+  window: "メインウィンドウ"
+name:
+  _self: "名前"
+port:
+  _self: "ポート"
+  changes_take_effect_the_next_time_the_serve: "ポートの変更は次回サーバー起動時に反映されます。"
+project:
+  _self: "プロジェクト"
+regenerate:
+  _self: "再生成"
+shortcuts:
+  _self: "ショートカット"
+speakers:
+  _self: "話者"
+these:
+  options_are_mutually_exclusive_enabling_on: "これらのオプションは排他的です。一方を有効にすると他方は無効になります。"
+while:
+  recording: "録音中"

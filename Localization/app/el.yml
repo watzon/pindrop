@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "Δεν χορηγείται άδεια προσβασιμότητας. Η λειτουργία Vibe παραμένει μη μπλοκαρισμένη με περιορισμένο περιβάλλον."
   permission_recommended: "Συνιστάται άδεια προσβασιμότητας"
   permission_required: "Απαιτείται άδεια προσβασιμότητας"
+  permission: "Άδεια προσβασιμότητας"
 accuracy:
   _self: "Ακρίβεια"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "Προσθέστε αντικαταστάσεις λέξεων για αυτόματη διόρθωση συνηθισμένων σφαλμάτων μεταγραφής."
   words_to_help_pindrop_recognize_them_properl: "Προσθέστε λέξεις για να βοηθήσετε τον Pindrop να τις αναγνωρίσει σωστά"
   words_you_manually_correct_into_your_vocabul: "Προσθέστε λέξεις που διορθώνετε χειροκίνητα στο λεξιλόγιό σας για μελλοντικές μεταγραφές."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
 ai:
+  _self: "AI"
   enhancement: "Βελτίωση AI"
   enhancement_529f5583: "Βελτίωση AI: %@"
   enhancement_failed: "Η βελτίωση AI απέτυχε"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Pindrop για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
   which_side_the_navigation_sidebar_appears: "Επιλέξτε σε ποια πλευρά θα εμφανίζεται η πλαϊνή γραμμή πλοήγησης."
   how_pindrop_appears_on_screen_while_you_d: "Επιλέξτε πώς εμφανίζεται το Pindrop στην οθόνη ενώ υπαγορεύετε."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
 clean:
   up_filler_words: "Καθαρίστε τις λέξεις πλήρωσης"
 clear:
   audio_buffer: "Εκκαθάριση προσωρινής μνήμης ήχου"
   hotkey: "Εκκαθάριση πλήκτρου πρόσβασης"
+  shortcut: "Καθαρισμός συντόμευσης"
 clears:
   preferences_and_restarts_onboarding: "Διαγράφει τις προτιμήσεις και επανεκκινεί την ενσωμάτωση"
+  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Κάντε κλικ ή κρατήστε πατημένο"
   or_press: "Κάντε κλικ ή πατήστε"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "Κάντε κλικ σε αυτό το εικονίδιο ανά πάσα στιγμή για:"
 clipboard:
   _self: "Πρόχειρο"
+  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
 cloud:
   _self: "Σύννεφο"
   model: "Cloud Model"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "Αντιγράψτε την πιο πρόσφατη μεταγραφή στο πρόχειρο"
   to_clipboard: "Αντιγραφή στο πρόχειρο"
   transcript: "Αντιγραφή μεταγραφής"
+  system_info: "Copy System Info"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Διορθώστε τα γραμματικά λάθη"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "Δημιουργήστε την πρώτη σας σημείωση για να ξεκινήσετε"
   your_first_preset_or_duplicate_a_built_in: "Δημιουργήστε την πρώτη σας προεπιλογή ή αντιγράψτε μια ενσωματωμένη για να την προσαρμόσετε."
   your_own_presets_or_duplicate_built_in_on: "Δημιουργήστε τις δικές σας προεπιλογές ή διπλότυπες ενσωματωμένες για να τις προσαρμόσετε."
+  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Τα διαπιστευτήρια αποθηκεύονται με ασφάλεια στο Keychain"
   saved_successfully: "Τα διαπιστευτήρια αποθηκεύτηκαν με επιτυχία"
+  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Τρέχον: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "Τομή"
 d:
   characters: "%d χαρακτήρες"
+  samples: "%d samples · %@"
 dark:
   _self: "Σκοτάδι"
   preview: "Σκοτεινή προεπισκόπηση"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "Διαγραφή προεπιλογής;"
   transcription: "Διαγραφή μεταγραφής"
   transcription_f82187c4: "Διαγραφή μεταγραφής;"
+  all: "Διαγραφή όλων"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
 dictionary:
   _self: "Λεξικό"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "Ενεργοποίηση AI Enhancement"
   live_session_updates_during_recording: "Ενεργοποιήστε τις ζωντανές ενημερώσεις περιόδου λειτουργίας κατά την εγγραφή"
   vibe_mode_ui_context: "Ενεργοποίηση λειτουργίας vibe (περιβάλλον διεπαφής χρήστη)"
+  mcp_server: "Enable MCP Server"
 enabled:
   _self: "Ενεργοποιημένο"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "Ξεκινήστε"
 global:
+  _self: "Καθολικό"
   keyboard_shortcuts: "Καθολικές συντομεύσεις πληκτρολογίου"
 go:
   back: "Πάω πίσω"
@@ -372,6 +397,7 @@ great:
   _self: "Μεγάλος"
 hide:
   this_for_1_hour: "Κρύψτε το για 1 ώρα"
+  api_key: "Απόκρυψη κλειδιού API"
 history:
   _self: "Ιστορία"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "Κρατήστε πατημένο για εγγραφή, αφήστε το για να ανοίξει το πρόγραμμα επεξεργασίας σημειώσεων με μεταγραφή"
   to_record_release_to_stop_and_transcribe: "Κρατήστε πατημένο για εγγραφή, αφήστε το για διακοπή και μεταγραφή"
   to_record_release_to_transcribe: "Κρατήστε πατημένο για εγγραφή, αφήστε το για μεταγραφή"
+  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
 hotkey:
   conflict: "Σύγκρουση πλήκτρων πρόσβασης"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "Εισαγωγή"
   dictionary: "Λεξικό εισαγωγής"
   error: "Σφάλμα εισαγωγής"
   export: "Εισαγωγή/Εξαγωγή"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "Συμπεριλάβετε κείμενο στο πρόχειρο"
 interface:
   _self: "Διασύνδεση"
+  language: "Γλώσσα διεπαφής"
 is:
   assigned_to_both_and_only_the_first_action_wi: "Το %@ έχει εκχωρηθεί τόσο στο %@ όσο και στο %@. Μόνο η πρώτη ενέργεια θα είναι ενεργή. Ενημερώστε τα πλήκτρα πρόσβασης στις Ρυθμίσεις για να επιλύσετε αυτήν τη διένεξη."
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "Ιαπωνικά"
 keep:
   pindrop_current_automatically_or_trigger_a: "Διατηρήστε το Pindrop τρέχον αυτόματα ή ενεργοποιήστε έναν μη αυτόματο έλεγχο όποτε θέλετε."
+  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "Εκκίνηση κατά τη σύνδεση: %@"
   at_login_0b36c78f: "Εκκίνηση κατά τη σύνδεση"
+  at_login_fd1a3b7b: "Εκκίνηση στη σύνδεση"
+  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
 layout:
   _self: "Σχέδιο"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "Διαχείριση μοντέλων"
   presets: "Διαχείριση προεπιλογών"
   presets_ab87986d: "Διαχείριση προεπιλογών..."
+  presets_d5d4c2c2: "Manage Presets…"
 manually:
   check_for_new_versions_now: "Ελέγξτε με μη αυτόματο τρόπο για νέες εκδόσεις τώρα."
 media:
@@ -501,6 +534,7 @@ model:
   _self: "Μοντέλο"
   loading_failed: "Η φόρτωση του μοντέλου απέτυχε"
   loading_timed_out: "Λήξη χρονικού ορίου φόρτωσης μοντέλου"
+  validation: "Model Validation"
 models:
   _self: "Μοντέλα"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "Δεν βρέθηκαν ρυθμίσεις"
   transcriptions_yet: "Δεν υπάρχουν ακόμη μεταγραφές"
   vocabulary_words: "Χωρίς λεξιλογικές λέξεις"
+  learned_participants_yet: "No learned participants yet"
+  providers_configured_yet_e6bc0075: "No providers configured yet"
 not:
   assigned: "Δεν έχει ανατεθεί"
   selected: "Δεν έχει επιλεγεί"
   set: "Δεν έχει οριστεί"
   set_93039e60: "Δεν έχει οριστεί"
+  granted: "Δεν παραχωρήθηκε"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Σημείωμα"
   capture_push_to_talk: "Λήψη σημειώσεων (Push-to-Talk)"
@@ -554,6 +593,8 @@ note:
   metadata: "Σημείωση Μεταδεδομένα"
   title: "Σημείωση Τίτλος"
   saved: "Η σημείωση αποθηκεύτηκε"
+  capture_hold: "Note Capture — Hold"
+  capture_toggle_7139a240: "Note Capture — Toggle"
 notes:
   _self: "Σημειώσεις"
   3add7b96: "σημειώσεις"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "Παραγωγή"
   audio_interface_and_everyday_behavior: "Έξοδος, ήχος, διεπαφή και καθημερινή συμπεριφορά"
+  mode: "Λειτουργία εξόδου"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "Άδειες"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Επιλέξτε ποιος πάροχος και μοντέλο χειρίζεται κάθε εργασία AI. Αποχωρήστε ως \"Δεν έχει ανατεθεί\" για να παραλείψετε έναν σκοπό."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Χάπι"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "Πατήστε μία φορά για να ξεκινήσει η εγγραφή, πατήστε ξανά για διακοπή και μεταγραφή"
   once_to_start_recording_then_press_again_t: "Πατήστε μία φορά για να ξεκινήσει η εγγραφή και μετά πατήστε ξανά για διακοπή και μεταγραφή."
   to_start_recording_press_again_to_open_not: "Πατήστε για να ξεκινήσει η εγγραφή, πατήστε ξανά για να ανοίξετε το πρόγραμμα επεξεργασίας σημειώσεων"
+  keys_98b8167e: "Πατήστε πλήκτρα…"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Πρωτεύον κείμενο"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "Συνιστάται"
   the_deterministic_cleaner_handles_mo: "Συνιστάται: το ντετερμινιστικό καθαριστικό χειρίζεται καθαρά την περισσότερη υπαγόρευση. Ενεργοποιήστε το πάσο LLM μόνο εάν θέλετε επιπλέον στίλβωση και αποδεχτείτε περιστασιακές ιδιορρυθμίες μοντέλων (προοίμιο, απαντήσεις συνομιλίας)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Ρεκόρ"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "Μετονομάζω"
   folder: "Μετονομασία φακέλου"
+  participant: "Rename Participant"
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
 replace:
   all: "Αντικατάσταση όλων"
   words_and_phrases: "Αντικαταστήστε λέξεις και φράσεις"
@@ -739,14 +787,17 @@ reset:
   all_settings: "Επαναφορά όλων των ρυθμίσεων;"
   all_settings_7262c7b7: "Επαναφέρετε όλες τις ρυθμίσεις"
   to_default: "Επαναφορά στην προεπιλογή"
+  all_settings_e5dbc5fc: "Reset All Settings…"
 retry:
   _self: "Δοκιμάζω πάλι"
 right:
   _self: "Δικαίωμα"
 run:
   llm_polish_after_dictation_stops: "Εκτελέστε LLM Polish αφού σταματήσει η υπαγόρευση"
+  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
 runtime:
   _self: "Χρόνος εκτέλεσης: %@"
+  status: "Κατάσταση εκτέλεσης"
 save:
   _self: "Εκτός"
   as_note: "Αποθήκευση ως Σημείωση"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "Επιλέξτε γλώσσα"
   this_floating_indicator_style: "Επιλέξτε αυτό το στυλ κυμαινόμενου δείκτη."
   voice_model: "Επιλέξτε Μοντέλο φωνής"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Επιλεγμένο"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "Εμφάνιση εφαρμογής"
   app_in_finder: "Εμφάνιση εφαρμογής στο Finder"
   in_dock: "Εμφάνιση στο Dock"
+  api_key: "Εμφάνιση κλειδιού API"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Εμφανίζεται ως χάπι στο κάτω μέρος της οθόνης"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Εμφανίζεται ως σφαίρα από υγρό γυαλί στη γωνία της οθόνης"
 sidebar:
   position: "Θέση πλευρικής γραμμής"
+  position_916f66ea: "Θέση πλευρικής γραμμής"
 simplified:
   chinese: "Απλοποιημένα κινέζικα"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "Θέμα"
   changes_apply_live_across_the_workspace_se: "Οι αλλαγές θέματος εφαρμόζονται ζωντανά στον χώρο εργασίας, τις ρυθμίσεις, το πρόγραμμα επεξεργασίας σημειώσεων και τις κινούμενες ενδείξεις."
   mode: "Λειτουργία θέματος"
+  mode_bb6b0b3d: "Λειτουργία θέματος"
 this:
   preset_name_is_already_in_use: "Αυτό το προκαθορισμένο όνομα χρησιμοποιείται ήδη."
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "Αυτή η μεταγραφή δεν βρέθηκε."
   will_clear_all_your_settings_including_api: "Αυτό θα διαγράψει όλες τις ρυθμίσεις σας, συμπεριλαμβανομένων των κλειδιών API, των πλήκτρων πρόσβασης και των προτιμήσεων μοντέλου. Η εφαρμογή θα τερματιστεί και θα εμφανιστεί ξανά η ενσωμάτωση στην επόμενη κυκλοφορία."
   will_permanently_remove_the_transcript_and: "Αυτό θα καταργήσει οριστικά τη μεταγραφή και το διαχειριζόμενο αρχείο πολυμέσων."
+  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
 time:
   saved: "Εξοικονόμηση χρόνου"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "Λόγια"
   efb89361: "λόγια"
   min: "λέξεις/λεπτό"
+  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
 wpm:
   _self: "WPM"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "Σφαίρα"
 meeting:
   saved: "Η σύσκεψη αποθηκεύτηκε"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "Τι νέο υπάρχει στο Pindrop"
   s_new: "Τι νέο υπάρχει…"
-
 meet:
   the_new_orb: "Γνωρίστε το νέο Orb"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "Ευχαριστούμε τον/την %@ για τη διερεύνηση και την έναρξη της διόρθωσης (PR #64)."
   to_for_the_contribution_pr_61: "Ευχαριστούμε τον/την %@ για τη συνεισφορά (PR #61)."
-
 dictate:
   in_russian_and_ukrainian: "Υπαγόρευση στα Ρωσικά και Ουκρανικά"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "Δύο νέες γλώσσες υπαγόρευσης, πλήρως συνδεδεμένες με τις προτάσεις μοντέλων."
-
 also:
   new_rtl_layout_support_and_20_new_interface: "Επίσης νέο: υποστήριξη διάταξης RTL και 20 νέες γλώσσες διεπαφής."
+advanced:
+  _self: "Για προχωρημένους"
+agent:
+  setup: "Ρύθμιση πράκτορα"
+appearance:
+  _self: "Εμφάνιση"
+bearer:
+  token: "Διακριτικό Bearer"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client:
+  _self: "Πελάτης"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
+dictation:
+  _self: "Υπαγόρευση"
+  language: "Γλώσσα υπαγόρευσης"
+  polish: "Γυάλισμα υπαγόρευσης"
+done:
+  _self: "Τέλος"
+input:
+  device: "Συσκευή εισόδου"
+license:
+  _self: "Άδεια"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "Διακομιστής MCP"
+main:
+  window: "Κύριο παράθυρο"
+name:
+  _self: "Όνομα"
+port:
+  _self: "Θύρα"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project:
+  _self: "Έργο"
+regenerate:
+  _self: "Αναδημιουργία"
+shortcuts:
+  _self: "Συντομεύσεις"
+speakers:
+  _self: "Ομιλητές"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while:
+  recording: "Κατά την εγγραφή"

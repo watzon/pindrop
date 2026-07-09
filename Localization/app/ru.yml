@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "Разрешение на доступ не предоставлено. Режим Vibe остается неблокирующим с ограниченным контекстом."
   permission_recommended: "Рекомендуется разрешение на доступность"
   permission_required: "Требуется разрешение на доступ"
+  permission: "Разрешение «Универсальный доступ»"
 accuracy:
   _self: "Точность"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "Добавляйте замены слов, чтобы автоматически исправлять распространенные ошибки транскрипции."
   words_to_help_pindrop_recognize_them_properl: "Добавляйте слова, чтобы Pindrop правильно их распознавал."
   words_you_manually_correct_into_your_vocabul: "Добавляйте слова, которые вы исправляете вручную, в свой словарный запас для будущих транскрипций."
+  this_to_claude_settings_json_in_your_project: "Добавьте это в .claude/settings.json в корне проекта или в ~/.claude/settings.json для пользователя."
+  this_to_cursor_mcp_json_in_your_project_root: "Добавьте это в .cursor/mcp.json в корне проекта или в ~/.cursor/mcp.json для всех проектов. Перезапустите Cursor после сохранения."
+  this_to_opencode_json_in_your_project_root_f: "Добавьте это в opencode.json в корне проекта для доступа в рамках проекта."
+  this_to_codex_config_toml_project_scoped_con: "Добавьте это в ~/.codex/config.toml. Конфигурация проекта может быть в .codex/config.toml для доверенных проектов."
+  this_to_config_opencode_opencode_json_for_us: "Добавьте это в ~/.config/opencode/opencode.json для доступа пользователя во всех проектах."
 ai:
+  _self: "ИИ"
   enhancement: "Улучшение искусственного интеллекта"
   enhancement_529f5583: "Улучшение ИИ: %@"
   enhancement_failed: "Улучшение ИИ не удалось"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Выберите, какой микрофон Pindrop должен использовать для диктовки и как он будет вести себя во время записи."
   which_side_the_navigation_sidebar_appears: "Выберите, на какой стороне будет отображаться боковая панель навигации."
   how_pindrop_appears_on_screen_while_you_d: "Выберите, как Pindrop отображается на экране во время диктовки."
+  how_recording_and_processing_status_appea: "Выберите, как отображается статус записи и обработки во время работы."
+  whether_pindrop_starts_when_you_sign_in_a: "Выберите, запускать ли Pindrop при входе и показывать ли его в Dock."
+  which_edge_of_the_main_window_holds_the_n: "Выберите, с какой стороны главного окна располагается панель навигации."
+  which_microphone_pindrop_uses_for_dictati: "Выберите микрофон, который Pindrop использует для диктовки."
 clean:
   up_filler_words: "Очистите слова-паразиты"
 clear:
   audio_buffer: "Очистить аудиобуфер"
   hotkey: "Очистить горячую клавишу"
+  shortcut: "Очистить сочетание"
 clears:
   preferences_and_restarts_onboarding: "Очищает настройки и возобновляет регистрацию."
+  preferences_and_restarts_onboarding_7d85115c: "Сбрасывает настройки и перезапускает онбординг."
 click:
   or_hold: "Нажмите или удерживайте"
   or_press: "Нажмите или нажмите"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "Нажмите на этот значок в любое время, чтобы:"
 clipboard:
   _self: "Буфер обмена"
+  temporarily_copies_the_transcript_for: "Буфер обмена временно копирует текст для вставки. Прямая вставка набирает в активном приложении, если возможно."
 cloud:
   _self: "Облако"
   model: "Облачная модель"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "Скопируйте самую последнюю расшифровку в буфер обмена."
   to_clipboard: "Скопировать в буфер обмена"
   transcript: "Копировать стенограмму"
+  system_info: "Копировать сведения о системе"
+  the_configuration_snippet_into_your_preferr: "Скопируйте фрагмент конфигурации в предпочитаемый хост AI-агента."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Копирует последнюю расшифровку в буфер обмена."
 correct:
   grammar_mistakes: "Исправьте грамматические ошибки"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "Создайте свою первую заметку, чтобы начать"
   your_first_preset_or_duplicate_a_built_in: "Создайте свой первый пресет или дублируйте встроенный, чтобы настроить его."
   your_own_presets_or_duplicate_built_in_on: "Создавайте свои собственные пресеты или дублируйте встроенные, чтобы персонализировать их."
+  preset: "Создать пресет"
 credentials:
   are_stored_securely_in_keychain: "Учетные данные надежно хранятся в связке ключей."
   saved_successfully: "Учетные данные успешно сохранены"
+  are_stored_securely_in_keychain_5acff5d3: "Учётные данные надёжно хранятся в Связке ключей."
 current:
   _self: "Текущий: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "Резать"
 d:
   characters: "%d символы"
+  samples: "%d сэмплов · %@"
 dark:
   _self: "Темный"
   preview: "Темный предварительный просмотр"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "Удалить предустановку?"
   transcription: "Удалить транскрипцию"
   transcription_f82187c4: "Удалить транскрипцию?"
+  all: "Удалить все"
+  all_participants: "Удалить всех участников?"
+  all_participants_60ed6e73: "Удалить всех участников…"
 dictionary:
   _self: "Словарь"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "Включить улучшение ИИ"
   live_session_updates_during_recording: "Включить обновления сеанса в реальном времени во время записи"
   vibe_mode_ui_context: "Включить режим Vibe (контекст пользовательского интерфейса)"
+  mcp_server: "Включить сервер MCP"
 enabled:
   _self: "Включено"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "Начать"
 global:
+  _self: "Глобально"
   keyboard_shortcuts: "Глобальные сочетания клавиш"
 go:
   back: "Возвращаться"
@@ -372,6 +397,7 @@ great:
   _self: "Большой"
 hide:
   this_for_1_hour: "Скрыть это на 1 час"
+  api_key: "Скрыть API-ключ"
 history:
   _self: "История"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "Удерживайте, чтобы записать, отпустите, чтобы открыть редактор заметок с транскрипцией."
   to_record_release_to_stop_and_transcribe: "Удерживайте, чтобы записать, отпустите, чтобы остановить и расшифровать"
   to_record_release_to_transcribe: "Удерживайте, чтобы записать, отпустите, чтобы расшифровать"
+  to_record_then_release_to_open_the_note_edi: "Удерживайте для записи; отпустите, чтобы открыть редактор заметок с расшифровкой."
 hotkey:
   conflict: "Конфликт горячих клавиш"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "Импорт"
   dictionary: "Импортировать словарь"
   error: "Ошибка импорта"
   export: "Импорт/Экспорт"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "Включить текст буфера обмена"
 interface:
   _self: "Интерфейс"
+  language: "Язык интерфейса"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ назначен как %@, так и %@. Активным будет только первое действие. Обновите горячие клавиши в настройках, чтобы разрешить этот конфликт."
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "японский"
 keep:
   pindrop_current_automatically_or_trigger_a: "Поддерживайте актуальность Pindrop автоматически или запускайте ручную проверку, когда захотите."
+  pindrop_current_automatically_or_check_for: "Обновляйте Pindrop автоматически или проверьте новую версию сейчас."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "Запуск при входе: %@"
   at_login_0b36c78f: "Запуск при входе в систему"
+  at_login_fd1a3b7b: "Запускать при входе"
+  at_login_could_not_be_changed: "Не удалось изменить «Запускать при входе»"
 layout:
   _self: "Макет"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "Управление моделями"
   presets: "Управление пресетами"
   presets_ab87986d: "Управление пресетами..."
+  presets_d5d4c2c2: "Управление пресетами…"
 manually:
   check_for_new_versions_now: "Проверьте наличие новых версий вручную."
 media:
@@ -501,6 +534,7 @@ model:
   _self: "Модель"
   loading_failed: "Не удалось загрузить модель"
   loading_timed_out: "Время загрузки модели истекло"
+  validation: "Проверка модели"
 models:
   _self: "Модели"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "Настройки не найдены"
   transcriptions_yet: "Транскрипций пока нет"
   vocabulary_words: "Нет словарных слов"
+  learned_participants_yet: "Пока нет выученных участников"
+  providers_configured_yet_e6bc0075: "Провайдеры ещё не настроены"
 not:
   assigned: "Не назначено"
   selected: "Не выбрано"
   set: "Не установлено"
   set_93039e60: "Не установлено"
+  granted: "Не предоставлено"
+  enough_voice_data_yet: "Пока недостаточно голосовых данных"
+  generated_yet_enable_the_server: "Ещё не сгенерирован — включите сервер"
 note:
   _self: "Примечание"
   capture_push_to_talk: "Захват заметок (Push-to-Talk)"
@@ -554,6 +593,8 @@ note:
   metadata: "Метаданные заметки"
   title: "Название заметки"
   saved: "Заметка сохранена"
+  capture_hold: "Захват заметки — удержание"
+  capture_toggle_7139a240: "Захват заметки — переключение"
 notes:
   _self: "Примечания"
   3add7b96: "примечания"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "Выход"
   audio_interface_and_everyday_behavior: "Выход, звук, интерфейс и повседневное поведение"
+  mode: "Режим вывода"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "Разрешения"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Выберите, какой поставщик и модель будет выполнять каждую задачу ИИ. Оставьте значение «Не назначено», чтобы пропустить цель."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Выберите провайдера и модель для каждой AI-задачи. Неназначенные цели пропускаются."
 pill:
   _self: "Таблетка"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "Нажмите один раз, чтобы начать запись, нажмите еще раз, чтобы остановить и расшифровать"
   once_to_start_recording_then_press_again_t: "Нажмите один раз, чтобы начать запись, затем нажмите еще раз, чтобы остановить и расшифровать."
   to_start_recording_press_again_to_open_not: "Нажмите, чтобы начать запись, нажмите еще раз, чтобы открыть редактор заметок."
+  keys_98b8167e: "Нажмите клавиши…"
+  once_to_start_recording_then_again_to_open: "Нажмите один раз, чтобы начать запись, и ещё раз, чтобы открыть редактор заметок."
 primary:
   text: "Основной текст"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "Рекомендуется"
   the_deterministic_cleaner_handles_mo: "Рекомендуется: детерминированный очиститель аккуратно справляется с большинством диктовок. Включайте пропуск LLM только в том случае, если вы хотите доработать модель и принять случайные особенности модели (преамбулу, диалоговые ответы)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Рекомендуется: детерминированный очиститель справляется с большинством диктовок. Включайте LLM-проход только для доп. полировки, принимая редкие странности модели."
 record:
   _self: "Записывать"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "Переименовать"
   folder: "Переименовать папку"
+  participant: "Переименовать участника"
+  speakers_in_transcripts_to_teach_pindrop: "Переименовывайте спикеров в расшифровках, чтобы Pindrop учился автоматически распознавать голоса."
 replace:
   all: "Заменить все"
   words_and_phrases: "Заменяйте слова и фразы"
@@ -739,14 +787,17 @@ reset:
   all_settings: "Сбросить все настройки?"
   all_settings_7262c7b7: "Сбросить все настройки"
   to_default: "Сбросить настройки по умолчанию"
+  all_settings_e5dbc5fc: "Сбросить все настройки…"
 retry:
   _self: "Повторить попытку"
 right:
   _self: "Верно"
 run:
   llm_polish_after_dictation_stops: "Запустите полировку LLM после остановки диктовки"
+  a_local_http_server_so_ai_agents_can_submit: "Запускает локальный HTTP-сервер, чтобы AI-агенты могли отправлять задания транскрипции, искать в истории и управлять спикерами."
 runtime:
   _self: "Время выполнения: %@"
+  status: "Состояние среды выполнения"
 save:
   _self: "Сохранять"
   as_note: "Сохранить как заметку"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "Выберите язык"
   this_floating_indicator_style: "Выберите этот стиль плавающего индикатора."
   voice_model: "Выберите модель голоса"
+  the_language_pindrop_should_expect_when_t: "Выберите язык, который Pindrop должен ожидать при транскрипции речи."
 selected:
   _self: "Выбрано"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "Показать приложение"
   app_in_finder: "Показать приложение в Finder"
   in_dock: "Показать в доке"
+  api_key: "Показать API-ключ"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Отображается в виде таблетки внизу экрана."
   as_a_liquid_glass_orb_in_the_corner_of_the: "Отображается как сфера из жидкого стекла в углу экрана"
 sidebar:
   position: "Положение боковой панели"
+  position_916f66ea: "Положение боковой панели"
 simplified:
   chinese: "Упрощенный китайский"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "Тема"
   changes_apply_live_across_the_workspace_se: "Изменения темы применяются в реальном времени во всей рабочей области, настройках, редакторе заметок и плавающих индикаторах."
   mode: "Тематический режим"
+  mode_bb6b0b3d: "Режим темы"
 this:
   preset_name_is_already_in_use: "Это имя предустановки уже используется."
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "Эту транскрипцию не удалось найти."
   will_clear_all_your_settings_including_api: "Это приведет к очистке всех ваших настроек, включая ключи API, горячие клавиши и настройки модели. Приложение закроется и снова отобразит регистрацию при следующем запуске."
   will_permanently_remove_the_transcript_and: "Это приведет к безвозвратному удалению расшифровки и ее управляемого медиафайла."
+  removes_all_learned_voice_profiles_and_trai: "Удаляет все выученные голосовые профили и обучающие данные. Отменить нельзя."
+  will_clear_all_your_settings_including_api_2841f4a1: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
 time:
   saved: "Сэкономленное время"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "Слова"
   efb89361: "слова"
   min: "слов/мин"
+  you_manually_correct_can_be_added_to_your: "Слова, которые вы правите вручную, можно добавлять в словарь для будущих диктовок."
 wpm:
   _self: "WPM"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "Сфера"
 meeting:
   saved: "Встреча сохранена"
-
 russian:
   _self: "Русский"
 ukrainian:
   _self: "Украинский"
-
 what:
   s_new_in_pindrop: "Что нового в Pindrop"
   s_new: "Что нового…"
-
 meet:
   the_new_orb: "Знакомьтесь: новый Orb"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "Спасибо %@ за расследование и запуск исправления (PR #64)."
   to_for_the_contribution_pr_61: "Спасибо %@ за вклад (PR #61)."
-
 dictate:
   in_russian_and_ukrainian: "Диктуйте на русском и украинском"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "Два новых языка диктовки, полностью подключенные к рекомендациям моделей."
-
 also:
   new_rtl_layout_support_and_20_new_interface: "Также новое: поддержка RTL-разметки и 20 новых языков интерфейса."
+advanced:
+  _self: "Дополнительно"
+agent:
+  setup: "Настройка агента"
+appearance:
+  _self: "Оформление"
+bearer:
+  token: "Bearer-токен"
+changes:
+  the_language_used_by_pindrop_s_interface: "Меняет язык интерфейса Pindrop."
+client:
+  _self: "Клиент"
+configuration:
+  file: "Файл конфигурации"
+  scope: "Область конфигурации"
+  snippet: "Фрагмент конфигурации"
+dictation:
+  _self: "Диктовка"
+  language: "Язык диктовки"
+  polish: "Полировка диктовки"
+done:
+  _self: "Готово"
+input:
+  device: "Устройство ввода"
+license:
+  _self: "Лицензия"
+mcp:
+  configuration_error: "Ошибка конфигурации MCP"
+  server: "Сервер MCP"
+main:
+  window: "Главное окно"
+name:
+  _self: "Имя"
+port:
+  _self: "Порт"
+  changes_take_effect_the_next_time_the_serve: "Изменения порта вступят в силу при следующем запуске сервера."
+project:
+  _self: "Проект"
+regenerate:
+  _self: "Сгенерировать заново"
+shortcuts:
+  _self: "Сочетания клавиш"
+speakers:
+  _self: "Спикеры"
+these:
+  options_are_mutually_exclusive_enabling_on: "Эти параметры взаимоисключающие. Включение одного отключает другой."
+while:
+  recording: "Во время записи"

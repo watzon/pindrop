@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "ไม่ได้รับอนุญาตการเข้าถึง โหมด Vibe ยังคงไม่ปิดกั้นโดยมีบริบทที่จำกัด"
   permission_recommended: "แนะนำให้ใช้สิทธิ์ในการเข้าถึง"
   permission_required: "จำเป็นต้องได้รับอนุญาตการเข้าถึง"
+  permission: "สิทธิ์การเข้าถึง"
 accuracy:
   _self: "ความแม่นยำ"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "เพิ่มการแทนที่คำเพื่อแก้ไขข้อผิดพลาดในการถอดเสียงทั่วไปโดยอัตโนมัติ"
   words_to_help_pindrop_recognize_them_properl: "เพิ่มคำเพื่อช่วยให้ Pindrop จดจำได้อย่างถูกต้อง"
   words_you_manually_correct_into_your_vocabul: "เพิ่มคำที่คุณแก้ไขลงในคำศัพท์ด้วยตนเองเพื่อการถอดเสียงในอนาคต"
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
 ai:
+  _self: "AI"
   enhancement: "การเพิ่มประสิทธิภาพ AI"
   enhancement_529f5583: "การปรับปรุง AI: %@"
   enhancement_failed: "การปรับปรุง AI ล้มเหลว"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "เลือกไมโครโฟน Pindrop ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
   which_side_the_navigation_sidebar_appears: "เลือกด้านที่แถบนำทางด้านข้างจะปรากฏ"
   how_pindrop_appears_on_screen_while_you_d: "เลือกวิธีที่ Pindrop จะปรากฏบนหน้าจอขณะที่คุณป้อนตามคำบอก"
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
 clean:
   up_filler_words: "ทำความสะอาดคำเติม"
 clear:
   audio_buffer: "ล้างบัฟเฟอร์เสียง"
   hotkey: "ล้างปุ่มลัด"
+  shortcut: "ล้างทางลัด"
 clears:
   preferences_and_restarts_onboarding: "ล้างค่ากำหนดและรีสตาร์ทการเริ่มต้นใช้งาน"
+  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
 click:
   or_hold: "คลิกหรือกดค้างไว้"
   or_press: "คลิกหรือกด"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "คลิกไอคอนนี้เมื่อใดก็ได้เพื่อ:"
 clipboard:
   _self: "คลิปบอร์ด"
+  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
 cloud:
   _self: "คลาวด์"
   model: "โมเดลคลาวด์"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "คัดลอกข้อความถอดเสียงล่าสุดไปยังคลิปบอร์ด"
   to_clipboard: "คัดลอกไปยังคลิปบอร์ด"
   transcript: "คัดลอกใบรับรองผลการเรียน"
+  system_info: "Copy System Info"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "แก้ไขข้อผิดพลาดทางไวยากรณ์"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "สร้างบันทึกย่อแรกของคุณเพื่อเริ่มต้น"
   your_first_preset_or_duplicate_a_built_in: "สร้างค่าที่ตั้งล่วงหน้าแรกของคุณหรือทำซ้ำค่าที่ตั้งไว้ภายในเพื่อปรับแต่ง"
   your_own_presets_or_duplicate_built_in_on: "สร้างค่าที่ตั้งล่วงหน้าของคุณเองหรือทำซ้ำค่าที่ตั้งไว้ภายในเพื่อปรับแต่ง"
+  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "ข้อมูลประจำตัวจะถูกเก็บไว้อย่างปลอดภัยในพวงกุญแจ"
   saved_successfully: "บันทึกข้อมูลรับรองเรียบร้อยแล้ว"
+  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "ปัจจุบัน: %@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "ตัด"
 d:
   characters: "%d อักขระ"
+  samples: "%d samples · %@"
 dark:
   _self: "มืด"
   preview: "การแสดงตัวอย่างสีเข้ม"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "ลบค่าที่ตั้งไว้ล่วงหน้าใช่ไหม"
   transcription: "ลบการถอดเสียงเป็นคำ"
   transcription_f82187c4: "ลบการถอดเสียงเป็นคำใช่ไหม"
+  all: "ลบทั้งหมด"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
 dictionary:
   _self: "พจนานุกรม"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
   live_session_updates_during_recording: "เปิดใช้งานการอัปเดตเซสชันสดระหว่างการบันทึก"
   vibe_mode_ui_context: "เปิดใช้งานโหมดความรู้สึก (บริบท UI)"
+  mcp_server: "Enable MCP Server"
 enabled:
   _self: "เปิดใช้งานแล้ว"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "เริ่มต้นเลย"
 global:
+  _self: "ทั่วโลก"
   keyboard_shortcuts: "แป้นพิมพ์ลัดทั่วโลก"
 go:
   back: "กลับไป"
@@ -372,6 +397,7 @@ great:
   _self: "ยอดเยี่ยม"
 hide:
   this_for_1_hour: "ซ่อนสิ่งนี้เป็นเวลา 1 ชั่วโมง"
+  api_key: "ซ่อนคีย์ API"
 history:
   _self: "ประวัติศาสตร์"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อเปิดเครื่องมือแก้ไขบันทึกพร้อมการถอดเสียง"
   to_record_release_to_stop_and_transcribe: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อหยุดและถอดเสียง"
   to_record_release_to_transcribe: "กดค้างไว้เพื่อบันทึก ปล่อยเพื่อถอดเสียง"
+  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
 hotkey:
   conflict: "ความขัดแย้งของปุ่มลัด"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "นำเข้า"
   dictionary: "นำเข้าพจนานุกรม"
   error: "ข้อผิดพลาดในการนำเข้า"
   export: "นำเข้า/ส่งออก"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "รวมข้อความคลิปบอร์ด"
 interface:
   _self: "อินเทอร์เฟซ"
+  language: "ภาษาอินเทอร์เฟซ"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ ถูกกำหนดให้กับทั้ง %@ และ %@ เฉพาะการดำเนินการแรกเท่านั้นที่จะใช้งานได้ อัปเดตปุ่มลัดของคุณในการตั้งค่าเพื่อแก้ไขข้อขัดแย้งนี้"
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "ญี่ปุ่น"
 keep:
   pindrop_current_automatically_or_trigger_a: "รักษา Pindrop ให้เป็นปัจจุบันโดยอัตโนมัติ หรือเรียกใช้การตรวจสอบด้วยตนเองทุกครั้งที่คุณต้องการ"
+  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "เปิดตัวเมื่อเข้าสู่ระบบ: %@"
   at_login_0b36c78f: "เปิดตัวเมื่อเข้าสู่ระบบ"
+  at_login_fd1a3b7b: "เปิดเมื่อเข้าสู่ระบบ"
+  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
 layout:
   _self: "เค้าโครง"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "จัดการโมเดล"
   presets: "จัดการค่าที่ตั้งล่วงหน้า"
   presets_ab87986d: "จัดการค่าที่ตั้งล่วงหน้า..."
+  presets_d5d4c2c2: "Manage Presets…"
 manually:
   check_for_new_versions_now: "ตรวจสอบเวอร์ชันใหม่ด้วยตนเองทันที"
 media:
@@ -501,6 +534,7 @@ model:
   _self: "แบบอย่าง"
   loading_failed: "การโหลดโมเดลล้มเหลว"
   loading_timed_out: "หมดเวลาการโหลดโมเดล"
+  validation: "Model Validation"
 models:
   _self: "โมเดล"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "ไม่พบการตั้งค่า"
   transcriptions_yet: "ยังไม่มีการถอดเสียงเป็นคำ"
   vocabulary_words: "ไม่มีคำศัพท์"
+  learned_participants_yet: "No learned participants yet"
+  providers_configured_yet_e6bc0075: "No providers configured yet"
 not:
   assigned: "ไม่ได้รับมอบหมาย"
   selected: "ไม่ได้เลือก"
   set: "ไม่ได้ตั้งค่า"
   set_93039e60: "ไม่ได้ตั้งค่า"
+  granted: "ยังไม่ได้รับอนุญาต"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "บันทึก"
   capture_push_to_talk: "บันทึกย่อ (Push-to-Talk)"
@@ -554,6 +593,8 @@ note:
   metadata: "หมายเหตุ ข้อมูลเมตา"
   title: "หมายเหตุ ชื่อเรื่อง"
   saved: "บันทึกโน้ตแล้ว"
+  capture_hold: "Note Capture — Hold"
+  capture_toggle_7139a240: "Note Capture — Toggle"
 notes:
   _self: "หมายเหตุ"
   3add7b96: "บันทึกย่อ"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "เอาท์พุต"
   audio_interface_and_everyday_behavior: "เอาต์พุต เสียง อินเทอร์เฟซ และพฤติกรรมในชีวิตประจำวัน"
+  mode: "โหมดเอาต์พุต"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "สิทธิ์"
 pick:
   which_provider_and_model_handles_each_ai_ta: "เลือกผู้ให้บริการและโมเดลที่จะจัดการงาน AI แต่ละรายการ ปล่อยให้เป็น \"ไม่ได้มอบหมาย\" เพื่อข้ามวัตถุประสงค์"
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "ยา"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "กดหนึ่งครั้งเพื่อเริ่มการบันทึก กดอีกครั้งเพื่อหยุดและถอดเสียง"
   once_to_start_recording_then_press_again_t: "กดหนึ่งครั้งเพื่อเริ่มการบันทึก จากนั้นกดอีกครั้งเพื่อหยุดและถอดเสียง"
   to_start_recording_press_again_to_open_not: "กดเพื่อเริ่มการบันทึก กดอีกครั้งเพื่อเปิดโปรแกรมแก้ไขบันทึก"
+  keys_98b8167e: "กดปุ่ม…"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "ข้อความหลัก"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "ที่แนะนำ"
   the_deterministic_cleaner_handles_mo: "แนะนำ: ตัวทำความสะอาดที่กำหนดสามารถจัดการคำสั่งส่วนใหญ่ได้อย่างหมดจด เปิดใช้งานบัตรผ่าน LLM เฉพาะในกรณีที่คุณต้องการขัดเกลาเพิ่มเติมและยอมรับนิสัยแปลกๆ ของโมเดลเป็นครั้งคราว (คำนำ การตอบกลับเชิงสนทนา)"
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "บันทึก"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "เปลี่ยนชื่อ"
   folder: "เปลี่ยนชื่อโฟลเดอร์"
+  participant: "Rename Participant"
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
 replace:
   all: "แทนที่ทั้งหมด"
   words_and_phrases: "แทนที่คำและวลี"
@@ -739,14 +787,17 @@ reset:
   all_settings: "รีเซ็ตการตั้งค่าทั้งหมดใช่ไหม"
   all_settings_7262c7b7: "รีเซ็ตการตั้งค่าทั้งหมด"
   to_default: "รีเซ็ตเป็นค่าเริ่มต้น"
+  all_settings_e5dbc5fc: "Reset All Settings…"
 retry:
   _self: "ลองอีกครั้ง"
 right:
   _self: "ขวา"
 run:
   llm_polish_after_dictation_stops: "เรียกใช้ LLM polish หลังจากหยุดการเขียนตามคำบอก"
+  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
 runtime:
   _self: "รันไทม์: %@"
+  status: "สถานะรันไทม์"
 save:
   _self: "บันทึก"
   as_note: "บันทึกเป็นหมายเหตุ"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "เลือกภาษา"
   this_floating_indicator_style: "เลือกสไตล์ตัวบ่งชี้แบบลอยตัวนี้"
   voice_model: "เลือกรูปแบบเสียง"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "เลือกแล้ว"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "แสดงแอป"
   app_in_finder: "แสดงแอปใน Finder"
   in_dock: "แสดงในด็อค"
+  api_key: "แสดงคีย์ API"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "แสดงเป็นเม็ดยาที่ด้านล่างของหน้าจอ"
   as_a_liquid_glass_orb_in_the_corner_of_the: "แสดงเป็นออร์บแก้วเหลวที่มุมหน้าจอ"
 sidebar:
   position: "ตำแหน่งแถบด้านข้าง"
+  position_916f66ea: "ตำแหน่งแถบด้านข้าง"
 simplified:
   chinese: "จีนตัวย่อ"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "ธีม"
   changes_apply_live_across_the_workspace_se: "การเปลี่ยนแปลงธีมมีผลใช้งานจริงทั่วทั้งพื้นที่ทำงาน การตั้งค่า ตัวแก้ไขบันทึกย่อ และตัวบ่งชี้แบบลอย"
   mode: "โหมดธีม"
+  mode_bb6b0b3d: "โหมดธีม"
 this:
   preset_name_is_already_in_use: "ชื่อที่ตั้งไว้นี้มีการใช้งานแล้ว"
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "ไม่พบการถอดเสียงนี้"
   will_clear_all_your_settings_including_api: "การดำเนินการนี้จะล้างการตั้งค่าทั้งหมดของคุณ รวมถึงคีย์ API, ปุ่มลัด และการกำหนดลักษณะโมเดล แอปจะปิดและแสดงการเริ่มต้นใช้งานอีกครั้งในการเปิดตัวครั้งถัดไป"
   will_permanently_remove_the_transcript_and: "การดำเนินการนี้จะลบข้อความถอดเสียงและไฟล์สื่อที่มีการจัดการออกอย่างถาวร"
+  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
 time:
   saved: "เวลาที่บันทึกไว้"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "คำ"
   efb89361: "คำ"
   min: "คำ/นาที"
+  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
 wpm:
   _self: "ดับเบิลยูพีเอ็ม"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "ออร์บ"
 meeting:
   saved: "บันทึกการประชุมแล้ว"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "มีอะไรใหม่ใน Pindrop"
   s_new: "มีอะไรใหม่…"
-
 meet:
   the_new_orb: "พบกับ Orb ใหม่"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "ขอบคุณ %@ สำหรับการตรวจสอบและเริ่มต้นการแก้ไข (PR #64)"
   to_for_the_contribution_pr_61: "ขอบคุณ %@ สำหรับการมีส่วนร่วม (PR #61)"
-
 dictate:
   in_russian_and_ukrainian: "ป้อนตามคำบอกเป็นภาษารัสเซียและยูเครน"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "ภาษาป้อนตามคำบอกใหม่สองภาษา เชื่อมต่อกับคำแนะนำโมเดลอย่างสมบูรณ์"
-
 also:
   new_rtl_layout_support_and_20_new_interface: "ใหม่ด้วย: รองรับเลย์เอาต์ RTL และภาษาอินเทอร์เฟซใหม่ 20 ภาษา"
+advanced:
+  _self: "ขั้นสูง"
+agent:
+  setup: "ตั้งค่าเอเจนต์"
+appearance:
+  _self: "รูปลักษณ์"
+bearer:
+  token: "Bearer Token"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client:
+  _self: "ไคลเอนต์"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
+dictation:
+  _self: "การเขียนตามคำบอก"
+  language: "ภาษาการเขียนตามคำบอก"
+  polish: "ขัดเกลาการเขียนตามคำบอก"
+done:
+  _self: "เสร็จสิ้น"
+input:
+  device: "อุปกรณ์อินพุต"
+license:
+  _self: "ใบอนุญาต"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "เซิร์ฟเวอร์ MCP"
+main:
+  window: "หน้าต่างหลัก"
+name:
+  _self: "ชื่อ"
+port:
+  _self: "พอร์ต"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project:
+  _self: "โปรเจกต์"
+regenerate:
+  _self: "สร้างใหม่"
+shortcuts:
+  _self: "ทางลัด"
+speakers:
+  _self: "ผู้พูด"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while:
+  recording: "ขณะบันทึก"

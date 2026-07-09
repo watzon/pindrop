@@ -15,6 +15,7 @@ accessibility:
   permission_is_not_granted_vibe_mod: "未授予辅助功能权限。Vibe 模式保持非阻塞状态，但上下文有限。"
   permission_recommended: "建议启用辅助功能权限"
   permission_required: "需要辅助功能权限"
+  permission: "辅助功能权限"
 accuracy:
   _self: "准确性"
 acknowledgments:
@@ -32,7 +33,13 @@ add:
   word_replacements_to_automatically_correct_c: "添加词汇替换以自动纠正常见的转录错误。"
   words_to_help_pindrop_recognize_them_properl: "添加词汇以帮助 Pindrop 正确识别它们"
   words_you_manually_correct_into_your_vocabul: "将您手动更正的词汇添加到词汇表中，以供将来的转录使用。"
+  this_to_claude_settings_json_in_your_project: "将其添加到项目根目录的 .claude/settings.json，或用户级 ~/.claude/settings.json。"
+  this_to_cursor_mcp_json_in_your_project_root: "将其添加到项目根目录的 .cursor/mcp.json，或所有项目的 ~/.cursor/mcp.json。保存后重启 Cursor。"
+  this_to_opencode_json_in_your_project_root_f: "将其添加到项目根目录的 opencode.json，以获得项目级访问。"
+  this_to_codex_config_toml_project_scoped_con: "将其添加到 ~/.codex/config.toml。受信任项目可将项目级配置放在 .codex/config.toml。"
+  this_to_config_opencode_opencode_json_for_us: "将其添加到 ~/.config/opencode/opencode.json，以在所有项目中获得用户级访问。"
 ai:
+  _self: "AI"
   enhancement: "AI 增强"
   enhancement_529f5583: "AI 增强：%@"
   enhancement_failed: "AI 增强失败"
@@ -134,13 +141,19 @@ choose:
   which_microphone_pindrop_should_use_for_d: "选择 Pindrop 用于听写的麦克风以及录制时的行为。"
   which_side_the_navigation_sidebar_appears: "选择导航侧边栏显示在哪一侧。"
   how_pindrop_appears_on_screen_while_you_d: "选择听写时 Pindrop 在屏幕上的显示方式。"
+  how_recording_and_processing_status_appea: "选择工作时录制与处理状态的显示方式。"
+  whether_pindrop_starts_when_you_sign_in_a: "选择是否在登录时启动 Pindrop 并显示在程序坞中。"
+  which_edge_of_the_main_window_holds_the_n: "选择主窗口导航侧边栏所在的一侧。"
+  which_microphone_pindrop_uses_for_dictati: "选择 Pindrop 用于听写的麦克风。"
 clean:
   up_filler_words: "清理填充词"
 clear:
   audio_buffer: "清除音频缓冲区"
   hotkey: "清除快捷键"
+  shortcut: "清除快捷键"
 clears:
   preferences_and_restarts_onboarding: "清除首选项并重新启动引导"
+  preferences_and_restarts_onboarding_7d85115c: "清除偏好设置并重新开始引导。"
 click:
   or_hold: "点击或按住"
   or_press: "点击或按下"
@@ -148,6 +161,7 @@ click:
   this_icon_anytime_to: "随时点击此图标以："
 clipboard:
   _self: "剪贴板"
+  temporarily_copies_the_transcript_for: "剪贴板会临时复制转写以便粘贴。直接插入会在可能时输入到当前应用。"
 cloud:
   _self: "云端"
   model: "云端模型"
@@ -178,6 +192,9 @@ copy:
   the_most_recent_transcript_to_the_clipboard: "将最新的转录复制到剪贴板"
   to_clipboard: "复制到剪贴板"
   transcript: "复制转录"
+  system_info: "复制系统信息"
+  the_configuration_snippet_into_your_preferr: "将配置片段复制到你偏好的 AI 代理主机。"
+  the_most_recent_transcript_to_the_clipboard_b9736933: "将最近的转写复制到剪贴板。"
 correct:
   grammar_mistakes: "纠正语法错误"
 create:
@@ -187,9 +204,11 @@ create:
   your_first_note_to_get_started: "创建您的第一个笔记以开始使用"
   your_first_preset_or_duplicate_a_built_in: "创建您的第一个预设或复制内置预设以进行自定义。"
   your_own_presets_or_duplicate_built_in_on: "创建您自己的预设或复制内置预设以进行自定义。"
+  preset: "创建预设"
 credentials:
   are_stored_securely_in_keychain: "凭证安全存储在钥匙串中"
   saved_successfully: "凭证保存成功"
+  are_stored_securely_in_keychain_5acff5d3: "凭据安全地存储在钥匙串中。"
 current:
   _self: "当前：%@"
 custom:
@@ -203,6 +222,7 @@ cut:
   _self: "剪切"
 d:
   characters: "%d characters"
+  samples: "%d 个样本 · %@"
 dark:
   _self: "深色"
   preview: "深色预览"
@@ -228,6 +248,9 @@ delete:
   preset_4f6cfe36: "删除预设？"
   transcription: "删除转录"
   transcription_f82187c4: "删除转录？"
+  all: "全部删除"
+  all_participants: "删除所有参与者？"
+  all_participants_60ed6e73: "删除所有参与者…"
 dictionary:
   _self: "词典"
 direct:
@@ -270,6 +293,7 @@ enable:
   ai_enhancement: "启用 AI 增强"
   live_session_updates_during_recording: "启用录制期间的实时会话更新"
   vibe_mode_ui_context: "启用 vibe 模式（UI 上下文）"
+  mcp_server: "启用 MCP 服务器"
 enabled:
   _self: "已启用"
 endpoint:
@@ -352,6 +376,7 @@ german:
 get:
   started: "开始使用"
 global:
+  _self: "全局"
   keyboard_shortcuts: "全局键盘快捷键"
 go:
   back: "返回"
@@ -372,6 +397,7 @@ great:
   _self: "很好"
 hide:
   this_for_1_hour: "隐藏 1 小时"
+  api_key: "隐藏 API 密钥"
 history:
   _self: "历史"
 hold:
@@ -379,6 +405,7 @@ hold:
   to_record_release_to_open_note_editor_with: "按住录制，释放以打开带转录的笔记编辑器"
   to_record_release_to_stop_and_transcribe: "按住录制，释放以停止并转录"
   to_record_release_to_transcribe: "按住录制，释放以转录"
+  to_record_then_release_to_open_the_note_edi: "按住录音，松开后打开带转写的笔记编辑器。"
 hotkey:
   conflict: "快捷键冲突"
 hotkeys:
@@ -386,6 +413,7 @@ hotkeys:
 identify:
   speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
 import:
+  _self: "导入"
   dictionary: "导入词典"
   error: "导入错误"
   export: "导入/导出"
@@ -401,6 +429,7 @@ include:
   clipboard_text: "包含剪贴板文本"
 interface:
   _self: "界面"
+  language: "界面语言"
 is:
   assigned_to_both_and_only_the_first_action_wi: "%@ 同时分配给 %@ 和 %@。只有第一个操作将处于活动状态。在设置中更新您的快捷键以解决此冲突。"
 italian:
@@ -411,6 +440,7 @@ japanese:
   _self: "日语"
 keep:
   pindrop_current_automatically_or_trigger_a: "自动保持 Pindrop 最新，或随时触发手动检查。"
+  pindrop_current_automatically_or_check_for: "自动保持 Pindrop 最新，或立即检查新版本。"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -426,6 +456,8 @@ large:
 launch:
   at_login: "登录时启动：%@"
   at_login_0b36c78f: "登录时启动"
+  at_login_fd1a3b7b: "登录时启动"
+  at_login_could_not_be_changed: "无法更改“登录时启动”"
 layout:
   _self: "布局"
 learn:
@@ -479,6 +511,7 @@ manage:
   models: "管理模型"
   presets: "管理预设"
   presets_ab87986d: "管理预设..."
+  presets_d5d4c2c2: "管理预设…"
 manually:
   check_for_new_versions_now: "立即手动检查新版本。"
 media:
@@ -501,6 +534,7 @@ model:
   _self: "模型"
   loading_failed: "模型加载失败"
   loading_timed_out: "模型加载超时"
+  validation: "模型验证"
 models:
   _self: "模型"
 move:
@@ -540,11 +574,16 @@ no:
   settings_found: "未找到设置"
   transcriptions_yet: "尚无转录"
   vocabulary_words: "无词汇词"
+  learned_participants_yet: "尚无已学习的参与者"
+  providers_configured_yet_e6bc0075: "尚未配置提供商"
 not:
   assigned: "未分配"
   selected: "未选择"
   set: "未设置"
   set_93039e60: "未设置"
+  granted: "未授予"
+  enough_voice_data_yet: "语音数据尚不足"
+  generated_yet_enable_the_server: "尚未生成 — 请启用服务器"
 note:
   _self: "笔记"
   capture_push_to_talk: "笔记捕获（按键通话）"
@@ -554,6 +593,8 @@ note:
   metadata: "注释元数据"
   title: "笔记标题"
   saved: "笔记已保存"
+  capture_hold: "笔记采集 — 按住"
+  capture_toggle_7139a240: "笔记采集 — 切换"
 notes:
   _self: "笔记"
   3add7b96: "笔记"
@@ -599,6 +640,7 @@ originals:
 output:
   _self: "输出"
   audio_interface_and_everyday_behavior: "输出、音频、界面和日常行为"
+  mode: "输出模式"
 nemotron:
   default: "Nemotron (default)"
 paste:
@@ -614,6 +656,7 @@ permissions:
   _self: "权限"
 pick:
   which_provider_and_model_handles_each_ai_ta: "选择哪个提供商和模型来处理每个人工智能任务。保留为“未分配”以跳过目的。"
+  which_provider_and_model_handles_each_ai_ta_b719504f: "为每项 AI 任务选择提供商和模型。未分配的用途会被跳过。"
 pill:
   _self: "胶囊"
 pin:
@@ -661,6 +704,8 @@ press:
   once_to_start_recording_press_again_to_sto: "按一次开始录制，再按一次停止并转录"
   once_to_start_recording_then_press_again_t: "按一次开始录制，然后再按一次停止并转录。"
   to_start_recording_press_again_to_open_not: "按开始录制，再按打开笔记编辑器"
+  keys_98b8167e: "请按下按键…"
+  once_to_start_recording_then_again_to_open: "按一次开始录音，再按一次打开笔记编辑器。"
 primary:
   text: "主要文本"
 processing:
@@ -698,6 +743,7 @@ recent:
 recommended:
   _self: "推荐"
   the_deterministic_cleaner_handles_mo: "建议：确定性清理器已经能妥善处理大多数听写。仅当你想要额外润色，并能接受模型偶发的怪癖（开头语、对话式回复）时，再启用 LLM 步骤。"
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "推荐：确定性清理器已能干净处理多数听写。仅在需要额外润色并接受模型偶发偏差时启用 LLM。"
 record:
   _self: "录制"
 recording:
@@ -718,6 +764,8 @@ remove:
 rename:
   _self: "重命名"
   folder: "重命名文件夹"
+  participant: "重命名参与者"
+  speakers_in_transcripts_to_teach_pindrop: "在转写中重命名说话人，让 Pindrop 学会自动识别声音。"
 replace:
   all: "全部替换"
   words_and_phrases: "替换词汇和短语"
@@ -739,14 +787,17 @@ reset:
   all_settings: "重置所有设置？"
   all_settings_7262c7b7: "重置所有设置"
   to_default: "重置为默认"
+  all_settings_e5dbc5fc: "重置所有设置…"
 retry:
   _self: "重试"
 right:
   _self: "右侧"
 run:
   llm_polish_after_dictation_stops: "听写停止后运行 LLM 润色"
+  a_local_http_server_so_ai_agents_can_submit: "运行本地 HTTP 服务器，以便 AI 代理提交转写任务、搜索历史并管理说话人。"
 runtime:
   _self: "运行时间：%@"
+  status: "运行时状态"
 save:
   _self: "保存"
   as_note: "保存为笔记"
@@ -779,6 +830,7 @@ select:
   language_daea52c9: "选择语言"
   this_floating_indicator_style: "选择此浮动指示器样式。"
   voice_model: "选择语音模型"
+  the_language_pindrop_should_expect_when_t: "选择 Pindrop 在转写语音时应预期的语言。"
 selected:
   _self: "已选择"
 sent:
@@ -798,11 +850,13 @@ show:
   app: "显示应用"
   app_in_finder: "在 Finder 中显示应用"
   in_dock: "在 Dock 中显示"
+  api_key: "显示 API 密钥"
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "在屏幕底部显示为胶囊"
   as_a_liquid_glass_orb_in_the_corner_of_the: "以液态玻璃光球的形式显示在屏幕角落"
 sidebar:
   position: "侧边栏位置"
+  position_916f66ea: "侧边栏位置"
 simplified:
   chinese: "简体中文"
 size:
@@ -882,6 +936,7 @@ theme:
   _self: "主题"
   changes_apply_live_across_the_workspace_se: "主题更改实时应用于整个工作区、设置、笔记编辑器和浮动指示器。"
   mode: "主题模式"
+  mode_bb6b0b3d: "主题模式"
 this:
   preset_name_is_already_in_use: "此预设名称已被使用。"
   provider_will_be_available_in_a_future_upda: |-
@@ -894,6 +949,8 @@ this:
   transcription_could_not_be_found: "找不到此转录。"
   will_clear_all_your_settings_including_api: "这将清除您的所有设置，包括 API 密钥、快捷键和模型首选项。应用将退出并在下次启动时再次显示引导。"
   will_permanently_remove_the_transcript_and: "这将永久删除转录及其托管的媒体文件。"
+  removes_all_learned_voice_profiles_and_trai: "这将删除所有已学习的声音配置和训练数据。此操作无法撤销。"
+  will_clear_all_your_settings_including_api_2841f4a1: "这将清除包括 API 密钥在内的所有设置，并重新开始引导"
 time:
   saved: "节省时间"
 to:
@@ -998,6 +1055,7 @@ words:
   _self: "词汇"
   efb89361: "词汇"
   min: "词汇/分钟"
+  you_manually_correct_can_be_added_to_your: "你手动纠正的词可加入词汇表，供今后听写使用。"
 wpm:
   _self: "每分钟字数"
 yesterday:
@@ -1022,28 +1080,69 @@ orb:
   _self: "光球"
 meeting:
   saved: "会议已保存"
-
 russian:
   _self: "Russian"
 ukrainian:
   _self: "Ukrainian"
-
 what:
   s_new_in_pindrop: "Pindrop 的新功能"
   s_new: "新功能…"
-
 meet:
   the_new_orb: "认识全新的 Orb"
-
 thanks:
   to_for_investigating_and_kicking_off_the: "感谢 %@ 调查并启动修复 (PR #64)。"
   to_for_the_contribution_pr_61: "感谢 %@ 的贡献 (PR #61)。"
-
 dictate:
   in_russian_and_ukrainian: "用俄语和乌克兰语听写"
-
 two:
   new_dictation_languages_fully_wired_into_mod: "两种新的听写语言，已完整接入模型推荐。"
-
 also:
   new_rtl_layout_support_and_20_new_interface: "同时新增：RTL 布局支持和 20 种新的界面语言。"
+advanced:
+  _self: "高级"
+agent:
+  setup: "代理设置"
+appearance:
+  _self: "外观"
+bearer:
+  token: "Bearer 令牌"
+changes:
+  the_language_used_by_pindrop_s_interface: "更改 Pindrop 界面使用的语言。"
+client:
+  _self: "客户端"
+configuration:
+  file: "配置文件"
+  scope: "配置范围"
+  snippet: "配置片段"
+dictation:
+  _self: "听写"
+  language: "听写语言"
+  polish: "听写润色"
+done:
+  _self: "完成"
+input:
+  device: "输入设备"
+license:
+  _self: "许可证"
+mcp:
+  configuration_error: "MCP 配置错误"
+  server: "MCP 服务器"
+main:
+  window: "主窗口"
+name:
+  _self: "名称"
+port:
+  _self: "端口"
+  changes_take_effect_the_next_time_the_serve: "端口更改将在下次启动服务器时生效。"
+project:
+  _self: "项目"
+regenerate:
+  _self: "重新生成"
+shortcuts:
+  _self: "快捷键"
+speakers:
+  _self: "说话人"
+these:
+  options_are_mutually_exclusive_enabling_on: "这些选项互斥。启用一个会关闭另一个。"
+while:
+  recording: "录制时"
