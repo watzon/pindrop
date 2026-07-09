@@ -110,7 +110,6 @@ final class SettingsWindowController: NSWindowController {
         static let contentWidth: CGFloat = 620
         static let minimumContentHeight: CGFloat = 420
         static let defaultContentHeight: CGFloat = 600
-        static let maximumContentHeight: CGFloat = 640
         static let contentPadding: CGFloat = 24
         static let frameAutosaveName = "PindropSettings"
     }
@@ -199,10 +198,8 @@ final class SettingsWindowController: NSWindowController {
                 tab: tab
             )
             let hostingController = NSHostingController(rootView: AnyView(rootView))
-            // Single size driver: SwiftUI reports preferredContentSize from the pane's
-            // natural layout. Do not also hardcode preferredContentSize (that fought
-            // SettingsPaneRoot's frame and left intermediate overlay frames at rest).
-            hostingController.sizingOptions = [.preferredContentSize]
+            // No preferredContentSize sizing: the window frame stays put across tab
+            // switches and each Form scrolls inside the fixed host size.
             hostingController.title = tab.title(locale: settings.selectedAppLocale.locale)
 
             let item = NSTabViewItem(viewController: hostingController)
@@ -232,13 +229,14 @@ final class SettingsWindowController: NSWindowController {
         window.titleVisibility = .visible
         window.tabbingMode = .disallowed
         window.isReleasedWhenClosed = false
+        // Fixed width; free vertical resize. No max height so the user can grow the window.
         window.contentMinSize = NSSize(
             width: Layout.contentWidth,
             height: Layout.minimumContentHeight
         )
         window.contentMaxSize = NSSize(
             width: Layout.contentWidth,
-            height: Layout.maximumContentHeight
+            height: CGFloat.greatestFiniteMagnitude
         )
         window.standardWindowButton(.zoomButton)?.isEnabled = false
 
@@ -300,10 +298,9 @@ private struct SettingsPaneRoot: View {
             launchAtLoginManager: launchAtLoginManager,
             updateService: updateService
         )
-        // Fixed width only; height comes from Form content so preferredContentSize
-        // reflects the pane. Window contentMin/MaxSize clamp the host to 420…640.
-        .frame(width: SettingsWindowController.Layout.contentWidth)
-        .fixedSize(horizontal: false, vertical: true)
+        // Fill the host so grouped Forms scroll inside the window rather than
+        // driving window height. Width stays fixed via the window's min/max size.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .modelContainer(modelContainer)
