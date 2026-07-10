@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "다운로드하는 동안 설정을 계속하세요. 나머지는 백그라운드에서 완료됩니다."
+  you_say: "사용자 음성"
+  pindrop_writes: "Pindrop 작성"
+  enable_enhancement: "향상 기능 활성화"
+  accessibility_clipboard_fallback: "손쉬운 사용 권한이 없으면 Pindrop이 텍스트를 클립보드에 복사합니다."
+  change_hotkey_hint: "변경하려면 다른 키 조합을 누르세요"
+  granted_state: "허용됨"
+  ready_heading: "준비되었습니다."
+  ready_instruction_format: "%@을 누르고 말하기 시작하세요. Pindrop이 커서가 있는 곳에 입력합니다."
+  try_it_now: "지금 사용해 보기"
+
 100:
   local_processing: "100% 로컬 처리"
 1:

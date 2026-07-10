@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ dari %@"
+  download_background_hint: "Lanjutkan penyiapan saat mengunduh — kami akan menyelesaikannya di latar belakang."
+  you_say: "Anda mengucapkan"
+  pindrop_writes: "Pindrop menulis"
+  enable_enhancement: "Aktifkan penyempurnaan"
+  accessibility_clipboard_fallback: "Tanpa Aksesibilitas, Pindrop akan menyalin teks ke papan klip."
+  change_hotkey_hint: "Tekan kombinasi lain untuk mengubahnya"
+  granted_state: "Diberikan"
+  ready_heading: "Anda siap."
+  ready_instruction_format: "Tekan %@ dan mulailah berbicara — Pindrop mengetik di mana pun kursor berada."
+  try_it_now: "Coba sekarang"
+
 100:
   local_processing: "100% pengolahan lokal"
 1:

@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ van %@"
+  download_background_hint: "Ga door met instellen tijdens het downloaden — we ronden het op de achtergrond af."
+  you_say: "Jij zegt"
+  pindrop_writes: "Pindrop schrijft"
+  enable_enhancement: "Verbetering inschakelen"
+  accessibility_clipboard_fallback: "Zonder Toegankelijkheid kopieert Pindrop de tekst naar het klembord."
+  change_hotkey_hint: "Druk op een andere combinatie om deze te wijzigen"
+  granted_state: "Verleend"
+  ready_heading: "Je bent klaar."
+  ready_instruction_format: "Druk op %@ en begin te praten — Pindrop typt waar je cursor staat."
+  try_it_now: "Probeer het nu"
+
 100:
   local_processing: "100% lokale verwerking"
 1:

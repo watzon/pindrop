@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ trên %@"
+  download_background_hint: "Tiếp tục thiết lập trong khi tải xuống — chúng tôi sẽ hoàn tất trong nền."
+  you_say: "Bạn nói"
+  pindrop_writes: "Pindrop viết"
+  enable_enhancement: "Bật tính năng cải thiện"
+  accessibility_clipboard_fallback: "Nếu không có Trợ năng, Pindrop sẽ sao chép văn bản vào bảng nhớ tạm."
+  change_hotkey_hint: "Nhấn một tổ hợp khác để thay đổi"
+  granted_state: "Đã cấp"
+  ready_heading: "Bạn đã sẵn sàng."
+  ready_instruction_format: "Nhấn %@ và bắt đầu nói — Pindrop nhập tại vị trí con trỏ."
+  try_it_now: "Thử ngay"
+
 100:
   local_processing: "Xử lý cục bộ 100%"
 1:

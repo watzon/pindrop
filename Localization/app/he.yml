@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ מתוך %@"
+  download_background_hint: "אפשר להמשיך בהגדרה בזמן ההורדה — נסיים ברקע."
+  you_say: "אתם אומרים"
+  pindrop_writes: "Pindrop כותב"
+  enable_enhancement: "הפעלת שיפור"
+  accessibility_clipboard_fallback: "ללא נגישות, Pindrop מעתיק את הטקסט ללוח במקום זאת."
+  change_hotkey_hint: "לחצו על צירוף אחר כדי לשנות אותו"
+  granted_state: "הוענק"
+  ready_heading: "הכול מוכן."
+  ready_instruction_format: "לחצו על %@ והתחילו לדבר — Pindrop מקליד בכל מקום שבו נמצא הסמן."
+  try_it_now: "לנסות עכשיו"
+
 100:
   local_processing: "100% עיבוד מקומי"
 1:

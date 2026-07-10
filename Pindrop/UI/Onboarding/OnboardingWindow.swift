@@ -36,6 +36,59 @@ enum OnboardingStep: Int, CaseIterable {
     }
 }
 
+enum OnboardingProgressPresentation {
+    static let dotCount = OnboardingStep.allCases.count
+
+    static func activeIndex(for step: OnboardingStep) -> Int {
+        step.rawValue
+    }
+}
+
+enum OnboardingType {
+    static let bigHeading = FontLoader.font(family: .newsreader, size: 40, weight: .medium)
+    static let stepHeading = FontLoader.font(family: .newsreader, size: 28, weight: .medium)
+    static let primaryButton = FontLoader.font(family: .inter, size: 14, weight: .semibold)
+    static let ghostButton = FontLoader.font(family: .inter, size: 13, weight: .medium)
+    static let stepSubtitle = FontLoader.font(family: .inter, size: 13, weight: .regular)
+    static let welcomeSubtitle = FontLoader.font(family: .inter, size: 14, weight: .regular)
+}
+
+struct OnboardingPrimaryButton: View {
+    let title: String
+    var icon: Icon?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Text(title)
+                if let icon {
+                    IconView(icon: icon, size: 13)
+                }
+            }
+            .font(OnboardingType.primaryButton)
+            .foregroundStyle(AppColors.contentBackground)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 22)
+            .background(AppColors.accent, in: .rect(cornerRadius: 10))
+            .contentShape(.rect(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct OnboardingGhostButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(title, action: action)
+            .buttonStyle(.plain)
+            .font(OnboardingType.ghostButton)
+            .foregroundStyle(AppColors.textSecondary)
+    }
+}
+
 struct OnboardingWindow: View {
     @ObservedObject var settings: SettingsStore
     var modelManager: ModelManager
@@ -47,7 +100,6 @@ struct OnboardingWindow: View {
     @State private var currentStep: OnboardingStep = .welcome
     @State private var selectedModelName: String = "openai_whisper-base"
     @State private var direction: Int = 1
-    @Namespace private var namespace
     
     private var canGoBack: Bool {
         switch currentStep {
@@ -70,100 +122,62 @@ struct OnboardingWindow: View {
         }
     }
 
-    private static func preferredContentSize(for step: OnboardingStep) -> CGSize {
-        switch step {
-        case .aiEnhancement:
-            return CGSize(width: 800, height: 700)
-        default:
-            return CGSize(width: 800, height: 600)
-        }
-    }
+    private static let preferredContentSize = CGSize(width: 760, height: 560)
 
-    private var preferredContentSize: CGSize {
-        Self.preferredContentSize(for: currentStep)
-    }
-    
     var body: some View {
-        ZStack {
-            backgroundGradient
-            
-            VStack(spacing: 0) {
-                ZStack {
-                    HStack {
-                        if canGoBack {
-                            Button(action: goBack) {
-                                HStack(spacing: 4) {
-                                    IconView(icon: .chevronLeft, size: 14)
-                                    Text("Back")
-                                }
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    stepIndicator
-                }
-                .frame(height: 44)
-                .padding(.top, 8)
-                
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
                 stepContent
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if canGoBack {
+                    Button(action: goBack) {
+                        HStack(spacing: 4) {
+                            IconView(icon: .chevronLeft, size: 14)
+                            Text(localized("Back", locale: settings.selectedAppLocale.locale))
+                        }
+                        .font(AppTypography.label)
+                        .foregroundStyle(AppColors.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+
+            stepIndicator
+                .padding(.top, 8)
         }
-        .frame(minWidth: 800, idealWidth: preferredContentSize.width, minHeight: 600, idealHeight: preferredContentSize.height)
+        .padding(24)
+        .background(AppColors.windowBackground)
+        .clipShape(.rect(cornerRadius: 12))
+        .frame(width: 760, height: 560)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .onAppear {
             let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
             currentStep = initialStep
-            onPreferredContentSizeChange(Self.preferredContentSize(for: initialStep))
+            onPreferredContentSizeChange(Self.preferredContentSize)
             Log.boot.info("OnboardingWindow appeared step=\(initialStep.title) storedStepIndex=\(settings.currentOnboardingStep)")
         }
-        .onChange(of: currentStep) { _, newStep in
-            onPreferredContentSizeChange(Self.preferredContentSize(for: newStep))
-        }
     }
     
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [
-                Color(nsColor: .controlBackgroundColor),
-                Color(nsColor: .controlBackgroundColor).opacity(0.95)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
-    }
-    
+    // Renders through OnboardingProgressPresentation so the unit tests pin the
+    // actual dot row (7 dots, download step included).
     private var stepIndicator: some View {
-        HStack(spacing: 8) {
-            ForEach(OnboardingStep.allCases, id: \.rawValue) { step in
-                if step != .modelDownload {
-                    stepDot(for: step)
-                }
+        HStack(spacing: 7) {
+            ForEach(0..<OnboardingProgressPresentation.dotCount, id: \.self) { index in
+                stepDot(at: index)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial, in: .capsule)
     }
-    
+
     @ViewBuilder
-    private func stepDot(for step: OnboardingStep) -> some View {
-        let isActive = step == currentStep || (step == .modelSelection && currentStep == .modelDownload)
-        let isPast = step.rawValue < currentStep.rawValue
-        
-        Circle()
-            .fill(isActive ? AppColors.accent : (isPast ? AppColors.accent.opacity(0.5) : Color.secondary.opacity(0.3)))
-            .frame(width: isActive ? 10 : 8, height: isActive ? 10 : 8)
-            .background(isActive ? AppColors.accent.opacity(0.2) : .clear)
-            .clipShape(.circle)
-            .animation(.spring(duration: 0.3), value: currentStep)
+    private func stepDot(at index: Int) -> some View {
+        let isActive = index == OnboardingProgressPresentation.activeIndex(for: currentStep)
+
+        Capsule()
+            .fill(isActive ? AppColors.accent : AppColors.border)
+            .frame(width: isActive ? 18 : 6, height: 6)
+            .animation(AppTheme.Animation.fast, value: currentStep)
     }
     
     @ViewBuilder

@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ z %@"
+  download_background_hint: "Kontynuuj konfigurację podczas pobierania — dokończymy w tle."
+  you_say: "Mówisz"
+  pindrop_writes: "Pindrop pisze"
+  enable_enhancement: "Włącz ulepszanie"
+  accessibility_clipboard_fallback: "Bez Dostępności Pindrop kopiuje tekst do schowka."
+  change_hotkey_hint: "Naciśnij inną kombinację, aby ją zmienić"
+  granted_state: "Przyznano"
+  ready_heading: "Wszystko gotowe."
+  ready_instruction_format: "Naciśnij %@ i zacznij mówić — Pindrop pisze tam, gdzie znajduje się kursor."
+  try_it_now: "Wypróbuj teraz"
+
 100:
   local_processing: "100% lokalne przetwarzanie"
 1:

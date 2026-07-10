@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ av %@"
+  download_background_hint: "Fortsett oppsettet mens den lastes ned — vi fullfører i bakgrunnen."
+  you_say: "Du sier"
+  pindrop_writes: "Pindrop skriver"
+  enable_enhancement: "Aktiver forbedring"
+  accessibility_clipboard_fallback: "Uten Tilgjengelighet kopierer Pindrop teksten til utklippstavlen i stedet."
+  change_hotkey_hint: "Trykk en annen kombinasjon for å endre den"
+  granted_state: "Gitt"
+  ready_heading: "Du er klar."
+  ready_instruction_format: "Trykk %@ og begynn å snakke — Pindrop skriver der markøren er."
+  try_it_now: "Prøv nå"
+
 100:
   local_processing: "100 % lokal behandling"
 1:

@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "İndirme sürerken kuruluma devam edin — arka planda tamamlayacağız."
+  you_say: "Siz söylersiniz"
+  pindrop_writes: "Pindrop yazar"
+  enable_enhancement: "İyileştirmeyi etkinleştir"
+  accessibility_clipboard_fallback: "Erişilebilirlik olmadan Pindrop metni panoya kopyalar."
+  change_hotkey_hint: "Değiştirmek için farklı bir kombinasyona basın"
+  granted_state: "Verildi"
+  ready_heading: "Hazırsınız."
+  ready_instruction_format: "%@'ye basın ve konuşmaya başlayın — Pindrop imlecinizin bulunduğu yere yazar."
+  try_it_now: "Şimdi deneyin"
+
 100:
   local_processing: "%100 yerli işleme"
 1:

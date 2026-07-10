@@ -31,71 +31,83 @@ struct ModelDownloadStepView: View {
     }
 
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        VStack(spacing: 0) {
+            Text(statusTitle)
+                .font(OnboardingType.stepHeading)
+                .tracking(-0.42)
+                .foregroundStyle(AppColors.textPrimary)
+
+            Text(statusSubtitle)
+                .font(OnboardingType.stepSubtitle)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 8)
 
             progressIndicator
-
-            statusText
+                .padding(.top, 32)
 
             if downloadError != nil {
-                errorView
+                errorView.padding(.top, 18)
+            } else {
+                hintRow.padding(.top, 30)
             }
 
-            Spacer()
-
-            actionButtons
+            actionButtons.padding(.top, 24)
         }
-        .padding(40)
         .task {
             await startDownload()
         }
     }
 
     private var progressIndicator: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 8)
-                .frame(width: 120, height: 120)
-
-            Circle()
-                .trim(from: 0, to: modelManager.downloadProgress)
-                .stroke(
-                    AppColors.accent,
-                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                )
-                .frame(width: 120, height: 120)
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.3), value: modelManager.downloadProgress)
-
-            VStack(spacing: 4) {
-                if modelManager.isDownloading {
-                    Text("\(Int(modelManager.downloadProgress * 100))%")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                } else if downloadError != nil {
-                    IconView(icon: .warning, size: 32)
-                        .foregroundStyle(.orange)
-                } else {
-                    IconView(icon: .circleCheck, size: 32)
-                        .foregroundStyle(.green)
+        VStack(spacing: 10) {
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(AppColors.border)
+                    Capsule()
+                        .fill(AppColors.accent)
+                        .frame(width: proxy.size.width * max(0, min(1, modelManager.downloadProgress)))
                 }
             }
+            .frame(height: 8)
+            .clipShape(.capsule)
+            .animation(AppTheme.Animation.normal, value: modelManager.downloadProgress)
+
+            HStack {
+                Text(downloadMeta)
+                    .foregroundStyle(AppColors.textSecondary)
+                Spacer()
+                Text("\(Int(modelManager.downloadProgress * 100))%")
+                    .foregroundStyle(AppColors.textTertiary)
+            }
+            .font(AppTypography.monoTime)
         }
-        .background(AppColors.accent.opacity(0.05))
-        .background(.ultraThinMaterial, in: .circle)
-        .padding(20)
+        .frame(width: 440)
     }
 
-    private var statusText: some View {
-        VStack(spacing: 8) {
-            Text(statusTitle)
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
+    private var downloadMeta: String {
+        guard let model = selectedModel else { return localized("Please wait...", locale: locale) }
+        let downloadedMB = Int(Double(model.sizeInMB) * modelManager.downloadProgress)
+        return String(
+            format: localized("%@ of %@", locale: locale),
+            formatStorage(downloadedMB),
+            formatStorage(model.sizeInMB)
+        )
+    }
 
-            Text(statusSubtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+    private func formatStorage(_ megabytes: Int) -> String {
+        megabytes >= 1000
+            ? String(format: "%.1f GB", Double(megabytes) / 1000.0)
+            : "\(megabytes) MB"
+    }
+
+    private var hintRow: some View {
+        HStack(spacing: 8) {
+            IconView(icon: .info, size: 12)
+            Text(localized("Keep setting up while it downloads — we'll finish in the background.", locale: locale))
         }
+        .font(AppTypography.captionLarge)
+        .foregroundStyle(AppColors.textTertiary)
     }
 
     private var statusTitle: String {
@@ -153,40 +165,24 @@ struct ModelDownloadStepView: View {
     private var errorView: some View {
         if let error = downloadError {
             Text(error)
-                .font(.caption)
-                .foregroundStyle(.red)
-                .padding()
-                .background(.red.opacity(0.05))
-                .background(.ultraThinMaterial, in: .rect(cornerRadius: 8))
+                .font(AppTypography.captionLarge)
+                .foregroundStyle(AppColors.error)
         }
     }
 
     private var actionButtons: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             if modelManager.isDownloading {
-                Button(localized("Cancel", locale: locale)) {
-                    onCancel()
-                }
-                .buttonStyle(.bordered)
+                OnboardingGhostButton(title: localized("Cancel", locale: locale), action: onCancel)
             } else if downloadError != nil {
-                Button(localized("Go Back", locale: locale)) {
-                    onCancel()
-                }
-                .buttonStyle(.bordered)
+                OnboardingGhostButton(title: localized("Go Back", locale: locale), action: onCancel)
 
-                Button(localized("Retry", locale: locale)) {
+                OnboardingPrimaryButton(title: localized("Retry", locale: locale), icon: nil) {
                     downloadError = nil
                     Task { await startDownload() }
                 }
-                .buttonStyle(.borderedProminent)
             } else {
-                Button(action: onComplete) {
-                    Text(localized("Continue", locale: locale))
-                        .font(.headline)
-                        .frame(maxWidth: 200)
-                        .padding(.vertical, 12)
-                }
-                .buttonStyle(.borderedProminent)
+                OnboardingPrimaryButton(title: localized("Continue", locale: locale), icon: nil, action: onComplete)
             }
         }
     }
@@ -226,7 +222,7 @@ struct ModelDownloadStepView: View {
     private func loadSelectedModelInBackground() {
         let localModelPath = modelManager.existingLocalModelPath(for: modelName)
 
-        Task.detached { @MainActor in
+        Task { @MainActor in
             do {
                 if let localModelPath {
                     Log.boot.info("Onboarding background loadModel(path) starting name=\(self.modelName)")
@@ -253,7 +249,7 @@ struct ModelDownloadStepView_Previews: PreviewProvider {
             onComplete: {},
             onCancel: {}
         )
-        .frame(width: 800, height: 600)
+        .frame(width: 760, height: 500)
     }
 }
 

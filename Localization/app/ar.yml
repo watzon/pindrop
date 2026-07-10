@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ من %@"
+  download_background_hint: "تابع الإعداد أثناء التنزيل — سنكمله في الخلفية."
+  you_say: "أنت تقول"
+  pindrop_writes: "يكتب Pindrop"
+  enable_enhancement: "تفعيل التحسين"
+  accessibility_clipboard_fallback: "من دون إذن تسهيلات الاستخدام، ينسخ Pindrop النص إلى الحافظة بدلاً من ذلك."
+  change_hotkey_hint: "اضغط تركيبة مختلفة لتغييرها"
+  granted_state: "ممنوح"
+  ready_heading: "أصبحت جاهزًا."
+  ready_instruction_format: "اضغط %@ وابدأ التحدث — يكتب Pindrop أينما كان المؤشر."
+  try_it_now: "جرّبه الآن"
+
 100:
   local_processing: "معالجة محلية 100%"
 1:

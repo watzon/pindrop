@@ -11,97 +11,39 @@ struct WelcomeStepView: View {
     let onContinue: () -> Void
 
     @Environment(\.locale) private var locale
-    @State private var logoScale: CGFloat = 0.8
-    @State private var logoOpacity: Double = 0
-    @State private var textOpacity: Double = 0
-    @State private var buttonOpacity: Double = 0
 
     var body: some View {
-        VStack(spacing: 24) {
-            appIcon
+        VStack(spacing: 0) {
+            medallion
 
-            VStack(spacing: 8) {
-                Text(localized("Welcome to Pindrop", locale: locale))
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+            Text(localized("Welcome to Pindrop", locale: locale))
+                .font(OnboardingType.bigHeading)
+                .tracking(-0.8)
+                .foregroundStyle(AppColors.textPrimary)
 
-                Text(localized("Local speech-to-text, right from your menu bar.\nFast, private, and always available.", locale: locale))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-            }
-            .opacity(textOpacity)
+            Text(localized("Local speech-to-text, right from your menu bar.\nFast, private, and always available.", locale: locale))
+                .font(OnboardingType.welcomeSubtitle)
+                .lineSpacing(8)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 400)
+                .padding(.top, 12)
 
-            VStack(spacing: 12) {
-                featureRow(icon: .waveform, text: localized("Powered by WhisperKit", locale: locale))
-                featureRow(icon: .shield, text: localized("100% local processing", locale: locale))
-                featureRow(icon: .keyboard, text: localized("Global keyboard shortcuts", locale: locale))
-            }
-            .opacity(textOpacity)
-            .padding(.vertical, 8)
-
-            Spacer()
-
-            Button(action: onContinue) {
-                Text(localized("Get Started", locale: locale))
-                    .font(.headline)
-                    .frame(maxWidth: 200)
-                    .padding(.vertical, 12)
-            }
-            .buttonStyle(.borderedProminent)
-            .opacity(buttonOpacity)
-        }
-        .padding(.horizontal, 40)
-        .padding(.top, 32)
-        .padding(.bottom, 24)
-        .onAppear {
-            withAnimation(.spring(duration: 0.6, bounce: 0.4)) {
-                logoScale = 1.0
-                logoOpacity = 1.0
-            }
-            withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
-                textOpacity = 1.0
-            }
-            withAnimation(.easeOut(duration: 0.4).delay(0.5)) {
-                buttonOpacity = 1.0
-            }
+            OnboardingPrimaryButton(
+                title: localized("Get Started", locale: locale),
+                icon: .arrowRight,
+                action: onContinue
+            )
+            .padding(.top, 30)
         }
     }
 
-    private var appIcon: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [AppColors.accent, AppColors.accent.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 100, height: 100)
-
-            IconView(icon: .waveform, size: 56)
-                .foregroundStyle(.white)
-        }
-        .background(AppColors.accent.opacity(0.1))
-        .background(.ultraThinMaterial, in: .circle)
-        .scaleEffect(logoScale)
-        .opacity(logoOpacity)
-    }
-
-    private func featureRow(icon: Icon, text: String) -> some View {
-        HStack(spacing: 12) {
-            IconView(icon: icon, size: 16)
-                .foregroundStyle(AppColors.accent)
-                .frame(width: 24)
-
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial, in: .capsule)
+    private var medallion: some View {
+        IconView(icon: .mic, size: 40)
+            .foregroundStyle(AppColors.contentBackground)
+            .frame(width: 84, height: 84)
+            .background(AppColors.accent, in: .rect(cornerRadius: 24))
+            .padding(.bottom, 26)
     }
 }
 
@@ -109,7 +51,8 @@ struct WelcomeStepView: View {
 struct WelcomeStepView_Previews: PreviewProvider {
     static var previews: some View {
         WelcomeStepView(onContinue: {})
-            .frame(width: 800, height: 600)
+            .frame(width: 760, height: 500)
+            .background(AppColors.windowBackground)
     }
 }
 #endif

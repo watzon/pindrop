@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ z %@"
+  download_background_hint: "Pokračujte v nastavení během stahování — dokončíme ho na pozadí."
+  you_say: "Řeknete"
+  pindrop_writes: "Pindrop napíše"
+  enable_enhancement: "Zapnout vylepšení"
+  accessibility_clipboard_fallback: "Bez Zpřístupnění Pindrop místo toho zkopíruje text do schránky."
+  change_hotkey_hint: "Změníte ji stisknutím jiné kombinace"
+  granted_state: "Uděleno"
+  ready_heading: "Vše je připraveno."
+  ready_instruction_format: "Stiskněte %@ a začněte mluvit — Pindrop píše všude, kde je kurzor."
+  try_it_now: "Vyzkoušet nyní"
+
 100:
   local_processing: "100% lokální zpracování"
 1:

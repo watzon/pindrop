@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ din %@"
+  download_background_hint: "Continuați configurarea în timpul descărcării — vom finaliza în fundal."
+  you_say: "Spuneți"
+  pindrop_writes: "Pindrop scrie"
+  enable_enhancement: "Activează îmbunătățirea"
+  accessibility_clipboard_fallback: "Fără Accesibilitate, Pindrop copiază textul în clipboard."
+  change_hotkey_hint: "Apăsați o altă combinație pentru a o schimba"
+  granted_state: "Acordat"
+  ready_heading: "Totul este gata."
+  ready_instruction_format: "Apăsați %@ și începeți să vorbiți — Pindrop scrie oriunde se află cursorul."
+  try_it_now: "Încercați acum"
+
 100:
   local_processing: "Prelucrare 100% locală"
 1:

@@ -14,59 +14,58 @@ struct ModelSelectionStepView: View {
 
     @Environment(\.locale) private var locale
 
-    var body: some View {
-        VStack(spacing: 24) {
-            headerSection
-
-            ScrollView {
-                VStack(spacing: 12) {
-                    ForEach(modelManager.availableModels.filter { $0.availability == .available }) { model in
-                        ModelCard(
-                            model: model,
-                            isSelected: selectedModelName == model.name,
-                            isDownloaded: modelManager.isModelDownloaded(model.name),
-                            isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
-                            onSelect: { selectedModelName = model.name }
-                        )
-                    }
-                }
-                .padding(.horizontal, 40)
+    private var modelChoices: [ModelManager.WhisperModel] {
+        modelManager.availableModels
+            .filter { $0.availability == .available }
+            .sorted { lhs, rhs in
+                if lhs.name == selectedModelName { return true }
+                if rhs.name == selectedModelName { return false }
+                let lhsRecommended = ModelManager.recommendedModelNameSet.contains(lhs.name)
+                let rhsRecommended = ModelManager.recommendedModelNameSet.contains(rhs.name)
+                if lhsRecommended != rhsRecommended { return lhsRecommended }
+                return lhs.sizeInMB < rhs.sizeInMB
             }
-
-            continueButton
-        }
-        .padding(.vertical, 24)
+            .prefix(2)
+            .map { $0 }
     }
 
-    private var headerSection: some View {
-        VStack(spacing: 8) {
+    var body: some View {
+        VStack(spacing: 0) {
             Text(localized("Choose a Model", locale: locale))
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .font(OnboardingType.stepHeading)
+                .tracking(-0.42)
+                .foregroundStyle(AppColors.textPrimary)
 
             Text(localized("Smaller models are faster but less accurate.\nStart with Base for the best balance.", locale: locale))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(OnboardingType.stepSubtitle)
+                .lineSpacing(3)
+                .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
-        }
-        .padding(.horizontal, 40)
-    }
+                .padding(.top, 8)
 
-    private var continueButton: some View {
-        Button(action: onContinue) {
-            HStack {
-                Text(modelManager.isModelDownloaded(selectedModelName)
-                    ? localized("Continue", locale: locale)
-                    : localized("Download & Continue", locale: locale))
-                if !modelManager.isModelDownloaded(selectedModelName) {
-                    IconView(icon: .download, size: 16)
+            HStack(spacing: 12) {
+                ForEach(modelChoices) { model in
+                    ModelCard(
+                        model: model,
+                        isSelected: selectedModelName == model.name,
+                        isDownloaded: modelManager.isModelDownloaded(model.name),
+                        isRecommended: ModelManager.recommendedModelNameSet.contains(model.name),
+                        onSelect: { selectedModelName = model.name }
+                    )
                 }
             }
-            .font(.headline)
-            .frame(maxWidth: 220)
-            .padding(.vertical, 12)
+            .frame(width: 560)
+            .padding(.top, 28)
+
+            OnboardingPrimaryButton(
+                title: modelManager.isModelDownloaded(selectedModelName)
+                    ? localized("Continue", locale: locale)
+                    : localized("Download & Continue", locale: locale),
+                icon: modelManager.isModelDownloaded(selectedModelName) ? nil : .download,
+                action: onContinue
+            )
+            .padding(.top, 28)
         }
-        .buttonStyle(.borderedProminent)
-        .padding(.horizontal, 40)
     }
 }
 
@@ -81,89 +80,69 @@ struct ModelCard: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: 16) {
-                selectionIndicator
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    IconView(icon: .waveform, size: 15)
+                        .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(model.displayName)
-                            .font(.headline)
+                    Text(model.displayName)
+                        .font(OnboardingType.primaryButton)
+                        .foregroundStyle(AppColors.textPrimary)
 
-                        if isRecommended {
-                            Text(localized("Recommended", locale: locale))
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(AppColors.accent.opacity(0.2))
-                                .foregroundStyle(AppColors.accent)
-                                .clipShape(.capsule)
-                        }
-
-                        if isDownloaded {
-                            IconView(icon: .circleCheck, size: 14)
-                                .foregroundStyle(.green)
-                        }
-                    }
-
-                    HStack(spacing: 16) {
-                        HStack(spacing: 4) {
-                            IconView(icon: .hardDrive, size: 12)
-                            Text(formatSize(model.sizeInMB))
-                        }
-                        HStack(spacing: 4) {
-                            IconView(icon: .zap, size: 12)
-                            Text(speedLabel(for: model.sizeInMB))
-                        }
-                        HStack(spacing: 4) {
-                            IconView(icon: .target, size: 12)
-                            Text(accuracyLabel(for: model.sizeInMB))
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    Spacer()
+                    selectionIndicator
                 }
 
-                Spacer()
+                Text(modelDescription)
+                    .font(AppTypography.captionLarge)
+                    .lineSpacing(2)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if isSelected && isRecommended {
+                    Text(localized("Recommended", locale: locale).uppercased(with: locale))
+                        .font(AppTypography.badge)
+                        .foregroundStyle(AppColors.accent)
+                } else {
+                    Spacer(minLength: 14)
+                }
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(isSelected ? AppColors.accent.opacity(0.1) : Color.clear)
-                    )
+            .padding(18)
+            .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
+            .background(AppColors.contentBackground, in: .rect(cornerRadius: 12))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(isSelected ? AppColors.accent : AppColors.border, lineWidth: isSelected ? 1.5 : 1)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(isSelected ? AppColors.accent : Color.clear, lineWidth: 2)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(.rect(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+    }
+
+    private var modelDescription: String {
+        let speed = speedLabel(for: model.sizeInMB)
+        let accuracy = accuracyLabel(for: model.sizeInMB)
+        return "\(formatSize(model.sizeInMB)) · \(speed) · \(accuracy)"
     }
 
     private var selectionIndicator: some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? AppColors.accent : Color.secondary.opacity(0.3), lineWidth: 2)
-                .frame(width: 22, height: 22)
-
+                .fill(isSelected ? AppColors.accent : .clear)
+                .frame(width: 15, height: 15)
+                .overlay {
+                    Circle().strokeBorder(isSelected ? AppColors.accent : AppColors.border, lineWidth: 1.5)
+                }
             if isSelected {
-                Circle()
-                    .fill(AppColors.accent)
-                    .frame(width: 14, height: 14)
+                IconView(icon: .check, size: 9)
+                    .foregroundStyle(AppColors.contentBackground)
             }
         }
     }
 
     private func formatSize(_ mb: Int) -> String {
-        if mb >= 1000 {
-            return String(format: "%.1f GB", Double(mb) / 1000.0)
-        }
-        return "\(mb) MB"
+        mb >= 1000 ? String(format: "%.1f GB", Double(mb) / 1000.0) : "\(mb) MB"
     }
 
     private func speedLabel(for sizeMB: Int) -> String {
@@ -190,38 +169,19 @@ struct ModelCard: View {
 #if DEBUG
 struct ModelSelectionStepView_Previews: PreviewProvider {
     @State private static var selectedModelName = "openai_whisper-base.en"
-    
+
     static var previews: some View {
         ModelSelectionStepView(
             modelManager: PreviewModelManagerSelection(),
             selectedModelName: $selectedModelName,
             onContinue: {}
         )
-        .frame(width: 800, height: 600)
-    }
-}
-
-struct ModelCard_Previews: PreviewProvider {
-    static var previews: some View {
-        ModelCard(
-            model: ModelManager.WhisperModel(
-                name: "openai_whisper-base.en",
-                displayName: "Base",
-                sizeInMB: 145
-            ),
-            isSelected: true,
-            isDownloaded: false,
-            isRecommended: true,
-            onSelect: {}
-        )
-        .padding()
-        .frame(width: 400)
+        .frame(width: 760, height: 500)
+        .background(AppColors.windowBackground)
     }
 }
 
 final class PreviewModelManagerSelection: ModelManager {
-    override init() {
-        // Skip async initialization to avoid launching WhisperKit in preview
-    }
+    override init() {}
 }
 #endif

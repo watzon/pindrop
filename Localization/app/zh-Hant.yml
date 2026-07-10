@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "下載時可繼續設定 — 我們會在背景完成。"
+  you_say: "你說"
+  pindrop_writes: "Pindrop 寫成"
+  enable_enhancement: "啟用增強"
+  accessibility_clipboard_fallback: "沒有輔助使用權限時，Pindrop 會將文字複製到剪貼簿。"
+  change_hotkey_hint: "按下其他組合鍵即可更改"
+  granted_state: "已授予"
+  ready_heading: "一切就緒。"
+  ready_instruction_format: "按下 %@ 並開始說話 — Pindrop 會在游標所在位置輸入。"
+  try_it_now: "立即試用"
+
 100:
   local_processing: "100% 本地處理"
 1:

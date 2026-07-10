@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "Folytassa a beállítást letöltés közben — a háttérben befejezzük."
+  you_say: "Ön mondja"
+  pindrop_writes: "A Pindrop írja"
+  enable_enhancement: "Javítás engedélyezése"
+  accessibility_clipboard_fallback: "Kisegítő lehetőségek nélkül a Pindrop a vágólapra másolja a szöveget."
+  change_hotkey_hint: "A módosításhoz nyomjon meg egy másik kombinációt"
+  granted_state: "Megadva"
+  ready_heading: "Minden kész."
+  ready_instruction_format: "Nyomja meg ezt: %@, és kezdjen beszélni — a Pindrop oda gépel, ahol a kurzor van."
+  try_it_now: "Próbálja ki most"
+
 100:
   local_processing: "100%-ban helyi feldolgozás"
 1:

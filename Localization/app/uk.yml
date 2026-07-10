@@ -1,3 +1,16 @@
+u9_onboarding:
+  download_amount_format: "%@ з %@"
+  download_background_hint: "Продовжуйте налаштування під час завантаження — ми завершимо у фоновому режимі."
+  you_say: "Ви говорите"
+  pindrop_writes: "Pindrop пише"
+  enable_enhancement: "Увімкнути покращення"
+  accessibility_clipboard_fallback: "Без Доступності Pindrop копіює текст у буфер обміну."
+  change_hotkey_hint: "Натисніть іншу комбінацію, щоб змінити її"
+  granted_state: "Надано"
+  ready_heading: "Усе готово."
+  ready_instruction_format: "Натисніть %@ і починайте говорити — Pindrop друкує там, де розташований курсор."
+  try_it_now: "Спробувати зараз"
+
 100:
   local_processing: "100% локальна обробка"
 1:

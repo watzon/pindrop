@@ -5,6 +5,9 @@
 //  Created on 2026-01-25.
 //
 
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
 import Foundation
 import SwiftUI
 
@@ -176,7 +179,7 @@ struct AIEnhancementStepView: View {
     let onPreferredContentSizeChange: (CGSize) -> Void
 
     @Environment(\.locale) private var locale
-    @State private var selectedProvider: AIProvider = .openai
+    @State private var selectedProvider: AIProvider = .apple
     @State private var selectedCustomProvider: CustomProviderType = .custom
     @State private var apiKey = ""
     @State private var customEndpointDrafts: [CustomProviderType: String] = [:]
@@ -204,75 +207,69 @@ struct AIEnhancementStepView: View {
     }
 
     var body: some View {
-       VStack(spacing: 20) {
+       VStack(spacing: 0) {
           headerSection
 
-          providerTabs
+          VStack(spacing: 10) {
+             enhancementExampleCard(
+                label: localized("You say", locale: locale),
+                text: localized("um so the meeting is at three thirty period can you confirm question mark", locale: locale),
+                highlighted: false
+             )
+             enhancementExampleCard(
+                label: localized("Pindrop writes", locale: locale),
+                text: localized("So the meeting is at 3:30. Can you confirm?", locale: locale),
+                highlighted: true
+             )
+          }
+          .frame(width: 480)
+          .padding(.top, 26)
 
-          providerConfigSection
-             .frame(maxHeight: .infinity)
-
-          actionButtons
+          actionButtons.padding(.top, 28)
        }
-       .padding(.horizontal, 40)
-        .padding(.top, 16)
-        .padding(.bottom, 24)
         .onAppear {
            loadSavedConfiguration()
-           onPreferredContentSizeChange(preferredContentSize)
-        }
-        .onChange(of: selectedProvider) { oldValue, newValue in
-           if newValue == .custom {
-              applyCustomEndpointDefault(forceReset: oldValue != .custom)
-           }
-
-           apiKey = loadKeyForCurrentSelection()
-           onPreferredContentSizeChange(preferredContentSize)
-           Task {
-              await loadModelsIfNeeded(
-                 for: newValue,
-                 customLocalProvider: selectedCustomProvider,
-                 forceRefresh: newValue == .custom
-              )
-           }
-        }
-        .onChange(of: apiKey) { _, newValue in
-           guard selectedProvider == .openai else { return }
-           guard !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-           Task { await loadModelsIfNeeded(for: .openai, forceRefresh: true) }
-        }
-        .onChange(of: selectedCustomProvider) { _, newValue in
-           apiKey = loadKeyForCurrentSelection()
-
-           if newValue == .custom {
-              if customModel.isEmpty {
-                 customModel = selectedModel
-              }
-              availableModels = []
-              modelError = nil
-           }
-
-           Task {
-              await loadModelsIfNeeded(
-                 for: .custom,
-                 customLocalProvider: newValue,
-                 forceRefresh: true
-              )
-           }
+           onPreferredContentSizeChange(CGSize(width: 760, height: 560))
         }
     }
 
     private var headerSection: some View {
-       VStack(spacing: 6) {
-          IconView(icon: .sparkles, size: 36)
-             .foregroundStyle(AppColors.accent)
-
+       VStack(spacing: 0) {
           Text(localized("AI Enhancement", locale: locale))
-             .font(.system(size: 24, weight: .bold, design: .rounded))
+             .font(OnboardingType.stepHeading)
+             .tracking(-0.42)
+             .foregroundStyle(AppColors.textPrimary)
 
           Text(localized("Optionally clean up transcriptions with AI", locale: locale))
-             .font(.subheadline)
-             .foregroundStyle(.secondary)
+             .font(OnboardingType.stepSubtitle)
+             .foregroundStyle(AppColors.textSecondary)
+             .padding(.top, 8)
+       }
+    }
+
+    private func enhancementExampleCard(label: String, text: String, highlighted: Bool) -> some View {
+       VStack(alignment: .leading, spacing: 8) {
+          Text(label.uppercased(with: locale))
+             .font(AppTypography.badge)
+             .tracking(0.77)
+             .foregroundStyle(highlighted ? AppColors.accent : AppColors.textTertiary)
+
+          Text(text)
+             .font(highlighted
+                ? FontLoader.font(family: .newsreader, size: 16, weight: .regular)
+                : AppTypography.body)
+             .lineSpacing(highlighted ? 4 : 3)
+             .foregroundStyle(highlighted ? AppColors.textPrimary : AppColors.textSecondary)
+       }
+       .padding(.vertical, 16)
+       .padding(.horizontal, 18)
+       .frame(maxWidth: .infinity, alignment: .leading)
+       .background(highlighted ? AppColors.accentBackground : AppColors.contentBackground, in: .rect(cornerRadius: 12))
+       .overlay {
+          if !highlighted {
+             RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+          }
        }
     }
 
@@ -920,20 +917,43 @@ struct AIEnhancementStepView: View {
    }
 
    private var actionButtons: some View {
-      HStack(spacing: 16) {
-         Button(localized("Skip for Now", locale: locale), action: onSkip)
-            .buttonStyle(.bordered)
+      HStack(spacing: 14) {
+         OnboardingPrimaryButton(
+            title: localized("Enable enhancement", locale: locale),
+            icon: .sparkles,
+            action: enableAndContinue
+         )
 
-         Button(action: saveAndContinue) {
-            Text(localized("Save & Continue", locale: locale))
-               .font(.headline)
-               .frame(maxWidth: 180)
-               .padding(.vertical, 12)
-         }
-         .buttonStyle(.borderedProminent)
-         .disabled(!canContinue)
+         OnboardingGhostButton(title: localized("Skip for Now", locale: locale), action: onSkip)
       }
    }
+
+    private func enableAndContinue() {
+       // Preserve a complete saved configuration when one exists. Fresh onboarding has no
+       // credentials UI in the U9 artboard, so use the credential-free on-device provider.
+       if !canContinue {
+          // Don't persist assignments to a provider that can't run on this system;
+          // Settings → AI handles setup later.
+          guard Self.isAppleIntelligenceAvailable else {
+             onContinue()
+             return
+          }
+          selectedProvider = .apple
+          selectedModel = "apple_intelligence"
+       }
+       saveAndContinue()
+    }
+
+    private static var isAppleIntelligenceAvailable: Bool {
+       #if canImport(FoundationModels)
+       if #available(macOS 26, *) {
+          return SystemLanguageModel.default.availability == .available
+       }
+       return false
+       #else
+       return false
+       #endif
+    }
 
     private var canContinue: Bool {
        guard selectedProvider.isImplemented else { return false }
