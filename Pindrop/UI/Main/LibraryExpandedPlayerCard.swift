@@ -44,7 +44,32 @@ struct LibraryExpandedPlayerCard: View {
         ) {
             metaRow
         } player: {
-            playerRow
+            PlayerRow(
+                peaks: peaks,
+                progress: playbackProgress,
+                isPlaying: playbackController.isPlaying,
+                elapsedTotalLabel: elapsedTotalLabel,
+                rateLabel: LibraryPlaybackRate.label(for: playbackRate),
+                onTogglePlay: {
+                    playbackController.togglePlayback()
+                    if playbackController.isPlaying {
+                        playbackController.setRate(playbackRate)
+                    }
+                },
+                onSeek: { fraction in
+                    let duration = max(playbackController.duration, record.duration)
+                    guard duration > 0 else { return }
+                    playbackController.seek(to: fraction * duration)
+                },
+                onCycleRate: {
+                    let next = LibraryPlaybackRate.next(after: playbackRate)
+                    playbackRate = next
+                    if playbackController.isPlaying {
+                        playbackController.setRate(next)
+                    }
+                },
+                rateHelp: localized("Playback speed", locale: locale)
+            )
         } actions: {
             actionsRow
         }
@@ -54,7 +79,11 @@ struct LibraryExpandedPlayerCard: View {
                 return
             }
             playbackController.load(url: mediaURL)
-            peaks = (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
+            // Peak extraction can decode the whole file — never on the main actor.
+            let loaded = await Task.detached(priority: .userInitiated) {
+                (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
+            }.value
+            peaks = loaded
         }
         .onDisappear {
             if playbackController.isPlaying {
@@ -105,67 +134,6 @@ struct LibraryExpandedPlayerCard: View {
         .frame(minHeight: 20)
     }
 
-    // MARK: - Player
-
-    private var playerRow: some View {
-        HStack(spacing: 16) {
-            Button {
-                playbackController.togglePlayback()
-                if playbackController.isPlaying {
-                    playbackController.setRate(playbackRate)
-                }
-            } label: {
-                Circle()
-                    .fill(AppColors.accent)
-                    .frame(width: 44, height: 44)
-                    .overlay {
-                        Image(systemName: playbackController.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AppColors.contentBackground)
-                            .offset(x: playbackController.isPlaying ? 0 : 1)
-                    }
-            }
-            .buttonStyle(.plain)
-
-            WaveformView(
-                peaks: peaks,
-                progress: playbackProgress,
-                onSeek: { fraction in
-                    let duration = max(playbackController.duration, record.duration)
-                    guard duration > 0 else { return }
-                    playbackController.seek(to: fraction * duration)
-                }
-            )
-            .frame(maxWidth: .infinity)
-
-            Text(elapsedTotalLabel)
-                .font(AppTypography.monoTime)
-                .foregroundStyle(AppColors.textSecondary)
-                .monospacedDigit()
-                .fixedSize()
-
-            Button {
-                let next = LibraryPlaybackRate.next(after: playbackRate)
-                playbackRate = next
-                if playbackController.isPlaying {
-                    playbackController.setRate(next)
-                }
-            } label: {
-                Text(LibraryPlaybackRate.label(for: playbackRate))
-                    .font(AppTypography.monoSmall)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 10)
-                    .overlay(
-                        Capsule().strokeBorder(AppColors.border, lineWidth: 1)
-                    )
-            }
-            .buttonStyle(.plain)
-            .help(localized("Playback speed", locale: locale))
-        }
-        .frame(height: 44)
-    }
-
     private var playbackProgress: Double {
         let duration = max(playbackController.duration, record.duration)
         guard duration > 0 else { return 0 }
@@ -192,34 +160,12 @@ struct LibraryExpandedPlayerCard: View {
                 systemImage: "arrow.uturn.backward",
                 action: onInsertAgain
             )
-            Menu {
-                ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
-                    Button(format.displayName(locale: locale)) {
-                        onExport(format)
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 12, weight: .medium))
-                    Text(localized("Export", locale: locale))
-                        .font(AppTypography.label)
-                }
-                .foregroundStyle(AppColors.textPrimary)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(AppColors.contentBackground)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(AppColors.border, lineWidth: 1)
-                )
-            }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
+            ExportMenuButton(
+                title: localized("Export", locale: locale),
+                formats: TranscriptExportService.availableFormats(for: record),
+                formatTitle: { $0.displayName(locale: locale) },
+                onSelect: onExport
+            )
 
             Spacer(minLength: 8)
 

@@ -108,6 +108,22 @@ struct LibraryPresentationTests {
         #expect(LibrarySpeakerColor.color(for: "speaker-alice") == LibrarySpeakerColor.color(for: "speaker-alice"))
     }
 
+    @Test func emptySpeakerIdFallsBackToLabelForCanonicalKeyAndColor() {
+        let keyFromEmpty = LibrarySpeakerColor.canonicalKey(speakerId: "", speakerLabel: "Alice")
+        #expect(keyFromEmpty == "Alice")
+        #expect(
+            LibrarySpeakerColor.color(speakerId: "", speakerLabel: "Alice")
+                == LibrarySpeakerColor.color(for: "Alice")
+        )
+        // Turn rows and footer must agree when id is empty.
+        let turnColor = LibrarySpeakerColor.color(speakerId: "", speakerLabel: "Bob")
+        let footerKey = LibrarySpeakerColor.canonicalKey(speakerId: "", speakerLabel: "Bob")
+        let footerColor = LibrarySpeakerColor.color(for: footerKey)
+        #expect(turnColor == footerColor)
+        #expect(LibrarySpeakerColor.canonicalKey(speakerId: "s1", speakerLabel: "Alice") == "s1")
+        #expect(LibrarySpeakerColor.canonicalKey(speakerId: "  ", speakerLabel: "  ") == "_")
+    }
+
     @Test func speakerPaletteHasAtLeastSixDistinctColors() {
         #expect(LibrarySpeakerColor.palette.count >= 6)
         // Distinct hex-ish values via description uniqueness.

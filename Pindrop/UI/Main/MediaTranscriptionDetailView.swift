@@ -65,14 +65,18 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
-    private var participants: [(speakerID: String, label: String)] {
+    private var participants: [(key: String, speakerID: String, label: String)] {
         var seen = Set<String>()
         return displayedSegments.compactMap { segment in
-            guard !seen.contains(segment.speakerId) else { return nil }
-            seen.insert(segment.speakerId)
+            let key = LibrarySpeakerColor.canonicalKey(
+                speakerId: segment.speakerId,
+                speakerLabel: segment.speakerLabel
+            )
+            guard !seen.contains(key) else { return nil }
+            seen.insert(key)
             let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !label.isEmpty else { return nil }
-            return (segment.speakerId, label)
+            return (key, segment.speakerId, label)
         }
     }
 
@@ -110,9 +114,16 @@ struct MediaTranscriptionDetailView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
-                breadcrumb
-                titleBlock
+                // Spec §8: breadcrumb → title gap is 16 pt (not the section 24 pt rhythm).
+                VStack(alignment: .leading, spacing: 16) {
+                    breadcrumb
+                    titleBlock
+                }
+
                 if hasMedia {
+                    if playbackController.hasVideoTrack {
+                        videoSurface
+                    }
                     playerBarCard
                 }
                 if record.hasSummary, let summary = record.aiSummary {
@@ -128,13 +139,17 @@ struct MediaTranscriptionDetailView: View {
         }
         .background(AppColors.contentBackground)
         .task(id: record.id) {
-            if let mediaURL = record.managedMediaURL {
-                playbackController.load(url: mediaURL)
-                peaks = (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
-            } else {
-                peaks = []
-            }
             speakerLabelsByID = currentSpeakerLabelsByID()
+            guard let mediaURL = record.managedMediaURL else {
+                peaks = []
+                return
+            }
+            playbackController.load(url: mediaURL)
+            // Peak extraction can decode the whole file — never on the main actor.
+            let loaded = await Task.detached(priority: .userInitiated) {
+                (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
+            }.value
+            peaks = loaded
         }
         .onChange(of: record.diarizationSegmentsJSON) { _, _ in
             speakerLabelsByID = currentSpeakerLabelsByID()
@@ -164,7 +179,6 @@ struct MediaTranscriptionDetailView: View {
             .foregroundStyle(AppColors.textSecondary)
         }
         .buttonStyle(.plain)
-        .padding(.bottom, 0)
     }
 
     // MARK: - Title
@@ -217,34 +231,12 @@ struct MediaTranscriptionDetailView: View {
                     )
                 }
 
-                Menu {
-                    ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
-                        Button(format.displayName(locale: locale)) {
-                            exportTranscript(format: format)
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 12, weight: .medium))
-                        Text(localized("Export", locale: locale))
-                            .font(AppTypography.label)
-                    }
-                    .foregroundStyle(AppColors.textPrimary)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(AppColors.contentBackground)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .strokeBorder(AppColors.border, lineWidth: 1)
-                    )
-                }
-                .menuStyle(.borderlessButton)
-                .menuIndicator(.hidden)
-                .fixedSize()
+                ExportMenuButton(
+                    title: localized("Export", locale: locale),
+                    formats: TranscriptExportService.availableFormats(for: record),
+                    formatTitle: { $0.displayName(locale: locale) },
+                    onSelect: { exportTranscript(format: $0) }
+                )
             }
         }
     }
@@ -278,65 +270,50 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
+    // MARK: - Video surface (imported video)
+
+    private var videoSurface: some View {
+        AVPlayerViewRepresentable(player: playbackController.player)
+            .frame(height: 280)
+            .frame(maxWidth: .infinity)
+            .background(Color.black)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
+    }
+
     // MARK: - Player bar
 
     private var playerBarCard: some View {
-        HStack(spacing: 16) {
-            Button {
+        PlayerRow(
+            peaks: peaks,
+            progress: playbackProgress,
+            isPlaying: playbackController.isPlaying,
+            elapsedTotalLabel: elapsedTotalLabel,
+            rateLabel: LibraryPlaybackRate.label(for: playbackRate),
+            onTogglePlay: {
                 playbackController.togglePlayback()
                 if playbackController.isPlaying {
                     playbackController.setRate(playbackRate)
                 }
-            } label: {
-                Circle()
-                    .fill(AppColors.accent)
-                    .frame(width: 44, height: 44)
-                    .overlay {
-                        Image(systemName: playbackController.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AppColors.contentBackground)
-                            .offset(x: playbackController.isPlaying ? 0 : 1)
-                    }
-            }
-            .buttonStyle(.plain)
-
-            WaveformView(
-                peaks: peaks,
-                progress: playbackProgress,
-                onSeek: { fraction in
-                    let duration = max(playbackController.duration, record.duration)
-                    guard duration > 0 else { return }
-                    playbackController.seek(to: fraction * duration)
-                }
-            )
-            .frame(maxWidth: .infinity)
-
-            Text(elapsedTotalLabel)
-                .font(AppTypography.monoTime)
-                .foregroundStyle(AppColors.textSecondary)
-                .monospacedDigit()
-                .fixedSize()
-
-            Button {
+            },
+            onSeek: { fraction in
+                let duration = max(playbackController.duration, record.duration)
+                guard duration > 0 else { return }
+                playbackController.seek(to: fraction * duration)
+            },
+            onCycleRate: {
                 let next = LibraryPlaybackRate.next(after: playbackRate)
                 playbackRate = next
                 if playbackController.isPlaying {
                     playbackController.setRate(next)
                 }
-            } label: {
-                Text(LibraryPlaybackRate.label(for: playbackRate))
-                    .font(AppTypography.monoSmall)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 10)
-                    .overlay(
-                        Capsule().strokeBorder(AppColors.border, lineWidth: 1)
-                    )
-            }
-            .buttonStyle(.plain)
-        }
+            },
+            rateHelp: localized("Playback speed", locale: locale)
+        )
         .padding(16)
-        .frame(height: 44 + 32)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(AppColors.windowBackground)
@@ -432,8 +409,10 @@ struct MediaTranscriptionDetailView: View {
 
     private func turnRow(_ segment: DiarizedTranscriptSegment, index: Int) -> some View {
         let active = isActive(segment, index: index)
-        let speakerKey = segment.speakerId.isEmpty ? segment.speakerLabel : segment.speakerId
-        let speakerColor = LibrarySpeakerColor.color(for: speakerKey)
+        let speakerColor = LibrarySpeakerColor.color(
+            speakerId: segment.speakerId,
+            speakerLabel: segment.speakerLabel
+        )
 
         return Button {
             if hasMedia {
@@ -472,13 +451,18 @@ struct MediaTranscriptionDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textSelection(.enabled)
             }
+            // Spec §8: no horizontal content padding (timestamp stays on the left rule).
+            // Active pill gets breathing room via background inset only.
             .padding(.vertical, 10)
-            .padding(.horizontal, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(active ? AppColors.accentBackground : Color.clear)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .background {
+                if active {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(AppColors.accentBackground)
+                        .padding(.horizontal, -8)
+                        .padding(.vertical, -2)
+                }
+            }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .animation(AppTheme.Animation.fast, value: active)
@@ -499,17 +483,19 @@ struct MediaTranscriptionDetailView: View {
                 .foregroundStyle(AppColors.textTertiary)
                 .textCase(.uppercase)
 
-            ForEach(participants, id: \.speakerID) { participant in
+            ForEach(participants, id: \.key) { participant in
                 HStack(spacing: 8) {
                     Circle()
-                        .fill(LibrarySpeakerColor.color(for: participant.speakerID))
+                        .fill(LibrarySpeakerColor.color(for: participant.key))
                         .frame(width: 7, height: 7)
                     Text(participant.label)
                         .font(AppTypography.label)
                         .foregroundStyle(AppColors.textPrimary)
                     Spacer()
                     Button(localized("Edit", locale: locale)) {
-                        editingSpeakerID = participant.speakerID
+                        editingSpeakerID = participant.speakerID.isEmpty
+                            ? participant.key
+                            : participant.speakerID
                         editedSpeakerLabel = participant.label
                     }
                     .buttonStyle(.borderless)

@@ -23,6 +23,7 @@
 		SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */; };
 		SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */; };
 		SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */; };
+		SCORCHPLAYERROWBUILDPLAYERROWSW /* PlayerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */; };
 		SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */; };
 		THEMEFOUNDTESTBUILDTHEMEFOUNDAT /* ThemeFoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */; };
 		TRXPRTBUILD01A2B3C4D5E6 /* TranscriptExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */; };
@@ -281,6 +282,7 @@
 		SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCardChrome.swift; sourceTree = "<group>"; };
 		SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
+		SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRow.swift; sourceTree = "<group>"; };
 		SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestructiveGhostButton.swift; sourceTree = "<group>"; };
 		THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeFoundationTests.swift; sourceTree = "<group>"; };
 		TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptExportService.swift; sourceTree = "<group>"; };
@@ -868,6 +870,7 @@
 				SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */,
 				SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */,
 				SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */,
+				SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */,
 				SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */,
 			);
 			path = Scorched;
@@ -1305,6 +1308,7 @@
 				SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */,
 				SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */,
 				SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */,
+				SCORCHPLAYERROWBUILDPLAYERROWSW /* PlayerRow.swift in Sources */,
 				SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */,
 				THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */,
 				SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,

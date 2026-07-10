@@ -272,11 +272,25 @@ enum LibrarySpeakerColor {
         Color(red: 0.851, green: 0.325, blue: 0.510)  // rose
     ]
 
+    /// Canonical color key: prefer non-empty `speakerId`, else non-empty label, else `"_"`.
+    /// Use this everywhere a speaker color is resolved so empty-id segments match the footer.
+    static func canonicalKey(speakerId: String, speakerLabel: String) -> String {
+        let trimmedID = speakerId.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedID.isEmpty { return trimmedID }
+        let trimmedLabel = speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedLabel.isEmpty { return trimmedLabel }
+        return "_"
+    }
+
     static func color(for speakerID: String) -> Color {
         palette[index(for: speakerID)]
     }
 
-    /// Stable index into `palette` for a given speaker id (or label fallback).
+    static func color(speakerId: String, speakerLabel: String) -> Color {
+        color(for: canonicalKey(speakerId: speakerId, speakerLabel: speakerLabel))
+    }
+
+    /// Stable index into `palette` for a given speaker key.
     static func index(for speakerID: String) -> Int {
         let key = speakerID.isEmpty ? "_" : speakerID
         var hash: UInt64 = 5381

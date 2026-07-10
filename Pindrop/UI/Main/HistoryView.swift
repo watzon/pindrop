@@ -561,13 +561,22 @@ struct HistoryView: View {
                 PlayChip(
                     durationText: formatDuration(record.duration),
                     isExpired: isExpired || (!hasAudio && record.duration > 0 && kind == .voiceRecording),
-                    action: hasAudio ? { toggleExpansion(for: record) } : nil
+                    action: playChipAction(for: record, hasAudio: hasAudio)
                 )
             },
             action: {
                 handleRowTap(record)
             }
         )
+    }
+
+    /// Play chip and row agree: meetings → detail; others with audio → expand.
+    private func playChipAction(for record: TranscriptionRecord, hasAudio: Bool) -> (() -> Void)? {
+        if record.resolvedSourceKind == .manualCapture {
+            return { openDetail(record) }
+        }
+        guard hasAudio else { return nil }
+        return { toggleExpansion(for: record) }
     }
 
     private func handleRowTap(_ record: TranscriptionRecord) {
