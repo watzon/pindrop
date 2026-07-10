@@ -217,77 +217,167 @@ final class DictionaryStore: LearnedReplacementPersisting {
     
     // MARK: - Text Replacement
     
-    /// Applies word replacements to the given text using word boundary matching.
-    /// - Parameter text: The input text to process
+    /// Applies word replacements in persisted `sortOrder` (ascending).
+    ///
+    /// **Ordering (behavior change):** Rules are applied earliest-`sortOrder` first.
+    /// A span consumed by an earlier rule is not re-matched by later rules
+    /// ("first match wins"). This replaces the previous longest-match-first sort.
+    ///
+    /// Match modes:
+    /// - `.caseInsensitive` — word-boundary, case-insensitive (historical default)
+    /// - `.exact` — word-boundary, case-sensitive
+    /// - `.command` — word-boundary, case-insensitive spoken phrase → control sequence
+    ///   via ``ReplacementCommandPalette``
+    ///
+    /// When a rule produces at least one substitution, its `usageCount` is incremented
+    /// by the number of substitutions (when `trackUsage` is true). Usage is batched into a single save.
+    /// - Parameters:
+    ///   - text: The input text to process
+    ///   - trackUsage: When false, skips usageCount updates (for intermediate/discarded passes)
     /// - Returns: A tuple containing the modified text and a list of applied replacements
-    func applyReplacements(to text: String) throws -> (String, [(original: String, replacement: String)]) {
+    func applyReplacements(
+        to text: String,
+        trackUsage: Bool = true
+    ) throws -> (String, [(original: String, replacement: String)]) {
         guard !text.isEmpty else {
             return (text, [])
         }
         
+        // Already ordered by sortOrder ascending from fetchAllReplacements().
         let replacements = try fetchAllReplacements()
         guard !replacements.isEmpty else {
             return (text, [])
         }
         
-        // Flatten all originals with their replacements and sort by length (longest first)
-        var patterns: [(original: String, replacement: String)] = []
-        for replacement in replacements {
-            for original in replacement.originals {
-                patterns.append((original: original, replacement: replacement.replacement))
-            }
-        }
-        patterns.sort { $0.original.count > $1.original.count }
-        
-        var result = text
+        // Work on NSString / UTF-16 offsets so consumed spans stay valid across mutations.
+        var result = text as NSString
         var appliedReplacements: [(original: String, replacement: String)] = []
-        var replacedRanges: [Range<String.Index>] = []
+        var consumedUTF16: [NSRange] = []
+        var usageDeltas: [UUID: Int] = [:]
         
-        // Single pass: process each pattern
-        for pattern in patterns {
-            let original = pattern.original
-            let replacement = pattern.replacement
+        for rule in replacements {
+            let substitution = substitutionText(for: rule)
+            let caseInsensitive = rule.matchMode != .exact
+            var ruleHitCount = 0
             
-            // Escape special regex characters in the original string
-            let escapedOriginal = NSRegularExpression.escapedPattern(for: original)
-            
-            // Create regex with word boundaries and case-insensitive matching
-            let regexPattern = "\\b\(escapedOriginal)\\b"
-            
-            guard let regex = try? NSRegularExpression(
-                pattern: regexPattern,
-                options: [.caseInsensitive]
-            ) else {
-                continue
-            }
-            
-            let nsRange = NSRange(result.startIndex..., in: result)
-            let matches = regex.matches(in: result, options: [], range: nsRange)
-            
-            // Process matches in reverse order to maintain string indices
-            for match in matches.reversed() {
-                guard let matchRange = Range(match.range, in: result) else {
+            for original in rule.originals {
+                let trimmedOriginal = original.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmedOriginal.isEmpty else { continue }
+                
+                let escapedOriginal = NSRegularExpression.escapedPattern(for: trimmedOriginal)
+                let regexPattern = "\\b\(escapedOriginal)\\b"
+                var options: NSRegularExpression.Options = []
+                if caseInsensitive {
+                    options.insert(.caseInsensitive)
+                }
+                
+                guard let regex = try? NSRegularExpression(pattern: regexPattern, options: options) else {
                     continue
                 }
                 
-                // Check if this range overlaps with any already replaced range
-                let overlaps = replacedRanges.contains { existingRange in
-                    matchRange.overlaps(existingRange)
-                }
+                let fullRange = NSRange(location: 0, length: result.length)
+                let matches = regex.matches(in: result as String, options: [], range: fullRange)
                 
-                if !overlaps {
-                    let matchedText = String(result[matchRange])
-                    result.replaceSubrange(matchRange, with: replacement)
-                    appliedReplacements.append((original: matchedText, replacement: replacement))
+                // Reverse order keeps later UTF-16 offsets stable as we mutate `result`.
+                for match in matches.reversed() {
+                    let matchRange = match.range
+                    guard matchRange.location != NSNotFound else { continue }
                     
-                    let newStart = matchRange.lowerBound
-                    let newEnd = result.index(newStart, offsetBy: replacement.count)
-                    replacedRanges.append(newStart..<newEnd)
+                    let overlaps = consumedUTF16.contains { NSIntersectionRange($0, matchRange).length > 0 }
+                    guard !overlaps else { continue }
+                    
+                    let matchedText = result.substring(with: matchRange)
+                    result = result.replacingCharacters(in: matchRange, with: substitution) as NSString
+                    appliedReplacements.append((original: matchedText, replacement: substitution))
+                    ruleHitCount += 1
+                    
+                    let delta = (substitution as NSString).length - matchRange.length
+                    consumedUTF16 = consumedUTF16.map { range in
+                        if range.location >= matchRange.location + matchRange.length {
+                            return NSRange(location: range.location + delta, length: range.length)
+                        }
+                        return range
+                    }
+                    consumedUTF16.append(NSRange(location: matchRange.location, length: (substitution as NSString).length))
                 }
+            }
+            
+            if ruleHitCount > 0 {
+                usageDeltas[rule.id, default: 0] += ruleHitCount
             }
         }
         
-        return (result, appliedReplacements)
+        if trackUsage, !usageDeltas.isEmpty {
+            for rule in replacements {
+                if let delta = usageDeltas[rule.id] {
+                    rule.usageCount += delta
+                }
+            }
+            try saveContext()
+        }
+        
+        return (result as String, appliedReplacements)
+    }
+
+    /// Counts case-insensitive word-boundary occurrences of each vocabulary entry in
+    /// `text` and increments `usageCount` by the hit count. Batches into a single save.
+    func recordVocabularyHits(in text: String) throws {
+        guard !text.isEmpty else { return }
+
+        let words = try fetchAllVocabularyWords()
+        guard !words.isEmpty else { return }
+
+        var didChange = false
+        for entry in words {
+            let trimmed = entry.word.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            let hits = Self.wordBoundaryMatchCount(of: trimmed, in: text, caseInsensitive: true)
+            if hits > 0 {
+                entry.usageCount += hits
+                didChange = true
+            }
+        }
+
+        if didChange {
+            try saveContext()
+        }
+    }
+
+    /// Top vocabulary words for WhisperKit prompt biasing (highest usage, then newest).
+    func vocabularyBiasWords(limit: Int = VocabularyBiasPrompt.maxWordCount) throws -> [String] {
+        let words = try fetchAllVocabularyWords()
+        let entries = words.map {
+            VocabularyBiasPrompt.Entry(word: $0.word, usageCount: $0.usageCount, createdAt: $0.createdAt)
+        }
+        return VocabularyBiasPrompt.selectWords(from: entries, limit: limit)
+    }
+
+    private func substitutionText(for rule: WordReplacement) -> String {
+        switch rule.matchMode {
+        case .command:
+            return ReplacementCommandPalette.resolve(rule.replacement)
+        case .caseInsensitive, .exact:
+            return rule.replacement
+        }
+    }
+
+    /// Word-boundary match count for vocabulary hit tracking / tests.
+    static func wordBoundaryMatchCount(
+        of pattern: String,
+        in text: String,
+        caseInsensitive: Bool
+    ) -> Int {
+        let escaped = NSRegularExpression.escapedPattern(for: pattern)
+        let regexPattern = "\\b\(escaped)\\b"
+        var options: NSRegularExpression.Options = []
+        if caseInsensitive {
+            options.insert(.caseInsensitive)
+        }
+        guard let regex = try? NSRegularExpression(pattern: regexPattern, options: options) else {
+            return 0
+        }
+        let nsRange = NSRange(text.startIndex..., in: text)
+        return regex.numberOfMatches(in: text, options: [], range: nsRange)
     }
     
     // MARK: - Import/Export
