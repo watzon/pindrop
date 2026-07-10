@@ -203,6 +203,142 @@ final class CoreAudioInputDeviceMuteReader: InputDeviceMuteReading {
     }
 }
 
+// MARK: - Listener registration (nonisolated for deinit)
+
+/// Holds registered CoreAudio listener blocks so teardown can run from `deinit`
+/// without hopping to the MainActor (which is not allowed in a synchronous deinit).
+private final class InputMuteListenerRegistration: @unchecked Sendable {
+    private let lock = NSLock()
+    private var deviceID: AudioDeviceID?
+    private var muteBlock: AudioObjectPropertyListenerBlock?
+    private var defaultBlock: AudioObjectPropertyListenerBlock?
+    /// Optional test seam; production path removes listeners via CoreAudio directly.
+    private let reader: (any InputDeviceMuteReading)?
+
+    init(reader: (any InputDeviceMuteReading)? = nil) {
+        self.reader = reader
+    }
+
+    func setDeviceListener(deviceID: AudioDeviceID, block: @escaping AudioObjectPropertyListenerBlock) {
+        lock.lock()
+        defer { lock.unlock() }
+        self.deviceID = deviceID
+        self.muteBlock = block
+    }
+
+    func setDefaultListener(block: @escaping AudioObjectPropertyListenerBlock) {
+        lock.lock()
+        defer { lock.unlock() }
+        self.defaultBlock = block
+    }
+
+    func clearDeviceListener() {
+        lock.lock()
+        defer { lock.unlock() }
+        deviceID = nil
+        muteBlock = nil
+    }
+
+    func clearDefaultListener() {
+        lock.lock()
+        defer { lock.unlock() }
+        defaultBlock = nil
+    }
+
+    /// Idempotent: removes any registered listeners and clears stored refs.
+    func tearDown() {
+        lock.lock()
+        let deviceID = self.deviceID
+        let muteBlock = self.muteBlock
+        let defaultBlock = self.defaultBlock
+        self.deviceID = nil
+        self.muteBlock = nil
+        self.defaultBlock = nil
+        let reader = self.reader
+        lock.unlock()
+
+        if let deviceID, let muteBlock {
+            if let reader {
+                // Test path: notify mock reader so tests can assert remove counts.
+                Self.notifyReaderRemoveMute(reader, deviceID: deviceID, block: muteBlock)
+            }
+            // Always remove via CoreAudio so production listeners never leak, even if
+            // the Task above is still pending when the process is tearing down.
+            Self.removeMuteListenersDirectly(deviceID: deviceID, block: muteBlock)
+        }
+        if let defaultBlock {
+            if let reader {
+                Self.notifyReaderRemoveDefault(reader, block: defaultBlock)
+            }
+            Self.removeDefaultListenerDirectly(block: defaultBlock)
+        }
+    }
+
+    private static func notifyReaderRemoveMute(
+        _ reader: any InputDeviceMuteReading,
+        deviceID: AudioDeviceID,
+        block: @escaping AudioObjectPropertyListenerBlock
+    ) {
+        Task { @MainActor in
+            reader.removeMuteListener(deviceID: deviceID, queue: .main, block: block)
+        }
+    }
+
+    private static func notifyReaderRemoveDefault(
+        _ reader: any InputDeviceMuteReading,
+        block: @escaping AudioObjectPropertyListenerBlock
+    ) {
+        Task { @MainActor in
+            reader.removeDefaultInputListener(queue: .main, block: block)
+        }
+    }
+
+    private static func removeMuteListenersDirectly(
+        deviceID: AudioDeviceID,
+        block: @escaping AudioObjectPropertyListenerBlock
+    ) {
+        var addresses = [
+            AudioObjectPropertyAddress(
+                mSelector: AudioObjectPropertySelector(kAudioDevicePropertyMute),
+                mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
+                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+            ),
+            AudioObjectPropertyAddress(
+                mSelector: AudioObjectPropertySelector(kAudioHardwareServiceDeviceProperty_VirtualMainVolume),
+                mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
+                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+            ),
+            AudioObjectPropertyAddress(
+                mSelector: AudioObjectPropertySelector(kAudioDevicePropertyVolumeScalar),
+                mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
+                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+            )
+        ]
+        for index in addresses.indices {
+            AudioObjectRemovePropertyListenerBlock(
+                deviceID,
+                &addresses[index],
+                DispatchQueue.main,
+                block
+            )
+        }
+    }
+
+    private static func removeDefaultListenerDirectly(block: @escaping AudioObjectPropertyListenerBlock) {
+        var address = AudioObjectPropertyAddress(
+            mSelector: AudioObjectPropertySelector(kAudioHardwarePropertyDefaultInputDevice),
+            mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
+            mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+        )
+        AudioObjectRemovePropertyListenerBlock(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            DispatchQueue.main,
+            block
+        )
+    }
+}
+
 // MARK: - Monitor
 
 @MainActor
@@ -218,13 +354,27 @@ final class InputMuteMonitor: InputMuteObserving {
     private var defaultInputListenerBlock: AudioObjectPropertyListenerBlock?
     private var didLogUnsupportedMute = false
     private var isRunning = false
+    /// Nonisolated registration bookkeeping so `deinit` can tear down listeners.
+    private let listenerRegistration: InputMuteListenerRegistration
 
     init(
         preferredDeviceUID: String? = nil,
         reader: (any InputDeviceMuteReading)? = nil
     ) {
         self.preferredDeviceUID = preferredDeviceUID
-        self.reader = reader ?? CoreAudioInputDeviceMuteReader()
+        let resolvedReader = reader ?? CoreAudioInputDeviceMuteReader()
+        self.reader = resolvedReader
+        // Pass the reader only when it's a test double (non-CoreAudio) so mock remove
+        // counts still work. Production always uses direct CoreAudio removal in tearDown.
+        self.listenerRegistration = InputMuteListenerRegistration(
+            reader: reader
+        )
+    }
+
+    deinit {
+        // Always tear down CoreAudio listeners if the monitor is deallocated without stop().
+        // Idempotent: tearDown no-ops when no listeners are registered.
+        listenerRegistration.tearDown()
     }
 
     func start() {
@@ -235,12 +385,18 @@ final class InputMuteMonitor: InputMuteObserving {
     }
 
     func stop() {
-        guard isRunning else { return }
         isRunning = false
+        tearDownListeners()
+        isMuted = false
+    }
+
+    /// Shared cleanup for `stop()`. Safe to call multiple times.
+    private func tearDownListeners() {
         removeDeviceListeners()
         removeDefaultInputListener()
         observedDeviceID = nil
-        isMuted = false
+        // Registration tearDown is also invoked by deinit; calling both is safe.
+        listenerRegistration.tearDown()
     }
 
     func setPreferredDeviceUID(_ uid: String?) {
@@ -308,6 +464,7 @@ final class InputMuteMonitor: InputMuteObserving {
         )
         if status == noErr {
             muteListenerBlock = block
+            listenerRegistration.setDeviceListener(deviceID: deviceID, block: block)
         } else {
             Log.audio.debug(
                 "Could not attach mute/volume listeners for deviceID=\(deviceID) status=\(status)"
@@ -320,10 +477,12 @@ final class InputMuteMonitor: InputMuteObserving {
     private func removeDeviceListeners() {
         guard let deviceID = observedDeviceID, let block = muteListenerBlock else {
             muteListenerBlock = nil
+            listenerRegistration.clearDeviceListener()
             return
         }
         reader.removeMuteListener(deviceID: deviceID, queue: .main, block: block)
         muteListenerBlock = nil
+        listenerRegistration.clearDeviceListener()
     }
 
     private func installDefaultInputListener() {
@@ -337,6 +496,7 @@ final class InputMuteMonitor: InputMuteObserving {
         let status = reader.addDefaultInputListener(queue: .main, block: block)
         if status == noErr {
             defaultInputListenerBlock = block
+            listenerRegistration.setDefaultListener(block: block)
         } else {
             Log.audio.debug("Could not observe default input device changes: status=\(status)")
         }
@@ -346,5 +506,6 @@ final class InputMuteMonitor: InputMuteObserving {
         guard let block = defaultInputListenerBlock else { return }
         reader.removeDefaultInputListener(queue: .main, block: block)
         defaultInputListenerBlock = nil
+        listenerRegistration.clearDefaultListener()
     }
 }

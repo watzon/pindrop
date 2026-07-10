@@ -165,6 +165,24 @@ struct InputMuteMonitorTests {
         #expect(sut.isMuted == false)
     }
 
+    @Test func deinitRemovesListenersWithoutExplicitStop() async {
+        let reader = MockInputDeviceMuteReader()
+        do {
+            let sut = InputMuteMonitor(reader: reader)
+            sut.start()
+            #expect(reader.addedMuteListeners == 1)
+            #expect(reader.addedDefaultListeners == 1)
+            // Leave scope without stop() — deinit must tear down listeners.
+            _ = sut
+        }
+        // Mock remove is notified via a MainActor Task hop from nonisolated tearDown.
+        await waitUntil {
+            reader.removedMuteListeners >= 1 && reader.removedDefaultListeners >= 1
+        }
+        #expect(reader.removedMuteListeners >= 1)
+        #expect(reader.removedDefaultListeners >= 1)
+    }
+
     private func waitUntil(
         timeoutMs: Int = 500,
         condition: @MainActor () -> Bool
