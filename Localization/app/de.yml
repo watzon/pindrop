@@ -679,6 +679,7 @@ pindrop:
   theme: "Pindrop-Thema"
   orb: "Pindrop-Orb"
   1_19: "Pindrop 1.19"
+  help: "Pindrop Help"
 play:
   _self: "Abspielen"
 please:
@@ -1148,3 +1149,21 @@ these:
   options_are_mutually_exclusive_enabling_on: "Diese Optionen schließen sich gegenseitig aus. Eine aktivieren schaltet die andere aus."
 while:
   recording: "Während der Aufnahme"
+file:
+  _self: "File"
+window:
+  _self: "Window"
+help:
+  _self: "Help"
+close:
+  _self: "Close"
+find:
+  _self: "Find"
+minimize:
+  _self: "Minimize"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Bring All to Front"
+home:
+  _self: "Home"

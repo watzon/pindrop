@@ -679,6 +679,7 @@ pindrop:
   theme: "ピンドロップのテーマ"
   orb: "Pindrop オーブ"
   1_19: "Pindrop 1.19"
+  help: "Pindrop Help"
 play:
   _self: "遊ぶ"
 please:
@@ -1148,3 +1149,21 @@ these:
   options_are_mutually_exclusive_enabling_on: "これらのオプションは排他的です。一方を有効にすると他方は無効になります。"
 while:
   recording: "録音中"
+file:
+  _self: "File"
+window:
+  _self: "Window"
+help:
+  _self: "Help"
+close:
+  _self: "Close"
+find:
+  _self: "Find"
+minimize:
+  _self: "Minimize"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Bring All to Front"
+home:
+  _self: "Home"

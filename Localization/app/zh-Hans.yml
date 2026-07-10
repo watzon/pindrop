@@ -679,6 +679,7 @@ pindrop:
   theme: "Pindrop 主题"
   orb: "Pindrop 光球"
   1_19: "Pindrop 1.19"
+  help: "Pindrop Help"
 play:
   _self: "播放"
 please:
@@ -1148,3 +1149,21 @@ these:
   options_are_mutually_exclusive_enabling_on: "这些选项互斥。启用一个会关闭另一个。"
 while:
   recording: "录制时"
+file:
+  _self: "File"
+window:
+  _self: "Window"
+help:
+  _self: "Help"
+close:
+  _self: "Close"
+find:
+  _self: "Find"
+minimize:
+  _self: "Minimize"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Bring All to Front"
+home:
+  _self: "Home"
