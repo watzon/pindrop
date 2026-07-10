@@ -79,6 +79,14 @@ extension Notification.Name {
     static let focusHistorySearch = Notification.Name("focusHistorySearch")
 }
 
+// MARK: - Window chrome metrics
+
+enum MainWindowChrome {
+    /// Space under standard traffic lights so top chrome/content never collides
+    /// (button row + breathing room). Applied to whichever panel occupies top-left.
+    static let trafficLightClearance: CGFloat = 36
+}
+
 // MARK: - Main Window View
 
 struct MainWindow: View {
@@ -152,6 +160,10 @@ struct MainWindow: View {
         }
     }
 
+    private var isLeadingSidebar: Bool {
+        settingsStore.selectedSidebarPosition == .leading
+    }
+
     private var sidebarPanel: some View {
         MainSidebar(
             isExpanded: $settingsStore.sidebarExpanded,
@@ -159,6 +171,8 @@ struct MainWindow: View {
             selectedNav: selectedNav,
             floatingIndicatorState: floatingIndicatorState,
             hotkeyHint: settingsStore.toggleHotkey,
+            /// Leading sidebar owns top-left → clear traffic lights; trailing does not.
+            reservesTrafficLightClearance: isLeadingSidebar,
             onSelect: navigateTo,
             onOpenSettings: { onOpenSettings(.general) }
         )
@@ -166,11 +180,27 @@ struct MainWindow: View {
     }
 
     private var detailPanel: some View {
-        detailContent
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(AppColors.contentBackground)
-            .layoutPriority(1)
-            .zIndex(1)
+        VStack(spacing: 0) {
+            // Trailing sidebar: detail occupies top-left under the traffic lights.
+            if !isLeadingSidebar {
+                trafficLightDragStrip
+            }
+            detailContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.contentBackground)
+        .layoutPriority(1)
+        .zIndex(1)
+    }
+
+    /// Clear strip that stays window-draggable via `isMovableByWindowBackground`
+    /// (pages that opt out of drag live below this, not inside it).
+    private var trafficLightDragStrip: some View {
+        Color.clear
+            .frame(height: MainWindowChrome.trafficLightClearance)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
     }
 
     // MARK: - Detail Content
@@ -235,6 +265,8 @@ private struct MainSidebar: View {
     let selectedNav: MainNavItem
     @ObservedObject private var indicatorState: FloatingIndicatorState
     let hotkeyHint: String
+    /// When true, insert a draggable top strip so content clears traffic lights.
+    let reservesTrafficLightClearance: Bool
     let onSelect: (MainNavItem) -> Void
     let onOpenSettings: () -> Void
 
@@ -248,6 +280,7 @@ private struct MainSidebar: View {
         selectedNav: MainNavItem,
         floatingIndicatorState: FloatingIndicatorState?,
         hotkeyHint: String,
+        reservesTrafficLightClearance: Bool,
         onSelect: @escaping (MainNavItem) -> Void,
         onOpenSettings: @escaping () -> Void
     ) {
@@ -256,17 +289,13 @@ private struct MainSidebar: View {
         self.selectedNav = selectedNav
         self._indicatorState = ObservedObject(wrappedValue: floatingIndicatorState ?? FloatingIndicatorState())
         self.hotkeyHint = hotkeyHint
+        self.reservesTrafficLightClearance = reservesTrafficLightClearance
         self.onSelect = onSelect
         self.onOpenSettings = onOpenSettings
     }
 
     private var currentWidth: CGFloat {
         isExpanded ? AppTheme.Window.sidebarWidth : AppTheme.Window.sidebarCollapsedWidth
-    }
-
-    /// Leading sidebar clears real traffic lights (top pad + button height + 22 pt below).
-    private var topTrafficLightClearance: CGFloat {
-        position == .leading ? 36 : 0
     }
 
     private var statusPhase: StatusCardPhase {
@@ -279,9 +308,12 @@ private struct MainSidebar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if topTrafficLightClearance > 0 {
+            if reservesTrafficLightClearance {
+                // Window-draggable strip (no drag-blocker) under real traffic lights.
                 Color.clear
-                    .frame(height: topTrafficLightClearance)
+                    .frame(height: MainWindowChrome.trafficLightClearance)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
             }
 
             appHeader
@@ -300,10 +332,25 @@ private struct MainSidebar: View {
         .frame(width: currentWidth)
         .frame(maxHeight: .infinity, alignment: .top)
         .background(AppColors.sidebarBackground)
-        .overlay(alignment: position == .trailing ? .leading : .trailing) {
-            Rectangle()
-                .fill(AppColors.border)
-                .frame(width: 1)
+        // Physical content-edge divider. Sidebar inherits locale layoutDirection
+        // for labels; the overlay HStack is force-LTR so the 1 pt rule sits on the
+        // absolute left/right edge (not the outer window edge under RTL).
+        .overlay {
+            HStack(spacing: 0) {
+                if position == .trailing {
+                    Rectangle()
+                        .fill(AppColors.border)
+                        .frame(width: 1)
+                    Spacer(minLength: 0)
+                } else {
+                    Spacer(minLength: 0)
+                    Rectangle()
+                        .fill(AppColors.border)
+                        .frame(width: 1)
+                }
+            }
+            .environment(\.layoutDirection, .leftToRight)
+            .allowsHitTesting(false)
         }
         .animation(AppTheme.Animation.smooth, value: isExpanded)
     }
