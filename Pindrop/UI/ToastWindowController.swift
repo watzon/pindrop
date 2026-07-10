@@ -9,17 +9,17 @@ import AppKit
 import SwiftUI
 
 private enum ToastMetrics {
-    static let horizontalPadding: CGFloat = AppTheme.Spacing.lg
-    static let verticalPadding: CGFloat = AppTheme.Spacing.md
-    static let buttonSpacing: CGFloat = AppTheme.Spacing.sm
-    static let toastSpacing: CGFloat = AppTheme.Spacing.md
+    static let horizontalPadding: CGFloat = 16
+    static let verticalPadding: CGFloat = 11
+    static let buttonSpacing: CGFloat = 10
+    static let toastSpacing: CGFloat = 10
     static let screenInset: CGFloat = 28
     static let bottomInset: CGFloat = 42
     static let maxWidth: CGFloat = 520
-    static let minWidth: CGFloat = 180
+    static let minWidth: CGFloat = 120
     static let showDuration: TimeInterval = 0.18
     static let hideDuration: TimeInterval = 0.14
-    static let expandedCornerRadius: CGFloat = AppTheme.Radius.lg
+    static let cornerRadius: CGFloat = 12
 }
 
 private final class ToastPanel: NSPanel {
@@ -60,7 +60,11 @@ final class ToastWindowController: ToastPresenting {
             width: min(max(fittedSize.width, ToastMetrics.minWidth), ToastMetrics.maxWidth),
             height: fittedSize.height
         )
-        let frame = frameForToast(size: size, hintRect: payload.screenHintRect)
+        let frame = frameForToast(
+            size: size,
+            hintRect: payload.screenHintRect,
+            placement: payload.placement
+        )
 
         if panel == nil {
             let panel = ToastPanel(
@@ -124,13 +128,24 @@ final class ToastWindowController: ToastPresenting {
         })
     }
 
-    private func frameForToast(size: CGSize, hintRect: CGRect?) -> NSRect {
+    private func frameForToast(
+        size: CGSize,
+        hintRect: CGRect?,
+        placement: ToastPlacement
+    ) -> NSRect {
         let screen = screen(for: hintRect) ?? NSScreen.main
         let visibleFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
 
         let clampedWidth = min(size.width, max(ToastMetrics.minWidth, visibleFrame.width - (ToastMetrics.screenInset * 2)))
+        let originX: CGFloat
+        switch placement {
+        case .bottomCenter:
+            originX = visibleFrame.midX - (clampedWidth / 2)
+        case .bottomTrailing:
+            originX = visibleFrame.maxX - clampedWidth - ToastMetrics.screenInset
+        }
         let origin = CGPoint(
-            x: visibleFrame.midX - (clampedWidth / 2),
+            x: originX,
             y: visibleFrame.minY + ToastMetrics.bottomInset
         )
         let rawFrame = NSRect(origin: origin, size: CGSize(width: clampedWidth, height: size.height))
@@ -160,7 +175,11 @@ final class ToastWindowController: ToastPresenting {
                 width: min(max(fittedSize.width, ToastMetrics.minWidth), ToastMetrics.maxWidth),
                 height: fittedSize.height
             )
-            let frame = self.frameForToast(size: size, hintRect: payload.screenHintRect)
+            let frame = self.frameForToast(
+                size: size,
+                hintRect: payload.screenHintRect,
+                placement: payload.placement
+            )
 
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = ToastMetrics.showDuration
@@ -181,10 +200,7 @@ private struct ToastView: View {
     @State private var usesExpandedLayout = false
     @State private var wrapRevealTask: Task<Void, Never>?
     @State private var lockedWidth: CGFloat?
-
-    private var cornerRadius: CGFloat {
-        (isHovering || usesExpandedLayout || showsWrappedText) ? ToastMetrics.expandedCornerRadius : AppTheme.Radius.full
-    }
+    @Environment(\.locale) private var locale
 
     private var expandedWidth: CGFloat? {
         guard usesExpandedLayout || showsWrappedText else { return nil }
@@ -193,6 +209,11 @@ private struct ToastView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: ToastMetrics.toastSpacing) {
+            Image(systemName: ToastVariantPresentation.systemImage(for: payload.variant, style: payload.style))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(leadingColor)
+                .frame(width: 14, height: 14)
+
             ZStack(alignment: .leading) {
                 if usesExpandedLayout && !showsWrappedText {
                     messageText(wrapped: true)
@@ -203,6 +224,13 @@ private struct ToastView: View {
                 messageText(wrapped: showsWrappedText)
             }
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let meta = ToastVariantPresentation.trailingText(for: payload.variant, locale: locale) {
+                Text(meta)
+                    .font(FontLoader.font(family: .jetbrainsMono, size: 11, weight: .regular))
+                    .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#A59D8C") ?? .secondaryLabelColor))
+                    .fixedSize()
+            }
 
             if !payload.actions.isEmpty {
                 HStack(spacing: ToastMetrics.buttonSpacing) {
@@ -220,19 +248,10 @@ private struct ToastView: View {
         .frame(width: expandedWidth, alignment: .leading)
         .frame(maxWidth: ToastMetrics.maxWidth)
         .background(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(AppColors.elevatedSurface)
+            RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous)
+                .fill(Color(nsColor: NSColor(pindropHex: "#201D18") ?? .black))
         )
-        .overlay(
-            ToastTimerBorderView(
-                toastID: payload.id,
-                duration: payload.duration,
-                style: payload.style,
-                isPaused: isHovering,
-                cornerRadius: cornerRadius
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous))
         .background {
             GeometryReader { geometry in
                 Color.clear
@@ -245,10 +264,10 @@ private struct ToastView: View {
             }
         }
         .shadow(
-            color: Color.black.opacity(0.16),
-            radius: AppTheme.Shadow.lg.radius,
-            x: AppTheme.Shadow.lg.x,
-            y: AppTheme.Shadow.lg.y
+            color: Color.black.opacity(0.4),
+            radius: 14,
+            x: 0,
+            y: 4
         )
         .onHover { hovering in
             guard isHovering != hovering else { return }
@@ -274,17 +293,26 @@ private struct ToastView: View {
             setExpandedLayout(false)
             onHoverChange(false)
         }
-        .padding(.horizontal, ToastMetrics.screenInset)
-        .padding(.vertical, AppTheme.Spacing.xs)
     }
 
     private func messageText(wrapped: Bool) -> some View {
         Text(payload.message)
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.textPrimary)
+            .font(FontLoader.font(family: .inter, size: 13, weight: .medium))
+            .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
             .lineLimit(wrapped ? nil : 1)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: wrapped)
+    }
+
+    private var leadingColor: Color {
+        switch payload.variant {
+        case .microphoneUnavailable:
+            return Color(nsColor: NSColor(pindropHex: "#D25B4C") ?? .systemRed)
+        case .standard where payload.style == .error:
+            return Color(nsColor: NSColor(pindropHex: "#D25B4C") ?? .systemRed)
+        default:
+            return Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen)
+        }
     }
 
     private func setWrappedText(_ wrapped: Bool) {
@@ -420,30 +448,19 @@ private struct ToastActionButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(AppTypography.caption)
+            .font(FontLoader.font(family: .inter, size: 12, weight: .semibold))
             .foregroundStyle(foregroundColor(isPressed: configuration.isPressed))
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(backgroundColor(isPressed: configuration.isPressed))
-            .clipShape(Capsule())
             .animation(AppTheme.Animation.fast, value: configuration.isPressed)
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {
         switch role {
         case .primary:
-            return .white.opacity(isPressed ? 0.9 : 1.0)
+            return Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen)
+                .opacity(isPressed ? 0.7 : 1)
         case .secondary:
-            return AppColors.textSecondary.opacity(isPressed ? 0.7 : 1.0)
-        }
-    }
-
-    private func backgroundColor(isPressed: Bool) -> Color {
-        switch role {
-        case .primary:
-            return AppColors.accent.opacity(isPressed ? 0.75 : 1.0)
-        case .secondary:
-            return AppColors.surfaceBackground.opacity(isPressed ? 0.8 : 1.0)
+            return Color(nsColor: NSColor(pindropHex: "#A59D8C") ?? .secondaryLabelColor)
+                .opacity(isPressed ? 0.7 : 1)
         }
     }
 }

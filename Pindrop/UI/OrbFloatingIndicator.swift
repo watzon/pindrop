@@ -75,72 +75,40 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
     // MARK: Orb
 
     var orbIdleDiameter: CGFloat {
-        switch self {
-        case .small:  return 26
-        case .medium: return 32
-        case .large:  return 38
-        }
+        30
     }
 
     /// Hover swell: clearly bigger than idle while still short of the active size,
     /// so starting a session reads as a further step up.
     var orbHoverDiameter: CGFloat {
-        switch self {
-        case .small:  return 32
-        case .medium: return 40
-        case .large:  return 46
-        }
+        44
     }
 
     var orbActiveDiameter: CGFloat {
-        switch self {
-        case .small:  return 44
-        case .medium: return 52
-        case .large:  return 60
-        }
+        56
     }
 
     // MARK: Pill
 
     var pillHeight: CGFloat {
-        switch self {
-        case .small:  return 26
-        case .medium: return 30
-        case .large:  return 34
-        }
+        32
     }
 
     /// Width of the pill while a finished recording is being transcribed.
     var pillProcessingWidth: CGFloat {
-        switch self {
-        case .small:  return 150
-        case .medium: return 176
-        case .large:  return 200
-        }
+        148
     }
 
     var pillRecordingWidth: CGFloat {
-        switch self {
-        case .small:  return 98
-        case .medium: return 112
-        case .large:  return 126
-        }
+        126
     }
 
     var pillStreamingWidth: CGFloat {
-        switch self {
-        case .small:  return 264
-        case .medium: return 304
-        case .large:  return 344
-        }
+        250
     }
 
     var pillStreamingHeight: CGFloat {
-        switch self {
-        case .small:  return 84
-        case .medium: return 98
-        case .large:  return 110
-        }
+        104
     }
 
     /// Vertical lift that keeps the compact pill centred on the orb when it exits
@@ -151,37 +119,21 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
     // MARK: Type
 
     var timerFontSize: CGFloat {
-        switch self {
-        case .small:  return 10
-        case .medium: return 11.5
-        case .large:  return 13
-        }
+        13
     }
 
     var textFontSize: CGFloat {
-        switch self {
-        case .small:  return 10
-        case .medium: return 11
-        case .large:  return 12
-        }
+        14
     }
 
     var transcriptLineLimit: Int {
-        switch self {
-        case .small:  return 2
-        case .medium: return 3
-        case .large:  return 3
-        }
+        3
     }
 
     // MARK: Controls
 
     var stopButtonDiameter: CGFloat {
-        switch self {
-        case .small:  return 14
-        case .medium: return 16
-        case .large:  return 18
-        }
+        10
     }
 
     // MARK: Panel
@@ -866,6 +818,7 @@ struct OrbIndicatorView: View {
     @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var sz: OrbFloatingIndicatorSize { controller.orbIndicatorSize }
 
@@ -874,11 +827,22 @@ struct OrbIndicatorView: View {
     private var showsPill: Bool { isActive }
 
     private var orbDiameter: CGFloat {
-        if isActive { return sz.orbActiveDiameter }
+        if state.isInputMuted { return sz.orbIdleDiameter }
+        if state.isRecording || showsTranscript { return sz.orbActiveDiameter }
+        if state.isProcessing { return sz.orbHoverDiameter }
         return controller.isHovered ? sz.orbHoverDiameter : sz.orbIdleDiameter
     }
 
     private var exit: OrbPillExitEdge { controller.pillExitEdge }
+
+    private var ribbonPalette: OrbRibbonPalette {
+        let appearance = NSApp.effectiveAppearance
+        let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let key = isDark
+            ? PindropThemeStorageKeys.darkThemePresetID
+            : PindropThemeStorageKeys.lightThemePresetID
+        return OrbRibbonPalette.forPresetID(UserDefaults.standard.string(forKey: key))
+    }
 
     private var pillRestingSize: CGSize {
         if showsTranscript {
@@ -939,11 +903,11 @@ struct OrbIndicatorView: View {
                     pillCornerRadius: pillCornerRadius
                 )
             )
-            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsPill)
-            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: showsTranscript)
-            .animation(.spring(response: 0.34, dampingFraction: 0.84), value: isActive)
-            .animation(.spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
-            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: exit)
+            .animation(reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.82), value: showsPill)
+            .animation(reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.82), value: showsTranscript)
+            .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.84), value: isActive)
+            .animation(reduceMotion ? nil : .spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
+            .animation(reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.82), value: exit)
             .simultaneousGesture(
                 DragGesture(minimumDistance: 4)
                     .onChanged { _ in
@@ -1030,7 +994,16 @@ struct OrbIndicatorView: View {
                 .frame(width: pillRestingSize.width, height: pillRestingSize.height, alignment: .top)
                 .transaction { $0.animation = nil }
                 .frame(width: pillSize.width, height: pillSize.height, alignment: pillRevealAlignment)
+                .background(
+                    RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
+                        .fill(Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+                )
                 .clipShape(RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous))
+                .shadow(color: Color.black.opacity(0.4), radius: 14, y: 4)
                 .padding(pillEdgeInsets)
                 .opacity(showsPill ? 1 : 0)
                 .allowsHitTesting(showsPill)
@@ -1051,36 +1024,36 @@ struct OrbIndicatorView: View {
 
     private var orbContent: some View {
         ZStack {
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color.white.opacity(0.26), Color.white.opacity(0.03), .clear],
-                        center: .init(x: 0.32, y: 0.22),
-                        startRadius: 0,
-                        endRadius: orbDiameter * 0.75
-                    )
-                )
-
-            OrbBlobsView(state: state, isLive: isActive, isExcited: controller.isHovered)
-                .padding(orbDiameter * 0.04)
-                .clipShape(Circle())
+            OrbGlassFillView(
+                palette: ribbonPalette,
+                isHovered: controller.isHovered,
+                isRecording: state.isRecording,
+                isProcessing: state.isProcessing,
+                isMuted: state.isInputMuted
+            )
 
             Circle()
-                .strokeBorder(OrbPalette.rimSoft, lineWidth: 1)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1.5)
                 .blendMode(.plusLighter)
 
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [.clear, OrbPalette.depthTint],
-                        center: .init(x: 0.5, y: 0.28),
-                        startRadius: orbDiameter * 0.28,
-                        endRadius: orbDiameter * 0.72
+            if state.isRecording {
+                Circle()
+                    .stroke(
+                        Color.white.opacity(0.14),
+                        style: StrokeStyle(lineWidth: 1, dash: [2.5, 2.5])
                     )
-                )
-                .allowsHitTesting(false)
+                    .frame(width: 44, height: 44)
+                    .allowsHitTesting(false)
+            }
         }
         .frame(width: orbDiameter, height: orbDiameter)
+        .clipShape(Circle())
+        .shadow(
+            color: ribbonPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
+            radius: state.isRecording ? 26 : 18,
+            y: state.isRecording ? 8 : 6
+        )
+        .opacity(state.isInputMuted ? 0.4 : 1)
         .contentShape(Circle())
         .onTapGesture { controller.handleOrbTapped() }
         .onHover { controller.setPointerCursorActive($0) }
@@ -1102,8 +1075,8 @@ struct OrbIndicatorView: View {
                     fontSize: sz.textFontSize,
                     lineLimit: sz.transcriptLineLimit
                 )
-                .padding(.horizontal, 15)
-                .padding(.bottom, 10)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
             }
         }
         // Compact pill height equals the row height, so the inset only applies to
@@ -1114,36 +1087,49 @@ struct OrbIndicatorView: View {
     @ViewBuilder
     private var pillTopRow: some View {
         if state.isRecording {
-            HStack(spacing: 8) {
+            HStack(spacing: 9) {
+                Circle()
+                    .fill(Color(nsColor: NSColor(pindropHex: "#D25B4C") ?? .systemRed))
+                    .frame(width: showsTranscript ? 7 : 8, height: showsTranscript ? 7 : 8)
+
                 Text(formattedDuration)
-                    .font(.system(size: sz.timerFontSize, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(AppColors.overlayTextPrimary)
+                    .font(FontLoader.font(
+                        family: .jetbrainsMono,
+                        size: showsTranscript ? 11 : 13,
+                        weight: .medium
+                    ))
+                    .foregroundStyle(
+                        Color(nsColor: NSColor(pindropHex: showsTranscript ? "#A59D8C" : "#EFEBE2") ?? .white)
+                    )
                     .contentTransition(.numericText(countsDown: false))
                     .animation(AppTheme.Animation.fast, value: state.recordingDuration)
                     .fixedSize()
 
                 Spacer(minLength: 0)
 
+                if !showsTranscript {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.14))
+                        .frame(width: 1, height: 14)
+                }
+
                 Button { controller.handleStopTapped() } label: {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.overlayRecording)
-                            .frame(width: sz.stopButtonDiameter, height: sz.stopButtonDiameter)
-                            .shadow(color: AppColors.overlayRecording.opacity(0.30), radius: 5, y: 2)
-                        RoundedRectangle(cornerRadius: 1.5)
-                            .fill(AppColors.overlayTextPrimary)
-                            .frame(width: sz.stopButtonDiameter * 0.38, height: sz.stopButtonDiameter * 0.38)
-                    }
+                    RoundedRectangle(cornerRadius: showsTranscript ? 2 : 2.5, style: .continuous)
+                        .fill(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white).opacity(0.72))
+                        .frame(
+                            width: showsTranscript ? 9 : sz.stopButtonDiameter,
+                            height: showsTranscript ? 9 : sz.stopButtonDiameter
+                        )
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, showsTranscript ? 16 : 14)
         } else if state.isProcessing {
-            HStack(spacing: 7) {
-                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3.5)
-                Text(localized("Processing transcript", locale: locale))
-                    .font(.system(size: sz.textFontSize, weight: .medium, design: .rounded))
-                    .foregroundStyle(AppColors.overlayTextPrimary)
+            HStack(spacing: 9) {
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
+                Text(localized("Transcribing…", locale: locale))
+                    .font(FontLoader.font(family: .inter, size: 12, weight: .medium))
+                    .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
@@ -1156,7 +1142,7 @@ struct OrbIndicatorView: View {
     }
 
     private var formattedDuration: String {
-        String(format: "%d:%02d", Int(state.recordingDuration) / 60, Int(state.recordingDuration) % 60)
+        FloatingIndicatorTimeFormatting.elapsed(state.recordingDuration)
     }
 }
 
@@ -1216,20 +1202,140 @@ private struct OrbGooSurface: View, Animatable {
     }
 }
 
+private struct OrbGlassFillView: View {
+    let palette: OrbRibbonPalette
+    let isHovered: Bool
+    let isRecording: Bool
+    let isProcessing: Bool
+    let isMuted: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var ribbonIntensity: Float {
+        if isMuted { return 0 }
+        if isHovered { return 1.15 }
+        if isRecording { return 1 }
+        if isProcessing { return 0.68 }
+        return 0.5
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || isMuted)) { timeline in
+                let baseTime = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                let speed = isProcessing ? 0.18 : 0.42
+
+                Rectangle()
+                    .fill(Color.white)
+                    .colorEffect(
+                        ShaderLibrary.orbGlassFill(
+                            .float2(proxy.size),
+                            .float(Float(baseTime * speed)),
+                            .color(palette.primaryColor),
+                            .color(palette.secondaryColor),
+                            .float(ribbonIntensity),
+                            .float(isRecording ? 1 : 0),
+                            .float(isMuted ? 1 : 0)
+                        )
+                    )
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
 // MARK: - Palette
 
-/// The orb's liquid surface and band colors. Fixed rather than theme-driven: the
-/// indicator floats over arbitrary desktop content, so it keeps its own dark-glass
-/// identity in both app themes (mirroring how the notch stays black).
-enum OrbPalette {
-    static let surface = Color(red: 0.066, green: 0.106, blue: 0.145)
-    static let rim = Color(red: 0.745, green: 0.882, blue: 1.0).opacity(0.55)
-    static let rimSoft = Color(red: 0.745, green: 0.882, blue: 1.0).opacity(0.20)
-    static let depthTint = Color(red: 0.18, green: 0.435, blue: 0.91).opacity(0.28)
+struct OrbRibbonPalette: Equatable {
+    let primaryHex: String
+    let secondaryHex: String
+    let glowHex: String
+    let glowOpacity: Double
 
-    static let bandLow = Color(red: 0.24, green: 0.43, blue: 0.94)
-    static let bandMid = Color(red: 0.25, green: 0.82, blue: 0.91)
-    static let bandHigh = Color(red: 0.78, green: 0.97, blue: 0.87)
+    var primaryColor: Color { color(primaryHex) }
+    var secondaryColor: Color { color(secondaryHex) }
+    var glowColor: Color { color(glowHex).opacity(glowOpacity) }
+
+    static func forPresetID(_ presetID: String?) -> OrbRibbonPalette {
+        switch presetID ?? PindropThemePresetCatalog.defaultPresetID {
+        case "library":
+            return OrbRibbonPalette(
+                primaryHex: "#6FDCAF",
+                secondaryHex: "#EFD9A8",
+                glowHex: "#1F6D53",
+                glowOpacity: 0.45
+            )
+        case "pindrop":
+            return OrbRibbonPalette(
+                primaryHex: "#F2B54A",
+                secondaryHex: "#F7E3BC",
+                glowHex: "#F2B54A",
+                glowOpacity: 0.35
+            )
+        case "harbor":
+            return OrbRibbonPalette(
+                primaryHex: "#4FB3D1",
+                secondaryHex: "#CFE9F0",
+                glowHex: "#14708A",
+                glowOpacity: 0.40
+            )
+        default:
+            let accent = canonicalAccentHex(for: presetID)
+            return OrbRibbonPalette(
+                primaryHex: accent,
+                secondaryHex: mixedHex(accent, with: "#EFEBE2", ratio: 0.65),
+                glowHex: accent,
+                glowOpacity: 0.40
+            )
+        }
+    }
+
+    private static func canonicalAccentHex(for presetID: String?) -> String {
+        switch presetID {
+        case "paper": return "#2E4E73"
+        case "evergreen": return "#4D7A4A"
+        case "signal": return "#F06D4F"
+        case "graphite": return "#4B65D6"
+        default: return "#1F6D53"
+        }
+    }
+
+    private static func mixedHex(_ first: String, with second: String, ratio: Double) -> String {
+        func components(_ hex: String) -> (Double, Double, Double) {
+            let cleaned = hex.replacingOccurrences(of: "#", with: "")
+            guard let value = Int(cleaned, radix: 16), cleaned.count == 6 else { return (0, 0, 0) }
+            return (
+                Double((value >> 16) & 0xFF),
+                Double((value >> 8) & 0xFF),
+                Double(value & 0xFF)
+            )
+        }
+
+        let a = components(first)
+        let b = components(second)
+        let t = min(1, max(0, ratio))
+        let red = Int((a.0 + (b.0 - a.0) * t).rounded())
+        let green = Int((a.1 + (b.1 - a.1) * t).rounded())
+        let blue = Int((a.2 + (b.2 - a.2) * t).rounded())
+        return String(format: "#%02X%02X%02X", red, green, blue)
+    }
+
+    private func color(_ hex: String) -> Color {
+        Color(nsColor: NSColor(pindropHex: hex) ?? .controlAccentColor)
+    }
+}
+
+/// Literal dark floating-surface colors. The aurora itself is theme-driven by
+/// `OrbRibbonPalette`; the body remains stable over arbitrary desktop content.
+enum OrbPalette {
+    static let surface = Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92)
+    static let rim = Color.white.opacity(0.12)
+    static let rimSoft = Color.white.opacity(0.14)
+    static let depthTint = Color(nsColor: NSColor(pindropHex: "#1F6D53") ?? .systemGreen).opacity(0.22)
+
+    static let bandLow = Color(nsColor: NSColor(pindropHex: "#17614A") ?? .systemGreen).opacity(0.6)
+    static let bandMid = Color(nsColor: NSColor(pindropHex: "#6FDCAF") ?? .systemMint)
+    static let bandHigh = Color(nsColor: NSColor(pindropHex: "#EFD9A8") ?? .systemYellow).opacity(0.75)
 }
 
 // MARK: - Band blobs (audio-reactive orb interior)

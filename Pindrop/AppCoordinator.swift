@@ -2824,9 +2824,15 @@ final class AppCoordinator {
         let displayName = trimmedName.isEmpty
             ? localized("Unknown App", locale: locale)
             : trimmedName
-        let format = localized("Inserted into %@ · %d words", locale: locale)
-        let message = String(format: format, locale: locale, displayName, wordCount)
-        toastService.show(ToastPayload(message: message, style: .standard))
+        let format = localized("Inserted into %@", locale: locale)
+        let message = String(format: format, locale: locale, displayName)
+        toastService.show(
+            ToastPayload(
+                message: message,
+                style: .standard,
+                variant: .inserted(wordCount: wordCount)
+            )
+        )
     }
 
     private func handleRecordingStartFailure(_ error: Error, source: RecordingTriggerSource) {
@@ -2845,7 +2851,22 @@ final class AppCoordinator {
             return
         }
 
-        AlertManager.shared.showMicrophonePermissionAlert()
+        let locale = settingsStore.selectedAppLocale.locale
+        toastService.show(
+            ToastPayload(
+                message: localized("Microphone unavailable", locale: locale),
+                actions: [
+                    ToastAction(
+                        title: localized("Settings", locale: locale),
+                        role: .primary
+                    ) { [weak self] in
+                        self?.statusBarController.showSettings(tab: .dictation)
+                    }
+                ],
+                style: .error,
+                variant: .microphoneUnavailable
+            )
+        )
     }
 
     private func beginStreamingSessionIfAvailable() async {
@@ -4041,7 +4062,8 @@ final class AppCoordinator {
                                 Log.output.error("Failed to restore clipboard after copy undo")
                             }
                         }
-                    ]
+                    ],
+                    variant: .copied
                 )
             )
         } catch {

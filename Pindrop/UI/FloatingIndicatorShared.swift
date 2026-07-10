@@ -101,17 +101,22 @@ struct IndicatorProcessingView: View {
 private struct _IndicatorProcessingDot: View {
     let index: Int
     let diameter: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.06)) { timeline in
+        TimelineView(.animation(minimumInterval: 0.06, paused: reduceMotion)) { timeline in
             let t = timeline.date.timeIntervalSinceReferenceDate
             let phase = (t * 2.2 + Double(index) * 0.45).truncatingRemainder(dividingBy: 3.0)
             let isActive = phase < 1.0
+            let staticOpacities = [1.0, 0.55, 0.25]
             Circle()
-                .fill(AppColors.overlayTooltipAccent.opacity(isActive ? 0.92 : 0.28))
+                .fill(
+                    Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen)
+                        .opacity(reduceMotion ? staticOpacities[index % staticOpacities.count] : (isActive ? 1 : 0.25))
+                )
                 .frame(width: diameter, height: diameter)
-                .scaleEffect(isActive ? 1.0 : 0.76)
-                .animation(AppTheme.Animation.fast, value: isActive)
+                .scaleEffect(reduceMotion ? 1 : (isActive ? 1.0 : 0.76))
+                .animation(reduceMotion ? nil : AppTheme.Animation.fast, value: isActive)
         }
     }
 }
@@ -161,7 +166,7 @@ struct LiveTranscriptView: View {
 
     @Environment(\.locale) private var locale
 
-    private var lineHeight: CGFloat { fontSize + 5 }
+    private var lineHeight: CGFloat { fontSize + 6 }
 
     /// Composed display string split back into committed/tentative runs so the two can
     /// be styled differently while joining exactly like the coordinator's display path.
@@ -180,9 +185,14 @@ struct LiveTranscriptView: View {
         }
 
         committedRun.foregroundColor = AppColors.overlayTextPrimary
-        committedRun.font = .system(size: fontSize, weight: .regular, design: .rounded)
+        committedRun.font = FontLoader.font(family: .newsreader, size: fontSize, weight: .regular)
         tentativeRun.foregroundColor = AppColors.overlayTextPrimary.opacity(0.55)
-        tentativeRun.font = .system(size: fontSize, weight: .regular, design: .rounded).italic()
+        tentativeRun.font = FontLoader.font(
+            family: .newsreader,
+            size: fontSize,
+            weight: .regular,
+            italic: true
+        )
         return committedRun + tentativeRun
     }
 
@@ -193,10 +203,11 @@ struct LiveTranscriptView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         if transcript.displayText.isEmpty {
                             Text(localized("Listening…", locale: locale))
-                                .font(.system(size: fontSize, weight: .regular, design: .rounded))
+                                .font(FontLoader.font(family: .newsreader, size: fontSize, weight: .regular))
                                 .foregroundStyle(AppColors.overlayTextSecondary)
                         } else {
                             Text(styledTranscript)
+                                .lineSpacing(max(0, lineHeight - fontSize))
                                 .opacity(transcript.phase == .enhancing ? 0.7 : 1.0)
                         }
                         Color.clear
@@ -251,13 +262,13 @@ struct FloatingIndicatorWaveformStyle {
     let animationInterval: TimeInterval
 
     static let pill = FloatingIndicatorWaveformStyle(
-        layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
-        barWidth: 2,
-        barSpacing: 2,
-        minimumHeight: 3,
-        maximumHeight: 14,
-        idleHeight: 3,
-        color: AppColors.overlayTextPrimary,
+        layout: .fixed(count: 9, heightScale: [0.34, 0.58, 0.82, 1.0, 0.66, 0.92, 0.74, 0.5, 0.34]),
+        barWidth: 2.5,
+        barSpacing: 2.5,
+        minimumHeight: 4,
+        maximumHeight: 12,
+        idleHeight: 4,
+        color: Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen),
         animationInterval: 0.05
     )
 
@@ -285,7 +296,7 @@ struct FloatingIndicatorWaveformView: View {
             TimelineView(.animation(minimumInterval: style.animationInterval)) { timeline in
                 HStack(spacing: style.barSpacing) {
                     ForEach(0..<count, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 1)
+                        RoundedRectangle(cornerRadius: style.barWidth / 2)
                             .fill(style.color.opacity(isRecording ? 1 : 0.58))
                             .frame(
                                 width: style.barWidth,
@@ -310,7 +321,7 @@ struct FloatingIndicatorWaveformView: View {
 
                     HStack(spacing: style.barSpacing) {
                         ForEach(0..<barCount, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 1)
+                            RoundedRectangle(cornerRadius: style.barWidth / 2)
                                 .fill(style.color.opacity(isRecording ? 1 : 0.58))
                                 .frame(
                                     width: style.barWidth,
@@ -371,6 +382,13 @@ struct FloatingIndicatorWaveformView: View {
         }
 
         return max(style.minimumHeight, min(style.maximumHeight, height))
+    }
+}
+
+enum FloatingIndicatorTimeFormatting {
+    static func elapsed(_ duration: TimeInterval) -> String {
+        let totalSeconds = max(0, Int(duration))
+        return String(format: "%d:%02d", totalSeconds / 60, totalSeconds % 60)
     }
 }
 
