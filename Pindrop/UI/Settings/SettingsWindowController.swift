@@ -223,7 +223,35 @@ final class SettingsWindowController: NSWindowController {
 
         self.window = window
         updateWindowTitle()
+        positionTrafficLights()
         PindropThemeController.shared.apply(to: window)
+    }
+
+    /// Centers the standard traffic lights on the title row's text line (spec §13:
+    /// lights share the titlebar row with the centered pane title). Real system
+    /// controls — only origin is adjusted, mirroring MainWindow.positionTrafficLights.
+    private func positionTrafficLights() {
+        guard let window,
+              let close = window.standardWindowButton(.closeButton),
+              let mini = window.standardWindowButton(.miniaturizeButton),
+              let zoom = window.standardWindowButton(.zoomButton),
+              let superview = close.superview else { return }
+
+        let pad = SettingsLayoutMetrics.titlebarSidePadding
+        let gap: CGFloat = 8
+        let bw = close.frame.width
+        let bh = close.frame.height
+        // Title text line: top padding + half the 16pt line height.
+        let centerFromTop = SettingsLayoutMetrics.titlebarTopPadding + 8
+        let y = superview.bounds.height - centerFromTop - bh / 2
+
+        close.setFrameOrigin(NSPoint(x: pad, y: y))
+        mini.setFrameOrigin(NSPoint(x: pad + bw + gap, y: y))
+        zoom.setFrameOrigin(NSPoint(x: pad + 2 * (bw + gap), y: y))
+
+        for button in [close, mini, zoom] {
+            button.autoresizingMask = [.minYMargin]
+        }
     }
 
     private func updateWindowTitle() {
@@ -264,7 +292,9 @@ private struct SettingsRootHostingView: View {
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .modelContainer(modelContainer)
-        // Clearance for traffic lights in the transparent titlebar (standard height).
-        .padding(.top, 28)
+        // The shell's title row IS the titlebar line (60pt side lanes reserved for
+        // the repositioned traffic lights) — ignore the hidden titlebar's safe area
+        // or SwiftUI re-adds ~28pt of clearance above the row.
+        .ignoresSafeArea(.container, edges: .top)
     }
 }
