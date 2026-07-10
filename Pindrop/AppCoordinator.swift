@@ -361,6 +361,7 @@ final class AppCoordinator {
     private var escapeEventTapRecoveryTask: Task<Void, Never>?
     private var modifierEventTapRecoveryTask: Task<Void, Never>?
     private var inputDeviceListMonitor: AudioDeviceListMonitor?
+    private var inputMuteMonitor: InputMuteMonitor?
     private var lastEscapeTime: Date?
     private var lastEscapeSignalTime: Date?
     private let doubleEscapeThreshold: TimeInterval = 0.4
@@ -1553,6 +1554,7 @@ final class AppCoordinator {
 
                     if previousSnapshot.selectedInputDeviceUID != snapshot.selectedInputDeviceUID {
                         self.applyPreferredInputDeviceUID(snapshot.selectedInputDeviceUID)
+                        self.inputMuteMonitor?.setPreferredDeviceUID(snapshot.selectedInputDeviceUID)
                     }
 
                     if previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
@@ -3721,6 +3723,7 @@ final class AppCoordinator {
     private func handleSelectInputDeviceUID(_ uid: String) {
         settingsStore.selectedInputDeviceUID = uid
         applyPreferredInputDeviceUID(uid)
+        inputMuteMonitor?.setPreferredDeviceUID(uid)
 
         if uid.isEmpty {
             Log.audio.info("Selected input device: system default")
@@ -3737,6 +3740,19 @@ final class AppCoordinator {
         monitor.start()
         inputDeviceListMonitor = monitor
         validateSelectedInputDeviceAvailability()
+        setupInputMuteMonitoring()
+    }
+
+    private func setupInputMuteMonitoring() {
+        let muteMonitor = InputMuteMonitor(
+            preferredDeviceUID: settingsStore.selectedInputDeviceUID
+        )
+        muteMonitor.onMuteStateChange = { [weak self] muted in
+            self?.floatingIndicatorState.isInputMuted = muted
+        }
+        muteMonitor.start()
+        floatingIndicatorState.isInputMuted = muteMonitor.isMuted
+        inputMuteMonitor = muteMonitor
     }
 
     /// If the explicitly selected input device is no longer attached, fall back to the

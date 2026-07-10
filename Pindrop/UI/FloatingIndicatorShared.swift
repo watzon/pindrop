@@ -442,6 +442,9 @@ final class FloatingIndicatorState: ObservableObject {
     /// for the Pill indicator's waveform.
     var bandLevels = AudioBandLevels.zero
     @Published var isProcessing = false
+    /// Selected input device mute/volume state from `InputMuteMonitor`.
+    /// UI (orb/pill) can render a Muted state from this without observing CoreAudio directly.
+    @Published var isInputMuted = false
     @Published var escapePrimed = false
     @Published var toggleRecordingHotkey = ""
     @Published var pushToTalkHotkey = ""
