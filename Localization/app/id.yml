@@ -628,7 +628,7 @@ open:
   settings: "Buka Pengaturan"
   settings_fd7108f8: "Buka pengaturan"
   system_settings: "Buka Pengaturan Sistem"
-  library: "Open Library"
+  library: "Buka pustaka"
 openai:
   _self: "__TETAP_BUKA__"
   compatible_local_server: "Server lokal yang kompatibel dengan OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Siap"
   ec1296e1: "● Siap"
+  to_dictate: "Siap untuk mendikte"
   to_record: "Siap untuk merekam"
   to_transcribe: "Siap untuk ditranskrip"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Melihat"
   all: "Lihat semua"
+  library: "Lihat pustaka"
   transcript_history: "Lihat riwayat transkrip"
   transcription_history: "Lihat riwayat transkripsi"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Pustaka"
 conflicts:
   with: "Conflicts with %@"
 file:

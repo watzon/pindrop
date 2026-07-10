@@ -75,17 +75,17 @@ enum AppTheme {
     }
 
     enum Window {
-        static let mainMinWidth: CGFloat = 1215
-        static let mainMinHeight: CGFloat = 600
-        static let mainDefaultWidth: CGFloat = 1186
-        static let mainDefaultHeight: CGFloat = 753
+        /// Scorched Earth §3 / Decision 8 — min ~980×640, default canvas 1160×760.
+        static let mainMinWidth: CGFloat = 980
+        static let mainMinHeight: CGFloat = 640
+        static let mainDefaultWidth: CGFloat = 1160
+        static let mainDefaultHeight: CGFloat = 760
 
-        static let titleBarHeight: CGFloat = 42
-        static let sidebarContentGap: CGFloat = 14
+        /// Kept for page layouts that still pad under the content header.
         static let mainContentTopInset: CGFloat = 0
-        static let panelCornerRadius: CGFloat = 28
 
-        static let sidebarWidth: CGFloat = 272
+        /// Expanded sidebar width (spec §3); collapsed is a derived 64 pt icon rail.
+        static let sidebarWidth: CGFloat = 236
         static let sidebarCollapsedWidth: CGFloat = 64
     }
 

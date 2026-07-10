@@ -628,7 +628,7 @@ open:
   settings: "Открыть настройки"
   settings_fd7108f8: "Открыть настройки"
   system_settings: "Открыть настройки системы"
-  library: "Open Library"
+  library: "Открыть библиотеку"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-совместимый локальный сервер"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Готовый"
   ec1296e1: "● Готово"
+  to_dictate: "Готов к диктовке"
   to_record: "Готов к записи"
   to_transcribe: "Готов к расшифровке"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Вид"
   all: "Посмотреть все"
+  library: "Просмотреть библиотеку"
   transcript_history: "Просмотреть историю стенограмм"
   transcription_history: "Посмотреть историю транскрипции"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Библиотека"
 conflicts:
   with: "Conflicts with %@"
 file:

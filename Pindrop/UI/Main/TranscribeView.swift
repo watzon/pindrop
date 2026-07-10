@@ -5,6 +5,11 @@
 //  Created on 2026-03-07.
 //
 
+// TODO(U3): Re-route media import here via an inline Library import affordance.
+// As of U2 this page is intentionally unrouted — MainNavItem.transcribe and
+// MainWindowController.showTranscribe() open Library instead. Keep this file
+// intact until U3 wires import into the Library shell.
+
 import AppKit
 import Foundation
 import Observation

@@ -628,7 +628,7 @@ open:
   settings: "เปิดการตั้งค่า"
   settings_fd7108f8: "เปิดการตั้งค่า"
   system_settings: "เปิดการตั้งค่าระบบ"
-  library: "Open Library"
+  library: "เปิดไลบรารี"
 openai:
   _self: "OpenAI"
   compatible_local_server: "เซิร์ฟเวอร์ภายในที่เข้ากันได้กับ OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "พร้อม"
   ec1296e1: "● พร้อมแล้ว"
+  to_dictate: "พร้อมสำหรับพิมพ์ตามคำพูด"
   to_record: "พร้อมบันทึก"
   to_transcribe: "พร้อมถอดความ"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "ดู"
   all: "ดูทั้งหมด"
+  library: "ดูไลบรารี"
   transcript_history: "ดูประวัติการถอดเสียง"
   transcription_history: "ดูประวัติการถอดเสียง"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "ไลบรารี"
 conflicts:
   with: "Conflicts with %@"
 file:

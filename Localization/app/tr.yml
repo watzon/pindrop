@@ -628,7 +628,7 @@ open:
   settings: "Ayarları Aç"
   settings_fd7108f8: "Ayarları aç"
   system_settings: "Sistem Ayarlarını Aç"
-  library: "Open Library"
+  library: "Kitaplığı aç"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI uyumlu yerel sunucu"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Hazır"
   ec1296e1: "● Hazır"
+  to_dictate: "Dikte için hazır"
   to_record: "Ready to record"
   to_transcribe: "Metne dönüştürülmeye hazır"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Görüş"
   all: "Tümünü görüntüle"
+  library: "Kitaplığı görüntüle"
   transcript_history: "Transkript geçmişini görüntüle"
   transcription_history: "Transkripsiyon geçmişini görüntüle"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Kitaplık"
 conflicts:
   with: "Conflicts with %@"
 file:

@@ -628,7 +628,7 @@ open:
   settings: "設定を開く"
   settings_fd7108f8: "設定を開く"
   system_settings: "システム設定を開く"
-  library: "Open Library"
+  library: "ライブラリを開く"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI対応ローカルサーバー"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "準備ができて"
   ec1296e1: "● 準備完了"
+  to_dictate: "ディクテーションの準備完了"
   to_record: "Ready to record"
   to_transcribe: "転写の準備ができました"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "ビュー"
   all: "すべて見る"
+  library: "ライブラリを表示"
   transcript_history: "トランスクリプト履歴の表示"
   transcription_history: "文字起こし履歴の表示"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "ライブラリ"
 conflicts:
   with: "Conflicts with %@"
 file:

@@ -628,7 +628,7 @@ open:
   settings: "Відкрийте налаштування"
   settings_fd7108f8: "Відкрийте налаштування"
   system_settings: "Відкрийте налаштування системи"
-  library: "Open Library"
+  library: "Відкрити бібліотеку"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Локальний сервер, сумісний з OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Готовий"
   ec1296e1: "● Готовий"
+  to_dictate: "Готовий до диктування"
   to_record: "Готовий до запису"
   to_transcribe: "Готовий до транскрибування"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Переглянути"
   all: "Переглянути всі"
+  library: "Переглянути бібліотеку"
   transcript_history: "Переглянути історію розшифровки"
   transcription_history: "Переглянути історію транскрипції"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Бібліотека"
 conflicts:
   with: "Conflicts with %@"
 file:

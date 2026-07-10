@@ -628,7 +628,7 @@ open:
   settings: "Ανοίξτε τις Ρυθμίσεις"
   settings_fd7108f8: "Ανοίξτε τις ρυθμίσεις"
   system_settings: "Ανοίξτε τις Ρυθμίσεις συστήματος"
-  library: "Open Library"
+  library: "Άνοιγμα βιβλιοθήκης"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Τοπικός διακομιστής συμβατός με OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Ετοιμος"
   ec1296e1: "● Έτοιμος"
+  to_dictate: "Έτοιμο για υπαγόρευση"
   to_record: "Έτοιμο για εγγραφή"
   to_transcribe: "Έτοιμο για μεταγραφή"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Θέα"
   all: "Προβολή όλων"
+  library: "Προβολή βιβλιοθήκης"
   transcript_history: "Προβολή ιστορικού μεταγραφής"
   transcription_history: "Προβολή ιστορικού μεταγραφής"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Βιβλιοθήκη"
 conflicts:
   with: "Conflicts with %@"
 file:

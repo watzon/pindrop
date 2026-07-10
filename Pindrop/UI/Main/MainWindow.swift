@@ -15,29 +15,50 @@ enum MainNavItem: String, Identifiable {
     case home = "Home"
     case history = "History"
     case notes = "Notes"
+    /// Unrouted as of U2 — kept for API compatibility; navigation redirects to Library.
     case transcribe = "Transcribe"
     case models = "Models"
     case dictionary = "Dictionary"
 
+    /// Primary sidebar destinations after U2 restructure.
+    /// Order: Home, Library, Notes, Dictionary, Models (⌘1–5).
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
         .history,
         .notes,
-        .transcribe,
         .dictionary,
         .models
     ]
 
+    /// View-menu keyboard shortcut digit for each primary nav item ("1"..."5").
+    static func viewMenuShortcut(for item: MainNavItem) -> String? {
+        guard let index = primaryNavigationItems.firstIndex(of: item) else { return nil }
+        return String(index + 1)
+    }
+
+    /// Resolves legacy / removed destinations onto a routed page.
+    var resolvedDestination: MainNavItem {
+        switch self {
+        case .transcribe: return .history
+        default: return self
+        }
+    }
+
     var id: String { rawValue }
 
     func title(locale: Locale) -> String {
-        localized(rawValue, locale: locale)
+        switch self {
+        case .history:
+            return localized("Library", locale: locale)
+        default:
+            return localized(rawValue, locale: locale)
+        }
     }
 
     var icon: String {
         switch self {
-        case .home: return "house.fill"
-        case .history: return "clock.fill"
+        case .home: return "house"
+        case .history: return "books.vertical"
         case .notes: return "note.text"
         case .transcribe: return "waveform"
         case .models: return "cpu"
@@ -58,43 +79,12 @@ extension Notification.Name {
     static let focusHistorySearch = Notification.Name("focusHistorySearch")
 }
 
-final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
-    private let zeroSafeAreaLayoutGuide = NSLayoutGuide()
+// MARK: - Window chrome metrics
 
-    required init(rootView: Content) {
-        super.init(rootView: rootView)
-
-        addLayoutGuide(zeroSafeAreaLayoutGuide)
-        NSLayoutConstraint.activate([
-            zeroSafeAreaLayoutGuide.leadingAnchor.constraint(equalTo: leadingAnchor),
-            zeroSafeAreaLayoutGuide.trailingAnchor.constraint(equalTo: trailingAnchor),
-            zeroSafeAreaLayoutGuide.topAnchor.constraint(equalTo: topAnchor),
-            zeroSafeAreaLayoutGuide.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override var safeAreaInsets: NSEdgeInsets {
-        NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
-
-    override var safeAreaRect: NSRect {
-        bounds
-    }
-
-    override var safeAreaLayoutGuide: NSLayoutGuide {
-        zeroSafeAreaLayoutGuide
-    }
-}
-
-final class TitlebarlessHostingController<Content: View>: NSHostingController<Content> {
-    override func loadView() {
-        view = TitlebarlessHostingView(rootView: rootView)
-    }
+enum MainWindowChrome {
+    /// Space under standard traffic lights so top chrome/content never collides
+    /// (button row + breathing room). Applied to whichever panel occupies top-left.
+    static let trafficLightClearance: CGFloat = 36
 }
 
 // MARK: - Main Window View
@@ -116,15 +106,12 @@ struct MainWindow: View {
     let onOpenSettings: (SettingsTab) -> Void
 
     private func navigateTo(_ item: MainNavItem) {
-        if item == .transcribe {
-            mediaTranscriptionState?.showLibrary()
-        }
-
-        selectedNav = item
+        let destination = item.resolvedDestination
+        selectedNav = destination
         NotificationCenter.default.post(
             name: .mainNavItemDidChange,
             object: nil,
-            userInfo: ["navItem": item.rawValue]
+            userInfo: ["navItem": destination.rawValue]
         )
     }
 
@@ -173,11 +160,19 @@ struct MainWindow: View {
         }
     }
 
+    private var isLeadingSidebar: Bool {
+        settingsStore.selectedSidebarPosition == .leading
+    }
+
     private var sidebarPanel: some View {
         MainSidebar(
             isExpanded: $settingsStore.sidebarExpanded,
             position: settingsStore.selectedSidebarPosition,
             selectedNav: selectedNav,
+            floatingIndicatorState: floatingIndicatorState,
+            hotkeyHint: settingsStore.toggleHotkey,
+            /// Leading sidebar owns top-left → clear traffic lights; trailing does not.
+            reservesTrafficLightClearance: isLeadingSidebar,
             onSelect: navigateTo,
             onOpenSettings: { onOpenSettings(.general) }
         )
@@ -185,10 +180,13 @@ struct MainWindow: View {
     }
 
     private var detailPanel: some View {
-        return VStack(spacing: 0) {
-            contentTitleBar
+        VStack(spacing: 0) {
+            // Trailing sidebar: detail occupies top-left under the traffic lights.
+            if !isLeadingSidebar {
+                trafficLightDragStrip
+            }
             detailContent
-                .padding(.top, AppTheme.Spacing.md)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.contentBackground)
@@ -196,19 +194,17 @@ struct MainWindow: View {
         .zIndex(1)
     }
 
-    private var contentTitleBar: some View {
-        HStack {
-            Spacer()
-            Text("Pindrop")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(AppColors.textTertiary)
-            Spacer()
-        }
-        .frame(height: AppTheme.Window.titleBarHeight)
+    /// Clear strip that stays window-draggable via `isMovableByWindowBackground`
+    /// (pages that opt out of drag live below this, not inside it).
+    private var trafficLightDragStrip: some View {
+        Color.clear
+            .frame(height: MainWindowChrome.trafficLightClearance)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
     }
 
     // MARK: - Detail Content
-    
+
     @ViewBuilder
     private var detailContent: some View {
         switch selectedNav {
@@ -219,7 +215,7 @@ struct MainWindow: View {
                 onOpenHotkeys: { navigateToSettings(.shortcuts) },
                 onViewAllHistory: { navigateTo(.history) },
                 onNewTranscription: onNewTranscription,
-                onTranscribeFile: { navigateTo(.transcribe) },
+                onTranscribeFile: { navigateTo(.history) },
                 onRecordMeeting: onStartMeetingCapture,
                 onNewNote: onStartNoteCapture
             )
@@ -228,24 +224,8 @@ struct MainWindow: View {
         case .notes:
             NotesView()
         case .transcribe:
-            if let mediaTranscriptionState,
-               let modelManager,
-               let onImportMediaFiles,
-               let onSubmitMediaLink,
-               let onDownloadDiarizationModel {
-                TranscribeView(
-                    featureState: mediaTranscriptionState,
-                    modelManager: modelManager,
-                    settingsStore: settingsStore,
-                    onImportFiles: onImportMediaFiles,
-                    onSubmitLink: onSubmitMediaLink,
-                    onClearQueue: onClearMediaQueue ?? {},
-                    onDownloadDiarizationModel: onDownloadDiarizationModel,
-                    onOpenModels: { navigateTo(.models) }
-                )
-            } else {
-                comingSoonView(for: selectedNav)
-            }
+            // Unreachable via primary nav; resolvedDestination maps .transcribe → .history.
+            HistoryView()
         case .models:
             if let modelManager {
                 ModelsSettingsView(settings: settingsStore, modelManager: modelManager)
@@ -256,17 +236,17 @@ struct MainWindow: View {
             DictionaryView()
         }
     }
-    
+
     private func comingSoonView(for item: MainNavItem) -> some View {
         VStack(spacing: AppTheme.Spacing.lg) {
             Image(systemName: item.icon)
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.textTertiary)
-            
+
             Text(item.title(locale: settingsStore.selectedAppLocale.locale))
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.textPrimary)
-            
+
             Text("Coming Soon")
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
@@ -274,38 +254,104 @@ struct MainWindow: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.contentBackground)
     }
-    
 }
+
+// MARK: - Sidebar
 
 private struct MainSidebar: View {
     @Environment(\.locale) private var locale
     @Binding var isExpanded: Bool
     let position: SidebarPosition
     let selectedNav: MainNavItem
+    @ObservedObject private var indicatorState: FloatingIndicatorState
+    let hotkeyHint: String
+    /// When true, insert a draggable top strip so content clears traffic lights.
+    let reservesTrafficLightClearance: Bool
     let onSelect: (MainNavItem) -> Void
     let onOpenSettings: () -> Void
 
-    @State private var hoveredItem: MainNavItem?
-    @State private var isCollapseHovered: Bool = false
-    @State private var isSettingsHovered: Bool = false
+    @Query private var transcriptionRecords: [TranscriptionRecord]
+    @State private var isCollapseHovered = false
+    @State private var isSettingsHovered = false
+
+    init(
+        isExpanded: Binding<Bool>,
+        position: SidebarPosition,
+        selectedNav: MainNavItem,
+        floatingIndicatorState: FloatingIndicatorState?,
+        hotkeyHint: String,
+        reservesTrafficLightClearance: Bool,
+        onSelect: @escaping (MainNavItem) -> Void,
+        onOpenSettings: @escaping () -> Void
+    ) {
+        self._isExpanded = isExpanded
+        self.position = position
+        self.selectedNav = selectedNav
+        self._indicatorState = ObservedObject(wrappedValue: floatingIndicatorState ?? FloatingIndicatorState())
+        self.hotkeyHint = hotkeyHint
+        self.reservesTrafficLightClearance = reservesTrafficLightClearance
+        self.onSelect = onSelect
+        self.onOpenSettings = onOpenSettings
+    }
 
     private var currentWidth: CGFloat {
         isExpanded ? AppTheme.Window.sidebarWidth : AppTheme.Window.sidebarCollapsedWidth
     }
 
+    private var statusPhase: StatusCardPhase {
+        StatusCardPhase(state: indicatorState)
+    }
+
+    private var libraryCount: Int {
+        transcriptionRecords.count
+    }
+
     var body: some View {
         VStack(spacing: 0) {
+            if reservesTrafficLightClearance {
+                // Window-draggable strip (no drag-blocker) under real traffic lights.
+                Color.clear
+                    .frame(height: MainWindowChrome.trafficLightClearance)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+            }
+
             appHeader
 
             mainNavSection
-                .padding(.top, AppTheme.Spacing.md)
+                .padding(.top, isExpanded ? 0 : AppTheme.Spacing.sm)
 
-            Spacer()
+            Spacer(minLength: 8)
 
             bottomSection
         }
+        .padding(.top, 16)
+        .padding(.leading, isExpanded ? 16 : 8)
+        .padding(.trailing, isExpanded ? 12 : 8)
+        .padding(.bottom, 12)
         .frame(width: currentWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(AppColors.sidebarBackground)
+        // Physical content-edge divider. Sidebar inherits locale layoutDirection
+        // for labels; the overlay HStack is force-LTR so the 1 pt rule sits on the
+        // absolute left/right edge (not the outer window edge under RTL).
+        .overlay {
+            HStack(spacing: 0) {
+                if position == .trailing {
+                    Rectangle()
+                        .fill(AppColors.border)
+                        .frame(width: 1)
+                    Spacer(minLength: 0)
+                } else {
+                    Spacer(minLength: 0)
+                    Rectangle()
+                        .fill(AppColors.border)
+                        .frame(width: 1)
+                }
+            }
+            .environment(\.layoutDirection, .leftToRight)
+            .allowsHitTesting(false)
+        }
         .animation(AppTheme.Animation.smooth, value: isExpanded)
     }
 
@@ -314,87 +360,97 @@ private struct MainSidebar: View {
     private var appHeader: some View {
         Group {
             if isExpanded {
-                HStack(spacing: AppTheme.Spacing.md) {
-                    appIconBadge(size: 42)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Pindrop")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundStyle(AppColors.textPrimary)
-                        Text("v\(Bundle.main.appShortVersionString)")
-                            .font(.system(size: 11, weight: .regular))
-                            .foregroundStyle(AppColors.textTertiary)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                Text("Pindrop")
+                    .font(AppTypography.wordmark)
+                    .tracking(AppTypography.wordmarkTracking)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 28)
             } else {
-                appIconBadge(size: 32)
+                Image("PindropIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(AppColors.accent)
                     .frame(maxWidth: .infinity)
+                    .padding(.bottom, 16)
             }
-        }
-        .padding(.top, position == .leading ? AppTheme.Spacing.xl + 18 : AppTheme.Spacing.xl)
-        .padding(.bottom, AppTheme.Spacing.lg)
-    }
-
-    private func appIconBadge(size: CGFloat) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
-                .fill(AppColors.accentBackground)
-                .frame(width: size, height: size)
-            Image("PindropIcon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: size * 0.6, height: size * 0.6)
-                .foregroundStyle(AppColors.accent)
         }
     }
 
     // MARK: - Main Navigation
 
     private var mainNavSection: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: 2) {
             ForEach(MainNavItem.primaryNavigationItems) { item in
-                sidebarItem(item)
+                SidebarItem(
+                    title: item.title(locale: locale),
+                    systemImage: item.icon,
+                    count: item == .history && isExpanded ? libraryCount : nil,
+                    isCollapsed: !isExpanded,
+                    isSelected: selectedNav == item,
+                    action: { onSelect(item) }
+                )
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
+        .padding(.trailing, isExpanded ? 4 : 0)
     }
 
     // MARK: - Bottom Section
 
     private var bottomSection: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: isExpanded ? 8 : 10) {
+            statusFooter
             collapseButton
             settingsButton
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.bottom, AppTheme.Spacing.lg)
+    }
+
+    @ViewBuilder
+    private var statusFooter: some View {
+        if isExpanded {
+            StatusCard(state: indicatorState, hotkeyHint: hotkeyHint)
+        } else {
+            StatusCardDot(phase: statusPhase)
+                .frame(maxWidth: .infinity)
+        }
     }
 
     private var settingsButton: some View {
         Button(action: onOpenSettings) {
             Group {
                 if isExpanded {
-                    HStack(spacing: AppTheme.Spacing.md) {
+                    HStack(spacing: 10) {
                         Image(systemName: "gearshape")
-                            .font(.system(size: 14, weight: .medium))
-                            .frame(width: 20)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppColors.textSecondary)
+                            .frame(width: 18, height: 18)
                         Text(localized("Settings", locale: locale))
-                            .font(AppTypography.body)
-                        Spacer()
+                            .font(AppTypography.labelStrong)
+                            .foregroundStyle(AppColors.textSecondary)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
                         Text("⌘,")
                             .font(AppTypography.monoSmall)
                             .foregroundStyle(AppColors.textTertiary)
                     }
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 10)
                 } else {
                     Image(systemName: "gearshape")
-                        .font(.system(size: 14, weight: .medium))
-                        .frame(width: 20)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(width: 18, height: 18)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 7)
+                        .padding(.horizontal, 10)
                 }
             }
-            .foregroundStyle(AppColors.textSecondary)
-            .sidebarItemStyle(isSelected: false, isHovered: isSettingsHovered)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(isSettingsHovered ? AppColors.sidebarItemHover : Color.clear)
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
         .help(localized("Settings", locale: locale))
@@ -412,73 +468,37 @@ private struct MainSidebar: View {
         } label: {
             Group {
                 if isExpanded {
-                    HStack(spacing: AppTheme.Spacing.md) {
+                    HStack(spacing: 10) {
                         Image(systemName: icon)
-                            .font(.system(size: 14, weight: .medium))
-                            .frame(width: 20)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppColors.textSecondary)
+                            .frame(width: 18, height: 18)
                         Text(localized("Collapse", locale: locale))
-                            .font(AppTypography.body)
-                        Spacer()
+                            .font(AppTypography.labelStrong)
+                            .foregroundStyle(AppColors.textSecondary)
+                        Spacer(minLength: 0)
                     }
-                    .foregroundStyle(AppColors.textSecondary)
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 10)
                 } else {
                     Image(systemName: icon)
-                        .font(.system(size: 14, weight: .medium))
-                        .frame(width: 20)
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(AppColors.textSecondary)
+                        .frame(width: 18, height: 18)
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 7)
+                        .padding(.horizontal, 10)
                 }
             }
-            .sidebarItemStyle(isSelected: false, isHovered: isCollapseHovered)
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering in isCollapseHovered = hovering }
-    }
-
-    // MARK: - Sidebar Item
-
-    private func sidebarItem(_ item: MainNavItem) -> some View {
-        let isSelected = selectedNav == item
-        let isHovered = hoveredItem == item
-        let isDisabled = item.isComingSoon
-
-        return Button {
-            if !isDisabled { onSelect(item) }
-        } label: {
-            Group {
-                if isExpanded {
-                    HStack(spacing: AppTheme.Spacing.md) {
-                        Image(systemName: item.icon)
-                            .font(.system(size: 14, weight: .medium))
-                            .frame(width: 20)
-                        Text(item.title(locale: locale))
-                            .font(AppTypography.body)
-                        Spacer()
-                        if item.isComingSoon {
-                            Text(localized("Soon", locale: locale))
-                                .font(AppTypography.tiny)
-                                .foregroundStyle(AppColors.textTertiary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(AppColors.border))
-                        }
-                    }
-                } else {
-                    Image(systemName: item.icon)
-                        .font(.system(size: 14, weight: .medium))
-                        .frame(width: 20)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .foregroundStyle(
-                isDisabled ? AppColors.textTertiary :
-                (isSelected ? AppColors.textPrimary : AppColors.textSecondary)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(isCollapseHovered ? AppColors.sidebarItemHover : Color.clear)
             )
-            .sidebarItemStyle(isSelected: isSelected && !isDisabled, isHovered: isHovered && !isDisabled)
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
-        .disabled(isDisabled)
-        .onHover { hovering in hoveredItem = hovering ? item : nil }
+        .help(localized("Collapse", locale: locale))
+        .onHover { hovering in isCollapseHovered = hovering }
     }
 }
 
@@ -569,8 +589,9 @@ final class MainWindowController {
         show(navigationItem: .history)
     }
 
+    /// U2: Transcribe page is unrouted; open Library until U3 adds inline import.
     func showTranscribe() {
-        show(navigationItem: .transcribe)
+        show(navigationItem: .history)
     }
 
     func showModels() {
@@ -578,7 +599,7 @@ final class MainWindowController {
     }
 
     func showNavigationItem(_ item: MainNavItem) {
-        show(navigationItem: item)
+        show(navigationItem: item.resolvedDestination)
     }
 
     func showSettings(tab: SettingsTab = .general) {
@@ -628,7 +649,9 @@ final class MainWindowController {
                 }
             )
                 .modelContainer(container)
-            let hostingController = TitlebarlessHostingController(rootView: mainView)
+            // Standard hosting controller — full-size transparent titlebar provides
+            // correct traffic-light / drag regions without zeroing safe areas.
+            let hostingController = NSHostingController(rootView: mainView)
 
             let window = NSWindow(
                 contentRect: NSRect(
@@ -650,8 +673,8 @@ final class MainWindowController {
             window.toolbar = nil
             window.toolbarStyle = .unifiedCompact
             window.isMovableByWindowBackground = true
-            window.backgroundColor = .clear
-            window.isOpaque = false
+            window.backgroundColor = NSColor(AppColors.windowBackground)
+            window.isOpaque = true
             window.hasShadow = true
             window.setContentSize(NSSize(
                 width: AppTheme.Window.mainDefaultWidth,
@@ -681,7 +704,7 @@ final class MainWindowController {
             ) { [weak self] notification in
                 guard let rawValue = notification.userInfo?["navItem"] as? String,
                       let item = MainNavItem(rawValue: rawValue) else { return }
-                self?.currentNavigationItem = item
+                self?.currentNavigationItem = item.resolvedDestination
             }
         }
 
@@ -694,36 +717,39 @@ final class MainWindowController {
         DispatchQueue.main.async { self.positionTrafficLights() }
 
         if let item = navigationItem {
-            currentNavigationItem = item
+            let destination = item.resolvedDestination
+            currentNavigationItem = destination
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
                     name: .navigateToMainNavItem,
                     object: nil,
-                    userInfo: ["navItem": item.rawValue]
+                    userInfo: ["navItem": destination.rawValue]
                 )
             }
         }
     }
-    
+
+    /// Positions standard traffic lights in the leading-sidebar top pad (spec §3).
+    /// Real system controls — only origin is adjusted; size stays AppKit-native.
     private func positionTrafficLights() {
         guard let window = window,
               let close = window.standardWindowButton(.closeButton),
-              let mini  = window.standardWindowButton(.miniaturizeButton),
-              let zoom  = window.standardWindowButton(.zoomButton),
+              let mini = window.standardWindowButton(.miniaturizeButton),
+              let zoom = window.standardWindowButton(.zoomButton),
               let superview = close.superview else { return }
 
-        let pad: CGFloat = 14
-        let gap: CGFloat = 6
+        // Match sidebar leading/top pad (16) and design gap (8) between controls.
+        let pad: CGFloat = 16
+        let gap: CGFloat = 8
         let bw = close.frame.width
         let bh = close.frame.height
-        // In NSView coords (origin = bottom-left), place the button top `pad` from superview top.
+        // NSView coords: origin bottom-left; pin tops `pad` from superview top.
         let y = superview.bounds.height - pad - bh
 
-        close.setFrameOrigin(NSPoint(x: pad,                  y: y))
-        mini.setFrameOrigin( NSPoint(x: pad + bw + gap,       y: y))
-        zoom.setFrameOrigin( NSPoint(x: pad + 2 * (bw + gap), y: y))
+        close.setFrameOrigin(NSPoint(x: pad, y: y))
+        mini.setFrameOrigin(NSPoint(x: pad + bw + gap, y: y))
+        zoom.setFrameOrigin(NSPoint(x: pad + 2 * (bw + gap), y: y))
 
-        // Keep pinned to top-left when the superview resizes.
         for btn in [close, mini, zoom] {
             btn.autoresizingMask = [.minYMargin]
         }
@@ -742,7 +768,7 @@ final class MainWindowController {
     func hide() {
         window?.orderOut(nil)
     }
-    
+
     func toggle() {
         if window?.isVisible == true {
             hide()
@@ -750,7 +776,7 @@ final class MainWindowController {
             show()
         }
     }
-    
+
     var isVisible: Bool {
         window?.isVisible == true
     }

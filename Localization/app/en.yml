@@ -756,6 +756,7 @@ quit:
 ready:
   _self: "Ready"
   ec1296e1: "● Ready"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "Ready to transcribe"
 recent:
@@ -1067,6 +1068,7 @@ vibe:
 view:
   _self: "View"
   all: "View all"
+  library: "View library"
   transcript_history: "View transcript history"
   transcription_history: "View transcription history"
 vocabulary:

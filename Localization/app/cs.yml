@@ -628,7 +628,7 @@ open:
   settings: "Otevřete Nastavení"
   settings_fd7108f8: "Otevřete nastavení"
   system_settings: "Otevřete Nastavení systému"
-  library: "Open Library"
+  library: "Otevřít knihovnu"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Lokální server kompatibilní s OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Připraveno"
   ec1296e1: "● Připraveno"
+  to_dictate: "Připraveno k diktování"
   to_record: "Připraveno k nahrávání"
   to_transcribe: "Připraveno k přepisu"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Pohled"
   all: "Zobrazit vše"
+  library: "Zobrazit knihovnu"
   transcript_history: "Zobrazit historii přepisů"
   transcription_history: "Zobrazit historii přepisů"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Knihovna"
 conflicts:
   with: "Conflicts with %@"
 file:

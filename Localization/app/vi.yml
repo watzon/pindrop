@@ -628,7 +628,7 @@ open:
   settings: "Mở Cài đặt"
   settings_fd7108f8: "Mở cài đặt"
   system_settings: "Mở cài đặt hệ thống"
-  library: "Open Library"
+  library: "Mở thư viện"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Máy chủ cục bộ tương thích với OpenAI"
@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Sẵn sàng"
   ec1296e1: "● Sẵn sàng"
+  to_dictate: "Sẵn sàng để đọc chính tả"
   to_record: "Sẵn sàng ghi lại"
   to_transcribe: "Sẵn sàng phiên âm"
 recent:
@@ -1057,6 +1058,7 @@ vibe:
 view:
   _self: "Xem"
   all: "Xem tất cả"
+  library: "Xem thư viện"
   transcript_history: "Xem lịch sử bản ghi"
   transcription_history: "Xem lịch sử phiên âm"
 vocabulary:
@@ -1168,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Thư viện"
 conflicts:
   with: "Conflicts with %@"
 file:
