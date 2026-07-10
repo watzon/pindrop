@@ -193,6 +193,7 @@ final class AppCoordinator {
         case pillIndicatorStart = "pill-indicator-start"
         case orbIndicatorStart = "orb-indicator-start"
         case orbIndicatorStop = "orb-indicator-stop"
+        case noteAppend = "note-append"
     }
 
     enum EventTapRecoveryAction: Equatable {
@@ -306,8 +307,10 @@ final class AppCoordinator {
     // MARK: - Quick Capture State
     
     private var isQuickCaptureMode = false
+    private var isNoteAppendMode = false
     private var isRecordingFeatureCaptureActive = false
     private var quickCaptureTranscription: String?
+    private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>?
     private var queueOriginalModelName: String?
 
@@ -693,6 +696,23 @@ final class AppCoordinator {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.handleShowWhatsNew()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .noteSpeakToAppendRequest,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor [weak self] in
+                guard let self,
+                      let editorID = notification.userInfo?["editorID"] as? UUID,
+                      let action = notification.userInfo?["action"] as? String else { return }
+                if action == "start" {
+                    await self.handleNoteAppendStart(editorID: editorID)
+                } else if action == "stop" {
+                    await self.handleNoteAppendStop(editorID: editorID)
+                }
             }
         }
     }
@@ -2097,7 +2117,11 @@ final class AppCoordinator {
     
     private func handlePushToTalkStart() async {
         guard !isRecording && !isProcessing else { return }
-        
+        guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
+            Log.app.info("Refuse global dictation: note-append listening is active")
+            return
+        }
+
         do {
             try await startRecording(source: .hotkeyPushToTalk)
         } catch {
@@ -2110,7 +2134,13 @@ final class AppCoordinator {
     
     private func handlePushToTalkEnd() async {
         guard isRecording else { return }
-        
+        if isNoteAppendMode {
+            if let editorID = noteAppendEditorID {
+                await handleNoteAppendStop(editorID: editorID)
+            }
+            return
+        }
+
         do {
             try await stopRecordingAndTranscribe()
         } catch {
@@ -2124,6 +2154,10 @@ final class AppCoordinator {
 
     private func handleQuickCapturePTTStart() async {
         guard !isRecording && !isProcessing else { return }
+        guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
+            Log.app.info("Refuse quick-capture: note-append listening is active")
+            return
+        }
 
         isQuickCaptureMode = true
         quickCaptureTranscription = nil
@@ -2170,6 +2204,10 @@ final class AppCoordinator {
             }
             isQuickCaptureMode = false
         } else if !isRecording && !isProcessing {
+            guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
+                Log.app.info("Refuse quick-capture toggle: note-append listening is active")
+                return
+            }
             isQuickCaptureMode = true
             quickCaptureTranscription = nil
 
@@ -2183,6 +2221,153 @@ final class AppCoordinator {
                 handleRecordingStartFailure(error, source: .hotkeyQuickCaptureToggle)
             }
         }
+    }
+
+    // MARK: - Speak-to-Append (open note editor)
+
+    private func handleNoteAppendStart(editorID: UUID) async {
+        guard NoteAppendGate.canStartNoteAppend(isRecording: isRecording, isProcessing: isProcessing) else {
+            Log.app.info("Refuse note-append listening: global dictation or processing is active")
+            return
+        }
+
+        isNoteAppendMode = true
+        noteAppendEditorID = editorID
+        NoteAppendListeningCoordinator.shared.state.startListening(editorID: editorID)
+
+        do {
+            try await startRecording(source: .noteAppend)
+        } catch {
+            self.error = error
+            clearNoteAppendMode()
+            audioRecorder.resetAudioEngine()
+            Log.app.error("Failed to start note-append recording: \(error)")
+            handleRecordingStartFailure(error, source: .noteAppend)
+        }
+    }
+
+    private func handleNoteAppendStop(editorID: UUID) async {
+        guard isRecording && isNoteAppendMode else {
+            // Allow stop when only processing state is stuck, or ignore stale stop.
+            if noteAppendEditorID == editorID {
+                clearNoteAppendMode()
+            }
+            return
+        }
+        guard noteAppendEditorID == editorID else {
+            Log.app.info("Ignore note-append stop for non-active editor")
+            return
+        }
+
+        do {
+            if let text = try await stopRecordingAndTranscribeForNoteAppend() {
+                NotificationCenter.default.post(
+                    name: .noteSpeakToAppendTranscript,
+                    object: nil,
+                    userInfo: ["editorID": editorID, "text": text]
+                )
+            }
+        } catch {
+            self.error = error
+            audioRecorder.resetAudioEngine()
+            Log.app.error("Failed to stop note-append recording: \(error)")
+        }
+
+        clearNoteAppendMode()
+    }
+
+    private func clearNoteAppendMode() {
+        isNoteAppendMode = false
+        noteAppendEditorID = nil
+        NoteAppendListeningCoordinator.shared.state.finishSession()
+    }
+
+    private func stopRecordingAndTranscribeForNoteAppend() async throws -> String? {
+        guard recordingStartTime != nil else {
+            Log.app.warning("stopRecordingAndTranscribeForNoteAppend called but recordingStartTime is nil")
+            return nil
+        }
+
+        isRecording = false
+        mediaPauseService.endRecordingSession()
+        suspendLiveContextSessionUpdates()
+        isProcessing = true
+        var didResetProcessingState = false
+
+        statusBarController.setProcessingState()
+        NoteAppendListeningCoordinator.shared.state.transitionToProcessing()
+        transitionRecordingIndicatorToProcessing()
+
+        defer {
+            if !didResetProcessingState {
+                resetProcessingState()
+            }
+        }
+
+        let audioData: Data
+        do {
+            audioData = try await audioRecorder.stopRecording()
+        } catch {
+            Log.app.error("Failed to stop note-append recording: \(error)")
+            throw error
+        }
+
+        guard !audioData.isEmpty else {
+            Log.app.warning("No audio data recorded for note-append")
+            handleNoSpeechDetected(context: "note-append")
+            return nil
+        }
+
+        let diarizationEnabled = Self.shouldUseSpeakerDiarization(
+            diarizationFeatureEnabled: settingsStore.diarizationFeatureEnabled,
+            isStreamingSessionActive: false
+        )
+
+        let transcriptionOutput: TranscriptionOutput
+        do {
+            transcriptionOutput = try await transcriptionService.transcribe(
+                audioData: audioData,
+                diarizationEnabled: diarizationEnabled,
+                options: makeTranscriptionOptions()
+            )
+        } catch let error as TranscriptionService.TranscriptionError {
+            Log.app.error("Note-append transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
+            let message = if case .modelNotLoaded = error {
+                "No model loaded. Please download a model in Settings."
+            } else {
+                "Transcription failed: \(error.localizedDescription)"
+            }
+            toastService.show(ToastPayload(message: message, style: .error))
+            throw error
+        } catch {
+            Log.app.error("Note-append transcription failed: \(error)")
+            resetProcessingState()
+            didResetProcessingState = true
+            toastService.show(
+                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+            )
+            throw error
+        }
+
+        let transcribedText = transcriptionOutput.text
+        var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
+        textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
+
+        guard !isTranscriptionEffectivelyEmpty(textAfterReplacements) else {
+            handleNoSpeechDetected(context: "note-append")
+            return nil
+        }
+        self.lastAppliedReplacements = appliedReplacements
+        try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
+
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements (note-append)")
+        }
+
+        Log.app.info("Note-append transcript ready (\(textAfterReplacements.count) chars)")
+        return textAfterReplacements
     }
 
     private func stopRecordingAndTranscribeForQuickCapture() async throws -> AIEnhancementService.EnhancedNote? {
@@ -2354,7 +2539,11 @@ final class AppCoordinator {
     private func handleToggleRecording(source: RecordingTriggerSource) async {
         if isRecording {
             do {
-                if isQuickCaptureMode {
+                if isNoteAppendMode {
+                    if let editorID = noteAppendEditorID {
+                        await handleNoteAppendStop(editorID: editorID)
+                    }
+                } else if isQuickCaptureMode {
                     if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
                         openNoteEditorWithEnhancedNote(enhancedNote)
                     }
@@ -2370,6 +2559,10 @@ final class AppCoordinator {
                 Log.app.error("Failed to stop recording: \(error)")
             }
         } else if !isProcessing {
+            guard NoteAppendGate.canStartGlobalDictation(isNoteAppendListening: isNoteAppendMode) else {
+                Log.app.info("Refuse global dictation toggle: note-append listening is active")
+                return
+            }
             do {
                 try await startRecording(source: source)
             } catch {
@@ -2551,10 +2744,12 @@ final class AppCoordinator {
     static func shouldUseStreamingTranscription(
         streamingFeatureEnabled: Bool,
         isQuickCaptureMode: Bool,
-        floatingIndicatorAvailable: Bool
+        floatingIndicatorAvailable: Bool,
+        isNoteAppendMode: Bool = false
     ) -> Bool {
         streamingFeatureEnabled
             && !isQuickCaptureMode
+            && !isNoteAppendMode
             && floatingIndicatorAvailable
     }
 
@@ -2578,7 +2773,8 @@ final class AppCoordinator {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
             isQuickCaptureMode: isQuickCaptureMode,
-            floatingIndicatorAvailable: !isFloatingIndicatorTemporarilyHidden()
+            floatingIndicatorAvailable: !isFloatingIndicatorTemporarilyHidden(),
+            isNoteAppendMode: isNoteAppendMode
         )
     }
 
@@ -2613,7 +2809,8 @@ final class AppCoordinator {
             isHotkeySource = false
         }
 
-        guard isHotkeySource,
+        let isNoteAppendSource = source == .noteAppend
+        guard isHotkeySource || isNoteAppendSource,
               let audioError = error as? AudioRecorderError,
               case .permissionDenied = audioError else {
             return
@@ -3608,6 +3805,8 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isQuickCaptureMode = false
+        clearNoteAppendMode()
         recordingStartTime = nil
         capturedContext = nil
         capturedSnapshot = nil
@@ -3639,6 +3838,8 @@ final class AppCoordinator {
         isRecording = false
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        isQuickCaptureMode = false
+        clearNoteAppendMode()
         recordingStartTime = nil
         capturedContext = nil
         capturedSnapshot = nil
@@ -3660,6 +3861,10 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         isProcessing = false
         isRecordingFeatureCaptureActive = false
+        // Note-append mode is cleared by the stop path after processing; only clear if not mid-append.
+        if !isNoteAppendMode {
+            NoteAppendListeningCoordinator.shared.state.finishSession()
+        }
         recordingState.endRecording()
         recordingStartTime = nil
         capturedContext = nil
