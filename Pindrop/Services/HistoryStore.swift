@@ -556,7 +556,6 @@ final class HistoryStore {
         case voice
         case meetings
         case media
-        case notes
     }
 
     func fetchTranscriptions(
@@ -1187,16 +1186,6 @@ final class HistoryStore {
                 (record.sourceKindRawValue == importedFileRawValue
                     || record.sourceKindRawValue == webLinkRawValue)
                     && record.text.localizedStandardContains(trimmedQuery)
-            }
-            return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
-
-        case (.notes, _):
-            // Notes are stored in a separate model — return an empty match so
-            // callers that still run this descriptor under the Notes filter
-            // get no transcription rows.
-            let impossibleID = UUID()
-            let predicate = #Predicate<TranscriptionRecord> { record in
-                record.id == impossibleID
             }
             return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
         }

@@ -153,6 +153,9 @@
 		FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */; };
 		FLUIDDIARBUILD01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLUIDDIARFILE01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift */; };
 		HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */; };
+		LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */; };
+		LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */; };
+		LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */; };
 		IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */; };
 		LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */; };
 		LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */; };
@@ -220,7 +223,6 @@
 		TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */; };
 		TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */; };
 		TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */; };
-		TRANSCRIBEVIEWBUILD01A2B3C4D5E6F /* TranscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */; };
 		WHATVIEWBUILD01A2B3C4D5E6F /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */; };
 		MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */; };
 		HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */; };
@@ -409,6 +411,9 @@
 		FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorType.swift; sourceTree = "<group>"; };
 		FLUIDDIARFILE01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidSpeakerDiarizer.swift; sourceTree = "<group>"; };
 		HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentation.swift; sourceTree = "<group>"; };
+		LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryExpandedPlayerCard.swift; sourceTree = "<group>"; };
+		LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentationTests.swift; sourceTree = "<group>"; };
 		IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
 		LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManagerTests.swift; sourceTree = "<group>"; };
@@ -475,7 +480,6 @@
 		TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastService.swift; sourceTree = "<group>"; };
 		TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastServiceTests.swift; sourceTree = "<group>"; };
 		TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastWindowController.swift; sourceTree = "<group>"; };
-		TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscribeView.swift; sourceTree = "<group>"; };
 		WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionDetailView.swift; sourceTree = "<group>"; };
 		HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionHistoryRow.swift; sourceTree = "<group>"; };
@@ -786,6 +790,7 @@
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
 				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 				E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
+				LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */,
 				TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */,
 				CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */,
 				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
@@ -885,13 +890,14 @@
 			isa = PBXGroup;
 			children = (
 				MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */,
-				TRANSCRIBEVIEWFILE01A2B3C4D5E6F /* TranscribeView.swift */,
 				MEDIADETAILFILE01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift */,
 				HISTROWFILE01A2B3C4D5E6F /* TranscriptionHistoryRow.swift */,
 				NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */,
 				NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */,
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
+				LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */,
+				LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */,
 				DICTVIEWMAIN1A2B3C4D5E6F71 /* DictionaryView.swift */,
 			);
 			path = Main;
@@ -1137,6 +1143,7 @@
 				845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */,
 				1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,
 				6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
+				LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */,
 				TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */,
 				CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */,
 				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
@@ -1303,12 +1310,13 @@
 				SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,
 				MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */,
-				TRANSCRIBEVIEWBUILD01A2B3C4D5E6F /* TranscribeView.swift in Sources */,
 				MEDIADETAILBUILD01A2B3C4D5E6F /* MediaTranscriptionDetailView.swift in Sources */,
 				HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */,
 				NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */,
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
+				LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */,
+				LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,
 				FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */,
 				CEACBC45493663E081E4B1FA /* CopyButton.swift in Sources */,
