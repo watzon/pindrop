@@ -859,6 +859,93 @@ struct HistoryStoreTests {
         #expect(ascending.map(\.preferredTitle) == ["Alpha Call", "Beta Planning"])
         #expect(descending.map(\.preferredTitle) == ["Beta Planning", "Alpha Call"])
     }
+
+    // MARK: - Library sort / broadened search (B7)
+
+    @Test func fetchTranscriptionsSortsByNewestAndOldest() throws {
+        let fixture = try makeFixture()
+        let older = try fixture.historyStore.save(text: "Older item", duration: 1.0, modelUsed: "tiny")
+        older.timestamp = Date(timeIntervalSince1970: 1_000)
+        let newer = try fixture.historyStore.save(text: "Newer item", duration: 1.0, modelUsed: "tiny")
+        newer.timestamp = Date(timeIntervalSince1970: 2_000)
+        try fixture.modelContext.save()
+
+        let newest = try fixture.historyStore.fetchTranscriptions(limit: 10, sort: .newest)
+        let oldest = try fixture.historyStore.fetchTranscriptions(limit: 10, sort: .oldest)
+
+        #expect(newest.map(\.text) == ["Newer item", "Older item"])
+        #expect(oldest.map(\.text) == ["Older item", "Newer item"])
+    }
+
+    @Test func fetchTranscriptionsSearchMatchesTitleSummaryAndSource() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(
+            text: "Body does not include the needle",
+            duration: 1.0,
+            modelUsed: "tiny",
+            sourceDisplayName: "Quarterly Source Name",
+            generatedTitle: "Generated Title Unique",
+            aiSummary: "Summary mentions Project Zephyr outcomes"
+        )
+        try fixture.historyStore.save(
+            text: "Unrelated transcript body",
+            duration: 1.0,
+            modelUsed: "tiny",
+            sourceDisplayName: "Other",
+            generatedTitle: "Other Title",
+            aiSummary: "Nothing special"
+        )
+
+        let byTitle = try fixture.historyStore.fetchTranscriptions(
+            limit: 10,
+            query: "Generated Title Unique"
+        )
+        let bySummary = try fixture.historyStore.fetchTranscriptions(
+            limit: 10,
+            query: "Project Zephyr"
+        )
+        let bySource = try fixture.historyStore.fetchTranscriptions(
+            limit: 10,
+            query: "Quarterly Source"
+        )
+        let byBody = try fixture.historyStore.fetchTranscriptions(
+            limit: 10,
+            query: "does not include"
+        )
+
+        #expect(byTitle.count == 1)
+        #expect(bySummary.count == 1)
+        #expect(bySource.count == 1)
+        #expect(byBody.count == 1)
+        #expect(byTitle.first?.generatedTitle == "Generated Title Unique")
+    }
+
+    @Test func fetchTranscriptionsPaginationPreservesSortOrder() throws {
+        let fixture = try makeFixture()
+        for index in 0..<5 {
+            let record = try fixture.historyStore.save(
+                text: "Item \(index)",
+                duration: 1.0,
+                modelUsed: "tiny"
+            )
+            record.timestamp = Date(timeIntervalSince1970: TimeInterval(index * 100))
+        }
+        try fixture.modelContext.save()
+
+        let firstPage = try fixture.historyStore.fetchTranscriptions(
+            limit: 2,
+            offset: 0,
+            sort: .oldest
+        )
+        let secondPage = try fixture.historyStore.fetchTranscriptions(
+            limit: 2,
+            offset: 2,
+            sort: .oldest
+        )
+
+        #expect(firstPage.map(\.text) == ["Item 0", "Item 1"])
+        #expect(secondPage.map(\.text) == ["Item 2", "Item 3"])
+    }
     
     // MARK: - Export Tests
     

@@ -20,6 +20,7 @@ struct HistoryView: View {
     @State private var searchText: String = ""
     @FocusState private var isSearchFieldFocused: Bool
     @State private var selectedFilter: HistoryStore.HistoryFilter = .all
+    @State private var selectedSort: MediaLibrarySortMode = .newest
     @State private var errorMessage: String?
     @State private var selectedTranscriptionID: PersistentIdentifier?
     @State private var selectedNoteID: PersistentIdentifier?
@@ -94,13 +95,16 @@ struct HistoryView: View {
         }
 
         let order: [String] = ["Today", "Yesterday"]
+        let newestFirst = selectedSort != .oldest
         return grouped.sorted { a, b in
             let aIndex = order.firstIndex(of: a.key) ?? Int.max
             let bIndex = order.firstIndex(of: b.key) ?? Int.max
-            if aIndex != bIndex { return aIndex < bIndex }
+            if aIndex != bIndex {
+                return newestFirst ? aIndex < bIndex : aIndex > bIndex
+            }
             let aDate = a.value.first?.timestamp ?? .distantPast
             let bDate = b.value.first?.timestamp ?? .distantPast
-            return aDate > bDate
+            return newestFirst ? aDate > bDate : aDate < bDate
         }.map { (key: $0.key, records: $0.value) }
     }
 
@@ -108,7 +112,7 @@ struct HistoryView: View {
 
     var body: some View {
         Group {
-            if let record = detailRecord, record.isMediaTranscription {
+            if let record = detailRecord, TranscriptionDetailAccess.canOpenDetail(for: record) {
                 MediaTranscriptionDetailView(
                     record: record,
                     folders: folders,
@@ -145,7 +149,7 @@ struct HistoryView: View {
                 .background(AppColors.contentBackground)
             }
         }
-        .task(id: "\(trimmedSearchText)_\(selectedFilter)") {
+        .task(id: "\(trimmedSearchText)_\(selectedFilter)_\(selectedSort.rawValue)") {
             await reloadTranscriptions()
         }
         .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
@@ -155,7 +159,7 @@ struct HistoryView: View {
             guard let idString = notification.userInfo?["recordID"] as? String,
                   let id = UUID(uuidString: idString),
                   let record = try? historyStore.fetchRecord(with: id),
-                  record.isMediaTranscription else { return }
+                  TranscriptionDetailAccess.canOpenDetail(for: record) else { return }
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) {
@@ -282,7 +286,10 @@ struct HistoryView: View {
 
                 Spacer(minLength: AppTheme.Spacing.lg)
 
-                exportMenu
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    sortMenu
+                    exportMenu
+                }
             }
 
             // Filter chips
@@ -388,6 +395,54 @@ struct HistoryView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
             style: AppColors.border
         )
+    }
+
+    // MARK: - Sort Menu
+
+    private var sortMenu: some View {
+        Menu {
+            Button {
+                selectedSort = .newest
+            } label: {
+                sortMenuLabel(for: .newest)
+            }
+
+            Button {
+                selectedSort = .oldest
+            } label: {
+                sortMenuLabel(for: .oldest)
+            }
+        } label: {
+            HStack(spacing: AppTheme.Spacing.xs) {
+                Image(systemName: "arrow.up.arrow.down")
+                    .font(.system(size: 12, weight: .medium))
+                Text(selectedSort.title(locale: locale))
+                    .font(AppTypography.caption)
+            }
+            .foregroundStyle(AppColors.textSecondary)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(AppColors.surfaceBackground)
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+        .help(localized("Sort by", locale: locale))
+    }
+
+    @ViewBuilder
+    private func sortMenuLabel(for mode: MediaLibrarySortMode) -> some View {
+        if selectedSort == mode {
+            Label(mode.title(locale: locale), systemImage: "checkmark")
+        } else {
+            Text(mode.title(locale: locale))
+        }
     }
 
     // MARK: - Export Menu
@@ -565,25 +620,16 @@ struct HistoryView: View {
                             timestampStyle: .absolute,
                             onTap: {
                                 selectedNoteID = nil
-                                if record.isMediaTranscription {
-                                    selectedTranscriptionID = record.persistentModelID
-                                    var transaction = Transaction()
-                                    transaction.disablesAnimations = true
-                                    withTransaction(transaction) {
-                                        detailRecord = record
-                                    }
-                                } else {
-                                    withAnimation(AppTheme.Animation.fast) {
-                                        if selectedTranscriptionID == record.persistentModelID {
-                                            selectedTranscriptionID = nil
-                                        } else {
-                                            selectedTranscriptionID = record.persistentModelID
-                                        }
-                                    }
+                                selectedTranscriptionID = record.persistentModelID
+                                var transaction = Transaction()
+                                transaction.disablesAnimations = true
+                                withTransaction(transaction) {
+                                    detailRecord = record
                                 }
                             },
                             onSaveAsNote: { saveAsNote(record: record) },
-                            onDelete: { pendingDeletionRecord = record }
+                            onDelete: { pendingDeletionRecord = record },
+                            onExport: { format in exportRecord(record, format: format) }
                         )
                         .task {
                             loadNextPageIfNeeded(currentRecord: record)
@@ -697,7 +743,8 @@ struct HistoryView: View {
             do {
                 let count = try historyStore.countTranscriptions(
                     query: trimmedSearchText,
-                    filter: selectedFilter
+                    filter: selectedFilter,
+                    sort: selectedSort
                 )
 
                 await MainActor.run {
@@ -734,7 +781,8 @@ struct HistoryView: View {
                 limit: pageSize,
                 offset: currentOffset,
                 query: trimmedSearchText,
-                filter: selectedFilter
+                filter: selectedFilter,
+                sort: selectedSort
             )
 
             await MainActor.run {
@@ -762,14 +810,16 @@ struct HistoryView: View {
         do {
             let count = try historyStore.countTranscriptions(
                 query: trimmedSearchText,
-                filter: selectedFilter
+                filter: selectedFilter,
+                sort: selectedSort
             )
 
             let records = try historyStore.fetchTranscriptions(
                 limit: max(currentOffset, pageSize),
                 offset: 0,
                 query: trimmedSearchText,
-                filter: selectedFilter
+                filter: selectedFilter,
+                sort: selectedSort
             )
 
             await MainActor.run {
@@ -832,7 +882,8 @@ struct HistoryView: View {
         do {
             let records = try historyStore.fetchAllTranscriptions(
                 query: trimmedSearchText,
-                filter: selectedFilter
+                filter: selectedFilter,
+                sort: selectedSort
             )
             guard !records.isEmpty else { return }
 
@@ -846,6 +897,14 @@ struct HistoryView: View {
             default:
                 break
             }
+        } catch {
+            errorMessage = "Export failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func exportRecord(_ record: TranscriptionRecord, format: TranscriptExportFormat) {
+        do {
+            try TranscriptExportService.presentSavePanel(for: record, format: format)
         } catch {
             errorMessage = "Export failed: \(error.localizedDescription)"
         }
