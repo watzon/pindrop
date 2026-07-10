@@ -196,10 +196,28 @@ struct SettingsPresentationTests {
     }
 
     @Test func orbRibbonPaletteDerivesUnspecifiedPresetFromAccent() {
+        // Derived presets follow the catalog's (contrast-tuned) accent, not the raw
+        // artboard table, so the ribbon matches the rest of the themed UI.
         let signal = OrbRibbonPalette.forPresetID("signal")
-        #expect(signal.primaryHex == "#F06D4F")
+        let catalogAccent = PindropThemePresetCatalog
+            .profile(for: "signal", variant: .light)
+            .accentHex
+        #expect(signal.primaryHex == catalogAccent)
         #expect(signal.secondaryHex != signal.primaryHex)
         #expect(signal.glowHex == signal.primaryHex)
+    }
+
+    @Test func orbRibbonPaletteTracksVariantAccentForDerivedPresets() {
+        for presetID in ["paper", "evergreen", "signal"] {
+            for variant in [PindropThemeVariant.light, .dark] {
+                let palette = OrbRibbonPalette.forPresetID(presetID, variant: variant)
+                let catalogAccent = PindropThemePresetCatalog
+                    .profile(for: presetID, variant: variant)
+                    .accentHex
+                #expect(palette.primaryHex == catalogAccent)
+                #expect(palette.glowHex == catalogAccent)
+            }
+        }
     }
 
     @Test func toastVariantPresentationStringsAndSymbols() {

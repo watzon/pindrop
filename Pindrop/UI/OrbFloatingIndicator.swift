@@ -219,8 +219,6 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     private var microphoneItem: NSMenuItem?
     private var languageMenu: NSMenu?
     private var languageItem: NSMenuItem?
-    private var sizeMenu: NSMenu?
-    private var sizeItem: NSMenuItem?
     private var isContextMenuOpen = false
 
     init(
@@ -382,15 +380,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         let menu = NSMenu(title: localized("Pindrop Orb", locale: locale))
         menu.delegate = self
 
-        let sizeMenu = NSMenu(title: localized("Size", locale: locale))
-        self.sizeMenu = sizeMenu
-        let sizeItem = NSMenuItem(title: localized("Size", locale: locale), action: nil, keyEquivalent: "")
-        sizeItem.submenu = sizeMenu
-        self.sizeItem = sizeItem
-        menu.addItem(sizeItem)
-
-        menu.addItem(.separator())
-
+        // No Size submenu: U10 locked the orb to the spec's fixed state sizes, so the
+        // old Small/Medium/Large picker no longer changes anything.
         let items: [(String, Selector)] = [
             (localized("Hide this for 1 hour",   locale: locale), #selector(handleHideForOneHourMenuItem)),
             (localized("Report an issue",         locale: locale), #selector(handleReportIssueMenuItem)),
@@ -438,24 +429,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     }
 
     private func refreshContextMenuState() {
-        refreshSizeMenuItems()
         refreshMicrophoneMenuItems()
         refreshLanguageMenuItems()
-    }
-
-    private func refreshSizeMenuItems() {
-        guard let sizeMenu else { return }
-        sizeMenu.removeAllItems()
-        let locale = settingsStore.selectedAppLocale.locale
-        for size in OrbFloatingIndicatorSize.allCases {
-            let item = NSMenuItem(title: size.displayName(locale: locale),
-                                  action: #selector(handleSizeMenuItem(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = size.rawValue
-            item.state = orbIndicatorSize == size ? .on : .off
-            sizeMenu.addItem(item)
-        }
-        sizeItem?.isEnabled = true
     }
 
     private func refreshMicrophoneMenuItems() {
@@ -556,14 +531,6 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     func menuDidClose(_ menu: NSMenu) {
         guard menu === contextMenu else { return }
         isContextMenuOpen = false; lastHoverContactAt = Date()
-    }
-
-    @objc private func handleSizeMenuItem(_ sender: NSMenuItem) {
-        guard let rawValue = sender.representedObject as? String,
-              let size = OrbFloatingIndicatorSize(rawValue: rawValue) else { return }
-        orbIndicatorSize = size
-        settingsStore.orbFloatingIndicatorSize = rawValue
-        refreshPanelFrame()
     }
 
     @objc private func handleHideForOneHourMenuItem()      { actions.onHideForOneHour?() }
@@ -841,7 +808,10 @@ struct OrbIndicatorView: View {
         let key = isDark
             ? PindropThemeStorageKeys.darkThemePresetID
             : PindropThemeStorageKeys.lightThemePresetID
-        return OrbRibbonPalette.forPresetID(UserDefaults.standard.string(forKey: key))
+        return OrbRibbonPalette.forPresetID(
+            UserDefaults.standard.string(forKey: key),
+            variant: isDark ? .dark : .light
+        )
     }
 
     private var pillRestingSize: CGSize {
@@ -1211,6 +1181,10 @@ private struct OrbGlassFillView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// Shader time must be app-relative: absolute reference-date seconds (~8e8) exceed
+    /// Float32 precision (ulp ≈ 32 s), which froze the aurora entirely.
+    private static let animationEpoch = Date.timeIntervalSinceReferenceDate
+
     private var ribbonIntensity: Float {
         if isMuted { return 0 }
         if isHovered { return 1.15 }
@@ -1222,7 +1196,9 @@ private struct OrbGlassFillView: View {
     var body: some View {
         GeometryReader { proxy in
             TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || isMuted)) { timeline in
-                let baseTime = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                let baseTime = reduceMotion
+                    ? 0
+                    : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
                 let speed = isProcessing ? 0.18 : 0.42
 
                 Rectangle()
@@ -1252,11 +1228,26 @@ struct OrbRibbonPalette: Equatable {
     let glowHex: String
     let glowOpacity: Double
 
-    var primaryColor: Color { color(primaryHex) }
-    var secondaryColor: Color { color(secondaryHex) }
-    var glowColor: Color { color(glowHex).opacity(glowOpacity) }
+    // Resolved once at init: the shader samples these every frame on an
+    // always-visible window, so no per-frame hex parsing.
+    let primaryColor: Color
+    let secondaryColor: Color
+    let glowColor: Color
 
-    static func forPresetID(_ presetID: String?) -> OrbRibbonPalette {
+    init(primaryHex: String, secondaryHex: String, glowHex: String, glowOpacity: Double) {
+        self.primaryHex = primaryHex
+        self.secondaryHex = secondaryHex
+        self.glowHex = glowHex
+        self.glowOpacity = glowOpacity
+        self.primaryColor = Self.color(primaryHex)
+        self.secondaryColor = Self.color(secondaryHex)
+        self.glowColor = Self.color(glowHex).opacity(glowOpacity)
+    }
+
+    static func forPresetID(
+        _ presetID: String?,
+        variant: PindropThemeVariant = .light
+    ) -> OrbRibbonPalette {
         switch presetID ?? PindropThemePresetCatalog.defaultPresetID {
         case "library":
             return OrbRibbonPalette(
@@ -1280,23 +1271,17 @@ struct OrbRibbonPalette: Equatable {
                 glowOpacity: 0.40
             )
         default:
-            let accent = canonicalAccentHex(for: presetID)
+            // Derived presets track the catalog accent for the active variant so the
+            // ribbon hue matches the rest of the themed UI (spec §15).
+            let accent = PindropThemePresetCatalog
+                .profile(for: presetID, variant: variant)
+                .accentHex
             return OrbRibbonPalette(
                 primaryHex: accent,
                 secondaryHex: mixedHex(accent, with: "#EFEBE2", ratio: 0.65),
                 glowHex: accent,
                 glowOpacity: 0.40
             )
-        }
-    }
-
-    private static func canonicalAccentHex(for presetID: String?) -> String {
-        switch presetID {
-        case "paper": return "#2E4E73"
-        case "evergreen": return "#4D7A4A"
-        case "signal": return "#F06D4F"
-        case "graphite": return "#4B65D6"
-        default: return "#1F6D53"
         }
     }
 
@@ -1320,7 +1305,7 @@ struct OrbRibbonPalette: Equatable {
         return String(format: "#%02X%02X%02X", red, green, blue)
     }
 
-    private func color(_ hex: String) -> Color {
+    private static func color(_ hex: String) -> Color {
         Color(nsColor: NSColor(pindropHex: hex) ?? .controlAccentColor)
     }
 }

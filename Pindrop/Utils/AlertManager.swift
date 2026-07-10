@@ -202,7 +202,9 @@ final class AlertManager {
         }
     }
     
-    private func openMicrophoneSettings() {
+    /// Also the remediation target for the mic-unavailable toast: app settings have no
+    /// permission controls, so the action must land in System Settings.
+    func openMicrophoneSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
             NSWorkspace.shared.open(url)
         }

@@ -2855,14 +2855,17 @@ final class AppCoordinator {
         toastService.show(
             ToastPayload(
                 message: localized("Microphone unavailable", locale: locale),
+                // Permission denial is only fixable in System Settings' mic privacy pane —
+                // the app's Dictation tab has no permission controls.
                 actions: [
                     ToastAction(
                         title: localized("Settings", locale: locale),
                         role: .primary
-                    ) { [weak self] in
-                        self?.statusBarController.showSettings(tab: .dictation)
+                    ) {
+                        AlertManager.shared.openMicrophoneSettings()
                     }
                 ],
+                duration: 8.0,
                 style: .error,
                 variant: .microphoneUnavailable
             )

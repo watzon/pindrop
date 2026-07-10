@@ -20,6 +20,9 @@ private enum ToastMetrics {
     static let showDuration: TimeInterval = 0.18
     static let hideDuration: TimeInterval = 0.14
     static let cornerRadius: CGFloat = 12
+    /// Transparent margin around the chip so the drop shadow isn't clipped by the
+    /// tight panel frame; frameForToast subtracts it so the chip lands unchanged.
+    static let shadowMargin: CGFloat = 20
 }
 
 private final class ToastPanel: NSPanel {
@@ -56,8 +59,12 @@ final class ToastWindowController: ToastPresenting {
         hostingView.layoutSubtreeIfNeeded()
 
         let fittedSize = hostingView.fittingSize
+        let marginTotal = ToastMetrics.shadowMargin * 2
         let size = CGSize(
-            width: min(max(fittedSize.width, ToastMetrics.minWidth), ToastMetrics.maxWidth),
+            width: min(
+                max(fittedSize.width, ToastMetrics.minWidth + marginTotal),
+                ToastMetrics.maxWidth + marginTotal
+            ),
             height: fittedSize.height
         )
         let frame = frameForToast(
@@ -136,23 +143,29 @@ final class ToastWindowController: ToastPresenting {
         let screen = screen(for: hintRect) ?? NSScreen.main
         let visibleFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
 
-        let clampedWidth = min(size.width, max(ToastMetrics.minWidth, visibleFrame.width - (ToastMetrics.screenInset * 2)))
+        // size includes the transparent shadowMargin on every side; insets apply to
+        // the visible chip, so shift the panel outward by the margin.
+        let margin = ToastMetrics.shadowMargin
+        let clampedWidth = min(
+            size.width,
+            max(ToastMetrics.minWidth + margin * 2, visibleFrame.width - (ToastMetrics.screenInset * 2) + margin * 2)
+        )
         let originX: CGFloat
         switch placement {
         case .bottomCenter:
             originX = visibleFrame.midX - (clampedWidth / 2)
         case .bottomTrailing:
-            originX = visibleFrame.maxX - clampedWidth - ToastMetrics.screenInset
+            originX = visibleFrame.maxX - clampedWidth - ToastMetrics.screenInset + margin
         }
         let origin = CGPoint(
             x: originX,
-            y: visibleFrame.minY + ToastMetrics.bottomInset
+            y: visibleFrame.minY + ToastMetrics.bottomInset - margin
         )
         let rawFrame = NSRect(origin: origin, size: CGSize(width: clampedWidth, height: size.height))
 
         return NSRect(
-            x: max(visibleFrame.minX + ToastMetrics.screenInset, min(rawFrame.origin.x, visibleFrame.maxX - rawFrame.width - ToastMetrics.screenInset)),
-            y: max(visibleFrame.minY + ToastMetrics.screenInset, rawFrame.origin.y),
+            x: max(visibleFrame.minX + ToastMetrics.screenInset - margin, min(rawFrame.origin.x, visibleFrame.maxX - rawFrame.width + margin - ToastMetrics.screenInset)),
+            y: max(visibleFrame.minY + ToastMetrics.screenInset - margin, rawFrame.origin.y),
             width: rawFrame.width,
             height: rawFrame.height
         )
@@ -171,8 +184,12 @@ final class ToastWindowController: ToastPresenting {
             hostingView.layoutSubtreeIfNeeded()
 
             let fittedSize = hostingView.fittingSize
+            let marginTotal = ToastMetrics.shadowMargin * 2
             let size = CGSize(
-                width: min(max(fittedSize.width, ToastMetrics.minWidth), ToastMetrics.maxWidth),
+                width: min(
+                    max(fittedSize.width, ToastMetrics.minWidth + marginTotal),
+                    ToastMetrics.maxWidth + marginTotal
+                ),
                 height: fittedSize.height
             )
             let frame = self.frameForToast(
@@ -269,6 +286,7 @@ private struct ToastView: View {
             x: 0,
             y: 4
         )
+        .padding(ToastMetrics.shadowMargin)
         .onHover { hovering in
             guard isHovering != hovering else { return }
             wrapRevealTask?.cancel()
