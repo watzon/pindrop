@@ -141,9 +141,9 @@ struct MediaTranscriptionDetailView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let twoColumn = geo.size.width >= 1080
-
-            ScrollView(.vertical, showsIndicators: false) {
+            if geo.size.width >= 960 {
+                // Wide windows: breadcrumb/title and the media rail stay put;
+                // only the transcript pane scrolls.
                 VStack(alignment: .leading, spacing: 24) {
                     // Spec §8: breadcrumb → title gap is 16 pt (not the section 24 pt rhythm).
                     VStack(alignment: .leading, spacing: 16) {
@@ -151,22 +151,39 @@ struct MediaTranscriptionDetailView: View {
                         titleBlock
                     }
 
-                    if twoColumn {
-                        // Wide windows: media/summary/speakers rail on the left,
-                        // transcript takes the remaining width.
-                        HStack(alignment: .top, spacing: 32) {
+                    HStack(alignment: .top, spacing: 32) {
+                        // The rail scrolls only if a short window can't fit it.
+                        ScrollView(.vertical, showsIndicators: false) {
                             VStack(alignment: .leading, spacing: 24) {
                                 mediaAndSummaryColumn
                                 if showsSpeakerLanes, !participants.isEmpty {
                                     participantsFooter
                                 }
                             }
-                            .frame(width: 480, alignment: .leading)
-
-                            transcriptSection
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.bottom, 40)
                         }
-                    } else {
+                        .frame(width: 480)
+
+                        ScrollView(.vertical, showsIndicators: false) {
+                            transcriptSection
+                                .padding(.bottom, 40)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxHeight: .infinity, alignment: .top)
+                }
+                .padding(.horizontal, 40)
+                .padding(.top, 40)
+                .frame(maxWidth: 1400, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            } else {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 16) {
+                            breadcrumb
+                            titleBlock
+                        }
+
                         mediaAndSummaryColumn
                         transcriptSection
                         if showsSpeakerLanes, !participants.isEmpty {
@@ -174,12 +191,12 @@ struct MediaTranscriptionDetailView: View {
                                 .padding(.top, 16)
                         }
                     }
+                    .padding(.horizontal, 40)
+                    .padding(.top, 40)
+                    .padding(.bottom, 40)
+                    .frame(maxWidth: 920, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.horizontal, 40)
-                .padding(.top, 40)
-                .padding(.bottom, 40)
-                .frame(maxWidth: twoColumn ? 1400 : 920, alignment: .leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .background(AppColors.contentBackground)
