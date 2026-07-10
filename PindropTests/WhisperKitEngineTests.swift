@@ -4,13 +4,17 @@
 //
 //  Created on 2026-01-30.
 //
+//  Unit suite is strictly offline: never calls loadModel(name:) with download
+//  enabled / bare model names that would hit Hugging Face. Network-backed
+//  coverage lives in WhisperKitEngineIntegrationTests (PINDROP_RUN_INTEGRATION_TESTS).
+//
 
 import Foundation
 import Testing
 @testable import Pindrop
 
 @MainActor
-@Suite
+@Suite("WhisperKitEngine (unit, offline)")
 struct WhisperKitEngineTests {
     private func makeEngine() -> WhisperKitEngine {
         WhisperKitEngine()
@@ -25,6 +29,21 @@ struct WhisperKitEngineTests {
         return audioData
     }
 
+    /// Empty isolated cache directory so name-based loads cannot fall back to a
+    /// shared Hugging Face cache or the network when `download: false`.
+    private func makeEmptyDownloadBase() throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-whisperkit-unit-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    private func nonexistentModelPath() -> String {
+        "/nonexistent/pindrop/whisperkit/\(UUID().uuidString)/MelSpectrogram.mlmodelc"
+    }
+
+    // MARK: - Initial state
+
     @Test func initialStateIsUnloaded() {
         let engine = makeEngine()
 
@@ -32,40 +51,14 @@ struct WhisperKitEngineTests {
         #expect(engine.error == nil, "Initial error should be nil")
     }
 
-    @Test func loadModelSetsStateToReady() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        do {
-            try await engine.loadModel(modelName: "tiny")
-        } catch {
-        }
-
-        #expect(engine.state != .unloaded, "State should change from unloaded when loading starts")
-    }
-
-    @Test func loadModelTransitionsThroughLoadingState() async throws {
-        let engine = makeEngine()
-        #expect(engine.state == .unloaded)
-
-        Task {
-            do {
-                try await engine.loadModel(modelName: "tiny")
-            } catch {
-            }
-        }
-
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        #expect(engine.state != .unloaded, "State should transition from unloaded when loading starts")
-    }
+    // MARK: - Offline load failure paths (no network)
 
     @Test func loadModelWithInvalidPathThrowsError() async throws {
         let engine = makeEngine()
         #expect(engine.state == .unloaded)
 
         do {
-            try await engine.loadModel(modelPath: "/invalid/path/to/model")
+            try await engine.loadModel(modelPath: nonexistentModelPath())
             Issue.record("Should throw error for invalid model path")
         } catch {
             #expect(engine.state == .error, "State should be error after failed load")
@@ -78,13 +71,63 @@ struct WhisperKitEngineTests {
         #expect(engine.error == nil)
 
         do {
-            try await engine.loadModel(modelPath: "/nonexistent/path")
+            try await engine.loadModel(modelPath: nonexistentModelPath())
         } catch {
         }
 
         #expect(engine.error != nil, "Error should be set after failed model load")
         #expect(engine.state == .error, "State should be error after failed load")
     }
+
+    @Test func loadModelByNameWithoutDownloadFailsOffline() async throws {
+        let engine = makeEngine()
+        let downloadBase = try makeEmptyDownloadBase()
+        defer { try? FileManager.default.removeItem(at: downloadBase) }
+
+        do {
+            // download: false — must not touch the network even if the model is missing.
+            try await engine.loadModel(
+                name: "tiny",
+                downloadBase: downloadBase,
+                download: false
+            )
+            Issue.record("Expected offline name load to fail when model is absent")
+        } catch {
+            #expect(engine.state == .error)
+            #expect(engine.error != nil)
+        }
+    }
+
+    @Test func loadModelByNameLeavesUnloadedOnlyWhenNeverStarted() async throws {
+        // Mirrors former "SetsStateToReady" coverage without a network download:
+        // a missing local path still transitions out of .unloaded into .error.
+        let engine = makeEngine()
+        #expect(engine.state == .unloaded)
+
+        do {
+            try await engine.loadModel(modelPath: nonexistentModelPath())
+        } catch {
+        }
+
+        #expect(engine.state != .unloaded, "State should change from unloaded when loading is attempted")
+        #expect(engine.state == .error)
+    }
+
+    @Test func loadModelTransitionsThroughLoadingToErrorOffline() async throws {
+        let engine = makeEngine()
+        #expect(engine.state == .unloaded)
+
+        // Invalid path fails quickly offline (no network).
+        do {
+            try await engine.loadModel(modelPath: nonexistentModelPath())
+        } catch {
+        }
+
+        #expect(engine.state == .error, "Failed offline load should end in error")
+        #expect(engine.error != nil)
+    }
+
+    // MARK: - Transcribe without a loaded model
 
     @Test func transcribeRequiresLoadedModel() async throws {
         let engine = makeEngine()
@@ -99,25 +142,23 @@ struct WhisperKitEngineTests {
         }
     }
 
-    @Test func transcribeWithEmptyAudioDataThrowsError() async throws {
+    @Test func transcribeWithEmptyAudioDataThrowsModelNotLoadedWhenUnloaded() async throws {
+        // Do not attempt a network model load — empty audio while unloaded
+        // should fail on the modelNotLoaded guard first.
         let engine = makeEngine()
 
         do {
-            try await engine.loadModel(modelName: "tiny")
-        } catch {
-        }
-
-        do {
             _ = try await engine.transcribe(audioData: Data())
-            Issue.record("Should throw error for empty audio data")
-        } catch WhisperKitEngine.EngineError.invalidAudioData {
+            Issue.record("Should throw error for empty audio / unloaded model")
         } catch WhisperKitEngine.EngineError.modelNotLoaded {
+        } catch WhisperKitEngine.EngineError.invalidAudioData {
+            // Acceptable if guard order ever changes once a model is ready.
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
     }
 
-    @Test func transcribeReturnsNonEmptyString() async throws {
+    @Test func transcribeReturnsNonEmptyStringOrStaysUnloaded() async throws {
         let engine = makeEngine()
 
         do {
@@ -129,7 +170,7 @@ struct WhisperKitEngineTests {
         }
     }
 
-    @Test func transcribeSetsStateToTranscribing() async throws {
+    @Test func transcribeSetsStateToTranscribingOrUnloaded() async throws {
         let engine = makeEngine()
         let audioData = makeInt16AudioData()
 
@@ -148,11 +189,13 @@ struct WhisperKitEngineTests {
         )
     }
 
-    @Test func unloadModelSetsStateToUnloaded() async throws {
+    // MARK: - Unload
+
+    @Test func unloadModelSetsStateToUnloadedAfterFailedLoad() async throws {
         let engine = makeEngine()
 
         do {
-            try await engine.loadModel(modelName: "tiny")
+            try await engine.loadModel(modelPath: nonexistentModelPath())
         } catch {
         }
 
@@ -166,7 +209,7 @@ struct WhisperKitEngineTests {
         let engine = makeEngine()
 
         do {
-            try await engine.loadModel(modelPath: "/invalid/path")
+            try await engine.loadModel(modelPath: nonexistentModelPath())
         } catch {
         }
 
@@ -187,27 +230,22 @@ struct WhisperKitEngineTests {
         #expect(engine.error == nil, "Error should remain nil")
     }
 
-    @Test func stateTransitions() async throws {
+    @Test func stateTransitionsOfflineLoadFailureThenUnload() async throws {
         let engine = makeEngine()
         #expect(engine.state == .unloaded)
 
-        Task {
-            do {
-                try await engine.loadModel(modelName: "tiny")
-            } catch {
-            }
+        do {
+            try await engine.loadModel(modelPath: nonexistentModelPath())
+        } catch {
         }
 
-        try await Task.sleep(nanoseconds: 100_000_000)
-
-        let stateAfterLoadAttempt = engine.state
-        #expect(stateAfterLoadAttempt != .unloaded)
+        #expect(engine.state == .error)
 
         await engine.unloadModel()
         #expect(engine.state == .unloaded)
     }
 
-    @Test func concurrentTranscriptionPrevention() async throws {
+    @Test func concurrentTranscriptionPreventionWithoutModel() async throws {
         let engine = makeEngine()
         let audioData = makeInt16AudioData()
 
@@ -218,8 +256,11 @@ struct WhisperKitEngineTests {
             _ = try await result1
             _ = try await result2
         } catch {
+            // Expected: model not loaded.
         }
     }
+
+    // MARK: - EngineError descriptions
 
     @Test func errorDescriptionForModelNotLoaded() {
         let error = WhisperKitEngine.EngineError.modelNotLoaded
@@ -241,5 +282,33 @@ struct WhisperKitEngineTests {
         #expect(error.errorDescription != nil, "Error should have description")
         #expect(error.errorDescription?.contains(message) ?? false,
                 "Error description should contain the failure message")
+    }
+}
+
+// MARK: - Integration (network) — opt-in only
+
+/// Real model download / ready-state coverage. Disabled in the Unit plan.
+/// Run with `PINDROP_RUN_INTEGRATION_TESTS=1 just test-integration` (or equivalent).
+@MainActor
+@Suite(
+    "WhisperKitEngine (integration, network)",
+    .enabled(
+        if: ProcessInfo.processInfo.environment["PINDROP_RUN_INTEGRATION_TESTS"] == "1",
+        "WhisperKit network/model-download tests are disabled by default. Run with PINDROP_RUN_INTEGRATION_TESTS=1."
+    )
+)
+struct WhisperKitEngineIntegrationTests {
+    @Test func loadTinyModelByNameDownloadsAndSetsReady() async throws {
+        let engine = WhisperKitEngine()
+        #expect(engine.state == .unloaded)
+
+        // Intentionally allows network — gated by PINDROP_RUN_INTEGRATION_TESTS.
+        try await engine.loadModel(name: "tiny", downloadBase: nil, download: true)
+
+        #expect(engine.state == .ready)
+        #expect(engine.error == nil)
+
+        await engine.unloadModel()
+        #expect(engine.state == .unloaded)
     }
 }
