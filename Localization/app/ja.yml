@@ -3,6 +3,8 @@
 1:
   folder: "1フォルダー"
   transcription: "1 転写"
+  note: "1件のメモ"
+  word: "1語"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
   big_round_of_upgrades_and_two_community_shout: "大きなアップグレードの数々 — そしてコミュニティへの2つの感謝。"
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d サンプル · %@"
+  words: "%d語"
 dark:
   _self: "暗い"
   preview: "ダークプレビュー"
@@ -253,6 +256,7 @@ delete:
   all: "すべて削除"
   all_participants: "すべての参加者を削除しますか？"
   all_participants_60ed6e73: "すべての参加者を削除…"
+  note: "メモを削除しますか？"
 dictionary:
   _self: "辞書"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "処理..."
   5aa377e2: "⏳ 処理"
   transcript: "Processing transcript"
+  ellipsis: "処理中…"
 prompt:
   _self: "プロンプト"
   preset: "プロンプトプリセット"
@@ -810,6 +815,7 @@ save:
   continue: "保存して続行"
   credentials: "認証情報の保存"
   prompt: "保存プロンプト"
+  now_s: "今すぐ保存 (⌘S)"
 saved:
   _self: "保存されました"
   as_note: "メモとして保存"
@@ -909,6 +915,7 @@ status:
   _self: "状態"
 stop:
   recording: "録音を停止する"
+  listening: "聞き取りを停止"
 streaming:
   enhancement: "ストリーミング時の整形"
   transcription_currently_supports_engli: "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "これにより、トランスクリプトとその管理対象メディア ファイルが完全に削除されます。"
   removes_all_learned_voice_profiles_and_trai: "学習済みの声プロファイルとトレーニングデータをすべて削除します。元に戻せません。"
   will_clear_all_your_settings_including_api_2841f4a1: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
+  will_permanently_remove_this_note: "このメモは完全に削除されます。"
 time:
   saved: "時間の節約"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "%@ に挿入 · %d 語"
 unknown:
   app: "不明なアプリ"
+pinned:
+  _self: "ピン留め"
+speak:
+  to_append: "話して追記"

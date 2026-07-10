@@ -3,6 +3,8 @@
 1:
   folder: "1 dossier"
   transcription: "1 transcription"
+  note: "1 note"
+  word: "1 mot"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Une application native de dictée pour la barre de menus macOS utilisant la reconnaissance vocale locale avec WhisperKit. Traitement 100% local par défaut avec amélioration IA optionnelle."
   big_round_of_upgrades_and_two_community_shout: "Une grande série d’améliorations — et deux remerciements à la communauté."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d échantillons · %@"
+  words: "%d mots"
 dark:
   _self: "Sombre"
   preview: "Aperçu sombre"
@@ -253,6 +256,7 @@ delete:
   all: "Tout supprimer"
   all_participants: "Supprimer tous les participants ?"
   all_participants_60ed6e73: "Supprimer tous les participants…"
+  note: "Supprimer la note ?"
 dictionary:
   _self: "Dictionnaire"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Traitement..."
   5aa377e2: "⏳ Traitement"
   transcript: "Processing transcript"
+  ellipsis: "Traitement…"
 prompt:
   _self: "Prompt"
   preset: "Préréglage de prompt"
@@ -810,6 +815,7 @@ save:
   continue: "Enregistrer et continuer"
   credentials: "Enregistrer les identifiants"
   prompt: "Enregistrer le prompt"
+  now_s: "Enregistrer maintenant (⌘S)"
 saved:
   _self: "Enregistré"
   as_note: "Enregistré comme note"
@@ -909,6 +915,7 @@ status:
   _self: "Statut"
 stop:
   recording: "Arrêter l'enregistrement"
+  listening: "Arrêter l'écoute"
 streaming:
   enhancement: "Amélioration en streaming"
   transcription_currently_supports_engli: "La transcription en streaming ne prend actuellement en charge que l’anglais, quelle que soit la langue sélectionnée."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Cela supprimera définitivement la transcription et son fichier média géré."
   removes_all_learned_voice_profiles_and_trai: "Cela supprime tous les profils vocaux appris et les données d’entraînement. Action irréversible."
   will_clear_all_your_settings_including_api_2841f4a1: "Cela effacera tous vos réglages, y compris les clés API, et relancera l’intégration"
+  will_permanently_remove_this_note: "Cela supprimera définitivement cette note."
 time:
   saved: "Temps économisé"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Inséré dans %@ · %d mots"
 unknown:
   app: "App inconnue"
+pinned:
+  _self: "Épinglées"
+speak:
+  to_append: "Parler pour ajouter"

@@ -3,6 +3,8 @@
 1:
   folder: "1 dosar"
   transcription: "1 transcriere"
+  note: "1 notă"
+  word: "1 cuvânt"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "O aplicație nativă de dictare a barei de meniu macOS care folosește conversia vocală în text local cu WhisperKit. Procesare 100% locală în mod implicit, cu îmbunătățire opțională AI."
   big_round_of_upgrades_and_two_community_shout: "O rundă mare de îmbunătățiri — și două mulțumiri pentru comunitate."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d caractere"
   samples: "%d samples · %@"
+  words: "%d cuvinte"
 dark:
   _self: "Întuneric"
   preview: "Previzualizare întunecată"
@@ -253,6 +256,7 @@ delete:
   all: "Șterge tot"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Ștergeți nota?"
 dictionary:
   _self: "Dicţionar"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Prelucrare..."
   5aa377e2: "⏳ Prelucrare"
   transcript: "Procesarea transcrierea"
+  ellipsis: "Se procesează…"
 prompt:
   _self: "Instrucțiune"
   preset: "Presetare promptă"
@@ -810,6 +815,7 @@ save:
   continue: "Salvați și continuați"
   credentials: "Salvați acreditările"
   prompt: "Salvare prompt"
+  now_s: "Salvează acum (⌘S)"
 saved:
   _self: "Salvat"
   as_note: "Salvat ca Notă"
@@ -909,6 +915,7 @@ status:
   _self: "Stare"
 stop:
   recording: "Opriți înregistrarea"
+  listening: "Oprește ascultarea"
 streaming:
   enhancement: "Îmbunătățirea streamingului"
   transcription_currently_supports_engli: "Transcrierea în flux acceptă în prezent numai limba engleză, indiferent de limba selectată."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Aceasta va elimina definitiv transcrierea și fișierul media gestionat."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Aceasta va elimina permanent această notă."
 time:
   saved: "Timp economisit"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Inserat în %@ · %d cuvinte"
 unknown:
   app: "Aplicație necunoscută"
+pinned:
+  _self: "Fixate"
+speak:
+  to_append: "Vorbiți pentru a adăuga"

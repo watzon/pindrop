@@ -3,6 +3,8 @@
 1:
   folder: "1 map"
   transcription: "1 transcriptie"
+  note: "1 notitie"
+  word: "1 woord"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Een native macOS-dicteerapp voor de menubalk die lokale spraak-naar-tekst gebruikt met WhisperKit. Standaard 100% lokale verwerking met optionele AI-verbetering."
   big_round_of_upgrades_and_two_community_shout: "Een grote ronde upgrades — en twee bedankjes aan de community."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d samples · %@"
+  words: "%d woorden"
 dark:
   _self: "Donker"
   preview: "Donker voorbeeld"
@@ -253,6 +256,7 @@ delete:
   all: "Alles verwijderen"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Notitie verwijderen?"
 dictionary:
   _self: "Woordenboek"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Verwerken..."
   5aa377e2: "⏳ Verwerking"
   transcript: "Processing transcript"
+  ellipsis: "Verwerken…"
 prompt:
   _self: "Snel"
   preset: "Snelle voorinstelling"
@@ -810,6 +815,7 @@ save:
   continue: "Opslaan en doorgaan"
   credentials: "Bewaar referenties"
   prompt: "Bewaar prompt"
+  now_s: "Nu opslaan (⌘S)"
 saved:
   _self: "Opgeslagen"
   as_note: "Opgeslagen als notitie"
@@ -909,6 +915,7 @@ status:
   _self: "Status"
 stop:
   recording: "Stop met opnemen"
+  listening: "Stop met luisteren"
 streaming:
   enhancement: "Streamingverbetering"
   transcription_currently_supports_engli: "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Hierdoor worden het transcript en het beheerde mediabestand permanent verwijderd."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Dit verwijdert deze notitie permanent."
 time:
   saved: "Tijd bespaard"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Ingevoegd in %@ · %d woorden"
 unknown:
   app: "Onbekende app"
+pinned:
+  _self: "Vastgezet"
+speak:
+  to_append: "Spreek om toe te voegen"

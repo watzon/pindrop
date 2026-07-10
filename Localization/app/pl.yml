@@ -3,6 +3,8 @@
 1:
   folder: "1 folder"
   transcription: "1 transkrypcja"
+  note: "1 notatka"
+  word: "1 słowo"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Natywna aplikacja do dyktowania paska menu systemu macOS wykorzystująca lokalną zamianę mowy na tekst za pomocą WhisperKit. Domyślnie 100% przetwarzania lokalnego z opcjonalnym ulepszeniem AI."
   big_round_of_upgrades_and_two_community_shout: "Duża porcja ulepszeń — i dwa podziękowania dla społeczności."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d znaków"
   samples: "%d samples · %@"
+  words: "%d słów"
 dark:
   _self: "Ciemny"
   preview: "Ciemny podgląd"
@@ -253,6 +256,7 @@ delete:
   all: "Usuń wszystko"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Usunąć notatkę?"
 dictionary:
   _self: "Słownik"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Przetwarzanie..."
   5aa377e2: "⏳ Przetwarzanie"
   transcript: "Transkrypcja przetwarzania"
+  ellipsis: "Przetwarzanie…"
 prompt:
   _self: "Podpowiedź"
   preset: "Szybkie ustawienie wstępne"
@@ -810,6 +815,7 @@ save:
   continue: "Zapisz i kontynuuj"
   credentials: "Zapisz dane uwierzytelniające"
   prompt: "Zapisz monit"
+  now_s: "Zapisz teraz (⌘S)"
 saved:
   _self: "Zapisano"
   as_note: "Zapisano jako notatkę"
@@ -909,6 +915,7 @@ status:
   _self: "Status"
 stop:
   recording: "Zatrzymaj nagrywanie"
+  listening: "Zatrzymaj nasłuchiwanie"
 streaming:
   enhancement: "Udoskonalanie transmisji strumieniowej"
   transcription_currently_supports_engli: "Transkrypcja strumieniowa obsługuje obecnie wyłącznie język angielski, niezależnie od wybranego języka."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Spowoduje to trwałe usunięcie transkrypcji i zarządzanego pliku multimedialnego."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "To trwale usunie tę notatkę."
 time:
   saved: "Zaoszczędzony czas"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Wstawiono do %@ · %d słów"
 unknown:
   app: "Nieznana aplikacja"
+pinned:
+  _self: "Przypięte"
+speak:
+  to_append: "Mów, aby dodać"

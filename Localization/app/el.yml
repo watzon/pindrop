@@ -3,6 +3,8 @@
 1:
   folder: "1 φάκελος"
   transcription: "1 μεταγραφή"
+  note: "1 σημείωση"
+  word: "1 λέξη"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Μια εγγενής εφαρμογή υπαγόρευσης γραμμής μενού macOS που χρησιμοποιεί τοπική ομιλία σε κείμενο με το WhisperKit. 100% τοπική επεξεργασία από προεπιλογή με προαιρετική βελτίωση AI."
   big_round_of_upgrades_and_two_community_shout: "Ένας μεγάλος γύρος αναβαθμίσεων — και δύο ευχαριστίες στην κοινότητα."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d χαρακτήρες"
   samples: "%d samples · %@"
+  words: "%d λέξεις"
 dark:
   _self: "Σκοτάδι"
   preview: "Σκοτεινή προεπισκόπηση"
@@ -253,6 +256,7 @@ delete:
   all: "Διαγραφή όλων"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Διαγραφή σημείωσης;"
 dictionary:
   _self: "Λεξικό"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Επεξεργασία..."
   5aa377e2: "⏳ Επεξεργασία"
   transcript: "Επεξεργασία μεταγραφής"
+  ellipsis: "Επεξεργασία…"
 prompt:
   _self: "Ταχύς"
   preset: "Προεπιλογή προεπιλογής"
@@ -810,6 +815,7 @@ save:
   continue: "Αποθήκευση & Συνέχεια"
   credentials: "Αποθήκευση διαπιστευτηρίων"
   prompt: "Αποθήκευση προτροπής"
+  now_s: "Αποθήκευση τώρα (⌘S)"
 saved:
   _self: "Αποθηκεύτηκε"
   as_note: "Αποθηκεύτηκε ως Σημείωση"
@@ -909,6 +915,7 @@ status:
   _self: "Κατάσταση"
 stop:
   recording: "Διακοπή εγγραφής"
+  listening: "Διακοπή ακρόασης"
 streaming:
   enhancement: "Βελτίωση ροής"
   transcription_currently_supports_engli: "Η μεταγραφή ροής υποστηρίζει προς το παρόν μόνο αγγλικά, ανεξάρτητα από την επιλεγμένη γλώσσα."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Αυτό θα καταργήσει οριστικά τη μεταγραφή και το διαχειριζόμενο αρχείο πολυμέσων."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Αυτό θα αφαιρέσει οριστικά αυτή τη σημείωση."
 time:
   saved: "Εξοικονόμηση χρόνου"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Εισήχθη στο %@ · %d λέξεις"
 unknown:
   app: "Άγνωστη εφαρμογή"
+pinned:
+  _self: "Καρφιτσωμένα"
+speak:
+  to_append: "Μιλήστε για προσθήκη"

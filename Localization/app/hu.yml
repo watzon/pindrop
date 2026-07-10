@@ -3,6 +3,8 @@
 1:
   folder: "1 mappa"
   transcription: "1 átírás"
+  note: "1 jegyzet"
+  word: "1 szó"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Natív macOS-menüsoros diktálóalkalmazás, amely helyi beszéd-szövegké alakítást használ a WhisperKit funkcióval. Alapértelmezés szerint 100%-ban helyi feldolgozás opcionális AI-javítással."
   big_round_of_upgrades_and_two_community_shout: "Nagy adag fejlesztés — és két közösségi köszönet."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d karakter"
   samples: "%d samples · %@"
+  words: "%d szó"
 dark:
   _self: "Sötét"
   preview: "Sötét előnézet"
@@ -253,6 +256,7 @@ delete:
   all: "Összes törlése"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Törli a jegyzetet?"
 dictionary:
   _self: "Szótár"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Feldolgozás..."
   5aa377e2: "⏳ Feldolgozás"
   transcript: "Átirat feldolgozása"
+  ellipsis: "Feldolgozás…"
 prompt:
   _self: "Gyors"
   preset: "Prompt Preset"
@@ -810,6 +815,7 @@ save:
   continue: "Mentés és folytatás"
   credentials: "Hitelesítési adatok mentése"
   prompt: "Mentés Prompt"
+  now_s: "Mentés most (⌘S)"
 saved:
   _self: "Mentve"
   as_note: "Jegyzetként mentve"
@@ -909,6 +915,7 @@ status:
   _self: "Állapot"
 stop:
   recording: "Felvétel leállítása"
+  listening: "Figyelés leállítása"
 streaming:
   enhancement: "Streaming Javítás"
   transcription_currently_supports_engli: "A streaming átírás jelenleg csak az angol nyelvet támogatja, függetlenül a kiválasztott nyelvtől."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Ezzel véglegesen eltávolítja az átiratot és a kezelt médiafájlt."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Ezzel véglegesen törli a jegyzetet."
 time:
   saved: "Megtakarított idő"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Beillesztve ide: %@ · %d szó"
 unknown:
   app: "Ismeretlen alkalmazás"
+pinned:
+  _self: "Kitűzött"
+speak:
+  to_append: "Beszéljen a hozzáadáshoz"

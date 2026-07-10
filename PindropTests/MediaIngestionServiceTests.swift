@@ -295,9 +295,39 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         case download(url: String, strategy: DownloadStrategy = .standard, result: ProcessExecutionResult, emittedLines: [String])
     }
 
-    var responses: [Response] = []
+    private let lock = NSLock()
+    private var _responses: [Response] = []
     var expectedYTDLPPath = "/tmp/pindrop-test-yt-dlp"
     var expectedFFmpegPath = "/tmp/pindrop-test-ffmpeg"
+
+    /// Thread-safe response queue. Set from tests before concurrent `run` calls.
+    var responses: [Response] {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _responses
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _responses = newValue
+        }
+    }
+
+    /// Match + dequeue under lock so concurrent tool probes cannot race `remove(at:)`.
+    private func dequeueMatchingResponse(
+        executableURL: URL,
+        arguments: [String]
+    ) -> Response? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let responseIndex = _responses.firstIndex(where: { response in
+            matches(response: response, executableURL: executableURL, arguments: arguments)
+        }) else {
+            return nil
+        }
+        return _responses.remove(at: responseIndex)
+    }
 
     func run(
         executableURL: URL,
@@ -306,14 +336,13 @@ private final class MockProcessRunner: ProcessRunning, @unchecked Sendable {
         environment: [String : String]?,
         lineHandler: (@Sendable (String) -> Void)?
     ) async throws -> ProcessExecutionResult {
-        guard let responseIndex = responses.firstIndex(where: { response in
-            matches(response: response, executableURL: executableURL, arguments: arguments)
-        }) else {
+        guard let response = dequeueMatchingResponse(
+            executableURL: executableURL,
+            arguments: arguments
+        ) else {
             Issue.record("Unexpected process invocation: \(executableURL.path) \(arguments.joined(separator: " "))")
             return ProcessExecutionResult(terminationStatus: 1, standardOutput: "", standardError: "Unexpected process call")
         }
-
-        let response = responses.remove(at: responseIndex)
 
         switch response {
         case .which(let tool, let result):

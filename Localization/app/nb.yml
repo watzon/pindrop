@@ -3,6 +3,8 @@
 1:
   folder: "1 mappe"
   transcription: "1 transkripsjon"
+  note: "1 notat"
+  word: "1 ord"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "En innebygd macOS-menylinjedikteringsapp som bruker lokal tale-til-tekst med WhisperKit. 100 % lokal behandling som standard med valgfri AI-forbedring."
   big_round_of_upgrades_and_two_community_shout: "En stor runde med oppgraderinger — og to takk til fellesskapet."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d tegn"
   samples: "%d samples · %@"
+  words: "%d ord"
 dark:
   _self: "Mørk"
   preview: "Mørk forhåndsvisning"
@@ -253,6 +256,7 @@ delete:
   all: "Slett alle"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Slett notat?"
 dictionary:
   _self: "Ordbok"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Behandling..."
   5aa377e2: "⏳ Behandling"
   transcript: "Behandler utskrift"
+  ellipsis: "Behandler…"
 prompt:
   _self: "Spør"
   preset: "Spør forhåndsinnstilling"
@@ -810,6 +815,7 @@ save:
   continue: "Lagre og fortsett"
   credentials: "Lagre legitimasjon"
   prompt: "Lagre forespørsel"
+  now_s: "Lagre nå (⌘S)"
 saved:
   _self: "Lagret"
   as_note: "Lagret som notat"
@@ -909,6 +915,7 @@ status:
   _self: "Status"
 stop:
   recording: "Stopp opptak"
+  listening: "Stopp lytting"
 streaming:
   enhancement: "Streamingforbedring"
   transcription_currently_supports_engli: "Streaming-transkripsjon støtter for øyeblikket kun engelsk, uavhengig av valgt språk."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Dette vil permanent fjerne transkripsjonen og dens administrerte mediefil."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Dette fjerner dette notatet permanent."
 time:
   saved: "Tid spart"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Satt inn i %@ · %d ord"
 unknown:
   app: "Ukjent app"
+pinned:
+  _self: "Festet"
+speak:
+  to_append: "Snakk for å legge til"

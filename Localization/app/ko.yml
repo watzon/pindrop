@@ -3,6 +3,8 @@
 1:
   folder: "폴더 1개"
   transcription: "1 전사"
+  note: "메모 1개"
+  word: "단어 1개"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit을 통해 로컬 음성-텍스트 변환을 사용하는 기본 macOS 메뉴 표시줄 받아쓰기 앱입니다. AI 향상 옵션이 기본적으로 100% 로컬 처리됩니다."
   big_round_of_upgrades_and_two_community_shout: "큰 업그레이드 한 묶음 — 그리고 커뮤니티에 전하는 두 번의 감사."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d개 샘플 · %@"
+  words: "%d개 단어"
 dark:
   _self: "어두운"
   preview: "어두운 미리보기"
@@ -253,6 +256,7 @@ delete:
   all: "모두 삭제"
   all_participants: "모든 참가자를 삭제할까요?"
   all_participants_60ed6e73: "모든 참가자 삭제…"
+  note: "메모를 삭제할까요?"
 dictionary:
   _self: "사전"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "처리 중..."
   5aa377e2: "⏳ 처리"
   transcript: "Processing transcript"
+  ellipsis: "처리 중…"
 prompt:
   _self: "즉각적인"
   preset: "프롬프트 사전 설정"
@@ -810,6 +815,7 @@ save:
   continue: "저장하고 계속하기"
   credentials: "자격 증명 저장"
   prompt: "프롬프트 저장"
+  now_s: "지금 저장 (⌘S)"
 saved:
   _self: "저장됨"
   as_note: "메모로 저장됨"
@@ -909,6 +915,7 @@ status:
   _self: "상태"
 stop:
   recording: "녹음 중지"
+  listening: "듣기 중지"
 streaming:
   enhancement: "스트리밍 향상"
   transcription_currently_supports_engli: "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "이렇게 하면 스크립트와 관리되는 미디어 파일이 영구적으로 제거됩니다."
   removes_all_learned_voice_profiles_and_trai: "학습된 모든 음성 프로필과 학습 데이터를 제거합니다. 되돌릴 수 없습니다."
   will_clear_all_your_settings_including_api_2841f4a1: "API 키를 포함한 모든 설정을 지우고 온보딩을 다시 시작합니다"
+  will_permanently_remove_this_note: "이 메모가 영구적으로 삭제됩니다."
 time:
   saved: "시간 절약"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "%@에 삽입됨 · %d단어"
 unknown:
   app: "알 수 없는 앱"
+pinned:
+  _self: "고정됨"
+speak:
+  to_append: "말해 추가"

@@ -3,6 +3,8 @@
 1:
   folder: "1 फ़ोल्डर"
   transcription: "1 प्रतिलेखन"
+  note: "1 नोट"
+  word: "1 शब्द"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit के साथ स्थानीय स्पीच-टू-टेक्स्ट का उपयोग करने वाला एक देशी macOS मेनू बार डिक्टेशन ऐप। वैकल्पिक एआई संवर्द्धन के साथ डिफ़ॉल्ट रूप से 100% स्थानीय प्रसंस्करण।"
   big_round_of_upgrades_and_two_community_shout: "अपग्रेड का बड़ा दौर — और समुदाय के दो सदस्यों को धन्यवाद।"
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d अक्षर"
   samples: "%d samples · %@"
+  words: "%d शब्द"
 dark:
   _self: "अँधेरा"
   preview: "डार्क पूर्वावलोकन"
@@ -253,6 +256,7 @@ delete:
   all: "सभी हटाएँ"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "नोट हटाएँ?"
 dictionary:
   _self: "शब्दकोष"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "प्रसंस्करण..."
   5aa377e2: "⏳ प्रसंस्करण"
   transcript: "प्रसंस्करण प्रतिलेख"
+  ellipsis: "प्रोसेस हो रहा है…"
 prompt:
   _self: "तत्पर"
   preset: "शीघ्र पूर्व निर्धारित"
@@ -810,6 +815,7 @@ save:
   continue: "सहेजें जारी रखें"
   credentials: "क्रेडेंशियल सहेजें"
   prompt: "प्रॉम्प्ट सहेजें"
+  now_s: "अभी सहेजें (⌘S)"
 saved:
   _self: "सहेजा गया"
   as_note: "नोट के रूप में सहेजा गया"
@@ -909,6 +915,7 @@ status:
   _self: "स्थिति"
 stop:
   recording: "रिकॉर्डिंग बंद करें"
+  listening: "सुनना बंद करें"
 streaming:
   enhancement: "स्ट्रीमिंग संवर्द्धन"
   transcription_currently_supports_engli: "स्ट्रीमिंग ट्रांसक्रिप्शन वर्तमान में चयनित भाषा की परवाह किए बिना केवल अंग्रेजी का समर्थन करता है।"
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "यह प्रतिलेख और उसकी प्रबंधित मीडिया फ़ाइल को स्थायी रूप से हटा देगा।"
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "इससे यह नोट स्थायी रूप से हट जाएगा।"
 time:
   saved: "समय की बचत हुई"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "%@ में डाला गया · %d शब्द"
 unknown:
   app: "अज्ञात ऐप"
+pinned:
+  _self: "पिन की गई"
+speak:
+  to_append: "जोड़ने के लिए बोलें"

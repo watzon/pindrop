@@ -3,6 +3,8 @@
 1:
   folder: "1 مجلد"
   transcription: "1 النسخ"
+  note: "ملاحظة واحدة"
+  word: "كلمة واحدة"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "تطبيق إملاء شريط قوائم macOS أصلي يستخدم تحويل الكلام إلى نص محلي مع WhisperKit. معالجة محلية بنسبة 100% بشكل افتراضي مع تحسين الذكاء الاصطناعي الاختياري."
   big_round_of_upgrades_and_two_community_shout: "مجموعة كبيرة من التحسينات — وشكران لمساهمين من المجتمع."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d حرفًا"
   samples: "%d samples · %@"
+  words: "%d كلمات"
 dark:
   _self: "مظلم"
   preview: "معاينة الظلام"
@@ -253,6 +256,7 @@ delete:
   all: "حذف الكل"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "حذف الملاحظة؟"
 dictionary:
   _self: "قاموس"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "يعالج..."
   5aa377e2: "⏳ المعالجة"
   transcript: "معالجة النص"
+  ellipsis: "جارٍ المعالجة…"
 prompt:
   _self: "اِسْتَدْعَى"
   preset: "موجه مسبقا"
@@ -810,6 +815,7 @@ save:
   continue: "حفظ ومتابعة"
   credentials: "حفظ بيانات الاعتماد"
   prompt: "حفظ المطالبة"
+  now_s: "احفظ الآن (⌘S)"
 saved:
   _self: "أنقذ"
   as_note: "تم الحفظ كملاحظة"
@@ -909,6 +915,7 @@ status:
   _self: "حالة"
 stop:
   recording: "إيقاف التسجيل"
+  listening: "إيقاف الاستماع"
 streaming:
   enhancement: "تعزيز الجري"
   transcription_currently_supports_engli: "يدعم النسخ المتدفق حاليًا اللغة الإنجليزية فقط، بغض النظر عن اللغة المحددة."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "سيؤدي هذا إلى إزالة النص وملف الوسائط المُدار الخاص به نهائيًا."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "سيؤدي هذا إلى إزالة هذه الملاحظة نهائيًا."
 time:
   saved: "الوقت المحفوظ"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "أُدرج في %@ · %d كلمة"
 unknown:
   app: "تطبيق غير معروف"
+pinned:
+  _self: "مثبّتة"
+speak:
+  to_append: "تحدث للإلحاق"

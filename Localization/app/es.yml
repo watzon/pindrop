@@ -3,6 +3,8 @@
 1:
   folder: "1 carpeta"
   transcription: "1 transcripción"
+  note: "1 nota"
+  word: "1 palabra"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Una app nativa de dictado para la barra de menús de macOS que usa voz a texto local con WhisperKit. Procesamiento 100% local por defecto con mejora opcional con IA."
   big_round_of_upgrades_and_two_community_shout: "Una gran tanda de mejoras — y dos agradecimientos a la comunidad."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d muestras · %@"
+  words: "%d palabras"
 dark:
   _self: "Dark"
   preview: "Vista previa oscura"
@@ -253,6 +256,7 @@ delete:
   all: "Eliminar todo"
   all_participants: "¿Eliminar todos los participantes?"
   all_participants_60ed6e73: "Eliminar todos los participantes…"
+  note: "¿Eliminar nota?"
 dictionary:
   _self: "Diccionario"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Processing..."
   5aa377e2: "⏳ Processing"
   transcript: "Processing transcript"
+  ellipsis: "Procesando…"
 prompt:
   _self: "Prompt"
   preset: "Preajuste de prompt"
@@ -810,6 +815,7 @@ save:
   continue: "Guardar y continuar"
   credentials: "Guardar credenciales"
   prompt: "Guardar prompt"
+  now_s: "Guardar ahora (⌘S)"
 saved:
   _self: "Guardado"
   as_note: "Guardado como nota"
@@ -909,6 +915,7 @@ status:
   _self: "Estado"
 stop:
   recording: "Stop Recording"
+  listening: "Dejar de escuchar"
 streaming:
   enhancement: "Mejora en streaming"
   transcription_currently_supports_engli: "La transcripción en streaming actualmente solo admite inglés, independientemente del idioma seleccionado."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Esto eliminará permanentemente la transcripción y su archivo multimedia gestionado."
   removes_all_learned_voice_profiles_and_trai: "Esto elimina todos los perfiles de voz aprendidos y los datos de entrenamiento. No se puede deshacer."
   will_clear_all_your_settings_including_api_2841f4a1: "Esto borrará todos tus ajustes, incluidas las claves API, y reiniciará la configuración inicial"
+  will_permanently_remove_this_note: "Esto eliminará permanentemente esta nota."
 time:
   saved: "Tiempo ahorrado"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Insertado en %@ · %d palabras"
 unknown:
   app: "App desconocida"
+pinned:
+  _self: "Fijadas"
+speak:
+  to_append: "Hablar para añadir"

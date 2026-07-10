@@ -3,6 +3,8 @@
 1:
   folder: "1 папка"
   transcription: "1 транскрипція"
+  note: "1 нотатка"
+  word: "1 слово"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Рідна програма для диктування панелі меню macOS, яка використовує локальне перетворення мовлення в текст за допомогою WhisperKit. 100% локальна обробка за замовчуванням із додатковим покращенням ШІ."
   big_round_of_upgrades_and_two_community_shout: "Велика порція оновлень — і дві подяки спільноті."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d символів"
   samples: "%d samples · %@"
+  words: "%d слів"
 dark:
   _self: "Темний"
   preview: "Темний попередній перегляд"
@@ -253,6 +256,7 @@ delete:
   all: "Видалити все"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Видалити нотатку?"
 dictionary:
   _self: "Словник"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Обробка..."
   5aa377e2: "⏳ Обробка"
   transcript: "Обробка стенограми"
+  ellipsis: "Обробка…"
 prompt:
   _self: "Підкажіть"
   preset: "Попереднє налаштування запиту"
@@ -810,6 +815,7 @@ save:
   continue: "Зберегти та продовжити"
   credentials: "Зберегти облікові дані"
   prompt: "Зберегти запит"
+  now_s: "Зберегти зараз (⌘S)"
 saved:
   _self: "Збережено"
   as_note: "Збережено як примітку"
@@ -909,6 +915,7 @@ status:
   _self: "Статус"
 stop:
   recording: "Зупинити запис"
+  listening: "Зупинити прослуховування"
 streaming:
   enhancement: "Покращення потокового передавання"
   transcription_currently_supports_engli: "Потокова транскрипція наразі підтримує лише англійську мову, незалежно від вибраної мови."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Це назавжди видалить стенограму та її керований медіафайл."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Це назавжди видалить цю нотатку."
 time:
   saved: "Економія часу"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Вставлено в %@ · %d слів"
 unknown:
   app: "Невідомий застосунок"
+pinned:
+  _self: "Закріплені"
+speak:
+  to_append: "Говоріть, щоб додати"

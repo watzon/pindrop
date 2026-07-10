@@ -3,6 +3,8 @@
 1:
   folder: "1 folder"
   transcription: "1 transkripsi"
+  note: "1 nota"
+  word: "1 perkataan"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Apl imlak bar menu macOS asli menggunakan pertuturan-ke-teks tempatan dengan WhisperKit. 100% pemprosesan tempatan secara lalai dengan peningkatan AI pilihan."
   big_round_of_upgrades_and_two_community_shout: "Satu pusingan besar peningkatan — dan dua penghargaan komuniti."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d aksara"
   samples: "%d samples · %@"
+  words: "%d perkataan"
 dark:
   _self: "Gelap"
   preview: "Pratonton Gelap"
@@ -253,6 +256,7 @@ delete:
   all: "Padam semua"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Padam nota?"
 dictionary:
   _self: "Kamus"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Memproses..."
   5aa377e2: "⏳ Memproses"
   transcript: "Memproses transkrip"
+  ellipsis: "Memproses…"
 prompt:
   _self: "Prompt"
   preset: "Pratetap Gesa"
@@ -810,6 +815,7 @@ save:
   continue: "Simpan & Teruskan"
   credentials: "Simpan Bukti kelayakan"
   prompt: "Simpan Prompt"
+  now_s: "Simpan sekarang (⌘S)"
 saved:
   _self: "Disimpan"
   as_note: "Disimpan sebagai Nota"
@@ -909,6 +915,7 @@ status:
   _self: "Status"
 stop:
   recording: "Hentikan Rakaman"
+  listening: "Berhenti mendengar"
 streaming:
   enhancement: "Peningkatan Penstriman"
   transcription_currently_supports_engli: "Transkripsi penstriman pada masa ini menyokong bahasa Inggeris sahaja, tanpa mengira bahasa yang dipilih."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Ini akan mengalih keluar transkrip dan fail media terurusnya secara kekal."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Ini akan membuang nota ini secara kekal."
 time:
   saved: "Masa Dijimatkan"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Dimasukkan ke %@ · %d perkataan"
 unknown:
   app: "Apl tidak diketahui"
+pinned:
+  _self: "Disemat"
+speak:
+  to_append: "Cakap untuk tambah"

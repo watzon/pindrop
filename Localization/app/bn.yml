@@ -3,6 +3,8 @@
 1:
   folder: "1 ফোল্ডার"
   transcription: "1 ট্রান্সক্রিপশন"
+  note: "১টি নোট"
+  word: "১টি শব্দ"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
   big_round_of_upgrades_and_two_community_shout: "বড় আপগ্রেডের এক দফা — আর কমিউনিটির দুইজনকে ধন্যবাদ।"
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d অক্ষর"
   samples: "%d samples · %@"
+  words: "%dটি শব্দ"
 dark:
   _self: "অন্ধকার"
   preview: "অন্ধকার প্রিভিউ"
@@ -253,6 +256,7 @@ delete:
   all: "সব মুছুন"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "নোট মুছবেন?"
 dictionary:
   _self: "অভিধান"
 direct:
@@ -722,6 +726,7 @@ processing:
   272bc02e: "প্রক্রিয়া করা হচ্ছে..."
   5aa377e2: "⏳ প্রক্রিয়াকরণ"
   transcript: "প্রতিলিপি প্রক্রিয়াকরণ"
+  ellipsis: "প্রক্রিয়াকরণ…"
 prompt:
   _self: "প্রম্পট"
   preset: "প্রম্পট প্রিসেট"
@@ -814,6 +819,7 @@ save:
   continue: "সংরক্ষণ করুন এবং চালিয়ে যান"
   credentials: "শংসাপত্র সংরক্ষণ করুন"
   prompt: "সেভ প্রম্পট"
+  now_s: "এখনই সংরক্ষণ (⌘S)"
 saved:
   _self: "সংরক্ষিত"
   as_note: "নোট হিসাবে সংরক্ষিত"
@@ -914,6 +920,7 @@ status:
   _self: "স্ট্যাটাস"
 stop:
   recording: "রেকর্ডিং বন্ধ করুন"
+  listening: "শোনা বন্ধ করুন"
 streaming:
   enhancement: "স্ট্রিমিং এনহান্সমেন্ট"
   transcription_currently_supports_engli: "স্ট্রিমিং ট্রান্সক্রিপশন বর্তমানে শুধুমাত্র ইংরেজি সমর্থন করে, নির্বাচিত ভাষা নির্বিশেষে।"
@@ -965,6 +972,7 @@ this:
   will_permanently_remove_the_transcript_and: "এটি স্থায়ীভাবে ট্রান্সক্রিপ্ট এবং এর পরিচালিত মিডিয়া ফাইল সরিয়ে দেবে।"
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "এতে এই নোট স্থায়ীভাবে মুছে যাবে।"
 time:
   saved: "সময় সংরক্ষিত"
 to:
@@ -1201,3 +1209,7 @@ inserted:
   into_d_words: "%@-এ ঢোকানো হয়েছে · %d শব্দ"
 unknown:
   app: "অজানা অ্যাপ"
+pinned:
+  _self: "পিন করা"
+speak:
+  to_append: "যোগ করতে বলুন"

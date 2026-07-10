@@ -3,6 +3,8 @@
 1:
   folder: "1 klasör"
   transcription: "1 transkripsiyon"
+  note: "1 not"
+  word: "1 kelime"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
   big_round_of_upgrades_and_two_community_shout: "Büyük bir yükseltme turu — ve topluluktan iki kişiye teşekkür."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d samples · %@"
+  words: "%d kelime"
 dark:
   _self: "Karanlık"
   preview: "Koyu Önizleme"
@@ -253,6 +256,7 @@ delete:
   all: "Tümünü sil"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Not silinsin mi?"
 dictionary:
   _self: "Sözlük"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "İşleme..."
   5aa377e2: "⏳ İşleme"
   transcript: "Processing transcript"
+  ellipsis: "İşleniyor…"
 prompt:
   _self: "Çabuk"
   preset: "İstem Ön Ayarı"
@@ -810,6 +815,7 @@ save:
   continue: "Kaydet ve Devam Et"
   credentials: "Kimlik Bilgilerini Kaydet"
   prompt: "İstemi Kaydet"
+  now_s: "Şimdi kaydet (⌘S)"
 saved:
   _self: "Kaydedildi"
   as_note: "Not olarak kaydedildi"
@@ -909,6 +915,7 @@ status:
   _self: "Durum"
 stop:
   recording: "Kaydı Durdur"
+  listening: "Dinlemeyi durdur"
 streaming:
   enhancement: "Akış iyileştirmesi"
   transcription_currently_supports_engli: "Akış transkripsiyonu şu anda seçilen dilden bağımsız olarak yalnızca İngilizceyi destekler."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Bu, transkripti ve yönetilen medya dosyasını kalıcı olarak kaldıracaktır."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Bu not kalıcı olarak silinecek."
 time:
   saved: "Kazanılan Zaman"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "%@ uygulamasına eklendi · %d kelime"
 unknown:
   app: "Bilinmeyen uygulama"
+pinned:
+  _self: "Sabitlenmiş"
+speak:
+  to_append: "Eklemek için konuşun"

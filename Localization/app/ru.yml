@@ -3,6 +3,8 @@
 1:
   folder: "1 папка"
   transcription: "1 транскрипция"
+  note: "1 заметка"
+  word: "1 слово"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Нативное приложение для диктовки в строке меню macOS, использующее локальное преобразование речи в текст с помощью WhisperKit. 100% локальная обработка по умолчанию с дополнительным улучшением AI."
   big_round_of_upgrades_and_two_community_shout: "Большая порция улучшений — и две благодарности участникам сообщества."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d символы"
   samples: "%d сэмплов · %@"
+  words: "%d слов"
 dark:
   _self: "Темный"
   preview: "Темный предварительный просмотр"
@@ -253,6 +256,7 @@ delete:
   all: "Удалить все"
   all_participants: "Удалить всех участников?"
   all_participants_60ed6e73: "Удалить всех участников…"
+  note: "Удалить заметку?"
 dictionary:
   _self: "Словарь"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Обработка..."
   5aa377e2: "⏳ Обработка"
   transcript: "Транскрипт обработки"
+  ellipsis: "Обработка…"
 prompt:
   _self: "Быстрый"
   preset: "Подсказка предустановки"
@@ -810,6 +815,7 @@ save:
   continue: "Сохранить и продолжить"
   credentials: "Сохранить учетные данные"
   prompt: "Сохранить подсказку"
+  now_s: "Сохранить сейчас (⌘S)"
 saved:
   _self: "Сохранено"
   as_note: "Сохранено как заметка"
@@ -909,6 +915,7 @@ status:
   _self: "Статус"
 stop:
   recording: "Остановить запись"
+  listening: "Остановить прослушивание"
 streaming:
   enhancement: "Улучшение потоковой передачи"
   transcription_currently_supports_engli: "Потоковая транскрипция в настоящее время поддерживает только английский язык, независимо от выбранного языка."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Это приведет к безвозвратному удалению расшифровки и ее управляемого медиафайла."
   removes_all_learned_voice_profiles_and_trai: "Удаляет все выученные голосовые профили и обучающие данные. Отменить нельзя."
   will_clear_all_your_settings_including_api_2841f4a1: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
+  will_permanently_remove_this_note: "Это навсегда удалит эту заметку."
 time:
   saved: "Сэкономленное время"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Вставлено в %@ · %d слов"
 unknown:
   app: "Неизвестное приложение"
+pinned:
+  _self: "Закреплённые"
+speak:
+  to_append: "Диктовать для добавления"

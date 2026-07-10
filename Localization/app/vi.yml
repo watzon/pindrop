@@ -3,6 +3,8 @@
 1:
   folder: "1 thư mục"
   transcription: "1 bản phiên âm"
+  note: "1 ghi chú"
+  word: "1 từ"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
   big_round_of_upgrades_and_two_community_shout: "Một loạt nâng cấp lớn — và hai lời cảm ơn tới cộng đồng."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d ký tự"
   samples: "%d samples · %@"
+  words: "%d từ"
 dark:
   _self: "Tối tăm"
   preview: "Xem trước tối"
@@ -253,6 +256,7 @@ delete:
   all: "Xóa tất cả"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Xóa ghi chú?"
 dictionary:
   _self: "Từ điển"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Xử lý..."
   5aa377e2: "⏳ Đang xử lý"
   transcript: "Đang xử lý bảng điểm"
+  ellipsis: "Đang xử lý…"
 prompt:
   _self: "Lời nhắc"
   preset: "Đặt trước nhắc nhở"
@@ -810,6 +815,7 @@ save:
   continue: "Lưu & Tiếp tục"
   credentials: "Lưu thông tin xác thực"
   prompt: "Lưu lời nhắc"
+  now_s: "Lưu ngay (⌘S)"
 saved:
   _self: "Đã lưu"
   as_note: "Đã lưu dưới dạng Ghi chú"
@@ -909,6 +915,7 @@ status:
   _self: "Trạng thái"
 stop:
   recording: "Dừng ghi"
+  listening: "Dừng nghe"
 streaming:
   enhancement: "Cải tiến phát trực tuyến"
   transcription_currently_supports_engli: "Phiên âm trực tuyến hiện chỉ hỗ trợ tiếng Anh, bất kể ngôn ngữ đã chọn."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Thao tác này sẽ xóa vĩnh viễn bản ghi và tệp phương tiện được quản lý của nó."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Thao tác này sẽ xóa vĩnh viễn ghi chú này."
 time:
   saved: "Thời gian đã lưu"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Đã chèn vào %@ · %d từ"
 unknown:
   app: "Ứng dụng không xác định"
+pinned:
+  _self: "Đã ghim"
+speak:
+  to_append: "Nói để thêm"

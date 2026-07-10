@@ -3,6 +3,8 @@
 1:
   folder: "1 složka"
   transcription: "1 přepis"
+  note: "1 poznámka"
+  word: "1 slovo"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Nativní aplikace pro diktování na liště nabídek macOS využívající místní převod řeči na text pomocí WhisperKit. 100% místní zpracování ve výchozím nastavení s volitelným vylepšením AI."
   big_round_of_upgrades_and_two_community_shout: "Velká sada vylepšení — a dvě komunitní poděkování."
@@ -225,6 +227,7 @@ cut:
 d:
   characters: "%d znaků"
   samples: "%d samples · %@"
+  words: "%d slov"
 dark:
   _self: "Tmavý"
   preview: "Tmavý náhled"
@@ -253,6 +256,7 @@ delete:
   all: "Smazat vše"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Smazat poznámku?"
 dictionary:
   _self: "Slovník"
 direct:
@@ -718,6 +722,7 @@ processing:
   272bc02e: "Zpracovává se..."
   5aa377e2: "⏳ Zpracování"
   transcript: "Zpracování přepisu"
+  ellipsis: "Zpracování…"
 prompt:
   _self: "Výzva"
   preset: "Předvolba výzvy"
@@ -810,6 +815,7 @@ save:
   continue: "Uložit a pokračovat"
   credentials: "Uložit přihlašovací údaje"
   prompt: "Výzva k uložení"
+  now_s: "Uložit nyní (⌘S)"
 saved:
   _self: "Uloženo"
   as_note: "Uloženo jako poznámka"
@@ -909,6 +915,7 @@ status:
   _self: "Postavení"
 stop:
   recording: "Zastavit nahrávání"
+  listening: "Ukončit poslech"
 streaming:
   enhancement: "Vylepšení streamování"
   transcription_currently_supports_engli: "Přepis streamování aktuálně podporuje pouze angličtinu, bez ohledu na vybraný jazyk."
@@ -958,6 +965,7 @@ this:
   will_permanently_remove_the_transcript_and: "Tím trvale odstraníte přepis a jeho spravovaný mediální soubor."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Tímto trvale odstraníte tuto poznámku."
 time:
   saved: "Čas ušetřen"
 to:
@@ -1193,3 +1201,7 @@ inserted:
   into_d_words: "Vloženo do %@ · %d slov"
 unknown:
   app: "Neznámá aplikace"
+pinned:
+  _self: "Připnuté"
+speak:
+  to_append: "Mluvte pro přidání"
