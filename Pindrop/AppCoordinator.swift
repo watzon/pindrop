@@ -2133,13 +2133,13 @@ final class AppCoordinator {
     }
     
     private func handlePushToTalkEnd() async {
-        guard isRecording else { return }
+        // Note-append is not started by global PTT, so a PTT keyup must not
+        // cancel an in-editor speak-to-append session.
         if isNoteAppendMode {
-            if let editorID = noteAppendEditorID {
-                await handleNoteAppendStop(editorID: editorID)
-            }
+            Log.app.debug("Ignore global PTT end during note-append listening")
             return
         }
+        guard isRecording else { return }
 
         do {
             try await stopRecordingAndTranscribe()
@@ -2296,7 +2296,7 @@ final class AppCoordinator {
 
         statusBarController.setProcessingState()
         NoteAppendListeningCoordinator.shared.state.transitionToProcessing()
-        transitionRecordingIndicatorToProcessing()
+        // No global indicator session was started for note-append.
 
         defer {
             if !didResetProcessingState {
@@ -2668,7 +2668,10 @@ final class AppCoordinator {
 
         statusBarController.setRecordingState()
 
-        startRecordingIndicatorSession()
+        // Speak-to-append uses the in-editor listening chip only — no global orb/pill.
+        if source != .noteAppend {
+            startRecordingIndicatorSession()
+        }
     }
 
     private func logRecordingStartAttempt(source: RecordingTriggerSource) {
