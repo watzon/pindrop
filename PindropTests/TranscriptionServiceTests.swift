@@ -23,20 +23,15 @@ struct TranscriptionServiceTests {
     @Test func modelLoadingStates() async throws {
         let service = TranscriptionService()
 
-        // Start loading model
-        Task {
-            do {
-                try await service.loadModel(modelName: "tiny")
-            } catch {
-                // Expected to fail in test environment without actual model
-            }
+        // Offline path load only — never pass a bare model name (would network-download).
+        do {
+            try await service.loadModel(modelPath: "/invalid/path/to/model")
+        } catch {
+            // Expected to fail without a local model bundle.
         }
-        
-        // Give it a moment to start loading
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-        
-        // State should have changed from unloaded
+
         #expect(service.state != .unloaded, "State should change from unloaded when loading starts")
+        #expect(service.state == .error, "Missing local path should end in error offline")
     }
     
     @Test func modelLoadingError() async throws {
@@ -76,14 +71,7 @@ struct TranscriptionServiceTests {
     
     @Test func transcribeWithEmptyAudioData() async throws {
         let service = TranscriptionService()
-        
-        // Try to load model first (will fail in test environment, but that's ok)
-        do {
-            try await service.loadModel(modelName: "tiny")
-        } catch {
-            // Expected to fail in test environment
-        }
-        
+        // Stay offline: do not attempt a name-based model download.
         let emptyData = Data()
         
         do {
@@ -105,20 +93,15 @@ struct TranscriptionServiceTests {
         
         #expect(service.state == .unloaded)
         
-        // Attempt to load model (will fail in test environment)
-        Task {
-            do {
-                try await service.loadModel(modelName: "tiny")
-            } catch {
-                // Expected
-            }
+        // Offline invalid path — no network download.
+        do {
+            try await service.loadModel(modelPath: "/invalid/path/to/model")
+        } catch {
+            // Expected
         }
         
-        // Give it time to transition
-        try await Task.sleep(nanoseconds: 100_000_000)
-        
-        // State should have changed
         #expect(service.state != .unloaded)
+        #expect(service.state == .error)
     }
     
     @Test func concurrentTranscriptionPrevention() async throws {
@@ -217,11 +200,11 @@ struct TranscriptionServiceTests {
     @Test func unloadModelReleasesEngineReference() async throws {
         let service = TranscriptionService()
         
-        // Given: Attempt to load an engine
+        // Given: Attempt offline path load (no network)
         do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+            try await service.loadModel(modelPath: "/invalid/path/to/model")
         } catch {
-            // Expected in test environment
+            // Expected without a local model bundle
         }
         
         // When: Unload the model
@@ -235,13 +218,13 @@ struct TranscriptionServiceTests {
     @Test func unloadModelAfterSwitchingEngines() async throws {
         let service = TranscriptionService()
         
-        // Given: Load and switch engines (both will fail in test env)
+        // Given: Offline path loads for two engines (no network downloads)
         do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+            try await service.loadModel(modelPath: "/test/whisperkit/model")
         } catch {}
         
         do {
-            try await service.loadModel(modelName: "parakeet-tdt-0.6b-v3", provider: .parakeet)
+            try await service.loadModel(modelPath: "/test/parakeet/model")
         } catch {}
         
         // When: Unload
@@ -255,17 +238,17 @@ struct TranscriptionServiceTests {
     @Test func reloadSameEngineAfterUnload() async throws {
         let service = TranscriptionService()
         
-        // Given: Load then unload WhisperKit
+        // Given: Offline path load then unload
         do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+            try await service.loadModel(modelPath: "/invalid/path/to/model")
         } catch {}
         
         await service.unloadModel()
         #expect(service.state == .unloaded)
         
-        // When: Load same engine again
+        // When: Load same engine again (still offline)
         do {
-            try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+            try await service.loadModel(modelPath: "/invalid/path/to/model")
         } catch {}
         
         // Then: Should attempt to load (state transitions from unloaded)

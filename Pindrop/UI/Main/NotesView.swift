@@ -4,6 +4,8 @@
 //
 //  Created on 2026-01-29.
 //
+//  Notes page (U5 scorched-earth restyle, spec §10).
+//
 
 import SwiftUI
 import SwiftData
@@ -56,19 +58,16 @@ struct NotesView: View {
         }
     }
 
-    private var headerSubtitleText: String {
-        let count = filteredNotes.count
-        return count == 1
-            ? localized("1 note", locale: locale)
-            : "\(count) \(localized("notes", locale: locale))"
+    private var headerMetaText: String {
+        NotesHeaderMeta.text(noteCount: filteredNotes.count, locale: locale)
     }
 
     var body: some View {
         VStack(spacing: 0) {
             headerSection
-                .padding(.horizontal, AppTheme.Spacing.xxl)
-                .padding(.bottom, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Window.mainContentTopInset)
+                .padding(.horizontal, 40)
+                .padding(.top, 40)
+                .padding(.bottom, 18)
                 .background(AppColors.contentBackground)
 
             contentArea
@@ -99,73 +98,37 @@ struct NotesView: View {
         }
         .onAppear { installKeyMonitorIfNeeded() }
         .onDisappear { removeKeyMonitor() }
+        .background {
+            // ⌘N new note (hidden button for keyboard shortcut)
+            Button(action: createNewNote) { EmptyView() }
+                .keyboardShortcut("n", modifiers: .command)
+                .opacity(0)
+                .frame(width: 0, height: 0)
+                .allowsHitTesting(false)
+        }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text(localized("Notes", locale: locale))
-                        .font(AppTypography.largeTitle)
-                        .foregroundStyle(AppColors.textPrimary)
+        PageHeader(title: localized("Notes", locale: locale), meta: headerMetaText) {
+            HStack(spacing: 10) {
+                SearchFieldChrome(
+                    text: $searchText,
+                    placeholder: localized("Search notes...", locale: locale),
+                    showsKeyboardHint: true,
+                    isFocused: $isSearchFieldFocused
+                )
+                .frame(width: 200)
 
-                    Text(headerSubtitleText)
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
-                }
-
-                Spacer(minLength: AppTheme.Spacing.lg)
-
-                Button(action: createNewNote) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .semibold))
-                        Text(localized("New Note", locale: locale))
-                            .font(AppTypography.subheadline)
-                    }
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.sm)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(AppColors.accent)
-                .controlSize(.regular)
-            }
-
-            searchBar
-        }
-    }
-
-    private var searchBar: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(AppColors.textTertiary)
-
-            TextField(localized("Search notes...", locale: locale), text: $searchText)
-                .textFieldStyle(.plain)
-                .font(AppTypography.body)
-                .focused($isSearchFieldFocused)
-
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(AppColors.textTertiary)
-                }
-                .buttonStyle(.plain)
+                PrimaryButton(
+                    title: localized("New note", locale: locale),
+                    systemImage: "plus",
+                    keyboardHint: "⌘N",
+                    action: createNewNote
+                )
             }
         }
-        .padding(AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous),
-            style: AppColors.border
-        )
     }
 
     // MARK: - Content
@@ -182,13 +145,13 @@ struct NotesView: View {
     }
 
     private func errorView(_ message: String) -> some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(AppColors.warning)
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(AppColors.textTertiary)
 
             Text(localized("Something went wrong", locale: locale))
-                .font(AppTypography.headline)
+                .font(AppTypography.labelStrong)
                 .foregroundStyle(AppColors.textPrimary)
 
             Text(message)
@@ -196,24 +159,23 @@ struct NotesView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
 
-            Button(localized("Dismiss", locale: locale)) {
+            SecondaryButton(title: localized("Dismiss", locale: locale)) {
                 self.errorMessage = nil
             }
-            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: 12) {
             Image(systemName: searchText.isEmpty ? "note.text" : "magnifyingglass")
-                .font(.system(size: 48))
+                .font(.system(size: 28, weight: .light))
                 .foregroundStyle(AppColors.textTertiary)
 
             Text(searchText.isEmpty
                  ? localized("No notes yet", locale: locale)
                  : localized("No results found", locale: locale))
-                .font(AppTypography.headline)
+                .font(AppTypography.labelStrong)
                 .foregroundStyle(AppColors.textPrimary)
 
             Text(searchText.isEmpty
@@ -223,12 +185,12 @@ struct NotesView: View {
                 .foregroundStyle(AppColors.textSecondary)
 
             if searchText.isEmpty {
-                Button(localized("Create New Note", locale: locale)) {
-                    createNewNote()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(AppColors.accent)
-                .padding(.top, AppTheme.Spacing.md)
+                PrimaryButton(
+                    title: localized("New note", locale: locale),
+                    systemImage: "plus",
+                    action: createNewNote
+                )
+                .padding(.top, 8)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -236,42 +198,188 @@ struct NotesView: View {
 
     private var notesList: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                ForEach(groupedNotes, id: \.key) { group in
-                    dateHeader(localizedSectionTitle(group.key))
-                        .padding(.top, AppTheme.Spacing.lg)
-                        .padding(.bottom, AppTheme.Spacing.xs)
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(groupedNotes.enumerated()), id: \.element.key) { index, group in
+                    SectionHeader(
+                        title: localizedSectionTitle(group.key),
+                        trailing: "\(group.notes.count)",
+                        isFirst: index == 0
+                    )
+                    .padding(.horizontal, 20)
 
-                    ForEach(group.notes) { note in
-                        NoteHistoryRow(
-                            note: note,
-                            isSelected: selectedNoteID == note.persistentModelID,
-                            onTap: {
-                                selectedNoteID = note.persistentModelID
-                                openNote(note)
-                            },
-                            onDelete: { pendingDeletionNote = note },
-                            onTogglePin: { togglePin(note) }
-                        )
+                    if group.key == .pinned {
+                        ForEach(group.notes) { note in
+                            pinnedCard(note)
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 8)
+                        }
+                    } else {
+                        ForEach(group.notes) { note in
+                            noteRow(note)
+                        }
                     }
                 }
 
-                Color.clear.frame(height: AppTheme.Spacing.xxl)
+                Color.clear.frame(height: 32)
             }
-            .padding(.horizontal, AppTheme.Spacing.xxl)
+            .padding(.bottom, 24)
         }
     }
 
-    private func dateHeader(_ title: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            Text(title.uppercased())
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .tracking(0.8)
-                .foregroundStyle(AppColors.textTertiary)
+    // MARK: - Pinned card (spec §10)
 
-            Rectangle()
-                .fill(AppColors.divider)
-                .frame(height: 1)
+    private func pinnedCard(_ note: NoteSchema.Note) -> some View {
+        let isSelected = selectedNoteID == note.persistentModelID
+        let title = NotesListPresentation.displayTitle(
+            title: note.title,
+            content: note.content,
+            emptyTitle: localized("Untitled Note", locale: locale)
+        )
+        let preview = NotesListPresentation.previewLine(content: note.content)
+        let edited = NotesDateFormatting.editedLabel(
+            date: note.updatedAt,
+            locale: locale
+        )
+
+        return Button {
+            selectedNoteID = note.persistentModelID
+            openNote(note)
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    Text(title)
+                        .font(AppTypography.pinnedCardTitle)
+                        .lineSpacing(AppTypography.pinnedCardTitleLineSpacing)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Image(systemName: "pin.fill")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(AppColors.accent)
+
+                    Text(edited)
+                        .font(AppTypography.label)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .lineLimit(1)
+                }
+
+                if !preview.isEmpty {
+                    Text(preview)
+                        .font(AppTypography.body)
+                        .lineSpacing(4) // ~13/20
+                        .foregroundStyle(AppColors.textSecondary)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(AppColors.windowBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(
+                        isSelected ? AppColors.accent.opacity(0.5) : AppColors.border,
+                        lineWidth: 1
+                    )
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .contextMenu { noteContextMenu(note) }
+    }
+
+    // MARK: - Note row (spec §10)
+
+    private func noteRow(_ note: NoteSchema.Note) -> some View {
+        let isSelected = selectedNoteID == note.persistentModelID
+        let title = NotesListPresentation.displayTitle(
+            title: note.title,
+            content: note.content,
+            emptyTitle: localized("Untitled Note", locale: locale)
+        )
+        let preview = NotesListPresentation.previewLine(content: note.content)
+        let dateText = NotesDateFormatting.rowDate(
+            date: note.updatedAt,
+            locale: locale
+        )
+
+        return Button {
+            selectedNoteID = note.persistentModelID
+            openNote(note)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "note.text")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(AppColors.textTertiary)
+                    .frame(width: 16, height: 16)
+
+                Text(title)
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
+                    .frame(width: 220, alignment: .leading)
+
+                Text(preview)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(dateText)
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .lineLimit(1)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 88, alignment: .trailing)
+            }
+            .padding(.vertical, 13)
+            .padding(.horizontal, 20)
+            .background(isSelected ? AppColors.accent.opacity(0.06) : Color.clear)
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(AppColors.border)
+                    .frame(height: 1)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu { noteContextMenu(note) }
+    }
+
+    @ViewBuilder
+    private func noteContextMenu(_ note: NoteSchema.Note) -> some View {
+        Button {
+            openNote(note)
+        } label: {
+            Label(localized("Open Note", locale: locale), systemImage: "square.and.pencil")
+        }
+
+        Button {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(note.content, forType: .string)
+        } label: {
+            Label(localized("Copy Content", locale: locale), systemImage: "doc.on.doc")
+        }
+
+        Button {
+            togglePin(note)
+        } label: {
+            Label(
+                note.isPinned ? localized("Unpin", locale: locale) : localized("Pin", locale: locale),
+                systemImage: note.isPinned ? "pin.slash" : "pin"
+            )
+        }
+
+        Divider()
+
+        Button(role: .destructive) {
+            pendingDeletionNote = note
+        } label: {
+            Label(localized("Delete Note", locale: locale), systemImage: "trash")
         }
     }
 
@@ -363,6 +471,12 @@ struct NotesView: View {
             return nil
         case 53:
             return clearSelection() ? nil : event
+        case 36: // Return
+            if let note = flatSelectableNotes.first(where: { $0.persistentModelID == selectedNoteID }) {
+                openNote(note)
+                return nil
+            }
+            return event
         default:
             return event
         }

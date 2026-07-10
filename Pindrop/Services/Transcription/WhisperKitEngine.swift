@@ -88,15 +88,25 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
         }
     }
     
-    /// Load a model by name, optionally downloading if not present locally
-    public func loadModel(name: String, downloadBase: URL? = nil) async throws {
+    /// Load a model by name, optionally downloading if not present locally.
+    /// Protocol-conforming entry point (always allows download when the model is missing).
+    public func loadModel(name: String, downloadBase: URL?) async throws {
+        try await loadModel(name: name, downloadBase: downloadBase, download: true)
+    }
+
+    /// Load a model by name with an explicit download flag.
+    /// - Parameters:
+    ///   - name: WhisperKit model name (e.g. `"tiny"`).
+    ///   - downloadBase: Optional local cache root. When `download` is false, only this tree is consulted.
+    ///   - download: When false, WhisperKit will not hit the network (unit-test / offline path).
+    public func loadModel(name: String, downloadBase: URL?, download: Bool) async throws {
         guard state != .loading else { return }
         
         state = .loading
         error = nil
         
         let wallStart = CFAbsoluteTimeGetCurrent()
-        Log.boot.info("WhisperKitEngine.loadModel(name) begin name=\(name) downloadBaseProvided=\(downloadBase != nil)")
+        Log.boot.info("WhisperKitEngine.loadModel(name) begin name=\(name) downloadBaseProvided=\(downloadBase != nil) download=\(download)")
         
         do {
             let config = WhisperKitConfig(
@@ -107,7 +117,8 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
                     textDecoderCompute: .cpuAndNeuralEngine
                 ),
                 verbose: false,
-                logLevel: .error
+                logLevel: .error,
+                download: download
             )
             
             let initStart = CFAbsoluteTimeGetCurrent()
@@ -227,9 +238,11 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
     
     // MARK: - Convenience Methods for Tests
     
-    /// Load a model by name (convenience method for tests)
-    public func loadModel(modelName: String) async throws {
-        try await loadModel(name: modelName, downloadBase: nil)
+    /// Load a model by name (convenience for callers that already own a download base).
+    /// Unit tests must pass `download: false` (and/or a nonexistent path via
+    /// `loadModel(path:)`) so the Unit plan never performs a network download.
+    public func loadModel(modelName: String, downloadBase: URL? = nil, download: Bool = true) async throws {
+        try await loadModel(name: modelName, downloadBase: downloadBase, download: download)
     }
     
     /// Load a model from a path (convenience method for tests)

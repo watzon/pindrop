@@ -483,9 +483,15 @@ final class DictionaryStore: LearnedReplacementPersisting {
             }
         }
         
+        // Dedup vocabulary within the imported payload (case-insensitive) so
+        // replace/additive never insert exact or case-variant duplicates from one file.
+        let dedupedVocabularyWords = Self.deduplicatedVocabularyWords(
+            importData.vocabulary.map(\.word)
+        )
+
         if strategy == .additive {
             let existingReplacements = try fetchAllReplacements()
-            let existingOriginals = Set(existingReplacements.flatMap { $0.originals.map { $0.lowercased() } })
+            var existingOriginals = Set(existingReplacements.flatMap { $0.originals.map { $0.lowercased() } })
             
             for replacementData in importData.replacements {
                 let hasOverlap = replacementData.originals.contains { original in
@@ -499,16 +505,22 @@ final class DictionaryStore: LearnedReplacementPersisting {
                         sortOrder: replacementData.sortOrder
                     )
                     modelContext.insert(replacement)
+                    for original in replacementData.originals {
+                        existingOriginals.insert(original.lowercased())
+                    }
                 }
             }
             
             let existingVocabulary = try fetchAllVocabularyWords()
-            let existingWords = Set(existingVocabulary.map { $0.word.lowercased() })
+            // Mutated as we insert so later payload entries (and additive batching)
+            // cannot re-introduce a word already present or just added.
+            var existingWords = Set(existingVocabulary.map { $0.word.lowercased() })
             
-            for vocabularyData in importData.vocabulary {
-                if !existingWords.contains(vocabularyData.word.lowercased()) {
-                    let word = VocabularyWord(word: vocabularyData.word)
-                    modelContext.insert(word)
+            for wordText in dedupedVocabularyWords {
+                let key = wordText.lowercased()
+                if !existingWords.contains(key) {
+                    modelContext.insert(VocabularyWord(word: wordText))
+                    existingWords.insert(key)
                 }
             }
         } else {
@@ -521,9 +533,8 @@ final class DictionaryStore: LearnedReplacementPersisting {
                 modelContext.insert(replacement)
             }
             
-            for vocabularyData in importData.vocabulary {
-                let word = VocabularyWord(word: vocabularyData.word)
-                modelContext.insert(word)
+            for wordText in dedupedVocabularyWords {
+                modelContext.insert(VocabularyWord(word: wordText))
             }
         }
         
@@ -532,6 +543,23 @@ final class DictionaryStore: LearnedReplacementPersisting {
         } catch {
             throw DictionaryStoreError.importFailed("Failed to save imported data: \(error.localizedDescription)")
         }
+    }
+
+    /// First-wins, case-insensitive vocabulary dedup for import payloads.
+    /// Keeps the first spelling encountered; drops later exact/case variants.
+    static func deduplicatedVocabularyWords(_ words: [String]) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        result.reserveCapacity(words.count)
+        for raw in words {
+            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            let key = trimmed.lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            result.append(trimmed)
+        }
+        return result
     }
 
     private func resolveReplacement(for change: LearnedReplacementChange) throws -> WordReplacement? {

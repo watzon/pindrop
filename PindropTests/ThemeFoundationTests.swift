@@ -169,6 +169,7 @@ struct ThemeFoundationTests {
         assertRole(AppTypography.wordmarkMetrics, size: 22, weight: .semibold, family: .newsreader, lineHeight: 28)
         assertRole(AppTypography.pageTitleMetrics, size: 34, weight: .medium, family: .newsreader, lineHeight: 38)
         assertRole(AppTypography.transcriptBodyMetrics, size: 17, weight: .regular, family: .newsreader, lineHeight: 26)
+        assertRole(AppTypography.pinnedCardTitleMetrics, size: 17, weight: .medium, family: .newsreader, lineHeight: 22)
         assertRole(AppTypography.bodyMetrics, size: 13, weight: .regular, family: .inter, lineHeight: 16)
         assertRole(AppTypography.bodyMetaMetrics, size: 13, weight: .regular, family: .inter, lineHeight: 22)
         assertRole(AppTypography.labelMetrics, size: 12, weight: .medium, family: .inter, lineHeight: 16)
@@ -187,6 +188,7 @@ struct ThemeFoundationTests {
     @Test func typographyLineSpacingMatchesSpecLineBoxes() {
         // lineSpacing = lineHeight − size (spec pt boxes)
         #expect(AppTypography.transcriptBodyLineSpacing == CGFloat(9))
+        #expect(AppTypography.pinnedCardTitleLineSpacing == CGFloat(5))
         #expect(AppTypography.bodyMetaLineSpacing == CGFloat(9))
         #expect(AppTypography.bodyLineSpacing == CGFloat(3))
         #expect(AppTypography.pageTitleLineSpacing == CGFloat(4))
@@ -207,6 +209,7 @@ struct ThemeFoundationTests {
         let _: Font = AppTypography.monoTime
         let _: Font = AppTypography.monoSmall
         let _: Font = AppTypography.transcriptBody
+        let _: Font = AppTypography.pinnedCardTitle
         let _: Font = AppTypography.sectionHeader
         let _: Font = AppTypography.label
         let _: Font = AppTypography.labelSemibold

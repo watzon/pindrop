@@ -23,6 +23,13 @@
 		SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */; };
 		SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */; };
 		SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */; };
+SCORCHPRIMARYBTNBUILD01A2B3 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPRIMARYBTNFILE01A2B3 /* PrimaryButton.swift */; };
+NOTESPRESENTBUILD01A2B3C4D5 /* NotesPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESPRESENTFILE01A2B3C4D5 /* NotesPresentation.swift */; };
+DICTPRESENTBUILD01A2B3C4D5 /* DictionaryPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTPRESENTFILE01A2B3C4D5 /* DictionaryPresentation.swift */; };
+MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = MODELSPRESENTFILE01A2B3C4 /* ModelsPresentation.swift */; };
+NOTESPRESENTTESTBUILD01A2 /* NotesPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESPRESENTTESTFILE01A2 /* NotesPresentationTests.swift */; };
+DICTPRESENTTESTBUILD01A2B3 /* DictionaryPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTPRESENTTESTFILE01A2B3 /* DictionaryPresentationTests.swift */; };
+MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */; };
 		SCORCHPLAYERROWBUILDPLAYERROWSW /* PlayerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */; };
 		SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */; };
 		THEMEFOUNDTESTBUILDTHEMEFOUNDAT /* ThemeFoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */; };
@@ -282,6 +289,13 @@
 		SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCardChrome.swift; sourceTree = "<group>"; };
 		SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
+SCORCHPRIMARYBTNFILE01A2B3 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+NOTESPRESENTFILE01A2B3C4D5 /* NotesPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesPresentation.swift; sourceTree = "<group>"; };
+DICTPRESENTFILE01A2B3C4D5 /* DictionaryPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryPresentation.swift; sourceTree = "<group>"; };
+MODELSPRESENTFILE01A2B3C4 /* ModelsPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsPresentation.swift; sourceTree = "<group>"; };
+NOTESPRESENTTESTFILE01A2 /* NotesPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesPresentationTests.swift; sourceTree = "<group>"; };
+DICTPRESENTTESTFILE01A2B3 /* DictionaryPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryPresentationTests.swift; sourceTree = "<group>"; };
+MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsPresentationTests.swift; sourceTree = "<group>"; };
 		SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRow.swift; sourceTree = "<group>"; };
 		SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestructiveGhostButton.swift; sourceTree = "<group>"; };
 		THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeFoundationTests.swift; sourceTree = "<group>"; };
@@ -793,6 +807,9 @@
 				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 				E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
 				LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */,
+				NOTESPRESENTTESTFILE01A2 /* NotesPresentationTests.swift */,
+				DICTPRESENTTESTFILE01A2B3 /* DictionaryPresentationTests.swift */,
+				MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */,
 				TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */,
 				CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */,
 				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
@@ -870,6 +887,7 @@
 				SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */,
 				SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */,
 				SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */,
+				SCORCHPRIMARYBTNFILE01A2B3 /* PrimaryButton.swift */,
 				SCORCHPLAYERROWFILEPLAYERROWSW /* PlayerRow.swift */,
 				SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */,
 			);
@@ -900,6 +918,9 @@
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
 				LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */,
+				NOTESPRESENTFILE01A2B3C4D5 /* NotesPresentation.swift */,
+				DICTPRESENTFILE01A2B3C4D5 /* DictionaryPresentation.swift */,
+				MODELSPRESENTFILE01A2B3C4 /* ModelsPresentation.swift */,
 				LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */,
 				DICTVIEWMAIN1A2B3C4D5E6F71 /* DictionaryView.swift */,
 			);
@@ -1147,6 +1168,9 @@
 				1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,
 				6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
 				LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */,
+				NOTESPRESENTTESTBUILD01A2 /* NotesPresentationTests.swift in Sources */,
+				DICTPRESENTTESTBUILD01A2B3 /* DictionaryPresentationTests.swift in Sources */,
+				MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */,
 				TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */,
 				CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */,
 				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
@@ -1308,6 +1332,10 @@
 				SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */,
 				SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */,
 				SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */,
+SCORCHPRIMARYBTNBUILD01A2B3 /* PrimaryButton.swift in Sources */,
+NOTESPRESENTBUILD01A2B3C4D5 /* NotesPresentation.swift in Sources */,
+DICTPRESENTBUILD01A2B3C4D5 /* DictionaryPresentation.swift in Sources */,
+MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				SCORCHPLAYERROWBUILDPLAYERROWSW /* PlayerRow.swift in Sources */,
 				SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */,
 				THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */,
