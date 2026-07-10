@@ -752,6 +752,7 @@ quit:
 ready:
   _self: "প্রস্তুত"
   ec1296e1: "● প্রস্তুত"
+  to_dictate: "Ready to dictate"
   to_record: "রেকর্ড করার জন্য প্রস্তুত"
   to_transcribe: "প্রতিলিপি করার জন্য প্রস্তুত"
 recent:

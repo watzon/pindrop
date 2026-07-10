@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "sedia"
   ec1296e1: "● Sedia"
+  to_dictate: "Ready to dictate"
   to_record: "Sedia untuk merakam"
   to_transcribe: "Sedia untuk transkripsi"
 recent:

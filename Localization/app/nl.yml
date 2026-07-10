@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Klaar"
   ec1296e1: "● Klaar"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "Klaar om te transcriberen"
 recent:

@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Kész"
   ec1296e1: "● Kész"
+  to_dictate: "Ready to dictate"
   to_record: "Felvételre kész"
   to_transcribe: "Átírásra kész"
 recent:

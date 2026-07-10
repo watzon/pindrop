@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Gata"
   ec1296e1: "● Gata"
+  to_dictate: "Ready to dictate"
   to_record: "Gata de înregistrare"
   to_transcribe: "Gata de transcriere"
 recent:

@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Parat"
   ec1296e1: "● Klar"
+  to_dictate: "Ready to dictate"
   to_record: "Klar til at optage"
   to_transcribe: "Klar til at transskribere"
 recent:

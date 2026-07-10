@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "מוּכָן"
   ec1296e1: "● מוכן"
+  to_dictate: "Ready to dictate"
   to_record: "מוכן להקלטה"
   to_transcribe: "מוכן לתמלול"
 recent:

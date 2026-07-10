@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Připraveno"
   ec1296e1: "● Připraveno"
+  to_dictate: "Ready to dictate"
   to_record: "Připraveno k nahrávání"
   to_transcribe: "Připraveno k přepisu"
 recent:

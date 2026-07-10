@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Valmis"
   ec1296e1: "● Valmis"
+  to_dictate: "Ready to dictate"
   to_record: "Valmis tallentamaan"
   to_transcribe: "Valmis litteroimaan"
 recent:

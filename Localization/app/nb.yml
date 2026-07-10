@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Ferdig"
   ec1296e1: "● Klar"
+  to_dictate: "Ready to dictate"
   to_record: "Klar til å ta opp"
   to_transcribe: "Klar til å transkribere"
 recent:

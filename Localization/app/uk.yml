@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Готовий"
   ec1296e1: "● Готовий"
+  to_dictate: "Ready to dictate"
   to_record: "Готовий до запису"
   to_transcribe: "Готовий до транскрибування"
 recent:

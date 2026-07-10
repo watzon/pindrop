@@ -1462,6 +1462,7 @@ enum LocalizationMetadata {
         "Quit": "quit",
         "Quit Pindrop": "quit_pindrop",
         "Ready": "ready",
+        "Ready to dictate": "ready_to_dictate",
         "Ready to record": "ready_to_record",
         "Ready to transcribe": "ready_to_transcribe",
         "Recent": "recent",

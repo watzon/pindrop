@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "พร้อม"
   ec1296e1: "● พร้อมแล้ว"
+  to_dictate: "Ready to dictate"
   to_record: "พร้อมบันทึก"
   to_transcribe: "พร้อมถอดความ"
 recent:

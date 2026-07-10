@@ -756,6 +756,7 @@ quit:
 ready:
   _self: "Ready"
   ec1296e1: "● Ready"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "Ready to transcribe"
 recent:

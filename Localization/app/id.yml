@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Siap"
   ec1296e1: "● Siap"
+  to_dictate: "Ready to dictate"
   to_record: "Siap untuk merekam"
   to_transcribe: "Siap untuk ditranskrip"
 recent:

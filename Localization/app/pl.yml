@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Gotowy"
   ec1296e1: "● Gotowe"
+  to_dictate: "Ready to dictate"
   to_record: "Gotowy do nagrywania"
   to_transcribe: "Gotowe do transkrypcji"
 recent:

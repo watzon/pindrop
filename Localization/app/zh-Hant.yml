@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "就緒"
   ec1296e1: "● 就緒"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "準備轉錄"
 recent:

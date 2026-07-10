@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "Hazır"
   ec1296e1: "● Hazır"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "Metne dönüştürülmeye hazır"
 recent:

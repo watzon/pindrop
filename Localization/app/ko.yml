@@ -748,6 +748,7 @@ quit:
 ready:
   _self: "준비가 된"
   ec1296e1: "● 준비됨"
+  to_dictate: "Ready to dictate"
   to_record: "Ready to record"
   to_transcribe: "스크립트 작성 준비 완료"
 recent:
