@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Tidak Ada Kata Kosakata"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Tidak ditugaskan"
   selected: "Tidak dipilih"
@@ -618,6 +619,7 @@ open:
   settings: "Buka Pengaturan"
   settings_fd7108f8: "Buka pengaturan"
   system_settings: "Buka Pengaturan Sistem"
+  library: "Open Library"
 openai:
   _self: "__TETAP_BUKA__"
   compatible_local_server: "Server lokal yang kompatibel dengan OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Tampilkan Aplikasi di Finder"
   in_dock: "Tampilkan di Dock"
   api_key: "Tampilkan kunci API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Ditampilkan sebagai pil di bagian bawah layar"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Muncul sebagai bola kaca cair di sudut layar"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Saat merekam"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

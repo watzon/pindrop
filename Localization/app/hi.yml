@@ -577,6 +577,7 @@ no:
   vocabulary_words: "कोई शब्दावली शब्द नहीं"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "सौंपा नहीं गया है"
   selected: "चयनित नहीं"
@@ -618,6 +619,7 @@ open:
   settings: "खुली सेटिंग"
   settings_fd7108f8: "खुली सेटिंग"
   system_settings: "सिस्टम सेटिंग्स खोलें"
+  library: "Open Library"
 openai:
   _self: "ओपनएआई"
   compatible_local_server: "OpenAI-संगत स्थानीय सर्वर"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "फाइंडर में ऐप दिखाएं"
   in_dock: "डॉक में दिखाएँ"
   api_key: "API कुंजी दिखाएँ"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "स्क्रीन के नीचे एक गोली के रूप में दिखाई देता है"
   as_a_liquid_glass_orb_in_the_corner_of_the: "स्क्रीन के कोने में तरल कांच के गोले के रूप में दिखता है"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "रिकॉर्डिंग के दौरान"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

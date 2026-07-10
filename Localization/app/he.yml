@@ -577,6 +577,7 @@ no:
   vocabulary_words: "אין מילים אוצר מילים"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "לא מוקצה"
   selected: "לא נבחר"
@@ -618,6 +619,7 @@ open:
   settings: "פתח את ההגדרות"
   settings_fd7108f8: "פתח את ההגדרות"
   system_settings: "פתח את הגדרות מערכת"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "שרת מקומי תואם OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "הצג את האפליקציה ב-Finder"
   in_dock: "הצג ב-Dock"
   api_key: "הצג מפתח API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "מוצג כגלולה בתחתית המסך"
   as_a_liquid_glass_orb_in_the_corner_of_the: "מוצג ככדור זכוכית נוזלית בפינת המסך"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "בזמן הקלטה"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

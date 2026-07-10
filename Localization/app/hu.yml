@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Nincs szótár"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Nincs hozzárendelve"
   selected: "Nincs kiválasztva"
@@ -618,6 +619,7 @@ open:
   settings: "Nyissa meg a Beállítások lehetőséget"
   settings_fd7108f8: "Nyissa meg a beállításokat"
   system_settings: "Nyissa meg a Rendszerbeállítások"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibilis helyi szerver"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Alkalmazás megjelenítése a Finderben"
   in_dock: "Megjelenítés a Dockban"
   api_key: "API-kulcs megjelenítése"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Tablettaként jelenik meg a képernyő alján"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Folyékony üveggömbként jelenik meg a képernyő sarkában"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Felvétel közben"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

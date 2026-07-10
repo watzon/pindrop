@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Žádná slova slovní zásoby"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Nezařazeno"
   selected: "Nevybráno"
@@ -618,6 +619,7 @@ open:
   settings: "Otevřete Nastavení"
   settings_fd7108f8: "Otevřete nastavení"
   system_settings: "Otevřete Nastavení systému"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Lokální server kompatibilní s OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Zobrazit aplikaci ve Finderu"
   in_dock: "Zobrazit v Docku"
   api_key: "Zobrazit API klíč"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Zobrazuje se jako koule z tekutého skla v rohu obrazovky"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Během nahrávání"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

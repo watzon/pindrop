@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Χωρίς λεξιλογικές λέξεις"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Δεν έχει ανατεθεί"
   selected: "Δεν έχει επιλεγεί"
@@ -618,6 +619,7 @@ open:
   settings: "Ανοίξτε τις Ρυθμίσεις"
   settings_fd7108f8: "Ανοίξτε τις ρυθμίσεις"
   system_settings: "Ανοίξτε τις Ρυθμίσεις συστήματος"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Τοπικός διακομιστής συμβατός με OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Εμφάνιση εφαρμογής στο Finder"
   in_dock: "Εμφάνιση στο Dock"
   api_key: "Εμφάνιση κλειδιού API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Εμφανίζεται ως χάπι στο κάτω μέρος της οθόνης"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Εμφανίζεται ως σφαίρα από υγρό γυαλί στη γωνία της οθόνης"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Κατά την εγγραφή"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

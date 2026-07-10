@@ -174,6 +174,8 @@ coming:
 configure:
   ai_providers_and_credentials_apple_int: "Configure AI providers and credentials. Apple Intelligence runs on-device; other providers require API keys."
   keyboard_shortcuts_for_recording_and_n: "Configure keyboard shortcuts for recording and note capture"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Continue"
   with_default: "Continue with Default"
@@ -478,6 +480,8 @@ listening:
   _self: "Listening…"
 live:
   streaming_refinement: "Live Streaming Refinement"
+library:
+  _self: "Library"
 lld:
   _self: "%1$lld %2$@"
   197eb092: "%lld%%"
@@ -515,6 +519,8 @@ manage:
   presets_d5d4c2c2: "Manage Presets…"
 manually:
   check_for_new_versions_now: "Manually check for new versions now."
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 media:
   library: "Media Library"
   transcription: "Media Transcription"
@@ -555,6 +561,7 @@ next:
 no:
   api_key: "No API key"
   api_key_endpoint: "No API key • Endpoint: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "No Custom Presets"
   downloaded_models: "No downloaded models"
   folders_yet: "No folders yet"
@@ -612,6 +619,7 @@ on:
 open:
   _self: "Open"
   history: "Open History"
+  library: "Open Library"
   logs_in_finder: "Open Logs in Finder"
   original_link: "Open original link"
   progress: "Open progress"
@@ -853,6 +861,7 @@ show:
   app_in_finder: "Show App in Finder"
   in_dock: "Show in Dock"
   api_key: "Show API Key"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Shows as a pill at the bottom of the screen"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Shows as a liquid glass orb in the corner of the screen"

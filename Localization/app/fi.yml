@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Ei sanastoa"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Ei määrätty"
   selected: "Ei valittu"
@@ -618,6 +619,7 @@ open:
   settings: "Avaa Asetukset"
   settings_fd7108f8: "Avaa asetukset"
   system_settings: "Avaa Järjestelmäasetukset"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-yhteensopiva paikallinen palvelin"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Näytä sovellus Finderissa"
   in_dock: "Näytä Dockissa"
   api_key: "Näytä API-avain"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Näkyy pillerinä näytön alareunassa"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Näkyy nestelasisena pallona näytön kulmassa"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Tallennuksen aikana"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

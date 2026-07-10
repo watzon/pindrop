@@ -577,6 +577,7 @@ no:
   vocabulary_words: "无词汇词"
   learned_participants_yet: "尚无已学习的参与者"
   providers_configured_yet_e6bc0075: "尚未配置提供商"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "未分配"
   selected: "未选择"
@@ -618,6 +619,7 @@ open:
   settings: "打开设置"
   settings_fd7108f8: "打开设置"
   system_settings: "打开系统设置"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "与 OpenAI 兼容的本地服务器"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "在 Finder 中显示应用"
   in_dock: "在 Dock 中显示"
   api_key: "显示 API 密钥"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "在屏幕底部显示为胶囊"
   as_a_liquid_glass_orb_in_the_corner_of_the: "以液态玻璃光球的形式显示在屏幕角落"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "这些选项互斥。启用一个会关闭另一个。"
 while:
   recording: "录制时"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

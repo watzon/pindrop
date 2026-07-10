@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Inga ordförråd"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Ej tilldelad"
   selected: "Ej vald"
@@ -618,6 +619,7 @@ open:
   settings: "Öppna Inställningar"
   settings_fd7108f8: "Öppna inställningar"
   system_settings: "Öppna Systeminställningar"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibel lokal server"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Visa appen i Finder"
   in_dock: "Visa i Dock"
   api_key: "Visa API-nyckel"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Visas som ett piller längst ner på skärmen"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Visas som en kula av flytande glas i hörnet av skärmen"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Under inspelning"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"
