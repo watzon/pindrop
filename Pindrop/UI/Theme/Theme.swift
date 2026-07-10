@@ -230,6 +230,15 @@ enum AppTypography {
     static let captionMetrics = TypographyRoleMetrics(
         family: .inter, size: 11, weight: .regular, lineHeight: 14
     )
+    /// Inter 11/14 · 500 — unselected settings tab labels (spec §13; custom Font
+    /// cannot be restyled via `.fontWeight` — bake medium in).
+    static let captionMediumMetrics = TypographyRoleMetrics(
+        family: .inter, size: 11, weight: .medium, lineHeight: 14
+    )
+    /// Inter 12/16 · 400 — settings row subtitles (spec §13 "subtitle Inter 12 ink-2").
+    static let captionLargeMetrics = TypographyRoleMetrics(
+        family: .inter, size: 12, weight: .regular, lineHeight: 16
+    )
     static let monoTimeMetrics = TypographyRoleMetrics(
         family: .jetbrainsMono, size: 12, weight: .medium, lineHeight: 16
     )
@@ -252,7 +261,8 @@ enum AppTypography {
             wordmarkMetrics, pageTitleMetrics, transcriptBodyMetrics, pinnedCardTitleMetrics,
             bodyMetrics, bodyMetaMetrics, labelMetrics, labelSemiboldMetrics,
             labelStrongMetrics, labelStrongSelectedMetrics, badgeMetrics,
-            captionMetrics, monoTimeMetrics, monoSmallMetrics, sectionHeaderMetrics,
+            captionMetrics, captionMediumMetrics, captionLargeMetrics,
+            monoTimeMetrics, monoSmallMetrics, sectionHeaderMetrics,
             statLargeMetrics, statMediumMetrics,
         ]
     }
@@ -282,6 +292,10 @@ enum AppTypography {
     static let badge = badgeMetrics.font
     /// Inter 11/14 · 400 — captions
     static let caption = captionMetrics.font
+    /// Inter 11/14 · 500 — unselected settings tab labels
+    static let captionMedium = captionMediumMetrics.font
+    /// Inter 12/16 · 400 — settings row subtitles
+    static let captionLarge = captionLargeMetrics.font
     /// JetBrains Mono 12/16 · 500 — row times
     static let monoTime = monoTimeMetrics.font
     /// JetBrains Mono 11/14 · 400–500 — counts, kbd hints

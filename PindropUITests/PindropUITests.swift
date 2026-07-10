@@ -41,7 +41,7 @@ final class PindropUITests: XCTestCase {
             app.descendants(matching: .any)["settings.toggle.launchAtLogin"]
                 .waitForExistence(timeout: 5)
         )
-        XCTAssertTrue(app.staticTexts["Language"].exists)
+        XCTAssertTrue(app.staticTexts["Interface Language"].exists)
     }
 
     @MainActor
@@ -73,8 +73,8 @@ final class PindropUITests: XCTestCase {
             app.descendants(matching: .any)["settings.theme.mode"]
                 .waitForExistence(timeout: 5)
         )
-        XCTAssertTrue(app.staticTexts["Theme"].exists)
-        XCTAssertTrue(app.staticTexts["Floating Indicator"].exists)
+        XCTAssertTrue(app.staticTexts["Theme Mode"].exists)
+        XCTAssertTrue(app.staticTexts["Recording indicator"].exists)
     }
 
     private func configuredApplication(

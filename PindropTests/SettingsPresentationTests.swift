@@ -134,6 +134,31 @@ struct SettingsPresentationTests {
         )
     }
 
+    // MARK: - Log level filtering (Advanced pane → file sink)
+
+    @Test func logLevelSeverityIsOrdered() {
+        #expect(AppLogLevel.debug.severity < AppLogLevel.info.severity)
+        #expect(AppLogLevel.info.severity < AppLogLevel.warning.severity)
+        #expect(AppLogLevel.warning.severity < AppLogLevel.error.severity)
+    }
+
+    @Test func logLevelMinimumMapsSettingsNamesAndDefaultsToInfo() {
+        #expect(AppLogLevel.minimum(fromSettingsName: "debug") == .debug)
+        #expect(AppLogLevel.minimum(fromSettingsName: "info") == .info)
+        #expect(AppLogLevel.minimum(fromSettingsName: "warning") == .warning)
+        #expect(AppLogLevel.minimum(fromSettingsName: "error") == .error)
+        #expect(AppLogLevel.minimum(fromSettingsName: nil) == .info)
+        #expect(AppLogLevel.minimum(fromSettingsName: "bogus") == .info)
+    }
+
+    @Test func settingsLogLevelRoundTripsWithAppLogLevel() {
+        for level in SettingsLogLevel.allCases {
+            #expect(SettingsLogLevel.from(appLogLevel: level.appLogLevel) == level)
+            #expect(AppLogLevel.minimum(fromSettingsName: level.rawValue) == level.appLogLevel)
+        }
+        #expect(SettingsLogLevel.userDefaultsKey == AppLogLevel.minimumPersistedLevelDefaultsKey)
+    }
+
     @Test func logExportListsRegularFilesOnly() throws {
         let temp = FileManager.default.temporaryDirectory
             .appendingPathComponent("pindrop-log-export-\(UUID().uuidString)", isDirectory: true)

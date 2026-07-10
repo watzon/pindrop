@@ -183,7 +183,7 @@ final class SettingsWindowController: NSWindowController {
         )
         let hostingController = NSHostingController(rootView: AnyView(rootView))
 
-        let window = NSWindow(
+        let window = SettingsWindow(
             contentRect: NSRect(
                 x: 0,
                 y: 0,
@@ -238,6 +238,14 @@ final class SettingsWindowController: NSWindowController {
     }
 }
 
+/// Closes on Escape (cancelOperation reaches the window when no responder handles it —
+/// e.g. hotkey capture consumes Esc first, and performClose refuses while a sheet is attached).
+private final class SettingsWindow: NSWindow {
+    override func cancelOperation(_ sender: Any?) {
+        performClose(sender)
+    }
+}
+
 private struct SettingsRootHostingView: View {
     @ObservedObject var settings: SettingsStore
     @ObservedObject var model: SettingsWindowModel
@@ -256,10 +264,7 @@ private struct SettingsRootHostingView: View {
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .modelContainer(modelContainer)
-        // Push content below traffic lights in the transparent titlebar.
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Color.clear.frame(height: 0)
-        }
+        // Clearance for traffic lights in the transparent titlebar (standard height).
         .padding(.top, 28)
     }
 }

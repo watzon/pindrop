@@ -137,33 +137,33 @@ struct HotkeysSettingsView: View {
         }
     }
 
+    /// Captured statuses when available; otherwise a live check on configured assignments,
+    /// so the pane-level line and its color always agree.
+    private var aggregateConflictStatuses: [HotkeyConflictStatus] {
+        let captured = HotkeySlot.allCases.compactMap { conflictStatus(for: $0) }
+        if !captured.isEmpty { return captured }
+
+        let assignments = settings.configuredHotkeyAssignments()
+        return HotkeySlot.allCases.compactMap { slot -> HotkeyConflictStatus? in
+            guard let assignment = assignments.first(where: { $0.slot == slot }) else { return nil }
+            return HotkeyConflictChecker.check(
+                keyCode: assignment.keyCode,
+                modifiers: assignment.modifiers,
+                slot: slot,
+                assignments: assignments
+            )
+        }
+    }
+
     private var aggregateConflictLine: String {
-        let statuses = HotkeySlot.allCases.compactMap { slot -> HotkeyConflictStatus? in
-            conflictStatus(for: slot)
-        }
-        // When no captures yet, run a live check on configured assignments.
-        if statuses.isEmpty {
-            let live = HotkeySlot.allCases.compactMap { slot -> HotkeyConflictStatus? in
-                guard let assignment = settings.configuredHotkeyAssignments()
-                    .first(where: { $0.slot == slot })
-                else { return nil }
-                return HotkeyConflictChecker.check(
-                    keyCode: assignment.keyCode,
-                    modifiers: assignment.modifiers,
-                    slot: slot,
-                    assignments: settings.configuredHotkeyAssignments()
-                )
-            }
-            return SettingsHotkeyConflictPresentation.aggregateStatus(statuses: live, locale: locale)
-        }
-        return SettingsHotkeyConflictPresentation.aggregateStatus(statuses: statuses, locale: locale)
+        SettingsHotkeyConflictPresentation.aggregateStatus(
+            statuses: aggregateConflictStatuses,
+            locale: locale
+        )
     }
 
     private var aggregateConflictColor: Color {
-        if aggregateConflictLine.contains("conflict") || aggregateConflictLine.contains("Conflict") {
-            // Heuristic for English; non-English uses the same success vs warning via status cases.
-        }
-        let statuses = HotkeySlot.allCases.compactMap { conflictStatus(for: $0) }
+        let statuses = aggregateConflictStatuses
         if statuses.contains(where: {
             if case .pindropConflict = $0 { return true }
             return false

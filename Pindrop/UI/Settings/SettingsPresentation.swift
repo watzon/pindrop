@@ -301,16 +301,9 @@ enum SettingsLogLevel: String, CaseIterable, Identifiable, Sendable {
     }
 
     /// Rank for filtering (higher = more severe).
-    var severity: Int {
-        switch self {
-        case .debug: return 0
-        case .info: return 1
-        case .warning: return 2
-        case .error: return 3
-        }
-    }
+    var severity: Int { appLogLevel.severity }
 
-    static let userDefaultsKey = "appLogLevel"
+    static let userDefaultsKey = AppLogLevel.minimumPersistedLevelDefaultsKey
 }
 
 enum SettingsLogExport {

@@ -368,8 +368,9 @@ struct AIEnhancementSettingsView: View {
                emptyProvidersPlaceholder
                   .padding()
             } else {
-               ForEach(Array(settings.providers.enumerated()), id: \.element.id) { index, provider in
-                  SettingsRow(showSeparator: index < settings.providers.count - 1 || true) {
+               ForEach(settings.providers) { provider in
+                  // Always separate: the Add Provider button follows the last row.
+                  SettingsRow(showSeparator: true) {
                      VStack(alignment: .leading, spacing: 2) {
                         Text(provider.displayName)
                            .font(AppTypography.labelStrong)

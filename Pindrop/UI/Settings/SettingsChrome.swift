@@ -105,9 +105,8 @@ struct SettingsTabChip: View {
                     .font(
                         isSelected
                             ? AppTypography.badge
-                            : AppTypography.caption
+                            : AppTypography.captionMedium
                     )
-                    .fontWeight(isSelected ? .semibold : .medium)
                     .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
             }
             .padding(.vertical, SettingsLayoutMetrics.tabVerticalPadding)
@@ -184,7 +183,7 @@ struct SettingsRowLabel: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let subtitle, !subtitle.isEmpty {
                 Text(subtitle)
-                    .font(AppTypography.body)
+                    .font(AppTypography.captionLarge)
                     .foregroundStyle(AppColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -323,6 +322,8 @@ struct SettingsSegmentedChips<T: Hashable & Identifiable>: View {
 // MARK: - Theme preset chip (accent dot + name)
 
 struct SettingsThemePresetChip: View {
+    @Environment(\.locale) private var locale
+
     let preset: PindropThemePreset
     let variant: PindropThemeVariant
     let isSelected: Bool
@@ -343,7 +344,7 @@ struct SettingsThemePresetChip: View {
                     .font(AppTypography.label)
                     .foregroundStyle(AppColors.textPrimary)
                 if preset.isLegacy {
-                    Text(localized("Legacy", locale: .autoupdatingCurrent))
+                    Text(localized("Legacy", locale: locale))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textTertiary)
                 }

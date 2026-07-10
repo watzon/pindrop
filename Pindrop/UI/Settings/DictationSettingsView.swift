@@ -243,6 +243,8 @@ struct DictationSettingsView: View {
             refreshDiskUsage()
         }
         .sheet(isPresented: $showingManageProfiles) {
+            // Rename / delete-all / error presentations live on the sheet content:
+            // modifiers on the pane don't present while its sheet is up.
             SpeakerProfilesManageSheet(
                 profiles: profiles,
                 locale: locale,
@@ -259,26 +261,51 @@ struct DictationSettingsView: View {
                 onDone: { showingManageProfiles = false }
             )
             .frame(minWidth: 420, minHeight: 360)
-        }
-        .alert(
-            localized("Rename Participant", locale: locale),
-            isPresented: Binding(
-                get: { editingProfile != nil },
-                set: { if !$0 { editingProfile = nil } }
-            )
-        ) {
-            TextField(localized("Name", locale: locale), text: $editedName)
-            Button(localized("Cancel", locale: locale), role: .cancel) {
-                editingProfile = nil
+            .alert(
+                localized("Rename Participant", locale: locale),
+                isPresented: Binding(
+                    get: { editingProfile != nil },
+                    set: { if !$0 { editingProfile = nil } }
+                )
+            ) {
+                TextField(localized("Name", locale: locale), text: $editedName)
+                Button(localized("Cancel", locale: locale), role: .cancel) {
+                    editingProfile = nil
+                }
+                Button(localized("Save", locale: locale)) {
+                    saveEditedProfile()
+                }
             }
-            Button(localized("Save", locale: locale)) {
-                saveEditedProfile()
+            .confirmationDialog(
+                localized("Delete All Participants?", locale: locale),
+                isPresented: $showingDeleteAllProfilesConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button(localized("Delete All", locale: locale), role: .destructive) {
+                    deleteAllProfiles()
+                }
+                Button(localized("Cancel", locale: locale), role: .cancel) {}
+            } message: {
+                Text(localized("This removes all learned voice profiles and training data. This cannot be undone.", locale: locale))
+            }
+            .alert(
+                localized("Error", locale: locale),
+                isPresented: Binding(
+                    get: { errorMessage != nil },
+                    set: { if !$0 { errorMessage = nil } }
+                )
+            ) {
+                Button(localized("OK", locale: locale), role: .cancel) {}
+            } message: {
+                if let errorMessage {
+                    Text(errorMessage)
+                }
             }
         }
         .alert(
             localized("Error", locale: locale),
             isPresented: Binding(
-                get: { errorMessage != nil },
+                get: { errorMessage != nil && !showingManageProfiles },
                 set: { if !$0 { errorMessage = nil } }
             )
         ) {
@@ -299,18 +326,6 @@ struct DictationSettingsView: View {
             Button(localized("Cancel", locale: locale), role: .cancel) {}
         } message: {
             Text(localized("Removes kept dictation audio files. Transcripts stay in your Library.", locale: locale))
-        }
-        .confirmationDialog(
-            localized("Delete All Participants?", locale: locale),
-            isPresented: $showingDeleteAllProfilesConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(localized("Delete All", locale: locale), role: .destructive) {
-                deleteAllProfiles()
-            }
-            Button(localized("Cancel", locale: locale), role: .cancel) {}
-        } message: {
-            Text(localized("This removes all learned voice profiles and training data. This cannot be undone.", locale: locale))
         }
     }
 
@@ -461,8 +476,9 @@ private struct SpeakerProfilesManageSheet: View {
                                     profile.evidenceCount == 0
                                         ? localized("Not enough voice data yet", locale: locale)
                                         : String(
-                                            format: localized("%d samples", locale: locale),
-                                            profile.evidenceCount
+                                            format: localized("%d samples · %@", locale: locale),
+                                            profile.evidenceCount,
+                                            formattedDuration(profile.totalEvidenceDuration)
                                         )
                                 )
                                 .font(AppTypography.caption)
@@ -500,6 +516,16 @@ private struct SpeakerProfilesManageSheet: View {
             }
         }
         .background(AppColors.windowBackground)
+    }
+
+    private func formattedDuration(_ seconds: TimeInterval) -> String {
+        if seconds < 60 {
+            return String(format: "%.0fs", seconds)
+        }
+        if seconds < 3600 {
+            return "\(Int(seconds) / 60)m \(Int(seconds) % 60)s"
+        }
+        return "\(Int(seconds) / 3600)h \((Int(seconds) % 3600) / 60)m"
     }
 }
 
