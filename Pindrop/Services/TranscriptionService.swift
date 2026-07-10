@@ -72,6 +72,11 @@ class TranscriptionService {
     private var engine: (any TranscriptionEngine)?
     private var speakerDiarizer: (any SpeakerDiarizer)?
     private var streamingEngine: (any StreamingTranscriptionEngine)?
+
+    /// The live engine for the streaming session's audio pump. The pump runs on a
+    /// detached task and calls the engine directly — routing each buffer through
+    /// this @MainActor service would re-serialize decode behind UI work.
+    var activeStreamingEngine: (any StreamingTranscriptionEngine)? { streamingEngine }
     /// In-flight streaming-engine preparation, shared by concurrent callers so a
     /// session starting during the launch prewarm awaits the same load instead of
     /// hitting the engine's `.loading` state and falling back to batch. Class
@@ -401,11 +406,11 @@ class TranscriptionService {
             let existingBackend = Self.backendFor(engine: existing)
             var recreate = existingBackend != effectiveBackend
             if !recreate, effectiveBackend == .parakeet,
-               let nemotron = existing as? NemotronStreamingEngine,
-               nemotron.chunkProfile != profile
-            {
-                await nemotron.updateChunkProfile(profile)
-                recreate = true
+               let nemotron = existing as? NemotronStreamingEngine {
+                if await nemotron.chunkProfile != profile {
+                    await nemotron.updateChunkProfile(profile)
+                    recreate = true
+                }
             }
             if recreate {
                 await existing.unloadModel()
@@ -435,7 +440,7 @@ class TranscriptionService {
             throw TranscriptionError.streamingNotReady
         }
 
-        switch streamingEngine.state {
+        switch await streamingEngine.state {
         case .ready, .streaming, .paused:
             if state == .unloaded || state == .error {
                 state = .ready
@@ -1089,16 +1094,21 @@ class TranscriptionService {
     private func applyStreamingCallbacks() {
         guard let streamingEngine else { return }
 
-        streamingEngine.setTranscriptionCallback { [weak self] result in
-            guard !result.isFinal else { return }
-            Task { @MainActor [weak self] in
-                self?.streamingPartialCallback?(result.text)
+        // Engine setters are actor-isolated; hop from this sync context. Session
+        // start always awaits prepare/start after this, so the setters land before
+        // the first buffer is processed.
+        Task {
+            await streamingEngine.setTranscriptionCallback { [weak self] result in
+                guard !result.isFinal else { return }
+                Task { @MainActor [weak self] in
+                    self?.streamingPartialCallback?(result.text)
+                }
             }
-        }
 
-        streamingEngine.setEndOfUtteranceCallback { [weak self] text in
-            Task { @MainActor [weak self] in
-                self?.streamingFinalUtteranceCallback?(text)
+            await streamingEngine.setEndOfUtteranceCallback { [weak self] text in
+                Task { @MainActor [weak self] in
+                    self?.streamingFinalUtteranceCallback?(text)
+                }
             }
         }
     }

@@ -1792,7 +1792,11 @@ final class AudioRecorder {
     }
     
     var onAudioLevel: ((Float) -> Void)?
-    var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
+    /// Invoked directly on the audio capture thread — the streaming pump yields the
+    /// buffer into an AsyncStream and must not wait for a main-thread slot (a busy
+    /// render loop delays main-actor delivery until the session ends). The closure
+    /// must be thread-safe; it is set/cleared on the main actor between sessions.
+    nonisolated(unsafe) var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
     var onAudioBandLevels: ((AudioBandLevels) -> Void)?
     var onCaptureError: ((Error) -> Void)?
 
@@ -1858,8 +1862,10 @@ final class AudioRecorder {
                     // Bands use the gain from the previous level update — a
                     // one-buffer lag that is invisible at tap cadence.
                     let bands = levelNormalizer.scaled(bandLevelAnalyzer.process(buffer))
+                    // Raw buffers go straight to the streaming pump from the capture
+                    // thread; only the UI-facing band levels hop to the main actor.
+                    self?.onAudioBuffer?(buffer)
                     Task { @MainActor [weak self] in
-                        self?.onAudioBuffer?(buffer)
                         self?.onAudioBandLevels?(bands)
                     }
                 },

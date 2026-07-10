@@ -20,8 +20,10 @@ import CoreML
 import FluidAudio
 import Foundation
 
-@MainActor
-public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
+// An actor, not @MainActor: the underlying FluidAudio manager is already an actor,
+// and per-buffer processing must run off the main thread or UI rendering starves it
+// (live partials then arrive only as a burst at session stop).
+public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
 
     public enum EngineError: Error, LocalizedError {
         case modelNotFound(String)
@@ -92,14 +94,8 @@ public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
                 requestedChunkSize: chunkProfile.nemotronChunkSize
             )
             await streamingManager.setPartialCallback { [weak self] text in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    let result = StreamingTranscriptionResult(
-                        text: text,
-                        isFinal: false,
-                        timestamp: Date().timeIntervalSince1970
-                    )
-                    self.transcriptionCallback?(result)
+                Task { [weak self] in
+                    await self?.deliverPartial(text)
                 }
             }
 
@@ -209,6 +205,17 @@ public final class NemotronStreamingEngine: StreamingTranscriptionEngine {
 
     public func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback) {
         endOfUtteranceCallback = callback
+    }
+
+    /// Runs on the engine actor; consumers hop to their own isolation inside the
+    /// callback (the session controller wraps delivery in a MainActor task).
+    private func deliverPartial(_ text: String) {
+        let result = StreamingTranscriptionResult(
+            text: text,
+            isFinal: false,
+            timestamp: Date().timeIntervalSince1970
+        )
+        transcriptionCallback?(result)
     }
 
     public func reset() async {

@@ -85,7 +85,11 @@ final class StreamingSessionController {
     // MARK: - Session state
 
     private(set) var isSessionActive = false
-    private var audioProcessingTask: Task<Void, Never>?
+    /// Direct engine handle for the audio pump. Captured once per session so the
+    /// per-buffer path never hops through the @MainActor TranscriptionService.
+    private var pumpEngine: (any StreamingTranscriptionEngine)?
+    private var audioStreamContinuation: AsyncStream<AVAudioPCMBuffer>.Continuation?
+    private var audioConsumerTask: Task<Void, Never>?
     private var refinementCoordinator: StreamingRefinementCoordinator?
     /// Strongly retained here — `StreamingRefinementCoordinator` holds its sink weakly.
     private var overlaySink: OverlayStreamingSink?
@@ -161,6 +165,7 @@ final class StreamingSessionController {
                 )
             }
 
+            pumpEngine = transcriptionService.activeStreamingEngine
             attachAudioForwarding()
             isSessionActive = true
             Log.transcription.info("Streaming transcription enabled for current session")
@@ -425,40 +430,52 @@ final class StreamingSessionController {
         )
     }
 
+    /// Buffers flow: capture thread → AsyncStream → one detached consumer → engine
+    /// actor. No main-actor hops anywhere in the per-buffer path: with the orb
+    /// rendering at 30fps, main-actor hops throttle to ~10/sec while audio arrives
+    /// at ~50/sec, so live partials stall and burst out only at stop.
     private func attachAudioForwarding() {
-        audioRecorder.onAudioBuffer = { [weak self] buffer in
-            self?.enqueueAudioBuffer(buffer)
-        }
-    }
+        guard let engine = pumpEngine else { return }
 
-    private func enqueueAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        guard isSessionActive else { return }
-
-        let previousTask = audioProcessingTask
-        audioProcessingTask = Task { @MainActor [weak self] in
-            _ = await previousTask?.result
-            guard let self, self.isSessionActive else { return }
-            do {
-                try await self.transcriptionService.processStreamingAudioBuffer(buffer)
-            } catch {
-                Log.transcription.error("Streaming audio buffer processing failed: \(error)")
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: AVAudioPCMBuffer.self,
+            bufferingPolicy: .unbounded
+        )
+        audioStreamContinuation = continuation
+        audioConsumerTask = Task.detached(priority: .userInitiated) {
+            for await buffer in stream {
+                if Task.isCancelled { break }
+                do {
+                    try await engine.processAudioBuffer(buffer)
+                } catch {
+                    Log.transcription.error("Streaming audio buffer processing failed: \(error)")
+                }
             }
+        }
+        // The continuation is captured directly (it is Sendable); going through
+        // self would re-enter the main actor from the capture thread.
+        audioRecorder.onAudioBuffer = { buffer in
+            continuation.yield(buffer)
         }
     }
 
     private func flushPendingAudioWork() async {
-        if let task = audioProcessingTask {
-            _ = await task.result
-        }
-        audioProcessingTask = nil
+        audioStreamContinuation?.finish()
+        audioStreamContinuation = nil
+        await audioConsumerTask?.value
+        audioConsumerTask = nil
+        pumpEngine = nil
     }
 
     private func clearBindings(cancelPendingWork: Bool) {
         audioRecorder.onAudioBuffer = nil
         transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
         if cancelPendingWork {
-            audioProcessingTask?.cancel()
-            audioProcessingTask = nil
+            audioConsumerTask?.cancel()
+            audioStreamContinuation?.finish()
+            audioStreamContinuation = nil
+            audioConsumerTask = nil
+            pumpEngine = nil
         }
     }
 
