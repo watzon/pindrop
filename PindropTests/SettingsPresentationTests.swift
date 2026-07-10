@@ -1,0 +1,155 @@
+//
+//  SettingsPresentationTests.swift
+//  PindropTests
+//
+//  Created on 2026-07-10.
+//
+
+import Foundation
+import Testing
+@testable import Pindrop
+
+@Suite
+struct SettingsPresentationTests {
+
+    // MARK: - Retention picker labels
+
+    @Test func retentionPickerOrderIsOff7_30Forever() {
+        #expect(
+            DictationRetentionPresentation.pickerOrder
+                == [.off, .days7, .days30, .forever]
+        )
+    }
+
+    @Test func retentionLabelsAreLocalizedEnglish() {
+        let locale = Locale(identifier: "en")
+        #expect(DictationRetentionPresentation.label(.off, locale: locale) == "Off")
+        #expect(DictationRetentionPresentation.label(.days7, locale: locale) == "7 days")
+        #expect(DictationRetentionPresentation.label(.days30, locale: locale) == "30 days")
+        #expect(DictationRetentionPresentation.label(.forever, locale: locale) == "Forever")
+    }
+
+    // MARK: - Disk usage formatting
+
+    @Test func diskUsageFormatsZeroAndSmallBytes() {
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(0) == "0 MB")
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(512) == "0 MB")
+        // Non-zero sub-MB rounds up to 1 MB so the row never hides tiny files as 0.
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(2048) == "1 MB")
+    }
+
+    @Test func diskUsageFormatsMegabytesAndGigabytes() {
+        let mb142 = Int64(142) * 1024 * 1024
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(mb142) == "142 MB")
+
+        let gb1 = Int64(1000) * 1024 * 1024
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(gb1) == "1 GB")
+
+        let gb32 = Int64(3200) * 1024 * 1024
+        #expect(DictationAudioDiskUsageFormatting.formattedByteCount(gb32) == "3.2 GB")
+    }
+
+    @Test func snippetCountLabels() {
+        let locale = Locale(identifier: "en")
+        #expect(DictationAudioDiskUsageFormatting.snippetCountLabel(1, locale: locale) == "1 snippet")
+        #expect(DictationAudioDiskUsageFormatting.snippetCountLabel(64, locale: locale) == "64 snippets")
+    }
+
+    @Test func diskUsageSummaryLine() {
+        let locale = Locale(identifier: "en")
+        let usage = DictationAudioDiskUsage(
+            totalBytes: Int64(142) * 1024 * 1024,
+            snippetCount: 64
+        )
+        #expect(
+            DictationAudioDiskUsageFormatting.summaryLine(usage: usage, locale: locale)
+                == "Audio on disk: 142 MB · 64 snippets"
+        )
+    }
+
+    // MARK: - Theme preset chip ordering (legacy graphite)
+
+    @Test func presetsForPickerIncludesSixCatalogPresets() {
+        let list = SettingsThemePresetPresentation.presetsForPicker(selectedID: "library")
+        #expect(list.count == PindropThemePresetCatalog.presets.count)
+        #expect(list.map(\.id) == PindropThemePresetCatalog.presets.map(\.id))
+        #expect(!list.contains(where: { $0.id == "graphite" }))
+    }
+
+    @Test func presetsForPickerAppendsLegacyGraphiteOnlyWhenSelected() {
+        let without = SettingsThemePresetPresentation.presetsForPicker(selectedID: "library")
+        #expect(!without.contains(where: { $0.id == "graphite" }))
+
+        let withLegacy = SettingsThemePresetPresentation.presetsForPicker(selectedID: "graphite")
+        #expect(withLegacy.contains(where: { $0.id == "graphite" }))
+        #expect(withLegacy.count == PindropThemePresetCatalog.presets.count + 1)
+        #expect(withLegacy.last?.id == "graphite")
+    }
+
+    @Test func shouldShowLegacyPresetOnlyWhileActive() {
+        #expect(
+            SettingsThemePresetPresentation.shouldShowLegacyPreset(
+                legacyID: "graphite",
+                selectedID: "graphite"
+            )
+        )
+        #expect(
+            !SettingsThemePresetPresentation.shouldShowLegacyPreset(
+                legacyID: "graphite",
+                selectedID: "library"
+            )
+        )
+    }
+
+    // MARK: - Speaker / MCP / hotkey helpers
+
+    @Test func trainedCountFiltersZeroEvidence() {
+        let count = SpeakerProfileSummaryPresentation.trainedCount(
+            evidenceCounts: [3, 0, 1]
+        )
+        #expect(count == 2)
+    }
+
+    @Test func mcpEndpointUsesLoopbackAndPort() {
+        #expect(MCPEndpointPresentation.endpointURL(port: 46337) == "http://127.0.0.1:46337/mcp")
+    }
+
+    @Test func hotkeyAggregateNoConflictLine() {
+        let locale = Locale(identifier: "en")
+        #expect(
+            SettingsHotkeyConflictPresentation.aggregateStatus(
+                statuses: [.noConflict, .noConflict],
+                locale: locale
+            ) == "No conflicts with system or app shortcuts."
+        )
+    }
+
+    @Test func aboutVersionLineIncludesChannel() {
+        #expect(
+            SettingsAboutPresentation.versionLine(
+                version: "0.10.0",
+                build: "42",
+                channel: "Release"
+            ) == "0.10.0 (42) · Release"
+        )
+    }
+
+    @Test func logExportListsRegularFilesOnly() throws {
+        let temp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-log-export-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temp) }
+
+        let fileA = temp.appendingPathComponent("a.log")
+        let fileB = temp.appendingPathComponent("b.log")
+        try "a".write(to: fileA, atomically: true, encoding: .utf8)
+        try "b".write(to: fileB, atomically: true, encoding: .utf8)
+        try FileManager.default.createDirectory(
+            at: temp.appendingPathComponent("subdir", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        let urls = SettingsLogExport.logFileURLs(in: temp)
+        #expect(urls.map(\.lastPathComponent).sorted() == ["a.log", "b.log"])
+    }
+}

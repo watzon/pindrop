@@ -7,6 +7,7 @@
 
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct MCPSettingsView: View {
     @ObservedObject var settings: SettingsStore
@@ -17,38 +18,56 @@ struct MCPSettingsView: View {
     @State private var portText = ""
     @State private var copiedSnippet = false
     @State private var copiedToken = false
+    @State private var showAgentSetup = false
     @State private var errorMessage: String?
+    @AppStorage(SettingsLogLevel.userDefaultsKey) private var logLevelRaw = SettingsLogLevel.info.rawValue
 
     private var token: String {
         settings.loadMCPToken() ?? localized("Not generated yet — enable the server", locale: locale)
     }
 
+    private var logLevel: SettingsLogLevel {
+        get { SettingsLogLevel(rawValue: logLevelRaw) ?? .info }
+        nonmutating set { logLevelRaw = newValue.rawValue }
+    }
+
     var body: some View {
-        Form {
-            Section {
-                Toggle(
-                    localized("Enable MCP Server", locale: locale),
-                    isOn: $settings.mcpServerEnabled
-                )
-                .accessibilityIdentifier("settings.toggle.mcpServerEnabled")
+        SettingsPaneStack {
+            // MCP
+            SettingsGroupCard {
+                SettingsRow(showSeparator: settings.mcpServerEnabled) {
+                    SettingsRowLabel(title: localized("MCP Server", locale: locale))
+                } control: {
+                    SettingsToggle(isOn: $settings.mcpServerEnabled)
+                        .accessibilityIdentifier("settings.toggle.mcpServerEnabled")
+                }
 
                 if settings.mcpServerEnabled {
-                    // Avoid LabeledContent + titled TextField: Form lays out the field
-                    // prompt as a second, truncated trailing string ("463…") beside the value.
-                    HStack {
-                        Text(localized("Port", locale: locale))
-                        Spacer(minLength: 16)
+                    SettingsRow(showSeparator: true) {
+                        SettingsRowLabel(title: localized("Port", locale: locale))
+                    } control: {
+                        // Single TextField — avoid LabeledContent double-render (fcb33da/0ff6440).
                         TextField(
                             "",
                             text: $portText,
                             prompt: Text("46337")
                         )
                         .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-                        .font(.body.monospacedDigit())
+                        .textFieldStyle(.plain)
+                        .font(AppTypography.monoTime)
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
-                        .frame(width: 100)
+                        .frame(width: 88)
+                        .padding(.vertical, SettingsLayoutMetrics.dropdownVerticalPadding)
+                        .padding(.horizontal, SettingsLayoutMetrics.dropdownHorizontalPadding)
+                        .background(
+                            RoundedRectangle(cornerRadius: SettingsLayoutMetrics.dropdownRadius, style: .continuous)
+                                .fill(AppColors.windowBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: SettingsLayoutMetrics.dropdownRadius, style: .continuous)
+                                .strokeBorder(AppColors.border, lineWidth: 1)
+                        )
                         .onSubmit { applyPort() }
                         .onChange(of: portText) { _, newValue in
                             let digits = String(newValue.filter(\.isNumber).prefix(5))
@@ -60,104 +79,191 @@ struct MCPSettingsView: View {
                         .accessibilityIdentifier("settings.field.mcpPort")
                     }
 
-                    LabeledContent(localized("Bearer Token", locale: locale)) {
-                        HStack {
+                    SettingsRow(showSeparator: true) {
+                        SettingsRowLabel(title: localized("Endpoint", locale: locale))
+                    } control: {
+                        Text(MCPEndpointPresentation.endpointURL(port: settings.mcpServerPort))
+                            .font(AppTypography.monoTime)
+                            .foregroundStyle(AppColors.textTertiary)
+                            .textSelection(.enabled)
+                            .lineLimit(1)
+                    }
+
+                    SettingsRow(showSeparator: false) {
+                        SettingsRowLabel(title: localized("Bearer Token", locale: locale))
+                    } control: {
+                        HStack(spacing: 8) {
                             Button {
                                 copyToken()
                             } label: {
-                                Label(
-                                    copiedToken ? localized("Copied!", locale: locale) : token,
-                                    systemImage: copiedToken ? "checkmark" : "doc.on.doc"
+                                SettingsMenuButton(
+                                    title: copiedToken
+                                        ? localized("Copied!", locale: locale)
+                                        : localized("Copy token", locale: locale),
+                                    showsChevron: false
                                 )
-                                .font(.system(.caption, design: .monospaced))
-                                .lineLimit(1)
-                                .truncationMode(.middle)
                             }
+                            .buttonStyle(.plain)
                             .accessibilityIdentifier("settings.button.copyMCPToken")
 
-                            Button(localized("Regenerate", locale: locale)) {
+                            Button {
                                 regenerateToken()
+                            } label: {
+                                SettingsMenuButton(
+                                    title: localized("Regenerate", locale: locale),
+                                    showsChevron: false
+                                )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
-            } header: {
-                Text(localized("MCP Server", locale: locale))
-            } footer: {
-                Text(
-                    settings.mcpServerEnabled
-                        ? localized("Port changes take effect the next time the server starts.", locale: locale)
-                        : localized("Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers.", locale: locale)
-                )
             }
 
             if settings.mcpServerEnabled {
-                Section {
-                    Picker(localized("Client", locale: locale), selection: $selectedClient) {
-                        ForEach(MCPClient.allCases) { client in
-                            Text(client.displayName)
-                                .tag(client)
-                        }
-                    }
-                    .accessibilityIdentifier("settings.picker.mcpClient")
-                    .onChange(of: selectedClient) { _, _ in copiedSnippet = false }
-
-                    if selectedClient == .opencode {
-                        Picker(localized("Configuration Scope", locale: locale), selection: $opencodeIsGlobal) {
-                            Text(localized("Global", locale: locale)).tag(true)
-                            Text(localized("Project", locale: locale)).tag(false)
-                        }
-                        .pickerStyle(.segmented)
-                        .onChange(of: opencodeIsGlobal) { _, _ in copiedSnippet = false }
-                    }
-
-                    Text(selectedClient.instructions(isGlobal: opencodeIsGlobal, locale: locale))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    LabeledContent(localized("Configuration File", locale: locale)) {
-                        Text(selectedClient.configFilePath(isGlobal: opencodeIsGlobal))
-                            .font(.system(.caption, design: .monospaced))
-                            .textSelection(.enabled)
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(localized("Configuration Snippet", locale: locale))
-                            Spacer()
-                            Button(
-                                copiedSnippet
-                                    ? localized("Copied!", locale: locale)
-                                    : localized("Copy", locale: locale)
-                            ) {
-                                copySnippet()
+                DisclosureGroup(isExpanded: $showAgentSetup) {
+                    SettingsGroupCard {
+                        SettingsRow(showSeparator: true) {
+                            SettingsRowLabel(title: localized("Client", locale: locale))
+                        } control: {
+                            Menu {
+                                ForEach(MCPClient.allCases) { client in
+                                    Button(client.displayName) {
+                                        selectedClient = client
+                                        copiedSnippet = false
+                                    }
+                                }
+                            } label: {
+                                SettingsMenuButton(title: selectedClient.displayName)
                             }
-                            .accessibilityIdentifier("settings.button.copyMCPSnippet")
+                            .menuStyle(.borderlessButton)
+                            .menuIndicator(.hidden)
+                            .accessibilityIdentifier("settings.picker.mcpClient")
                         }
 
-                        ScrollView([.horizontal, .vertical]) {
-                            Text(configSnippet)
-                                .font(.system(.caption, design: .monospaced))
+                        if selectedClient == .opencode {
+                            SettingsRow(showSeparator: true) {
+                                SettingsRowLabel(title: localized("Configuration Scope", locale: locale))
+                            } control: {
+                                HStack(spacing: 6) {
+                                    FilterChip(
+                                        title: localized("Global", locale: locale),
+                                        isSelected: opencodeIsGlobal
+                                    ) {
+                                        opencodeIsGlobal = true
+                                        copiedSnippet = false
+                                    }
+                                    FilterChip(
+                                        title: localized("Project", locale: locale),
+                                        isSelected: !opencodeIsGlobal
+                                    ) {
+                                        opencodeIsGlobal = false
+                                        copiedSnippet = false
+                                    }
+                                }
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(selectedClient.instructions(isGlobal: opencodeIsGlobal, locale: locale))
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Text(selectedClient.configFilePath(isGlobal: opencodeIsGlobal))
+                                .font(AppTypography.monoSmall)
+                                .foregroundStyle(AppColors.textTertiary)
                                 .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(8)
+
+                            HStack {
+                                Text(localized("Configuration Snippet", locale: locale))
+                                    .font(AppTypography.labelStrong)
+                                    .foregroundStyle(AppColors.textPrimary)
+                                Spacer()
+                                Button {
+                                    copySnippet()
+                                } label: {
+                                    SettingsMenuButton(
+                                        title: copiedSnippet
+                                            ? localized("Copied!", locale: locale)
+                                            : localized("Copy", locale: locale),
+                                        showsChevron: false
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("settings.button.copyMCPSnippet")
+                            }
+
+                            ScrollView([.horizontal, .vertical]) {
+                                Text(configSnippet)
+                                    .font(AppTypography.monoSmall)
+                                    .textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(8)
+                            }
+                            .frame(minHeight: 120, maxHeight: 200)
+                            .background(AppColors.windowBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .strokeBorder(AppColors.border, lineWidth: 1)
+                            }
                         }
-                        .frame(minHeight: 150, maxHeight: 240)
-                        .background(Color(nsColor: .textBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .stroke(Color(nsColor: .separatorColor))
-                        }
+                        .padding(SettingsLayoutMetrics.rowHorizontalPadding)
+                        .padding(.bottom, SettingsLayoutMetrics.rowVerticalPadding)
                     }
-                } header: {
+                    .padding(.top, 8)
+                } label: {
                     Text(localized("Agent Setup", locale: locale))
-                } footer: {
-                    Text(localized("Copy the configuration snippet into your preferred AI agent host.", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                }
+            }
+
+            // Diagnostics / logs
+            SettingsGroupCard {
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(title: localized("Log level", locale: locale))
+                } control: {
+                    Menu {
+                        ForEach(SettingsLogLevel.allCases) { level in
+                            Button(level.title(locale: locale)) {
+                                logLevel = level
+                            }
+                        }
+                    } label: {
+                        SettingsMenuButton(title: logLevel.title(locale: locale))
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .accessibilityIdentifier("settings.picker.logLevel")
+                }
+
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(
+                        title: localized("Diagnostics", locale: locale),
+                        subtitle: localized("Logs never include transcript text", locale: locale)
+                    )
+                } control: {
+                    EmptyView()
+                }
+
+                SettingsRow(showSeparator: false) {
+                    SettingsRowLabel(title: localized("Export Logs…", locale: locale))
+                } control: {
+                    Button {
+                        exportLogs()
+                    } label: {
+                        SettingsMenuButton(
+                            title: localized("Export Logs…", locale: locale),
+                            showsChevron: false
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings.button.exportLogs")
                 }
             }
         }
-        .formStyle(.grouped)
         .onAppear {
             portText = "\(settings.mcpServerPort)"
         }
@@ -228,6 +334,37 @@ struct MCPSettingsView: View {
         } catch {
             Log.ui.error("Failed to regenerate MCP token: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func exportLogs() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.prompt = localized("Export", locale: locale)
+        panel.message = localized("Choose a folder to copy Pindrop log files into.", locale: locale)
+        panel.begin { response in
+            guard response == .OK, let destination = panel.url else { return }
+            let logs = SettingsLogExport.logFileURLs(in: Log.logsDirectoryURL)
+            let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+            let folder = destination.appendingPathComponent("Pindrop-Logs-\(stamp)", isDirectory: true)
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                for file in logs {
+                    let target = folder.appendingPathComponent(file.lastPathComponent)
+                    if FileManager.default.fileExists(atPath: target.path) {
+                        try FileManager.default.removeItem(at: target)
+                    }
+                    try FileManager.default.copyItem(at: file, to: target)
+                }
+                NSWorkspace.shared.activateFileViewerSelecting([folder])
+            } catch {
+                Log.ui.error("Failed to export logs: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    errorMessage = error.localizedDescription
+                }
+            }
         }
     }
 }
@@ -330,4 +467,6 @@ enum MCPClient: String, CaseIterable, Identifiable {
 #Preview {
     MCPSettingsView(settings: SettingsStore())
         .frame(width: 620, height: 600)
+        .background(AppColors.windowBackground)
+        .themeRefresh()
 }

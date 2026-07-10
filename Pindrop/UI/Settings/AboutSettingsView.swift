@@ -14,79 +14,129 @@ struct AboutSettingsView: View {
     @State private var copiedSystemInfo = false
 
     var body: some View {
-        Form {
-            Section {
-                HStack(alignment: .top, spacing: 16) {
-                    appIcon
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 72, height: 72)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Pindrop")
-                            .font(.title2.weight(.semibold))
-
-                        Text(localized("Local speech-to-text with WhisperKit", locale: locale))
-                            .foregroundStyle(.secondary)
-
-                        Text(
-                            String(
-                                format: localized("Version %@ (%@)", locale: locale),
-                                appVersion,
-                                buildNumber
-                            )
+        SettingsPaneStack {
+            VStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(AppColors.accent)
+                        .frame(
+                            width: SettingsLayoutMetrics.aboutIconSize,
+                            height: SettingsLayoutMetrics.aboutIconSize
                         )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    }
+                    Image(systemName: "mic.fill")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(AppColors.contentBackground)
                 }
 
-                Text(localized("A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement.", locale: locale))
+                Text("Pindrop")
+                    .font(AppTypography.wordmark)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text(versionChannelLine)
+                    .font(AppTypography.monoTime)
+                    .foregroundStyle(AppColors.textSecondary)
+
+                Text(localized(SettingsAboutPresentation.taglineKey, locale: locale))
+                    .font(FontLoader.font(family: .newsreader, size: 15, weight: .regular, italic: true))
+                    .foregroundStyle(AppColors.textSecondary)
+
+                HStack(spacing: 16) {
+                    linkButton(localized("GitHub", locale: locale), url: "https://github.com/watzon/pindrop")
+                    Text("·").foregroundStyle(AppColors.textTertiary)
+                    linkButton(localized("Website", locale: locale), url: "https://pindrop.watzon.tech")
+                    Text("·").foregroundStyle(AppColors.textTertiary)
+                    linkButton(localized("License — MIT", locale: locale), url: "https://github.com/watzon/pindrop/blob/main/LICENSE")
+                    Text("·").foregroundStyle(AppColors.textTertiary)
+                    linkButton(localized("Acknowledgements", locale: locale), url: "https://github.com/watzon/pindrop#acknowledgements")
+                }
+                .font(AppTypography.label)
+
+                Text(localized("Bundled fonts (Newsreader, Inter, JetBrains Mono) are licensed under the SIL Open Font License.", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 24)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 28)
+            .background(
+                RoundedRectangle(cornerRadius: SettingsLayoutMetrics.cardRadius, style: .continuous)
+                    .fill(AppColors.contentBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: SettingsLayoutMetrics.cardRadius, style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
 
-            Section(localized("Acknowledgments", locale: locale)) {
-                Link(localized("WhisperKit", locale: locale), destination: URL(string: "https://github.com/argmaxinc/WhisperKit")!)
-                Link(localized("OpenAI Whisper", locale: locale), destination: URL(string: "https://github.com/openai/whisper")!)
-                Link(localized("Pindrop on GitHub", locale: locale), destination: URL(string: "https://github.com/watzon/pindrop")!)
-            }
+            SettingsGroupCard {
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(title: localized("Copy System Info", locale: locale))
+                } control: {
+                    Button {
+                        copySystemInfo()
+                    } label: {
+                        SettingsMenuButton(
+                            title: copiedSystemInfo
+                                ? localized("Copied!", locale: locale)
+                                : localized("Copy", locale: locale),
+                            showsChevron: false
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(copiedSystemInfo)
+                    .accessibilityIdentifier("settings.button.copySystemInfo")
+                }
 
-            Section {
-                Link(localized("Report an Issue", locale: locale), destination: URL(string: "https://github.com/watzon/pindrop/issues")!)
-
-                Button {
-                    copySystemInfo()
-                } label: {
-                    Label(
-                        copiedSystemInfo
-                            ? localized("Copied!", locale: locale)
-                            : localized("Copy System Info", locale: locale),
-                        systemImage: copiedSystemInfo ? "checkmark" : "doc.on.doc"
+                SettingsRow(showSeparator: false) {
+                    SettingsRowLabel(
+                        title: localized("Open Logs in Finder", locale: locale),
+                        subtitle: localized("Attach logs from this folder when filing a GitHub issue.", locale: locale)
                     )
+                } control: {
+                    Button {
+                        revealLogsInFinder()
+                    } label: {
+                        SettingsMenuButton(
+                            title: localized("Open", locale: locale),
+                            showsChevron: false
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings.button.openLogs")
                 }
-                .disabled(copiedSystemInfo)
-                .accessibilityIdentifier("settings.button.copySystemInfo")
-
-                Button(localized("Open Logs in Finder", locale: locale)) {
-                    revealLogsInFinder()
-                }
-                .accessibilityIdentifier("settings.button.openLogs")
-            } header: {
-                Text(localized("Support", locale: locale))
-            } footer: {
-                Text(localized("Attach logs from this folder when filing a GitHub issue.", locale: locale))
             }
 
-            Section {
-                Text(localized("MIT License", locale: locale))
-            } header: {
-                Text(localized("License", locale: locale))
-            } footer: {
-                Text(localized("Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License.", locale: locale))
-            }
+            Text(localized("Made with care for local speech.", locale: locale))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textTertiary)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 4)
         }
-        .formStyle(.grouped)
+    }
+
+    private var versionChannelLine: String {
+        let channel = SettingsAboutPresentation.channelLabel(
+            feedURLString: Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String,
+            locale: locale
+        )
+        return SettingsAboutPresentation.versionLine(
+            version: appVersion,
+            build: buildNumber,
+            channel: channel
+        )
+    }
+
+    private func linkButton(_ title: String, url: String) -> some View {
+        Button {
+            if let destination = URL(string: url) {
+                NSWorkspace.shared.open(destination)
+            }
+        } label: {
+            Text(title)
+                .foregroundStyle(AppColors.accent)
+        }
+        .buttonStyle(.plain)
     }
 
     private func copySystemInfo() {
@@ -135,10 +185,6 @@ struct AboutSettingsView: View {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 
-    private var appIcon: Image {
-        Self.isPreview ? Image(systemName: "mic.fill") : Image(nsImage: NSApp.applicationIconImage)
-    }
-
     private var appVersion: String {
         Self.isPreview ? "1.0.0" : Bundle.main.appShortVersionString
     }
@@ -151,4 +197,6 @@ struct AboutSettingsView: View {
 #Preview {
     AboutSettingsView(settings: SettingsStore())
         .frame(width: 620, height: 560)
+        .background(AppColors.windowBackground)
+        .themeRefresh()
 }
