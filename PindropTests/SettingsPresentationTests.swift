@@ -178,3 +178,18 @@ struct SettingsPresentationTests {
         #expect(urls.map(\.lastPathComponent).sorted() == ["a.log", "b.log"])
     }
 }
+
+@Suite
+struct OnboardingPresentationTests {
+    @Test func progressHasOneDotPerStepIncludingDownload() {
+        #expect(OnboardingProgressPresentation.dotCount == 7)
+        #expect(OnboardingStep.allCases.count == 7)
+    }
+
+    @Test func progressActiveIndexMapsEveryStepInOrder() {
+        let indices = OnboardingStep.allCases.map(OnboardingProgressPresentation.activeIndex)
+        #expect(indices == [0, 1, 2, 3, 4, 5, 6])
+        #expect(OnboardingProgressPresentation.activeIndex(for: .modelSelection) == 1)
+        #expect(OnboardingProgressPresentation.activeIndex(for: .modelDownload) == 2)
+    }
+}

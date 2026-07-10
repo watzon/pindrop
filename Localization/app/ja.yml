@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "ダウンロード中も設定を続けられます。残りはバックグラウンドで完了します。"
+  you_say: "あなたの発話"
+  pindrop_writes: "Pindrop の文章"
+  enable_enhancement: "補正を有効にする"
+  accessibility_clipboard_fallback: "アクセシビリティがない場合、Pindrop はテキストをクリップボードにコピーします。"
+  change_hotkey_hint: "変更するには別のキーの組み合わせを押してください"
+  ready_heading: "準備ができました。"
+  ready_instruction_suffix: "を押して話し始めてください。Pindrop がカーソルの位置に入力します。"
+  try_it_now: "今すぐ試す"
+
 100:
   local_processing: "100% ローカル処理"
 1:

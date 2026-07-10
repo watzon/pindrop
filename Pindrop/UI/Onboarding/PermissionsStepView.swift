@@ -22,20 +22,18 @@ struct PermissionsStepView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             headerSection
 
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 microphoneCard
                 accessibilityCard
             }
-            .padding(.horizontal, 40)
-
-            Spacer()
+            .frame(width: 480)
+            .padding(.top, 26)
 
             continueSection
         }
-        .padding(.vertical, 24)
         .task {
             guard !Self.isPreview else {
                 checkingPermissions = false
@@ -46,20 +44,19 @@ struct PermissionsStepView: View {
     }
 
     private var headerSection: some View {
-        VStack(spacing: 8) {
-            IconView(icon: .shield, size: 40)
-                .foregroundStyle(AppColors.accent)
-                .padding(.bottom, 8)
-
+        VStack(spacing: 0) {
             Text(localized("Permissions", locale: locale))
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .font(OnboardingType.stepHeading)
+                .tracking(-0.42)
+                .foregroundStyle(AppColors.textPrimary)
 
             Text(localized("Pindrop needs a few permissions to work.\nYour privacy is always respected.", locale: locale))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(OnboardingType.stepSubtitle)
+                .lineSpacing(3)
+                .foregroundStyle(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
+                .padding(.top, 8)
         }
-        .padding(.horizontal, 40)
     }
 
     private var microphoneCard: some View {
@@ -86,23 +83,24 @@ struct PermissionsStepView: View {
     }
 
     private var continueSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
+            Text(localized("Without Accessibility, Pindrop copies text to the clipboard instead.", locale: locale))
+                .font(AppTypography.captionLarge)
+                .foregroundStyle(AppColors.textTertiary)
+                .padding(.top, 22)
+
             if !microphoneGranted {
                 Text(localized("Microphone permission is required to continue", locale: locale))
-                    .font(.caption)
-                    .foregroundStyle(.orange)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.warning)
+                    .padding(.top, 8)
             }
 
-            Button(action: onContinue) {
-                Text(localized("Continue", locale: locale))
-                    .font(.headline)
-                    .frame(maxWidth: 200)
-                    .padding(.vertical, 12)
-            }
-            .buttonStyle(.borderedProminent)
+            OnboardingPrimaryButton(title: localized("Continue", locale: locale), icon: nil, action: onContinue)
             .disabled(!microphoneGranted)
+            .opacity(microphoneGranted ? 1 : 0.5)
+            .padding(.top, 18)
         }
-        .padding(.horizontal, 40)
     }
 
     private func checkPermissions() async {
@@ -187,49 +185,56 @@ struct PermissionCard: View {
     let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
-            IconView(icon: icon, size: 24)
-                .foregroundStyle(isGranted ? .green : AppColors.accent)
-                .frame(width: 44, height: 44)
-                .background(isGranted ? .green.opacity(0.1) : AppColors.accent.opacity(0.1))
-                .background(.ultraThinMaterial, in: .circle)
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(title)
-                        .font(.headline)
-
-                    if isRequired {
-                        Text(localized("Required", locale: locale))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.orange.opacity(0.2))
-                            .foregroundStyle(.orange)
-                            .clipShape(.capsule)
+        HStack(spacing: 14) {
+            IconView(icon: icon, size: 17)
+                .foregroundStyle(isGranted ? AppColors.accent : AppColors.textSecondary)
+                .frame(width: 38, height: 38)
+                .background(isGranted ? AppColors.accentBackground : AppColors.windowBackground, in: .rect(cornerRadius: 10))
+                .overlay {
+                    if !isGranted {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(AppColors.border, lineWidth: 1)
                     }
                 }
 
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(OnboardingType.primaryButton)
+                    .foregroundStyle(AppColors.textPrimary)
+
                 Text(description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.captionLarge)
+                    .foregroundStyle(AppColors.textSecondary)
             }
 
             Spacer()
 
             if isGranted {
-                IconView(icon: .circleCheck, size: 24)
-                    .foregroundStyle(.green)
+                HStack(spacing: 6) {
+                    IconView(icon: .circleCheck, size: 15)
+                    Text(localized("Granted", locale: locale))
+                        .font(AppTypography.labelSemibold)
+                }
+                .foregroundStyle(AppColors.accent)
             } else {
-                Button(isActionDisabled ? localized("Checking...", locale: locale) : localized("Grant", locale: locale)) {
+                Button(isActionDisabled ? localized("Checking...", locale: locale) : localized("Grant", locale: locale) + "…") {
                     action()
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
+                .font(AppTypography.labelSemibold)
+                .foregroundStyle(AppColors.contentBackground)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 14)
+                .background(AppColors.accent, in: .rect(cornerRadius: 8))
                 .disabled(isActionDisabled)
             }
         }
-        .padding(16)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+        .padding(.vertical, 16)
+        .padding(.horizontal, 18)
+        .background(AppColors.contentBackground, in: .rect(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        }
     }
 }

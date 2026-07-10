@@ -55,8 +55,10 @@ final class OnboardingWindowController {
         window.level = .floating
         window.center()
         
-        window.setContentSize(NSSize(width: 800, height: 600))
-        window.minSize = NSSize(width: 800, height: 600)
+        let onboardingSize = NSSize(width: 760, height: 560)
+        window.setContentSize(onboardingSize)
+        window.minSize = onboardingSize
+        window.maxSize = onboardingSize
         applyInterfaceLayoutDirection(to: window, locale: settings.selectedAppLocale.locale)
         
         self.window = window
@@ -66,23 +68,8 @@ final class OnboardingWindowController {
     }
 
     private func ensureWindowCanFitContentSize(_ preferredSize: CGSize) {
-        guard let window else { return }
-
-        let minimumSize = NSSize(width: 800, height: 600)
-        let targetSize = NSSize(
-            width: max(minimumSize.width, preferredSize.width),
-            height: max(minimumSize.height, preferredSize.height)
-        )
-
-        let currentSize = window.contentLayoutRect.size
-        guard currentSize.width < targetSize.width || currentSize.height < targetSize.height else {
-            return
-        }
-
-        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: targetSize))
-        frame.origin.x = window.frame.midX - (frame.size.width / 2)
-        frame.origin.y = window.frame.maxY - frame.size.height
-        window.setFrame(frame, display: true, animate: true)
+        // U9 onboarding is deliberately fixed-size; retain the callback seam for callers.
+        _ = preferredSize
     }
     
     func closeOnboarding() {

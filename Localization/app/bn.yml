@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ এর মধ্যে %@"
+  download_background_hint: "ডাউনলোড চলার সময় সেটআপ চালিয়ে যান — আমরা পটভূমিতে শেষ করব।"
+  you_say: "আপনি বলেন"
+  pindrop_writes: "Pindrop লেখে"
+  enable_enhancement: "উন্নয়ন চালু করুন"
+  accessibility_clipboard_fallback: "অ্যাক্সেসিবিলিটি ছাড়া Pindrop পাঠ্যটি ক্লিপবোর্ডে কপি করে।"
+  change_hotkey_hint: "এটি বদলাতে অন্য একটি কী সমন্বয় চাপুন"
+  ready_heading: "আপনি প্রস্তুত।"
+  ready_instruction_suffix: "এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Pindrop সেখানেই টাইপ করে।"
+  try_it_now: "এখনই চেষ্টা করুন"
+
 100:
   local_processing: "100% স্থানীয় প্রক্রিয়াকরণ"
 1:

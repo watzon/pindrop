@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ में से %@"
+  download_background_hint: "डाउनलोड के दौरान सेटअप जारी रखें — हम इसे बैकग्राउंड में पूरा कर देंगे।"
+  you_say: "आप कहते हैं"
+  pindrop_writes: "Pindrop लिखता है"
+  enable_enhancement: "सुधार चालू करें"
+  accessibility_clipboard_fallback: "Accessibility के बिना, Pindrop टेक्स्ट को क्लिपबोर्ड पर कॉपी करता है।"
+  change_hotkey_hint: "इसे बदलने के लिए कोई दूसरा संयोजन दबाएँ"
+  ready_heading: "आप तैयार हैं।"
+  ready_instruction_suffix: "और बोलना शुरू करें — कर्सर जहाँ हो, Pindrop वहीं टाइप करता है।"
+  try_it_now: "अभी आज़माएँ"
+
 100:
   local_processing: "100% स्थानीय प्रसंस्करण"
 1:

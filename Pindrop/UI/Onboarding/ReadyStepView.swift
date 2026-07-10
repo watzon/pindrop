@@ -14,97 +14,37 @@ struct ReadyStepView: View {
     let onComplete: () -> Void
 
     @Environment(\.locale) private var locale
-    @State private var showConfetti = false
-
-    private var selectedModel: ModelManager.WhisperModel? {
-        modelManager.availableModels.first { $0.name == selectedModelName }
-    }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            successIcon
-
-            VStack(spacing: 8) {
-                Text(localized("You're All Set!", locale: locale))
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-
-                Text(localized("Pindrop is ready to use.\nClick the menu bar icon to get started.", locale: locale))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-
-            summarySection
-
-            Spacer()
-
-            Button(action: onComplete) {
-                HStack {
-                    Text(localized("Start Using Pindrop", locale: locale))
-                    IconView(icon: .arrowRight, size: 16)
-                }
-                .font(.headline)
-                .frame(maxWidth: 240)
-                .padding(.vertical, 14)
-            }
-            .buttonStyle(.borderedProminent)
-
-            Spacer()
-        }
-        .padding(40)
-        .onAppear {
-            withAnimation(.spring(duration: 0.6, bounce: 0.5).delay(0.2)) {
-                showConfetti = true
-            }
-        }
-    }
-
-    private var successIcon: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [.green, .green.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 100, height: 100)
-
-            IconView(icon: .check, size: 48)
-                .foregroundStyle(.white)
-        }
-        .background(.green.opacity(0.1))
-        .background(.ultraThinMaterial, in: .circle)
-        .scaleEffect(showConfetti ? 1.0 : 0.5)
-        .opacity(showConfetti ? 1.0 : 0)
-    }
-
-    private var summarySection: some View {
-        VStack(spacing: 12) {
-            summaryRow(icon: .cpu, label: localized("Model", locale: locale), value: selectedModel?.displayName ?? localized("Base", locale: locale))
-            summaryRow(icon: .keyboard, label: localized("Toggle", locale: locale), value: settings.toggleHotkey.isEmpty ? localized("Not set", locale: locale) : settings.toggleHotkey)
-            summaryRow(icon: .sparkles, label: localized("AI Enhancement", locale: locale), value: settings.assignment(for: .transcriptionEnhancement) != nil ? localized("Enabled", locale: locale) : localized("Disabled", locale: locale))
-        }
-        .padding(20)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
-    }
-
-    private func summaryRow(icon: Icon, label: String, value: String) -> some View {
-        HStack {
-            IconView(icon: icon, size: 16)
+        VStack(spacing: 0) {
+            IconView(icon: .check, size: 40)
                 .foregroundStyle(AppColors.accent)
-                .frame(width: 24)
+                .frame(width: 84, height: 84)
+                .background(AppColors.accentBackground, in: .circle)
+                .padding(.bottom, 24)
 
-            Text(label)
-                .foregroundStyle(.secondary)
+            Text(localized("You're set.", locale: locale))
+                .font(OnboardingType.bigHeading)
+                .tracking(-0.8)
+                .foregroundStyle(AppColors.textPrimary)
 
-            Spacer()
+            HStack(alignment: .firstTextBaseline, spacing: 7) {
+                Text(localized("Press", locale: locale))
+                SettingsKbdChip(text: settings.toggleHotkey.isEmpty
+                    ? localized("Not Set", locale: locale)
+                    : settings.toggleHotkey)
+                Text(localized("and start talking — Pindrop types wherever your cursor is.", locale: locale))
+            }
+            .font(OnboardingType.welcomeSubtitle)
+            .foregroundStyle(AppColors.textSecondary)
+            .padding(.top, 14)
 
-            Text(value)
-                .fontWeight(.medium)
+            OnboardingPrimaryButton(
+                title: localized("Try it now", locale: locale),
+                icon: .mic,
+                action: onComplete
+            )
+            .padding(.top, 30)
         }
     }
 }
@@ -118,13 +58,12 @@ struct ReadyStepView_Previews: PreviewProvider {
             selectedModelName: "openai_whisper-base.en",
             onComplete: {}
         )
-        .frame(width: 800, height: 600)
+        .frame(width: 760, height: 500)
+        .background(AppColors.windowBackground)
     }
 }
 
 final class PreviewModelManagerReady: ModelManager {
-    override init() {
-        // Skip async initialization to avoid launching WhisperKit in preview
-    }
+    override init() {}
 }
 #endif

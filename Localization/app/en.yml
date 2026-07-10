@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ of %@"
+  download_background_hint: "Keep setting up while it downloads — we'll finish in the background."
+  you_say: "You say"
+  pindrop_writes: "Pindrop writes"
+  enable_enhancement: "Enable enhancement"
+  accessibility_clipboard_fallback: "Without Accessibility, Pindrop copies text to the clipboard instead."
+  change_hotkey_hint: "Press a different combination to change it"
+  ready_heading: "You're set."
+  ready_instruction_suffix: "and start talking — Pindrop types wherever your cursor is."
+  try_it_now: "Try it now"
+
 100:
   local_processing: "100% local processing"
 1:

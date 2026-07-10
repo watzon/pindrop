@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ จาก %@"
+  download_background_hint: "ตั้งค่าต่อได้ระหว่างดาวน์โหลด — เราจะดำเนินการให้เสร็จในเบื้องหลัง"
+  you_say: "คุณพูด"
+  pindrop_writes: "Pindrop เขียน"
+  enable_enhancement: "เปิดใช้การปรับปรุง"
+  accessibility_clipboard_fallback: "หากไม่มีการช่วยการเข้าถึง Pindrop จะคัดลอกข้อความไปยังคลิปบอร์ดแทน"
+  change_hotkey_hint: "กดชุดปุ่มอื่นเพื่อเปลี่ยน"
+  ready_heading: "พร้อมแล้ว"
+  ready_instruction_suffix: "แล้วเริ่มพูด — Pindrop จะพิมพ์ตรงตำแหน่งเคอร์เซอร์"
+  try_it_now: "ลองตอนนี้"
+
 100:
   local_processing: "การประมวลผลในท้องถิ่น 100%"
 1:

@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ από %@"
+  download_background_hint: "Συνεχίστε τη ρύθμιση κατά τη λήψη — θα ολοκληρώσουμε στο παρασκήνιο."
+  you_say: "Εσείς λέτε"
+  pindrop_writes: "Το Pindrop γράφει"
+  enable_enhancement: "Ενεργοποίηση βελτίωσης"
+  accessibility_clipboard_fallback: "Χωρίς την Προσβασιμότητα, το Pindrop αντιγράφει το κείμενο στο πρόχειρο."
+  change_hotkey_hint: "Πατήστε διαφορετικό συνδυασμό για να τον αλλάξετε"
+  ready_heading: "Είστε έτοιμοι."
+  ready_instruction_suffix: "και αρχίστε να μιλάτε — το Pindrop πληκτρολογεί όπου βρίσκεται ο δρομέας."
+  try_it_now: "Δοκιμάστε το τώρα"
+
 100:
   local_processing: "100% τοπική επεξεργασία"
 1:

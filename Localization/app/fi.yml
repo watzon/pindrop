@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ / %@"
+  download_background_hint: "Jatka määritystä latauksen aikana — viimeistelemme taustalla."
+  you_say: "Sinä sanot"
+  pindrop_writes: "Pindrop kirjoittaa"
+  enable_enhancement: "Ota parannus käyttöön"
+  accessibility_clipboard_fallback: "Ilman Käyttöapua Pindrop kopioi tekstin leikepöydälle."
+  change_hotkey_hint: "Vaihda painamalla eri näppäinyhdistelmää"
+  ready_heading: "Kaikki valmista."
+  ready_instruction_suffix: "ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
+  try_it_now: "Kokeile nyt"
+
 100:
   local_processing: "100 % paikallinen käsittely"
 1:

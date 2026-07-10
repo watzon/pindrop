@@ -1,3 +1,15 @@
+u9_onboarding:
+  download_amount_format: "%@ von %@"
+  download_background_hint: "Fahre während des Downloads mit der Einrichtung fort — wir schließen sie im Hintergrund ab."
+  you_say: "Du sagst"
+  pindrop_writes: "Pindrop schreibt"
+  enable_enhancement: "Verbesserung aktivieren"
+  accessibility_clipboard_fallback: "Ohne Bedienungshilfen kopiert Pindrop den Text stattdessen in die Zwischenablage."
+  change_hotkey_hint: "Drücke eine andere Kombination, um sie zu ändern"
+  ready_heading: "Alles bereit."
+  ready_instruction_suffix: "und sprich los — Pindrop schreibt dort, wo sich dein Cursor befindet."
+  try_it_now: "Jetzt ausprobieren"
+
 100:
   local_processing: "100% lokale Verarbeitung"
 1:
