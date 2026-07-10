@@ -2,6 +2,7 @@
   local_processing: "100% 本地處理"
 1:
   folder: "1 個資料夾"
+  speaker: "1 位發言人"
   transcription: "1 個轉錄"
   note: "1 則筆記"
   word: "1 個字"
@@ -226,6 +227,7 @@ cut:
   _self: "剪下"
 d:
   characters: "%d characters"
+  speakers: "%d 位發言人"
   samples: "%d 個樣本 · %@"
   words: "%d 個字"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "已釘選"
 speak:
   to_append: "語音追加"
+
+diarized:
+  _self: "已區分發言人"
+
+summary:
+  ready: "摘要已就緒"
+
+prompts:
+  are_sent_in_english: "提示詞以英文傳送"
+
+preset_example:
+  clean_input: "嗯 所以會議在三點半 句點 你能確認嗎 問號"
+  clean_output: "所以會議在 15:30。你能確認嗎？"
+  meeting_input: "愛麗絲週五前會發材料 鮑勃負責價格審核 下週需要做決定"
+  meeting_output: "## 待辦\\n- **愛麗絲** 週五前會發材料\\n- **鮑勃** 負責價格審核\\n\\n## 下一步\\n- 下週需要做決定"
+  email_input: "嗨 喬丹 只是確認一下你是否收到我昨天的筆記 謝謝"
+  email_output: "嗨喬丹，\\n\\n只是確認一下你是否收到我昨天的筆記。\\n\\n謝謝，"
+  social_input: "嗯 我們剛發布了深色模式 看起來很棒 你應該試試"
+  social_output: "我們剛發布了深色模式。\\n\\n看起來很棒 — 你應該試試。"
+  bullets_input: "我們討論了入職延遲 然後是價格 最後是五月十二日的發布日期"
+  bullets_output: "- 入職延遲\\n- 價格\\n- 發布日期：5 月 12 日"
+  technical_input: "呼叫 fetch user 箭頭 然後把回應 等於 等於 二百 做對應"
+  technical_output: "呼叫 `fetchUser` -> 然後把回應 `==` 200 做對應。"
+  live_input: "嗯 我覺得我們應該週五前發布測試版 句點"
+  live_output: "我覺得我們應該週五前發布測試版。"
+  edits_input: "嗯 這是 correct ly 二十五"
+  edits_output: "這是 correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

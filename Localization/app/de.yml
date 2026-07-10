@@ -2,6 +2,7 @@
   local_processing: "100% lokale Verarbeitung"
 1:
   folder: "1 Ordner"
+  speaker: "1 Sprecher"
   transcription: "1 Transkription"
   note: "1 Notiz"
   word: "1 Wort"
@@ -226,6 +227,7 @@ cut:
   _self: "Ausschneiden"
 d:
   characters: "%d characters"
+  speakers: "%d Sprecher"
   samples: "%d Samples · %@"
   words: "%d Wörter"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Angeheftet"
 speak:
   to_append: "Sprechen zum Anhängen"
+
+diarized:
+  _self: "diarisiert"
+
+summary:
+  ready: "Zusammenfassung bereit"
+
+prompts:
+  are_sent_in_english: "Prompts werden auf Englisch gesendet"
+
+preset_example:
+  clean_input: "äh also das meeting ist um halb vier punkt kannst du bestätigen fragezeichen"
+  clean_output: "Also das Meeting ist um 15:30. Kannst du bestätigen?"
+  meeting_input: "alice schickt das deck bis freitag bob übernimmt die preisprüfung wir brauchen nächste woche eine entscheidung"
+  meeting_output: "## Aufgaben\\n- **Alice** schickt das Deck bis **Freitag**\\n- **Bob** übernimmt die Preisprüfung\\n\\n## Nächste Schritte\\n- Entscheidung nächste Woche nötig"
+  email_input: "hey jordan wollte nur fragen ob du meine notizen von gestern bekommen hast danke"
+  email_output: "Hi Jordan,\\n\\nWollte nur fragen, ob du meine Notizen von gestern bekommen hast.\\n\\nDanke,"
+  social_input: "äh wir haben gerade den dark mode veröffentlicht und er sieht fantastisch aus du solltest ihn ausprobieren"
+  social_output: "Wir haben gerade den Dark Mode veröffentlicht.\\n\\nEr sieht fantastisch aus — du solltest ihn ausprobieren."
+  bullets_input: "wir haben onboarding-latenz besprochen dann preise und schließlich den launch am zwölften mai"
+  bullets_output: "- Onboarding-Latenz\\n- Preise\\n- Launch-Datum: 12. Mai"
+  technical_input: "rufe fetch user pfeil dann mappe die antwort gleich gleich zweihundert"
+  technical_output: "Rufe `fetchUser` -> dann mappe die Antwort `==` 200."
+  live_input: "äh also ich denke wir sollten die beta bis freitag ausliefern punkt"
+  live_output: "Also ich denke, wir sollten die Beta bis Freitag ausliefern."
+  edits_input: "äh das ist correct ly fünfundzwanzig"
+  edits_output: "Das ist correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

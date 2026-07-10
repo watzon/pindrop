@@ -2,6 +2,7 @@
   local_processing: "100% pemprosesan tempatan"
 1:
   folder: "1 folder"
+  speaker: "1 penutur"
   transcription: "1 transkripsi"
   note: "1 nota"
   word: "1 perkataan"
@@ -226,6 +227,7 @@ cut:
   _self: "potong"
 d:
   characters: "%d aksara"
+  speakers: "%d penutur"
   samples: "%d samples · %@"
   words: "%d perkataan"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Disemat"
 speak:
   to_append: "Cakap untuk tambah"
+
+diarized:
+  _self: "diarisasi"
+
+summary:
+  ready: "ringkasan sedia"
+
+prompts:
+  are_sent_in_english: "Prompt dihantar dalam bahasa Inggeris"
+
+preset_example:
+  clean_input: "eh jadi mesyuarat pada pukul tiga setengah noktah bolehkah anda sahkan tanda soal"
+  clean_output: "Jadi mesyuarat pada 15:30. Bolehkah anda sahkan?"
+  meeting_input: "alice akan hantar deck menjelang jumaat bob urus semakan harga kita perlukan keputusan minggu depan"
+  meeting_output: "## Tindakan\\n- **Alice** akan hantar deck menjelang **Jumaat**\\n- **Bob** urus semakan harga\\n\\n## Langkah seterusnya\\n- Keputusan diperlukan minggu depan"
+  email_input: "hai jordan hanya menyemak jika anda terima nota saya semalam terima kasih"
+  email_output: "Hai Jordan,\\n\\nHanya menyemak jika anda terima nota saya semalam.\\n\\nTerima kasih,"
+  social_input: "eh kami baru sahaja hantar mod gelap dan nampak hebat anda patut cubanya"
+  social_output: "Kami baru sahaja hantar mod gelap.\\n\\nNampak hebat — anda patut cubanya."
+  bullets_input: "kita bincang latensi onboarding kemudian harga dan akhirnya tarikh pelancaran dua belas mei"
+  bullets_output: "- Latensi onboarding\\n- Harga\\n- Tarikh pelancaran: 12 Mei"
+  technical_input: "panggil fetch user anak panah kemudian peta respons sama sama dua ratus"
+  technical_output: "Panggil `fetchUser` -> kemudian peta respons `==` 200."
+  live_input: "eh saya rasa kita patut hantar beta menjelang jumaat noktah"
+  live_output: "Saya rasa kita patut hantar beta menjelang Jumaat."
+  edits_input: "eh ini correct ly dua puluh lima"
+  edits_output: "Ini correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

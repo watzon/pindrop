@@ -90,12 +90,40 @@ extension SettingsStore {
 
    func setAssignment(_ assignment: ModelAssignment?, for purpose: EnhancementPurpose) {
       var map = assignments
-      if let assignment {
+      if var assignment {
+         // English-prompt guarantee: never persist an unedited built-in / default prompt as
+         // an override (display-localized variants of the same English source included when
+         // they round-trip to the same English text).
+         assignment.promptOverride = BuiltInPresets.normalizedPromptOverride(
+            assignment.promptOverride,
+            presetID: assignment.promptPresetID
+         )
+         // Custom mode (no preset) with a cleared/unedited override would leave both nil.
+         // Fall back to the default built-in so resolve always has a deterministic English source.
+         if assignment.promptOverride == nil,
+            assignment.promptPresetID == nil,
+            purpose.supportsUserPrompt {
+            assignment.promptPresetID = defaultPromptPresetID(for: purpose)
+         }
          map[purpose] = assignment
       } else {
          map.removeValue(forKey: purpose)
       }
       assignments = map
+   }
+
+   /// Default built-in preset for purposes that support user prompts.
+   private func defaultPromptPresetID(for purpose: EnhancementPurpose) -> String {
+      switch purpose {
+      case .transcriptionEnhancement:
+         return BuiltInPresetID.cleanTranscript
+      case .noteEnhancement:
+         return BuiltInPresetID.noteFormatting
+      case .streamingRefinement:
+         return BuiltInPresetID.liveStreamingRefinement
+      case .noteMetadata, .transcriptionMetadata:
+         return BuiltInPresetID.cleanTranscript
+      }
    }
 
    // MARK: - UUID-keyed Keychain accounts
@@ -191,6 +219,24 @@ extension SettingsStore {
       // override from ever sneaking through, and signals to callers that they should use
       // their purpose-specific built-in prompt.
       let exposesPrompt = purpose.supportsUserPrompt
+      let resolvedPrompt: String?
+      if exposesPrompt {
+         // Prefer a true custom override; otherwise resolve the built-in English source so
+         // callers never receive a display-localized default prompt.
+         if let override = BuiltInPresets.normalizedPromptOverride(
+            assignment.promptOverride,
+            presetID: assignment.promptPresetID
+         ) {
+            resolvedPrompt = override
+         } else if let presetID = assignment.promptPresetID,
+            let english = BuiltInPresets.englishPrompt(for: presetID) {
+            resolvedPrompt = english
+         } else {
+            resolvedPrompt = nil
+         }
+      } else {
+         resolvedPrompt = nil
+      }
       return ResolvedAssignment(
          purpose: purpose,
          providerID: provider.id,
@@ -200,7 +246,7 @@ extension SettingsStore {
          modelID: assignment.modelID,
          endpoint: endpoint,
          apiKey: key,
-         prompt: exposesPrompt ? assignment.promptOverride : nil,
+         prompt: resolvedPrompt,
          promptPresetID: exposesPrompt ? assignment.promptPresetID : nil
       )
    }

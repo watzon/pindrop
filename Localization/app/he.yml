@@ -2,6 +2,7 @@
   local_processing: "100% עיבוד מקומי"
 1:
   folder: "תיקיה 1"
+  speaker: "דובר אחד"
   transcription: "תמלול 1"
   note: "הערה אחת"
   word: "מילה אחת"
@@ -226,6 +227,7 @@ cut:
   _self: "גְזִירָה"
 d:
   characters: "%d תווים"
+  speakers: "%d דוברים"
   samples: "%d samples · %@"
   words: "%d מילים"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "נעוצות"
 speak:
   to_append: "דברו כדי להוסיף"
+
+diarized:
+  _self: "מחולק לפי דוברים"
+
+summary:
+  ready: "סיכום מוכן"
+
+prompts:
+  are_sent_in_english: "ההנחיות נשלחות באנגלית"
+
+preset_example:
+  clean_input: "אממ אז הפגישה בשלוש וחצי נקודה אפשר לאשר סימן שאלה"
+  clean_output: "אז הפגישה ב-15:30. אפשר לאשר?"
+  meeting_input: "אליס תשלח את המצגת עד יום שישי בוב אחראי על בדיקת המחירים צריך החלטה בשבוע הבא"
+  meeting_output: "## משימות\\n- **אליס** תשלח את המצגת עד **יום שישי**\\n- **בוב** אחראי על בדיקת המחירים\\n\\n## הצעדים הבאים\\n- נדרשת החלטה בשבוע הבא"
+  email_input: "היי ג'ורדן רק בודק אם קיבלת את ההערות שלי מאתמול תודה"
+  email_output: "היי ג'ורדן,\\n\\nרק בודק אם קיבלת את ההערות שלי מאתמול.\\n\\nתודה,"
+  social_input: "אממ בדיוק שחררנו מצב כהה וזה נראה מדהים כדאי שתנסה"
+  social_output: "בדיוק שחררנו מצב כהה.\\n\\nזה נראה מדהים — כדאי שתנסה."
+  bullets_input: "כיסינו את השהיית האונבורדינג אחר כך מחירים ולבסוף תאריך ההשקה שנים-עשר במאי"
+  bullets_output: "- השהיית אונבורדינג\\n- מחירים\\n- תאריך השקה: 12 במאי"
+  technical_input: "קרא ל-fetch user חץ ואז מפה את התשובה שווה שווה מאתיים"
+  technical_output: "קרא ל-`fetchUser` -> ואז מפה את התשובה `==` 200."
+  live_input: "אממ אני חושב שכדאי לשלוח את הבטא עד יום שישי נקודה"
+  live_output: "אני חושב שכדאי לשלוח את הבטא עד יום שישי."
+  edits_input: "אממ זה correct ly עשרים וחמש"
+  edits_output: "זה correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

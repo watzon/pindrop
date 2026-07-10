@@ -2,6 +2,7 @@
   local_processing: "100% lokální zpracování"
 1:
   folder: "1 složka"
+  speaker: "1 mluvčí"
   transcription: "1 přepis"
   note: "1 poznámka"
   word: "1 slovo"
@@ -226,6 +227,7 @@ cut:
   _self: "Střih"
 d:
   characters: "%d znaků"
+  speakers: "%d mluvčích"
   samples: "%d samples · %@"
   words: "%d slov"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Připnuté"
 speak:
   to_append: "Mluvte pro přidání"
+
+diarized:
+  _self: "diarizováno"
+
+summary:
+  ready: "shrnutí připraveno"
+
+prompts:
+  are_sent_in_english: "Prompty se odesílají v angličtině"
+
+preset_example:
+  clean_input: "ehm takže schůzka je ve tři třicet tečka můžeš potvrdit otazník"
+  clean_output: "Takže schůzka je v 15:30. Můžeš potvrdit?"
+  meeting_input: "alice pošle deck do pátku bob má na starosti kontrolu cen potřebujeme rozhodnutí příští týden"
+  meeting_output: "## Úkoly\\n- **Alice** pošle deck do **pátku**\\n- **Bob** má na starosti kontrolu cen\\n\\n## Další kroky\\n- Rozhodnutí potřeba příští týden"
+  email_input: "ahoj jordane jen kontroluju jestli jsi dostal moje poznámky ze včerejška díky"
+  email_output: "Ahoj Jordane,\\n\\nJen kontroluju, jestli jsi dostal moje poznámky ze včerejška.\\n\\nDíky,"
+  social_input: "ehm právě jsme vydali tmavý režim a vypadá úžasně měl bys to zkusit"
+  social_output: "Právě jsme vydali tmavý režim.\\n\\nVypadá úžasně — měl bys to zkusit."
+  bullets_input: "probrali jsme latenci onboardingu pak ceny a nakonec datum spuštění dvanáctého května"
+  bullets_output: "- Latence onboardingu\\n- Ceny\\n- Datum spuštění: 12. května"
+  technical_input: "zavolej fetch user šipka pak namapuj odpověď rovná se rovná se dvě stě"
+  technical_output: "Zavolej `fetchUser` -> pak namapuj odpověď `==` 200."
+  live_input: "ehm myslím že bychom měli poslat betu do pátku tečka"
+  live_output: "Myslím, že bychom měli poslat betu do pátku."
+  edits_input: "ehm to je correct ly dvacet pět"
+  edits_output: "To je correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

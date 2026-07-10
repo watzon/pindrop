@@ -2,6 +2,7 @@
   local_processing: "100 % lokal behandling"
 1:
   folder: "1 mappe"
+  speaker: "1 taler"
   transcription: "1 transskription"
   note: "1 note"
   word: "1 ord"
@@ -226,6 +227,7 @@ cut:
   _self: "Skære"
 d:
   characters: "%d tegn"
+  speakers: "%d talere"
   samples: "%d samples · %@"
   words: "%d ord"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Fastgjort"
 speak:
   to_append: "Tal for at tilføje"
+
+diarized:
+  _self: "diariseret"
+
+summary:
+  ready: "resumé klar"
+
+prompts:
+  are_sent_in_english: "Prompts sendes på engelsk"
+
+preset_example:
+  clean_input: "øh så mødet er klokken halv fire punktum kan du bekræfte spørgsmålstegn"
+  clean_output: "Så mødet er kl. 15:30. Kan du bekræfte?"
+  meeting_input: "alice sender decket inden fredag bob tager prisgennemgangen vi har brug for en beslutning i næste uge"
+  meeting_output: "## Handlinger\\n- **Alice** sender decket inden **fredag**\\n- **Bob** tager prisgennemgangen\\n\\n## Næste skridt\\n- Beslutning nødvendig i næste uge"
+  email_input: "hej jordan tjekker bare om du fik mine noter fra i går tak"
+  email_output: "Hej Jordan,\\n\\nTjekker bare, om du fik mine noter fra i går.\\n\\nTak,"
+  social_input: "øh vi har lige udgivet dark mode og den ser fantastisk ud du burde prøve den"
+  social_output: "Vi har lige udgivet dark mode.\\n\\nDen ser fantastisk ud — du burde prøve den."
+  bullets_input: "vi dækkede onboarding-latens så priser og til sidst lanceringsdatoen den tolvte maj"
+  bullets_output: "- Onboarding-latens\\n- Priser\\n- Lanceringsdato: 12. maj"
+  technical_input: "kald fetch user pil map så svaret lig med lig med to hundrede"
+  technical_output: "Kald `fetchUser` -> map så svaret `==` 200."
+  live_input: "øh jeg synes vi skal sende betaen inden fredag punktum"
+  live_output: "Jeg synes, vi skal sende betaen inden fredag."
+  edits_input: "øh det er correct ly femogtyve"
+  edits_output: "Det er correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

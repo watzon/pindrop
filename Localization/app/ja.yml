@@ -2,6 +2,7 @@
   local_processing: "100% ローカル処理"
 1:
   folder: "1フォルダー"
+  speaker: "話者 1 人"
   transcription: "1 転写"
   note: "1件のメモ"
   word: "1語"
@@ -226,6 +227,7 @@ cut:
   _self: "カット"
 d:
   characters: "%d characters"
+  speakers: "話者 %d 人"
   samples: "%d サンプル · %@"
   words: "%d語"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "ピン留め"
 speak:
   to_append: "話して追記"
+
+diarized:
+  _self: "話者分離済み"
+
+summary:
+  ready: "要約準備完了"
+
+prompts:
+  are_sent_in_english: "プロンプトは英語で送信されます"
+
+preset_example:
+  clean_input: "えっと 会議は三時半です ピリオド 確認できますか クエスチョンマーク"
+  clean_output: "会議は 15:30 です。確認できますか？"
+  meeting_input: "アリスが金曜までにデッキを送り ボブが価格レビューを担当 来週決断が必要"
+  meeting_output: "## アクション\\n- **アリス** が**金曜**までにデッキを送る\\n- **ボブ** が価格レビューを担当\\n\\n## 次のステップ\\n- 来週決断が必要"
+  email_input: "やあジョーダン 昨日のメモは届いたか確認しただけ ありがとう"
+  email_output: "やあジョーダン、\\n\\n昨日のメモは届いたか確認しただけ。\\n\\nありがとう、"
+  social_input: "えっと ダークモードを出荷したところですごく良く見える 試すべきだよ"
+  social_output: "ダークモードを出荷したところだ。\\n\\nすごく良く見える — 試すべきだよ。"
+  bullets_input: "オンボーディングの遅延を扱い 次に価格 最後に五月十二日のローンチ日"
+  bullets_output: "- オンボーディングの遅延\\n- 価格\\n- ローンチ日: 5月12日"
+  technical_input: "fetch user を呼んで 矢印 それからレスポンスを イコール イコール 二百にマップ"
+  technical_output: "`fetchUser` を呼んで -> それからレスポンスを `==` 200 にマップ。"
+  live_input: "えっと 金曜までにベータを出すべきだと思う ピリオド"
+  live_output: "金曜までにベータを出すべきだと思う。"
+  edits_input: "えっと これは correct ly 二十五"
+  edits_output: "これは correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

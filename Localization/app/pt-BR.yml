@@ -2,6 +2,7 @@
   local_processing: "Processamento 100% local"
 1:
   folder: "1 pasta"
+  speaker: "1 interlocutor"
   transcription: "1 transcrição"
   note: "1 nota"
   word: "1 palavra"
@@ -226,6 +227,7 @@ cut:
   _self: "Corte"
 d:
   characters: "%d characters"
+  speakers: "%d interlocutores"
   samples: "%d amostras · %@"
   words: "%d palavras"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Fixadas"
 speak:
   to_append: "Falar para anexar"
+
+diarized:
+  _self: "diarizado"
+
+summary:
+  ready: "resumo pronto"
+
+prompts:
+  are_sent_in_english: "Os prompts são enviados em inglês"
+
+preset_example:
+  clean_input: "ãh então a reunião é às três e meia ponto você pode confirmar interrogação"
+  clean_output: "Então a reunião é às 15:30. Você pode confirmar?"
+  meeting_input: "alice vai enviar o deck até sexta bob cuida da revisão de preços precisamos de uma decisão na próxima semana"
+  meeting_output: "## Itens de ação\\n- **Alice** vai enviar o deck até **sexta**\\n- **Bob** cuida da revisão de preços\\n\\n## Próximos passos\\n- Decisão necessária na próxima semana"
+  email_input: "oi jordan só queria saber se você recebeu minhas anotações de ontem obrigado"
+  email_output: "Oi Jordan,\\n\\nSó queria saber se você recebeu minhas anotações de ontem.\\n\\nObrigado,"
+  social_input: "ãh acabamos de lançar o modo escuro e ficou incrível você deveria experimentar"
+  social_output: "Acabamos de lançar o modo escuro.\\n\\nFicou incrível — você deveria experimentar."
+  bullets_input: "cobrimos a latência do onboarding depois os preços e por fim a data de lançamento de doze de maio"
+  bullets_output: "- Latência do onboarding\\n- Preços\\n- Data de lançamento: 12 de maio"
+  technical_input: "chame fetch user seta depois mapeie a resposta igual igual duzentos"
+  technical_output: "Chame `fetchUser` -> depois mapeie a resposta `==` 200."
+  live_input: "ãh acho que devemos lançar o beta até sexta ponto"
+  live_output: "Acho que devemos lançar o beta até sexta."
+  edits_input: "ãh isto é correct ly vinte e cinco"
+  edits_output: "Isto é correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

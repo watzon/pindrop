@@ -2,6 +2,7 @@
   local_processing: "100% pengolahan lokal"
 1:
   folder: "1 map"
+  speaker: "1 pembicara"
   transcription: "1 transkripsi"
   note: "1 catatan"
   word: "1 kata"
@@ -226,6 +227,7 @@ cut:
   _self: "Memotong"
 d:
   characters: "%d karakter"
+  speakers: "%d pembicara"
   samples: "%d samples · %@"
   words: "%d kata"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Disematkan"
 speak:
   to_append: "Bicara untuk menambahkan"
+
+diarized:
+  _self: "diarisasi"
+
+summary:
+  ready: "ringkasan siap"
+
+prompts:
+  are_sent_in_english: "Prompt dikirim dalam bahasa Inggris"
+
+preset_example:
+  clean_input: "eh jadi rapat jam setengah empat titik bisakah kamu konfirmasi tanda tanya"
+  clean_output: "Jadi rapat jam 15:30. Bisakah kamu konfirmasi?"
+  meeting_input: "alice akan kirim deck sampai jumat bob urus tinjauan harga kita butuh keputusan minggu depan"
+  meeting_output: "## Tindakan\\n- **Alice** akan kirim deck sampai **Jumat**\\n- **Bob** urus tinjauan harga\\n\\n## Langkah berikutnya\\n- Keputusan dibutuhkan minggu depan"
+  email_input: "hai jordan cuma ngecek apakah kamu dapat catatanku kemarin terima kasih"
+  email_output: "Hai Jordan,\\n\\nCuma ngecek apakah kamu dapat catatanku kemarin.\\n\\nTerima kasih,"
+  social_input: "eh kami baru rilis mode gelap dan kelihatannya keren banget kamu harus coba"
+  social_output: "Kami baru rilis mode gelap.\\n\\nKelihatannya keren banget — kamu harus coba."
+  bullets_input: "kita bahas latensi onboarding lalu harga dan terakhir tanggal peluncuran dua belas mei"
+  bullets_output: "- Latensi onboarding\\n- Harga\\n- Tanggal peluncuran: 12 Mei"
+  technical_input: "panggil fetch user panah lalu peta respons sama dengan sama dengan dua ratus"
+  technical_output: "Panggil `fetchUser` -> lalu peta respons `==` 200."
+  live_input: "eh menurutku kita harus ship beta sampai jumat titik"
+  live_output: "Menurutku kita harus ship beta sampai Jumat."
+  edits_input: "eh ini correct ly dua puluh lima"
+  edits_output: "Ini correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

@@ -99,6 +99,60 @@ extension TranscriptionRecord {
     var effectiveWordCount: Int {
         wordCount ?? text.wordCount
     }
+
+    // MARK: - Meeting metadata helpers
+
+    /// Distinct speaker count from diarized segments (by speakerId, falling back to label).
+    var speakerCount: Int {
+        let segments = diarizedSegments
+        guard !segments.isEmpty else { return 0 }
+        var seen = Set<String>()
+        for segment in segments {
+            let key = segment.speakerId.isEmpty ? segment.speakerLabel : segment.speakerId
+            if !key.isEmpty {
+                seen.insert(key)
+            }
+        }
+        return seen.count
+    }
+
+    /// Whether diarization payload is present on the record.
+    var isDiarized: Bool {
+        diarizationSegmentsJSON != nil
+    }
+
+    /// Whether a non-empty AI summary is available.
+    var hasSummary: Bool {
+        guard let aiSummary else { return false }
+        return !aiSummary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Formatted meeting metadata line, e.g. `"3 speakers · diarized · summary ready"`.
+    /// Builds from localized parts; returns an empty string when nothing applies.
+    func meetingMetadataString(locale: Locale) -> String {
+        var parts: [String] = []
+
+        let count = speakerCount
+        if count > 0 {
+            if count == 1 {
+                parts.append(localized("1 speaker", locale: locale))
+            } else {
+                parts.append(
+                    String(format: localized("%d speakers", locale: locale), count)
+                )
+            }
+        }
+
+        if isDiarized {
+            parts.append(localized("diarized", locale: locale))
+        }
+
+        if hasSummary {
+            parts.append(localized("summary ready", locale: locale))
+        }
+
+        return parts.joined(separator: " · ")
+    }
 }
 
 extension MediaFolder {

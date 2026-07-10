@@ -58,6 +58,11 @@
 		AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
 		ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */; };
 		ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */; };
+		MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */; };
+		AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */; };
+		AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */; };
+		MUTEMONTESTBUILD01A2B3C4D5 /* InputMuteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */; };
+		MEETMETABUILDTEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */; };
 		WAVEPEAKSBUILD01A2B3C4D5 /* WaveformPeaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */; };
 		DICTAUDRETBUILD01A2B3C4 /* DictationAudioRetentionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */; };
 		ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */; };
@@ -284,6 +289,11 @@
 		AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
 		ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
 		ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
+		MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitor.swift; sourceTree = "<group>"; };
+		AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIEnhancementAdapter.swift"; sourceTree = "<group>"; };
+		AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementAdapterTests.swift; sourceTree = "<group>"; };
+		MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitorTests.swift; sourceTree = "<group>"; };
+		MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecordMetadataTests.swift; sourceTree = "<group>"; };
 		WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformPeaks.swift; sourceTree = "<group>"; };
 		DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationAudioRetentionService.swift; sourceTree = "<group>"; };
 		ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementWindowController.swift; sourceTree = "<group>"; };
@@ -582,6 +592,8 @@
 				FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */,
 				TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
 				ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */,
+				MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */,
+				AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */,
 				DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */,
 				WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */,
 				DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */,
@@ -756,6 +768,9 @@
 				FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */,
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
 				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
+				AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */,
+				MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */,
+				MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */,
 				DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */,
 				DICTAUDRETTESTFILE01A2 /* DictationAudioRetentionServiceTests.swift */,
 				AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */,
@@ -1096,6 +1111,9 @@
 				FLOATFSTRKTESTBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift in Sources */,
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
 				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
+				AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */,
+				MUTEMONTESTBUILD01A2B3C4D5 /* InputMuteMonitorTests.swift in Sources */,
+				MEETMETABUILDTEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift in Sources */,
 				DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */,
 				DICTAUDRETTESTBUILD01A2 /* DictationAudioRetentionServiceTests.swift in Sources */,
 				AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */,
@@ -1239,6 +1257,8 @@
 				FLOATFSTRKBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift in Sources */,
 				TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
 				ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */,
+				MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */,
+				AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */,
 				DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */,
 				WAVEPEAKSBUILD01A2B3C4D5 /* WaveformPeaks.swift in Sources */,
 				DICTAUDRETBUILD01A2B3C4 /* DictationAudioRetentionService.swift in Sources */,

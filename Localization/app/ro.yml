@@ -2,6 +2,7 @@
   local_processing: "Prelucrare 100% locală"
 1:
   folder: "1 dosar"
+  speaker: "1 vorbitor"
   transcription: "1 transcriere"
   note: "1 notă"
   word: "1 cuvânt"
@@ -226,6 +227,7 @@ cut:
   _self: "Tăiați"
 d:
   characters: "%d caractere"
+  speakers: "%d vorbitori"
   samples: "%d samples · %@"
   words: "%d cuvinte"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Fixate"
 speak:
   to_append: "Vorbiți pentru a adăuga"
+
+diarized:
+  _self: "diarizat"
+
+summary:
+  ready: "rezumat gata"
+
+prompts:
+  are_sent_in_english: "Prompturile sunt trimise în engleză"
+
+preset_example:
+  clean_input: "ăă deci întâlnirea e la trei jumătate punct poți confirma semnul întrebării"
+  clean_output: "Deci întâlnirea e la 15:30. Poți confirma?"
+  meeting_input: "alice va trimite deck-ul până vineri bob se ocupă de revizuirea prețurilor avem nevoie de o decizie săptămâna viitoare"
+  meeting_output: "## Acțiuni\\n- **Alice** va trimite deck-ul până **vineri**\\n- **Bob** se ocupă de revizuirea prețurilor\\n\\n## Pași următori\\n- Decizie necesară săptămâna viitoare"
+  email_input: "salut jordan verific doar dacă ai primit notițele mele de ieri mulțumesc"
+  email_output: "Salut Jordan,\\n\\nVerific doar dacă ai primit notițele mele de ieri.\\n\\nMulțumesc,"
+  social_input: "ăă tocmai am lansat dark mode și arată incredibil ar trebui să îl încerci"
+  social_output: "Tocmai am lansat dark mode.\\n\\nArată incredibil — ar trebui să îl încerci."
+  bullets_input: "am acoperit latența de onboarding apoi prețurile și în final data de lansare pe doisprezece mai"
+  bullets_output: "- Latența de onboarding\\n- Prețuri\\n- Data de lansare: 12 mai"
+  technical_input: "apelează fetch user săgeată apoi mapează răspunsul egal egal două sute"
+  technical_output: "Apelează `fetchUser` -> apoi mapează răspunsul `==` 200."
+  live_input: "ăă cred că ar trebui să livrăm beta până vineri punct"
+  live_output: "Cred că ar trebui să livrăm beta până vineri."
+  edits_input: "ăă asta e correct ly douăzeci și cinci"
+  edits_output: "Asta e correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

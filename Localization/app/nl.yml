@@ -2,6 +2,7 @@
   local_processing: "100% lokale verwerking"
 1:
   folder: "1 map"
+  speaker: "1 spreker"
   transcription: "1 transcriptie"
   note: "1 notitie"
   word: "1 woord"
@@ -226,6 +227,7 @@ cut:
   _self: "Snee"
 d:
   characters: "%d characters"
+  speakers: "%d sprekers"
   samples: "%d samples · %@"
   words: "%d woorden"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Vastgezet"
 speak:
   to_append: "Spreek om toe te voegen"
+
+diarized:
+  _self: "gediariseerd"
+
+summary:
+  ready: "samenvatting klaar"
+
+prompts:
+  are_sent_in_english: "Prompts worden in het Engels verzonden"
+
+preset_example:
+  clean_input: "eh dus de vergadering is om half vier punt kun je bevestigen vraagteken"
+  clean_output: "Dus de vergadering is om 15:30. Kun je bevestigen?"
+  meeting_input: "alice stuurt het deck vrijdag bob doet de prijsreview we hebben volgende week een beslissing nodig"
+  meeting_output: "## Acties\\n- **Alice** stuurt het deck op **vrijdag**\\n- **Bob** doet de prijsreview\\n\\n## Volgende stappen\\n- Beslissing nodig volgende week"
+  email_input: "hey jordan even checken of je mijn notities van gisteren hebt gekregen bedankt"
+  email_output: "Hey Jordan,\\n\\nEven checken of je mijn notities van gisteren hebt gekregen.\\n\\nBedankt,"
+  social_input: "eh we hebben net dark mode uitgebracht en het ziet er geweldig uit je moet het proberen"
+  social_output: "We hebben net dark mode uitgebracht.\\n\\nHet ziet er geweldig uit — je moet het proberen."
+  bullets_input: "we hebben onboarding-latentie besproken daarna prijzen en tot slot de lanceerdatum van twaalf mei"
+  bullets_output: "- Onboarding-latentie\\n- Prijzen\\n- Lanceerdatum: 12 mei"
+  technical_input: "roep fetch user pijl aan map dan de response is gelijk aan tweehonderd"
+  technical_output: "Roep `fetchUser` -> map dan de response `==` 200."
+  live_input: "eh ik denk dat we de bèta vrijdag moeten shippen punt"
+  live_output: "Ik denk dat we de bèta vrijdag moeten shippen."
+  edits_input: "eh dit is correct ly vijfentwintig"
+  edits_output: "Dit is correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

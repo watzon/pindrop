@@ -2,6 +2,7 @@
   local_processing: "100%-ban helyi feldolgozás"
 1:
   folder: "1 mappa"
+  speaker: "1 beszélő"
   transcription: "1 átírás"
   note: "1 jegyzet"
   word: "1 szó"
@@ -226,6 +227,7 @@ cut:
   _self: "Vágott"
 d:
   characters: "%d karakter"
+  speakers: "%d beszélő"
   samples: "%d samples · %@"
   words: "%d szó"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Kitűzött"
 speak:
   to_append: "Beszéljen a hozzáadáshoz"
+
+diarized:
+  _self: "diarizált"
+
+summary:
+  ready: "összefoglaló kész"
+
+prompts:
+  are_sent_in_english: "A promtok angolul kerülnek elküldésre"
+
+preset_example:
+  clean_input: "öö szóval a megbeszélés fél négykor van pont meg tudod erősíteni kérdőjel"
+  clean_output: "Szóval a megbeszélés 15:30-kor van. Meg tudod erősíteni?"
+  meeting_input: "alice péntekig elküldi a decket bob intézi az árellenőrzést jövő héten döntés kell"
+  meeting_output: "## Teendők\\n- **Alice** péntekig elküldi a decket\\n- **Bob** intézi az árellenőrzést\\n\\n## Következő lépések\\n- Döntés szükséges jövő héten"
+  email_input: "szia jordan csak ellenőrzöm hogy megkaptad-e a tegnapi jegyzeteimet köszi"
+  email_output: "Szia Jordan,\\n\\nCsak ellenőrzöm, hogy megkaptad-e a tegnapi jegyzeteimet.\\n\\nKöszi,"
+  social_input: "öö most adtuk ki a sötét módot és fantasztikusan néz ki ki kellene próbálnod"
+  social_output: "Most adtuk ki a sötét módot.\\n\\nFantasztikusan néz ki — ki kellene próbálnod."
+  bullets_input: "átbeszéltük az onboarding késleltetést aztán az árakat és végül a május tizenkettedikei indulást"
+  bullets_output: "- Onboarding késleltetés\\n- Árak\\n- Indulás dátuma: május 12."
+  technical_input: "hívd a fetch user nyíl aztán mapeld a választ egyenlő egyenlő kettőszáz"
+  technical_output: "Hívd a `fetchUser` -> aztán mapeld a választ `==` 200."
+  live_input: "öö szerintem péntekig ki kellene adnunk a bétát pont"
+  live_output: "Szerintem péntekig ki kellene adnunk a bétát."
+  edits_input: "öö ez correct ly huszonöt"
+  edits_output: "Ez correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

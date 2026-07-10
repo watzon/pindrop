@@ -2,6 +2,7 @@
   local_processing: "%100 yerli işleme"
 1:
   folder: "1 klasör"
+  speaker: "1 konuşmacı"
   transcription: "1 transkripsiyon"
   note: "1 not"
   word: "1 kelime"
@@ -226,6 +227,7 @@ cut:
   _self: "Kesmek"
 d:
   characters: "%d characters"
+  speakers: "%d konuşmacı"
   samples: "%d samples · %@"
   words: "%d kelime"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Sabitlenmiş"
 speak:
   to_append: "Eklemek için konuşun"
+
+diarized:
+  _self: "diyarıze"
+
+summary:
+  ready: "özet hazır"
+
+prompts:
+  are_sent_in_english: "İstemler İngilizce gönderilir"
+
+preset_example:
+  clean_input: "ee yani toplantı üç buçukta nokta onaylayabilir misin soru işareti"
+  clean_output: "Yani toplantı 15:30'da. Onaylayabilir misin?"
+  meeting_input: "alice cuma'ya kadar decki gönderecek bob fiyat incelemesini üstleniyor gelecek hafta bir karar lazım"
+  meeting_output: "## Aksiyonlar\\n- **Alice** decki **Cuma**'ya kadar gönderecek\\n- **Bob** fiyat incelemesini üstleniyor\\n\\n## Sonraki adımlar\\n- Gelecek hafta karar gerekli"
+  email_input: "selam jordan dünkü notlarımı alıp almadığını kontrol ediyordum teşekkürler"
+  email_output: "Selam Jordan,\\n\\nDünkü notlarımı alıp almadığını kontrol ediyordum.\\n\\nTeşekkürler,"
+  social_input: "ee az önce karanlık modu yayınladık ve harika görünüyor denemelisin"
+  social_output: "Az önce karanlık modu yayınladık.\\n\\nHarika görünüyor — denemelisin."
+  bullets_input: "onboarding gecikmesini sonra fiyatları ve son olarak on iki mayıs lansman tarihini konuştuk"
+  bullets_output: "- Onboarding gecikmesi\\n- Fiyatlar\\n- Lansman tarihi: 12 Mayıs"
+  technical_input: "fetch user çağır ok sonra yanıtı eşittir eşittir iki yüz olarak eşle"
+  technical_output: "`fetchUser` çağır -> sonra yanıtı `==` 200 olarak eşle."
+  live_input: "ee bence betayı cuma'ya kadar çıkarmalıyız nokta"
+  live_output: "Bence betayı Cuma'ya kadar çıkarmalıyız."
+  edits_input: "ee bu correct ly yirmi beş"
+  edits_output: "Bu correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

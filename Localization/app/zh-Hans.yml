@@ -2,6 +2,7 @@
   local_processing: "100% 本地处理"
 1:
   folder: "1 个文件夹"
+  speaker: "1 位发言人"
   transcription: "1 个转录"
   note: "1 条笔记"
   word: "1 个词"
@@ -226,6 +227,7 @@ cut:
   _self: "剪切"
 d:
   characters: "%d characters"
+  speakers: "%d 位发言人"
   samples: "%d 个样本 · %@"
   words: "%d 个词"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "已置顶"
 speak:
   to_append: "说话追加"
+
+diarized:
+  _self: "已区分发言人"
+
+summary:
+  ready: "摘要已就绪"
+
+prompts:
+  are_sent_in_english: "提示词以英文发送"
+
+preset_example:
+  clean_input: "嗯 所以会议在三点半 句号 你能确认吗 问号"
+  clean_output: "所以会议在 15:30。你能确认吗？"
+  meeting_input: "爱丽丝周五前会发材料 鲍勃负责价格审核 下周需要做决定"
+  meeting_output: "## 待办\\n- **爱丽丝** 周五前会发材料\\n- **鲍勃** 负责价格审核\\n\\n## 下一步\\n- 下周需要做决定"
+  email_input: "嗨 乔丹 只是确认一下你是否收到我昨天的笔记 谢谢"
+  email_output: "嗨乔丹，\\n\\n只是确认一下你是否收到我昨天的笔记。\\n\\n谢谢，"
+  social_input: "嗯 我们刚发布了深色模式 看起来很棒 你应该试试"
+  social_output: "我们刚发布了深色模式。\\n\\n看起来很棒 — 你应该试试。"
+  bullets_input: "我们讨论了入职延迟 然后是价格 最后是五月十二日的发布日期"
+  bullets_output: "- 入职延迟\\n- 价格\\n- 发布日期：5 月 12 日"
+  technical_input: "调用 fetch user 箭头 然后把响应 等于 等于 二百 做映射"
+  technical_output: "调用 `fetchUser` -> 然后把响应 `==` 200 做映射。"
+  live_input: "嗯 我觉得我们应该周五前发布测试版 句号"
+  live_output: "我觉得我们应该周五前发布测试版。"
+  edits_input: "嗯 这是 correct ly 二十五"
+  edits_output: "这是 correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

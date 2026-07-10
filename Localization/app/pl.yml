@@ -2,6 +2,7 @@
   local_processing: "100% lokalne przetwarzanie"
 1:
   folder: "1 folder"
+  speaker: "1 mówca"
   transcription: "1 transkrypcja"
   note: "1 notatka"
   word: "1 słowo"
@@ -226,6 +227,7 @@ cut:
   _self: "Cięcie"
 d:
   characters: "%d znaków"
+  speakers: "%d mówców"
   samples: "%d samples · %@"
   words: "%d słów"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Przypięte"
 speak:
   to_append: "Mów, aby dodać"
+
+diarized:
+  _self: "diarizacja"
+
+summary:
+  ready: "podsumowanie gotowe"
+
+prompts:
+  are_sent_in_english: "Prompty są wysyłane po angielsku"
+
+preset_example:
+  clean_input: "yyy więc spotkanie jest o wpół do czwartej kropka możesz potwierdzić znak zapytania"
+  clean_output: "Więc spotkanie jest o 15:30. Możesz potwierdzić?"
+  meeting_input: "alice wyśle deck do piątku bob zajmuje się przeglądem cen potrzebujemy decyzji w przyszłym tygodniu"
+  meeting_output: "## Zadania\\n- **Alice** wyśle deck do **piątku**\\n- **Bob** zajmuje się przeglądem cen\\n\\n## Kolejne kroki\\n- Decyzja potrzebna w przyszłym tygodniu"
+  email_input: "cześć jordan tylko sprawdzam czy dostałeś moje notatki z wczoraj dzięki"
+  email_output: "Cześć Jordan,\\n\\nTylko sprawdzam, czy dostałeś moje notatki z wczoraj.\\n\\nDzięki,"
+  social_input: "yyy właśnie wydaliśmy tryb ciemny i wygląda niesamowicie powinieneś spróbować"
+  social_output: "Właśnie wydaliśmy tryb ciemny.\\n\\nWygląda niesamowicie — powinieneś spróbować."
+  bullets_input: "omówiliśmy opóźnienie onboardingu potem ceny i na koniec datę premiery dwunastego maja"
+  bullets_output: "- Opóźnienie onboardingu\\n- Ceny\\n- Data premiery: 12 maja"
+  technical_input: "wywołaj fetch user strzałka potem zmapuj odpowiedź równa się równa się dwieście"
+  technical_output: "Wywołaj `fetchUser` -> potem zmapuj odpowiedź `==` 200."
+  live_input: "yyy myślę że powinniśmy wysłać betę do piątku kropka"
+  live_output: "Myślę, że powinniśmy wysłać betę do piątku."
+  edits_input: "yyy to jest correct ly dwadzieścia pięć"
+  edits_output: "To jest correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

@@ -2,6 +2,7 @@
   local_processing: "100% 로컬 처리"
 1:
   folder: "폴더 1개"
+  speaker: "화자 1명"
   transcription: "1 전사"
   note: "메모 1개"
   word: "단어 1개"
@@ -226,6 +227,7 @@ cut:
   _self: "자르다"
 d:
   characters: "%d characters"
+  speakers: "화자 %d명"
   samples: "%d개 샘플 · %@"
   words: "%d개 단어"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "고정됨"
 speak:
   to_append: "말해 추가"
+
+diarized:
+  _self: "화자 분리됨"
+
+summary:
+  ready: "요약 준비됨"
+
+prompts:
+  are_sent_in_english: "프롬프트는 영어로 전송됩니다"
+
+preset_example:
+  clean_input: "음 그래서 회의는 세 시 반이야 마침표 확인해 줄 수 있어 물음표"
+  clean_output: "그래서 회의는 15:30이야. 확인해 줄 수 있어?"
+  meeting_input: "앨리스가 금요일까지 덱을 보내고 밥이 가격 검토를 맡아 다음 주에 결정이 필요해"
+  meeting_output: "## 할 일\\n- **앨리스**가 **금요일**까지 덱을 보냄\\n- **밥**이 가격 검토를 맡음\\n\\n## 다음 단계\\n- 다음 주 결정 필요"
+  email_input: "안녕 조던 어제 메모 받았는지 확인만 했어 고마워"
+  email_output: "안녕 조던,\\n\\n어제 메모 받았는지 확인만 했어.\\n\\n고마워,"
+  social_input: "음 방금 다크 모드를 출시했는데 정말 멋져 보여 너도 써 봐야 해"
+  social_output: "방금 다크 모드를 출시했어.\\n\\n정말 멋져 보여 — 너도 써 봐야 해."
+  bullets_input: "온보딩 지연을 다뤘고 그다음 가격 마지막으로 오월 십이일 출시일"
+  bullets_output: "- 온보딩 지연\\n- 가격\\n- 출시일: 5월 12일"
+  technical_input: "fetch user 호출 화살표 그다음 응답을 등호 등호 이백으로 매핑"
+  technical_output: "`fetchUser` 호출 -> 그다음 응답을 `==` 200으로 매핑."
+  live_input: "음 금요일까지 베타를 출시해야 할 것 같아 마침표"
+  live_output: "금요일까지 베타를 출시해야 할 것 같아."
+  edits_input: "음 이건 correct ly 이십오"
+  edits_output: "이건 correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

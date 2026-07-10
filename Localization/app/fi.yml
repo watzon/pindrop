@@ -2,6 +2,7 @@
   local_processing: "100 % paikallinen käsittely"
 1:
   folder: "1 kansio"
+  speaker: "1 puhuja"
   transcription: "1 transkriptio"
   note: "1 muistiinpano"
   word: "1 sana"
@@ -226,6 +227,7 @@ cut:
   _self: "Leikata"
 d:
   characters: "%d merkkiä"
+  speakers: "%d puhujaa"
   samples: "%d samples · %@"
   words: "%d sanaa"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Kiinnitetyt"
 speak:
   to_append: "Puhu lisätäksesi"
+
+diarized:
+  _self: "diarisointi"
+
+summary:
+  ready: "yhteenveto valmis"
+
+prompts:
+  are_sent_in_english: "Promptit lähetetään englanniksi"
+
+preset_example:
+  clean_input: "öö eli kokous on puoli neljältä piste voitko vahvistaa kysymysmerkki"
+  clean_output: "Eli kokous on klo 15.30. Voitko vahvistaa?"
+  meeting_input: "alice lähettää dekin perjantaihin mennessä bob hoitaa hintatarkistuksen tarvitsemme päätöksen ensi viikolla"
+  meeting_output: "## Toimenpiteet\\n- **Alice** lähettää dekin **perjantaihin** mennessä\\n- **Bob** hoitaa hintatarkistuksen\\n\\n## Seuraavat askeleet\\n- Päätös tarvitaan ensi viikolla"
+  email_input: "moi jordan tarkistan vain saitko eiliset muistiinpanoni kiitos"
+  email_output: "Moi Jordan,\\n\\nTarkistan vain, saitko eiliset muistiinpanoni.\\n\\nKiitos,"
+  social_input: "öö julkaisimme juuri tumman tilan ja se näyttää mahtavalta sinun kannattaa kokeilla"
+  social_output: "Julkaisimme juuri tumman tilan.\\n\\nSe näyttää mahtavalta — sinun kannattaa kokeilla."
+  bullets_input: "kävimme läpi onboarding-latenssin sitten hinnat ja lopuksi julkaisupäivän kahdestoista toukokuuta"
+  bullets_output: "- Onboarding-latenssi\\n- Hinnat\\n- Julkaisupäivä: 12. toukokuuta"
+  technical_input: "kutsu fetch user nuoli sitten mapaa vastaus yhtäsuuri yhtäsuuri kaksisataa"
+  technical_output: "Kutsu `fetchUser` -> sitten mapaa vastaus `==` 200."
+  live_input: "öö mielestäni meidän pitäisi julkaista beta perjantaihin mennessä piste"
+  live_output: "Mielestäni meidän pitäisi julkaista beta perjantaihin mennessä."
+  edits_input: "öö tämä on correct ly kaksikymmentäviisi"
+  edits_output: "Tämä on correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

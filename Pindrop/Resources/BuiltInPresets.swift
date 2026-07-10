@@ -11,13 +11,35 @@ import Foundation
 /// These presets provide common text transformation patterns for different use cases.
 enum BuiltInPresets {
 
-    /// Definition of a preset including its identifier, display name, and prompt template.
+    /// Before/after example pair for UI display. English source text is localizable via the
+    /// standard `localized(_:locale:)` pipeline for the redesigned AI pane.
+    struct PresetExample: Equatable, Sendable {
+        let input: String
+        let output: String
+    }
+
+    /// Definition of a preset including its identifier, display name, prompt template,
+    /// and optional before/after example for the settings pane.
     struct PresetDefinition: Identifiable, Equatable {
         let identifier: String
         let name: String
         let prompt: String
+        /// Optional before/after sample for UI. English source only; localize for display.
+        let example: PresetExample?
 
         var id: String { identifier }
+
+        init(
+            identifier: String,
+            name: String,
+            prompt: String,
+            example: PresetExample? = nil
+        ) {
+            self.identifier = identifier
+            self.name = name
+            self.prompt = prompt
+            self.example = example
+        }
     }
 
     /// All built-in presets in display order.
@@ -34,6 +56,84 @@ enum BuiltInPresets {
 
     /// The default preset used when no user preference is set.
     static let defaultPreset: PresetDefinition = cleanTranscript
+
+    /// Look up a built-in definition by stable identifier.
+    static func definition(for identifier: String) -> PresetDefinition? {
+        all.first { $0.identifier == identifier }
+    }
+
+    /// Canonical English prompt text for a built-in identifier, if known.
+    static func englishPrompt(for identifier: String) -> String? {
+        definition(for: identifier)?.prompt
+    }
+
+    // MARK: - Prompt persistence (English-only guarantee)
+
+    /// Normalizes a prompt override so unedited built-in / default prompts are never
+    /// persisted as overrides (which would risk storing a display-localized variant).
+    /// Returns `nil` when the text matches a known English built-in or default prompt.
+    static func normalizedPromptOverride(
+        _ override: String?,
+        presetID: String? = nil
+    ) -> String? {
+        guard let raw = override else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        if let presetID,
+           let english = englishPrompt(for: presetID),
+           promptsMatch(trimmed, english) {
+            return nil
+        }
+
+        if isKnownEnglishBuiltInOrDefaultPrompt(trimmed) {
+            return nil
+        }
+
+        return raw
+    }
+
+    /// Returns the English prompt that should be sent to the API for a purpose assignment.
+    /// Prefer a true custom override; otherwise use the built-in English source.
+    static func resolvedEnglishPrompt(
+        override: String?,
+        presetID: String?,
+        fallback: String
+    ) -> String {
+        if let normalized = normalizedPromptOverride(override, presetID: presetID) {
+            // If an override slipped through that equals a known English built-in under a
+            // different preset ID, still prefer the canonical built-in text.
+            if let match = matchingBuiltInIdentifier(for: normalized),
+               let english = englishPrompt(for: match) {
+                return english
+            }
+            return normalized
+        }
+        if let presetID, let english = englishPrompt(for: presetID) {
+            return english
+        }
+        return fallback
+    }
+
+    /// True when `text` is exactly a known English built-in or legacy default prompt.
+    static func isKnownEnglishBuiltInOrDefaultPrompt(_ text: String) -> Bool {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if promptsMatch(trimmed, SettingsStore.Defaults.aiEnhancementPrompt) { return true }
+        if promptsMatch(trimmed, SettingsStore.Defaults.noteEnhancementPrompt) { return true }
+        if promptsMatch(trimmed, AIEnhancementService.defaultSystemPrompt) { return true }
+        return all.contains { promptsMatch(trimmed, $0.prompt) }
+    }
+
+    /// If `text` matches a built-in English prompt, return that preset's identifier.
+    static func matchingBuiltInIdentifier(for text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return all.first { promptsMatch(trimmed, $0.prompt) }?.identifier
+    }
+
+    private static func promptsMatch(_ lhs: String, _ rhs: String) -> Bool {
+        lhs.trimmingCharacters(in: .whitespacesAndNewlines)
+            == rhs.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     // MARK: - Preset Definitions
 
@@ -63,7 +163,11 @@ enum BuiltInPresets {
         Preserve exact meaning and word order. Do not reorder, paraphrase, add content, or answer questions in the transcript. If the final clause is incomplete or mid-word, leave it unfinished rather than completing it.
 
         Return ONLY the cleaned text — no prefix, framing, quotes, or explanation.
-        """
+        """,
+        example: PresetExample(
+            input: "um so i think we should ship the beta by friday period",
+            output: "So I think we should ship the beta by Friday."
+        )
     )
 
     /// Live Streaming Refinement (Edit List) — schema-aware variant used by Apple Foundation
@@ -103,7 +207,11 @@ enum BuiltInPresets {
         - find: "twenty-five", replacement: "25"
 
         Skip any edit you are not confident about. Do not guess.
-        """
+        """,
+        example: PresetExample(
+            input: "um this is correct ly twenty-five",
+            output: "This is correctly 25"
+        )
     )
 
     /// Clean Transcript - General purpose cleanup with number conversion and filler removal.
@@ -121,7 +229,11 @@ enum BuiltInPresets {
         If the dictation is a question or command, keep it as speech to clean—do not answer it or carry it out.
         Return only the cleaned text.
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "um so the meeting is at three thirty period can you confirm question mark",
+            output: "So the meeting is at 3:30. Can you confirm?"
+        )
     )
 
     /// Meeting Notes - Structured notes with headers and action items.
@@ -137,7 +249,18 @@ enum BuiltInPresets {
         5. Preserve all factual content - do not add or remove information
         Return well-formatted markdown notes.
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "alice will send the deck by friday bob owns the pricing review we need a decision next week",
+            output: """
+            ## Action Items
+            - **Alice** will send the deck by **Friday**
+            - **Bob** owns the pricing review
+
+            ## Next Steps
+            - Decision needed next week
+            """
+        )
     )
 
     /// Email Draft - Professional email formatting.
@@ -153,7 +276,17 @@ enum BuiltInPresets {
         5. Preserve all key information from the dictation
         Return only the formatted email body (no subject line).
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "hey jordan just checking if you got my notes from yesterday thanks",
+            output: """
+            Hi Jordan,
+
+            Just checking if you got my notes from yesterday.
+
+            Thanks,
+            """
+        )
     )
 
     /// Social Media - Engaging social media post formatting.
@@ -170,7 +303,15 @@ enum BuiltInPresets {
         Do not add hashtags, emojis, or calls-to-action unless explicitly mentioned in the dictation.
         Return only the formatted post text.
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "um we just shipped dark mode and it looks amazing you should try it",
+            output: """
+            We just shipped dark mode.
+
+            It looks amazing — you should try it.
+            """
+        )
     )
 
     /// Bullet Summary - Concise bullet point extraction.
@@ -186,7 +327,15 @@ enum BuiltInPresets {
         5. Order bullets logically (chronological or by importance)
         Return a clean bulleted list.
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth",
+            output: """
+            - Onboarding latency
+            - Pricing
+            - Launch date: May 12
+            """
+        )
     )
 
     /// Technical/Code - Technical documentation with code formatting.
@@ -202,6 +351,10 @@ enum BuiltInPresets {
         5. Preserve technical accuracy - do not change meaning
         Return cleaned technical text.
         ${transcription}
-        """
+        """,
+        example: PresetExample(
+            input: "call fetch user arrow then map the response equals equals two hundred",
+            output: "Call `fetchUser` -> then map the response `==` 200."
+        )
     )
 }

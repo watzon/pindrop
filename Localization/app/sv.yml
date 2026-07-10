@@ -2,6 +2,7 @@
   local_processing: "100 % lokal bearbetning"
 1:
   folder: "1 mapp"
+  speaker: "1 talare"
   transcription: "1 transkription"
   note: "1 anteckning"
   word: "1 ord"
@@ -226,6 +227,7 @@ cut:
   _self: "Skära"
 d:
   characters: "%d tecken"
+  speakers: "%d talare"
   samples: "%d samples · %@"
   words: "%d ord"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Fästa"
 speak:
   to_append: "Tala för att lägga till"
+
+diarized:
+  _self: "diariserad"
+
+summary:
+  ready: "sammanfattning klar"
+
+prompts:
+  are_sent_in_english: "Prompts skickas på engelska"
+
+preset_example:
+  clean_input: "öh så mötet är klockan halv fyra punkt kan du bekräfta frågetecken"
+  clean_output: "Så mötet är kl. 15:30. Kan du bekräfta?"
+  meeting_input: "alice skickar decket till fredag bob tar prisgranskningen vi behöver ett beslut nästa vecka"
+  meeting_output: "## Åtgärder\\n- **Alice** skickar decket till **fredag**\\n- **Bob** tar prisgranskningen\\n\\n## Nästa steg\\n- Beslut behövs nästa vecka"
+  email_input: "hej jordan kollar bara om du fick mina anteckningar från igår tack"
+  email_output: "Hej Jordan,\\n\\nKollar bara om du fick mina anteckningar från igår.\\n\\nTack,"
+  social_input: "öh vi har precis släppt dark mode och den ser fantastisk ut du borde prova den"
+  social_output: "Vi har precis släppt dark mode.\\n\\nDen ser fantastisk ut — du borde prova den."
+  bullets_input: "vi gick igenom onboarding-latens sedan priser och slutligen lanseringsdatum den tolfte maj"
+  bullets_output: "- Onboarding-latens\\n- Priser\\n- Lanseringsdatum: 12 maj"
+  technical_input: "anropa fetch user pil mappa sedan svaret lika med lika med tvåhundra"
+  technical_output: "Anropa `fetchUser` -> mappa sedan svaret `==` 200."
+  live_input: "öh jag tycker vi ska skicka betan till fredag punkt"
+  live_output: "Jag tycker att vi ska skicka betan till fredag."
+  edits_input: "öh det är correct ly tjugofem"
+  edits_output: "Det är correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

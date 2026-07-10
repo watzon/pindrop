@@ -2,6 +2,7 @@
   local_processing: "100% procesamiento local"
 1:
   folder: "1 carpeta"
+  speaker: "1 interlocutor"
   transcription: "1 transcripción"
   note: "1 nota"
   word: "1 palabra"
@@ -226,6 +227,7 @@ cut:
   _self: "Cut"
 d:
   characters: "%d characters"
+  speakers: "%d interlocutores"
   samples: "%d muestras · %@"
   words: "%d palabras"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Fijadas"
 speak:
   to_append: "Hablar para añadir"
+
+diarized:
+  _self: "diarizado"
+
+summary:
+  ready: "resumen listo"
+
+prompts:
+  are_sent_in_english: "Los prompts se envían en inglés"
+
+preset_example:
+  clean_input: "eh entonces la reunión es a las tres y media punto puedes confirmar signo de interrogación"
+  clean_output: "Entonces la reunión es a las 15:30. ¿Puedes confirmar?"
+  meeting_input: "alice enviará la presentación el viernes bob se encarga de la revisión de precios necesitamos una decisión la próxima semana"
+  meeting_output: "## Tareas\\n- **Alice** enviará la presentación el **viernes**\\n- **Bob** se encarga de la revisión de precios\\n\\n## Próximos pasos\\n- Decisión necesaria la próxima semana"
+  email_input: "hola jordan solo quería saber si recibiste mis notas de ayer gracias"
+  email_output: "Hola Jordan,\\n\\nSolo quería saber si recibiste mis notas de ayer.\\n\\nGracias,"
+  social_input: "eh acabamos de lanzar el modo oscuro y se ve increíble deberías probarlo"
+  social_output: "Acabamos de lanzar el modo oscuro.\\n\\nSe ve increíble — deberías probarlo."
+  bullets_input: "cubrimos la latencia del onboarding luego los precios y por último la fecha de lanzamiento del doce de mayo"
+  bullets_output: "- Latencia del onboarding\\n- Precios\\n- Fecha de lanzamiento: 12 de mayo"
+  technical_input: "llama a fetch user flecha luego mapea la respuesta igual igual doscientos"
+  technical_output: "Llama a `fetchUser` -> luego mapea la respuesta `==` 200."
+  live_input: "eh creo que deberíamos lanzar la beta el viernes punto"
+  live_output: "Creo que deberíamos lanzar la beta el viernes."
+  edits_input: "eh esto es correct ly veinticinco"
+  edits_output: "Esto es correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

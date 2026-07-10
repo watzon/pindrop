@@ -611,19 +611,44 @@ struct AIEnhancementSettingsView: View {
          set: { newValue in
             promptOverrideDrafts[purpose.rawValue] = newValue
             guard var existing = settings.assignment(for: purpose) else { return }
-            existing.promptOverride = newValue.isEmpty ? nil : newValue
-            existing.promptPresetID = nil
+            // Empty or unedited built-in English text → store nil override (English guarantee).
+            let normalized = BuiltInPresets.normalizedPromptOverride(
+               newValue.isEmpty ? nil : newValue,
+               presetID: existing.promptPresetID
+            )
+            existing.promptOverride = normalized
+            if normalized != nil {
+               // True custom text: leave Custom mode (no preset pointer).
+               existing.promptPresetID = nil
+            } else if existing.promptPresetID == nil {
+               // Custom mode with empty/unedited text would leave both nil — fall back to
+               // the purpose default built-in so resolve always has a deterministic English source.
+               existing.promptPresetID =
+                  defaultPresetID(for: purpose) ?? BuiltInPresetID.cleanTranscript
+            }
             settings.setAssignment(existing, for: purpose)
          }
       )
    }
 
+   /// English source for a preset. Prefer `BuiltInPresets` so custom-editor seeding never
+   /// captures a display-localized string for built-ins.
    private func resolvePresetPromptText(_ presetID: String?) -> String? {
       guard let presetID else { return nil }
+      if let english = BuiltInPresets.englishPrompt(for: presetID) {
+         return english
+      }
       if let preset = presets.first(where: { $0.builtInIdentifier == presetID }) {
+         // User-authored presets keep their stored prompt; built-ins should already have
+         // been handled above. If a built-in row lacks a matching BuiltInPresets entry,
+         // fall back to the English store text from seeding.
          return preset.prompt
       }
       if let preset = presets.first(where: { $0.id.uuidString == presetID }) {
+         if let builtInID = preset.builtInIdentifier,
+            let english = BuiltInPresets.englishPrompt(for: builtInID) {
+            return english
+         }
          return preset.prompt
       }
       return nil

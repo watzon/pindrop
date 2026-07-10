@@ -2,6 +2,7 @@
   local_processing: "Xử lý cục bộ 100%"
 1:
   folder: "1 thư mục"
+  speaker: "1 người nói"
   transcription: "1 bản phiên âm"
   note: "1 ghi chú"
   word: "1 từ"
@@ -226,6 +227,7 @@ cut:
   _self: "Cắt"
 d:
   characters: "%d ký tự"
+  speakers: "%d người nói"
   samples: "%d samples · %@"
   words: "%d từ"
 dark:
@@ -1205,3 +1207,36 @@ pinned:
   _self: "Đã ghim"
 speak:
   to_append: "Nói để thêm"
+
+diarized:
+  _self: "đã phân vai nói"
+
+summary:
+  ready: "tóm tắt sẵn sàng"
+
+prompts:
+  are_sent_in_english: "Prompt được gửi bằng tiếng Anh"
+
+preset_example:
+  clean_input: "ờ vậy cuộc họp lúc ba rưỡi chấm bạn có thể xác nhận chấm hỏi không"
+  clean_output: "Vậy cuộc họp lúc 15:30. Bạn có thể xác nhận không?"
+  meeting_input: "alice sẽ gửi deck trước thứ sáu bob phụ trách xem xét giá chúng ta cần quyết định tuần sau"
+  meeting_output: "## Việc cần làm\\n- **Alice** sẽ gửi deck trước **thứ Sáu**\\n- **Bob** phụ trách xem xét giá\\n\\n## Bước tiếp theo\\n- Cần quyết định tuần sau"
+  email_input: "chào jordan chỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa cảm ơn"
+  email_output: "Chào Jordan,\\n\\nChỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa.\\n\\nCảm ơn,"
+  social_input: "ờ chúng tôi vừa ra mắt chế độ tối và trông tuyệt vời bạn nên thử"
+  social_output: "Chúng tôi vừa ra mắt chế độ tối.\\n\\nTrông tuyệt vời — bạn nên thử."
+  bullets_input: "chúng ta đã bàn về độ trễ onboarding rồi giá và cuối cùng ngày ra mắt mùng mười hai tháng năm"
+  bullets_output: "- Độ trễ onboarding\\n- Giá\\n- Ngày ra mắt: 12 tháng 5"
+  technical_input: "gọi fetch user mũi tên rồi ánh xạ phản hồi bằng bằng hai trăm"
+  technical_output: "Gọi `fetchUser` -> rồi ánh xạ phản hồi `==` 200."
+  live_input: "ờ tôi nghĩ chúng ta nên phát hành beta trước thứ sáu chấm"
+  live_output: "Tôi nghĩ chúng ta nên phát hành beta trước thứ Sáu."
+  edits_input: "ờ đây là correct ly hai mươi lăm"
+  edits_output: "Đây là correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"
