@@ -212,16 +212,52 @@ enum AppColors {
         }
     }
 
+    /// NSColor dynamic providers run on EVERY draw — a full palette build (catalog
+    /// lookup + WCAG clamp search + logging) per color per frame melts the CPU once
+    /// an always-on surface like the orb is animating. Memoize by resolution inputs;
+    /// the key changes whenever preset, appearance, or display options change, so no
+    /// explicit invalidation is needed. Providers are nonisolated → lock the cache.
+    private struct PaletteKey: Hashable {
+        let isDark: Bool
+        let presetID: String?
+        let increaseContrast: Bool
+        let reduceTransparency: Bool
+    }
+
+    private static let paletteCacheLock = NSLock()
+    nonisolated(unsafe) private static var paletteCache: [PaletteKey: ResolvedPalette] = [:]
+
     private static func resolvedPalette(for isDark: Bool) -> ResolvedPalette {
         let variant: PindropThemeVariant = isDark ? .dark : .light
         let storageKey = isDark ? PindropThemeStorageKeys.darkThemePresetID : PindropThemeStorageKeys.lightThemePresetID
         let presetID = UserDefaults.standard.string(forKey: storageKey)
+        let options = AccessibilityDisplayOptionsCache.current
+        let key = PaletteKey(
+            isDark: isDark,
+            presetID: presetID,
+            increaseContrast: options.increaseContrast,
+            reduceTransparency: options.reduceTransparency
+        )
+
+        paletteCacheLock.lock()
+        if let cached = paletteCache[key] {
+            paletteCacheLock.unlock()
+            return cached
+        }
+        paletteCacheLock.unlock()
+
+        // Build outside the lock: construction logs and does contrast math.
         let profile = PindropThemePresetCatalog.profile(for: presetID, variant: variant)
-        return ResolvedPalette(
+        let palette = ResolvedPalette(
             profile: profile,
             isDark: isDark,
-            displayOptions: AccessibilityDisplayOptionsCache.current
+            displayOptions: options
         )
+
+        paletteCacheLock.lock()
+        paletteCache[key] = palette
+        paletteCacheLock.unlock()
+        return palette
     }
 
     private static func isDark(_ appearance: NSAppearance) -> Bool {
