@@ -15,18 +15,32 @@ enum StatusCardPhase: Equatable {
 
     @MainActor
     init(state: FloatingIndicatorState) {
-        if state.isRecording {
-            self = .recording(duration: state.recordingDuration)
-        } else if state.isProcessing {
+        self.init(isRecording: state.isRecording, isProcessing: state.isProcessing, duration: state.recordingDuration)
+    }
+
+    /// Pure mapping for tests and callers without a live indicator state.
+    init(isRecording: Bool, isProcessing: Bool, duration: TimeInterval = 0) {
+        if isRecording {
+            self = .recording(duration: duration)
+        } else if isProcessing {
             self = .processing
         } else {
             self = .ready
+        }
+    }
+
+    var isActive: Bool {
+        switch self {
+        case .ready: return false
+        case .recording, .processing: return true
         }
     }
 }
 
 /// "Ready to dictate" / recording / processing footer card (spec §3).
 struct StatusCard: View {
+    @Environment(\.locale) private var locale
+
     let phase: StatusCardPhase
     var hotkeyHint: String = ""
 
@@ -71,13 +85,15 @@ struct StatusCard: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(backgroundColor)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
     }
 
     private var title: String {
         switch phase {
-        case .ready: return "Ready to dictate"
-        case .recording: return "Recording"
-        case .processing: return "Processing"
+        case .ready: return localized("Ready to dictate", locale: locale)
+        case .recording: return localized("Recording", locale: locale)
+        case .processing: return localized("Processing", locale: locale)
         }
     }
 
@@ -108,6 +124,44 @@ struct StatusCard: View {
         let minutes = total / 60
         let seconds = total % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+/// Collapsed sidebar status indicator (derived 64 pt rail — not in Paper file).
+struct StatusCardDot: View {
+    let phase: StatusCardPhase
+
+    @State private var pulse = false
+
+    var body: some View {
+        Circle()
+            .fill(dotColor)
+            .frame(width: 8, height: 8)
+            .opacity(phase.isActive ? (pulse ? 0.45 : 1.0) : 1.0)
+            .animation(
+                phase.isActive
+                    ? .easeInOut(duration: 0.9).repeatForever(autoreverses: true)
+                    : .default,
+                value: pulse
+            )
+            .onAppear { pulse = phase.isActive }
+            .onChange(of: phase.isActive) { _, active in pulse = active }
+            .accessibilityLabel(accessibilityTitle)
+    }
+
+    private var dotColor: Color {
+        switch phase {
+        case .ready, .processing: return AppColors.accent
+        case .recording: return AppColors.recording
+        }
+    }
+
+    private var accessibilityTitle: String {
+        switch phase {
+        case .ready: return "Ready"
+        case .recording: return "Recording"
+        case .processing: return "Processing"
+        }
     }
 }
 

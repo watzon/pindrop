@@ -10,36 +10,50 @@ import SwiftUI
 /// Scorched Earth sidebar nav item (spec §3).
 /// Selected: page bg + 1 pt line border, ink label 600, accent icon.
 /// Unselected: transparent, ink-2 label 500, ink-2 icon.
+/// Collapsed (derived 64 pt rail): icon-only, centered 18 pt slot, counts hidden.
 struct SidebarItem: View {
     let title: String
     let systemImage: String
     var count: Int? = nil
+    var isCollapsed: Bool = false
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
-                    .frame(width: 18, height: 18)
+            Group {
+                if isCollapsed {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
+                        .frame(width: 18, height: 18)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 7)
+                        .padding(.horizontal, 10)
+                } else {
+                    HStack(spacing: 10) {
+                        Image(systemName: systemImage)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(isSelected ? AppColors.accent : AppColors.textSecondary)
+                            .frame(width: 18, height: 18)
 
-                Text(title)
-                    .font(isSelected ? AppTypography.labelStrongSelected : AppTypography.labelStrong)
-                    .foregroundStyle(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
-                    .lineLimit(1)
+                        Text(title)
+                            .font(isSelected ? AppTypography.labelStrongSelected : AppTypography.labelStrong)
+                            .foregroundStyle(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
+                            .lineLimit(1)
 
-                Spacer(minLength: 0)
+                        Spacer(minLength: 0)
 
-                if let count {
-                    Text("\(count)")
-                        .font(AppTypography.monoSmall)
-                        .foregroundStyle(AppColors.textTertiary)
+                        if let count {
+                            Text("\(count)")
+                                .font(AppTypography.monoSmall)
+                                .foregroundStyle(AppColors.textTertiary)
+                        }
+                    }
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 10)
                 }
             }
-            .padding(.vertical, 7)
-            .padding(.horizontal, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(isSelected ? AppColors.contentBackground : Color.clear)
@@ -51,6 +65,8 @@ struct SidebarItem: View {
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
+        .help(isCollapsed ? title : "")
+        .accessibilityLabel(title)
     }
 }
 
