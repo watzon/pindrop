@@ -8,8 +8,10 @@
 import SwiftUI
 
 /// Expanded library player card chrome (spec §6): ground bg, line border, radius 14.
+/// Pass `EmptyView` for `player` when the row has no playable audio.
 struct PlayerCardChrome<Meta: View, Player: View, Actions: View>: View {
     let transcript: String
+    var showsPlayer: Bool = true
     @ViewBuilder var meta: () -> Meta
     @ViewBuilder var player: () -> Player
     @ViewBuilder var actions: () -> Actions
@@ -23,8 +25,11 @@ struct PlayerCardChrome<Meta: View, Player: View, Actions: View>: View {
                 .lineSpacing(AppTypography.transcriptBodyLineSpacing)
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
 
-            player()
+            if showsPlayer {
+                player()
+            }
 
             actions()
                 .padding(.top, 2)

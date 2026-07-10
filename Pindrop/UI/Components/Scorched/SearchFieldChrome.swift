@@ -13,6 +13,8 @@ struct SearchFieldChrome: View {
     var placeholder: String = "Search"
     var showsKeyboardHint: Bool = true
     var keyboardHint: String = "⌘F"
+    /// Optional external focus binding (⌘F → Library search).
+    var isFocused: FocusState<Bool>.Binding? = nil
 
     var body: some View {
         HStack(spacing: 8) {
@@ -28,10 +30,7 @@ struct SearchFieldChrome: View {
                         .foregroundStyle(AppColors.textTertiary)
                         .allowsHitTesting(false)
                 }
-                TextField("", text: $text)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .textFieldStyle(.plain)
+                textField
             }
 
             if showsKeyboardHint, text.isEmpty {
@@ -50,6 +49,19 @@ struct SearchFieldChrome: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .strokeBorder(AppColors.border, lineWidth: 1)
         )
+    }
+
+    @ViewBuilder
+    private var textField: some View {
+        let field = TextField("", text: $text)
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.textPrimary)
+            .textFieldStyle(.plain)
+        if let isFocused {
+            field.focused(isFocused)
+        } else {
+            field
+        }
     }
 }
 

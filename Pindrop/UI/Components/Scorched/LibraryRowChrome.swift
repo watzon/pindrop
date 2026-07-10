@@ -12,6 +12,8 @@ import SwiftUI
 struct LibraryRowChrome<Icon: View, Play: View>: View {
     let timeText: String
     let preview: String
+    /// Optional second line under the preview (meeting meta: "3 speakers · diarized…").
+    var previewMeta: String? = nil
     var destination: String? = nil
     @ViewBuilder var icon: () -> Icon
     @ViewBuilder var playChip: () -> Play
@@ -31,11 +33,22 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
                 icon()
                     .frame(width: 16, height: 16)
 
-                Text(preview)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(preview)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if let previewMeta, !previewMeta.isEmpty {
+                        Text(previewMeta)
+                            .font(AppTypography.label)
+                            .foregroundStyle(AppColors.textTertiary)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if let destination, !destination.isEmpty {
                     Text(destination)
