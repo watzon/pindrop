@@ -22,6 +22,7 @@ struct TranscriptionHistoryRow: View {
     var timestampStyle: TimestampStyle = .relative
     var onTap: () -> Void = {}
     var onSaveAsNote: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
 
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
@@ -293,6 +294,14 @@ struct TranscriptionHistoryRow: View {
                 flashSaveSuccess()
             } label: {
                 Label("Save as Note", systemImage: "note.text.badge.plus")
+            }
+        }
+
+        if let onDelete {
+            Divider()
+
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash")
             }
         }
     }

@@ -58,6 +58,8 @@
 		DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */; };
 		DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */; };
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
+		LISTSELNAVBUILD01A2B3C4D5E6 /* ListSelectionNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */; };
+		LISTSELNAVTESTBUILD01A2B3C4 /* ListSelectionNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */; };
 		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
 		AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */; };
@@ -265,6 +267,8 @@
 		DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsService.swift; sourceTree = "<group>"; };
 		DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsServiceTests.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
+		LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigation.swift; sourceTree = "<group>"; };
+		LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigationTests.swift; sourceTree = "<group>"; };
 		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
 		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningService.swift; sourceTree = "<group>"; };
@@ -713,6 +717,7 @@
 				COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */,
 				MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
 				AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */,
+				LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */,
 				9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */,
 			);
 			path = PindropTests;
@@ -843,6 +848,7 @@
 				MODELCAPS1A2B3C4D5E6F71 /* ModelCapabilities.swift */,
 				009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */,
 				STRWORDCOUNTFILE01 /* String+WordCount.swift */,
+				LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1040,6 +1046,7 @@
 				COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */,
 				MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
 				AIENHTEST01A2B3C4D5E6F /* AIEnhancementServiceTests.swift in Sources */,
+				LISTSELNAVTESTBUILD01A2B3C4 /* ListSelectionNavigationTests.swift in Sources */,
 				735CDA1E1288B02683BE5ED6 /* TestSupport.swift in Sources */,
 			);
 		};
@@ -1114,6 +1121,7 @@
 				MODELCAPS1A2B3C4D5E6F70 /* ModelCapabilities.swift in Sources */,
 				STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */,
 				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
+				LISTSELNAVBUILD01A2B3C4D5E6 /* ListSelectionNavigation.swift in Sources */,
 				ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */,
 				WHATVIEWBUILD01A2B3C4D5E6F /* WhatsNewView.swift in Sources */,
 				D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */,

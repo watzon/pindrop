@@ -681,6 +681,7 @@ pindrop:
   theme: "Tema Pindrop"
   orb: "Orbe do Pindrop"
   1_19: "Pindrop 1.19"
+  help: "Ajuda do Pindrop"
 play:
   _self: "Jogar"
 please:
@@ -1157,3 +1158,21 @@ library:
   _self: "Library"
 conflicts:
   with: "Conflicts with %@"
+file:
+  _self: "Arquivo"
+window:
+  _self: "Janela"
+help:
+  _self: "Ajuda"
+close:
+  _self: "Fechar"
+find:
+  _self: "Buscar"
+minimize:
+  _self: "Minimizar"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Trazer Tudo para a Frente"
+home:
+  _self: "Início"

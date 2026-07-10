@@ -12,6 +12,7 @@ import SwiftUI
 
 struct NoteHistoryRow: View {
     let note: NoteSchema.Note
+    var isSelected: Bool = false
     var onTap: () -> Void = {}
     var onDelete: (() -> Void)? = nil
     var onTogglePin: (() -> Void)? = nil
@@ -51,11 +52,15 @@ struct NoteHistoryRow: View {
     }
 
     private var cardBackground: Color {
-        isHovered ? AppColors.elevatedSurface : AppColors.surfaceBackground
+        if isSelected { return AppColors.accentBackground }
+        if isHovered { return AppColors.elevatedSurface }
+        return AppColors.surfaceBackground
     }
 
     private var cardBorder: Color {
-        isHovered ? AppColors.border.opacity(0.9) : AppColors.border
+        if isSelected { return AppColors.accent.opacity(0.3) }
+        if isHovered { return AppColors.border.opacity(0.9) }
+        return AppColors.border
     }
 
     var body: some View {
@@ -116,6 +121,7 @@ struct NoteHistoryRow: View {
             style: cardBorder
         )
         .animation(AppTheme.Animation.fast, value: isHovered)
+        .animation(AppTheme.Animation.fast, value: isSelected)
         .onHover { hovering in isHovered = hovering }
         .onTapGesture { onTap() }
         .contextMenu {

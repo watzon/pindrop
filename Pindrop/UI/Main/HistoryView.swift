@@ -9,6 +9,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
+import AppKit
 
 struct HistoryView: View {
     @Environment(\.locale) private var locale
@@ -17,9 +18,11 @@ struct HistoryView: View {
     // MARK: - State
 
     @State private var searchText: String = ""
+    @FocusState private var isSearchFieldFocused: Bool
     @State private var selectedFilter: HistoryStore.HistoryFilter = .all
     @State private var errorMessage: String?
     @State private var selectedTranscriptionID: PersistentIdentifier?
+    @State private var selectedNoteID: PersistentIdentifier?
     @State private var detailRecord: TranscriptionRecord?
     @State private var pendingDeletionRecord: TranscriptionRecord?
     @State private var isLoading = true
@@ -32,6 +35,7 @@ struct HistoryView: View {
     @State private var hasDismissedHotkeyReminder = false
     @State private var visibleNotes: [NoteSchema.Note] = []
     @State private var pendingDeletionNote: NoteSchema.Note?
+    @State private var keyMonitor: Any?
 
     @Query private var mediaFolders: [MediaFolder]
     @Query(sort: \NoteSchema.Note.updatedAt, order: .reverse) private var allNotes: [NoteSchema.Note]
@@ -201,6 +205,22 @@ struct HistoryView: View {
         } message: {
             Text(localized("This will permanently remove this note.", locale: locale))
         }
+        .onAppear {
+            installKeyMonitorIfNeeded()
+            consumePendingSearchFocusIfNeeded()
+        }
+        .onDisappear { removeKeyMonitor() }
+        .onChange(of: detailRecord?.persistentModelID) { _, _ in
+            // List keyboard handling is only active when the list is visible.
+            if detailRecord == nil {
+                installKeyMonitorIfNeeded()
+            } else {
+                removeKeyMonitor()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .focusHistorySearch)) { _ in
+            applySearchFocus()
+        }
     }
 
     // MARK: - Detail helpers
@@ -346,6 +366,7 @@ struct HistoryView: View {
             TextField(localized("Search transcriptions…", locale: locale), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
+                .focused($isSearchFieldFocused)
 
             if !searchText.isEmpty {
                 Button {
@@ -543,7 +564,9 @@ struct HistoryView: View {
                             isSelected: selectedTranscriptionID == record.persistentModelID,
                             timestampStyle: .absolute,
                             onTap: {
+                                selectedNoteID = nil
                                 if record.isMediaTranscription {
+                                    selectedTranscriptionID = record.persistentModelID
                                     var transaction = Transaction()
                                     transaction.disablesAnimations = true
                                     withTransaction(transaction) {
@@ -559,7 +582,8 @@ struct HistoryView: View {
                                     }
                                 }
                             },
-                            onSaveAsNote: { saveAsNote(record: record) }
+                            onSaveAsNote: { saveAsNote(record: record) },
+                            onDelete: { pendingDeletionRecord = record }
                         )
                         .task {
                             loadNextPageIfNeeded(currentRecord: record)
@@ -606,7 +630,12 @@ struct HistoryView: View {
                     ForEach(group.notes) { note in
                         NoteHistoryRow(
                             note: note,
-                            onTap: { openNoteInEditor(note) },
+                            isSelected: selectedNoteID == note.persistentModelID,
+                            onTap: {
+                                selectedTranscriptionID = nil
+                                selectedNoteID = note.persistentModelID
+                                openNoteInEditor(note)
+                            },
                             onDelete: { pendingDeletionNote = note },
                             onTogglePin: { togglePin(note) }
                         )
@@ -820,6 +849,131 @@ struct HistoryView: View {
         } catch {
             errorMessage = "Export failed: \(error.localizedDescription)"
         }
+    }
+
+    // MARK: - Keyboard Selection
+
+    private func installKeyMonitorIfNeeded() {
+        guard keyMonitor == nil, detailRecord == nil else { return }
+
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [self] event in
+            guard shouldHandleListKeyEvent(event) else { return event }
+            return handleListKeyEvent(event)
+        }
+    }
+
+    private func removeKeyMonitor() {
+        if let keyMonitor {
+            NSEvent.removeMonitor(keyMonitor)
+            self.keyMonitor = nil
+        }
+    }
+
+    private func shouldHandleListKeyEvent(_ event: NSEvent) -> Bool {
+        guard detailRecord == nil else { return false }
+        // Only when the *main* window (not Settings / Note Editor) is key.
+        guard MainWindowController.isMainWindowKey(event.window) else { return false }
+        // Never steal keys from text fields / editors.
+        if isSearchFieldFocused { return false }
+        if Self.isTextInputFirstResponder(event.window?.firstResponder) {
+            return false
+        }
+        return true
+    }
+
+    private static func isTextInputFirstResponder(_ responder: NSResponder?) -> Bool {
+        guard let responder else { return false }
+        if responder is NSTextField { return true }
+        if let textView = responder as? NSTextView {
+            return textView.isEditable || textView.isSelectable
+        }
+        if responder is NSText { return true }
+        return false
+    }
+
+    private func applySearchFocus() {
+        MainWindowController.pendingHistorySearchFocus = false
+        // Defer so the search field is in the hierarchy after nav transitions.
+        DispatchQueue.main.async {
+            isSearchFieldFocused = true
+        }
+    }
+
+    private func consumePendingSearchFocusIfNeeded() {
+        guard MainWindowController.pendingHistorySearchFocus else { return }
+        applySearchFocus()
+    }
+
+    private func handleListKeyEvent(_ event: NSEvent) -> NSEvent? {
+        // Up 126 / Down 125 / Escape 53 / Delete 51 / Forward Delete 117
+        switch event.keyCode {
+        case 126:
+            moveListSelection(delta: -1)
+            return nil
+        case 125:
+            moveListSelection(delta: 1)
+            return nil
+        case 51, 117:
+            requestDeleteForSelection()
+            return nil
+        case 53:
+            // Pass Escape through when there is nothing to clear (match Dictionary).
+            return clearOrCollapseSelection() ? nil : event
+        default:
+            return event
+        }
+    }
+
+    private func moveListSelection(delta: Int) {
+        if selectedFilter == .notes {
+            let notes = filteredNotes
+            let currentIndex = notes.firstIndex(where: { $0.persistentModelID == selectedNoteID })
+            guard let nextIndex = ListSelectionNavigation.moveIndex(
+                current: currentIndex,
+                count: notes.count,
+                delta: delta
+            ) else { return }
+            selectedTranscriptionID = nil
+            selectedNoteID = notes[nextIndex].persistentModelID
+        } else {
+            let records = visibleTranscriptions
+            let currentIndex = records.firstIndex(where: { $0.persistentModelID == selectedTranscriptionID })
+            guard let nextIndex = ListSelectionNavigation.moveIndex(
+                current: currentIndex,
+                count: records.count,
+                delta: delta
+            ) else { return }
+            selectedNoteID = nil
+            withAnimation(AppTheme.Animation.fast) {
+                selectedTranscriptionID = records[nextIndex].persistentModelID
+            }
+        }
+    }
+
+    private func requestDeleteForSelection() {
+        if selectedFilter == .notes {
+            if let note = filteredNotes.first(where: { $0.persistentModelID == selectedNoteID }) {
+                pendingDeletionNote = note
+            }
+        } else if let record = visibleTranscriptions.first(where: { $0.persistentModelID == selectedTranscriptionID }) {
+            pendingDeletionRecord = record
+        }
+    }
+
+    /// Clears selection / collapses an expanded row. Returns `true` if something changed.
+    @discardableResult
+    private func clearOrCollapseSelection() -> Bool {
+        if selectedFilter == .notes {
+            guard selectedNoteID != nil else { return false }
+            selectedNoteID = nil
+            return true
+        }
+
+        guard selectedTranscriptionID != nil else { return false }
+        withAnimation(AppTheme.Animation.fast) {
+            selectedTranscriptionID = nil
+        }
+        return true
     }
 }
 

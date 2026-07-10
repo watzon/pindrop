@@ -681,6 +681,7 @@ pindrop:
   theme: "Pindrop-thema"
   orb: "Pindrop-orb"
   1_19: "Pindrop 1.19"
+  help: "Pindrop-help"
 play:
   _self: "Toneelstuk"
 please:
@@ -1157,3 +1158,21 @@ library:
   _self: "Library"
 conflicts:
   with: "Conflicts with %@"
+file:
+  _self: "Archief"
+window:
+  _self: "Venster"
+help:
+  _self: "Help"
+close:
+  _self: "Sluit"
+find:
+  _self: "Zoek"
+minimize:
+  _self: "Minimaliseer"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Alles op de voorgrond"
+home:
+  _self: "Home"

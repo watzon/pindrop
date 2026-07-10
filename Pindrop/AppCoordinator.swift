@@ -4444,6 +4444,16 @@ final class AppCoordinator {
         mainWindowController.show()
     }
 
+    // MARK: - Main Menu Actions
+
+    func openNewNoteFromMenu() {
+        noteEditorWindowController.show(note: nil, isNewNote: true)
+    }
+
+    func exportLastTranscriptFromMenu() async {
+        await handleExportLastTranscript()
+    }
+
     func switchToModel(named modelName: String) async {
         guard modelName != activeModelName else {
             Log.app.info("Model \(modelName) is already active")

@@ -681,6 +681,7 @@ pindrop:
   theme: "Tema Pindrop"
   orb: "Orb Pindrop"
   1_19: "Pindrop 1.19"
+  help: "Bantuan Pindrop"
 play:
   _self: "Main"
 please:
@@ -1157,3 +1158,21 @@ library:
   _self: "Library"
 conflicts:
   with: "Conflicts with %@"
+file:
+  _self: "Fail"
+window:
+  _self: "Tetingkap"
+help:
+  _self: "Bantuan"
+close:
+  _self: "Tutup"
+find:
+  _self: "Cari"
+minimize:
+  _self: "Minimumkan"
+zoom:
+  _self: "Zum"
+bring:
+  all_to_front: "Bawa Semua ke Hadapan"
+home:
+  _self: "Laman Utama"

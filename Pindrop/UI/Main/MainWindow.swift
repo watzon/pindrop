@@ -51,6 +51,8 @@ extension Notification.Name {
     static let navigateToMainNavItem = Notification.Name("navigateToMainNavItem")
     static let openHistoryRecord = Notification.Name("openHistoryRecord")
     static let sidebarStateChanged = Notification.Name("sidebarStateChanged")
+    static let mainNavItemDidChange = Notification.Name("mainNavItemDidChange")
+    static let focusHistorySearch = Notification.Name("focusHistorySearch")
 }
 
 final class TitlebarlessHostingView<Content: View>: NSHostingView<Content> {
@@ -116,6 +118,11 @@ struct MainWindow: View {
         }
 
         selectedNav = item
+        NotificationCenter.default.post(
+            name: .mainNavItemDidChange,
+            object: nil,
+            userInfo: ["navItem": item.rawValue]
+        )
     }
 
     private func navigateToSettings(_ tab: SettingsTab) {
@@ -475,6 +482,14 @@ private struct MainSidebar: View {
 @MainActor
 final class MainWindowController {
 
+    /// Stable identifier so list key monitors can require the *main* window
+    /// (not Settings / Note Editor / other panels) to be key.
+    static let windowIdentifier = NSUserInterfaceItemIdentifier("tech.watzon.pindrop.main-window")
+
+    /// Set when Find (⌘F) is requested before HistoryView is mounted; consumed
+    /// when History appears so focus is not lost to a navigation race.
+    static var pendingHistorySearchFocus = false
+
     private var window: NSWindow?
     private var modelContainer: ModelContainer?
     private var floatingIndicatorState: FloatingIndicatorState?
@@ -482,6 +497,9 @@ final class MainWindowController {
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
     private var sidebarObserver: Any?
+    private var navObserver: Any?
+    /// Last known main-window navigation destination (updated via notification).
+    private(set) var currentNavigationItem: MainNavItem = .home
     var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     var onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
     var onClearMediaQueue: (() -> Void)?
@@ -490,6 +508,19 @@ final class MainWindowController {
     var onStartMeetingCapture: (() -> Void)?
     var onStartNoteCapture: (() -> Void)?
     var onOpenSettings: ((SettingsTab) -> Void)?
+
+    /// The main app window, if created. Used by list keyboard monitors for identity checks.
+    var nsWindow: NSWindow? { window }
+
+    var isWindowKey: Bool {
+        window?.isKeyWindow == true
+    }
+
+    /// Whether `window` is the Pindrop main window and currently key.
+    static func isMainWindowKey(_ window: NSWindow?) -> Bool {
+        guard let window else { return false }
+        return window.identifier == windowIdentifier && window.isKeyWindow
+    }
 
     func setModelContainer(_ container: ModelContainer) {
         self.modelContainer = container
@@ -541,6 +572,10 @@ final class MainWindowController {
         show(navigationItem: .models)
     }
 
+    func showNavigationItem(_ item: MainNavItem) {
+        show(navigationItem: item)
+    }
+
     func showSettings(tab: SettingsTab = .general) {
         guard let onOpenSettings else {
             Log.ui.error("Settings presenter not set - cannot show settings")
@@ -548,6 +583,16 @@ final class MainWindowController {
         }
 
         onOpenSettings(tab)
+    }
+
+    func focusHistorySearch() {
+        // Pending flag covers the case where History is not yet mounted (nav race).
+        Self.pendingHistorySearchFocus = true
+        show(navigationItem: .history)
+        // Notification covers the case where History is already visible.
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .focusHistorySearch, object: nil)
+        }
     }
 
     private func show(navigationItem: MainNavItem?) {
@@ -593,6 +638,7 @@ final class MainWindowController {
             )
             window.contentViewController = hostingController
             window.title = "Pindrop"
+            window.identifier = Self.windowIdentifier
             window.titleVisibility = .hidden
             window.titlebarAppearsTransparent = true
             window.titlebarSeparatorStyle = .none
@@ -622,6 +668,16 @@ final class MainWindowController {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in self?.updateZoomButton() }
+
+            navObserver = NotificationCenter.default.addObserver(
+                forName: .mainNavItemDidChange,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                guard let rawValue = notification.userInfo?["navItem"] as? String,
+                      let item = MainNavItem(rawValue: rawValue) else { return }
+                self?.currentNavigationItem = item
+            }
         }
 
         PindropThemeController.shared.apply(to: window)
@@ -633,6 +689,7 @@ final class MainWindowController {
         DispatchQueue.main.async { self.positionTrafficLights() }
 
         if let item = navigationItem {
+            currentNavigationItem = item
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
                     name: .navigateToMainNavItem,

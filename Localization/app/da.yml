@@ -681,6 +681,7 @@ pindrop:
   theme: "Pindrop-tema"
   orb: "Pindrop-kugle"
   1_19: "Pindrop 1.19"
+  help: "Pindrop-hjælp"
 play:
   _self: "Spil"
 please:
@@ -1157,3 +1158,21 @@ library:
   _self: "Library"
 conflicts:
   with: "Conflicts with %@"
+file:
+  _self: "Arkiv"
+window:
+  _self: "Vindue"
+help:
+  _self: "Hjælp"
+close:
+  _self: "Luk"
+find:
+  _self: "Find"
+minimize:
+  _self: "Formindsk"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Anbring alle forrest"
+home:
+  _self: "Hjem"
