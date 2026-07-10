@@ -155,6 +155,8 @@
 		FLUIDDIARBUILD01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLUIDDIARFILE01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift */; };
 		HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */; };
 		LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */; };
+		HOMEPRESENTBUILD01A2B3C4D5 /* HomePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */; };
+		HOMEPRESENTTESTBUILD01A2 /* HomePresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */; };
 		LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */; };
 		LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */; };
 		IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */; };
@@ -414,6 +416,8 @@
 		FLUIDDIARFILE01A2B3C4D5E6F /* FluidSpeakerDiarizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidSpeakerDiarizer.swift; sourceTree = "<group>"; };
 		HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentation.swift; sourceTree = "<group>"; };
+		HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePresentation.swift; sourceTree = "<group>"; };
+		HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePresentationTests.swift; sourceTree = "<group>"; };
 		LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryExpandedPlayerCard.swift; sourceTree = "<group>"; };
 		LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentationTests.swift; sourceTree = "<group>"; };
 		IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
@@ -793,6 +797,7 @@
 				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 				E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
 				LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */,
+				HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */,
 				TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */,
 				CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */,
 				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
@@ -900,6 +905,7 @@
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
 				LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */,
+				HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */,
 				LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */,
 				DICTVIEWMAIN1A2B3C4D5E6F71 /* DictionaryView.swift */,
 			);
@@ -1147,6 +1153,7 @@
 				1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,
 				6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
 				LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */,
+				HOMEPRESENTTESTBUILD01A2 /* HomePresentationTests.swift in Sources */,
 				TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */,
 				CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */,
 				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
@@ -1320,6 +1327,7 @@
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */,
+				HOMEPRESENTBUILD01A2B3C4D5 /* HomePresentation.swift in Sources */,
 				LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,
 				FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */,
