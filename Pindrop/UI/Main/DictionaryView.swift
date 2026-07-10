@@ -2,7 +2,7 @@
 //  DictionaryView.swift
 //  Pindrop
 //
-//  Main window view for dictionary management
+//  Dictionary page (U6 scorched-earth restyle, spec §11).
 //
 
 import SwiftUI
@@ -10,121 +10,89 @@ import SwiftData
 import Foundation
 import AppKit
 
-enum DictionarySection: String, CaseIterable {
-    case replacements = "Word Replacements"
-    case vocabulary = "Vocabulary"
-
-    var icon: String {
-        switch self {
-        case .replacements:
-            return "arrow.left.arrow.right"
-        case .vocabulary:
-            return "textformat"
-        }
-    }
-
-    func title(locale: Locale) -> String {
-        localized(rawValue, locale: locale)
-    }
-
-    func bannerDescription(locale: Locale) -> String {
-        switch self {
-        case .replacements:
-            return localized("Define word replacements to automatically replace specific words or phrases", locale: locale)
-        case .vocabulary:
-            return localized("Add words to help Pindrop recognize them properly", locale: locale)
-        }
-    }
-
-    func tabDescription(locale: Locale) -> String {
-        switch self {
-        case .replacements:
-            return localized("Replace words and phrases", locale: locale)
-        case .vocabulary:
-            return localized("Teach custom words", locale: locale)
-        }
-    }
-
-    func addFormPlaceholder(locale: Locale) -> String {
-        switch self {
-        case .replacements:
-            return localized("Original text (use commas for multiple)", locale: locale)
-        case .vocabulary:
-            return localized("Enter word to add", locale: locale)
-        }
-    }
-
-    func addFormSecondaryPlaceholder(locale: Locale) -> String {
-        switch self {
-        case .replacements:
-            return localized("Replacement text", locale: locale)
-        case .vocabulary:
-            return ""
-        }
-    }
-}
-
 struct DictionaryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
     @State private var dictionaryStore: DictionaryStore?
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
-    
-    // Section selection
-    @State private var selectedSection: DictionarySection = .replacements
-    
-    // Add form state
+
+    // Add / edit sheets
+    @State private var showAddWordSheet = false
+    @State private var showAddReplacementSheet = false
     @State private var primaryInput: String = ""
     @State private var secondaryInput: String = ""
-    
-    // Edit state
+    @State private var addMatchMode: ReplacementMatchMode = .caseInsensitive
+
     @State private var editingReplacement: WordReplacement?
     @State private var editingVocabulary: VocabularyWord?
     @State private var editPrimaryInput: String = ""
     @State private var editSecondaryInput: String = ""
-    
-    // Error state
+    @State private var editMatchMode: ReplacementMatchMode = .caseInsensitive
+
     @State private var errorMessage: String?
     @State private var showingImportStrategyDialog = false
     @State private var importDataCache: Data?
-    
-    // Hover / selection state
-    @State private var hoveredRowID: UUID?
+
     @State private var selectedRowID: UUID?
     @State private var keyMonitor: Any?
 
-    private var totalItemCount: Int {
-        replacements.count + vocabularyWords.count
+    private var orderedVocabulary: [VocabularyWord] {
+        let pairs = vocabularyWords.map { (word: $0.word, usageCount: $0.usageCount, model: $0) }
+        let sorted = DictionaryVocabularyOrdering.sortedChips(
+            words: pairs.map { ($0.word, $0.usageCount) }
+        )
+        let byWord = Dictionary(uniqueKeysWithValues: vocabularyWords.map { ($0.word.lowercased(), $0) })
+        return sorted.compactMap { byWord[$0.word.lowercased()] }
+    }
+
+    private var orderedReplacements: [WordReplacement] {
+        replacements.sorted(by: { $0.sortOrder < $1.sortOrder })
     }
 
     private var orderedSelectableIDs: [UUID] {
-        switch selectedSection {
-        case .replacements:
-            return replacements.sorted(by: { $0.sortOrder < $1.sortOrder }).map(\.id)
-        case .vocabulary:
-            return vocabularyWords.sorted(by: { $0.word < $1.word }).map(\.id)
-        }
+        orderedReplacements.map(\.id) + orderedVocabulary.map(\.id)
+    }
+
+    private var isCompletelyEmpty: Bool {
+        replacements.isEmpty && vocabularyWords.isEmpty
     }
 
     var body: some View {
-        MainContentPageLayout(scrollContent: false) {
+        VStack(spacing: 0) {
             headerSection
-        } content: {
-            contentArea
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(.horizontal, 40)
+                .padding(.top, 40)
+                .padding(.bottom, 18)
+                .background(AppColors.contentBackground)
+
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    if isCompletelyEmpty {
+                        emptyStateView
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 48)
+                    } else {
+                        vocabularySection
+                        replacementsSection
+                        footnote
+                            .padding(.top, 20)
+                            .padding(.horizontal, 20)
+                    }
+                    Color.clear.frame(height: 32)
+                }
+                .padding(.bottom, 24)
+            }
+            .background(AppColors.contentBackground)
         }
+        .background(AppColors.contentBackground)
         .onAppear {
-            Log.app.info("DictionaryView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
             installKeyMonitorIfNeeded()
         }
         .onDisappear {
             removeKeyMonitor()
-        }
-        .onChange(of: selectedSection) { _, _ in
-            selectedRowID = nil
         }
         .alert(localized("Import Error", locale: locale), isPresented: .constant(errorMessage != nil)) {
             Button(localized("OK", locale: locale)) {
@@ -146,577 +114,699 @@ struct DictionaryView: View {
         } message: {
             Text(localized("Choose how to import the dictionary data", locale: locale))
         }
+        .sheet(isPresented: $showAddWordSheet) {
+            addWordSheet
+        }
+        .sheet(isPresented: $showAddReplacementSheet) {
+            addReplacementSheet
+        }
+        .sheet(isPresented: Binding(
+            get: { editingVocabulary != nil },
+            set: { if !$0 { editingVocabulary = nil } }
+        )) {
+            if let word = editingVocabulary {
+                editVocabularySheet(word)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { editingReplacement != nil },
+            set: { if !$0 { editingReplacement = nil } }
+        )) {
+            if let replacement = editingReplacement {
+                editReplacementSheet(replacement)
+            }
+        }
     }
-    
+
     // MARK: - Header
-    
+
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            HStack {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text(localized("Dictionary", locale: locale))
-                        .font(AppTypography.largeTitle)
-                        .foregroundStyle(AppColors.textPrimary)
-                    
-                    Text("\(totalItemCount) \(localized("items", locale: locale))")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.textSecondary)
-                }
-                
-                Spacer()
-                
+        PageHeader(
+            title: localized("Dictionary", locale: locale),
+            meta: localized("Teach Pindrop your words", locale: locale)
+        ) {
+            HStack(spacing: 10) {
                 Menu {
                     Button(action: handleImport) {
                         Label(localized("Import Dictionary", locale: locale), systemImage: "square.and.arrow.down")
                     }
-                    
                     Button(action: handleExport) {
                         Label(localized("Export Dictionary", locale: locale), systemImage: "square.and.arrow.up")
                     }
-                } label: {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: "arrow.up.arrow.down")
-                        Text(localized("Import/Export", locale: locale))
+                    Divider()
+                    Button {
+                        primaryInput = ""
+                        secondaryInput = ""
+                        addMatchMode = .caseInsensitive
+                        showAddReplacementSheet = true
+                    } label: {
+                        Label(localized("Add replacement", locale: locale), systemImage: "arrow.left.arrow.right")
                     }
-                    .font(AppTypography.subheadline)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.sm)
+                } label: {
+                    SecondaryButton(
+                        title: localized("Import/Export", locale: locale),
+                        systemImage: "ellipsis",
+                        action: {}
+                    )
+                    .allowsHitTesting(false)
                 }
                 .menuStyle(.borderlessButton)
-            }
-            
-            // Section selector tabs
-            sectionSelector
-            
-            // Add form
-            addFormSection
-        }
-    }
-    
-    // MARK: - Section Selector
-    
-    private var sectionSelector: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            ForEach(DictionarySection.allCases, id: \.self) { section in
-                sectionTab(section)
+                .menuIndicator(.hidden)
+                .fixedSize()
+
+                PrimaryButton(
+                    title: localized("Add word", locale: locale),
+                    systemImage: "plus",
+                    action: {
+                        primaryInput = ""
+                        showAddWordSheet = true
+                    }
+                )
             }
         }
     }
-    
-    private func sectionTab(_ section: DictionarySection) -> some View {
-        Button {
-            withAnimation(.spring(duration: 0.3)) {
-                selectedSection = section
-            }
-        } label: {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Image(systemName: section.icon)
-                        .font(.system(size: 16, weight: .semibold))
-                    
-                    Text(section.title(locale: locale))
-                        .font(AppTypography.subheadline)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
+
+    // MARK: - Vocabulary section
+
+    private var vocabularySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(
+                title: localized("Vocabulary", locale: locale),
+                trailing: localized("Words the recognizer should trust", locale: locale),
+                isFirst: true
+            )
+            .padding(.horizontal, 20)
+
+            FlowLayout(spacing: 8) {
+                ForEach(orderedVocabulary) { word in
+                    vocabularyChip(word)
                 }
-                
-                Text(section.tabDescription(locale: locale))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
+                addVocabularyChip
             }
-            .padding(AppTheme.Spacing.md)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+        }
+        .padding(.bottom, 8)
+    }
+
+    private func vocabularyChip(_ word: VocabularyWord) -> some View {
+        let isSelected = selectedRowID == word.id
+        return Button {
+            selectedRowID = word.id
+        } label: {
+            HStack(spacing: 7) {
+                Text(word.word)
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text("\(word.usageCount)")
+                    .font(FontLoader.font(family: .jetbrainsMono, size: 10, weight: .medium))
+                    .foregroundStyle(AppColors.textTertiary)
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                    .fill(selectedSection == section ? AppColors.accent.opacity(0.1) : AppColors.surfaceBackground)
+                Capsule()
+                    .fill(AppColors.windowBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
+                Capsule()
                     .strokeBorder(
-                        selectedSection == section ? AppColors.accent : AppColors.border,
-                        lineWidth: selectedSection == section ? 2 : 1
+                        isSelected ? AppColors.accent.opacity(0.55) : AppColors.border,
+                        lineWidth: 1
                     )
             )
-            .foregroundStyle(selectedSection == section ? AppColors.accent : AppColors.textPrimary)
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button {
+                startEditingVocabulary(word)
+            } label: {
+                Label(localized("Edit", locale: locale), systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                deleteVocabularyWord(word)
+            } label: {
+                Label(localized("Delete", locale: locale), systemImage: "trash")
+            }
+        }
+        .onTapGesture(count: 2) {
+            startEditingVocabulary(word)
+        }
+    }
+
+    private var addVocabularyChip: some View {
+        Button {
+            primaryInput = ""
+            showAddWordSheet = true
+        } label: {
+            HStack(spacing: 7) {
+                Image(systemName: "plus")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(AppColors.textTertiary)
+                Text(localized("Add", locale: locale))
+                    .font(AppTypography.labelStrong)
+                    .foregroundStyle(AppColors.textTertiary)
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .overlay(
+                Capsule()
+                    .strokeBorder(
+                        AppColors.border,
+                        style: StrokeStyle(lineWidth: 1, dash: [4, 3])
+                    )
+            )
         }
         .buttonStyle(.plain)
     }
-    
-    // MARK: - Add Form Section
-    
-    private var addFormSection: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            // Primary input
-            HStack(spacing: AppTheme.Spacing.sm) {
-                Image(systemName: selectedSection == .replacements ? "text.quote" : "textformat")
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppColors.textTertiary)
-                
-                TextField(selectedSection.addFormPlaceholder(locale: locale), text: $primaryInput)
-                    .textFieldStyle(.plain)
+
+    // MARK: - Replacements section
+
+    private var replacementsSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(
+                title: localized("Replacements", locale: locale),
+                trailing: localized("Applied after transcription, before insert", locale: locale),
+                isFirst: false
+            )
+            .padding(.horizontal, 20)
+            .padding(.bottom, 4)
+
+            if orderedReplacements.isEmpty {
+                Text(localized("No Replacements", locale: locale))
                     .font(AppTypography.body)
-            }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(AppColors.surfaceBackground)
-            )
-            .hairlineBorder(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md),
-                style: AppColors.border
-            )
-            
-            if selectedSection == .replacements {
-                // Arrow
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(AppColors.textSecondary)
-                
-                // Secondary input (replacement)
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Image(systemName: "text.cursor")
-                        .font(.system(size: 12))
-                        .foregroundStyle(AppColors.textTertiary)
-                    
-                    TextField(selectedSection.addFormSecondaryPlaceholder(locale: locale), text: $secondaryInput)
-                        .textFieldStyle(.plain)
-                        .font(AppTypography.body)
-                }
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                        .fill(AppColors.surfaceBackground)
-                )
-                .hairlineBorder(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.md),
-                    style: AppColors.border
-                )
-            }
-            
-            // Add button
-            Button(action: handleAdd) {
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .semibold))
-                    Text(localized("Add", locale: locale))
-                        .font(AppTypography.subheadline)
-                        .fontWeight(.semibold)
-                }
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
-            }
-            .buttonStyle(.plain)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md)
-                    .fill(canAdd ? AppColors.accent : AppColors.textTertiary.opacity(0.3))
-            )
-            .foregroundStyle(.white)
-            .disabled(!canAdd)
-        }
-    }
-    
-    private var canAdd: Bool {
-        if selectedSection == .replacements {
-            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty &&
-                   !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-        } else {
-            return !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-        }
-    }
-    
-    // MARK: - Content
-    
-    @ViewBuilder
-    private var contentArea: some View {
-        if let errorMessage = errorMessage {
-            errorView(errorMessage)
-        } else if isContentEmpty {
-            emptyStateView
-        } else {
-            contentTable
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        }
-    }
-    
-    private var isContentEmpty: Bool {
-        switch selectedSection {
-        case .replacements:
-            return replacements.isEmpty
-        case .vocabulary:
-            return vocabularyWords.isEmpty
-        }
-    }
-    
-    private func errorView(_ message: String) -> some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(AppColors.warning)
-            
-            Text(localized("Something went wrong", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-            
-            Text(message)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
-                .multilineTextAlignment(.center)
-            
-            Button(localized("Dismiss", locale: locale)) {
-                self.errorMessage = nil
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            Image(systemName: selectedSection == .replacements ? "arrow.left.arrow.right" : "textformat")
-                .font(.system(size: 48))
-                .foregroundStyle(AppColors.textTertiary)
-            
-            Text(selectedSection == .replacements
-                 ? localized("No Replacements", locale: locale)
-                 : localized("No Vocabulary Words", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-            
-            Text(selectedSection == .replacements
-                 ? localized("Add word replacements to automatically correct common transcription errors.", locale: locale)
-                 : localized("Add custom words to improve transcription accuracy for specialized terms, names, or jargon.", locale: locale))
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 400)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    // MARK: - Content Table
-    
-    @ViewBuilder
-    private var contentTable: some View {
-        switch selectedSection {
-        case .replacements:
-            replacementsTable
-        case .vocabulary:
-            vocabularyTable
-        }
-    }
-    
-    // MARK: - Replacements Table
-    
-    private var replacementsTable: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack(spacing: AppTheme.Spacing.md) {
-                Text(localized("Original", locale: locale))
-                    .font(AppTypography.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 10))
                     .foregroundStyle(AppColors.textTertiary)
-                    .frame(width: 20)
-                
-                Text(localized("Replacement", locale: locale))
-                    .font(AppTypography.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Color.clear.frame(width: 28, height: 28)
-                    Color.clear.frame(width: 28, height: 28)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+            } else {
+                // List enables drag-to-reorder (onMove) wired to DictionaryStore.reorder.
+                List {
+                    ForEach(orderedReplacements) { replacement in
+                        replacementRow(replacement)
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                    .onMove(perform: moveReplacements)
                 }
-            }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(AppColors.surfaceBackground.opacity(0.5))
-            
-            Divider()
-                .background(AppColors.divider)
-            
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(replacements.sorted(by: { $0.sortOrder < $1.sortOrder })) { replacement in
-                        ReplacementRow(
-                            replacement: replacement,
-                            isEditing: editingReplacement?.id == replacement.id,
-                            editOriginals: $editPrimaryInput,
-                            editReplacement: $editSecondaryInput,
-                            onStartEdit: { startEditingReplacement(replacement) },
-                            onSaveEdit: { saveReplacementEdit(replacement) },
-                            onCancelEdit: { cancelEditingReplacement() },
-                            onDelete: { deleteReplacement(replacement) }
-                        )
-                        .background(rowBackground(for: replacement.id))
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if editingReplacement == nil {
-                                selectedRowID = replacement.id
-                            }
-                        }
-                        .onHover { isHovered in
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                hoveredRowID = isHovered ? replacement.id : nil
-                            }
-                        }
-                        
-                        if replacement.id != replacements.last?.id {
-                            Divider()
-                                .padding(.horizontal, AppTheme.Spacing.md)
-                                .background(AppColors.divider)
-                        }
-                        }
-                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .frame(minHeight: CGFloat(orderedReplacements.count) * 48)
+                .environment(\.defaultMinListRowHeight, 44)
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .fill(AppColors.contentBackground)
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .hairlineBorder(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-            style: AppColors.border
-        )
     }
 
-    private var vocabularyTable: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: AppTheme.Spacing.md) {
-                Text(localized("Word", locale: locale))
-                    .font(AppTypography.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(AppColors.textSecondary)
+    private func replacementRow(_ replacement: WordReplacement) -> some View {
+        let isSelected = selectedRowID == replacement.id
+        let pattern = DictionaryCommandTokenDisplay.patternDisplay(originals: replacement.originals)
+        let value = DictionaryCommandTokenDisplay.replacementDisplay(
+            replacement: replacement.replacement,
+            matchMode: replacement.matchMode
+        )
+        let modeLabel = DictionaryMatchModeLabel.label(for: replacement.matchMode, locale: locale)
+
+        return Button {
+            selectedRowID = replacement.id
+        } label: {
+            HStack(spacing: 14) {
+                Text(pattern)
+                    .font(FontLoader.font(family: .jetbrainsMono, size: 13, weight: .medium))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
+                    .frame(width: 220, alignment: .leading)
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppColors.accent)
+                    .frame(width: 14, height: 14)
+
+                Text(value)
+                    .font(FontLoader.font(family: .jetbrainsMono, size: 13, weight: .regular))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Color.clear.frame(width: 28, height: 28)
-                    Color.clear.frame(width: 28, height: 28)
-                }
+
+                Text(modeLabel)
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .lineLimit(1)
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(AppColors.surfaceBackground.opacity(0.5))
-            
-            Divider()
-                .background(AppColors.divider)
-            
-            // Rows
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(vocabularyWords.sorted(by: { $0.word < $1.word })) { word in
-                        VocabularyRow(
-                            word: word,
-                            isEditing: editingVocabulary?.id == word.id,
-                            editText: $editPrimaryInput,
-                            onStartEdit: { startEditingVocabulary(word) },
-                            onSaveEdit: { saveVocabularyEdit(word) },
-                            onCancelEdit: { cancelEditingVocabulary() },
-                            onDelete: { deleteVocabularyWord(word) }
-                        )
-                        .background(rowBackground(for: word.id))
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if editingVocabulary == nil {
-                                selectedRowID = word.id
-                            }
-                        }
-                        .onHover { isHovered in
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                hoveredRowID = isHovered ? word.id : nil
-                            }
-                        }
-                        
-                        if word.id != vocabularyWords.last?.id {
-                            Divider()
-                                .padding(.horizontal, AppTheme.Spacing.md)
-                                .background(AppColors.divider)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .background(isSelected ? AppColors.accent.opacity(0.06) : Color.clear)
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(AppColors.border)
+                    .frame(height: 1)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button {
+                startEditingReplacement(replacement)
+            } label: {
+                Label(localized("Edit", locale: locale), systemImage: "pencil")
+            }
+            Menu(localized("Match mode", locale: locale)) {
+                ForEach([ReplacementMatchMode.caseInsensitive, .exact, .command], id: \.rawValue) { mode in
+                    Button {
+                        setMatchMode(replacement, mode: mode)
+                    } label: {
+                        if replacement.matchMode == mode {
+                            Label(DictionaryMatchModeLabel.label(for: mode, locale: locale), systemImage: "checkmark")
+                        } else {
+                            Text(DictionaryMatchModeLabel.label(for: mode, locale: locale))
                         }
                     }
                 }
             }
+            Button(role: .destructive) {
+                deleteReplacement(replacement)
+            } label: {
+                Label(localized("Delete", locale: locale), systemImage: "trash")
+            }
         }
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg)
-                .fill(AppColors.contentBackground)
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-        .hairlineBorder(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg),
-            style: AppColors.border
-        )
+        .onTapGesture(count: 2) {
+            startEditingReplacement(replacement)
+        }
+    }
+
+    private var footnote: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "info.circle")
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(AppColors.textTertiary)
+            Text(localized("Replacements run in order. Drag rows to re-order — the first match wins.", locale: locale))
+                .font(AppTypography.label)
+                .foregroundStyle(AppColors.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "textformat")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(AppColors.textTertiary)
+
+            Text(localized("No dictionary entries", locale: locale))
+                .font(AppTypography.labelStrong)
+                .foregroundStyle(AppColors.textPrimary)
+
+            Text(localized("Add words the recognizer should trust, or replacements applied after transcription.", locale: locale))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 360)
+
+            PrimaryButton(
+                title: localized("Add word", locale: locale),
+                systemImage: "plus",
+                action: {
+                    primaryInput = ""
+                    showAddWordSheet = true
+                }
+            )
+            .padding(.top, 4)
+        }
+    }
+
+    // MARK: - Sheets
+
+    private var addWordSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Add word", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Enter word to add", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    showAddWordSheet = false
+                }
+                PrimaryButton(
+                    title: localized("Add", locale: locale),
+                    isEnabled: !primaryInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    action: {
+                        handleAddWord()
+                        showAddWordSheet = false
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 360)
+        .background(AppColors.contentBackground)
+    }
+
+    private var addReplacementSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Add replacement", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Original text (use commas for multiple)", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            TextField(localized("Replacement text", locale: locale), text: $secondaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            Picker(localized("Match mode", locale: locale), selection: $addMatchMode) {
+                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
+                    .tag(ReplacementMatchMode.caseInsensitive)
+                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
+                    .tag(ReplacementMatchMode.exact)
+                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
+                    .tag(ReplacementMatchMode.command)
+            }
+            .pickerStyle(.segmented)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    showAddReplacementSheet = false
+                }
+                PrimaryButton(
+                    title: localized("Add", locale: locale),
+                    isEnabled: canAddReplacement,
+                    action: {
+                        handleAddReplacement()
+                        showAddReplacementSheet = false
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 400)
+        .background(AppColors.contentBackground)
+    }
+
+    private func editVocabularySheet(_ word: VocabularyWord) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Edit", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Word", locale: locale), text: $editPrimaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    editingVocabulary = nil
+                }
+                PrimaryButton(
+                    title: localized("Save", locale: locale),
+                    action: {
+                        saveVocabularyEdit(word)
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 360)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            editPrimaryInput = word.word
+        }
+    }
+
+    private func editReplacementSheet(_ replacement: WordReplacement) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Edit", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Originals (comma-separated)", locale: locale), text: $editPrimaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            TextField(localized("Replacement", locale: locale), text: $editSecondaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            Picker(localized("Match mode", locale: locale), selection: $editMatchMode) {
+                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
+                    .tag(ReplacementMatchMode.caseInsensitive)
+                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
+                    .tag(ReplacementMatchMode.exact)
+                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
+                    .tag(ReplacementMatchMode.command)
+            }
+            .pickerStyle(.segmented)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    editingReplacement = nil
+                }
+                PrimaryButton(
+                    title: localized("Save", locale: locale),
+                    action: {
+                        saveReplacementEdit(replacement)
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 400)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            editPrimaryInput = replacement.originals.joined(separator: ", ")
+            editSecondaryInput = replacement.replacement
+            editMatchMode = replacement.matchMode
+        }
+    }
+
+    private var canAddReplacement: Bool {
+        !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+            && !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     // MARK: - Actions
-    
-    private func handleAdd() {
-        guard let store = dictionaryStore else {
-            Log.app.error("DictionaryStore is nil in handleAdd")
+
+    private func handleAddWord() {
+        guard let store = dictionaryStore else { return }
+        let trimmed = primaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        guard !vocabularyWords.contains(where: { $0.word.lowercased() == trimmed.lowercased() }) else {
+            primaryInput = ""
             return
         }
-        
-        switch selectedSection {
-        case .replacements:
-            // Split by commas for multiple originals
-            let originals = primaryInput
-                .split(separator: ",")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty }
-            
-            guard !originals.isEmpty else {
-                Log.app.warning("No originals provided for replacement")
-                return
-            }
-            
-            let replacementText = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
-            Log.app.info("Adding dictionary replacement (sourceCount=\(originals.count), replacementLength=\(replacementText.count))")
-            
-            do {
-                let replacement = WordReplacement(
-                    originals: originals,
-                    replacement: replacementText,
-                    sortOrder: replacements.count
-                )
-                try store.add(replacement)
-                Log.app.info("Replacement added successfully")
-                
-                // Reset form
-                primaryInput = ""
-                secondaryInput = ""
-                
-                // Reload data
-                loadData()
-            } catch {
-                Log.app.error("Failed to add replacement: \(error.localizedDescription)")
-                errorMessage = localized("Failed to add replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
-            
-        case .vocabulary:
-            let trimmed = primaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return }
-            
-            // Check for duplicates
-            guard !vocabularyWords.contains(where: { $0.word.lowercased() == trimmed.lowercased() }) else {
-                primaryInput = ""
-                return
-            }
-            
-            do {
-                let word = VocabularyWord(word: trimmed)
-                try store.add(word)
-                primaryInput = ""
-                loadData()
-            } catch {
-                errorMessage = localized("Failed to add word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
+        do {
+            try store.add(VocabularyWord(word: trimmed))
+            primaryInput = ""
+            loadData()
+        } catch {
+            errorMessage = localized("Failed to add word: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
-    
+
+    private func handleAddReplacement() {
+        guard let store = dictionaryStore else { return }
+        let originals = primaryInput
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !originals.isEmpty else { return }
+        let replacementText = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            let replacement = WordReplacement(
+                originals: originals,
+                replacement: replacementText,
+                sortOrder: replacements.count,
+                matchModeRawValue: addMatchMode.rawValue
+            )
+            try store.add(replacement)
+            primaryInput = ""
+            secondaryInput = ""
+            loadData()
+        } catch {
+            errorMessage = localized("Failed to add replacement: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
     private func startEditingReplacement(_ replacement: WordReplacement) {
         editingReplacement = replacement
-        editPrimaryInput = replacement.originals.joined(separator: ", ")
-        editSecondaryInput = replacement.replacement
     }
-    
+
+    private func startEditingVocabulary(_ word: VocabularyWord) {
+        editingVocabulary = word
+    }
+
     private func saveReplacementEdit(_ replacement: WordReplacement) {
         guard let store = dictionaryStore else { return }
-        
         let newOriginals = editPrimaryInput
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        
         guard !newOriginals.isEmpty else {
-            cancelEditingReplacement()
+            editingReplacement = nil
             return
         }
-        
         do {
             replacement.originals = newOriginals
             replacement.replacement = editSecondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+            replacement.matchModeRawValue = editMatchMode.rawValue
             try store.saveContext()
-            cancelEditingReplacement()
+            editingReplacement = nil
             loadData()
         } catch {
-            errorMessage = localized("Failed to update replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
+            errorMessage = localized("Failed to update replacement: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
     }
-    
-    private func cancelEditingReplacement() {
-        editingReplacement = nil
-        editPrimaryInput = ""
-        editSecondaryInput = ""
-    }
-    
-    private func startEditingVocabulary(_ word: VocabularyWord) {
-        editingVocabulary = word
-        editPrimaryInput = word.word
-    }
-    
+
     private func saveVocabularyEdit(_ word: VocabularyWord) {
         guard let store = dictionaryStore else { return }
-        
         let trimmed = editPrimaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            cancelEditingVocabulary()
+            editingVocabulary = nil
             return
         }
-        
         let isDuplicate = vocabularyWords.contains {
             $0.id != word.id && $0.word.lowercased() == trimmed.lowercased()
         }
-        
         guard !isDuplicate else {
-            cancelEditingVocabulary()
+            editingVocabulary = nil
             return
         }
-        
         do {
             word.word = trimmed
             try store.saveContext()
-            cancelEditingVocabulary()
+            editingVocabulary = nil
             loadData()
         } catch {
-            errorMessage = localized("Failed to update word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
+            errorMessage = localized("Failed to update word: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
         }
-    }
-    
-    private func cancelEditingVocabulary() {
-        editingVocabulary = nil
-        editPrimaryInput = ""
-    }
-    
-    private func rowBackground(for id: UUID) -> Color {
-        if selectedRowID == id {
-            return AppColors.accentBackground
-        }
-        if hoveredRowID == id {
-            return AppColors.surfaceBackground
-        }
-        return Color.clear
     }
 
-    // MARK: - Keyboard Selection
+    private func setMatchMode(_ replacement: WordReplacement, mode: ReplacementMatchMode) {
+        guard let store = dictionaryStore else { return }
+        do {
+            replacement.matchModeRawValue = mode.rawValue
+            try store.saveContext()
+            loadData()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func moveReplacements(from source: IndexSet, to destination: Int) {
+        guard let store = dictionaryStore else { return }
+        do {
+            try store.reorder(orderedReplacements, from: source, to: destination)
+            loadData()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func deleteReplacement(_ replacement: WordReplacement) {
+        guard let store = dictionaryStore else { return }
+        do {
+            try store.delete(replacement)
+            if selectedRowID == replacement.id { selectedRowID = nil }
+            loadData()
+        } catch {
+            errorMessage = localized("Failed to delete replacement: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
+    private func deleteVocabularyWord(_ word: VocabularyWord) {
+        guard let store = dictionaryStore else { return }
+        do {
+            try store.delete(word)
+            if selectedRowID == word.id { selectedRowID = nil }
+            loadData()
+        } catch {
+            errorMessage = localized("Failed to delete word: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
+    private func loadData() {
+        guard let store = dictionaryStore else { return }
+        do {
+            replacements = try store.fetchAllReplacements()
+            vocabularyWords = try store.fetchAllVocabularyWords()
+        } catch {
+            errorMessage = localized("Failed to load data: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
+    private func handleExport() {
+        guard let store = dictionaryStore else { return }
+        do {
+            let jsonData = try store.exportToJSON()
+            let savePanel = NSSavePanel()
+            savePanel.allowedContentTypes = [.json]
+            savePanel.nameFieldStringValue = "dictionary.json"
+            let currentLocale = locale
+            savePanel.title = localized("Export Dictionary", locale: currentLocale)
+            savePanel.message = localized("Choose a location to save the dictionary", locale: currentLocale)
+            if savePanel.runModal() == .OK, let url = savePanel.url {
+                try jsonData.write(to: url)
+            }
+        } catch {
+            errorMessage = localized("Failed to export dictionary: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
+    private func handleImport() {
+        let openPanel = NSOpenPanel()
+        openPanel.allowedContentTypes = [.json]
+        let currentLocale = locale
+        openPanel.title = localized("Import Dictionary", locale: currentLocale)
+        openPanel.message = localized("Select a dictionary JSON file to import", locale: currentLocale)
+        if openPanel.runModal() == .OK, let url = openPanel.url {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoder = JSONDecoder()
+                _ = try decoder.decode(DictionaryImportPreview.self, from: data)
+                showingImportStrategyDialog = true
+                importDataCache = data
+            } catch {
+                errorMessage = localized("Failed to read import file: %@", locale: locale)
+                    .replacingOccurrences(of: "%@", with: error.localizedDescription)
+            }
+        }
+    }
+
+    private func performImport(strategy: DictionaryStore.ImportStrategy) {
+        guard let store = dictionaryStore, let data = importDataCache else { return }
+        do {
+            try store.importFromJSON(data, strategy: strategy)
+            loadData()
+            importDataCache = nil
+        } catch {
+            errorMessage = localized("Failed to import dictionary: %@", locale: locale)
+                .replacingOccurrences(of: "%@", with: error.localizedDescription)
+        }
+    }
+
+    // MARK: - Keyboard
 
     private func installKeyMonitorIfNeeded() {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             guard Self.shouldHandleListKeyEvent(event) else { return event }
-            // Skip while inline editing or typing in the add form.
-            if self.editingReplacement != nil || self.editingVocabulary != nil {
+            if self.editingReplacement != nil || self.editingVocabulary != nil
+                || self.showAddWordSheet || self.showAddReplacementSheet {
                 return event
             }
             return self.handleListKeyEvent(event)
@@ -731,7 +821,6 @@ struct DictionaryView: View {
     }
 
     private static func shouldHandleListKeyEvent(_ event: NSEvent) -> Bool {
-        // Only when the *main* window (not Settings / Note Editor) is key.
         guard MainWindowController.isMainWindowKey(event.window) else { return false }
         if isTextInputFirstResponder(event.window?.firstResponder) {
             return false
@@ -784,110 +873,12 @@ struct DictionaryView: View {
 
     private func deleteSelectedRow() {
         guard let selectedRowID else { return }
-        switch selectedSection {
-        case .replacements:
-            if let replacement = replacements.first(where: { $0.id == selectedRowID }) {
-                deleteReplacement(replacement)
-                self.selectedRowID = nil
-            }
-        case .vocabulary:
-            if let word = vocabularyWords.first(where: { $0.id == selectedRowID }) {
-                deleteVocabularyWord(word)
-                self.selectedRowID = nil
-            }
-        }
-    }
-
-    private func deleteReplacement(_ replacement: WordReplacement) {
-        guard let store = dictionaryStore else { return }
-        
-        do {
-            try store.delete(replacement)
-            loadData()
-        } catch {
-            errorMessage = localized("Failed to delete replacement: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-        }
-    }
-    
-    private func deleteVocabularyWord(_ word: VocabularyWord) {
-        guard let store = dictionaryStore else { return }
-        
-        do {
-            try store.delete(word)
-            loadData()
-        } catch {
-            errorMessage = localized("Failed to delete word: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-        }
-    }
-    
-    private func loadData() {
-        guard let store = dictionaryStore else {
-            Log.app.error("DictionaryStore is nil in loadData")
-            return
-        }
-        
-        do {
-            replacements = try store.fetchAllReplacements()
-            vocabularyWords = try store.fetchAllVocabularyWords()
-            Log.app.info("Loaded \(replacements.count) replacements and \(vocabularyWords.count) vocabulary words")
-        } catch {
-            Log.app.error("Failed to load dictionary data: \(error.localizedDescription)")
-            errorMessage = localized("Failed to load data: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-        }
-    }
-    
-    private func handleExport() {
-        guard let store = dictionaryStore else { return }
-        
-        do {
-            let jsonData = try store.exportToJSON()
-            
-            let savePanel = NSSavePanel()
-            savePanel.allowedContentTypes = [.json]
-            savePanel.nameFieldStringValue = "dictionary.json"
-            let currentLocale = locale
-            savePanel.title = localized("Export Dictionary", locale: currentLocale)
-            savePanel.message = localized("Choose a location to save the dictionary", locale: currentLocale)
-            
-            if savePanel.runModal() == .OK, let url = savePanel.url {
-                try jsonData.write(to: url)
-            }
-        } catch {
-            errorMessage = localized("Failed to export dictionary: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-        }
-    }
-    
-    private func handleImport() {
-        let openPanel = NSOpenPanel()
-        openPanel.allowedContentTypes = [.json]
-        let currentLocale = locale
-        openPanel.title = localized("Import Dictionary", locale: currentLocale)
-        openPanel.message = localized("Select a dictionary JSON file to import", locale: currentLocale)
-        
-        if openPanel.runModal() == .OK, let url = openPanel.url {
-            do {
-                let data = try Data(contentsOf: url)
-                
-                let decoder = JSONDecoder()
-                _ = try decoder.decode(DictionaryImportPreview.self, from: data)
-                
-                showingImportStrategyDialog = true
-                importDataCache = data
-            } catch {
-                errorMessage = localized("Failed to read import file: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
-            }
-        }
-    }
-    
-    private func performImport(strategy: DictionaryStore.ImportStrategy) {
-        guard let store = dictionaryStore, let data = importDataCache else { return }
-        
-        do {
-            try store.importFromJSON(data, strategy: strategy)
-            loadData()
-            importDataCache = nil
-        } catch {
-            errorMessage = localized("Failed to import dictionary: %@", locale: locale).replacingOccurrences(of: "%@", with: error.localizedDescription)
+        if let replacement = replacements.first(where: { $0.id == selectedRowID }) {
+            deleteReplacement(replacement)
+            self.selectedRowID = nil
+        } else if let word = vocabularyWords.first(where: { $0.id == selectedRowID }) {
+            deleteVocabularyWord(word)
+            self.selectedRowID = nil
         }
     }
 }
@@ -898,226 +889,14 @@ struct DictionaryImportPreview: Codable {
     let version: Int
     let replacements: [ReplacementPreview]
     let vocabulary: [VocabularyPreview]
-    
+
     struct ReplacementPreview: Codable {
         let originals: [String]
         let replacement: String
     }
-    
+
     struct VocabularyPreview: Codable {
         let word: String
-    }
-}
-
-// MARK: - Replacement Row
-
-struct ReplacementRow: View {
-    let replacement: WordReplacement
-    let isEditing: Bool
-    @Binding var editOriginals: String
-    @Binding var editReplacement: String
-    let onStartEdit: () -> Void
-    let onSaveEdit: () -> Void
-    let onCancelEdit: () -> Void
-    let onDelete: () -> Void
-    
-    @Environment(\.locale) private var locale
-    @State private var isHovered = false
-    
-    var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            if isEditing {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField(localized("Originals (comma-separated)", locale: locale), text: $editOriginals)
-                        .textFieldStyle(.roundedBorder)
-                        .font(AppTypography.bodySmall)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 10))
-                    .foregroundStyle(AppColors.textTertiary)
-                    .frame(width: 20)
-                
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField(localized("Replacement", locale: locale), text: $editReplacement)
-                        .textFieldStyle(.roundedBorder)
-                        .font(AppTypography.bodySmall)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Save/Cancel buttons
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Button(action: onSaveEdit) {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.success)
-                    .frame(width: 28, height: 28)
-                    .background(AppColors.success.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    
-                    Button(action: onCancelEdit) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(AppColors.surfaceBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                }
-            } else {
-                // Display mode
-                // Original words
-                FlowLayout(spacing: 6) {
-                    ForEach(replacement.originals, id: \.self) { original in
-                        Text(original)
-                            .font(AppTypography.caption)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(AppColors.accent.opacity(0.15))
-                            .foregroundStyle(AppColors.accent)
-                            .clipShape(Capsule())
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 10))
-                    .foregroundStyle(AppColors.textTertiary)
-                    .frame(width: 20)
-                
-                // Replacement text
-                Text(replacement.replacement)
-                    .font(AppTypography.bodySmall)
-                    .fontWeight(.medium)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Action buttons (visible on hover)
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Button(action: onStartEdit) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.elevatedSurface : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                    
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.error)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                }
-            }
-        }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
-            }
-        }
-    }
-}
-
-// MARK: - Vocabulary Row
-
-struct VocabularyRow: View {
-    let word: VocabularyWord
-    let isEditing: Bool
-    @Binding var editText: String
-    let onStartEdit: () -> Void
-    let onSaveEdit: () -> Void
-    let onCancelEdit: () -> Void
-    let onDelete: () -> Void
-    
-    @Environment(\.locale) private var locale
-    @State private var isHovered = false
-    
-    var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            if isEditing {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    TextField(localized("Word", locale: locale), text: $editText)
-                        .textFieldStyle(.roundedBorder)
-                        .font(AppTypography.bodySmall)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Save/Cancel buttons
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Button(action: onSaveEdit) {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.success)
-                    .frame(width: 28, height: 28)
-                    .background(AppColors.success.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    
-                    Button(action: onCancelEdit) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(AppColors.surfaceBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                }
-            } else {
-                // Display mode
-                Text(word.word)
-                    .font(AppTypography.bodySmall)
-                    .fontWeight(.medium)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Action buttons (visible on hover)
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Button(action: onStartEdit) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.elevatedSurface : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                    
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 12))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(AppColors.error)
-                    .frame(width: 28, height: 28)
-                    .background(isHovered ? AppColors.error.opacity(0.1) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.sm))
-                    .opacity(isHovered ? 1 : 0)
-                }
-            }
-        }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
-            }
-        }
     }
 }
 
@@ -1125,46 +904,50 @@ struct VocabularyRow: View {
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
-    
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let result = FlowResult(in: proposal.width ?? 0, subviews: subviews, spacing: spacing)
         return result.size
     }
-    
+
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
         for (index, subview) in subviews.enumerated() {
-            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x,
-                                      y: bounds.minY + result.positions[index].y),
-                         proposal: .unspecified)
+            subview.place(
+                at: CGPoint(
+                    x: bounds.minX + result.positions[index].x,
+                    y: bounds.minY + result.positions[index].y
+                ),
+                proposal: .unspecified
+            )
         }
     }
-    
+
     struct FlowResult {
         var size: CGSize = .zero
         var positions: [CGPoint] = []
-        
+
         init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
             var x: CGFloat = 0
             var y: CGFloat = 0
             var rowHeight: CGFloat = 0
-            
+
             for subview in subviews {
                 let size = subview.sizeThatFits(.unspecified)
-                
+
                 if x + size.width > maxWidth && x > 0 {
                     x = 0
                     y += rowHeight + spacing
                     rowHeight = 0
                 }
-                
+
                 positions.append(CGPoint(x: x, y: y))
                 rowHeight = max(rowHeight, size.height)
                 x += size.width + spacing
-                
+
                 self.size.width = max(self.size.width, x)
             }
-            
+
             self.size.height = y + rowHeight
         }
     }
@@ -1177,11 +960,4 @@ struct FlowLayout: Layout {
         .modelContainer(PreviewContainer.empty)
         .frame(width: 900, height: 600)
         .preferredColorScheme(.light)
-}
-
-#Preview("Dictionary View - Dark") {
-    DictionaryView()
-        .modelContainer(PreviewContainer.empty)
-        .frame(width: 900, height: 600)
-        .preferredColorScheme(.dark)
 }

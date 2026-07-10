@@ -30,7 +30,8 @@ struct MarkdownEditor: NSViewRepresentable {
         textView.isAutomaticDashSubstitutionEnabled = false
         textView.isAutomaticTextReplacementEnabled = false
         textView.isAutomaticSpellingCorrectionEnabled = false
-        textView.font = NSFont.systemFont(ofSize: 14)
+        // Inter 13/20-ish body (spec §10 note editor)
+        textView.font = FontLoader.nsFont(family: .inter, size: 13, weight: .regular)
         textView.textColor = NSColor(AppColors.textPrimary)
         textView.onCheckboxToggle = { [weak coordinator = context.coordinator] newText in
             coordinator?.parent.text = newText
@@ -84,16 +85,16 @@ class MarkdownTextView: NSTextView {
 
     var onCheckboxToggle: ((String) -> Void)?
 
-    private let baseFont = NSFont.systemFont(ofSize: 14)
+    private let baseFont = FontLoader.nsFont(family: .inter, size: 13, weight: .regular)
     private let headingFonts: [NSFont] = [
-        NSFont.systemFont(ofSize: 24, weight: .bold),
-        NSFont.systemFont(ofSize: 20, weight: .bold),
-        NSFont.systemFont(ofSize: 18, weight: .semibold),
-        NSFont.systemFont(ofSize: 16, weight: .semibold),
-        NSFont.systemFont(ofSize: 14, weight: .semibold),
-        NSFont.systemFont(ofSize: 14, weight: .medium)
+        FontLoader.nsFont(family: .newsreader, size: 22, weight: .semibold),
+        FontLoader.nsFont(family: .newsreader, size: 20, weight: .semibold),
+        FontLoader.nsFont(family: .newsreader, size: 18, weight: .medium),
+        FontLoader.nsFont(family: .inter, size: 16, weight: .semibold),
+        FontLoader.nsFont(family: .inter, size: 14, weight: .semibold),
+        FontLoader.nsFont(family: .inter, size: 13, weight: .medium)
     ]
-    private let codeFont = NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
+    private let codeFont = FontLoader.nsFont(family: .jetbrainsMono, size: 12, weight: .regular)
 
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
@@ -182,7 +183,7 @@ class MarkdownTextView: NSTextView {
             ], range: syntaxEnd)
 
             textStorage.addAttributes([
-                .font: NSFont.boldSystemFont(ofSize: 14)
+                .font: FontLoader.nsFont(family: .inter, size: 13, weight: .semibold)
             ], range: contentRange)
         }
     }
@@ -232,7 +233,7 @@ class MarkdownTextView: NSTextView {
             ], range: syntaxEnd)
 
             let boldItalicFont = NSFontManager.shared.convert(
-                NSFont.boldSystemFont(ofSize: 14),
+                FontLoader.nsFont(family: .inter, size: 13, weight: .semibold),
                 toHaveTrait: .italicFontMask
             )
             textStorage.addAttributes([
@@ -359,7 +360,7 @@ class MarkdownTextView: NSTextView {
             // Style the markdown marker to look like a checkbox glyph (content stays markdown).
             textStorage.addAttributes([
                 .foregroundColor: NSColor(AppColors.accent),
-                .font: NSFont.systemFont(ofSize: 14, weight: .medium),
+                .font: FontLoader.nsFont(family: .inter, size: 13, weight: .medium),
                 .toolTip: glyph
             ], range: match.markerRange)
 

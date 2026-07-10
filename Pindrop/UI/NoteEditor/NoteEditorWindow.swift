@@ -4,6 +4,9 @@
 //
 //  Created on 2026-01-29.
 //
+//  Note editor window (U5 scorched-earth restyle, spec §10): 480×560 fixed,
+//  Pinned badge, listening chip, footer word count + ⌘S hint.
+//
 
 import SwiftUI
 import SwiftData
@@ -75,14 +78,15 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         let locale = appLocale.locale
         Log.ui.infoVisible("Creating note editor window for locale=\(locale.identifier) isNewNote=\(isNewNote)")
         window.title = isNewNote ? localized("New Note", locale: locale) : (note?.title ?? localized("Note", locale: locale))
+        // Fixed 480×560 design size; keep modest min if user resizes.
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.titleVisibility = .visible
         window.titlebarAppearsTransparent = false
-        window.backgroundColor = NSColor(AppColors.windowBackground)
+        window.backgroundColor = NSColor(AppColors.contentBackground)
         window.isReleasedWhenClosed = false
         window.delegate = self
-        window.setContentSize(NSSize(width: 600, height: 500))
-        window.minSize = NSSize(width: 400, height: 300)
+        window.setContentSize(NSSize(width: 480, height: 560))
+        window.minSize = NSSize(width: 400, height: 420)
         window.center()
         applyInterfaceLayoutDirection(to: window, locale: locale)
 
@@ -135,6 +139,7 @@ struct NoteEditorView: View {
     @State private var showSavedConfirmation = false
     @State private var savedConfirmationTask: Task<Void, Never>?
     @State private var editorID = UUID()
+    @State private var lastEditedAt = Date()
 
     @ObservedObject private var appendListeningState = NoteAppendListeningCoordinator.shared.state
 
@@ -172,6 +177,14 @@ struct NoteEditorView: View {
         return String(format: format, locale: locale, count)
     }
 
+    private var footerMetaLabel: String {
+        let relative = NotesDateFormatting.compactRelative(
+            from: lastEditedAt,
+            locale: locale
+        )
+        return "\(wordCountLabel) · \(localized("edited", locale: locale)) \(relative)"
+    }
+
     private var listeningElapsedLabel: String {
         let total = Int(appendListeningState.elapsed)
         let minutes = total / 60
@@ -181,19 +194,20 @@ struct NoteEditorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            headerView
+            titlebarAccessory
 
-            Divider()
-                .foregroundStyle(AppColors.border)
+            editorContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            contentEditorView
-
-            Divider()
-                .foregroundStyle(AppColors.border)
+            if isThisEditorListening {
+                listeningChip
+                    .padding(.horizontal, 24)
+                    .padding(.top, 6)
+            }
 
             footerView
         }
-        .background(AppColors.windowBackground)
+        .background(AppColors.contentBackground)
         .themeRefresh()
         .onAppear {
             loadNoteData()
@@ -210,13 +224,23 @@ struct NoteEditorView: View {
                 NoteAppendListeningCoordinator.shared.requestStop(editorID: editorID)
             }
         }
-        .onChange(of: title) { _, _ in saveNote() }
-        .onChange(of: content) { _, _ in saveNote() }
-        .onChange(of: isPinned) { _, newValue in
-            onPinChange(newValue)
+        .onChange(of: title) { _, _ in
+            lastEditedAt = Date()
             saveNote()
         }
-        .onChange(of: tags) { _, _ in saveNote() }
+        .onChange(of: content) { _, _ in
+            lastEditedAt = Date()
+            saveNote()
+        }
+        .onChange(of: isPinned) { _, newValue in
+            onPinChange(newValue)
+            lastEditedAt = Date()
+            saveNote()
+        }
+        .onChange(of: tags) { _, _ in
+            lastEditedAt = Date()
+            saveNote()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .noteSpeakToAppendTranscript)) { notification in
             guard let targetID = notification.userInfo?["editorID"] as? UUID,
                   targetID == editorID,
@@ -225,55 +249,51 @@ struct NoteEditorView: View {
         }
     }
 
-    private var headerView: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.md) {
-                TextField(localized("Note Title", locale: locale), text: $title)
-                    .font(AppTypography.title)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .textFieldStyle(.plain)
-                    .focused($titleFieldFocused)
-                    .onSubmit {
-                        contentFieldFocused = true
-                    }
+    // MARK: - Titlebar (Pinned badge + pin toggle + speak)
 
-                Spacer(minLength: 0)
+    private var titlebarAccessory: some View {
+        HStack(spacing: 10) {
+            Spacer(minLength: 0)
 
-                speakToAppendButton
-
-                Button(action: { isPinned.toggle() }) {
-                    Image(systemName: isPinned ? "pin.fill" : "pin")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(isPinned ? AppColors.accent : AppColors.textSecondary)
-                }
-                .buttonStyle(.plain)
-                .help(isPinned ? localized("Unpin from screen", locale: locale) : localized("Pin to screen (always on top)", locale: locale))
+            if isPinned {
+                Text(localized("Pinned", locale: locale))
+                    .font(AppTypography.badge)
+                    .foregroundStyle(AppColors.accent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule().fill(AppColors.accentBackground)
+                    )
             }
 
-            tagsRow
+            speakToAppendButton
+
+            Button(action: { isPinned.toggle() }) {
+                Image(systemName: isPinned ? "pin.fill" : "pin")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(isPinned ? AppColors.accent : AppColors.textSecondary)
+            }
+            .buttonStyle(.plain)
+            .help(isPinned
+                  ? localized("Unpin from screen", locale: locale)
+                  : localized("Pin to screen (always on top)", locale: locale))
         }
-        .padding(AppTheme.Spacing.lg)
-        .background(AppColors.surfaceBackground)
+        .padding(.horizontal, 24)
+        .frame(height: 46)
+        .background(AppColors.contentBackground)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(height: 1)
+        }
     }
 
     private var speakToAppendButton: some View {
         Button(action: toggleSpeakToAppend) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: 4) {
                 Image(systemName: isThisEditorListening ? "stop.circle.fill" : "mic.fill")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(isThisEditorListening ? AppColors.error : AppColors.textSecondary)
-
-                if isThisEditorListening {
-                    if appendListeningState.isProcessing {
-                        Text(localized("Processing…", locale: locale))
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.textSecondary)
-                    } else {
-                        Text(listeningElapsedLabel)
-                            .font(AppTypography.caption.monospacedDigit())
-                            .foregroundStyle(AppColors.textSecondary)
-                    }
-                }
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(isThisEditorListening ? AppColors.recording : AppColors.textSecondary)
             }
         }
         .buttonStyle(.plain)
@@ -285,15 +305,40 @@ struct NoteEditorView: View {
         .disabled(appendListeningState.isProcessing && isThisEditorListening)
     }
 
+    // MARK: - Editor content
+
+    private var editorContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TextField(localized("Note Title", locale: locale), text: $title)
+                .font(FontLoader.font(family: .newsreader, size: 22, weight: .medium))
+                .foregroundStyle(AppColors.textPrimary)
+                .textFieldStyle(.plain)
+                .focused($titleFieldFocused)
+                .onSubmit {
+                    contentFieldFocused = true
+                }
+
+            tagsRow
+
+            MarkdownEditor(text: $content)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .frame(maxWidth: 432 + 48) // content ~432 + horizontal padding
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
     @ViewBuilder
     private var tagsRow: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: 8) {
             Image(systemName: "number")
-                .font(.caption)
+                .font(.system(size: 11))
                 .foregroundStyle(AppColors.textTertiary)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: 6) {
                     ForEach(tags, id: \.self) { tag in
                         TagChip(tag: tag, onRemove: { removeTag(tag) })
                     }
@@ -313,18 +358,47 @@ struct NoteEditorView: View {
         }
     }
 
-    private var contentEditorView: some View {
-        MarkdownEditor(text: $content)
-            .padding(AppTheme.Spacing.lg)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(AppColors.contentBackground)
+    // MARK: - Listening chip (spec §10)
+
+    private var listeningChip: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(AppColors.recording)
+                .frame(width: 7, height: 7)
+
+            if appendListeningState.isProcessing {
+                Text(localized("Processing…", locale: locale))
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textPrimary)
+            } else {
+                Text(localized("Listening — speak to append…", locale: locale))
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textPrimary)
+            }
+
+            Spacer(minLength: 8)
+
+            Text(listeningElapsedLabel)
+                .font(AppTypography.monoSmall)
+                .foregroundStyle(AppColors.textSecondary)
+                .monospacedDigit()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppColors.accentBackground)
+        )
     }
 
+    // MARK: - Footer (spec §10)
+
     private var footerView: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            Text(wordCountLabel)
+        HStack(spacing: 12) {
+            Text(footerMetaLabel)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.textTertiary)
+                .lineLimit(1)
 
             Spacer(minLength: 0)
 
@@ -335,20 +409,31 @@ struct NoteEditorView: View {
                     .transition(.opacity)
             }
 
-            Button(action: saveNow) {
-                Text(localized("Save", locale: locale))
-                    .font(AppTypography.caption)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(AppColors.textSecondary)
-            .help(localized("Save now (⌘S)", locale: locale))
-            .keyboardShortcut("s", modifiers: .command)
+            Text(localized("⌘S to save", locale: locale))
+                .font(AppTypography.monoSmall)
+                .foregroundStyle(AppColors.textTertiary)
+                .onTapGesture { saveNow() }
+                .help(localized("Save now (⌘S)", locale: locale))
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .background(AppColors.surfaceBackground)
+        .padding(.horizontal, 24)
+        .frame(height: 39)
+        .background(AppColors.contentBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(height: 1)
+        }
+        .background {
+            Button(action: saveNow) { EmptyView() }
+                .keyboardShortcut("s", modifiers: .command)
+                .opacity(0)
+                .frame(width: 0, height: 0)
+                .allowsHitTesting(false)
+        }
         .animation(AppTheme.Animation.fast, value: showSavedConfirmation)
     }
+
+    // MARK: - Actions
 
     private func toggleSpeakToAppend() {
         if isThisEditorListening {
@@ -364,7 +449,7 @@ struct NoteEditorView: View {
             content = note.content
             isPinned = note.isPinned
             tags = note.tags
-            // Only set currentNote for existing notes - new notes need to be inserted into context first
+            lastEditedAt = note.updatedAt
             if !isNewNote {
                 currentNote = note
             }
@@ -487,9 +572,9 @@ struct TagChip: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(AppColors.elevatedSurface)
+        .background(AppColors.windowBackground)
         .clipShape(Capsule())
-        .hairlineBorder(Capsule(), style: AppColors.border)
+        .overlay(Capsule().strokeBorder(AppColors.border, lineWidth: 1))
     }
 }
 
@@ -503,7 +588,7 @@ struct TagChip: View {
         onClose: {},
         onSave: { _ in }
     )
-    .frame(width: 600, height: 500)
+    .frame(width: 480, height: 560)
     .modelContainer(container)
 }
 
@@ -523,6 +608,6 @@ struct TagChip: View {
         onClose: {},
         onSave: { _ in }
     )
-    .frame(width: 600, height: 500)
+    .frame(width: 480, height: 560)
     .modelContainer(container)
 }
