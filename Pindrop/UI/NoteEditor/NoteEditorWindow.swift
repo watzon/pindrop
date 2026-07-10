@@ -223,15 +223,6 @@ struct NoteEditorView: View {
                   let text = notification.userInfo?["text"] as? String else { return }
             content = NoteContentAppend.append(transcript: text, to: content)
         }
-        .background(
-            Button(action: saveNow) {
-                EmptyView()
-            }
-            .keyboardShortcut("s", modifiers: .command)
-            .opacity(0)
-            .frame(width: 0, height: 0)
-            .accessibilityHidden(true)
-        )
     }
 
     private var headerView: some View {
