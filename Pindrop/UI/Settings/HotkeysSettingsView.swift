@@ -16,6 +16,8 @@ struct HotkeysSettingsView: View {
     @State private var keyMonitor: Any?
     @State private var pendingHotkeyCapture: PendingHotkeyCapture?
     @State private var activeModifierKeyCodes = Set<UInt16>()
+    /// Last-captured conflict status kept visible after key-up so the user can read it.
+    @State private var lastConflictStatusBySlot: [HotkeySlot: HotkeyConflictStatus] = [:]
 
     private struct PendingHotkeyCapture {
         let hotkeyString: String
@@ -32,7 +34,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Toggle Recording", locale: locale),
                     detail: localized("Press once to start recording, then press again to stop and transcribe.", locale: locale),
                     hotkey: settings.toggleHotkey,
-                    onClear: { settings.updateToggleHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updateToggleHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.toggleRecording] = nil
+                    }
                 )
 
                 hotkeySettingRow(
@@ -40,7 +45,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Push-to-Talk", locale: locale),
                     detail: localized("Hold the shortcut to record, then release to transcribe.", locale: locale),
                     hotkey: settings.pushToTalkHotkey,
-                    onClear: { settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.pushToTalk] = nil
+                    }
                 )
 
                 hotkeySettingRow(
@@ -48,7 +56,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Copy Last Transcript", locale: locale),
                     detail: localized("Copy the most recent transcript to the clipboard.", locale: locale),
                     hotkey: settings.copyLastTranscriptHotkey,
-                    onClear: { settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.copyLastTranscript] = nil
+                    }
                 )
             }
 
@@ -58,7 +69,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Note Capture — Hold", locale: locale),
                     detail: localized("Hold to record, then release to open the note editor with the transcription.", locale: locale),
                     hotkey: settings.quickCapturePTTHotkey,
-                    onClear: { settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.quickCapturePTT] = nil
+                    }
                 )
 
                 hotkeySettingRow(
@@ -66,7 +80,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Note Capture — Toggle", locale: locale),
                     detail: localized("Press once to start recording, then again to open the note editor.", locale: locale),
                     hotkey: settings.quickCaptureToggleHotkey,
-                    onClear: { settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.quickCaptureToggle] = nil
+                    }
                 )
             }
 
@@ -76,7 +93,10 @@ struct HotkeysSettingsView: View {
                     title: localized("Open Library", locale: locale),
                     detail: localized("Show the main window and open the Library.", locale: locale),
                     hotkey: settings.openLibraryHotkey,
-                    onClear: { settings.updateOpenLibraryHotkey("", keyCode: 0, modifiers: 0) }
+                    onClear: {
+                        settings.updateOpenLibraryHotkey("", keyCode: 0, modifiers: 0)
+                        lastConflictStatusBySlot[.openLibrary] = nil
+                    }
                 )
             }
         }
@@ -94,7 +114,7 @@ struct HotkeysSettingsView: View {
         onClear: @escaping () -> Void
     ) -> some View {
         let isRecording = recordingSlot == slot
-        let conflictStatus = liveConflictStatus(for: slot)
+        let conflictStatus = conflictStatus(for: slot)
 
         return LabeledContent {
             HotkeyRecorderRow(
@@ -111,23 +131,24 @@ struct HotkeysSettingsView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                if isRecording, let conflictStatus {
+                if let conflictStatus {
                     HotkeyConflictStatusView(status: conflictStatus, locale: locale)
                 }
             }
         }
     }
 
-    private func liveConflictStatus(for slot: HotkeySlot) -> HotkeyConflictStatus? {
-        guard recordingSlot == slot, let capture = pendingHotkeyCapture else {
-            return nil
+    /// Live status while capturing; otherwise the last-captured status for this slot (if any).
+    private func conflictStatus(for slot: HotkeySlot) -> HotkeyConflictStatus? {
+        if recordingSlot == slot, let capture = pendingHotkeyCapture {
+            return HotkeyConflictChecker.check(
+                keyCode: UInt32(capture.keyCode),
+                modifiers: capture.modifiers,
+                slot: slot,
+                assignments: settings.configuredHotkeyAssignments()
+            )
         }
-        return HotkeyConflictChecker.check(
-            keyCode: UInt32(capture.keyCode),
-            modifiers: capture.modifiers,
-            slot: slot,
-            assignments: settings.configuredHotkeyAssignments()
-        )
+        return lastConflictStatusBySlot[slot]
     }
 
     private func startRecording(for slot: HotkeySlot) {
@@ -209,6 +230,14 @@ struct HotkeysSettingsView: View {
         let hotkey = capture.hotkeyString
         let keyCode = Int(capture.keyCode)
         let modifiers = Int(capture.modifiers)
+
+        // Persist conflict status before stopRecording clears the pending capture.
+        lastConflictStatusBySlot[slot] = HotkeyConflictChecker.check(
+            keyCode: UInt32(capture.keyCode),
+            modifiers: capture.modifiers,
+            slot: slot,
+            assignments: settings.configuredHotkeyAssignments()
+        )
 
         switch slot {
         case .toggleRecording:
