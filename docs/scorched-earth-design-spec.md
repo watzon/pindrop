@@ -88,3 +88,12 @@ Icons: 16×16 viewBox custom strokes at 1.4 width (thin-stroke look). Map to SF 
 - Transcript section header: §5 section-header pattern + trailing hint "click a line to jump playback" (ink-3).
 - **Transcript turn row**: 10 pt vertical padding, 14 pt lane gaps. Lanes: timestamp **44 pt fixed** (mono 11 ink-3, 3 pt top pad) · speaker **92 pt fixed** (7 pt colored dot + Inter 12 · 600 ink, 6 pt gap) · text **Newsreader 15/23** ink (flex). Speaker dot colors: stable per-speaker palette (e.g. #14708A teal seen in design); derive a small stable palette hashed by speaker id.
 - Active (playing) turn: accent-soft background pill spanning the row (radius 10), timestamp tinted accent; clicking any row seeks playback to its timestamp (existing behavior).
+
+## 9. Home page (artboard 02 — extracted)
+
+- Date kicker: "WEDNESDAY, JULY 9" — Inter 11 · 600, wide tracking (~0.07–0.08em), ink-3, uppercase; sits above the hero.
+- **Hero sentence**: Newsreader **46/52 · -0.02em**, baseline-aligned wrap, 11 pt word-gaps, 10 pt bottom padding. Plain segments in ink at weight 400; the metric segment ("4,210 words") in **accent, italic, 500**.
+- Hero sub-line: Inter 13-ish ink-2 ("2 h 38 m of dictation — about 1 h 51 m saved over typing it out.").
+- **Stats strip**: 36 pt top / 40 pt bottom padding. Stat groups separated by 1×40 pt line dividers with 32 pt horizontal padding between. Each stat (4 pt gap): number **JetBrains Mono 22/28 · 500 ink** ("1,214", "96", "12", "14-day") over label **Inter 11 · 600 +0.07em ink-3 uppercase** (WORDS TODAY / WORDS / MIN / SESSIONS / STREAK).
+- **Recent**: §5 section-header pattern with trailing "Open Library →" accent link; 3 rows reusing the Library row anatomy (time lane, icon, preview, destination, play chip).
+- **THIS WEEK chart** (40 pt top padding, 14 pt gap): section header (Inter 11 · 600 +0.08em ink-3 + hairline rule). Bars row: 110 pt tall, bottom-aligned, 28 pt gaps; bars **30 pt wide, top radius 5 / bottom radius 2**; past days with data = line color at proportional heights; **today = accent bar + accent 600 label**; future days = 4 pt stub in line color; weekday labels Inter 11 · 500 ink-3, 8 pt below bars. Right-aligned week total: mono 22/28 · 500 ink over "WORDS SO FAR" label, 24 pt bottom padding.
