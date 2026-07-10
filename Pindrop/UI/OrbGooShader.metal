@@ -58,3 +58,54 @@ using namespace metal;
     out.a = min(out.a + edge * rim.a * 0.55h, 1.0h);
     return out;
 }
+
+/// Shader-swappable glass-study fill for the orb interior. This is deliberately
+/// separate from `orbGooField`: the metaball field above remains the sole owner
+/// of assembly geometry and separation physics, while this pass can evolve as a
+/// purely visual fill layer.
+[[ stitchable ]] half4 orbGlassFill(float2 position, half4 color,
+                                    float2 size, float time,
+                                    half4 primaryRibbon, half4 secondaryRibbon,
+                                    float ribbonIntensity, float isRecording,
+                                    float isMuted) {
+    float2 uv = position / max(size, float2(1.0));
+    float2 p = uv - 0.5;
+    float radius = length(p);
+
+    // Near-black radial glass body: approximately oklab L34 → L23 → L15.
+    half centerLight = half(clamp(1.0 - radius * 1.75, 0.0, 1.0));
+    half3 glass = mix(half3(0.027h, 0.025h, 0.022h),
+                      half3(0.095h, 0.088h, 0.078h), centerLight);
+
+    // A warm low bloom and cool accent bloom give the glass depth without
+    // making the body itself theme-colored.
+    float warmBloom = exp(-dot(p - float2(-0.17, 0.18), p - float2(-0.17, 0.18)) * 18.0);
+    float accentBloom = exp(-dot(p - float2(0.18, -0.12), p - float2(0.18, -0.12)) * 16.0);
+    glass += half3(0.20h, 0.14h, 0.075h) * half(warmBloom * 0.16);
+    glass += primaryRibbon.rgb * half(accentBloom * 0.18);
+
+    // Layered aurora: broad back band, dominant accent thread, warm/front band.
+    float waveA = 0.53 + sin(uv.x * 7.2 + time) * 0.105
+                       + sin(uv.x * 14.0 - time * 0.55) * 0.025;
+    float waveB = 0.59 + sin(uv.x * 6.2 + time * 0.72 + 1.3) * 0.085;
+    float waveC = 0.64 + sin(uv.x * 8.5 - time * 0.48 + 2.1) * 0.055;
+    float back = exp(-pow((uv.y - waveA) / 0.14, 2.0));
+    float mainThread = exp(-pow((uv.y - waveB) / 0.048, 2.0));
+    float frontThread = exp(-pow((uv.y - waveC) / 0.032, 2.0));
+    float intensity = ribbonIntensity * (1.0 - isMuted);
+    glass += primaryRibbon.rgb * half((back * 0.23 + mainThread * 0.82) * intensity);
+    glass += secondaryRibbon.rgb * half(frontThread * 0.68 * intensity);
+
+    // Wax red is a product-state signal, not a theme color. It only exists
+    // while the microphone is hot.
+    float redWave = 0.57 + sin(uv.x * 9.0 + time * 0.9 + 0.7) * 0.052;
+    float redThread = exp(-pow((uv.y - redWave) / 0.022, 2.0));
+    glass += half3(0.824h, 0.357h, 0.298h) * half(redThread * 0.80 * isRecording);
+
+    // Two restrained white speculars from the artboard study.
+    float specA = exp(-dot(p - float2(-0.19, -0.23), p - float2(-0.19, -0.23)) * 90.0);
+    float specB = exp(-dot(p - float2(0.22, 0.24), p - float2(0.22, 0.24)) * 120.0);
+    glass += half3(1.0h) * half(specA * 0.55 + specB * 0.35);
+
+    return half4(clamp(glass, half3(0.0h), half3(1.0h)), color.a);
+}

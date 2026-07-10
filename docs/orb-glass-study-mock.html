@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pindrop Orb Glass Study</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --stage: #100f0d;
+      --tile: #ffffff08;
+      --tile-line: #ffffff12;
+      --ink: #efebe2;
+      --ink-2: #b8b1a1;
+      --accent: #1f6d53;
+      --accent-glow: #1f6d5373;
+      --mint: #6fdcaf;
+      --cream: #efd9a8;
+      --wax-red: #d25b4c;
+      --rim: #ffffff24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 12%, #1f1c17 0, transparent 42%),
+        var(--stage);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 48px));
+      padding: 48px 0;
+    }
+
+    header { margin-bottom: 24px; }
+
+    h1 {
+      margin: 0;
+      font-family: Newsreader, Georgia, serif;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -.015em;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .states {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .tile {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--tile-line);
+      border-radius: 14px;
+      background: var(--tile);
+    }
+
+    .study {
+      height: 214px;
+      display: grid;
+      place-items: center;
+    }
+
+    .caption {
+      min-height: 88px;
+      padding: 15px 16px;
+      border-top: 1px solid var(--tile-line);
+    }
+
+    .caption strong {
+      display: block;
+      font-size: 11px;
+      line-height: 14px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .caption span {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink-2);
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    .orb {
+      position: relative;
+      width: var(--size);
+      height: var(--size);
+      overflow: hidden;
+      border: 1.5px solid var(--rim);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 23%, #ffffff8c 0 2%, transparent 18%),
+        radial-gradient(circle at 72% 68%, #1f6d5338 0, transparent 45%),
+        radial-gradient(circle at 35% 68%, #efd9a829 0, transparent 38%),
+        radial-gradient(in oklab circle at 38% 28%, oklab(34% 0 0), oklab(23% 0 0) 52%, oklab(15% 0 0));
+      box-shadow: 0 14px 48px var(--glow, var(--accent-glow));
+      isolation: isolate;
+    }
+
+    .orb::before,
+    .orb::after {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .orb::before {
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 30% 19%, #ffffff8c 0 2%, transparent 17%),
+        radial-gradient(circle at 75% 74%, #ffffff59 0 1%, transparent 15%);
+    }
+
+    .orb::after {
+      inset: 1px;
+      border-radius: inherit;
+      border-bottom: 1.5px solid #6fdcafcc;
+      border-top: 1.5px solid #efd9a8b3;
+      mask: linear-gradient(120deg, transparent 18%, #000 40%, #000 66%, transparent 84%);
+    }
+
+    .ribbons {
+      position: absolute;
+      inset: -22%;
+      z-index: 2;
+      width: 144%;
+      height: 144%;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+
+    .idle { --size: 30px; --glow: #1f6d5359; }
+    .hover { --size: 44px; }
+    .recording {
+      --size: 56px;
+      border-radius: 49% 51% 48% 52% / 48% 47% 53% 52%;
+    }
+    .processing { --size: 44px; --glow: #14523c8c; }
+    .muted {
+      --size: 30px;
+      --glow: transparent;
+      opacity: .4;
+      filter: saturate(.12);
+    }
+
+    .idle .ribbons { opacity: .5; transform: translateY(7%); }
+    .hover .ribbons { filter: saturate(1.18) brightness(1.16); }
+    .processing .ribbons { animation-duration: 12s; }
+    .muted .ribbons { opacity: 0; }
+
+    .hover-ring {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      border: 1px dashed #ffffff24;
+      border-radius: 50%;
+    }
+
+    @keyframes drift {
+      from { transform: translate(-2%, 3%) rotate(-2deg); }
+      to { transform: translate(3%, -2%) rotate(2deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ribbons { animation: none; }
+    }
+
+    @media (max-width: 900px) {
+      .states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Orb glass study</h1>
+      <p>Library theme · actual shipping sizes · wax-red appears only while the microphone is hot</p>
+    </header>
+
+    <section class="states" aria-label="Orb state studies">
+      <article class="tile">
+        <div class="study">
+          <div class="orb idle" role="img" aria-label="Idle orb, 30 points">
+            <svg class="ribbons" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M-8 63 C18 43 39 76 62 54 S94 37 110 51" fill="none" stroke="#6FDCAF" stroke-opacity=".5" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="caption"><strong>Idle · 30 pt</strong><span>One dim mint thread, settled glass, quiet accent glow.</span></div>
+      </article>
+
+      <article class="tile">
+        <div class="study">
+          <div class="hover-ring" aria-hidden="true"></div>
+          <div class="orb hover" role="img" aria-label="Hover orb, 44 points">
+            <svg class="ribbons" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M-8 67 C18 37 38 77 63 50 S94 35 110 48" fill="none" stroke="#17614A" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+              <path d="M-8 59 C16 45 38 69 60 48 S93 40 110 44" fill="none" stroke="#B9F0D6" stroke-opacity=".38" stroke-width="10" stroke-linecap="round"/>
+              <path d="M-8 62 C18 40 39 76 63 51 S94 36 110 49" fill="none" stroke="#6FDCAF" stroke-opacity=".95" stroke-width="6" stroke-linecap="round"/>
+              <path d="M-8 69 C17 49 43 78 66 59 S93 47 110 54" fill="none" stroke="#EFD9A8" stroke-opacity=".75" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="caption"><strong>Hover · 44 pt</strong><span>Swell only—never a pill. Ribbon and rim brighten.</span></div>
+      </article>
+
+      <article class="tile">
+        <div class="study">
+          <div class="orb recording" role="img" aria-label="Recording orb, 56 points, with wax-red thread">
+            <svg class="ribbons" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M-8 67 C18 37 38 77 63 50 S94 35 110 48" fill="none" stroke="#17614A" stroke-opacity=".6" stroke-width="18" stroke-linecap="round"/>
+              <path d="M-8 57 C16 42 38 70 60 48 S93 39 110 43" fill="none" stroke="#B9F0D6" stroke-opacity=".38" stroke-width="12" stroke-linecap="round"/>
+              <path d="M-8 62 C18 40 39 76 63 51 S94 36 110 49" fill="none" stroke="#6FDCAF" stroke-opacity=".95" stroke-width="7" stroke-linecap="round"/>
+              <path d="M-8 70 C17 49 43 78 66 59 S93 47 110 54" fill="none" stroke="#EFD9A8" stroke-opacity=".75" stroke-width="4" stroke-linecap="round"/>
+              <path d="M-8 65 C20 50 39 68 61 57 S93 48 110 58" fill="none" stroke="#D25B4C" stroke-opacity=".8" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M-8 69 C17 55 44 71 66 63 S93 54 110 59" fill="none" stroke="#F0937F" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="caption"><strong>Recording · 56 pt</strong><span>Wax-red #D25B4C is woven through the live aurora.</span></div>
+      </article>
+
+      <article class="tile">
+        <div class="study">
+          <div class="orb processing" role="img" aria-label="Processing orb, 44 points">
+            <svg class="ribbons" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M-8 65 C18 43 39 74 62 54 S94 38 110 50" fill="none" stroke="#17614A" stroke-opacity=".6" stroke-width="14" stroke-linecap="round"/>
+              <path d="M-8 61 C18 43 39 72 63 52 S94 38 110 50" fill="none" stroke="#6FDCAF" stroke-opacity=".72" stroke-width="6" stroke-linecap="round"/>
+              <path d="M-8 69 C17 51 43 77 66 59 S93 48 110 55" fill="none" stroke="#EFD9A8" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="caption"><strong>Processing · 44 pt</strong><span>Calm pulse, slower ribbon, deep #14523C8C glow.</span></div>
+      </article>
+
+      <article class="tile">
+        <div class="study">
+          <div class="orb muted" role="img" aria-label="Muted orb, 30 points, dimmed to 40 percent">
+            <svg class="ribbons" viewBox="0 0 100 100" aria-hidden="true">
+              <path d="M-8 63 C18 43 39 76 62 54 S94 37 110 51" fill="none" stroke="#6FDCAF" stroke-opacity=".5" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="caption"><strong>Muted · 30 pt</strong><span>Aurora extinguished; cold glass dimmed to 40%.</span></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

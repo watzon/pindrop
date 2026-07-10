@@ -11,11 +11,39 @@ import Observation
 
 enum ToastPlacement: Equatable {
     case bottomCenter
+    case bottomTrailing
 }
 
 enum ToastStyle: Equatable {
     case standard
     case error
+}
+
+enum ToastVariant: Equatable {
+    case standard
+    case inserted(wordCount: Int)
+    case copied
+    case microphoneUnavailable
+}
+
+enum ToastVariantPresentation {
+    static func trailingText(for variant: ToastVariant, locale: Locale) -> String? {
+        guard case .inserted(let wordCount) = variant else { return nil }
+        return String(format: localized("%d words", locale: locale), locale: locale, wordCount)
+    }
+
+    static func systemImage(for variant: ToastVariant, style: ToastStyle) -> String {
+        switch variant {
+        case .inserted:
+            return "checkmark"
+        case .copied:
+            return "doc.on.doc"
+        case .microphoneUnavailable:
+            return "exclamationmark.triangle"
+        case .standard:
+            return style == .error ? "exclamationmark.triangle" : "checkmark"
+        }
+    }
 }
 
 enum ToastActionRole: Equatable {
@@ -48,6 +76,7 @@ struct ToastPayload {
     let actions: [ToastAction]
     let duration: TimeInterval?
     let style: ToastStyle
+    let variant: ToastVariant
     let placement: ToastPlacement
     let screenHintRect: CGRect?
 
@@ -57,7 +86,8 @@ struct ToastPayload {
         actions: [ToastAction] = [],
         duration: TimeInterval? = 4.0,
         style: ToastStyle = .standard,
-        placement: ToastPlacement = .bottomCenter,
+        variant: ToastVariant = .standard,
+        placement: ToastPlacement = .bottomTrailing,
         screenHintRect: CGRect? = nil
     ) {
         self.id = id
@@ -65,6 +95,7 @@ struct ToastPayload {
         self.actions = Array(actions.prefix(2))
         self.duration = duration
         self.style = style
+        self.variant = variant
         self.placement = placement
         self.screenHintRect = screenHintRect
     }
@@ -232,6 +263,6 @@ final class ToastService: ToastShowing {
 private extension ToastPayload {
     var signature: String {
         let actionSignature = actions.map { "\($0.title)|\($0.role)" }.joined(separator: "|")
-        return "\(message)|\(style)|\(placement)|\(actionSignature)"
+        return "\(message)|\(style)|\(variant)|\(placement)|\(actionSignature)"
     }
 }

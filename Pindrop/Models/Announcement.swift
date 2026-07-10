@@ -37,47 +37,32 @@ struct AnnouncementCredit {
 
 enum AnnouncementCatalog {
     static let current: Announcement? = Announcement(
-        id: "2026.07-v1.19",
-        titleKey: "What's New in Pindrop",
-        headerKey: "Pindrop 1.19",
-        subtitleKey: "A big round of upgrades — and two community shout-outs.",
-        footerKey: "Also new: RTL layout support and 20 new interface languages.",
+        id: "2026.07-v0.10",
+        titleKey: "What's new",
+        headerKey: "Pindrop 0.10.0 · July 2026",
+        subtitleKey: "Replay, a new look, and keyboard control throughout Pindrop.",
+        footerKey: nil,
         items: [
             AnnouncementItem(
-                id: "orb",
-                visual: .orbDemo,
-                titleKey: "Meet the new Orb",
-                bodyKey: "Your floating indicator is now a living, audio-reactive orb. It breathes while idle, swells when you speak, and streams your words live as you dictate.",
+                id: "replay",
+                visual: .symbol("play.fill"),
+                titleKey: "Replay every dictation",
+                bodyKey: "Pindrop can keep audio for seven days, so you can listen back from your Library whenever you need it.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "streaming-transcription",
-                visual: .symbol("waveform"),
-                titleKey: "Streaming transcription, instantly ready",
-                bodyKey: "The new Nemotron streaming engine shows words as you say them, and the engine prewarms at launch so your first dictation starts without a delay.",
+                id: "new-look",
+                visual: .symbol("paintbrush.fill"),
+                titleKey: "A new look",
+                bodyKey: "A warmer, quieter design puts your words first. Your theme presets carry over — plus a new default, Library.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "bluetooth-external-mics",
-                visual: .symbol("headphones"),
-                titleKey: "Better Bluetooth & external mic support",
-                bodyKey: "Recording from external and Bluetooth microphones is now rock solid, even when your audio output is routed elsewhere.",
-                credit: AnnouncementCredit(
-                    name: "@ntdkhang",
-                    url: URL(string: "https://github.com/ntdkhang"),
-                    labelKey: "Thanks to %@ for investigating and kicking off the fix (PR #64)."
-                )
-            ),
-            AnnouncementItem(
-                id: "russian-ukrainian-dictation",
-                visual: .symbol("globe"),
-                titleKey: "Dictate in Russian and Ukrainian",
-                bodyKey: "Two new dictation languages, fully wired into model recommendations.",
-                credit: AnnouncementCredit(
-                    name: "@nezzard",
-                    url: URL(string: "https://github.com/nezzard"),
-                    labelKey: "Thanks to %@ for the contribution (PR #61)."
-                )
+                id: "keyboard-everywhere",
+                visual: .symbol("keyboard"),
+                titleKey: "Keyboard everywhere",
+                bodyKey: "Navigate pages, search, create notes, export, and delete without leaving the keyboard.",
+                credit: nil
             ),
         ]
     )

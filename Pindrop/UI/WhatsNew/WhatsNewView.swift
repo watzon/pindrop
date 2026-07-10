@@ -20,25 +20,28 @@ struct WhatsNewView: View {
             AppColors.windowBackground
                 .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
-                header
+            VStack(alignment: .leading, spacing: 0) {
+                trafficLights
+                    .padding(.bottom, 20)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                        ForEach(announcement.items) { item in
-                            AnnouncementItemRow(item: item)
-                        }
+                Text(localized(announcement.titleKey, locale: locale))
+                    .font(FontLoader.font(family: .newsreader, size: 28, weight: .medium))
+                    .tracking(-0.42)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
-                        if let footerKey = announcement.footerKey {
-                            Text(localized(footerKey, locale: locale))
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.textSecondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(.top, AppTheme.Spacing.xs)
-                        }
+                Text(localized(announcement.headerKey, locale: locale))
+                    .font(AppTypography.monoTime)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .padding(.top, 4)
+                    .padding(.bottom, 22)
+
+                VStack(alignment: .leading, spacing: 18) {
+                    ForEach(announcement.items) { item in
+                        AnnouncementItemRow(item: item)
                     }
-                    .padding(.bottom, AppTheme.Spacing.xs)
                 }
+                .frame(maxHeight: .infinity, alignment: .top)
 
                 HStack {
                     Spacer()
@@ -47,34 +50,39 @@ struct WhatsNewView: View {
                         onDismiss()
                     }
                     .keyboardShortcut(.defaultAction)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(WhatsNewPrimaryButtonStyle())
+                    Spacer()
                 }
+                .padding(.top, 16)
             }
-            .padding(AppTheme.Spacing.xxl)
+            .padding(.top, 20)
+            .padding(.horizontal, 28)
+            .padding(.bottom, 24)
         }
-        .frame(width: 520, height: 640)
+        .frame(width: 460, height: 540)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .themeRefresh()
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text(localized(announcement.titleKey, locale: locale))
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.accent)
-                .textCase(.uppercase)
+    private var trafficLights: some View {
+        HStack(spacing: 8) {
+            Button(action: onDismiss) {
+                Circle()
+                    .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
+                    .frame(width: 12, height: 12)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(localized("Close", locale: locale))
 
-            Text(localized(announcement.headerKey, locale: locale))
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-
-            Text(localized(announcement.subtitleKey, locale: locale))
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+            Circle()
+                .fill(Color(nsColor: NSColor(pindropHex: "#E9E5DA") ?? .lightGray))
+                .frame(width: 12, height: 12)
+                .accessibilityHidden(true)
+            Circle()
+                .fill(Color(nsColor: NSColor(pindropHex: "#E9E5DA") ?? .lightGray))
+                .frame(width: 12, height: 12)
+                .accessibilityHidden(true)
         }
     }
 }
@@ -85,19 +93,19 @@ private struct AnnouncementItemRow: View {
     @Environment(\.locale) private var locale
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+        HStack(alignment: .top, spacing: 14) {
             AnnouncementVisualView(visual: item.visual)
-                .frame(width: 76, height: 76)
-                .padding(.top, AppTheme.Spacing.xxs)
+                .frame(width: 36, height: 36)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(localized(item.titleKey, locale: locale))
-                    .font(AppTypography.headline)
+                    .font(FontLoader.font(family: .inter, size: 14, weight: .semibold))
                     .foregroundStyle(AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(localized(item.bodyKey, locale: locale))
-                    .font(AppTypography.bodySmall)
+                    .font(FontLoader.font(family: .inter, size: 12, weight: .regular))
+                    .lineSpacing(6)
                     .foregroundStyle(AppColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -107,17 +115,7 @@ private struct AnnouncementItemRow: View {
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
-                .strokeBorder(AppColors.border.opacity(0.7), lineWidth: 1)
-        )
-        .shadow(AppTheme.Shadow.sm)
     }
 }
 
@@ -128,21 +126,29 @@ private struct AnnouncementVisualView: View {
         switch visual {
         case .symbol(let symbolName):
             ZStack {
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(AppColors.accentBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                            .strokeBorder(AppColors.border.opacity(0.55), lineWidth: 1)
-                    )
 
                 Image(systemName: symbolName)
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(AppColors.accent)
             }
 
         case .orbDemo:
             AnnouncementOrbDemoView()
         }
+    }
+}
+
+private struct WhatsNewPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(FontLoader.font(family: .inter, size: 13, weight: .semibold))
+            .foregroundStyle(AppColors.contentBackground)
+            .padding(.vertical, 9)
+            .padding(.horizontal, 26)
+            .background(AppColors.accent.opacity(configuration.isPressed ? 0.78 : 1))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

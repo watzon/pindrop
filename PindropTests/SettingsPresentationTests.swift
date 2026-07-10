@@ -177,6 +177,69 @@ struct SettingsPresentationTests {
         let urls = SettingsLogExport.logFileURLs(in: temp)
         #expect(urls.map(\.lastPathComponent).sorted() == ["a.log", "b.log"])
     }
+
+    // MARK: - Floating surface presentation
+
+    @Test func orbRibbonPaletteUsesExactArtboardRemaps() {
+        let library = OrbRibbonPalette.forPresetID("library")
+        #expect(library.primaryHex == "#6FDCAF")
+        #expect(library.secondaryHex == "#EFD9A8")
+        #expect(library.glowHex == "#1F6D53")
+
+        let pindrop = OrbRibbonPalette.forPresetID("pindrop")
+        #expect(pindrop.primaryHex == "#F2B54A")
+        #expect(pindrop.secondaryHex == "#F7E3BC")
+
+        let harbor = OrbRibbonPalette.forPresetID("harbor")
+        #expect(harbor.primaryHex == "#4FB3D1")
+        #expect(harbor.secondaryHex == "#CFE9F0")
+    }
+
+    @Test func orbRibbonPaletteDerivesUnspecifiedPresetFromAccent() {
+        // Derived presets follow the catalog's (contrast-tuned) accent, not the raw
+        // artboard table, so the ribbon matches the rest of the themed UI.
+        let signal = OrbRibbonPalette.forPresetID("signal")
+        let catalogAccent = PindropThemePresetCatalog
+            .profile(for: "signal", variant: .light)
+            .accentHex
+        #expect(signal.primaryHex == catalogAccent)
+        #expect(signal.secondaryHex != signal.primaryHex)
+        #expect(signal.glowHex == signal.primaryHex)
+    }
+
+    @Test func orbRibbonPaletteTracksVariantAccentForDerivedPresets() {
+        for presetID in ["paper", "evergreen", "signal"] {
+            for variant in [PindropThemeVariant.light, .dark] {
+                let palette = OrbRibbonPalette.forPresetID(presetID, variant: variant)
+                let catalogAccent = PindropThemePresetCatalog
+                    .profile(for: presetID, variant: variant)
+                    .accentHex
+                #expect(palette.primaryHex == catalogAccent)
+                #expect(palette.glowHex == catalogAccent)
+            }
+        }
+    }
+
+    @Test func toastVariantPresentationStringsAndSymbols() {
+        let locale = Locale(identifier: "en")
+        #expect(
+            ToastVariantPresentation.trailingText(
+                for: .inserted(wordCount: 32),
+                locale: locale
+            ) == "32 words"
+        )
+        #expect(ToastVariantPresentation.trailingText(for: .copied, locale: locale) == nil)
+        #expect(
+            ToastVariantPresentation.systemImage(for: .microphoneUnavailable, style: .error)
+                == "exclamationmark.triangle"
+        )
+    }
+
+    @Test func floatingIndicatorTimerFormatting() {
+        #expect(FloatingIndicatorTimeFormatting.elapsed(-1) == "0:00")
+        #expect(FloatingIndicatorTimeFormatting.elapsed(7.9) == "0:07")
+        #expect(FloatingIndicatorTimeFormatting.elapsed(125) == "2:05")
+    }
 }
 
 @Suite

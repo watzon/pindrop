@@ -41,16 +41,16 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private enum LayoutMetrics {
-        static let compactSize = CGSize(width: 40, height: 10)
+        static let compactSize = CGSize(width: 44, height: 10)
         static let compactPillBottomPadding: CGFloat = 6
         static let hoverSize = CGSize(width: 332, height: 68)
-        static let recordingSize = CGSize(width: 124, height: 30)
-        static let processingSize = CGSize(width: 124, height: 30)
+        static let recordingSize = CGSize(width: 178, height: 44)
+        static let processingSize = CGSize(width: 160, height: 44)
         /// Panel size while the live transcript card is showing (overlay streaming).
-        static let streamingSize = CGSize(width: 332, height: 112)
+        static let streamingSize = CGSize(width: 282, height: 118)
         /// The transcript card itself (pill row + transcript area), bottom-aligned in
         /// the panel like the plain recording pill.
-        static let streamingCardSize = CGSize(width: 320, height: 98)
+        static let streamingCardSize = CGSize(width: 270, height: 104)
 
         static let compactBottomInset: CGFloat = 6
         static let expandedBottomInset: CGFloat = 10
@@ -724,8 +724,10 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     private func size(for layoutState: LayoutState) -> CGSize {
         switch layoutState {
-        case .recording, .processing:
-            return liveTranscript.isActive ? LayoutMetrics.streamingSize : LayoutMetrics.hoverSize
+        case .recording:
+            return liveTranscript.isActive ? LayoutMetrics.streamingSize : LayoutMetrics.recordingSize
+        case .processing:
+            return liveTranscript.isActive ? LayoutMetrics.streamingSize : LayoutMetrics.processingSize
         case .compact, .hover:
             return LayoutMetrics.hoverSize
         }
@@ -810,6 +812,7 @@ struct PillIndicatorView: View {
     @Namespace private var pillShellNamespace
     @ObservedObject private var theme = PindropThemeController.shared
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var showsExpandedState: Bool {
         state.isRecording || state.isProcessing || !isCompact
@@ -829,7 +832,8 @@ struct PillIndicatorView: View {
                 compactView
             }
         }
-        .animation(AppTheme.Animation.smooth, value: showsExpandedState)
+        .animation(reduceMotion ? nil : AppTheme.Animation.smooth, value: showsExpandedState)
+        .opacity(state.isInputMuted ? 0.4 : 1)
         .themeRefresh()
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
@@ -879,8 +883,8 @@ struct PillIndicatorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom, 6)
         .contentShape(Rectangle())
-        .animation(.spring(response: 0.26, dampingFraction: 0.86), value: controller.isHovered)
-        .animation(.easeOut(duration: 0.15), value: controller.isHoverTooltipVisible)
+        .animation(reduceMotion ? nil : .spring(response: 0.26, dampingFraction: 0.86), value: controller.isHovered)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: controller.isHoverTooltipVisible)
     }
 
     private var expandedView: some View {
@@ -888,12 +892,12 @@ struct PillIndicatorView: View {
             expandedPillShell
 
             if showsTranscript {
-                VStack(spacing: 4) {
+                VStack(spacing: 6) {
                     expandedControlsRow
-                        .frame(height: 30)
-                    LiveTranscriptView(transcript: transcript, fontSize: 11, lineLimit: 3)
-                        .padding(.horizontal, 14)
-                        .padding(.bottom, 10)
+                        .frame(height: 26)
+                    LiveTranscriptView(transcript: transcript, fontSize: 14, lineLimit: 3)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
                 }
             } else {
                 expandedControlsRow
@@ -902,105 +906,100 @@ struct PillIndicatorView: View {
         .frame(width: expandedSize.width, height: expandedSize.height)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom, 6)
-        .animation(.spring(response: 0.26, dampingFraction: 0.86), value: showsTranscript)
+        .animation(reduceMotion ? nil : .spring(response: 0.26, dampingFraction: 0.86), value: showsTranscript)
     }
 
     private var expandedSize: CGSize {
-        showsTranscript ? CGSize(width: 320, height: 98) : CGSize(width: 124, height: 30)
+        if showsTranscript { return CGSize(width: 270, height: 104) }
+        return state.isProcessing
+            ? CGSize(width: 148, height: 32)
+            : CGSize(width: 166, height: 32)
     }
 
     @ViewBuilder
     private var expandedControlsRow: some View {
         if state.isRecording {
-            HStack(spacing: 8) {
-                Button {
-                    controller.handleCancelButtonTapped()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.overlayTextPrimary.opacity(0.1))
+            HStack(spacing: showsTranscript ? 8 : 9) {
+                Circle()
+                    .fill(Color(nsColor: NSColor(pindropHex: "#D25B4C") ?? .systemRed))
+                    .frame(width: showsTranscript ? 7 : 8, height: showsTranscript ? 7 : 8)
 
-                        Image(systemName: "xmark")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
-                    }
-                    .frame(width: 18, height: 18)
+                if showsTranscript {
+                    Text(FloatingIndicatorTimeFormatting.elapsed(state.recordingDuration))
+                        .font(FontLoader.font(family: .jetbrainsMono, size: 11, weight: .medium))
+                        .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#A59D8C") ?? .secondaryLabelColor))
+                        .contentTransition(.numericText(countsDown: false))
+
+                    Spacer(minLength: 0)
+
+                    Text("en")
+                        .font(FontLoader.font(family: .jetbrainsMono, size: 10, weight: .regular))
+                        .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#6E675B") ?? .tertiaryLabelColor))
+                } else {
+                    FloatingIndicatorWaveformView(
+                        audioLevel: state.audioLevel,
+                        isRecording: state.isRecording,
+                        style: .pill
+                    )
+                    .frame(width: 44, height: 14)
+
+                    Text(FloatingIndicatorTimeFormatting.elapsed(state.recordingDuration))
+                        .font(FontLoader.font(family: .jetbrainsMono, size: 13, weight: .medium))
+                        .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
+                        .contentTransition(.numericText(countsDown: false))
+
+                    Rectangle()
+                        .fill(Color.white.opacity(0.14))
+                        .frame(width: 1, height: 14)
                 }
-                .buttonStyle(.plain)
-
-                FloatingIndicatorWaveformView(
-                    audioLevel: state.audioLevel,
-                    isRecording: state.isRecording,
-                    style: .pill
-                )
-                .frame(width: 46, height: 14)
 
                 Button {
                     controller.handleStopButtonTapped()
                 } label: {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.overlayRecording)
-
-                        RoundedRectangle(cornerRadius: 1.5)
-                            .fill(AppColors.overlayTextPrimary)
-                            .frame(width: 6, height: 6)
-                    }
-                    .frame(width: 18, height: 18)
-                    .shadow(color: AppColors.overlayRecording.opacity(0.25), radius: 4)
+                    RoundedRectangle(cornerRadius: showsTranscript ? 2 : 2.5, style: .continuous)
+                        .fill(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white).opacity(0.72))
+                        .frame(width: showsTranscript ? 9 : 10, height: showsTranscript ? 9 : 10)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 9)
+            .padding(.horizontal, showsTranscript ? 16 : 14)
         } else {
-            HStack(spacing: 6) {
+            HStack(spacing: 9) {
                 IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
 
-                Text(localized("Processing", locale: locale))
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AppColors.overlayTextPrimary.opacity(0.9))
+                Text(localized("Transcribing…", locale: locale))
+                    .font(FontLoader.font(family: .inter, size: 12, weight: .medium))
+                    .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white))
             }
+            .padding(.horizontal, 14)
         }
     }
 
     private var compactPillShell: some View {
         Capsule()
-            .fill(AppColors.overlaySurface.opacity(controller.isHovered ? 0.96 : 0.82))
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.20, green: 0.24, blue: 0.21).opacity(0.95),
+                        Color(red: 0.10, green: 0.12, blue: 0.11).opacity(0.95),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .overlay(
                 Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [
-                                AppColors.overlayTextPrimary.opacity(controller.isHovered ? 0.18 : 0.1),
-                                .clear
-                            ],
+                            colors: [Color.white.opacity(0.10), .clear],
                             startPoint: .top,
                             endPoint: .center
                         )
                     )
             )
-            .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(controller.isHovered ? 1 : 0.82))
-            .overlay {
-                if controller.isHovered {
-                    FloatingIndicatorWaveformView(
-                        audioLevel: state.audioLevel,
-                        isRecording: true,
-                        style: FloatingIndicatorWaveformStyle(
-                            layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
-                            barWidth: 2,
-                            barSpacing: 2,
-                            minimumHeight: 3,
-                            maximumHeight: 10,
-                            idleHeight: 3,
-                            color: AppColors.overlayTooltipAccent,
-                            animationInterval: 0.05
-                        )
-                    )
-                    .frame(width: 18, height: 10)
-                }
-            }
-            .frame(width: controller.isHovered ? 86 : 40, height: controller.isHovered ? 22 : 10)
-            .shadow(color: AppColors.shadowColor.opacity(controller.isHovered ? 0.42 : 0.3), radius: 12, y: 6)
+            .hairlineStroke(Capsule(), style: Color.white.opacity(0.14))
+            .frame(width: 44, height: 10)
+            .shadow(color: Color.black.opacity(0.4), radius: 10, y: 3)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }
 
@@ -1012,19 +1011,9 @@ struct PillIndicatorView: View {
             style: .continuous
         )
         return shape
-            .fill(AppColors.overlaySurface)
-            .hairlineStroke(shape, style: AppColors.overlayLine)
-            .overlay(
-                shape
-                    .fill(
-                        LinearGradient(
-                            colors: [AppColors.overlayTextPrimary.opacity(0.2), .clear],
-                            startPoint: .top,
-                            endPoint: .center
-                        )
-                    )
-            )
-            .shadow(color: AppColors.shadowColor.opacity(0.42), radius: 14, y: 8)
+            .fill(Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92))
+            .hairlineStroke(shape, style: Color.white.opacity(0.12))
+            .shadow(color: Color.black.opacity(0.4), radius: 14, y: 4)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }
 }
