@@ -545,4 +545,66 @@ struct DictionaryStoreTests {
         #expect(result == "this is a test-123")
         #expect(applied.count == 1)
     }
+
+    /// Unknown persisted `matchModeRawValue` must behave like case-insensitive application
+    /// (same fallback as `WordReplacement.matchMode`).
+    @Test func applyReplacementsUnknownMatchModeFallsBackToCaseInsensitive() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GH",
+                sortOrder: 0,
+                matchModeRawValue: "not-a-real-mode"
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "check github today")
+        #expect(result == "check GH today")
+        #expect(applied.count == 1)
+    }
+
+    /// Punctuation-containing patterns (e.g. `C++`) use lookaround token boundaries
+    /// `(?<!\w)…(?!\w)` (not classic `\b…\b`).
+    ///
+    /// Semantics:
+    /// - Match a standalone token `C++` when not adjacent to a word char (`[A-Za-z0-9_]`),
+    ///   including when flanked by whitespace, punctuation, or string edges.
+    /// - Do **not** match a bare `C` (full pattern required).
+    /// - Do **not** match as a prefix of `C++abi` (followed by a word char).
+    /// - Do **not** match when glued to a leading word char (`myC++`).
+    ///
+    /// Rationale: `\b` is a word↔non-word *transition*, so `C++` followed by space has no
+    /// trailing `\b` (both non-word) while `C++abi` spuriously has one (`+`→`a`). Lookarounds
+    /// give the sane "whole token" behavior for punctuated terms.
+    @Test func punctuationContainingPatternMatchesAtWordBoundaries() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["C++"],
+                replacement: "CXX",
+                sortOrder: 0
+            )
+        )
+
+        let (standalone, appliedStandalone) = try dictionaryStore.applyReplacements(
+            to: "I write C++ code"
+        )
+        #expect(standalone == "I write CXX code")
+        #expect(appliedStandalone.count == 1)
+
+        let (noBareC, appliedBare) = try dictionaryStore.applyReplacements(to: "grade C only")
+        #expect(noBareC == "grade C only")
+        #expect(appliedBare.isEmpty)
+
+        let (embedded, appliedEmbedded) = try dictionaryStore.applyReplacements(
+            to: "see C++abi notes"
+        )
+        #expect(embedded == "see C++abi notes")
+        #expect(appliedEmbedded.isEmpty)
+
+        let (leadingGlue, appliedGlue) = try dictionaryStore.applyReplacements(to: "myC++ tool")
+        #expect(leadingGlue == "myC++ tool")
+        #expect(appliedGlue.isEmpty)
+    }
 }

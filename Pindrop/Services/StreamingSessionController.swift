@@ -232,15 +232,38 @@ final class StreamingSessionController {
         clearBindings(cancelPendingWork: false)
         isSessionActive = false
 
-        // Pick the authoritative raw transcript first, then apply dictionary
-        // replacements once so usage counts are not inflated by intermediate passes.
-        // Preference: offline re-transcription > live refinement coordinator > stream text.
-        var rawTranscript = finalStreamedText
+        // Live/refinement text first. Empty live transcripts short-circuit before the
+        // offline re-transcription pass (and its Enhancing affordance), matching the
+        // pre-dictionary-semantics finalize ordering.
+        var candidateRawText = finalStreamedText
         let coord = refinementCoordinator
         if let coord {
             // Coordinator text is what is currently displayed; use it as the stream
             // fallback when offline re-transcription is unavailable.
-            rawTranscript = await coord.awaitFinalTextAndDrain()
+            candidateRawText = await coord.awaitFinalTextAndDrain()
+        }
+
+        // Preview apply without usage tracking so a later offline winner does not
+        // double-count, and empty sessions do not pay for offline re-transcription.
+        var (textAfterReplacements, appliedReplacements) =
+            try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: false)
+        textAfterReplacements = normalizeText(textAfterReplacements)
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+
+        guard !isEffectivelyEmptyText(textAfterReplacements) else {
+            // Empty finish collapses the overlay without pasting anything.
+            try? await overlaySink?.finishStreamingInsertion(
+                finalText: "", appendTrailingSpace: false)
+            refinementCoordinator = nil
+            return FinalizeOutcome(
+                finalText: "",
+                originalStreamedText: nil,
+                enhancedWithModel: nil,
+                appliedReplacements: appliedReplacements,
+                outputSucceeded: false
+            )
         }
 
         // Offline finalize pass: re-transcribe the recorded audio with the batch model.
@@ -270,7 +293,7 @@ final class StreamingSessionController {
                 }
                 let normalizedRefined = normalizeText(refinedText)
                 if !isEffectivelyEmptyText(normalizedRefined) {
-                    rawTranscript = refinedText
+                    candidateRawText = refinedText
                     Log.transcription.info(
                         "Streaming finalize: offline re-transcription applied (\(normalizedRefined.count) chars)"
                     )
@@ -286,29 +309,14 @@ final class StreamingSessionController {
             }
         }
 
-        var (textAfterReplacements, appliedReplacements) =
-            try dictionaryStore.applyReplacements(to: rawTranscript)
+        // Authoritative apply on the winning raw text: single usage-count batch.
+        (textAfterReplacements, appliedReplacements) =
+            try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: true)
         textAfterReplacements = normalizeText(textAfterReplacements)
         if !appliedReplacements.isEmpty {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
-
-        // Vocabulary usage is counted on the post-replacement transcript (single batch).
         try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
-
-        guard !isEffectivelyEmptyText(textAfterReplacements) else {
-            // Empty finish collapses the overlay without pasting anything.
-            try? await overlaySink?.finishStreamingInsertion(
-                finalText: "", appendTrailingSpace: false)
-            refinementCoordinator = nil
-            return FinalizeOutcome(
-                finalText: "",
-                originalStreamedText: nil,
-                enhancedWithModel: nil,
-                appliedReplacements: appliedReplacements,
-                outputSucceeded: false
-            )
-        }
 
         // Post-stop holistic enhancement for streaming sessions. Gated by the
         // `streamingPostStopEnhancementEnabled` setting (default OFF): the deterministic

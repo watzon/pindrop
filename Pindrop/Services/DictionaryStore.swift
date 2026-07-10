@@ -264,14 +264,10 @@ final class DictionaryStore: LearnedReplacementPersisting {
                 let trimmedOriginal = original.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmedOriginal.isEmpty else { continue }
                 
-                let escapedOriginal = NSRegularExpression.escapedPattern(for: trimmedOriginal)
-                let regexPattern = "\\b\(escapedOriginal)\\b"
-                var options: NSRegularExpression.Options = []
-                if caseInsensitive {
-                    options.insert(.caseInsensitive)
-                }
-                
-                guard let regex = try? NSRegularExpression(pattern: regexPattern, options: options) else {
+                guard let regex = try? Self.tokenBoundaryRegex(
+                    for: trimmedOriginal,
+                    caseInsensitive: caseInsensitive
+                ) else {
                     continue
                 }
                 
@@ -367,17 +363,32 @@ final class DictionaryStore: LearnedReplacementPersisting {
         in text: String,
         caseInsensitive: Bool
     ) -> Int {
-        let escaped = NSRegularExpression.escapedPattern(for: pattern)
-        let regexPattern = "\\b\(escaped)\\b"
-        var options: NSRegularExpression.Options = []
-        if caseInsensitive {
-            options.insert(.caseInsensitive)
-        }
-        guard let regex = try? NSRegularExpression(pattern: regexPattern, options: options) else {
+        guard let regex = try? tokenBoundaryRegex(for: pattern, caseInsensitive: caseInsensitive) else {
             return 0
         }
         let nsRange = NSRange(text.startIndex..., in: text)
         return regex.numberOfMatches(in: text, options: [], range: nsRange)
+    }
+
+    /// Token-boundary regex for dictionary patterns.
+    ///
+    /// Uses lookarounds `(?<!\w)…(?!\w)` instead of `\b…\b`. Classic `\b` is a
+    /// word/non-word *transition*, so patterns that end with punctuation (e.g. `C++`)
+    /// fail to match when followed by whitespace (no transition) and spuriously match
+    /// prefixes of `C++abi` (punctuation→letter *is* a transition). Lookarounds enforce
+    /// "not adjacent to a word character", which matches alphanumeric tokens the same
+    /// as `\b` and treats punctuated tokens sanely.
+    static func tokenBoundaryRegex(
+        for pattern: String,
+        caseInsensitive: Bool
+    ) throws -> NSRegularExpression {
+        let escaped = NSRegularExpression.escapedPattern(for: pattern)
+        let regexPattern = "(?<!\\w)\(escaped)(?!\\w)"
+        var options: NSRegularExpression.Options = []
+        if caseInsensitive {
+            options.insert(.caseInsensitive)
+        }
+        return try NSRegularExpression(pattern: regexPattern, options: options)
     }
     
     // MARK: - Import/Export
