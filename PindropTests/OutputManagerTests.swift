@@ -76,7 +76,8 @@ final class MockKeySimulation: KeySimulationProtocol {
 struct OutputManagerTests {
     private func makeSUT(
         outputMode: OutputMode = .clipboard,
-        accessibilityPermissionChecker: @escaping () -> Bool = { true }
+        accessibilityPermissionChecker: @escaping () -> Bool = { true },
+        frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { nil }
     ) -> (outputManager: OutputManager, mockClipboard: MockClipboard, mockKeySimulation: MockKeySimulation) {
         let mockClipboard = MockClipboard()
         let mockKeySimulation = MockKeySimulation()
@@ -85,7 +86,7 @@ struct OutputManagerTests {
             clipboard: mockClipboard,
             keySimulation: mockKeySimulation,
             accessibilityPermissionChecker: accessibilityPermissionChecker,
-            frontmostApplicationProvider: { nil }
+            frontmostApplicationProvider: frontmostApplicationProvider
         )
         return (outputManager, mockClipboard, mockKeySimulation)
     }
@@ -164,7 +165,7 @@ struct OutputManagerTests {
 
         let result = try await fixture.outputManager.output("Direct insert test")
 
-        #expect(result == .pasted)
+        #expect(result.kind == .pasted)
         #expect(fixture.mockKeySimulation.pasteSimulated)
         #expect(fixture.mockClipboard.restoreCount == 1)
         #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
@@ -175,7 +176,7 @@ struct OutputManagerTests {
 
         let result = try await fixture.outputManager.output("Direct insert test")
 
-        #expect(result == .copiedToClipboard)
+        #expect(result.kind == .copiedToClipboard)
         #expect(fixture.mockClipboard.copiedText == "Direct insert test")
         #expect(fixture.mockKeySimulation.pasteSimulated == false)
         #expect(fixture.mockClipboard.restoreCount == 0)
@@ -190,7 +191,7 @@ struct OutputManagerTests {
 
         // The user's words must never be lost: paste failed, so the text stays on the
         // clipboard and the caller is told so.
-        #expect(result == .copiedToClipboard)
+        #expect(result.kind == .copiedToClipboard)
         #expect(fixture.mockClipboard.copiedText == "Important words")
         #expect(fixture.mockClipboard.clipboardContent == "Important words")
     }
@@ -200,7 +201,7 @@ struct OutputManagerTests {
 
         let result = try await fixture.outputManager.output("Clipboard test")
 
-        #expect(result == .copiedToClipboard)
+        #expect(result.kind == .copiedToClipboard)
         #expect(fixture.mockClipboard.copiedText == "Clipboard test")
         #expect(fixture.mockClipboard.clipboardContent == "Clipboard test")
         #expect(fixture.mockKeySimulation.pasteSimulated == false)
@@ -212,8 +213,47 @@ struct OutputManagerTests {
 
         let result = try await fixture.outputManager.output("Clipboard test")
 
-        #expect(result == .pasted)
+        #expect(result.kind == .pasted)
         #expect(fixture.mockKeySimulation.pasteSimulated)
+    }
+
+    @Test func outputCapturesFrontmostAppDestinationOnDirectInsert() async throws {
+        let current = NSRunningApplication.current
+        let fixture = makeSUT(
+            outputMode: .directInsert,
+            frontmostApplicationProvider: { current }
+        )
+
+        let result = try await fixture.outputManager.output("Hello world")
+
+        #expect(result.kind == .pasted)
+        #expect(result.destinationAppName == current.localizedName)
+        #expect(result.destinationAppBundleID == current.bundleIdentifier)
+    }
+
+    @Test func outputCapturesFrontmostAppDestinationInClipboardMode() async throws {
+        let current = NSRunningApplication.current
+        let fixture = makeSUT(
+            outputMode: .clipboard,
+            accessibilityPermissionChecker: { false },
+            frontmostApplicationProvider: { current }
+        )
+
+        let result = try await fixture.outputManager.output("Clipboard only")
+
+        #expect(result.kind == .copiedToClipboard)
+        #expect(result.destinationAppName == current.localizedName)
+        #expect(result.destinationAppBundleID == current.bundleIdentifier)
+    }
+
+    @Test func outputCapturesNilDestinationWhenProviderReturnsNil() async throws {
+        let fixture = makeSUT(outputMode: .directInsert, frontmostApplicationProvider: { nil })
+
+        let result = try await fixture.outputManager.output("No app")
+
+        #expect(result.kind == .pasted)
+        #expect(result.destinationAppName == nil)
+        #expect(result.destinationAppBundleID == nil)
     }
 
     @Test func errorDescriptions() {

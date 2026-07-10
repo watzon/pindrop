@@ -211,9 +211,43 @@ final class OutputManager {
     /// paste keystroke was issued; `.copiedToClipboard` means insertion wasn't possible
     /// (no accessibility permission, or the paste failed) and the text was left on the
     /// clipboard for the user to paste manually — callers can surface that distinction.
-    enum OutputResult: Equatable {
-        case pasted
-        case copiedToClipboard
+    ///
+    /// Destination fields are always captured from the frontmost app at insert/copy time
+    /// (including clipboard-only mode: "frontmost app at copy time").
+    struct OutputResult: Equatable {
+        enum Kind: Equatable {
+            case pasted
+            case copiedToClipboard
+        }
+
+        let kind: Kind
+        let destinationAppName: String?
+        let destinationAppBundleID: String?
+
+        var didPaste: Bool { kind == .pasted }
+        var didCopyToClipboard: Bool { kind == .copiedToClipboard }
+
+        static func pasted(
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil
+        ) -> OutputResult {
+            OutputResult(
+                kind: .pasted,
+                destinationAppName: destinationAppName,
+                destinationAppBundleID: destinationAppBundleID
+            )
+        }
+
+        static func copiedToClipboard(
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil
+        ) -> OutputResult {
+            OutputResult(
+                kind: .copiedToClipboard,
+                destinationAppName: destinationAppName,
+                destinationAppBundleID: destinationAppBundleID
+            )
+        }
     }
 
     private(set) var outputMode: OutputMode
@@ -248,11 +282,14 @@ final class OutputManager {
 
         Log.output.debug("Output called, mode: \(String(describing: self.outputMode)), length: \(text.count)")
 
+        // Capture insert/copy-time frontmost app unconditionally before any paste or copy.
+        let destination = captureDestinationApp()
+
         switch outputMode {
         case .clipboard:
-            return try await outputViaClipboard(text)
+            return try await outputViaClipboard(text, destination: destination)
         case .directInsert:
-            return try await outputViaDirectInsert(text)
+            return try await outputViaDirectInsert(text, destination: destination)
         }
     }
 
@@ -264,18 +301,35 @@ final class OutputManager {
         try await pasteViaClipboard(text, restoreClipboard: true)
     }
 
-    private func outputViaClipboard(_ text: String) async throws -> OutputResult {
+    private func captureDestinationApp() -> (name: String?, bundleID: String?) {
+        let app = frontmostApplicationProvider()
+        return (app?.localizedName, app?.bundleIdentifier)
+    }
+
+    private func outputViaClipboard(
+        _ text: String,
+        destination: (name: String?, bundleID: String?)
+    ) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
             try copyToClipboard(text)
-            return .copiedToClipboard
+            return .copiedToClipboard(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         }
 
         do {
             try await pasteViaClipboard(text, restoreClipboard: true)
-            return .pasted
+            return .pasted(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         } catch {
             try copyToClipboard(text)
-            return .copiedToClipboard
+            return .copiedToClipboard(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         }
     }
 
@@ -284,19 +338,31 @@ final class OutputManager {
     /// architecture inserts final text exactly once, and paste is the only insertion
     /// primitive reliable across apps.) On paste failure the text is left on the
     /// clipboard so the user's words are never lost.
-    private func outputViaDirectInsert(_ text: String) async throws -> OutputResult {
+    private func outputViaDirectInsert(
+        _ text: String,
+        destination: (name: String?, bundleID: String?)
+    ) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
             try copyToClipboard(text)
-            return .copiedToClipboard
+            return .copiedToClipboard(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         }
 
         do {
             try await pasteViaClipboard(text, restoreClipboard: true)
-            return .pasted
+            return .pasted(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         } catch {
             Log.output.error("Direct insert paste failed; leaving text on clipboard: \(error.localizedDescription)")
             try copyToClipboard(text)
-            return .copiedToClipboard
+            return .copiedToClipboard(
+                destinationAppName: destination.name,
+                destinationAppBundleID: destination.bundleID
+            )
         }
     }
 

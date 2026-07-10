@@ -35,6 +35,11 @@ final class StreamingSessionController {
         /// Dictionary replacements applied to the text that was pasted.
         let appliedReplacements: [(original: String, replacement: String)]
         let outputSucceeded: Bool
+        /// Frontmost app at insert/copy time (from OutputManager).
+        let destinationAppName: String?
+        let destinationAppBundleID: String?
+        /// True when the paste keystroke landed (not clipboard-only fallback).
+        let didPaste: Bool
 
         var isEffectivelyEmpty: Bool { finalText.isEmpty }
     }
@@ -268,7 +273,10 @@ final class StreamingSessionController {
                 originalStreamedText: nil,
                 enhancedWithModel: nil,
                 appliedReplacements: appliedReplacements,
-                outputSucceeded: false
+                outputSucceeded: false,
+                destinationAppName: nil,
+                destinationAppBundleID: nil,
+                didPaste: false
             )
         }
 
@@ -352,13 +360,16 @@ final class StreamingSessionController {
         }
 
         var outputSucceeded = false
+        var outputResult: OutputManager.OutputResult?
         do {
             // Single atomic insertion into the target app; the sink collapses the
             // overlay whether or not the paste succeeds.
-            try await ensureOverlaySink().finishStreamingInsertion(
+            let sink = ensureOverlaySink()
+            try await sink.finishStreamingInsertion(
                 finalText: textAfterReplacements,
                 appendTrailingSpace: settingsStore.addTrailingSpace
             )
+            outputResult = sink.lastOutputResult
             outputSucceeded = true
             Log.transcription.debug("Applied final streaming transcription output")
         } catch {
@@ -386,7 +397,10 @@ final class StreamingSessionController {
             originalStreamedText: originalStreamedText,
             enhancedWithModel: enhancedWithModel,
             appliedReplacements: appliedReplacements,
-            outputSucceeded: outputSucceeded
+            outputSucceeded: outputSucceeded,
+            destinationAppName: outputResult?.destinationAppName,
+            destinationAppBundleID: outputResult?.destinationAppBundleID,
+            didPaste: outputResult?.didPaste == true
         )
     }
 

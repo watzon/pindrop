@@ -23,7 +23,7 @@ struct OverlayStreamingSinkTests {
     @MainActor
     private final class OutputRecorder {
         private(set) var outputs: [String] = []
-        var result: OutputManager.OutputResult = .pasted
+        var result: OutputManager.OutputResult = .pasted()
         var error: Error?
         private(set) var fallbackCount = 0
 
@@ -31,7 +31,7 @@ struct OverlayStreamingSinkTests {
             OverlayStreamingSink(
                 transcriptState: transcriptState,
                 finalOutput: { [weak self] text in
-                    guard let self else { return .pasted }
+                    guard let self else { return .pasted() }
                     self.outputs.append(text)
                     if let error = self.error { throw error }
                     return self.result
@@ -130,7 +130,7 @@ struct OverlayStreamingSinkTests {
     @Test func clipboardFallbackResultFiresCallback() async throws {
         let state = LiveTranscriptState()
         let recorder = OutputRecorder()
-        recorder.result = .copiedToClipboard
+        recorder.result = .copiedToClipboard()
         let sink = recorder.makeSink(transcriptState: state)
 
         sink.beginStreamingInsertion()

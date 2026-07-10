@@ -444,8 +444,14 @@ final class HistoryStore {
         originalSourceURL: String? = nil,
         managedMediaPath: String? = nil,
         thumbnailPath: String? = nil,
-        folderID: UUID? = nil
+        folderID: UUID? = nil,
+        destinationAppName: String? = nil,
+        destinationAppBundleID: String? = nil,
+        wordCount: Int? = nil
     ) throws -> TranscriptionRecord {
+        // Always persist a word count for the final text; callers may pass an
+        // explicit value (e.g. pre-computed) but we default to String.wordCount.
+        let resolvedWordCount = wordCount ?? text.wordCount
         let record = TranscriptionRecord(
             text: text,
             originalText: originalText,
@@ -460,7 +466,10 @@ final class HistoryStore {
             sourceTitleOriginRawValue: sourceTitleOrigin?.rawValue,
             originalSourceURL: originalSourceURL,
             managedMediaPath: managedMediaPath,
-            thumbnailPath: thumbnailPath
+            thumbnailPath: thumbnailPath,
+            destinationAppName: destinationAppName,
+            destinationAppBundleID: destinationAppBundleID,
+            wordCount: resolvedWordCount
         )
 
         if let folderID,
