@@ -92,6 +92,32 @@ struct ThemeFoundationTests {
         #expect(ids == Set(["library", "pindrop", "paper", "harbor", "evergreen", "signal"]))
     }
 
+    @Test func signaturePresetAccentHexesArePinned() {
+        // Signature accents from the redesign brief (personality carriers).
+        #expect(PindropThemePresetCatalog.pindrop.darkTheme.accentHex.uppercased() == "#F2B54A")
+        #expect(PindropThemePresetCatalog.paper.lightTheme.accentHex.uppercased() == "#2E4E73")
+        #expect(PindropThemePresetCatalog.harbor.lightTheme.accentHex.uppercased() == "#14708A")
+        #expect(PindropThemePresetCatalog.evergreen.lightTheme.accentHex.uppercased() == "#4D7A4A")
+        #expect(PindropThemePresetCatalog.signal.darkTheme.accentHex.uppercased() == "#F06D4F")
+    }
+
+    @Test func sharedBaseTokenHexesArePinned() {
+        #expect(ScorchedEarthBaseTokens.lightInk.uppercased() == "#201D18")
+        #expect(ScorchedEarthBaseTokens.lightInk2.uppercased() == "#6E6759")
+        #expect(ScorchedEarthBaseTokens.lightInk3.uppercased() == "#9B937F")
+        #expect(ScorchedEarthBaseTokens.lightLine.uppercased() == "#E3DFD3")
+        #expect(ScorchedEarthBaseTokens.lightRecord.uppercased() == "#B03A2E")
+        #expect(ScorchedEarthBaseTokens.lightRecordSoft.uppercased() == "#F6E7E3")
+        #expect(ScorchedEarthBaseTokens.lightAccentSoftLibrary.uppercased() == "#E7EFE7")
+
+        #expect(ScorchedEarthBaseTokens.darkInk.uppercased() == "#EFEBE2")
+        #expect(ScorchedEarthBaseTokens.darkInk2.uppercased() == "#A59D8C")
+        #expect(ScorchedEarthBaseTokens.darkInk3.uppercased() == "#6E675B")
+        #expect(ScorchedEarthBaseTokens.darkLine.uppercased() == "#37332B")
+        #expect(ScorchedEarthBaseTokens.darkRecord.uppercased() == "#D25B4C")
+        #expect(ScorchedEarthBaseTokens.darkAccentSoftLibrary.uppercased() == "#263A30")
+    }
+
     @Test func allPresetsProduceValidClampedPalettesLightAndDark() {
         for preset in PindropThemePresetCatalog.allPresets {
             for variant in PindropThemeVariant.allCases {
@@ -137,11 +163,37 @@ struct ThemeFoundationTests {
         #expect(profile.accentHex.uppercased() == "#4CA582")
     }
 
-    // MARK: - Typography role mapping
+    // MARK: - Typography role metrics
+
+    @Test func typographyRolesHaveConcreteSizeAndWeight() {
+        assertRole(AppTypography.wordmarkMetrics, size: 22, weight: .semibold, family: .newsreader, lineHeight: 28)
+        assertRole(AppTypography.pageTitleMetrics, size: 34, weight: .medium, family: .newsreader, lineHeight: 38)
+        assertRole(AppTypography.transcriptBodyMetrics, size: 17, weight: .regular, family: .newsreader, lineHeight: 26)
+        assertRole(AppTypography.bodyMetrics, size: 13, weight: .regular, family: .inter, lineHeight: 16)
+        assertRole(AppTypography.bodyMetaMetrics, size: 13, weight: .regular, family: .inter, lineHeight: 22)
+        assertRole(AppTypography.labelMetrics, size: 12, weight: .medium, family: .inter, lineHeight: 16)
+        assertRole(AppTypography.labelSemiboldMetrics, size: 12, weight: .semibold, family: .inter, lineHeight: 16)
+        assertRole(AppTypography.labelStrongMetrics, size: 13, weight: .medium, family: .inter, lineHeight: 16)
+        assertRole(AppTypography.labelStrongSelectedMetrics, size: 13, weight: .semibold, family: .inter, lineHeight: 16)
+        assertRole(AppTypography.badgeMetrics, size: 11, weight: .semibold, family: .inter, lineHeight: 14)
+        assertRole(AppTypography.captionMetrics, size: 11, weight: .regular, family: .inter, lineHeight: 14)
+        assertRole(AppTypography.monoTimeMetrics, size: 12, weight: .medium, family: .jetbrainsMono, lineHeight: 16)
+        assertRole(AppTypography.monoSmallMetrics, size: 11, weight: .medium, family: .jetbrainsMono, lineHeight: 14)
+        assertRole(AppTypography.sectionHeaderMetrics, size: 11, weight: .medium, family: .inter, lineHeight: 14)
+        assertRole(AppTypography.statLargeMetrics, size: 34, weight: .medium, family: .newsreader, lineHeight: 38)
+        assertRole(AppTypography.statMediumMetrics, size: 24, weight: .semibold, family: .newsreader, lineHeight: 28)
+    }
+
+    @Test func typographyLineSpacingMatchesSpecLineBoxes() {
+        // lineSpacing = lineHeight − size (spec pt boxes)
+        #expect(AppTypography.transcriptBodyLineSpacing == CGFloat(9))
+        #expect(AppTypography.bodyMetaLineSpacing == CGFloat(9))
+        #expect(AppTypography.bodyLineSpacing == CGFloat(3))
+        #expect(AppTypography.pageTitleLineSpacing == CGFloat(4))
+        #expect(AppTypography.wordmarkLineSpacing == CGFloat(6))
+    }
 
     @Test func legacyTypographyMembersAliasNewRoles() {
-        // Equality of Font values is not reliable across custom fonts; assert mapping at the
-        // role API level instead — legacy names remain available and new names exist.
         let _: Font = AppTypography.largeTitle
         let _: Font = AppTypography.pageTitle
         let _: Font = AppTypography.title
@@ -157,9 +209,9 @@ struct ThemeFoundationTests {
         let _: Font = AppTypography.transcriptBody
         let _: Font = AppTypography.sectionHeader
         let _: Font = AppTypography.label
+        let _: Font = AppTypography.labelSemibold
         let _: Font = AppTypography.statLarge
 
-        // Tracking constants for design-spec letter-spacing.
         #expect(AppTypography.pageTitleTracking < 0)
         #expect(AppTypography.wordmarkTracking < 0)
     }
@@ -168,10 +220,22 @@ struct ThemeFoundationTests {
         #expect(FontLoader.postScriptName(family: .newsreader, weight: .semibold) == "Newsreader-SemiBold")
         #expect(FontLoader.postScriptName(family: .newsreader, weight: .regular, italic: true) == "Newsreader-Italic")
         #expect(FontLoader.postScriptName(family: .inter, weight: .medium) == "Inter-Medium")
+        #expect(FontLoader.postScriptName(family: .inter, weight: .semibold) == "Inter-SemiBold")
         #expect(FontLoader.postScriptName(family: .jetbrainsMono, weight: .regular) == "JetBrainsMono-Regular")
     }
 
-    // MARK: - Waveform bar-count math
+    // MARK: - Play chip / waveform geometry
+
+    @Test func playChipMetricsAreLoadBearing74pt() {
+        #expect(PlayChipMetrics.width == 74)
+        #expect(PlayChipMetrics.verticalPadding == 3)
+        #expect(PlayChipMetrics.horizontalPadding == 9)
+        #expect(PlayChipMetrics.iconTextGap == 5)
+        // Padding is inside the frame, not additive: outer width stays 74, not 74+9+9=92.
+        let outerIfPaddingOutside = PlayChipMetrics.width + (PlayChipMetrics.horizontalPadding * 2)
+        #expect(outerIfPaddingOutside == 92)
+        #expect(PlayChipMetrics.width != outerIfPaddingOutside)
+    }
 
     @Test func waveformBarCountForExactPitch() {
         // width that fits exactly N bars: barWidth + (N-1)*barPitch
@@ -216,5 +280,21 @@ struct ThemeFoundationTests {
         // Runtime smoke: main window tokens still present.
         #expect(AppTheme.Window.mainMinWidth > 0)
         #expect(AppTheme.Window.sidebarWidth > 0)
+    }
+
+    // MARK: - Helpers
+
+    private func assertRole(
+        _ metrics: TypographyRoleMetrics,
+        size: CGFloat,
+        weight: FontLoader.Weight,
+        family: FontLoader.Family,
+        lineHeight: CGFloat
+    ) {
+        #expect(metrics.size == size)
+        #expect(metrics.weight == weight)
+        #expect(metrics.family == family)
+        #expect(metrics.lineHeight == lineHeight)
+        #expect(metrics.lineSpacing == max(0, lineHeight - size))
     }
 }
