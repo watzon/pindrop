@@ -1,10 +1,10 @@
 import Foundation
 import SwiftData
 
-typealias TranscriptionRecord = TranscriptionRecordSchemaV7.TranscriptionRecord
-typealias MediaFolder = TranscriptionRecordSchemaV7.MediaFolder
-typealias ParticipantProfile = TranscriptionRecordSchemaV7.ParticipantProfile
-typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV7.ParticipantTrainingEvidence
+typealias TranscriptionRecord = TranscriptionRecordSchemaV8.TranscriptionRecord
+typealias MediaFolder = TranscriptionRecordSchemaV8.MediaFolder
+typealias ParticipantProfile = TranscriptionRecordSchemaV8.ParticipantProfile
+typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV8.ParticipantTrainingEvidence
 
 enum TranscriptionTitleOrigin: String {
     case sourceMetadata
@@ -93,6 +93,11 @@ extension TranscriptionRecord {
             guard let value, !value.isEmpty else { return false }
             return value.localizedStandardContains(trimmedQuery)
         }
+    }
+
+    /// Cached word count when present; otherwise derived from `text`.
+    var effectiveWordCount: Int {
+        wordCount ?? text.wordCount
     }
 }
 
