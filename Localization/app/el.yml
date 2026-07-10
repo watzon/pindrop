@@ -470,6 +470,8 @@ layout:
   _self: "Σχέδιο"
 learn:
   corrected_words_automatically: "Μάθετε τις διορθωμένες λέξεις αυτόματα"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Αριστερά"
 let:

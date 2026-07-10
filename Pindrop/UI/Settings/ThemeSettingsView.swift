@@ -106,11 +106,14 @@ struct ThemeSettingsView: View {
             .font(.headline)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                ForEach(PindropThemePresetCatalog.presets) { preset in
+                // Legacy presets (e.g. graphite) stay hidden unless currently selected,
+                // so users never see an empty selection with no tile checked.
+                ForEach(presetsForPicker(variant: variant)) { preset in
                     ThemePresetTile(
                         preset: preset,
                         variant: variant,
-                        isSelected: selectedPresetID(for: variant) == preset.id
+                        isSelected: selectedPresetID(for: variant) == preset.id,
+                        showsLegacyAnnotation: preset.isLegacy
                     ) {
                         selectPreset(preset.id, for: variant)
                     }
@@ -127,6 +130,17 @@ struct ThemeSettingsView: View {
         }
     }
 
+    /// Picker list = visible presets, plus the active legacy preset (if any) for this variant.
+    private func presetsForPicker(variant: PindropThemeVariant) -> [PindropThemePreset] {
+        let selectedID = selectedPresetID(for: variant)
+        var list = PindropThemePresetCatalog.presets
+        if let legacy = PindropThemePresetCatalog.legacyPresets.first(where: { $0.id == selectedID }),
+           !list.contains(where: { $0.id == legacy.id }) {
+            list.append(legacy)
+        }
+        return list
+    }
+
     private func selectPreset(_ presetID: String, for variant: PindropThemeVariant) {
         switch variant {
         case .light:
@@ -138,9 +152,12 @@ struct ThemeSettingsView: View {
 }
 
 private struct ThemePresetTile: View {
+    @Environment(\.locale) private var locale
+
     let preset: PindropThemePreset
     let variant: PindropThemeVariant
     let isSelected: Bool
+    var showsLegacyAnnotation: Bool = false
     let action: () -> Void
 
     private var profile: PindropThemeProfile {
@@ -154,14 +171,25 @@ private struct ThemePresetTile: View {
                     Text(preset.title)
                         .font(.headline)
                         .foregroundStyle(.primary)
+                    if showsLegacyAnnotation {
+                        Text(localized("Legacy", locale: locale))
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(Color(nsColor: .separatorColor).opacity(0.35))
+                            )
+                    }
                     Spacer()
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
                 }
 
                 HStack(spacing: 6) {
-                    swatch(profile.backgroundHex)
-                    swatch(profile.foregroundHex)
+                    swatch(profile.groundHex)
+                    swatch(profile.pageHex)
                     swatch(profile.accentHex)
                 }
 

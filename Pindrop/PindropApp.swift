@@ -63,6 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard !Self.isPreview else { return }
         let bootStarted = CFAbsoluteTimeGetCurrent()
         Log.bootstrap()
+        FontLoader.bootstrap()
         Log.boot.info("applicationDidFinishLaunching begin logFile=\(Log.currentLogFileName)")
         guard !Self.isRunningUITests else {
             AppUITestFixture.configureApplication()

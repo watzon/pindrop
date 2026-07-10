@@ -470,6 +470,8 @@ layout:
   _self: "Tata Letak"
 learn:
   corrected_words_automatically: "Pelajari kata-kata yang dikoreksi secara otomatis"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Kiri"
 let:

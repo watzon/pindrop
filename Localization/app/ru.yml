@@ -470,6 +470,8 @@ layout:
   _self: "Макет"
 learn:
   corrected_words_automatically: "Выучите исправленные слова автоматически"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Левый"
 let:

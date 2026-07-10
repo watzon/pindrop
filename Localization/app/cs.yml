@@ -470,6 +470,8 @@ layout:
   _self: "Rozložení"
 learn:
   corrected_words_automatically: "Naučte se opravená slova automaticky"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Vlevo"
 let:

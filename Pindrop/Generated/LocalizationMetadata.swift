@@ -1256,6 +1256,7 @@ enum LocalizationMetadata {
         "Layout": "layout",
         "Learn corrected words automatically": "learn_corrected_words_automatically",
         "Left": "left",
+        "Legacy": "legacy",
         "Let Pindrop quietly learn vocabulary from the corrections you make over time.": "let_pindrop_quietly_learn_vocabulary_from_the_co",
         "Library": "library",
         "License": "license",

@@ -470,6 +470,8 @@ layout:
   _self: "Düzen"
 learn:
   corrected_words_automatically: "Düzeltilen kelimeleri otomatik olarak öğren"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Sol"
 let:

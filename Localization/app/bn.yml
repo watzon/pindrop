@@ -470,6 +470,8 @@ layout:
   _self: "লেআউট"
 learn:
   corrected_words_automatically: "স্বয়ংক্রিয়ভাবে সংশোধন করা শব্দ শিখুন"
+legacy:
+  _self: "Legacy"
 left:
   _self: "বাম"
 let:

@@ -470,6 +470,8 @@ layout:
   _self: "レイアウト"
 learn:
   corrected_words_automatically: "修正された単語を自動的に学習します"
+legacy:
+  _self: "Legacy"
 left:
   _self: "左"
 let:

@@ -470,6 +470,8 @@ layout:
   _self: "เค้าโครง"
 learn:
   corrected_words_automatically: "เรียนรู้คำศัพท์ที่ถูกแก้ไขโดยอัตโนมัติ"
+legacy:
+  _self: "Legacy"
 left:
   _self: "ซ้าย"
 let:
