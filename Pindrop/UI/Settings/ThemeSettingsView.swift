@@ -160,8 +160,8 @@ private struct ThemePresetTile: View {
                 }
 
                 HStack(spacing: 6) {
-                    swatch(profile.backgroundHex)
-                    swatch(profile.foregroundHex)
+                    swatch(profile.groundHex)
+                    swatch(profile.pageHex)
                     swatch(profile.accentHex)
                 }
 

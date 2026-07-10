@@ -87,12 +87,6 @@ enum AppTheme {
 
         static let sidebarWidth: CGFloat = 272
         static let sidebarCollapsedWidth: CGFloat = 64
-
-        static let settingsMinWidth: CGFloat = 1024
-        static let settingsMinHeight: CGFloat = 600
-        static let settingsDefaultWidth: CGFloat = 850
-        static let settingsDefaultHeight: CGFloat = 753
-        static let settingsSidebarWidth: CGFloat = 220
     }
 
     enum Animation {
@@ -175,22 +169,66 @@ enum AppColors {
     }
 }
 
+/// Scorched Earth typography ramp (spec §2).
+/// New role names are preferred; legacy members map onto the ramp so existing views compile.
 enum AppTypography {
-    static let largeTitle = Font.system(size: 30, weight: .semibold, design: .rounded)
-    static let title = Font.system(size: 21, weight: .semibold, design: .rounded)
-    static let headline = Font.system(size: 16, weight: .semibold, design: .rounded)
-    static let subheadline = Font.system(size: 14, weight: .semibold, design: .rounded)
-    static let body = Font.system(size: 14, weight: .regular, design: .rounded)
-    static let bodySmall = Font.system(size: 13, weight: .regular, design: .rounded)
-    static let caption = Font.system(size: 12, weight: .medium, design: .rounded)
-    static let tiny = Font.system(size: 11, weight: .medium, design: .rounded)
-    static let mono = Font.system(size: 13, weight: .medium, design: .monospaced)
-    static let monoSmall = Font.system(size: 11, weight: .medium, design: .monospaced)
-    static let statLarge = Font.system(size: 32, weight: .bold, design: .rounded)
-    static let statMedium = Font.system(size: 24, weight: .semibold, design: .rounded)
+    // MARK: New roles (spec §2)
+
+    /// Newsreader 22/28 · 600 · -0.01em — sidebar wordmark
+    static let wordmark = FontLoader.font(family: .newsreader, size: 22, weight: .semibold)
+    /// Newsreader 34/38 · 500 · -0.015em — page titles
+    static let pageTitle = FontLoader.font(family: .newsreader, size: 34, weight: .medium)
+    /// Newsreader 17/26 · 400 — expanded-card transcript
+    static let transcriptBody = FontLoader.font(family: .newsreader, size: 17, weight: .regular)
+    /// Inter 13/16 · 400 — row preview / body
+    static let body = FontLoader.font(family: .inter, size: 13, weight: .regular)
+    /// Inter 13/22 · 400 — header meta line
+    static let bodyMeta = FontLoader.font(family: .inter, size: 13, weight: .regular)
+    /// Inter 12/16 · 500 — buttons, chips, nav secondary
+    static let label = FontLoader.font(family: .inter, size: 12, weight: .medium)
+    /// Inter 13/16 · 500–600 — nav items
+    static let labelStrong = FontLoader.font(family: .inter, size: 13, weight: .medium)
+    static let labelStrongSelected = FontLoader.font(family: .inter, size: 13, weight: .semibold)
+    /// Inter 11/14 · 600 — kind badges
+    static let badge = FontLoader.font(family: .inter, size: 11, weight: .semibold)
+    /// Inter 11/14 · 400 — captions
+    static let caption = FontLoader.font(family: .inter, size: 11, weight: .regular)
+    /// JetBrains Mono 12/16 · 500 — row times
+    static let monoTime = FontLoader.font(family: .jetbrainsMono, size: 12, weight: .medium)
+    /// JetBrains Mono 11/14 · 400–500 — counts, kbd hints
+    static let monoSmall = FontLoader.font(family: .jetbrainsMono, size: 11, weight: .medium)
+    /// Inter 11–12/14 · 500 · uppercase section headers
+    static let sectionHeader = FontLoader.font(family: .inter, size: 11, weight: .medium)
+
+    // MARK: Legacy members (mapped onto the new ramp — migrate call sites over time)
+
+    /// Mapped → pageTitle
+    static let largeTitle = pageTitle
+    /// Mapped → wordmark
+    static let title = wordmark
+    /// Mapped → labelStrongSelected
+    static let headline = labelStrongSelected
+    /// Mapped → labelStrong
+    static let subheadline = labelStrong
+    /// Mapped → body (was 14pt rounded; now Inter 13)
+    static let bodySmall = body
+    /// Mapped → badge
+    static let tiny = badge
+    /// Mapped → monoTime
+    static let mono = monoTime
+    /// Mapped → pageTitle scale for hero stats
+    static let statLarge = FontLoader.font(family: .newsreader, size: 34, weight: .medium)
+    /// Mapped → wordmark scale for medium stats
+    static let statMedium = FontLoader.font(family: .newsreader, size: 24, weight: .semibold)
+
+    // MARK: Tracking helpers (em → SwiftUI relative tracking)
+
+    static let wordmarkTracking: CGFloat = -0.01 * 22
+    static let pageTitleTracking: CGFloat = -0.015 * 34
 }
 
-private struct ResolvedPalette {
+/// Builds the ~37 semantic roles from Scorched Earth tokens (spec §1).
+struct ResolvedPalette {
     let windowBackground: NSColor
     let sidebarBackground: NSColor
     let contentBackground: NSColor
@@ -229,95 +267,208 @@ private struct ResolvedPalette {
     let overlayTooltipAccent: NSColor
     let shadow: NSColor
 
-    init(profile: PindropThemeProfile, isDark: Bool) {
-        let background = NSColor(pindropHex: profile.backgroundHex)
-            ?? (isDark ? NSColor(red: 0.08, green: 0.08, blue: 0.09, alpha: 1) : NSColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1))
-        let foreground = NSColor(pindropHex: profile.foregroundHex)
-            ?? (isDark ? NSColor.white : NSColor.black)
-        let accentBase = NSColor(pindropHex: profile.accentHex) ?? .systemOrange
-        let successBase = NSColor(pindropHex: profile.successHex) ?? .systemGreen
-        let warningBase = NSColor(pindropHex: profile.warningHex) ?? .systemOrange
-        let dangerBase = NSColor(pindropHex: profile.dangerHex) ?? .systemRed
-        let processingBase = NSColor(pindropHex: profile.processingHex) ?? .systemBlue
-        let contrast = min(max(profile.contrast, 20), 80) / 100
+    /// Whether WCAG clamping adjusted ink-2 / ink-3 for this palette.
+    let didClampTextColors: Bool
 
-        if isDark {
-            windowBackground = background
-            sidebarBackground = background.lighter(by: 0.035)
-            contentBackground = background.lighter(by: 0.015)
-            surfaceBackground = background.lighter(by: 0.055 + contrast * 0.035)
-            elevatedSurface = background.lighter(by: 0.09 + contrast * 0.045)
-            mutedSurface = foreground.withAlphaComponent(0.06 + contrast * 0.02)
-            inputBackground = background.lighter(by: 0.075 + contrast * 0.03)
-            inputBorder = foreground.withAlphaComponent(0.14 + contrast * 0.06)
-            inputBorderFocused = accentBase.withAlphaComponent(0.78)
-            accent = accentBase
-            accentSecondary = accentBase.mixed(with: foreground, ratio: 0.22)
-            accentBackground = accentBase.mixed(with: background, ratio: 0.86)
-            textPrimary = foreground
-            textSecondary = foreground.withAlphaComponent(0.72)
-            textTertiary = foreground.withAlphaComponent(0.48)
-            border = foreground.withAlphaComponent(0.11 + contrast * 0.05)
-            divider = foreground.withAlphaComponent(0.08 + contrast * 0.04)
-            success = successBase
-            successBackground = successBase.mixed(with: background, ratio: 0.88)
-            warning = warningBase
-            warningBackground = warningBase.mixed(with: background, ratio: 0.88)
-            error = dangerBase
-            errorBackground = dangerBase.mixed(with: background, ratio: 0.89)
-            recording = dangerBase
-            processing = processingBase
-            sidebarItemHover = foreground.withAlphaComponent(0.065)
-            sidebarItemActive = accentBase.mixed(with: background, ratio: 0.82)
-            overlaySurface = background.darker(by: 0.24)
-            overlaySurfaceStrong = background.darker(by: 0.32)
-            overlayLine = foreground.withAlphaComponent(0.18)
-            overlayTextPrimary = NSColor.white.withAlphaComponent(0.96)
-            overlayTextSecondary = NSColor.white.withAlphaComponent(0.74)
-            overlayWaveform = accentBase.mixed(with: NSColor.white, ratio: 0.24)
-            overlayRecording = dangerBase.mixed(with: NSColor.white, ratio: 0.12)
-            overlayWarning = warningBase
-            overlayTooltipAccent = accentBase.mixed(with: NSColor.white, ratio: 0.3)
-            shadow = NSColor.black
-        } else {
-            windowBackground = background
-            sidebarBackground = background.darker(by: 0.018)
-            contentBackground = background.lighter(by: 0.005)
-            surfaceBackground = background.lighter(by: 0.025)
-            elevatedSurface = background.darker(by: 0.02 + contrast * 0.01)
-            mutedSurface = foreground.withAlphaComponent(0.045 + contrast * 0.02)
-            inputBackground = background.lighter(by: 0.015)
-            inputBorder = foreground.withAlphaComponent(0.14 + contrast * 0.04)
-            inputBorderFocused = accentBase.withAlphaComponent(0.72)
-            accent = accentBase
-            accentSecondary = accentBase.mixed(with: foreground, ratio: 0.18)
-            accentBackground = accentBase.mixed(with: background, ratio: 0.92)
-            textPrimary = foreground
-            textSecondary = foreground.withAlphaComponent(0.7)
-            textTertiary = foreground.withAlphaComponent(0.48)
-            border = foreground.withAlphaComponent(0.1 + contrast * 0.04)
-            divider = foreground.withAlphaComponent(0.07 + contrast * 0.03)
-            success = successBase
-            successBackground = successBase.mixed(with: background, ratio: 0.93)
-            warning = warningBase
-            warningBackground = warningBase.mixed(with: background, ratio: 0.93)
-            error = dangerBase
-            errorBackground = dangerBase.mixed(with: background, ratio: 0.94)
-            recording = dangerBase
-            processing = processingBase
-            sidebarItemHover = foreground.withAlphaComponent(0.05)
-            sidebarItemActive = accentBase.mixed(with: background, ratio: 0.87)
-            overlaySurface = background.darker(by: 0.82)
-            overlaySurfaceStrong = background.darker(by: 0.9)
-            overlayLine = NSColor.white.withAlphaComponent(0.14)
-            overlayTextPrimary = NSColor.white.withAlphaComponent(0.96)
-            overlayTextSecondary = NSColor.white.withAlphaComponent(0.74)
-            overlayWaveform = accentBase.mixed(with: NSColor.white, ratio: 0.42)
-            overlayRecording = dangerBase.mixed(with: NSColor.white, ratio: 0.18)
-            overlayWarning = warningBase.mixed(with: NSColor.white, ratio: 0.18)
-            overlayTooltipAccent = accentBase.mixed(with: NSColor.white, ratio: 0.42)
-            shadow = foreground
+    init(profile: PindropThemeProfile, isDark: Bool) {
+        let resolved = Self.resolve(profile: profile, isDark: isDark)
+        self = resolved.palette
+    }
+
+    /// Pure resolution entry used by tests — returns palette + clamp flag + optional log message.
+    static func resolve(
+        profile: PindropThemeProfile,
+        isDark: Bool
+    ) -> (palette: ResolvedPalette, didClamp: Bool) {
+        let ground = NSColor(pindropHex: profile.groundHex)
+            ?? (isDark
+                ? NSColor(pindropHex: "#1B1916")!
+                : NSColor(pindropHex: "#F6F4EE")!)
+        let page = NSColor(pindropHex: profile.pageHex)
+            ?? (isDark
+                ? NSColor(pindropHex: "#242119")!
+                : NSColor(pindropHex: "#FCFBF7")!)
+        let accentBase = NSColor(pindropHex: profile.accentHex) ?? .systemGreen
+
+        let inkHex = isDark ? ScorchedEarthBaseTokens.darkInk : ScorchedEarthBaseTokens.lightInk
+        let ink2Hex = isDark ? ScorchedEarthBaseTokens.darkInk2 : ScorchedEarthBaseTokens.lightInk2
+        let ink3Hex = isDark ? ScorchedEarthBaseTokens.darkInk3 : ScorchedEarthBaseTokens.lightInk3
+        let lineHex = isDark ? ScorchedEarthBaseTokens.darkLine : ScorchedEarthBaseTokens.lightLine
+        let defaultRecordHex = isDark ? ScorchedEarthBaseTokens.darkRecord : ScorchedEarthBaseTokens.lightRecord
+
+        let ink = NSColor(pindropHex: inkHex) ?? (isDark ? .white : .black)
+        var ink2 = NSColor(pindropHex: ink2Hex) ?? ink.withAlphaComponent(0.72)
+        var ink3 = NSColor(pindropHex: ink3Hex) ?? ink.withAlphaComponent(0.48)
+        let line = NSColor(pindropHex: lineHex) ?? ink.withAlphaComponent(0.12)
+
+        // WCAG clamp ink-2 / ink-3 against ground + page (≥4.5:1 for normal text roles).
+        let grounds = [ground, page]
+        let ink2Clamp = ColorContrast.clampTextColor(
+            ink2,
+            against: grounds,
+            minimumRatio: ColorContrast.minimumNormalTextRatio
+        )
+        let ink3Clamp = ColorContrast.clampTextColor(
+            ink3,
+            against: grounds,
+            minimumRatio: ColorContrast.minimumNormalTextRatio
+        )
+        ink2 = ink2Clamp.color
+        ink3 = ink3Clamp.color
+        let didClamp = ink2Clamp.didClamp || ink3Clamp.didClamp
+        if didClamp {
+            Log.ui.info(
+                "Theme palette WCAG clamp applied (isDark=\(isDark) ink2=\(ink2Clamp.didClamp) ink3=\(ink3Clamp.didClamp))"
+            )
         }
+
+        let accentSoft: NSColor
+        if let softHex = profile.accentSoftHex, let soft = NSColor(pindropHex: softHex) {
+            accentSoft = soft
+        } else {
+            // Soft wash of accent over ground.
+            accentSoft = accentBase.mixed(with: ground, ratio: isDark ? 0.82 : 0.90)
+        }
+
+        let recordBase = NSColor(pindropHex: profile.recordHex ?? defaultRecordHex) ?? .systemRed
+        let recordSoft: NSColor
+        if let softHex = profile.recordSoftHex, let soft = NSColor(pindropHex: softHex) {
+            recordSoft = soft
+        } else if !isDark, let soft = NSColor(pindropHex: ScorchedEarthBaseTokens.lightRecordSoft) {
+            recordSoft = soft
+        } else {
+            recordSoft = recordBase.mixed(with: ground, ratio: isDark ? 0.82 : 0.90)
+        }
+
+        let warningBase = isDark
+            ? (NSColor(pindropHex: "#D09B53") ?? .systemOrange)
+            : (NSColor(pindropHex: "#A9692D") ?? .systemOrange)
+        let warningSoft = warningBase.mixed(with: ground, ratio: isDark ? 0.86 : 0.92)
+
+        // Mapping guidance (task U1):
+        // window/sidebar → ground · content/elevated → page · surface → ground
+        // text* → ink* · borders → line · success/processing → accent · error/recording → record
+        let palette = ResolvedPalette(
+            windowBackground: ground,
+            sidebarBackground: ground,
+            contentBackground: page,
+            surfaceBackground: ground,
+            elevatedSurface: page,
+            mutedSurface: line.withAlphaComponent(isDark ? 0.45 : 0.55),
+            inputBackground: ground,
+            inputBorder: line,
+            inputBorderFocused: accentBase,
+            accent: accentBase,
+            accentSecondary: accentBase.mixed(with: ink, ratio: 0.18),
+            accentBackground: accentSoft,
+            textPrimary: ink,
+            textSecondary: ink2,
+            textTertiary: ink3,
+            border: line,
+            divider: line,
+            success: accentBase,
+            successBackground: accentSoft,
+            warning: warningBase,
+            warningBackground: warningSoft,
+            error: recordBase,
+            errorBackground: recordSoft,
+            recording: recordBase,
+            processing: accentBase,
+            sidebarItemHover: ink.withAlphaComponent(isDark ? 0.06 : 0.04),
+            sidebarItemActive: page,
+            overlaySurface: isDark ? ground.darker(by: 0.12) : ground.darker(by: 0.82),
+            overlaySurfaceStrong: isDark ? ground.darker(by: 0.22) : ground.darker(by: 0.9),
+            overlayLine: isDark ? line : NSColor.white.withAlphaComponent(0.14),
+            overlayTextPrimary: NSColor.white.withAlphaComponent(0.96),
+            overlayTextSecondary: NSColor.white.withAlphaComponent(0.74),
+            overlayWaveform: accentBase.mixed(with: NSColor.white, ratio: isDark ? 0.24 : 0.42),
+            overlayRecording: recordBase.mixed(with: NSColor.white, ratio: isDark ? 0.12 : 0.18),
+            overlayWarning: isDark ? warningBase : warningBase.mixed(with: NSColor.white, ratio: 0.18),
+            overlayTooltipAccent: accentBase.mixed(with: NSColor.white, ratio: isDark ? 0.3 : 0.42),
+            shadow: isDark ? NSColor.black : ink,
+            didClampTextColors: didClamp
+        )
+        return (palette, didClamp)
+    }
+
+    private init(
+        windowBackground: NSColor,
+        sidebarBackground: NSColor,
+        contentBackground: NSColor,
+        surfaceBackground: NSColor,
+        elevatedSurface: NSColor,
+        mutedSurface: NSColor,
+        inputBackground: NSColor,
+        inputBorder: NSColor,
+        inputBorderFocused: NSColor,
+        accent: NSColor,
+        accentSecondary: NSColor,
+        accentBackground: NSColor,
+        textPrimary: NSColor,
+        textSecondary: NSColor,
+        textTertiary: NSColor,
+        border: NSColor,
+        divider: NSColor,
+        success: NSColor,
+        successBackground: NSColor,
+        warning: NSColor,
+        warningBackground: NSColor,
+        error: NSColor,
+        errorBackground: NSColor,
+        recording: NSColor,
+        processing: NSColor,
+        sidebarItemHover: NSColor,
+        sidebarItemActive: NSColor,
+        overlaySurface: NSColor,
+        overlaySurfaceStrong: NSColor,
+        overlayLine: NSColor,
+        overlayTextPrimary: NSColor,
+        overlayTextSecondary: NSColor,
+        overlayWaveform: NSColor,
+        overlayRecording: NSColor,
+        overlayWarning: NSColor,
+        overlayTooltipAccent: NSColor,
+        shadow: NSColor,
+        didClampTextColors: Bool
+    ) {
+        self.windowBackground = windowBackground
+        self.sidebarBackground = sidebarBackground
+        self.contentBackground = contentBackground
+        self.surfaceBackground = surfaceBackground
+        self.elevatedSurface = elevatedSurface
+        self.mutedSurface = mutedSurface
+        self.inputBackground = inputBackground
+        self.inputBorder = inputBorder
+        self.inputBorderFocused = inputBorderFocused
+        self.accent = accent
+        self.accentSecondary = accentSecondary
+        self.accentBackground = accentBackground
+        self.textPrimary = textPrimary
+        self.textSecondary = textSecondary
+        self.textTertiary = textTertiary
+        self.border = border
+        self.divider = divider
+        self.success = success
+        self.successBackground = successBackground
+        self.warning = warning
+        self.warningBackground = warningBackground
+        self.error = error
+        self.errorBackground = errorBackground
+        self.recording = recording
+        self.processing = processing
+        self.sidebarItemHover = sidebarItemHover
+        self.sidebarItemActive = sidebarItemActive
+        self.overlaySurface = overlaySurface
+        self.overlaySurfaceStrong = overlaySurfaceStrong
+        self.overlayLine = overlayLine
+        self.overlayTextPrimary = overlayTextPrimary
+        self.overlayTextSecondary = overlayTextSecondary
+        self.overlayWaveform = overlayWaveform
+        self.overlayRecording = overlayRecording
+        self.overlayWarning = overlayWarning
+        self.overlayTooltipAccent = overlayTooltipAccent
+        self.shadow = shadow
+        self.didClampTextColors = didClampTextColors
     }
 }
 
