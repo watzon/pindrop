@@ -701,7 +701,13 @@ struct DashboardView: View {
                             },
                             onSaveAsNote: { saveAsNote(record: record) },
                             onExport: { format in
-                                try? TranscriptExportService.presentSavePanel(for: record, format: format)
+                                do {
+                                    try TranscriptExportService.presentSavePanel(for: record, format: format)
+                                } catch TranscriptExportService.ExportError.cancelled {
+                                    // User dismissed the panel.
+                                } catch {
+                                    errorMessage = "Export failed: \(error.localizedDescription)"
+                                }
                             }
                         )
                     }

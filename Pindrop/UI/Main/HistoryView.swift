@@ -905,6 +905,8 @@ struct HistoryView: View {
     private func exportRecord(_ record: TranscriptionRecord, format: TranscriptExportFormat) {
         do {
             try TranscriptExportService.presentSavePanel(for: record, format: format)
+        } catch TranscriptExportService.ExportError.cancelled {
+            // User dismissed the panel.
         } catch {
             errorMessage = "Export failed: \(error.localizedDescription)"
         }

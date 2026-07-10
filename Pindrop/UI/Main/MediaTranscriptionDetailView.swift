@@ -32,7 +32,6 @@ struct MediaTranscriptionDetailView: View {
     @State private var sliderValue: Double = 0
     @State private var isDraggingSlider = false
     @State private var playbackRate: Float = 1.0
-    @State private var showCopiedToast = false
     @State private var speakerLabelsByID: [String: String] = [:]
     @State private var editingSpeakerID: String?
     @State private var editedSpeakerLabel = ""
@@ -151,18 +150,6 @@ struct MediaTranscriptionDetailView: View {
             }
             Button(localized("Save", locale: locale)) {
                 saveEditedSpeakerLabel()
-            }
-        }
-        .overlay(alignment: .bottom) {
-            if showCopiedToast {
-                Text("Copied to clipboard")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.xs)
-                    .background(Capsule(style: .continuous).fill(AppColors.accent))
-                    .padding(.bottom, AppTheme.Spacing.xxl)
-                    .transition(.opacity.combined(with: .scale))
             }
         }
     }
@@ -605,7 +592,6 @@ struct MediaTranscriptionDetailView: View {
                     object: nil,
                     userInfo: ["text": record.text]
                 )
-                flashCopied()
             }
 
             Menu {
@@ -622,7 +608,6 @@ struct MediaTranscriptionDetailView: View {
                             object: nil,
                             userInfo: ["text": transcriptWithTimestamps()]
                         )
-                        flashCopied()
                     }
                 }
                 if let mediaURL = record.managedMediaURL {
@@ -746,7 +731,6 @@ struct MediaTranscriptionDetailView: View {
                             object: nil,
                             userInfo: ["text": summary]
                         )
-                        flashCopied()
                     } label: {
                         Image(systemName: "doc.on.doc")
                             .font(.system(size: 11, weight: .medium))
@@ -828,14 +812,6 @@ struct MediaTranscriptionDetailView: View {
 
         editingSpeakerID = nil
         editedSpeakerLabel = ""
-    }
-
-    private func flashCopied() {
-        withAnimation(AppTheme.Animation.fast) { showCopiedToast = true }
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            withAnimation(AppTheme.Animation.fast) { showCopiedToast = false }
-        }
     }
 
     private func isActive(_ segment: DiarizedTranscriptSegment, index: Int) -> Bool {
