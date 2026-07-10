@@ -15,9 +15,11 @@ struct SecondaryButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            // Icon inside Text so the SF Symbol aligns on its baked-in baseline —
+            // box-centering glyphs with ascenders (square.and.arrow.up) reads "high".
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 if let systemImage {
-                    Image(systemName: systemImage)
+                    Text(Image(systemName: systemImage))
                         .font(.system(size: 12, weight: .medium))
                 }
                 Text(title)
@@ -55,9 +57,11 @@ struct ExportMenuButton: View {
                 }
             }
         } label: {
-            HStack(spacing: 6) {
+            // Icon inside Text so the SF Symbol aligns on its baked-in baseline —
+            // box-centering glyphs with ascenders (square.and.arrow.up) reads "high".
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 if let systemImage {
-                    Image(systemName: systemImage)
+                    Text(Image(systemName: systemImage))
                         .font(.system(size: 12, weight: .medium))
                 }
                 Text(title)

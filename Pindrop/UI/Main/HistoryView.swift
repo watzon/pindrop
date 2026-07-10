@@ -514,7 +514,8 @@ struct HistoryView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.vertical, 8)
-                .background(isSelected ? AppColors.accent.opacity(0.04) : Color.clear)
+                // No selected wash behind the expanded card: per the design the card's
+                // own ground fill + border IS the expanded/selected affordance.
             } else {
                 collapsedRow(for: record)
                     .background(isSelected ? AppColors.accent.opacity(0.06) : Color.clear)

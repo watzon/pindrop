@@ -59,6 +59,10 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
                         .layoutPriority(1)
                 }
                 }
+                // Padding INSIDE the button label so the whole row — including its
+                // breathing room — is clickable, not just the text lanes.
+                .padding(.vertical, 13)
+                .padding(.leading, 24)
                 .contentShape(Rectangle())
                 .accessibilityElement(children: .combine)
             }
@@ -67,16 +71,15 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
 
             playChip()
                 .frame(width: PlayChipMetrics.width, alignment: .trailing)
+                .padding(.trailing, 24)
         }
-        .padding(.vertical, 13)
-        // Divider before the horizontal padding so it spans the content column,
-        // not the padded row frame (it read as overshooting the section rule).
+        // Divider inset to the content column (matches the section rules).
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(AppColors.border)
                 .frame(height: 1)
+                .padding(.horizontal, 24)
         }
-        .padding(.horizontal, 24)
     }
 }
 

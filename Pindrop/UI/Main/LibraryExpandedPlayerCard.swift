@@ -57,7 +57,7 @@ struct LibraryExpandedPlayerCard: View {
                     }
                 },
                 onSeek: { fraction in
-                    let duration = max(playbackController.duration, record.duration)
+                    let duration = effectiveDuration
                     guard duration > 0 else { return }
                     playbackController.seek(to: fraction * duration)
                 },
@@ -134,16 +134,23 @@ struct LibraryExpandedPlayerCard: View {
         .frame(minHeight: 20)
     }
 
+    /// The loaded asset's duration is authoritative — the record's metadata duration
+    /// can exceed the file's (trimmed trailing silence), which left the playhead
+    /// stranded short of the end at playback finish. Metadata is only a placeholder
+    /// until the player loads.
+    private var effectiveDuration: Double {
+        playbackController.duration > 0 ? playbackController.duration : record.duration
+    }
+
     private var playbackProgress: Double {
-        let duration = max(playbackController.duration, record.duration)
+        let duration = effectiveDuration
         guard duration > 0 else { return 0 }
         return min(1, max(0, playbackController.currentTime / duration))
     }
 
     private var elapsedTotalLabel: String {
         let elapsed = playbackController.currentTime
-        let total = max(playbackController.duration, record.duration)
-        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: total))"
+        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: effectiveDuration))"
     }
 
     // MARK: - Actions
