@@ -120,3 +120,14 @@ Icons: 16×16 viewBox custom strokes at 1.4 width (thin-stroke look). Map to SF 
 - **Model row card**: radius 12, padding 14 vert / 20 horiz, 12 pt gaps, 8 pt stacking margin. **Active row: ground bg + 1 pt ACCENT border**; inactive: 1 pt line border, no fill. Content: name **Inter 14/18 · 600 ink** + **Active badge** (accent-soft pill, padding 2/9, 5 pt gap, 6 pt accent dot, Inter 11 · 600 accent) over description Inter 12 ink-2 (3 pt gap); right: size **JetBrains Mono 12 ink-2** · "Installed" Inter 12 · 500 ink-3 OR **Download button** (line border, radius 8, padding 5/12, 11 pt download icon + Inter 12 · 500 ink).
 - Footnote: shield icon + privacy line (ink-3): "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
 - Per product decision: NO "Text corrector — 340 M" row (deferred runtime).
+
+## 13. Settings window (artboards 10–16 — extracted from General; other panes reuse)
+
+- Window: 620×640 (fixed width, vertical resize OK), **ground** bg. Titlebar row: traffic lights in a 60 pt lane · centered pane title Inter 13 · 600 ink · 60 pt spacer; padding 14 top / 16 sides / 8 bottom.
+- **Tab strip** (replaces stock toolbar appearance; structure stays tabbed): centered row, 4 pt gaps, 1 pt line bottom border, padding 4 top / 10 bottom. Tab: radius 8, padding 7 vert / 12 horiz, column (4 pt gap) of 17 pt icon + Inter 11 label. Selected: accent-soft bg, accent icon + label 600. Unselected: ink-2 icon + label 500.
+- Content column: padding 20 top / 24 sides / 24 bottom, **16 pt gap between group cards**; pane scrolls inside the fixed frame.
+- **Group card**: page bg, 1 pt line border, **radius 10**. Rows: padding 12 vert / 16 horiz, 12 pt gap, 1 pt line separators between rows. Row anatomy: title Inter 13 · 500 ink over optional subtitle Inter 12 ink-2 (1 pt gap), control right-aligned.
+- **Toggle switch**: 36×21, radius full, 2 pt padding, 17 pt knob in `#FCFBF7`; on = accent track, off = line track.
+- **Dropdown / small button**: ground bg, 1 pt line border, **radius 7**, padding 5 vert / 12 horiz, Inter 12 · 500 ink (+ 9 pt chevron for menus, 8 pt gap).
+- Destructive footer action: centered "Reset all settings…" Inter 12 · 500 record color.
+- Pane-specific pieces reuse established vocabulary: Appearance = segmented System/Light/Dark (chip-row pattern) + preset chips (accent dot + name, selected = accent-soft border treatment per artboard 12) + Orb/Pill picker chips; Dictation = rows + "Delete all audio…" record link + Manage… button; Shortcuts = recorder rows with kbd chips (mono) + inline conflict line; AI = rows + prompt preview (ground inset card, mono 12) + example block (accent-soft card, strikethrough before-text); Advanced = rows + mono endpoint text; About = centered icon 64 pt (accent rounded square + mic glyph), Newsreader title, mono version line, serif-italic tagline, accent link row.
