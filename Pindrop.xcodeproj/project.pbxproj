@@ -54,6 +54,8 @@
 		ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */; };
 		ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */; };
 		ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */; };
+		DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */; };
+		DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */; };
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
 		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
@@ -253,6 +255,8 @@
 		ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
 		ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementWindowController.swift; sourceTree = "<group>"; };
 		ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementServiceTests.swift; sourceTree = "<group>"; };
+		DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsService.swift; sourceTree = "<group>"; };
+		DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsServiceTests.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
@@ -521,6 +525,7 @@
 				FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */,
 				TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
 				ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */,
+				DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */,
 				AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */,
 				WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */,
 				PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */,
@@ -683,6 +688,7 @@
 				FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */,
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
 				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
+				DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */,
 				AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */,
 				COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */,
 				MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
@@ -1004,6 +1010,7 @@
 				FLOATFSTRKTESTBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift in Sources */,
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
 				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
+				DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */,
 				AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */,
 				COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */,
 				MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
@@ -1130,6 +1137,7 @@
 				FLOATFSTRKBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift in Sources */,
 				TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
 				ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */,
+				DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */,
 				AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */,
 				WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */,
 				PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */,
