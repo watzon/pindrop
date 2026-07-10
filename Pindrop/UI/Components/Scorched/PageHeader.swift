@@ -30,6 +30,7 @@ struct PageHeader<Trailing: View>: View {
                 if let meta, !meta.isEmpty {
                     Text(meta)
                         .font(AppTypography.bodyMeta)
+                        .lineSpacing(AppTypography.bodyMetaLineSpacing)
                         .foregroundStyle(AppColors.textSecondary)
                 }
             }

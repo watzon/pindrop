@@ -48,8 +48,7 @@ struct StatusCard: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(statusColor)
                 Text(title)
-                    .font(AppTypography.label)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.labelSemibold)
                     .foregroundStyle(statusColor)
                 Spacer(minLength: 0)
                 if case .recording(let duration) = phase {

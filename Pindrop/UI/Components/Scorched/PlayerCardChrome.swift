@@ -20,6 +20,7 @@ struct PlayerCardChrome<Meta: View, Player: View, Actions: View>: View {
 
             Text(transcript)
                 .font(AppTypography.transcriptBody)
+                .lineSpacing(AppTypography.transcriptBodyLineSpacing)
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 

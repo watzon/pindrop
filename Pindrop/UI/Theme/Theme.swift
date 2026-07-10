@@ -169,36 +169,128 @@ enum AppColors {
     }
 }
 
+/// Concrete size/weight/line-height for a typography role (spec §2).
+/// Prefer these metrics in tests; use the paired `Font` / `lineSpacing` at call sites.
+struct TypographyRoleMetrics: Equatable, Sendable {
+    let family: FontLoader.Family
+    let size: CGFloat
+    let weight: FontLoader.Weight
+    /// Design line box (pt). `lineSpacing` = max(0, lineHeight − size).
+    let lineHeight: CGFloat
+    var italic: Bool = false
+
+    var lineSpacing: CGFloat { max(0, lineHeight - size) }
+
+    var font: Font {
+        FontLoader.font(family: family, size: size, weight: weight, italic: italic)
+    }
+}
+
 /// Scorched Earth typography ramp (spec §2).
 /// New role names are preferred; legacy members map onto the ramp so existing views compile.
 enum AppTypography {
-    // MARK: New roles (spec §2)
+    // MARK: Role metrics (authoritative sizes / weights / line boxes)
+
+    static let wordmarkMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 22, weight: .semibold, lineHeight: 28
+    )
+    static let pageTitleMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 34, weight: .medium, lineHeight: 38
+    )
+    static let transcriptBodyMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 17, weight: .regular, lineHeight: 26
+    )
+    static let bodyMetrics = TypographyRoleMetrics(
+        family: .inter, size: 13, weight: .regular, lineHeight: 16
+    )
+    static let bodyMetaMetrics = TypographyRoleMetrics(
+        family: .inter, size: 13, weight: .regular, lineHeight: 22
+    )
+    static let labelMetrics = TypographyRoleMetrics(
+        family: .inter, size: 12, weight: .medium, lineHeight: 16
+    )
+    /// Inter 12/16 · 600 — status card titles (custom Font cannot be restyled via `.fontWeight`)
+    static let labelSemiboldMetrics = TypographyRoleMetrics(
+        family: .inter, size: 12, weight: .semibold, lineHeight: 16
+    )
+    static let labelStrongMetrics = TypographyRoleMetrics(
+        family: .inter, size: 13, weight: .medium, lineHeight: 16
+    )
+    static let labelStrongSelectedMetrics = TypographyRoleMetrics(
+        family: .inter, size: 13, weight: .semibold, lineHeight: 16
+    )
+    static let badgeMetrics = TypographyRoleMetrics(
+        family: .inter, size: 11, weight: .semibold, lineHeight: 14
+    )
+    static let captionMetrics = TypographyRoleMetrics(
+        family: .inter, size: 11, weight: .regular, lineHeight: 14
+    )
+    static let monoTimeMetrics = TypographyRoleMetrics(
+        family: .jetbrainsMono, size: 12, weight: .medium, lineHeight: 16
+    )
+    static let monoSmallMetrics = TypographyRoleMetrics(
+        family: .jetbrainsMono, size: 11, weight: .medium, lineHeight: 14
+    )
+    static let sectionHeaderMetrics = TypographyRoleMetrics(
+        family: .inter, size: 11, weight: .medium, lineHeight: 14
+    )
+    static let statLargeMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 34, weight: .medium, lineHeight: 38
+    )
+    static let statMediumMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 24, weight: .semibold, lineHeight: 28
+    )
+
+    /// All primary roles for exhaustive metric tests.
+    static var allRoleMetrics: [TypographyRoleMetrics] {
+        [
+            wordmarkMetrics, pageTitleMetrics, transcriptBodyMetrics,
+            bodyMetrics, bodyMetaMetrics, labelMetrics, labelSemiboldMetrics,
+            labelStrongMetrics, labelStrongSelectedMetrics, badgeMetrics,
+            captionMetrics, monoTimeMetrics, monoSmallMetrics, sectionHeaderMetrics,
+            statLargeMetrics, statMediumMetrics,
+        ]
+    }
+
+    // MARK: New roles (spec §2) — Fonts
 
     /// Newsreader 22/28 · 600 · -0.01em — sidebar wordmark
-    static let wordmark = FontLoader.font(family: .newsreader, size: 22, weight: .semibold)
+    static let wordmark = wordmarkMetrics.font
     /// Newsreader 34/38 · 500 · -0.015em — page titles
-    static let pageTitle = FontLoader.font(family: .newsreader, size: 34, weight: .medium)
+    static let pageTitle = pageTitleMetrics.font
     /// Newsreader 17/26 · 400 — expanded-card transcript
-    static let transcriptBody = FontLoader.font(family: .newsreader, size: 17, weight: .regular)
+    static let transcriptBody = transcriptBodyMetrics.font
     /// Inter 13/16 · 400 — row preview / body
-    static let body = FontLoader.font(family: .inter, size: 13, weight: .regular)
+    static let body = bodyMetrics.font
     /// Inter 13/22 · 400 — header meta line
-    static let bodyMeta = FontLoader.font(family: .inter, size: 13, weight: .regular)
+    static let bodyMeta = bodyMetaMetrics.font
     /// Inter 12/16 · 500 — buttons, chips, nav secondary
-    static let label = FontLoader.font(family: .inter, size: 12, weight: .medium)
+    static let label = labelMetrics.font
+    /// Inter 12/16 · 600 — status titles, strong chip labels
+    static let labelSemibold = labelSemiboldMetrics.font
     /// Inter 13/16 · 500–600 — nav items
-    static let labelStrong = FontLoader.font(family: .inter, size: 13, weight: .medium)
-    static let labelStrongSelected = FontLoader.font(family: .inter, size: 13, weight: .semibold)
+    static let labelStrong = labelStrongMetrics.font
+    static let labelStrongSelected = labelStrongSelectedMetrics.font
     /// Inter 11/14 · 600 — kind badges
-    static let badge = FontLoader.font(family: .inter, size: 11, weight: .semibold)
+    static let badge = badgeMetrics.font
     /// Inter 11/14 · 400 — captions
-    static let caption = FontLoader.font(family: .inter, size: 11, weight: .regular)
+    static let caption = captionMetrics.font
     /// JetBrains Mono 12/16 · 500 — row times
-    static let monoTime = FontLoader.font(family: .jetbrainsMono, size: 12, weight: .medium)
+    static let monoTime = monoTimeMetrics.font
     /// JetBrains Mono 11/14 · 400–500 — counts, kbd hints
-    static let monoSmall = FontLoader.font(family: .jetbrainsMono, size: 11, weight: .medium)
+    static let monoSmall = monoSmallMetrics.font
     /// Inter 11–12/14 · 500 · uppercase section headers
-    static let sectionHeader = FontLoader.font(family: .inter, size: 11, weight: .medium)
+    static let sectionHeader = sectionHeaderMetrics.font
+
+    // MARK: Line spacing (lineHeight − size) for multi-line Text sites
+
+    static let wordmarkLineSpacing = wordmarkMetrics.lineSpacing
+    static let pageTitleLineSpacing = pageTitleMetrics.lineSpacing
+    static let transcriptBodyLineSpacing = transcriptBodyMetrics.lineSpacing
+    static let bodyLineSpacing = bodyMetrics.lineSpacing
+    static let bodyMetaLineSpacing = bodyMetaMetrics.lineSpacing
+    static let labelLineSpacing = labelMetrics.lineSpacing
+    static let captionLineSpacing = captionMetrics.lineSpacing
 
     // MARK: Legacy members (mapped onto the new ramp — migrate call sites over time)
 
@@ -217,14 +309,14 @@ enum AppTypography {
     /// Mapped → monoTime
     static let mono = monoTime
     /// Mapped → pageTitle scale for hero stats
-    static let statLarge = FontLoader.font(family: .newsreader, size: 34, weight: .medium)
+    static let statLarge = statLargeMetrics.font
     /// Mapped → wordmark scale for medium stats
-    static let statMedium = FontLoader.font(family: .newsreader, size: 24, weight: .semibold)
+    static let statMedium = statMediumMetrics.font
 
     // MARK: Tracking helpers (em → SwiftUI relative tracking)
 
-    static let wordmarkTracking: CGFloat = -0.01 * 22
-    static let pageTitleTracking: CGFloat = -0.015 * 34
+    static let wordmarkTracking: CGFloat = -0.01 * wordmarkMetrics.size
+    static let pageTitleTracking: CGFloat = -0.015 * pageTitleMetrics.size
 }
 
 /// Builds the ~37 semantic roles from Scorched Earth tokens (spec §1).
