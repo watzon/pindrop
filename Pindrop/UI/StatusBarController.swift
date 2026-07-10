@@ -224,7 +224,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         // === OPEN HISTORY / SHOW APP ===
         openHistoryItem = NSMenuItem(
-            title: localized("Open History", locale: locale),
+            title: localized("Open Library", locale: locale),
             action: #selector(openHistory),
             keyEquivalent: ""
         )
@@ -661,7 +661,7 @@ struct WelcomePopoverView: View {
             VStack(alignment: .leading, spacing: 6) {
                 popoverItem(icon: .record, text: localized("Start/stop recording", locale: locale))
                 popoverItem(icon: .settings, text: localized("Open settings", locale: locale))
-                popoverItem(icon: .clock, text: localized("View transcription history", locale: locale))
+                popoverItem(icon: .clock, text: localized("View library", locale: locale))
             }
 
             Divider()
