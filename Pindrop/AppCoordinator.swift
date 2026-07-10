@@ -274,6 +274,7 @@ final class AppCoordinator {
     let mediaIngestionService: MediaIngestionService
     let mediaPreparationService: MediaPreparationService
     let announcementService: AnnouncementService
+    let dictationAudioRetentionService: DictationAudioRetentionService
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
     private(set) var mcpServer: MCPServer?
@@ -430,6 +431,10 @@ final class AppCoordinator {
         self.mediaPauseService = MediaPauseService()
         self.mediaIngestionService = MediaIngestionService()
         self.mediaPreparationService = MediaPreparationService()
+        self.dictationAudioRetentionService = DictationAudioRetentionService(
+            historyStore: historyStore,
+            settingsStore: settingsStore
+        )
         self.recordingState = RecordingFeatureState()
         self.mediaTranscriptionState = MediaTranscriptionFeatureState()
 
@@ -979,6 +984,9 @@ final class AppCoordinator {
             settingsStore.launchAtLogin = actualLaunchAtLoginState
             Log.app.info("Synced launch at login state: \(actualLaunchAtLoginState)")
         }
+
+        // Sweep expired dictation audio at launch and every 24h thereafter.
+        dictationAudioRetentionService.startPeriodicSweep()
 
         let micStatus = permissionManager.checkPermissionStatus()
         if micStatus == .denied || micStatus == .restricted {
@@ -2677,13 +2685,17 @@ final class AppCoordinator {
 
         let duration = Date().timeIntervalSince(startTime)
         do {
-            try historyStore.save(
+            let record = try historyStore.save(
                 text: outcome.finalText,
                 originalText: outcome.originalStreamedText,
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
                 enhancedWith: outcome.enhancedWithModel,
                 diarizationSegmentsJSON: nil
+            )
+            dictationAudioRetentionService.schedulePersist(
+                pcmFloatData: recordedAudioData,
+                recordID: record.id
             )
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
@@ -3047,13 +3059,17 @@ final class AppCoordinator {
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
 
         do {
-            try historyStore.save(
+            let record = try historyStore.save(
                 text: finalText,
                 originalText: originalText,
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
                 enhancedWith: enhancedWithModel,
                 diarizationSegmentsJSON: diarizationSegmentsJSON
+            )
+            dictationAudioRetentionService.schedulePersist(
+                pcmFloatData: audioData,
+                recordID: record.id
             )
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
