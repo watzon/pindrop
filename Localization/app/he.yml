@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "נותרו כ־%d שנ׳"
   minutes_left: "נותרו כ־%d דק׳"
   microphone_muted: "המיקרופון מושתק"
+u11b:
+  playback_position: "מיקום ההפעלה"
+  expired: "פג תוקף"
+  expand: "הרחבה"
+  step_x_of_y: "שלב %d מתוך %d"

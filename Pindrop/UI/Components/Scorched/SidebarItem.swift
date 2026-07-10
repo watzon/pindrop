@@ -67,7 +67,8 @@ struct SidebarItem: View {
         .buttonStyle(.plain)
         .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .help(isCollapsed ? title : "")
-        .accessibilityLabel(title)
+        .accessibilityLabel(count.map { "\(title), \($0)" } ?? title)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 

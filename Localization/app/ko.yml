@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "약 %d초 남음"
   minutes_left: "약 %d분 남음"
   microphone_muted: "마이크 음소거됨"
+u11b:
+  playback_position: "재생 위치"
+  expired: "만료됨"
+  expand: "펼치기"
+  step_x_of_y: "%d/%d단계"

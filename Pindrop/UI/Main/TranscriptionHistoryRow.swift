@@ -28,6 +28,7 @@ struct TranscriptionHistoryRow: View {
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.locale) private var locale
     @Namespace private var enhancedNamespace
 
     private var isEnhanced: Bool { record.enhancedWith != nil }
@@ -39,9 +40,9 @@ struct TranscriptionHistoryRow: View {
     private var typeInfo: (icon: String, color: Color, label: String) {
         switch sourceKind {
         case .voiceRecording:
-            return ("mic.fill", AppColors.accent, "Voice")
+            return ("mic.fill", AppColors.accent, localized("Voice", locale: locale))
         case .manualCapture:
-            return ("person.2.fill", AppColors.success, "Meeting")
+            return ("person.2.fill", AppColors.success, localized("Meeting", locale: locale))
         case .importedFile:
             return ("headphones", AppColors.processing, "Audio")
         case .webLink:
@@ -252,7 +253,7 @@ struct TranscriptionHistoryRow: View {
                     .fill(AppColors.divider)
                     .frame(height: 1)
 
-                Text("Original")
+                Text(localized("Original", locale: locale))
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.textTertiary)
 
@@ -272,7 +273,7 @@ struct TranscriptionHistoryRow: View {
 
     @ViewBuilder
     private func enhancedBadge(style: EnhancedBadgeStyle) -> some View {
-        Text("Enhanced")
+        Text(localized("Enhanced", locale: locale))
             .font(style == .inline ? AppTypography.caption : AppTypography.tiny)
             .foregroundStyle(style == .inline ? AppColors.textTertiary : AppColors.accent)
             .matchedGeometryEffect(id: "enhanced-label", in: enhancedNamespace)

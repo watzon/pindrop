@@ -38,6 +38,10 @@ final class OnboardingWindowController {
             },
             onPreferredContentSizeChange: { [weak self] size in
                 self?.ensureWindowCanFitContentSize(size)
+            },
+            onStepChange: { [weak self, weak settings] step in
+                guard let settings else { return }
+                self?.window?.title = localized(step.title, locale: settings.selectedAppLocale.locale)
             }
         )
         .environment(\.locale, settings.selectedAppLocale.locale)
@@ -47,6 +51,8 @@ final class OnboardingWindowController {
         
         let window = NSWindow(contentViewController: hosting)
         window.styleMask = [.titled, .closable, .fullSizeContentView]
+        let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
+        window.title = localized(initialStep.title, locale: settings.selectedAppLocale.locale)
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true

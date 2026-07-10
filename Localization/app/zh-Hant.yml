@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "約剩 %d 秒"
   minutes_left: "約剩 %d 分鐘"
   microphone_muted: "麥克風已靜音"
+u11b:
+  playback_position: "播放位置"
+  expired: "已過期"
+  expand: "展開"
+  step_x_of_y: "第 %d 步，共 %d 步"

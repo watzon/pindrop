@@ -1438,3 +1438,8 @@ u11:
   seconds_left: "প্রায় %d সে বাকি"
   minutes_left: "প্রায় %d মি বাকি"
   microphone_muted: "মাইক্রোফোন নিঃশব্দ"
+u11b:
+  playback_position: "প্লেব্যাকের অবস্থান"
+  expired: "মেয়াদ শেষ"
+  expand: "প্রসারিত করুন"
+  step_x_of_y: "ধাপ %d / %d"

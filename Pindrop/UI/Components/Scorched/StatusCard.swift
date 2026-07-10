@@ -87,6 +87,7 @@ struct StatusCard: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(title)
+        .accessibilityValue(recordingAccessibilityValue)
     }
 
     private var title: String {
@@ -95,6 +96,11 @@ struct StatusCard: View {
         case .recording: return localized("Recording", locale: locale)
         case .processing: return localized("Processing", locale: locale)
         }
+    }
+
+    private var recordingAccessibilityValue: String {
+        guard case .recording(let duration) = phase else { return "" }
+        return Self.formatDuration(duration)
     }
 
     private var iconName: String {
@@ -133,6 +139,7 @@ struct StatusCardDot: View {
 
     @State private var pulse = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.locale) private var locale
 
     var body: some View {
         Circle()
@@ -159,9 +166,9 @@ struct StatusCardDot: View {
 
     private var accessibilityTitle: String {
         switch phase {
-        case .ready: return "Ready"
-        case .recording: return "Recording"
-        case .processing: return "Processing"
+        case .ready: return localized("Ready", locale: locale)
+        case .recording: return localized("Recording", locale: locale)
+        case .processing: return localized("Processing", locale: locale)
         }
     }
 }

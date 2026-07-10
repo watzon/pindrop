@@ -1041,11 +1041,7 @@ struct OrbIndicatorView: View {
             )
         )
         .accessibilityAction { controller.handleOrbTapped() }
-        .keyboardFocusRing(Circle())
-        .onKeyPress(.return) {
-            controller.handleOrbTapped()
-            return .handled
-        }
+        // Floating indicators stay non-key by design; the global hotkey is the keyboard path.
     }
 
     // MARK: Pill content

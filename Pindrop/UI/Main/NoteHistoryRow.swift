@@ -18,6 +18,7 @@ struct NoteHistoryRow: View {
     var onTogglePin: (() -> Void)? = nil
 
     @State private var isHovered = false
+    @Environment(\.locale) private var locale
 
     private static let absoluteTimeFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -35,11 +36,11 @@ struct NoteHistoryRow: View {
         if !trimmed.isEmpty { return trimmed }
         let preview = note.content.trimmingCharacters(in: .whitespacesAndNewlines)
         if preview.count > 80 { return String(preview.prefix(80)) + "…" }
-        return preview.isEmpty ? "Untitled Note" : preview
+        return preview.isEmpty ? localized("Untitled Note", locale: locale) : preview
     }
 
     private var metadataText: String {
-        var parts: [String] = ["Note"]
+        var parts: [String] = [localized("Note", locale: locale)]
         let wordCount = note.content.split(separator: " ").count
         if wordCount > 0 {
             parts.append("\(formatWordCount(wordCount)) words")
@@ -97,7 +98,7 @@ struct NoteHistoryRow: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.textTertiary)
 
-                Text("Note")
+                Text(localized("Note", locale: locale))
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.accent)
                     .padding(.horizontal, AppTheme.Spacing.sm)
@@ -124,7 +125,7 @@ struct NoteHistoryRow: View {
         .appAnimation(.fast, value: isSelected)
         .onHover { hovering in isHovered = hovering }
         .onTapGesture { onTap() }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { onTap() }
         .keyboardFocusRing(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
@@ -136,26 +137,29 @@ struct NoteHistoryRow: View {
             Button {
                 onTap()
             } label: {
-                Label("Open Note", systemImage: "square.and.pencil")
+                Label(localized("Open Note", locale: locale), systemImage: "square.and.pencil")
             }
 
             Button {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(note.content, forType: .string)
             } label: {
-                Label("Copy Content", systemImage: "doc.on.doc")
+                Label(localized("Copy Content", locale: locale), systemImage: "doc.on.doc")
             }
 
             if let onTogglePin {
                 Button(action: onTogglePin) {
-                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
+                    Label(
+                        localized(note.isPinned ? "Unpin" : "Pin", locale: locale),
+                        systemImage: note.isPinned ? "pin.slash" : "pin"
+                    )
                 }
             }
 
             if let onDelete {
                 Divider()
                 Button(role: .destructive, action: onDelete) {
-                    Label("Delete Note", systemImage: "trash")
+                    Label(localized("Delete Note", locale: locale), systemImage: "trash")
                 }
             }
         }

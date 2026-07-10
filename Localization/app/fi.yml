@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "noin %d s jäljellä"
   minutes_left: "noin %d min jäljellä"
   microphone_muted: "Mikrofoni mykistetty"
+u11b:
+  playback_position: "Toistokohta"
+  expired: "Vanhentunut"
+  expand: "Laajenna"
+  step_x_of_y: "Vaihe %d/%d"

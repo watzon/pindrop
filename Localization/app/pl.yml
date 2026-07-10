@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "pozostało około %d s"
   minutes_left: "pozostało około %d min"
   microphone_muted: "Mikrofon wyciszony"
+u11b:
+  playback_position: "Pozycja odtwarzania"
+  expired: "Wygasło"
+  expand: "Rozwiń"
+  step_x_of_y: "Krok %d z %d"

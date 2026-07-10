@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "περίπου %d δ απομένουν"
   minutes_left: "περίπου %d λεπ απομένουν"
   microphone_muted: "Το μικρόφωνο είναι σε σίγαση"
+u11b:
+  playback_position: "Θέση αναπαραγωγής"
+  expired: "Έληξε"
+  expand: "Ανάπτυξη"
+  step_x_of_y: "Βήμα %d από %d"

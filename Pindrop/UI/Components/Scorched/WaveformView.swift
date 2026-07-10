@@ -106,7 +106,7 @@ struct WaveformView: View {
         }
         .frame(height: WaveformGeometry.height)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(localized("Play", locale: locale))
+        .accessibilityLabel(localized("Playback position", locale: locale))
         .accessibilityValue("\(Int(min(max(progress, 0), 1) * 100))%")
         .accessibilityAdjustableAction { direction in
             guard let onSeek else { return }

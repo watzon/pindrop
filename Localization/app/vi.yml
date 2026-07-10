@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "còn khoảng %d giây"
   minutes_left: "còn khoảng %d phút"
   microphone_muted: "Micrô đã tắt tiếng"
+u11b:
+  playback_position: "Vị trí phát"
+  expired: "Đã hết hạn"
+  expand: "Mở rộng"
+  step_x_of_y: "Bước %d trên %d"

@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "लगभग %d से शेष"
   minutes_left: "लगभग %d मि शेष"
   microphone_muted: "माइक्रोफ़ोन म्यूट है"
+u11b:
+  playback_position: "प्लेबैक स्थिति"
+  expired: "समाप्त"
+  expand: "विस्तृत करें"
+  step_x_of_y: "चरण %d/%d"

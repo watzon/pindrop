@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "nog ongeveer %d sec."
   minutes_left: "nog ongeveer %d min."
   microphone_muted: "Microfoon gedempt"
+u11b:
+  playback_position: "Afspeelpositie"
+  expired: "Verlopen"
+  expand: "Uitvouwen"
+  step_x_of_y: "Stap %d van %d"

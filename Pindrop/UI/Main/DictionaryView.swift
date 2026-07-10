@@ -232,6 +232,7 @@ struct DictionaryView: View {
             )
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(Capsule(style: .continuous))
         .contextMenu {
             Button {
                 startEditingVocabulary(word)
@@ -273,6 +274,7 @@ struct DictionaryView: View {
             )
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(Capsule(style: .continuous))
     }
 
     // MARK: - Replacements section

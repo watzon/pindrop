@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "circa %d s rimanenti"
   minutes_left: "circa %d min rimanenti"
   microphone_muted: "Microfono disattivato"
+u11b:
+  playback_position: "Posizione di riproduzione"
+  expired: "Scaduto"
+  expand: "Espandi"
+  step_x_of_y: "Passaggio %d di %d"

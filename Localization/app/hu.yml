@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "még kb. %d mp"
   minutes_left: "még kb. %d perc"
   microphone_muted: "Mikrofon némítva"
+u11b:
+  playback_position: "Lejátszási pozíció"
+  expired: "Lejárt"
+  expand: "Kibontás"
+  step_x_of_y: "%d. lépés / %d"

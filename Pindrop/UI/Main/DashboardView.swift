@@ -246,6 +246,8 @@ struct DashboardView: View {
                 .foregroundStyle(AppColors.textTertiary)
                 .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(value), \(label)")
     }
 
     // MARK: - Recent

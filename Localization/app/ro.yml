@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "aproximativ %d s rămase"
   minutes_left: "aproximativ %d min rămase"
   microphone_muted: "Microfon dezactivat"
+u11b:
+  playback_position: "Poziția redării"
+  expired: "Expirat"
+  expand: "Extinde"
+  step_x_of_y: "Pasul %d din %d"

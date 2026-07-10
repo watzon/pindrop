@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "sekitar %d dtk lagi"
   minutes_left: "sekitar %d mnt lagi"
   microphone_muted: "Mikrofon dibisukan"
+u11b:
+  playback_position: "Posisi pemutaran"
+  expired: "Kedaluwarsa"
+  expand: "Perluas"
+  step_x_of_y: "Langkah %d dari %d"

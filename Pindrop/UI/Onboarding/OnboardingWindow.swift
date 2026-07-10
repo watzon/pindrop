@@ -105,6 +105,7 @@ struct OnboardingWindow: View {
     let permissionManager: PermissionManager
     let onComplete: () -> Void
     let onPreferredContentSizeChange: (CGSize) -> Void
+    let onStepChange: (OnboardingStep) -> Void
     
     @State private var currentStep: OnboardingStep = .welcome
     @Environment(\.layoutDirection) private var layoutDirection
@@ -168,6 +169,7 @@ struct OnboardingWindow: View {
         .onAppear {
             let initialStep = OnboardingStep(rawValue: settings.currentOnboardingStep) ?? .welcome
             currentStep = initialStep
+            onStepChange(initialStep)
             onPreferredContentSizeChange(Self.preferredContentSize)
             Log.boot.info("OnboardingWindow appeared step=\(initialStep.title) storedStepIndex=\(settings.currentOnboardingStep)")
         }
@@ -181,6 +183,15 @@ struct OnboardingWindow: View {
                 stepDot(at: index)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            String(
+                format: localized("Step %d of %d", locale: settings.selectedAppLocale.locale),
+                locale: settings.selectedAppLocale.locale,
+                OnboardingProgressPresentation.activeIndex(for: currentStep) + 1,
+                OnboardingProgressPresentation.dotCount
+            )
+        )
     }
 
     @ViewBuilder
@@ -277,6 +288,7 @@ struct OnboardingWindow: View {
             currentStep = step
             settings.currentOnboardingStep = step.rawValue
         }
+        onStepChange(step)
     }
     
     private func goBack() {
@@ -312,7 +324,8 @@ struct OnboardingWindow_Previews: PreviewProvider {
             transcriptionService: TranscriptionService(),
             permissionManager: PermissionManager(),
             onComplete: {},
-            onPreferredContentSizeChange: { _ in }
+            onPreferredContentSizeChange: { _ in },
+            onStepChange: { _ in }
         )
     }
 }

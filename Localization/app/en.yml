@@ -1423,3 +1423,8 @@ u11:
   seconds_left: "about %d s left"
   minutes_left: "about %d min left"
   microphone_muted: "Microphone muted"
+u11b:
+  playback_position: "Playback position"
+  expired: "Expired"
+  expand: "Expand"
+  step_x_of_y: "Step %d of %d"

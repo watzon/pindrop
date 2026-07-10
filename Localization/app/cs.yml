@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "zbývá asi %d s"
   minutes_left: "zbývá asi %d min"
   microphone_muted: "Mikrofon je ztlumen"
+u11b:
+  playback_position: "Pozice přehrávání"
+  expired: "Platnost vypršela"
+  expand: "Rozbalit"
+  step_x_of_y: "Krok %d z %d"

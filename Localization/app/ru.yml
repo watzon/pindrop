@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "осталось около %d с"
   minutes_left: "осталось около %d мин"
   microphone_muted: "Микрофон отключён"
+u11b:
+  playback_position: "Позиция воспроизведения"
+  expired: "Срок истёк"
+  expand: "Развернуть"
+  step_x_of_y: "Шаг %d из %d"

@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "cirka %d s kvar"
   minutes_left: "cirka %d min kvar"
   microphone_muted: "Mikrofon avstängd"
+u11b:
+  playback_position: "Uppspelningsposition"
+  expired: "Utgången"
+  expand: "Expandera"
+  step_x_of_y: "Steg %d av %d"

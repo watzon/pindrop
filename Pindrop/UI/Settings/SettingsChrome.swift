@@ -397,7 +397,7 @@ struct SettingsThemePresetChip: View {
         .buttonStyle(.plain)
         .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityIdentifier("settings.theme.preset.\(preset.id)")
-        .accessibilityValue(isSelected ? localized("Selected", locale: locale) : "")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 

@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "残り約%d秒"
   minutes_left: "残り約%d分"
   microphone_muted: "マイクはミュートされています"
+u11b:
+  playback_position: "再生位置"
+  expired: "期限切れ"
+  expand: "展開"
+  step_x_of_y: "ステップ%d/%d"

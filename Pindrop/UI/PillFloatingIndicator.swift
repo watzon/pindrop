@@ -940,7 +940,7 @@ struct PillIndicatorView: View {
 
                     Text("en")
                         .font(FontLoader.font(family: .jetbrainsMono, size: 10, weight: .regular))
-                        .foregroundStyle(Color(nsColor: NSColor(pindropHex: "#6E675B") ?? .tertiaryLabelColor))
+                        .foregroundStyle(AppColors.overlayTextSecondary)
                 } else {
                     FloatingIndicatorWaveformView(
                         audioLevel: state.audioLevel,

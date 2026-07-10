@@ -1430,3 +1430,8 @@ u11:
   seconds_left: "ca. %d sek. tilbage"
   minutes_left: "ca. %d min. tilbage"
   microphone_muted: "Mikrofon slået fra"
+u11b:
+  playback_position: "Afspilningsposition"
+  expired: "Udløbet"
+  expand: "Udvid"
+  step_x_of_y: "Trin %d af %d"

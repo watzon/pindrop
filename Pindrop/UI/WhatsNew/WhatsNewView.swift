@@ -68,10 +68,16 @@ struct WhatsNewView: View {
     private var trafficLights: some View {
         HStack(spacing: 8) {
             Button(action: onDismiss) {
-                Circle()
-                    .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
-                    .frame(width: 12, height: 12)
+                Color.clear
+                    .frame(width: 28, height: 28)
+                    .overlay {
+                        Circle()
+                            .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
+                            .frame(width: 12, height: 12)
+                    }
+                    .contentShape(Circle())
             }
+            .padding(-8)
             .buttonStyle(.plain)
             .accessibilityLabel(localized("Close", locale: locale))
 

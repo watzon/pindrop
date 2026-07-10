@@ -385,6 +385,7 @@ private struct MainSidebar: View {
                     .foregroundStyle(AppColors.accent)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 16)
+                    .accessibilityHidden(true)
             }
         }
     }
@@ -470,6 +471,7 @@ private struct MainSidebar: View {
     }
 
     private var collapseButton: some View {
+        let accessibilityTitle = localized(isExpanded ? "Collapse" : "Expand", locale: locale)
         let icon = position == .trailing
             ? (isExpanded ? "sidebar.right" : "sidebar.left")
             : (isExpanded ? "sidebar.left" : "sidebar.right")
@@ -509,8 +511,8 @@ private struct MainSidebar: View {
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(localized("Collapse", locale: locale))
-        .help(localized("Collapse", locale: locale))
+        .accessibilityLabel(accessibilityTitle)
+        .help(accessibilityTitle)
         .onHover { hovering in isCollapseHovered = hovering }
     }
 }
