@@ -35,6 +35,31 @@ struct DictionaryPresentationTests {
         #expect(single.map(\.word) == ["only"])
     }
 
+    @Test func vocabChipsPreserveCaseAndExactDuplicatesWithoutTrap() {
+        // Case-variant / exact duplicates must not crash (uniqueKeysWithValues trap).
+        let input: [(word: String, usageCount: Int)] = [
+            ("Pindrop", 2),
+            ("pindrop", 5),
+            ("Pindrop", 1),
+            ("alpha", 0),
+        ]
+        let sorted = DictionaryVocabularyOrdering.sortedChips(words: input)
+        #expect(sorted.count == 4)
+        #expect(sorted.map(\.usageCount) == [5, 2, 1, 0])
+        #expect(sorted.map(\.word) == ["pindrop", "Pindrop", "Pindrop", "alpha"])
+    }
+
+    @Test func sortedModelsPreservesDuplicateVocabularyWords() {
+        let a = VocabularyWord(word: "Swift", usageCount: 3)
+        let b = VocabularyWord(word: "swift", usageCount: 1)
+        let c = VocabularyWord(word: "Swift", usageCount: 2)
+        let sorted = DictionaryVocabularyOrdering.sortedModels([a, b, c])
+        #expect(sorted.count == 3)
+        #expect(sorted.map(\.usageCount) == [3, 2, 1])
+        // Identity preserved — not collapsed into one entry.
+        #expect(Set(sorted.map(\.id)).count == 3)
+    }
+
     // MARK: - Command token display
 
     @Test func commandTokenDisplayMapsPaletteTokens() {

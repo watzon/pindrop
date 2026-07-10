@@ -607,4 +607,73 @@ struct DictionaryStoreTests {
         #expect(leadingGlue == "myC++ tool")
         #expect(appliedGlue.isEmpty)
     }
+
+    // MARK: - Import vocabulary dedup
+
+    @Test func importDeduplicatesVocabularyWithinPayloadReplace() throws {
+        let store = try makeStore()
+        let payload = """
+        {
+          "version": 1,
+          "replacements": [],
+          "vocabulary": [
+            {"word": "Pindrop"},
+            {"word": "pindrop"},
+            {"word": "PINDROP"},
+            {"word": "Alpha"},
+            {"word": "alpha"}
+          ]
+        }
+        """.data(using: .utf8)!
+
+        try store.importFromJSON(payload, strategy: .replace)
+
+        let words = try store.fetchAllVocabularyWords().map(\.word)
+        #expect(words.count == 2)
+        let lower = Set(words.map { $0.lowercased() })
+        #expect(lower == Set(["pindrop", "alpha"]))
+        // First spelling wins.
+        #expect(words.contains("Pindrop"))
+        #expect(words.contains("Alpha"))
+    }
+
+    @Test func importDeduplicatesVocabularyWithinPayloadAdditive() throws {
+        let store = try makeStore()
+        try store.add(VocabularyWord(word: "Existing"))
+
+        let payload = """
+        {
+          "version": 1,
+          "replacements": [],
+          "vocabulary": [
+            {"word": "existing"},
+            {"word": "NewWord"},
+            {"word": "newword"},
+            {"word": "NEWWORD"}
+          ]
+        }
+        """.data(using: .utf8)!
+
+        try store.importFromJSON(payload, strategy: .additive)
+
+        let words = try store.fetchAllVocabularyWords().map(\.word)
+        #expect(words.count == 2)
+        let lower = Set(words.map { $0.lowercased() })
+        #expect(lower == Set(["existing", "newword"]))
+        #expect(words.contains("Existing"))
+        #expect(words.contains("NewWord"))
+    }
+
+    @Test func deduplicatedVocabularyWordsHelperFirstWins() {
+        let result = DictionaryStore.deduplicatedVocabularyWords([
+            "  Swift  ",
+            "swift",
+            "SWIFT",
+            "Rust",
+            "rust",
+            "  ",
+            "Go",
+        ])
+        #expect(result == ["Swift", "Rust", "Go"])
+    }
 }

@@ -442,13 +442,14 @@ struct ModelsSettingsView: View {
         }
     }
 
+    /// Switches the live session model only — does **not** persist default.
+    /// Default is changed exclusively via the context-menu "Set as Default" action.
     private func switchModel(_ model: ModelManager.WhisperModel) {
         guard modelManager.isModelDownloaded(model.name) || model.provider == .appleSpeech || !model.provider.isLocal else { return }
         guard activeModelName != model.name else { return }
 
         switchingToModel = model.name
         errorMessage = nil
-        settings.selectedModel = model.name
 
         NotificationCenter.default.post(
             name: .switchModel,

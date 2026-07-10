@@ -13,15 +13,33 @@ import Foundation
 
 enum DictionaryVocabularyOrdering {
     /// Sort by usageCount descending, then alphabetically (case-insensitive).
+    /// Pure tuple form for unit tests — does **not** uniquing; duplicates are preserved.
     static func sortedChips(
         words: [(word: String, usageCount: Int)]
     ) -> [(word: String, usageCount: Int)] {
+        words.sorted(by: compareChip)
+    }
+
+    /// Sort vocabulary models for chip display without collapsing case/exact duplicates.
+    /// Building a `Dictionary(uniqueKeysWithValues:)` keyed by `word.lowercased()` traps
+    /// when import or store state contains case-variant or exact duplicates.
+    static func sortedModels(_ words: [VocabularyWord]) -> [VocabularyWord] {
         words.sorted { lhs, rhs in
-            if lhs.usageCount != rhs.usageCount {
-                return lhs.usageCount > rhs.usageCount
-            }
-            return lhs.word.localizedCaseInsensitiveCompare(rhs.word) == .orderedAscending
+            compareChip(
+                (word: lhs.word, usageCount: lhs.usageCount),
+                (word: rhs.word, usageCount: rhs.usageCount)
+            )
         }
+    }
+
+    private static func compareChip(
+        _ lhs: (word: String, usageCount: Int),
+        _ rhs: (word: String, usageCount: Int)
+    ) -> Bool {
+        if lhs.usageCount != rhs.usageCount {
+            return lhs.usageCount > rhs.usageCount
+        }
+        return lhs.word.localizedCaseInsensitiveCompare(rhs.word) == .orderedAscending
     }
 }
 

@@ -38,12 +38,8 @@ struct DictionaryView: View {
     @State private var keyMonitor: Any?
 
     private var orderedVocabulary: [VocabularyWord] {
-        let pairs = vocabularyWords.map { (word: $0.word, usageCount: $0.usageCount, model: $0) }
-        let sorted = DictionaryVocabularyOrdering.sortedChips(
-            words: pairs.map { ($0.word, $0.usageCount) }
-        )
-        let byWord = Dictionary(uniqueKeysWithValues: vocabularyWords.map { ($0.word.lowercased(), $0) })
-        return sorted.compactMap { byWord[$0.word.lowercased()] }
+        // Sort models directly — never uniquing by lowercased key (duplicates trap).
+        DictionaryVocabularyOrdering.sortedModels(vocabularyWords)
     }
 
     private var orderedReplacements: [WordReplacement] {

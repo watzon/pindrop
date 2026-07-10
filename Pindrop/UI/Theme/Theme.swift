@@ -200,6 +200,11 @@ enum AppTypography {
     static let transcriptBodyMetrics = TypographyRoleMetrics(
         family: .newsreader, size: 17, weight: .regular, lineHeight: 26
     )
+    /// Newsreader 17/22 · 500 — pinned note card titles (spec §10).
+    /// Custom Font cannot be restyled via `.fontWeight` — bake medium in.
+    static let pinnedCardTitleMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 17, weight: .medium, lineHeight: 22
+    )
     static let bodyMetrics = TypographyRoleMetrics(
         family: .inter, size: 13, weight: .regular, lineHeight: 16
     )
@@ -244,7 +249,7 @@ enum AppTypography {
     /// All primary roles for exhaustive metric tests.
     static var allRoleMetrics: [TypographyRoleMetrics] {
         [
-            wordmarkMetrics, pageTitleMetrics, transcriptBodyMetrics,
+            wordmarkMetrics, pageTitleMetrics, transcriptBodyMetrics, pinnedCardTitleMetrics,
             bodyMetrics, bodyMetaMetrics, labelMetrics, labelSemiboldMetrics,
             labelStrongMetrics, labelStrongSelectedMetrics, badgeMetrics,
             captionMetrics, monoTimeMetrics, monoSmallMetrics, sectionHeaderMetrics,
@@ -260,6 +265,8 @@ enum AppTypography {
     static let pageTitle = pageTitleMetrics.font
     /// Newsreader 17/26 · 400 — expanded-card transcript
     static let transcriptBody = transcriptBodyMetrics.font
+    /// Newsreader 17/22 · 500 — pinned note card titles (spec §10)
+    static let pinnedCardTitle = pinnedCardTitleMetrics.font
     /// Inter 13/16 · 400 — row preview / body
     static let body = bodyMetrics.font
     /// Inter 13/22 · 400 — header meta line
@@ -287,6 +294,7 @@ enum AppTypography {
     static let wordmarkLineSpacing = wordmarkMetrics.lineSpacing
     static let pageTitleLineSpacing = pageTitleMetrics.lineSpacing
     static let transcriptBodyLineSpacing = transcriptBodyMetrics.lineSpacing
+    static let pinnedCardTitleLineSpacing = pinnedCardTitleMetrics.lineSpacing
     static let bodyLineSpacing = bodyMetrics.lineSpacing
     static let bodyMetaLineSpacing = bodyMetaMetrics.lineSpacing
     static let labelLineSpacing = labelMetrics.lineSpacing

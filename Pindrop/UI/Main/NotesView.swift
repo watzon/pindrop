@@ -248,8 +248,8 @@ struct NotesView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 10) {
                     Text(title)
-                        .font(AppTypography.transcriptBody)
-                        .fontWeight(.medium)
+                        .font(AppTypography.pinnedCardTitle)
+                        .lineSpacing(AppTypography.pinnedCardTitleLineSpacing)
                         .foregroundStyle(AppColors.textPrimary)
                         .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)

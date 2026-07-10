@@ -1293,7 +1293,7 @@ u5_u7:
   add_words_or_replacements: "Füge Wörter hinzu, denen die Erkennung vertrauen soll, oder Ersetzungen nach der Transkription."
   match_mode: "Übereinstimmungsmodus"
   everything_runs_on_this_mac: "Alles läuft auf diesem Mac"
-  on_disk: "AUF DISK"
+  on_disk: "SPEICHER"
   speech_to_text: "Sprache zu Text"
   on_device_helpers: "Lokale Hilfen"
   installed: "Installiert"
