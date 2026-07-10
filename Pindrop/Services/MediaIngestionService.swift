@@ -251,8 +251,25 @@ final class ManagedMediaLibrary: MediaLibraryManaging {
         self.fileManager = fileManager
     }
 
+    /// Application Support/Pindrop/MediaLibrary — shared root for job dirs and DictationAudio.
+    static var libraryBaseURL: URL {
+        baseURL
+    }
+
+    /// Application Support/Pindrop/MediaLibrary/DictationAudio — ordinary voice dictation audio.
+    static var dictationAudioDirectoryURL: URL {
+        baseURL.appendingPathComponent("DictationAudio", isDirectory: true)
+    }
+
     func makeJobDirectory(for jobID: UUID) throws -> URL {
         let directory = Self.baseURL.appendingPathComponent(jobID.uuidString, isDirectory: true)
+        try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    /// Ensures the DictationAudio area exists and returns its URL.
+    func ensureDictationAudioDirectory() throws -> URL {
+        let directory = Self.dictationAudioDirectoryURL
         try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

@@ -609,6 +609,35 @@ final class HistoryStore {
         }
     }
 
+    /// Attaches (or clears) the managed media path on an existing record after async encode.
+    /// - Returns: `true` if the record was found and updated; `false` if no matching record exists
+    ///   (caller should clean up any unlinked media files).
+    @discardableResult
+    func updateManagedMediaPath(for recordID: UUID, path: String?) throws -> Bool {
+        guard let record = try fetchRecord(with: recordID) else {
+            Log.app.warning("updateManagedMediaPath: record \(recordID) not found")
+            return false
+        }
+        record.managedMediaPath = path
+        do {
+            try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+            return true
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    /// Persists pending model changes without inserting a new record.
+    func saveContext() throws {
+        do {
+            try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
     func fetchMediaRecords(limit: Int? = nil) throws -> [TranscriptionRecord] {
         let records = try fetchAll().filter(\.isMediaTranscription)
         if let limit {
@@ -987,6 +1016,12 @@ final class HistoryStore {
             do {
                 if fileManager.fileExists(atPath: path) {
                     try fileManager.removeItem(atPath: path)
+                }
+                // Remove waveform peaks sidecar next to managed audio when present.
+                let audioURL = URL(fileURLWithPath: path)
+                let peaksURL = WaveformPeaks.sidecarURL(for: audioURL)
+                if fileManager.fileExists(atPath: peaksURL.path) {
+                    try fileManager.removeItem(at: peaksURL)
                 }
                 parentDirectories.insert((path as NSString).deletingLastPathComponent)
             } catch {

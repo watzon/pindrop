@@ -53,10 +53,13 @@
 		AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
 		ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */; };
 		ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */; };
+		WAVEPEAKSBUILD01A2B3C4D5 /* WaveformPeaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */; };
+		DICTAUDRETBUILD01A2B3C4 /* DictationAudioRetentionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */; };
 		ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */; };
 		ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */; };
 		DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */; };
 		DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */; };
+		DICTAUDRETTESTBUILD01A2 /* DictationAudioRetentionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTAUDRETTESTFILE01A2 /* DictationAudioRetentionServiceTests.swift */; };
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
 		LISTSELNAVBUILD01A2B3C4D5E6 /* ListSelectionNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */; };
 		LISTSELNAVTESTBUILD01A2B3C4 /* ListSelectionNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */; };
@@ -262,10 +265,13 @@
 		AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
 		ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
 		ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
+		WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformPeaks.swift; sourceTree = "<group>"; };
+		DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationAudioRetentionService.swift; sourceTree = "<group>"; };
 		ANNWINFILE01A2B3C4D5E6F /* AnnouncementWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementWindowController.swift; sourceTree = "<group>"; };
 		ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementServiceTests.swift; sourceTree = "<group>"; };
 		DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsService.swift; sourceTree = "<group>"; };
 		DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardStatsServiceTests.swift; sourceTree = "<group>"; };
+		DICTAUDRETTESTFILE01A2 /* DictationAudioRetentionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationAudioRetentionServiceTests.swift; sourceTree = "<group>"; };
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigation.swift; sourceTree = "<group>"; };
 		LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigationTests.swift; sourceTree = "<group>"; };
@@ -545,6 +551,8 @@
 				TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
 				ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */,
 				DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */,
+				WAVEPEAKSFILE01A2B3C4D5 /* WaveformPeaks.swift */,
+				DICTAUDRETFILE01A2B3C4 /* DictationAudioRetentionService.swift */,
 				AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */,
 				WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */,
 				PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */,
@@ -713,6 +721,7 @@
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
 				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
 				DASHSTATSTESTFILE01A2B3C4D5 /* DashboardStatsServiceTests.swift */,
+				DICTAUDRETTESTFILE01A2 /* DictationAudioRetentionServiceTests.swift */,
 				AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */,
 				COORDFLW02A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift */,
 				MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
@@ -1042,6 +1051,7 @@
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
 				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
 				DASHSTATSTESTBUILD01A2B3C4D5 /* DashboardStatsServiceTests.swift in Sources */,
+				DICTAUDRETTESTBUILD01A2 /* DictationAudioRetentionServiceTests.swift in Sources */,
 				AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */,
 				COORDFLW01A2B3C4D5E6F /* AppCoordinatorContextFlowTests.swift in Sources */,
 				MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
@@ -1174,6 +1184,8 @@
 				TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
 				ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */,
 				DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */,
+				WAVEPEAKSBUILD01A2B3C4D5 /* WaveformPeaks.swift in Sources */,
+				DICTAUDRETBUILD01A2B3C4 /* DictationAudioRetentionService.swift in Sources */,
 				AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */,
 				WKSPIDX02A2B3C4D5E6F /* WorkspaceFileIndexService.swift in Sources */,
 				PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */,

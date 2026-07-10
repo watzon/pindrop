@@ -42,6 +42,34 @@ public enum SidebarPosition: String, CaseIterable, Identifiable {
    }
 }
 
+/// How long dictation (`voiceRecording`) audio files are retained on disk.
+/// Imported / media-backed audio is never governed by this setting.
+public enum DictationAudioRetention: String, CaseIterable, Sendable, Identifiable {
+   case off
+   case days7
+   case days30
+   case forever
+
+   public var id: String { rawValue }
+
+   /// Calendar-day window before audio is eligible for deletion.
+   /// `nil` means never expire; `0` means do not persist.
+   var retentionDays: Int? {
+      switch self {
+      case .off: return 0
+      case .days7: return 7
+      case .days30: return 30
+      case .forever: return nil
+      }
+   }
+
+   /// Time interval for expiry checks. `nil` = forever; `.off` returns `0`.
+   var retentionInterval: TimeInterval? {
+      guard let days = retentionDays else { return nil }
+      return TimeInterval(days) * 24 * 60 * 60
+   }
+}
+
 /// Which streaming transcription engine the user prefers. Availability at runtime may
 /// force the service to substitute a different backend — see
 /// `SettingsStore.resolvedTranscriptionBackend` for the effective value.
@@ -245,6 +273,7 @@ final class SettingsStore: ObservableObject {
       static let lightThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let darkThemePresetID = PindropThemePresetCatalog.defaultPresetID
       static let sidebarPosition = SidebarPosition.trailing.rawValue
+      static let dictationAudioRetention = DictationAudioRetention.days7.rawValue
       static let automaticDictionaryLearningEnabled = true
       static let selectedInputDeviceUID = ""
       static let aiModel = "openai/gpt-4o-mini"
@@ -403,6 +432,9 @@ final class SettingsStore: ObservableObject {
    var pauseMediaOnRecording: Bool = false
    @AppStorage("muteAudioDuringRecording", store: SettingsStoreRuntime.appStorageStore)
    var muteAudioDuringRecording: Bool = false
+   /// Retention policy for ordinary dictation audio (`voiceRecording`). Default: 7 days.
+   @AppStorage("dictationAudioRetention", store: SettingsStoreRuntime.appStorageStore)
+   var dictationAudioRetentionRawValue: String = Defaults.dictationAudioRetention
    @AppStorage("launchAtLogin", store: SettingsStoreRuntime.appStorageStore) var launchAtLogin:
       Bool = false
    @AppStorage("selectedPresetId", store: SettingsStoreRuntime.appStorageStore)
@@ -614,6 +646,12 @@ final class SettingsStore: ObservableObject {
     var selectedSidebarPosition: SidebarPosition {
        get { SidebarPosition(rawValue: sidebarPosition) ?? .trailing }
        set { sidebarPosition = newValue.rawValue }
+    }
+
+    /// How long dictation audio files are kept. Default is `.days7`.
+    var dictationAudioRetention: DictationAudioRetention {
+       get { DictationAudioRetention(rawValue: dictationAudioRetentionRawValue) ?? .days7 }
+       set { dictationAudioRetentionRawValue = newValue.rawValue }
     }
 
    var selectedLightThemePreset: PindropThemePreset {
@@ -1034,6 +1072,7 @@ final class SettingsStore: ObservableObject {
       resetPillFloatingIndicatorOffset()
       pauseMediaOnRecording = false
       muteAudioDuringRecording = false
+      dictationAudioRetentionRawValue = Defaults.dictationAudioRetention
       launchAtLogin = false
       mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
       enableUIContext = false
