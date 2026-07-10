@@ -36,13 +36,16 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     func show(note: NoteSchema.Note? = nil, isNewNote: Bool = false) {
         self.note = note
         self.isNewNote = isNewNote
-        
-        if let window = window {
-            window.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            return
+
+        // Always rebuild so ⌘N / open-from-history can replace an already-open editor.
+        if window != nil {
+            window?.delegate = nil
+            window?.close()
+            window = nil
+            hostingController = nil
+            themeCancellable = nil
         }
-        
+
         guard let container = modelContainer else {
             Log.ui.error("ModelContainer not set - cannot show NoteEditorWindow")
             return

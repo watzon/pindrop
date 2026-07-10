@@ -145,40 +145,164 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func setupMainMenu() {
         Log.app.infoVisible("Rebuilding main menu for locale=\(currentLocale.identifier)")
+        let locale = currentLocale
         let mainMenu = NSMenu()
-        
+
+        // MARK: App menu
         let appMenu = NSMenu()
         let appMenuItem = NSMenuItem()
         appMenuItem.submenu = appMenu
-        
-        appMenu.addItem(NSMenuItem(title: localized("About Pindrop", locale: currentLocale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
+
+        appMenu.addItem(NSMenuItem(title: localized("About Pindrop", locale: locale), action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: ""))
         appMenu.addItem(NSMenuItem.separator())
-        
-        let settingsItem = NSMenuItem(title: localized("Settings…", locale: currentLocale), action: #selector(openSettings(_:)), keyEquivalent: ",")
+
+        let settingsItem = NSMenuItem(title: localized("Settings…", locale: locale), action: #selector(openSettings(_:)), keyEquivalent: ",")
+        settingsItem.target = self
         appMenu.addItem(settingsItem)
 
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(NSMenuItem(title: localized("Quit Pindrop", locale: currentLocale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        
+        appMenu.addItem(NSMenuItem(title: localized("Quit Pindrop", locale: locale), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+
         mainMenu.addItem(appMenuItem)
-        
-        // Edit menu (required for Command-V paste to work in TextFields)
-        let editMenu = NSMenu(title: localized("Edit", locale: currentLocale))
+
+        // MARK: File menu
+        let fileMenu = NSMenu(title: localized("File", locale: locale))
+        let fileMenuItem = NSMenuItem()
+        fileMenuItem.submenu = fileMenu
+
+        let newNoteItem = NSMenuItem(
+            title: localized("New Note", locale: locale),
+            action: #selector(menuNewNote(_:)),
+            keyEquivalent: "n"
+        )
+        newNoteItem.target = self
+        fileMenu.addItem(newNoteItem)
+
+        let exportItem = NSMenuItem(
+            title: localized("Export Last Transcript...", locale: locale),
+            action: #selector(menuExportLastTranscript(_:)),
+            keyEquivalent: ""
+        )
+        exportItem.target = self
+        fileMenu.addItem(exportItem)
+
+        fileMenu.addItem(NSMenuItem.separator())
+
+        fileMenu.addItem(NSMenuItem(
+            title: localized("Close", locale: locale),
+            action: #selector(NSWindow.performClose(_:)),
+            keyEquivalent: "w"
+        ))
+
+        mainMenu.addItem(fileMenuItem)
+
+        // MARK: Edit menu (required for Command-V paste to work in TextFields)
+        let editMenu = NSMenu(title: localized("Edit", locale: locale))
         let editMenuItem = NSMenuItem()
         editMenuItem.submenu = editMenu
-        
-        editMenu.addItem(NSMenuItem(title: localized("Undo", locale: currentLocale), action: Selector(("undo:")), keyEquivalent: "z"))
-        editMenu.addItem(NSMenuItem(title: localized("Redo", locale: currentLocale), action: Selector(("redo:")), keyEquivalent: "Z"))
+
+        editMenu.addItem(NSMenuItem(title: localized("Undo", locale: locale), action: Selector(("undo:")), keyEquivalent: "z"))
+        editMenu.addItem(NSMenuItem(title: localized("Redo", locale: locale), action: Selector(("redo:")), keyEquivalent: "Z"))
         editMenu.addItem(NSMenuItem.separator())
-        editMenu.addItem(NSMenuItem(title: localized("Cut", locale: currentLocale), action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
-        editMenu.addItem(NSMenuItem(title: localized("Copy", locale: currentLocale), action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
-        editMenu.addItem(NSMenuItem(title: localized("Paste", locale: currentLocale), action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
-        editMenu.addItem(NSMenuItem(title: localized("Select All", locale: currentLocale), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
-        
+        editMenu.addItem(NSMenuItem(title: localized("Cut", locale: locale), action: #selector(NSText.cut(_:)), keyEquivalent: "x"))
+        editMenu.addItem(NSMenuItem(title: localized("Copy", locale: locale), action: #selector(NSText.copy(_:)), keyEquivalent: "c"))
+        editMenu.addItem(NSMenuItem(title: localized("Paste", locale: locale), action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
+        editMenu.addItem(NSMenuItem(title: localized("Select All", locale: locale), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
+
         mainMenu.addItem(editMenuItem)
-        applyInterfaceLayoutDirection(to: mainMenu, locale: currentLocale)
-        
+
+        // MARK: View menu
+        let viewMenu = NSMenu(title: localized("View", locale: locale))
+        let viewMenuItem = NSMenuItem()
+        viewMenuItem.submenu = viewMenu
+
+        let navItems: [(MainNavItem, String)] = [
+            (.home, "1"),
+            (.history, "2"),
+            (.transcribe, "3"),
+            (.dictionary, "4"),
+            (.models, "5")
+        ]
+        for (nav, key) in navItems {
+            let item = NSMenuItem(
+                title: nav.title(locale: locale),
+                action: #selector(menuNavigate(_:)),
+                keyEquivalent: key
+            )
+            item.target = self
+            item.representedObject = nav.rawValue
+            viewMenu.addItem(item)
+        }
+
+        viewMenu.addItem(NSMenuItem.separator())
+
+        let findItem = NSMenuItem(
+            title: localized("Find", locale: locale),
+            action: #selector(menuFind(_:)),
+            keyEquivalent: "f"
+        )
+        findItem.target = self
+        findItem.tag = MainMenuItemTag.find.rawValue
+        viewMenu.addItem(findItem)
+
+        mainMenu.addItem(viewMenuItem)
+
+        // MARK: Window menu
+        let windowMenu = NSMenu(title: localized("Window", locale: locale))
+        let windowMenuItem = NSMenuItem()
+        windowMenuItem.submenu = windowMenu
+
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Minimize", locale: locale),
+            action: #selector(NSWindow.performMiniaturize(_:)),
+            keyEquivalent: "m"
+        ))
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Zoom", locale: locale),
+            action: #selector(NSWindow.performZoom(_:)),
+            keyEquivalent: ""
+        ))
+        windowMenu.addItem(NSMenuItem.separator())
+        windowMenu.addItem(NSMenuItem(
+            title: localized("Bring All to Front", locale: locale),
+            action: #selector(NSApplication.arrangeInFront(_:)),
+            keyEquivalent: ""
+        ))
+        windowMenu.addItem(NSMenuItem.separator())
+
+        let mainWindowItem = NSMenuItem(
+            title: localized("Pindrop", locale: locale),
+            action: #selector(menuShowMainWindow(_:)),
+            keyEquivalent: ""
+        )
+        mainWindowItem.target = self
+        windowMenu.addItem(mainWindowItem)
+
+        mainMenu.addItem(windowMenuItem)
+        NSApp.windowsMenu = windowMenu
+
+        // MARK: Help menu
+        let helpMenu = NSMenu(title: localized("Help", locale: locale))
+        let helpMenuItem = NSMenuItem()
+        helpMenuItem.submenu = helpMenu
+
+        let helpItem = NSMenuItem(
+            title: localized("Pindrop Help", locale: locale),
+            action: #selector(menuOpenHelp(_:)),
+            keyEquivalent: ""
+        )
+        helpItem.target = self
+        helpMenu.addItem(helpItem)
+
+        mainMenu.addItem(helpMenuItem)
+        NSApp.helpMenu = helpMenu
+
+        applyInterfaceLayoutDirection(to: mainMenu, locale: locale)
         NSApplication.shared.mainMenu = mainMenu
+    }
+
+    private enum MainMenuItemTag: Int {
+        case find = 1001
     }
     
     /// `UserDefaults.didChangeNotification` is delivered synchronously on whatever
@@ -206,6 +330,58 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             coordinator?.statusBarController.showSettings()
         }
+    }
+
+    @objc func menuNewNote(_ sender: Any?) {
+        coordinator?.openNewNoteFromMenu()
+    }
+
+    @objc func menuExportLastTranscript(_ sender: Any?) {
+        Task { @MainActor in
+            await coordinator?.exportLastTranscriptFromMenu()
+        }
+    }
+
+    @objc func menuNavigate(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let item = MainNavItem(rawValue: rawValue) else { return }
+        coordinator?.mainWindowController.showNavigationItem(item)
+    }
+
+    @objc func menuFind(_ sender: Any?) {
+        coordinator?.mainWindowController.focusHistorySearch()
+    }
+
+    @objc func menuShowMainWindow(_ sender: Any?) {
+        coordinator?.mainWindowController.show()
+    }
+
+    @objc func menuOpenHelp(_ sender: Any?) {
+        guard let url = URL(string: "https://github.com/watzon/pindrop/blob/main/README.md") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    /// Menu validation: nav items stay enabled when the main window is closed
+    /// (they open it). Find is enabled whenever History is reachable.
+    @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        guard coordinator != nil else { return false }
+
+        if menuItem.action == #selector(menuFind(_:)) {
+            // History is always a primary nav destination — enable Find so ⌘F
+            // can open the main window and focus the History search field.
+            return true
+        }
+
+        if menuItem.action == #selector(menuNavigate(_:))
+            || menuItem.action == #selector(menuNewNote(_:))
+            || menuItem.action == #selector(menuExportLastTranscript(_:))
+            || menuItem.action == #selector(menuShowMainWindow(_:))
+            || menuItem.action == #selector(menuOpenHelp(_:))
+            || menuItem.action == #selector(openSettings(_:)) {
+            return true
+        }
+
+        return true
     }
     
     private func makeModelContainer() throws -> ModelContainer {
