@@ -2,7 +2,7 @@
   local_processing: "Prelucrare 100% locală"
 1:
   folder: "1 dosar"
-  speaker: "1 speaker"
+  speaker: "1 vorbitor"
   transcription: "1 transcriere"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "O aplicație nativă de dictare a barei de meniu macOS care folosește conversia vocală în text local cu WhisperKit. Procesare 100% locală în mod implicit, cu îmbunătățire opțională AI."
@@ -224,7 +224,7 @@ cut:
   _self: "Tăiați"
 d:
   characters: "%d caractere"
-  speakers: "%d speakers"
+  speakers: "%d vorbitori"
   samples: "%d samples · %@"
 dark:
   _self: "Întuneric"
@@ -1180,31 +1180,31 @@ home:
   _self: "Acasă"
 
 diarized:
-  _self: "diarized"
+  _self: "diarizat"
 
 summary:
-  ready: "summary ready"
+  ready: "rezumat gata"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Prompturile sunt trimise în engleză"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "ăă deci întâlnirea e la trei jumătate punct poți confirma semnul întrebării"
+  clean_output: "Deci întâlnirea e la 15:30. Poți confirma?"
+  meeting_input: "alice va trimite deck-ul până vineri bob se ocupă de revizuirea prețurilor avem nevoie de o decizie săptămâna viitoare"
+  meeting_output: "## Acțiuni\\n- **Alice** va trimite deck-ul până **vineri**\\n- **Bob** se ocupă de revizuirea prețurilor\\n\\n## Pași următori\\n- Decizie necesară săptămâna viitoare"
+  email_input: "salut jordan verific doar dacă ai primit notițele mele de ieri mulțumesc"
+  email_output: "Salut Jordan,\\n\\nVerific doar dacă ai primit notițele mele de ieri.\\n\\nMulțumesc,"
+  social_input: "ăă tocmai am lansat dark mode și arată incredibil ar trebui să îl încerci"
+  social_output: "Tocmai am lansat dark mode.\\n\\nArată incredibil — ar trebui să îl încerci."
+  bullets_input: "am acoperit latența de onboarding apoi prețurile și în final data de lansare pe doisprezece mai"
+  bullets_output: "- Latența de onboarding\\n- Prețuri\\n- Data de lansare: 12 mai"
+  technical_input: "apelează fetch user săgeată apoi mapează răspunsul egal egal două sute"
+  technical_output: "Apelează `fetchUser` -> apoi mapează răspunsul `==` 200."
+  live_input: "ăă cred că ar trebui să livrăm beta până vineri punct"
+  live_output: "Cred că ar trebui să livrăm beta până vineri."
+  edits_input: "ăă asta e correct ly douăzeci și cinci"
+  edits_output: "Asta e correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

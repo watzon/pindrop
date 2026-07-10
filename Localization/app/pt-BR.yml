@@ -2,7 +2,7 @@
   local_processing: "Processamento 100% local"
 1:
   folder: "1 pasta"
-  speaker: "1 speaker"
+  speaker: "1 interlocutor"
   transcription: "1 transcrição"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Um aplicativo nativo de ditado da barra de menus do macOS usando fala para texto local com WhisperKit. Processamento 100% local por padrão com aprimoramento de IA opcional."
@@ -224,7 +224,7 @@ cut:
   _self: "Corte"
 d:
   characters: "%d characters"
-  speakers: "%d speakers"
+  speakers: "%d interlocutores"
   samples: "%d amostras · %@"
 dark:
   _self: "Escuro"
@@ -1180,31 +1180,31 @@ home:
   _self: "Início"
 
 diarized:
-  _self: "diarized"
+  _self: "diarizado"
 
 summary:
-  ready: "summary ready"
+  ready: "resumo pronto"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Os prompts são enviados em inglês"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "ãh então a reunião é às três e meia ponto você pode confirmar interrogação"
+  clean_output: "Então a reunião é às 15:30. Você pode confirmar?"
+  meeting_input: "alice vai enviar o deck até sexta bob cuida da revisão de preços precisamos de uma decisão na próxima semana"
+  meeting_output: "## Itens de ação\\n- **Alice** vai enviar o deck até **sexta**\\n- **Bob** cuida da revisão de preços\\n\\n## Próximos passos\\n- Decisão necessária na próxima semana"
+  email_input: "oi jordan só queria saber se você recebeu minhas anotações de ontem obrigado"
+  email_output: "Oi Jordan,\\n\\nSó queria saber se você recebeu minhas anotações de ontem.\\n\\nObrigado,"
+  social_input: "ãh acabamos de lançar o modo escuro e ficou incrível você deveria experimentar"
+  social_output: "Acabamos de lançar o modo escuro.\\n\\nFicou incrível — você deveria experimentar."
+  bullets_input: "cobrimos a latência do onboarding depois os preços e por fim a data de lançamento de doze de maio"
+  bullets_output: "- Latência do onboarding\\n- Preços\\n- Data de lançamento: 12 de maio"
+  technical_input: "chame fetch user seta depois mapeie a resposta igual igual duzentos"
+  technical_output: "Chame `fetchUser` -> depois mapeie a resposta `==` 200."
+  live_input: "ãh acho que devemos lançar o beta até sexta ponto"
+  live_output: "Acho que devemos lançar o beta até sexta."
+  edits_input: "ãh isto é correct ly vinte e cinco"
+  edits_output: "Isto é correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

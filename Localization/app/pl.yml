@@ -2,7 +2,7 @@
   local_processing: "100% lokalne przetwarzanie"
 1:
   folder: "1 folder"
-  speaker: "1 speaker"
+  speaker: "1 mówca"
   transcription: "1 transkrypcja"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Natywna aplikacja do dyktowania paska menu systemu macOS wykorzystująca lokalną zamianę mowy na tekst za pomocą WhisperKit. Domyślnie 100% przetwarzania lokalnego z opcjonalnym ulepszeniem AI."
@@ -224,7 +224,7 @@ cut:
   _self: "Cięcie"
 d:
   characters: "%d znaków"
-  speakers: "%d speakers"
+  speakers: "%d mówców"
   samples: "%d samples · %@"
 dark:
   _self: "Ciemny"
@@ -1180,31 +1180,31 @@ home:
   _self: "Start"
 
 diarized:
-  _self: "diarized"
+  _self: "diarizacja"
 
 summary:
-  ready: "summary ready"
+  ready: "podsumowanie gotowe"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Prompty są wysyłane po angielsku"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "yyy więc spotkanie jest o wpół do czwartej kropka możesz potwierdzić znak zapytania"
+  clean_output: "Więc spotkanie jest o 15:30. Możesz potwierdzić?"
+  meeting_input: "alice wyśle deck do piątku bob zajmuje się przeglądem cen potrzebujemy decyzji w przyszłym tygodniu"
+  meeting_output: "## Zadania\\n- **Alice** wyśle deck do **piątku**\\n- **Bob** zajmuje się przeglądem cen\\n\\n## Kolejne kroki\\n- Decyzja potrzebna w przyszłym tygodniu"
+  email_input: "cześć jordan tylko sprawdzam czy dostałeś moje notatki z wczoraj dzięki"
+  email_output: "Cześć Jordan,\\n\\nTylko sprawdzam, czy dostałeś moje notatki z wczoraj.\\n\\nDzięki,"
+  social_input: "yyy właśnie wydaliśmy tryb ciemny i wygląda niesamowicie powinieneś spróbować"
+  social_output: "Właśnie wydaliśmy tryb ciemny.\\n\\nWygląda niesamowicie — powinieneś spróbować."
+  bullets_input: "omówiliśmy opóźnienie onboardingu potem ceny i na koniec datę premiery dwunastego maja"
+  bullets_output: "- Opóźnienie onboardingu\\n- Ceny\\n- Data premiery: 12 maja"
+  technical_input: "wywołaj fetch user strzałka potem zmapuj odpowiedź równa się równa się dwieście"
+  technical_output: "Wywołaj `fetchUser` -> potem zmapuj odpowiedź `==` 200."
+  live_input: "yyy myślę że powinniśmy wysłać betę do piątku kropka"
+  live_output: "Myślę, że powinniśmy wysłać betę do piątku."
+  edits_input: "yyy to jest correct ly dwadzieścia pięć"
+  edits_output: "To jest correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

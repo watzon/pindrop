@@ -2,7 +2,7 @@
   local_processing: "100% স্থানীয় প্রক্রিয়াকরণ"
 1:
   folder: "1 ফোল্ডার"
-  speaker: "1 speaker"
+  speaker: "১ জন বক্তা"
   transcription: "1 ট্রান্সক্রিপশন"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
@@ -224,7 +224,7 @@ cut:
   _self: "কাটা"
 d:
   characters: "%d অক্ষর"
-  speakers: "%d speakers"
+  speakers: "%d জন বক্তা"
   samples: "%d samples · %@"
 dark:
   _self: "অন্ধকার"
@@ -1188,31 +1188,31 @@ home:
   _self: "হোম"
 
 diarized:
-  _self: "diarized"
+  _self: "ডায়ারাইজড"
 
 summary:
-  ready: "summary ready"
+  ready: "সারাংশ প্রস্তুত"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "প্রম্পট ইংরেজিতে পাঠানো হয়"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "আম তাহলে মিটিং সাড়ে তিনটায় পিরিয়ড আপনি কি নিশ্চিত করতে পারেন প্রশ্নবোধক"
+  clean_output: "তাহলে মিটিং ১৫:৩০-এ। আপনি কি নিশ্চিত করতে পারেন?"
+  meeting_input: "অ্যালিস শুক্রবারের মধ্যে ডেক পাঠাবে বব মূল্য পর্যালোচনা দেখবে আগামী সপ্তাহে সিদ্ধান্ত দরকার"
+  meeting_output: "## কাজ\\n- **অ্যালিস** **শুক্রবারের** মধ্যে ডেক পাঠাবে\\n- **বব** মূল্য পর্যালোচনা দেখবে\\n\\n## পরবর্তী পদক্ষেপ\\n- আগামী সপ্তাহে সিদ্ধান্ত প্রয়োজন"
+  email_input: "হাই জর্ডান শুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা ধন্যবাদ"
+  email_output: "হাই জর্ডান,\\n\\nশুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা।\\n\\nধন্যবাদ,"
+  social_input: "আম আমরা এইমাত্র ডার্ক মোড শিপ করেছি আর এটা দারুণ দেখাচ্ছে আপনার চেষ্টা করা উচিত"
+  social_output: "আমরা এইমাত্র ডার্ক মোড শিপ করেছি।\\n\\nএটা দারুণ দেখাচ্ছে — আপনার চেষ্টা করা উচিত।"
+  bullets_input: "আমরা অনবোর্ডিং লেটেন্সি তারপর মূল্য এবং শেষে বারোই মে লঞ্চ তারিখ আলোচনা করেছি"
+  bullets_output: "- অনবোর্ডিং লেটেন্সি\\n- মূল্য\\n- লঞ্চ তারিখ: ১২ মে"
+  technical_input: "fetch user কল করো তীর তারপর রেসপন্স সমান সমান দুইশো ম্যাপ করো"
+  technical_output: "`fetchUser` কল করো -> তারপর রেসপন্স `==` 200 ম্যাপ করো।"
+  live_input: "আম মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত পিরিয়ড"
+  live_output: "মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত।"
+  edits_input: "আম এটা correct ly পঁচিশ"
+  edits_output: "এটা correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

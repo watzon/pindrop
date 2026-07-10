@@ -2,7 +2,7 @@
   local_processing: "100% עיבוד מקומי"
 1:
   folder: "תיקיה 1"
-  speaker: "1 speaker"
+  speaker: "דובר אחד"
   transcription: "תמלול 1"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "אפליקציית הכתבה מקורית של שורת התפריט של macOS המשתמשת בדיבור לטקסט מקומי עם WhisperKit. עיבוד מקומי של 100% כברירת מחדל עם שיפור AI אופציונלי."
@@ -224,7 +224,7 @@ cut:
   _self: "גְזִירָה"
 d:
   characters: "%d תווים"
-  speakers: "%d speakers"
+  speakers: "%d דוברים"
   samples: "%d samples · %@"
 dark:
   _self: "כֵּהֶה"
@@ -1180,31 +1180,31 @@ home:
   _self: "בית"
 
 diarized:
-  _self: "diarized"
+  _self: "מחולק לפי דוברים"
 
 summary:
-  ready: "summary ready"
+  ready: "סיכום מוכן"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "ההנחיות נשלחות באנגלית"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "אממ אז הפגישה בשלוש וחצי נקודה אפשר לאשר סימן שאלה"
+  clean_output: "אז הפגישה ב-15:30. אפשר לאשר?"
+  meeting_input: "אליס תשלח את המצגת עד יום שישי בוב אחראי על בדיקת המחירים צריך החלטה בשבוע הבא"
+  meeting_output: "## משימות\\n- **אליס** תשלח את המצגת עד **יום שישי**\\n- **בוב** אחראי על בדיקת המחירים\\n\\n## הצעדים הבאים\\n- נדרשת החלטה בשבוע הבא"
+  email_input: "היי ג'ורדן רק בודק אם קיבלת את ההערות שלי מאתמול תודה"
+  email_output: "היי ג'ורדן,\\n\\nרק בודק אם קיבלת את ההערות שלי מאתמול.\\n\\nתודה,"
+  social_input: "אממ בדיוק שחררנו מצב כהה וזה נראה מדהים כדאי שתנסה"
+  social_output: "בדיוק שחררנו מצב כהה.\\n\\nזה נראה מדהים — כדאי שתנסה."
+  bullets_input: "כיסינו את השהיית האונבורדינג אחר כך מחירים ולבסוף תאריך ההשקה שנים-עשר במאי"
+  bullets_output: "- השהיית אונבורדינג\\n- מחירים\\n- תאריך השקה: 12 במאי"
+  technical_input: "קרא ל-fetch user חץ ואז מפה את התשובה שווה שווה מאתיים"
+  technical_output: "קרא ל-`fetchUser` -> ואז מפה את התשובה `==` 200."
+  live_input: "אממ אני חושב שכדאי לשלוח את הבטא עד יום שישי נקודה"
+  live_output: "אני חושב שכדאי לשלוח את הבטא עד יום שישי."
+  edits_input: "אממ זה correct ly עשרים וחמש"
+  edits_output: "זה correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

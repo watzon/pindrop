@@ -2,7 +2,7 @@
   local_processing: "100 % lokal behandling"
 1:
   folder: "1 mappe"
-  speaker: "1 speaker"
+  speaker: "1 taler"
   transcription: "1 transkripsjon"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "En innebygd macOS-menylinjedikteringsapp som bruker lokal tale-til-tekst med WhisperKit. 100 % lokal behandling som standard med valgfri AI-forbedring."
@@ -224,7 +224,7 @@ cut:
   _self: "Kutt"
 d:
   characters: "%d tegn"
-  speakers: "%d speakers"
+  speakers: "%d talere"
   samples: "%d samples · %@"
 dark:
   _self: "Mørk"
@@ -1180,31 +1180,31 @@ home:
   _self: "Hjem"
 
 diarized:
-  _self: "diarized"
+  _self: "diarisert"
 
 summary:
-  ready: "summary ready"
+  ready: "sammendrag klart"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Prompts sendes på engelsk"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "øh så møtet er klokka halv fire punktum kan du bekrefte spørsmålstegn"
+  clean_output: "Så møtet er kl. 15:30. Kan du bekrefte?"
+  meeting_input: "alice sender decket innen fredag bob tar prissjekken vi trenger en beslutning neste uke"
+  meeting_output: "## Handlinger\\n- **Alice** sender decket innen **fredag**\\n- **Bob** tar prissjekken\\n\\n## Neste steg\\n- Beslutning trengs neste uke"
+  email_input: "hei jordan sjekker bare om du fikk notatene mine fra i går takk"
+  email_output: "Hei Jordan,\\n\\nSjekker bare om du fikk notatene mine fra i går.\\n\\nTakk,"
+  social_input: "øh vi har nettopp sluppet dark mode og den ser fantastisk ut du burde prøve den"
+  social_output: "Vi har nettopp sluppet dark mode.\\n\\nDen ser fantastisk ut — du burde prøve den."
+  bullets_input: "vi dekket onboarding-latens så priser og til slutt lanseringsdatoen den tolvte mai"
+  bullets_output: "- Onboarding-latens\\n- Priser\\n- Lanseringsdato: 12. mai"
+  technical_input: "kall fetch user pil map så svaret lik lik to hundre"
+  technical_output: "Kall `fetchUser` -> map så svaret `==` 200."
+  live_input: "øh jeg synes vi bør sende betaen innen fredag punktum"
+  live_output: "Jeg synes vi bør sende betaen innen fredag."
+  edits_input: "øh det er correct ly tjuefem"
+  edits_output: "Det er correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

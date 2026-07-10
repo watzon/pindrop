@@ -2,7 +2,7 @@
   local_processing: "100% τοπική επεξεργασία"
 1:
   folder: "1 φάκελος"
-  speaker: "1 speaker"
+  speaker: "1 ομιλητής"
   transcription: "1 μεταγραφή"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Μια εγγενής εφαρμογή υπαγόρευσης γραμμής μενού macOS που χρησιμοποιεί τοπική ομιλία σε κείμενο με το WhisperKit. 100% τοπική επεξεργασία από προεπιλογή με προαιρετική βελτίωση AI."
@@ -224,7 +224,7 @@ cut:
   _self: "Τομή"
 d:
   characters: "%d χαρακτήρες"
-  speakers: "%d speakers"
+  speakers: "%d ομιλητές"
   samples: "%d samples · %@"
 dark:
   _self: "Σκοτάδι"
@@ -1180,31 +1180,31 @@ home:
   _self: "Αρχική"
 
 diarized:
-  _self: "diarized"
+  _self: "με διαχωρισμό ομιλητών"
 
 summary:
-  ready: "summary ready"
+  ready: "η περίληψη είναι έτοιμη"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Τα prompts αποστέλλονται στα αγγλικά"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "εεε λοιπόν η συνάντηση είναι στις τρεισήμισι τελεία μπορείς να επιβεβαιώσεις ερωτηματικό"
+  clean_output: "Λοιπόν η συνάντηση είναι στις 15:30. Μπορείς να επιβεβαιώσεις;"
+  meeting_input: "η alice θα στείλει το deck μέχρι την παρασκευή ο bob αναλαμβάνει τον έλεγχο τιμών χρειαζόμαστε απόφαση την επόμενη εβδομάδα"
+  meeting_output: "## Ενέργειες\\n- Η **Alice** θα στείλει το deck μέχρι την **Παρασκευή**\\n- Ο **Bob** αναλαμβάνει τον έλεγχο τιμών\\n\\n## Επόμενα βήματα\\n- Χρειάζεται απόφαση την επόμενη εβδομάδα"
+  email_input: "γεια jordan απλά ελέγχω αν πήρες τις σημειώσεις μου από χθες ευχαριστώ"
+  email_output: "Γεια Jordan,\\n\\nΑπλά ελέγχω αν πήρες τις σημειώσεις μου από χθες.\\n\\nΕυχαριστώ,"
+  social_input: "εεε μόλις κυκλοφορήσαμε dark mode και φαίνεται απίστευτο θα έπρεπε να το δοκιμάσεις"
+  social_output: "Μόλις κυκλοφορήσαμε dark mode.\\n\\nΦαίνεται απίστευτο — θα έπρεπε να το δοκιμάσεις."
+  bullets_input: "καλύψαμε την καθυστέρηση onboarding μετά τις τιμές και τέλος την ημερομηνία κυκλοφορίας δώδεκα μαΐου"
+  bullets_output: "- Καθυστέρηση onboarding\\n- Τιμές\\n- Ημερομηνία κυκλοφορίας: 12 Μαΐου"
+  technical_input: "κάλεσε fetch user βέλος μετά χάρταξε την απάντηση ίσον ίσον διακόσια"
+  technical_output: "Κάλεσε `fetchUser` -> μετά χάρταξε την απάντηση `==` 200."
+  live_input: "εεε νομίζω πρέπει να βγάλουμε το beta μέχρι την παρασκευή τελεία"
+  live_output: "Νομίζω πρέπει να βγάλουμε το beta μέχρι την Παρασκευή."
+  edits_input: "εεε αυτό είναι correct ly είκοσι πέντε"
+  edits_output: "Αυτό είναι correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

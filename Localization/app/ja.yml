@@ -2,7 +2,7 @@
   local_processing: "100% ローカル処理"
 1:
   folder: "1フォルダー"
-  speaker: "1 speaker"
+  speaker: "話者 1 人"
   transcription: "1 転写"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
@@ -224,7 +224,7 @@ cut:
   _self: "カット"
 d:
   characters: "%d characters"
-  speakers: "%d speakers"
+  speakers: "話者 %d 人"
   samples: "%d サンプル · %@"
 dark:
   _self: "暗い"
@@ -1180,31 +1180,31 @@ home:
   _self: "ホーム"
 
 diarized:
-  _self: "diarized"
+  _self: "話者分離済み"
 
 summary:
-  ready: "summary ready"
+  ready: "要約準備完了"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "プロンプトは英語で送信されます"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "えっと 会議は三時半です ピリオド 確認できますか クエスチョンマーク"
+  clean_output: "会議は 15:30 です。確認できますか？"
+  meeting_input: "アリスが金曜までにデッキを送り ボブが価格レビューを担当 来週決断が必要"
+  meeting_output: "## アクション\\n- **アリス** が**金曜**までにデッキを送る\\n- **ボブ** が価格レビューを担当\\n\\n## 次のステップ\\n- 来週決断が必要"
+  email_input: "やあジョーダン 昨日のメモは届いたか確認しただけ ありがとう"
+  email_output: "やあジョーダン、\\n\\n昨日のメモは届いたか確認しただけ。\\n\\nありがとう、"
+  social_input: "えっと ダークモードを出荷したところですごく良く見える 試すべきだよ"
+  social_output: "ダークモードを出荷したところだ。\\n\\nすごく良く見える — 試すべきだよ。"
+  bullets_input: "オンボーディングの遅延を扱い 次に価格 最後に五月十二日のローンチ日"
+  bullets_output: "- オンボーディングの遅延\\n- 価格\\n- ローンチ日: 5月12日"
+  technical_input: "fetch user を呼んで 矢印 それからレスポンスを イコール イコール 二百にマップ"
+  technical_output: "`fetchUser` を呼んで -> それからレスポンスを `==` 200 にマップ。"
+  live_input: "えっと 金曜までにベータを出すべきだと思う ピリオド"
+  live_output: "金曜までにベータを出すべきだと思う。"
+  edits_input: "えっと これは correct ly 二十五"
+  edits_output: "これは correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

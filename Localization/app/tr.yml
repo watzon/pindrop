@@ -2,7 +2,7 @@
   local_processing: "%100 yerli işleme"
 1:
   folder: "1 klasör"
-  speaker: "1 speaker"
+  speaker: "1 konuşmacı"
   transcription: "1 transkripsiyon"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
@@ -224,7 +224,7 @@ cut:
   _self: "Kesmek"
 d:
   characters: "%d characters"
-  speakers: "%d speakers"
+  speakers: "%d konuşmacı"
   samples: "%d samples · %@"
 dark:
   _self: "Karanlık"
@@ -1180,31 +1180,31 @@ home:
   _self: "Ana Sayfa"
 
 diarized:
-  _self: "diarized"
+  _self: "diyarıze"
 
 summary:
-  ready: "summary ready"
+  ready: "özet hazır"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "İstemler İngilizce gönderilir"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "ee yani toplantı üç buçukta nokta onaylayabilir misin soru işareti"
+  clean_output: "Yani toplantı 15:30'da. Onaylayabilir misin?"
+  meeting_input: "alice cuma'ya kadar decki gönderecek bob fiyat incelemesini üstleniyor gelecek hafta bir karar lazım"
+  meeting_output: "## Aksiyonlar\\n- **Alice** decki **Cuma**'ya kadar gönderecek\\n- **Bob** fiyat incelemesini üstleniyor\\n\\n## Sonraki adımlar\\n- Gelecek hafta karar gerekli"
+  email_input: "selam jordan dünkü notlarımı alıp almadığını kontrol ediyordum teşekkürler"
+  email_output: "Selam Jordan,\\n\\nDünkü notlarımı alıp almadığını kontrol ediyordum.\\n\\nTeşekkürler,"
+  social_input: "ee az önce karanlık modu yayınladık ve harika görünüyor denemelisin"
+  social_output: "Az önce karanlık modu yayınladık.\\n\\nHarika görünüyor — denemelisin."
+  bullets_input: "onboarding gecikmesini sonra fiyatları ve son olarak on iki mayıs lansman tarihini konuştuk"
+  bullets_output: "- Onboarding gecikmesi\\n- Fiyatlar\\n- Lansman tarihi: 12 Mayıs"
+  technical_input: "fetch user çağır ok sonra yanıtı eşittir eşittir iki yüz olarak eşle"
+  technical_output: "`fetchUser` çağır -> sonra yanıtı `==` 200 olarak eşle."
+  live_input: "ee bence betayı cuma'ya kadar çıkarmalıyız nokta"
+  live_output: "Bence betayı Cuma'ya kadar çıkarmalıyız."
+  edits_input: "ee bu correct ly yirmi beş"
+  edits_output: "Bu correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

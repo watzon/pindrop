@@ -2,7 +2,7 @@
   local_processing: "100 % paikallinen käsittely"
 1:
   folder: "1 kansio"
-  speaker: "1 speaker"
+  speaker: "1 puhuja"
   transcription: "1 transkriptio"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Natiivi macOS-valikkopalkin sanelusovellus, joka käyttää paikallista puheen muuntamista tekstiksi WhisperKitin kanssa. 100 % paikallinen käsittely oletuksena valinnaisella AI-parannuksella."
@@ -224,7 +224,7 @@ cut:
   _self: "Leikata"
 d:
   characters: "%d merkkiä"
-  speakers: "%d speakers"
+  speakers: "%d puhujaa"
   samples: "%d samples · %@"
 dark:
   _self: "Tumma"
@@ -1180,31 +1180,31 @@ home:
   _self: "Koti"
 
 diarized:
-  _self: "diarized"
+  _self: "diarisointi"
 
 summary:
-  ready: "summary ready"
+  ready: "yhteenveto valmis"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Promptit lähetetään englanniksi"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "öö eli kokous on puoli neljältä piste voitko vahvistaa kysymysmerkki"
+  clean_output: "Eli kokous on klo 15.30. Voitko vahvistaa?"
+  meeting_input: "alice lähettää dekin perjantaihin mennessä bob hoitaa hintatarkistuksen tarvitsemme päätöksen ensi viikolla"
+  meeting_output: "## Toimenpiteet\\n- **Alice** lähettää dekin **perjantaihin** mennessä\\n- **Bob** hoitaa hintatarkistuksen\\n\\n## Seuraavat askeleet\\n- Päätös tarvitaan ensi viikolla"
+  email_input: "moi jordan tarkistan vain saitko eiliset muistiinpanoni kiitos"
+  email_output: "Moi Jordan,\\n\\nTarkistan vain, saitko eiliset muistiinpanoni.\\n\\nKiitos,"
+  social_input: "öö julkaisimme juuri tumman tilan ja se näyttää mahtavalta sinun kannattaa kokeilla"
+  social_output: "Julkaisimme juuri tumman tilan.\\n\\nSe näyttää mahtavalta — sinun kannattaa kokeilla."
+  bullets_input: "kävimme läpi onboarding-latenssin sitten hinnat ja lopuksi julkaisupäivän kahdestoista toukokuuta"
+  bullets_output: "- Onboarding-latenssi\\n- Hinnat\\n- Julkaisupäivä: 12. toukokuuta"
+  technical_input: "kutsu fetch user nuoli sitten mapaa vastaus yhtäsuuri yhtäsuuri kaksisataa"
+  technical_output: "Kutsu `fetchUser` -> sitten mapaa vastaus `==` 200."
+  live_input: "öö mielestäni meidän pitäisi julkaista beta perjantaihin mennessä piste"
+  live_output: "Mielestäni meidän pitäisi julkaista beta perjantaihin mennessä."
+  edits_input: "öö tämä on correct ly kaksikymmentäviisi"
+  edits_output: "Tämä on correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"

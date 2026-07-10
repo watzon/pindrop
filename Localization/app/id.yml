@@ -2,7 +2,7 @@
   local_processing: "100% pengolahan lokal"
 1:
   folder: "1 map"
-  speaker: "1 speaker"
+  speaker: "1 pembicara"
   transcription: "1 transkripsi"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Aplikasi dikte bilah menu macOS asli menggunakan ucapan-ke-teks lokal dengan WhisperKit. Pemrosesan lokal 100% secara default dengan peningkatan AI opsional."
@@ -224,7 +224,7 @@ cut:
   _self: "Memotong"
 d:
   characters: "%d karakter"
-  speakers: "%d speakers"
+  speakers: "%d pembicara"
   samples: "%d samples · %@"
 dark:
   _self: "Gelap"
@@ -1180,31 +1180,31 @@ home:
   _self: "Beranda"
 
 diarized:
-  _self: "diarized"
+  _self: "diarisasi"
 
 summary:
-  ready: "summary ready"
+  ready: "ringkasan siap"
 
 prompts:
-  are_sent_in_english: "Prompts are sent in English"
+  are_sent_in_english: "Prompt dikirim dalam bahasa Inggris"
 
 preset_example:
-  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-  clean_output: "So the meeting is at 3:30. Can you confirm?"
-  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
-  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
-  social_input: "um we just shipped dark mode and it looks amazing you should try it"
-  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
-  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
-  technical_input: "call fetch user arrow then map the response equals equals two hundred"
-  technical_output: "Call `fetchUser` -> then map the response `==` 200."
-  live_input: "um so i think we should ship the beta by friday period"
-  live_output: "So I think we should ship the beta by Friday."
-  edits_input: "um this is correct ly twenty-five"
-  edits_output: "This is correctly 25"
+  clean_input: "eh jadi rapat jam setengah empat titik bisakah kamu konfirmasi tanda tanya"
+  clean_output: "Jadi rapat jam 15:30. Bisakah kamu konfirmasi?"
+  meeting_input: "alice akan kirim deck sampai jumat bob urus tinjauan harga kita butuh keputusan minggu depan"
+  meeting_output: "## Tindakan\\n- **Alice** akan kirim deck sampai **Jumat**\\n- **Bob** urus tinjauan harga\\n\\n## Langkah berikutnya\\n- Keputusan dibutuhkan minggu depan"
+  email_input: "hai jordan cuma ngecek apakah kamu dapat catatanku kemarin terima kasih"
+  email_output: "Hai Jordan,\\n\\nCuma ngecek apakah kamu dapat catatanku kemarin.\\n\\nTerima kasih,"
+  social_input: "eh kami baru rilis mode gelap dan kelihatannya keren banget kamu harus coba"
+  social_output: "Kami baru rilis mode gelap.\\n\\nKelihatannya keren banget — kamu harus coba."
+  bullets_input: "kita bahas latensi onboarding lalu harga dan terakhir tanggal peluncuran dua belas mei"
+  bullets_output: "- Latensi onboarding\\n- Harga\\n- Tanggal peluncuran: 12 Mei"
+  technical_input: "panggil fetch user panah lalu peta respons sama dengan sama dengan dua ratus"
+  technical_output: "Panggil `fetchUser` -> lalu peta respons `==` 200."
+  live_input: "eh menurutku kita harus ship beta sampai jumat titik"
+  live_output: "Menurutku kita harus ship beta sampai Jumat."
+  edits_input: "eh ini correct ly dua puluh lima"
+  edits_output: "Ini correctly 25"
 
 inserted:
   into_d_words: "Inserted into %@ · %d words"
