@@ -482,6 +482,14 @@ private struct MainSidebar: View {
 @MainActor
 final class MainWindowController {
 
+    /// Stable identifier so list key monitors can require the *main* window
+    /// (not Settings / Note Editor / other panels) to be key.
+    static let windowIdentifier = NSUserInterfaceItemIdentifier("tech.watzon.pindrop.main-window")
+
+    /// Set when Find (⌘F) is requested before HistoryView is mounted; consumed
+    /// when History appears so focus is not lost to a navigation race.
+    static var pendingHistorySearchFocus = false
+
     private var window: NSWindow?
     private var modelContainer: ModelContainer?
     private var floatingIndicatorState: FloatingIndicatorState?
@@ -501,8 +509,17 @@ final class MainWindowController {
     var onStartNoteCapture: (() -> Void)?
     var onOpenSettings: ((SettingsTab) -> Void)?
 
+    /// The main app window, if created. Used by list keyboard monitors for identity checks.
+    var nsWindow: NSWindow? { window }
+
     var isWindowKey: Bool {
         window?.isKeyWindow == true
+    }
+
+    /// Whether `window` is the Pindrop main window and currently key.
+    static func isMainWindowKey(_ window: NSWindow?) -> Bool {
+        guard let window else { return false }
+        return window.identifier == windowIdentifier && window.isKeyWindow
     }
 
     func setModelContainer(_ container: ModelContainer) {
@@ -569,7 +586,10 @@ final class MainWindowController {
     }
 
     func focusHistorySearch() {
+        // Pending flag covers the case where History is not yet mounted (nav race).
+        Self.pendingHistorySearchFocus = true
         show(navigationItem: .history)
+        // Notification covers the case where History is already visible.
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .focusHistorySearch, object: nil)
         }
@@ -618,6 +638,7 @@ final class MainWindowController {
             )
             window.contentViewController = hostingController
             window.title = "Pindrop"
+            window.identifier = Self.windowIdentifier
             window.titleVisibility = .hidden
             window.titlebarAppearsTransparent = true
             window.titlebarSeparatorStyle = .none

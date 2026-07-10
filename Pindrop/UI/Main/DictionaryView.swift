@@ -731,8 +731,9 @@ struct DictionaryView: View {
     }
 
     private static func shouldHandleListKeyEvent(_ event: NSEvent) -> Bool {
-        guard let window = event.window, window.isKeyWindow else { return false }
-        if isTextInputFirstResponder(window.firstResponder) {
+        // Only when the *main* window (not Settings / Note Editor) is key.
+        guard MainWindowController.isMainWindowKey(event.window) else { return false }
+        if isTextInputFirstResponder(event.window?.firstResponder) {
             return false
         }
         return true

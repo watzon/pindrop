@@ -205,7 +205,10 @@ struct HistoryView: View {
         } message: {
             Text(localized("This will permanently remove this note.", locale: locale))
         }
-        .onAppear { installKeyMonitorIfNeeded() }
+        .onAppear {
+            installKeyMonitorIfNeeded()
+            consumePendingSearchFocusIfNeeded()
+        }
         .onDisappear { removeKeyMonitor() }
         .onChange(of: detailRecord?.persistentModelID) { _, _ in
             // List keyboard handling is only active when the list is visible.
@@ -216,7 +219,7 @@ struct HistoryView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .focusHistorySearch)) { _ in
-            isSearchFieldFocused = true
+            applySearchFocus()
         }
     }
 
@@ -868,10 +871,11 @@ struct HistoryView: View {
 
     private func shouldHandleListKeyEvent(_ event: NSEvent) -> Bool {
         guard detailRecord == nil else { return false }
-        guard let window = event.window, window.isKeyWindow else { return false }
+        // Only when the *main* window (not Settings / Note Editor) is key.
+        guard MainWindowController.isMainWindowKey(event.window) else { return false }
         // Never steal keys from text fields / editors.
         if isSearchFieldFocused { return false }
-        if Self.isTextInputFirstResponder(window.firstResponder) {
+        if Self.isTextInputFirstResponder(event.window?.firstResponder) {
             return false
         }
         return true
@@ -887,6 +891,19 @@ struct HistoryView: View {
         return false
     }
 
+    private func applySearchFocus() {
+        MainWindowController.pendingHistorySearchFocus = false
+        // Defer so the search field is in the hierarchy after nav transitions.
+        DispatchQueue.main.async {
+            isSearchFieldFocused = true
+        }
+    }
+
+    private func consumePendingSearchFocusIfNeeded() {
+        guard MainWindowController.pendingHistorySearchFocus else { return }
+        applySearchFocus()
+    }
+
     private func handleListKeyEvent(_ event: NSEvent) -> NSEvent? {
         // Up 126 / Down 125 / Escape 53 / Delete 51 / Forward Delete 117
         switch event.keyCode {
@@ -900,8 +917,8 @@ struct HistoryView: View {
             requestDeleteForSelection()
             return nil
         case 53:
-            clearOrCollapseSelection()
-            return nil
+            // Pass Escape through when there is nothing to clear (match Dictionary).
+            return clearOrCollapseSelection() ? nil : event
         default:
             return event
         }
@@ -943,19 +960,20 @@ struct HistoryView: View {
         }
     }
 
-    private func clearOrCollapseSelection() {
+    /// Clears selection / collapses an expanded row. Returns `true` if something changed.
+    @discardableResult
+    private func clearOrCollapseSelection() -> Bool {
         if selectedFilter == .notes {
-            if selectedNoteID != nil {
-                selectedNoteID = nil
-            }
-            return
+            guard selectedNoteID != nil else { return false }
+            selectedNoteID = nil
+            return true
         }
 
-        if selectedTranscriptionID != nil {
-            withAnimation(AppTheme.Animation.fast) {
-                selectedTranscriptionID = nil
-            }
+        guard selectedTranscriptionID != nil else { return false }
+        withAnimation(AppTheme.Animation.fast) {
+            selectedTranscriptionID = nil
         }
+        return true
     }
 }
 
