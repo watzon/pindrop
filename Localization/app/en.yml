@@ -428,6 +428,8 @@ improve:
   transcription_quality_using_ai: "Improve transcription quality using AI"
 include:
   clipboard_text: "Include clipboard text"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Interface"
   language: "Interface Language"
@@ -1005,6 +1007,8 @@ unavailable:
   device: "Unavailable device"
 undo:
   _self: "Undo"
+unknown:
+  app: "Unknown App"
 unfiled:
   _self: "Unfiled"
 unpin:

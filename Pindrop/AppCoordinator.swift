@@ -2537,6 +2537,19 @@ final class AppCoordinator {
         )
     }
 
+    /// Success toast after a paste landed in the target app. Not shown for clipboard-only
+    /// fallback (that path gets a separate Copied+Undo toast in B7).
+    private func showInsertionSuccessToast(appName: String?, wordCount: Int) {
+        let locale = settingsStore.selectedAppLocale.locale
+        let trimmedName = appName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let displayName = trimmedName.isEmpty
+            ? localized("Unknown App", locale: locale)
+            : trimmedName
+        let format = localized("Inserted into %@ · %d words", locale: locale)
+        let message = String(format: format, locale: locale, displayName, wordCount)
+        toastService.show(ToastPayload(message: message, style: .standard))
+    }
+
     private func handleRecordingStartFailure(_ error: Error, source: RecordingTriggerSource) {
         let isHotkeySource: Bool
         switch source {
@@ -2683,10 +2696,18 @@ final class AppCoordinator {
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
                 enhancedWith: outcome.enhancedWithModel,
-                diarizationSegmentsJSON: nil
+                diarizationSegmentsJSON: nil,
+                destinationAppName: outcome.destinationAppName,
+                destinationAppBundleID: outcome.destinationAppBundleID
             )
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
+            if outcome.didPaste {
+                showInsertionSuccessToast(
+                    appName: outcome.destinationAppName,
+                    wordCount: outcome.finalText.wordCount
+                )
+            }
         } catch {
             Log.app.error("Failed to save streamed transcription to history: \(error)")
         }
@@ -3024,12 +3045,13 @@ final class AppCoordinator {
             ? contextEngineService.captureFocusedTextSnapshot()
             : nil
         var outputSucceeded = false
+        var outputResult: OutputManager.OutputResult?
         do {
             if outputManager.outputMode == .directInsert {
                 ensureAccessibilityPermissionForDirectInsert(trigger: "output", showFallbackAlert: true)
             }
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
-            try await outputManager.output(outputText)
+            outputResult = try await outputManager.output(outputText)
             outputSucceeded = true
             if outputManager.outputMode == .directInsert,
                settingsStore.automaticDictionaryLearningEnabled {
@@ -3053,10 +3075,18 @@ final class AppCoordinator {
                 duration: duration,
                 modelUsed: settingsStore.selectedModel,
                 enhancedWith: enhancedWithModel,
-                diarizationSegmentsJSON: diarizationSegmentsJSON
+                diarizationSegmentsJSON: diarizationSegmentsJSON,
+                destinationAppName: outputResult?.destinationAppName,
+                destinationAppBundleID: outputResult?.destinationAppBundleID
             )
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
+            if outputResult?.didPaste == true {
+                showInsertionSuccessToast(
+                    appName: outputResult?.destinationAppName,
+                    wordCount: finalText.wordCount
+                )
+            }
         } catch {
             Log.app.error("Failed to save to history: \(error)")
         }
