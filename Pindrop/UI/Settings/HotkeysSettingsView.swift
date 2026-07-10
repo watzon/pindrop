@@ -26,115 +26,184 @@ struct HotkeysSettingsView: View {
         let isModifierOnly: Bool
     }
 
+    /// Design primary rows (spec §13 / U8).
+    private var primarySlots: [(HotkeySlot, String, String, String, () -> Void)] {
+        [
+            (
+                .toggleRecording,
+                localized("Toggle dictation", locale: locale),
+                localized("Press once to start recording, then press again to stop and transcribe.", locale: locale),
+                settings.toggleHotkey,
+                {
+                    settings.updateToggleHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.toggleRecording] = nil
+                }
+            ),
+            (
+                .pushToTalk,
+                localized("Push to talk", locale: locale),
+                localized("Hold the shortcut to record, then release to transcribe.", locale: locale),
+                settings.pushToTalkHotkey,
+                {
+                    settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.pushToTalk] = nil
+                }
+            ),
+            (
+                .copyLastTranscript,
+                localized("Copy last transcript", locale: locale),
+                localized("Copy the most recent transcript to the clipboard.", locale: locale),
+                settings.copyLastTranscriptHotkey,
+                {
+                    settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.copyLastTranscript] = nil
+                }
+            ),
+            (
+                .openLibrary,
+                localized("Open Library", locale: locale),
+                localized("Show the main window and open the Library.", locale: locale),
+                settings.openLibraryHotkey,
+                {
+                    settings.updateOpenLibraryHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.openLibrary] = nil
+                }
+            ),
+        ]
+    }
+
+    private var noteSlots: [(HotkeySlot, String, String, String, () -> Void)] {
+        [
+            (
+                .quickCapturePTT,
+                localized("Note Capture — Hold", locale: locale),
+                localized("Hold to record, then release to open the note editor with the transcription.", locale: locale),
+                settings.quickCapturePTTHotkey,
+                {
+                    settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.quickCapturePTT] = nil
+                }
+            ),
+            (
+                .quickCaptureToggle,
+                localized("Note Capture — Toggle", locale: locale),
+                localized("Press once to start recording, then again to open the note editor.", locale: locale),
+                settings.quickCaptureToggleHotkey,
+                {
+                    settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.quickCaptureToggle] = nil
+                }
+            ),
+        ]
+    }
+
     var body: some View {
-        Form {
-            Section(localized("Dictation", locale: locale)) {
-                hotkeySettingRow(
-                    slot: .toggleRecording,
-                    title: localized("Toggle Recording", locale: locale),
-                    detail: localized("Press once to start recording, then press again to stop and transcribe.", locale: locale),
-                    hotkey: settings.toggleHotkey,
-                    onClear: {
-                        settings.updateToggleHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.toggleRecording] = nil
-                    }
-                )
-
-                hotkeySettingRow(
-                    slot: .pushToTalk,
-                    title: localized("Push-to-Talk", locale: locale),
-                    detail: localized("Hold the shortcut to record, then release to transcribe.", locale: locale),
-                    hotkey: settings.pushToTalkHotkey,
-                    onClear: {
-                        settings.updatePushToTalkHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.pushToTalk] = nil
-                    }
-                )
-
-                hotkeySettingRow(
-                    slot: .copyLastTranscript,
-                    title: localized("Copy Last Transcript", locale: locale),
-                    detail: localized("Copy the most recent transcript to the clipboard.", locale: locale),
-                    hotkey: settings.copyLastTranscriptHotkey,
-                    onClear: {
-                        settings.updateCopyLastTranscriptHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.copyLastTranscript] = nil
-                    }
-                )
+        SettingsPaneStack {
+            SettingsGroupCard {
+                ForEach(Array(primarySlots.enumerated()), id: \.element.0) { index, item in
+                    hotkeyRow(
+                        slot: item.0,
+                        title: item.1,
+                        detail: item.2,
+                        hotkey: item.3,
+                        onClear: item.4,
+                        showSeparator: index < primarySlots.count - 1
+                    )
+                }
             }
 
-            Section(localized("Notes", locale: locale)) {
-                hotkeySettingRow(
-                    slot: .quickCapturePTT,
-                    title: localized("Note Capture — Hold", locale: locale),
-                    detail: localized("Hold to record, then release to open the note editor with the transcription.", locale: locale),
-                    hotkey: settings.quickCapturePTTHotkey,
-                    onClear: {
-                        settings.updateQuickCapturePTTHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.quickCapturePTT] = nil
-                    }
-                )
+            Text(aggregateConflictLine)
+                .font(AppTypography.caption)
+                .foregroundStyle(aggregateConflictColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+                .accessibilityLabel(aggregateConflictLine)
 
-                hotkeySettingRow(
-                    slot: .quickCaptureToggle,
-                    title: localized("Note Capture — Toggle", locale: locale),
-                    detail: localized("Press once to start recording, then again to open the note editor.", locale: locale),
-                    hotkey: settings.quickCaptureToggleHotkey,
-                    onClear: {
-                        settings.updateQuickCaptureToggleHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.quickCaptureToggle] = nil
-                    }
-                )
-            }
-
-            Section(localized("Library", locale: locale)) {
-                hotkeySettingRow(
-                    slot: .openLibrary,
-                    title: localized("Open Library", locale: locale),
-                    detail: localized("Show the main window and open the Library.", locale: locale),
-                    hotkey: settings.openLibraryHotkey,
-                    onClear: {
-                        settings.updateOpenLibraryHotkey("", keyCode: 0, modifiers: 0)
-                        lastConflictStatusBySlot[.openLibrary] = nil
-                    }
-                )
+            SettingsGroupCard {
+                ForEach(Array(noteSlots.enumerated()), id: \.element.0) { index, item in
+                    hotkeyRow(
+                        slot: item.0,
+                        title: item.1,
+                        detail: item.2,
+                        hotkey: item.3,
+                        onClear: item.4,
+                        showSeparator: index < noteSlots.count - 1
+                    )
+                }
             }
         }
-        .formStyle(.grouped)
         .onDisappear {
             stopRecording()
         }
     }
 
-    private func hotkeySettingRow(
+    /// Captured statuses when available; otherwise a live check on configured assignments,
+    /// so the pane-level line and its color always agree.
+    private var aggregateConflictStatuses: [HotkeyConflictStatus] {
+        let captured = HotkeySlot.allCases.compactMap { conflictStatus(for: $0) }
+        if !captured.isEmpty { return captured }
+
+        let assignments = settings.configuredHotkeyAssignments()
+        return HotkeySlot.allCases.compactMap { slot -> HotkeyConflictStatus? in
+            guard let assignment = assignments.first(where: { $0.slot == slot }) else { return nil }
+            return HotkeyConflictChecker.check(
+                keyCode: assignment.keyCode,
+                modifiers: assignment.modifiers,
+                slot: slot,
+                assignments: assignments
+            )
+        }
+    }
+
+    private var aggregateConflictLine: String {
+        SettingsHotkeyConflictPresentation.aggregateStatus(
+            statuses: aggregateConflictStatuses,
+            locale: locale
+        )
+    }
+
+    private var aggregateConflictColor: Color {
+        let statuses = aggregateConflictStatuses
+        if statuses.contains(where: {
+            if case .pindropConflict = $0 { return true }
+            return false
+        }) {
+            return AppColors.warning
+        }
+        if statuses.contains(where: {
+            if case .systemShortcut = $0 { return true }
+            return false
+        }) {
+            return AppColors.textSecondary
+        }
+        return AppColors.success
+    }
+
+    private func hotkeyRow(
         slot: HotkeySlot,
         title: String,
         detail: String,
         hotkey: String,
-        onClear: @escaping () -> Void
+        onClear: @escaping () -> Void,
+        showSeparator: Bool
     ) -> some View {
         let isRecording = recordingSlot == slot
-        let conflictStatus = conflictStatus(for: slot)
+        let status = conflictStatus(for: slot)
 
-        return LabeledContent {
+        return SettingsRow(showSeparator: showSeparator) {
+            VStack(alignment: .leading, spacing: 4) {
+                SettingsRowLabel(title: title, subtitle: detail)
+                if let status {
+                    HotkeyConflictStatusView(status: status, locale: locale)
+                }
+            }
+        } control: {
             HotkeyRecorderRow(
                 hotkey: hotkey,
                 isRecording: isRecording,
                 onRecord: { startRecording(for: slot) },
                 onClear: onClear
             )
-        } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if let conflictStatus {
-                    HotkeyConflictStatusView(status: conflictStatus, locale: locale)
-                }
-            }
         }
     }
 
@@ -231,7 +300,6 @@ struct HotkeysSettingsView: View {
         let keyCode = Int(capture.keyCode)
         let modifiers = Int(capture.modifiers)
 
-        // Persist conflict status before stopRecording clears the pending capture.
         lastConflictStatusBySlot[slot] = HotkeyConflictChecker.check(
             keyCode: UInt32(capture.keyCode),
             modifiers: capture.modifiers,
@@ -292,19 +360,17 @@ struct HotkeysSettingsView: View {
     private func buildHotkeyString(from event: NSEvent) -> String {
         var parts: [String] = []
 
-        // Handle left/right modifiers by keyCode
         let keyCode = event.keyCode
-        if keyCode == 59 { parts.append("⌃L") }      // Left Control
-        else if keyCode == 62 { parts.append("⌃R") } // Right Control
-        else if keyCode == 58 { parts.append("⌥L") } // Left Option
-        else if keyCode == 61 { parts.append("⌥R") } // Right Option
-        else if keyCode == 56 { parts.append("⇧L") } // Left Shift
-        else if keyCode == 60 { parts.append("⇧R") } // Right Shift
-        else if keyCode == 55 { parts.append("⌘L") } // Left Command
-        else if keyCode == 54 { parts.append("⌘R") } // Right Command
+        if keyCode == 59 { parts.append("⌃L") }
+        else if keyCode == 62 { parts.append("⌃R") }
+        else if keyCode == 58 { parts.append("⌥L") }
+        else if keyCode == 61 { parts.append("⌥R") }
+        else if keyCode == 56 { parts.append("⇧L") }
+        else if keyCode == 60 { parts.append("⇧R") }
+        else if keyCode == 55 { parts.append("⌘L") }
+        else if keyCode == 54 { parts.append("⌘R") }
         else if keyCode == UInt16(kVK_Function) { parts.append("fn") }
         else {
-            // Regular modifiers (for non-modifier keys)
             let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
             if modifiers.contains(.control) { parts.append("⌃") }
             if modifiers.contains(.option) { parts.append("⌥") }
@@ -312,7 +378,6 @@ struct HotkeysSettingsView: View {
             if modifiers.contains(.command) { parts.append("⌘") }
             if modifiers.contains(.function) { parts.append("fn") }
 
-            // Add the key character
             if let characters = event.charactersIgnoringModifiers?.uppercased(), !characters.isEmpty {
                 let char = characters.first!
                 if char.isLetter || char.isNumber {
@@ -403,7 +468,7 @@ struct HotkeyConflictStatusView: View {
             Text(message)
                 .foregroundStyle(tint)
         }
-        .font(.caption)
+        .font(AppTypography.caption)
         .accessibilityLabel(message)
     }
 
@@ -421,11 +486,11 @@ struct HotkeyConflictStatusView: View {
     private var tint: Color {
         switch status {
         case .noConflict:
-            return .green
+            return AppColors.success
         case .pindropConflict:
-            return .orange
+            return AppColors.warning
         case .systemShortcut:
-            return .secondary
+            return AppColors.textSecondary
         }
     }
 
@@ -457,29 +522,33 @@ struct HotkeyRecorderRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(hotkey.isEmpty ? localized("Not set", locale: locale) : hotkey)
-                .font(.system(.body, design: .monospaced))
-                .foregroundStyle(hotkey.isEmpty ? .secondary : .primary)
-                .frame(minWidth: 90, alignment: .trailing)
+            if isRecording {
+                SettingsKbdChip(text: localized("Press keys…", locale: locale))
+                    .foregroundStyle(AppColors.warning)
+            } else if hotkey.isEmpty {
+                Text(localized("Not set", locale: locale))
+                    .font(AppTypography.monoSmall)
+                    .foregroundStyle(AppColors.textTertiary)
+            } else {
+                SettingsKbdChip(text: hotkey)
+            }
 
             Button(action: onRecord) {
-                Text(
-                    isRecording
-                        ? localized("Press keys…", locale: locale)
-                        : localized("Record", locale: locale)
+                SettingsMenuButton(
+                    title: isRecording
+                        ? localized("Listening…", locale: locale)
+                        : localized("Record", locale: locale),
+                    showsChevron: false
                 )
             }
-
-            if isRecording {
-                Text(localized("Press Esc to cancel", locale: locale))
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-            }
+            .buttonStyle(.plain)
 
             if !hotkey.isEmpty && !isRecording {
                 Button(role: .destructive, action: onClear) {
                     Image(systemName: "xmark.circle")
+                        .foregroundStyle(AppColors.textTertiary)
                 }
+                .buttonStyle(.plain)
                 .help(localized("Clear shortcut", locale: locale))
             }
         }
@@ -489,4 +558,6 @@ struct HotkeyRecorderRow: View {
 #Preview {
     HotkeysSettingsView(settings: SettingsStore())
         .frame(width: 620, height: 560)
+        .background(AppColors.windowBackground)
+        .themeRefresh()
 }

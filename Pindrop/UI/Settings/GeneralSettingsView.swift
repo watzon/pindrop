@@ -19,82 +19,95 @@ struct GeneralSettingsView: View {
     @State private var launchAtLoginError: String?
 
     var body: some View {
-        Form {
-            Section {
-                Toggle(
-                    localized("Launch at Login", locale: locale),
-                    isOn: launchAtLoginBinding
-                )
-                .accessibilityIdentifier("settings.toggle.launchAtLogin")
-
-                Toggle(
-                    localized("Show in Dock", locale: locale),
-                    isOn: $settings.showInDock
-                )
-                .accessibilityIdentifier("settings.toggle.showInDock")
-            } footer: {
-                Text(localized("Choose whether Pindrop starts when you sign in and appears in the Dock.", locale: locale))
-            }
-
-            Section {
-                Picker(
-                    localized("Interface Language", locale: locale),
-                    selection: interfaceLanguageBinding
-                ) {
-                    ForEach(AppLocale.allCases) { appLocale in
-                        Text(interfaceLanguageLabel(appLocale))
-                            .tag(appLocale)
-                    }
-                }
-                .accessibilityIdentifier("settings.picker.interfaceLanguage")
-            } header: {
-                Text(localized("Language", locale: locale))
-            } footer: {
-                Text(localized("Changes the language used by Pindrop's interface.", locale: locale))
-            }
-
-            Section {
-                Toggle(
-                    localized("Automatic updates", locale: locale),
-                    isOn: $automaticallyCheckForUpdates
-                )
-                .accessibilityIdentifier("settings.toggle.automaticUpdates")
-                .onChange(of: automaticallyCheckForUpdates) { _, newValue in
-                    updateService.automaticallyChecksForUpdates = newValue
+        SettingsPaneStack {
+            SettingsGroupCard {
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(title: localized("Launch at Login", locale: locale))
+                } control: {
+                    SettingsToggle(isOn: launchAtLoginBinding)
+                        .accessibilityIdentifier("settings.toggle.launchAtLogin")
                 }
 
-                LabeledContent(localized("Check for updates", locale: locale)) {
-                    HStack {
-                        if AnnouncementCatalog.current != nil {
-                            Button(localized("What's New…", locale: locale)) {
-                                NotificationCenter.default.post(name: .showWhatsNew, object: nil)
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(title: localized("Show in Dock", locale: locale))
+                } control: {
+                    SettingsToggle(isOn: $settings.showInDock)
+                        .accessibilityIdentifier("settings.toggle.showInDock")
+                }
+
+                SettingsRow(showSeparator: false) {
+                    SettingsRowLabel(title: localized("Interface Language", locale: locale))
+                } control: {
+                    Menu {
+                        ForEach(AppLocale.allCases) { appLocale in
+                            Button(interfaceLanguageLabel(appLocale)) {
+                                settings.selectedAppLocale = appLocale
                             }
                         }
+                    } label: {
+                        SettingsMenuButton(title: interfaceLanguageLabel(settings.selectedAppLocale))
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .accessibilityIdentifier("settings.picker.interfaceLanguage")
+                }
+            }
 
-                        Button(localized("Check Now", locale: locale)) {
-                            updateService.checkForUpdates()
+            SettingsGroupCard {
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(
+                        title: localized("Automatic updates", locale: locale),
+                        subtitle: SettingsUpdateStatusPresentation.subtitle(
+                            lastCheckDate: updateService.lastUpdateCheckDate,
+                            canCheck: updateService.canCheckForUpdates,
+                            locale: locale
+                        )
+                    )
+                } control: {
+                    SettingsToggle(isOn: $automaticallyCheckForUpdates)
+                        .accessibilityIdentifier("settings.toggle.automaticUpdates")
+                        .onChange(of: automaticallyCheckForUpdates) { _, newValue in
+                            updateService.automaticallyChecksForUpdates = newValue
                         }
+                }
+
+                SettingsRow(showSeparator: false) {
+                    SettingsRowLabel(title: localized("Check for updates", locale: locale))
+                } control: {
+                    HStack(spacing: 8) {
+                        if AnnouncementCatalog.current != nil {
+                            Button {
+                                NotificationCenter.default.post(name: .showWhatsNew, object: nil)
+                            } label: {
+                                SettingsMenuButton(
+                                    title: localized("What's New…", locale: locale),
+                                    showsChevron: false
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        Button {
+                            updateService.checkForUpdates()
+                        } label: {
+                            SettingsMenuButton(
+                                title: localized("Check Now", locale: locale),
+                                showsChevron: false
+                            )
+                        }
+                        .buttonStyle(.plain)
                         .disabled(!updateService.canCheckForUpdates)
                     }
                 }
-            } header: {
-                Text(localized("Updates", locale: locale))
-            } footer: {
-                Text(localized("Keep Pindrop current automatically, or check for a new version now.", locale: locale))
             }
 
-            Section {
-                Button(localized("Reset All Settings…", locale: locale), role: .destructive) {
-                    showingResetConfirmation = true
-                }
-                .accessibilityIdentifier("settings.button.resetAll")
-            } header: {
-                Text(localized("Reset", locale: locale))
-            } footer: {
-                Text(localized("Clears preferences and restarts onboarding.", locale: locale))
+            SettingsDestructiveFooter(
+                title: localized("Reset all settings…", locale: locale)
+            ) {
+                showingResetConfirmation = true
             }
+            .accessibilityIdentifier("settings.button.resetAll")
         }
-        .formStyle(.grouped)
         .onAppear {
             synchronizeLaunchAtLoginState()
             updateService.automaticallyChecksForUpdates = automaticallyCheckForUpdates
@@ -124,13 +137,6 @@ struct GeneralSettingsView: View {
                 Text(launchAtLoginError)
             }
         }
-    }
-
-    private var interfaceLanguageBinding: Binding<AppLocale> {
-        Binding(
-            get: { settings.selectedAppLocale },
-            set: { settings.selectedAppLocale = $0 }
-        )
     }
 
     private var launchAtLoginBinding: Binding<Bool> {
@@ -180,4 +186,6 @@ struct GeneralSettingsView: View {
         updateService: UpdateService()
     )
     .frame(width: 620, height: 560)
+    .background(AppColors.windowBackground)
+    .themeRefresh()
 }

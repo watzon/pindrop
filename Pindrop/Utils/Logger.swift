@@ -65,6 +65,7 @@ enum Log {
         line: UInt
     ) {
         guard shouldPersistLogsToDisk else { return }
+        guard level.severity >= AppLogLevel.persistedMinimum.severity else { return }
         LogFileSink.shared.write(
             level: level,
             category: category,
@@ -181,6 +182,34 @@ enum AppLogLevel: String {
     case info = "INFO"
     case warning = "WARN"
     case error = "ERROR"
+
+    /// Rank for minimum-level filtering (higher = more severe).
+    var severity: Int {
+        switch self {
+        case .debug: return 0
+        case .info: return 1
+        case .warning: return 2
+        case .error: return 3
+        }
+    }
+
+    /// UserDefaults key for the file-sink minimum level (Settings → Advanced → Log level).
+    /// Stored values are the Settings picker's lowercase names.
+    static let minimumPersistedLevelDefaultsKey = "appLogLevel"
+
+    /// Minimum level written to on-disk logs. Console (os.log) output is unaffected.
+    static var persistedMinimum: AppLogLevel {
+        minimum(fromSettingsName: UserDefaults.standard.string(forKey: minimumPersistedLevelDefaultsKey))
+    }
+
+    static func minimum(fromSettingsName name: String?) -> AppLogLevel {
+        switch name {
+        case "debug": return .debug
+        case "warning": return .warning
+        case "error": return .error
+        default: return .info
+        }
+    }
 }
 
 private enum AppLogVisibility {

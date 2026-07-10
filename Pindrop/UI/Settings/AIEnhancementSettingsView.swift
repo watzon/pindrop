@@ -38,19 +38,35 @@ struct AIEnhancementSettingsView: View {
 
    // Inline prompt-override drafts per purpose, keyed by purpose.rawValue.
    @State private var promptOverrideDrafts: [String: String] = [:]
+   @State private var showAdvancedAssignments = false
+   @State private var showPromptEditor = false
+   @State private var promptEditorDraft = ""
 
    private var promptPresetStore: PromptPresetStore {
       PromptPresetStore(modelContext: modelContext)
    }
 
    var body: some View {
-      Form {
-         providersCard
-         assignmentsCard
-         streamingEnhancementCard
-         contextCard
+      SettingsPaneStack {
+         simplifiedEnhancementCard
+         promptPresetCard
+         if let example = activePresetExample {
+            exampleBlock(example)
+         }
+         DisclosureGroup(isExpanded: $showAdvancedAssignments) {
+            VStack(spacing: SettingsLayoutMetrics.groupGap) {
+               providersCardChrome
+               assignmentsCardChrome
+               streamingEnhancementCardChrome
+               contextCardChrome
+            }
+            .padding(.top, 8)
+         } label: {
+            Text(localized("Advanced assignments", locale: locale))
+               .font(AppTypography.labelStrong)
+               .foregroundStyle(AppColors.textPrimary)
+         }
       }
-      .formStyle(.grouped)
       .task {
          loadPresets()
          refreshPermissionStates()
@@ -78,6 +94,9 @@ struct AIEnhancementSettingsView: View {
       }
       .sheet(item: $modelPickerPurpose) { purpose in
          modelPickerSheet(for: purpose)
+      }
+      .sheet(isPresented: $showPromptEditor) {
+         promptEditorSheet
       }
       .alert(
          localized("Remove Provider", locale: locale),
@@ -115,65 +134,385 @@ struct AIEnhancementSettingsView: View {
       }
    }
 
-   // MARK: - Providers Card
+   // MARK: - Simplified enhance flow (B10 adapter)
 
-   private var providersCard: some View {
-      Section {
-         if settings.providers.isEmpty {
-            emptyProvidersPlaceholder
+   private var simplifiedEnhancementCard: some View {
+      SettingsGroupCard {
+         SettingsRow(showSeparator: settings.enhanceTranscriptsEnabled) {
+            SettingsRowLabel(title: localized("Enhance transcripts", locale: locale))
+         } control: {
+            SettingsToggle(isOn: enhanceTranscriptsBinding)
+               .accessibilityIdentifier("settings.toggle.enhanceTranscripts")
+         }
+
+         if settings.enhanceTranscriptsEnabled {
+            SettingsRow(showSeparator: true) {
+               SettingsRowLabel(title: localized("Provider", locale: locale))
+            } control: {
+               Menu {
+                  ForEach(settings.providers) { provider in
+                     Button(provider.displayName) {
+                        settings.enhanceTranscriptsProviderID = provider.id
+                        Task { await refreshModels(for: provider, force: false) }
+                     }
+                  }
+                  Divider()
+                  Button(localized("Add Provider", locale: locale)) {
+                     editingProvider = ProviderEditState.newProvider()
+                  }
+               } label: {
+                  SettingsMenuButton(title: selectedProviderLabel)
+               }
+               .menuStyle(.borderlessButton)
+               .menuIndicator(.hidden)
+               .accessibilityIdentifier("settings.picker.enhanceProvider")
+            }
+
+            SettingsRow(showSeparator: false) {
+               SettingsRowLabel(title: localized("Model", locale: locale))
+            } control: {
+               simplifiedModelControl
+            }
+         }
+      }
+   }
+
+   private var promptPresetCard: some View {
+      SettingsGroupCard {
+         SettingsRow(showSeparator: true) {
+            SettingsRowLabel(title: localized("Prompt Preset", locale: locale))
+         } control: {
+            Menu {
+               ForEach(presets) { preset in
+                  Button(preset.name) {
+                     let id = preset.builtInIdentifier ?? preset.id.uuidString
+                     settings.enhanceTranscriptsPresetID = id
+                     syncLegacyPresetPointer(for: .transcriptionEnhancement)
+                  }
+               }
+               Divider()
+               Button(localized("Manage Presets…", locale: locale)) {
+                  showPresetManagement = true
+               }
+            } label: {
+               SettingsMenuButton(title: selectedPresetLabel)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .disabled(!settings.enhanceTranscriptsEnabled)
+            .accessibilityIdentifier("settings.picker.promptPreset")
+         }
+
+         VStack(alignment: .leading, spacing: 8) {
+            Text(promptPreviewText)
+               .font(AppTypography.monoSmall)
+               .foregroundStyle(AppColors.textPrimary)
+               .frame(maxWidth: .infinity, alignment: .leading)
+               .padding(12)
+               .background(
+                  RoundedRectangle(cornerRadius: 8, style: .continuous)
+                     .fill(AppColors.windowBackground)
+               )
+               .overlay(
+                  RoundedRectangle(cornerRadius: 8, style: .continuous)
+                     .strokeBorder(AppColors.border, lineWidth: 1)
+               )
+               .textSelection(.enabled)
+
+            HStack {
+               SettingsAccentLink(title: localized("Edit prompt…", locale: locale)) {
+                  promptEditorDraft = promptPreviewText
+                  showPromptEditor = true
+               }
+               .disabled(!settings.enhanceTranscriptsEnabled)
+               Spacer()
+            }
+
+            Text(localized(SettingsStore.promptsSentInEnglishNoteKey, locale: locale))
+               .font(AppTypography.caption)
+               .foregroundStyle(AppColors.textTertiary)
+         }
+         .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+         .padding(.bottom, SettingsLayoutMetrics.rowVerticalPadding)
+      }
+   }
+
+   private func exampleBlock(_ example: BuiltInPresets.PresetExample) -> some View {
+      VStack(alignment: .leading, spacing: 8) {
+         Text(localized("EXAMPLE", locale: locale))
+            .font(AppTypography.sectionHeader)
+            .tracking(0.08 * 11)
+            .foregroundStyle(AppColors.accent)
+            .textCase(.uppercase)
+
+         Text(localized(example.input, locale: locale))
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.textTertiary)
+            .strikethrough(true, color: AppColors.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+
+         Text(localized(example.output, locale: locale))
+            .font(AppTypography.transcriptBody)
+            .foregroundStyle(AppColors.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
+      }
+      .padding(16)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(
+         RoundedRectangle(cornerRadius: SettingsLayoutMetrics.cardRadius, style: .continuous)
+            .fill(AppColors.accentBackground)
+      )
+   }
+
+   private var enhanceTranscriptsBinding: Binding<Bool> {
+      Binding(
+         get: { settings.enhanceTranscriptsEnabled },
+         set: { settings.enhanceTranscriptsEnabled = $0 }
+      )
+   }
+
+   private var selectedProviderLabel: String {
+      if let id = settings.enhanceTranscriptsProviderID,
+         let provider = settings.provider(withID: id) {
+         return provider.displayName
+      }
+      return localized("Choose a provider", locale: locale)
+   }
+
+   private var selectedPresetLabel: String {
+      if let override = settings.enhanceTranscriptsPromptOverride, !override.isEmpty {
+         return localized("Custom", locale: locale)
+      }
+      if let id = settings.enhanceTranscriptsPresetID {
+         if let preset = presets.first(where: { $0.builtInIdentifier == id || $0.id.uuidString == id }) {
+            return preset.name
+         }
+         if let definition = BuiltInPresets.definition(for: id) {
+            return localized(definition.name, locale: locale)
+         }
+      }
+      return localized("Clean Transcript", locale: locale)
+   }
+
+   private var promptPreviewText: String {
+      settings.enhanceTranscriptsResolvedEnglishPrompt()
+         ?? BuiltInPresets.cleanTranscript.prompt
+   }
+
+   private var activePresetExample: BuiltInPresets.PresetExample? {
+      if let id = settings.enhanceTranscriptsPresetID,
+         let example = BuiltInPresets.definition(for: id)?.example {
+         return example
+      }
+      return BuiltInPresets.cleanTranscript.example
+   }
+
+   @ViewBuilder
+   private var simplifiedModelControl: some View {
+      if let providerID = settings.enhanceTranscriptsProviderID,
+         let provider = settings.provider(withID: providerID) {
+         if provider.kind == .apple {
+            Text(localized("Apple Foundation Models (on-device)", locale: locale))
+               .font(AppTypography.label)
+               .foregroundStyle(AppColors.textSecondary)
          } else {
-            ForEach(settings.providers) { provider in
-               providerRow(provider)
+            Button {
+               modelPickerPurpose = .transcriptionEnhancement
+            } label: {
+               SettingsMenuButton(
+                  title: settings.enhanceTranscriptsModelID?.isEmpty == false
+                     ? (settings.enhanceTranscriptsModelID ?? "")
+                     : localized("Choose Model…", locale: locale)
+               )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("settings.button.chooseModel.transcriptionEnhancement")
+         }
+      } else {
+         Text(localized("Choose a provider first", locale: locale))
+            .font(AppTypography.label)
+            .foregroundStyle(AppColors.textTertiary)
+      }
+   }
+
+   private var promptEditorSheet: some View {
+      VStack(spacing: 0) {
+         HStack {
+            Text(localized("Edit prompt…", locale: locale))
+               .font(AppTypography.labelStrongSelected)
+            Spacer()
+            Button(localized("Cancel", locale: locale)) {
+               showPromptEditor = false
+            }
+            Button(localized("Save", locale: locale)) {
+               settings.enhanceTranscriptsPromptOverride = promptEditorDraft
+               showPromptEditor = false
+            }
+            .keyboardShortcut(.defaultAction)
+         }
+         .padding(16)
+
+         TextEditor(text: $promptEditorDraft)
+            .font(AppTypography.monoSmall)
+            .padding(12)
+      }
+      .frame(minWidth: 480, minHeight: 360)
+   }
+
+   // MARK: - Advanced cards (chrome wrappers)
+
+   private var providersCardChrome: some View {
+      SettingsGroupCard {
+         VStack(alignment: .leading, spacing: 0) {
+            if settings.providers.isEmpty {
+               emptyProvidersPlaceholder
+                  .padding()
+            } else {
+               ForEach(settings.providers) { provider in
+                  // Always separate: the Add Provider button follows the last row.
+                  SettingsRow(showSeparator: true) {
+                     VStack(alignment: .leading, spacing: 2) {
+                        Text(provider.displayName)
+                           .font(AppTypography.labelStrong)
+                           .foregroundStyle(AppColors.textPrimary)
+                        Text("\(providerKindLabel(provider)) · \(providerStatusLine(provider))")
+                           .font(AppTypography.caption)
+                           .foregroundStyle(AppColors.textSecondary)
+                           .lineLimit(1)
+                           .truncationMode(.middle)
+                     }
+                  } control: {
+                     HStack {
+                        if provider.kind == .apple {
+                           Button(localized("Rename", locale: locale)) {
+                              editingProvider = ProviderEditState(existing: provider, settings: settings)
+                           }
+                           .buttonStyle(.plain)
+                        } else {
+                           Button(localized("Edit", locale: locale)) {
+                              editingProvider = ProviderEditState(existing: provider, settings: settings)
+                           }
+                           .buttonStyle(.plain)
+
+                           Button(localized("Remove", locale: locale), role: .destructive) {
+                              providerPendingDeletion = provider
+                           }
+                           .buttonStyle(.plain)
+                        }
+                     }
+                  }
+               }
+            }
+
+            Button {
+               editingProvider = ProviderEditState.newProvider()
+            } label: {
+               Label(localized("Add Provider", locale: locale), systemImage: "plus")
+                  .font(AppTypography.label)
+                  .foregroundStyle(AppColors.accent)
+                  .padding(SettingsLayoutMetrics.rowHorizontalPadding)
+                  .padding(.vertical, 10)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("settings.button.addProvider")
+         }
+      }
+   }
+
+   private var assignmentsCardChrome: some View {
+      SettingsGroupCard {
+         ForEach(Array(EnhancementPurpose.allCases.enumerated()), id: \.element) { index, purpose in
+            VStack(alignment: .leading, spacing: 8) {
+               assignmentRow(for: purpose)
+            }
+            .padding(.vertical, SettingsLayoutMetrics.rowVerticalPadding)
+            .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+            if index < EnhancementPurpose.allCases.count - 1 {
+               Rectangle()
+                  .fill(AppColors.border)
+                  .frame(height: 1)
+                  .padding(.leading, SettingsLayoutMetrics.rowHorizontalPadding)
+            }
+         }
+      }
+   }
+
+   private var streamingEnhancementCardChrome: some View {
+      SettingsGroupCard {
+         SettingsRow(showSeparator: false) {
+            SettingsRowLabel(
+               title: localized("Run LLM polish after dictation stops", locale: locale),
+               subtitle: settings.streamingPostStopEnhancementEnabled
+                  ? localized("Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is.", locale: locale)
+                  : localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.", locale: locale)
+            )
+         } control: {
+            SettingsToggle(isOn: $settings.streamingPostStopEnhancementEnabled)
+               .accessibilityIdentifier("settings.toggle.streamingPostStopEnhancement")
+         }
+      }
+   }
+
+   private var contextCardChrome: some View {
+      SettingsGroupCard {
+         SettingsRow(showSeparator: true) {
+            SettingsRowLabel(title: localized("Enable vibe mode (UI context)", locale: locale))
+         } control: {
+            SettingsToggle(
+               isOn: Binding(
+                  get: { settings.enableUIContext },
+                  set: { newValue in
+                     settings.enableUIContext = newValue
+                     if newValue {
+                        requestAccessibilityPermissionIfNeeded()
+                     }
+                  }
+               )
+            )
+            .accessibilityIdentifier("settings.toggle.enableUIContext")
+         }
+
+         if settings.enableUIContext {
+            SettingsRow(showSeparator: true) {
+               SettingsRowLabel(title: localized("Enable live session updates during recording", locale: locale))
+            } control: {
+               SettingsToggle(isOn: $settings.vibeLiveSessionEnabled)
+                  .accessibilityIdentifier("settings.toggle.vibeLiveSessionEnabled")
+            }
+
+            SettingsRow(showSeparator: true) {
+               SettingsRowLabel(title: localized("Include clipboard text", locale: locale))
+            } control: {
+               SettingsToggle(isOn: $settings.enableClipboardContext)
+                  .accessibilityIdentifier("settings.toggle.enableClipboardContext")
             }
          }
 
-         Button {
-            editingProvider = ProviderEditState.newProvider()
-         } label: {
-            Label(localized("Add Provider", locale: locale), systemImage: "plus")
+         SettingsRow(showSeparator: false) {
+            SettingsRowLabel(
+               title: localized("Accessibility Permission", locale: locale),
+               subtitle: accessibilityPermissionGranted
+                  ? localized("Enabled", locale: locale)
+                  : localized("Not Granted", locale: locale)
+            )
+         } control: {
+            if !accessibilityPermissionGranted {
+               Button(localized("Open System Settings", locale: locale)) {
+                  PermissionManager().openAccessibilityPreferences()
+               }
+               .buttonStyle(.plain)
+            }
          }
-         .accessibilityIdentifier("settings.button.addProvider")
-      } header: {
-         Text(localized("Providers", locale: locale))
-      } footer: {
-         Text(localized("Configure AI providers and credentials. Apple Intelligence runs on-device; other providers require API keys.", locale: locale))
       }
    }
+
+   // MARK: - Providers helpers
 
    private var emptyProvidersPlaceholder: some View {
       ContentUnavailableView {
          Label(localized("No providers configured yet", locale: locale), systemImage: "server.rack")
       } description: {
          Text(localized("Add a provider to start using AI enhancement.", locale: locale))
-      }
-   }
-
-   private func providerRow(_ provider: ProviderConfig) -> some View {
-      LabeledContent {
-         HStack {
-            if provider.kind == .apple {
-               Button(localized("Rename", locale: locale)) {
-                  editingProvider = ProviderEditState(existing: provider, settings: settings)
-               }
-            } else {
-               Button(localized("Edit", locale: locale)) {
-                  editingProvider = ProviderEditState(existing: provider, settings: settings)
-               }
-
-               Button(localized("Remove", locale: locale), role: .destructive) {
-                  providerPendingDeletion = provider
-               }
-            }
-         }
-      } label: {
-         VStack(alignment: .leading, spacing: 2) {
-            Text(provider.displayName)
-            Text("\(providerKindLabel(provider)) · \(providerStatusLine(provider))")
-               .font(.caption)
-               .foregroundStyle(.secondary)
-               .lineLimit(1)
-               .truncationMode(.middle)
-         }
       }
    }
 
@@ -232,19 +571,7 @@ struct AIEnhancementSettingsView: View {
       return endpoint
    }
 
-   // MARK: - Assignments Card
-
-   private var assignmentsCard: some View {
-      Section {
-         ForEach(EnhancementPurpose.allCases, id: \.self) { purpose in
-            assignmentRow(for: purpose)
-         }
-      } header: {
-         Text(localized("Assignments", locale: locale))
-      } footer: {
-         Text(localized("Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it.", locale: locale))
-      }
-   }
+   // MARK: - Assignments helpers
 
    @ViewBuilder
    private func assignmentRow(for purpose: EnhancementPurpose) -> some View {
@@ -671,112 +998,6 @@ struct AIEnhancementSettingsView: View {
          settings.selectedPresetId = presetID
       } else {
          settings.selectedPresetId = nil
-      }
-   }
-
-   // MARK: - Streaming Enhancement Card
-
-   private var streamingEnhancementCard: some View {
-      Section {
-         Toggle(
-            localized("Run LLM polish after dictation stops", locale: locale),
-            isOn: $settings.streamingPostStopEnhancementEnabled
-         )
-         .accessibilityIdentifier("settings.toggle.streamingPostStopEnhancement")
-      } header: {
-         Text(localized("Dictation Polish", locale: locale))
-      } footer: {
-         if settings.streamingPostStopEnhancementEnabled {
-            Text(localized("Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is.", locale: locale))
-         } else {
-            Text(localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.", locale: locale))
-         }
-      }
-   }
-
-   // MARK: - Context Card (vibe mode)
-
-   private var contextCard: some View {
-      Section {
-         Toggle(
-            localized("Enable vibe mode (UI context)", locale: locale),
-            isOn: Binding(
-               get: { settings.enableUIContext },
-               set: { newValue in
-                  settings.enableUIContext = newValue
-                  if newValue {
-                     requestAccessibilityPermissionIfNeeded()
-                  }
-               }
-            )
-         )
-         .accessibilityIdentifier("settings.toggle.enableUIContext")
-
-         if settings.enableUIContext {
-            Toggle(
-               localized("Enable live session updates during recording", locale: locale),
-               isOn: $settings.vibeLiveSessionEnabled
-            )
-            .accessibilityIdentifier("settings.toggle.vibeLiveSessionEnabled")
-
-            Toggle(
-               localized("Include clipboard text", locale: locale),
-               isOn: $settings.enableClipboardContext
-            )
-            .accessibilityIdentifier("settings.toggle.enableClipboardContext")
-         }
-
-         LabeledContent(localized("Accessibility Permission", locale: locale)) {
-            HStack {
-               Label(
-                  accessibilityPermissionGranted
-                     ? localized("Enabled", locale: locale)
-                     : localized("Not Granted", locale: locale),
-                  systemImage: accessibilityPermissionGranted ? "checkmark.circle.fill" : "info.circle"
-               )
-               .foregroundStyle(accessibilityPermissionGranted ? .green : .secondary)
-
-               if !accessibilityPermissionGranted {
-                  Button(localized("Open System Settings", locale: locale)) {
-                     PermissionManager().openAccessibilityPreferences()
-                  }
-               }
-            }
-         }
-
-         LabeledContent(localized("Runtime Status", locale: locale)) {
-            VStack(alignment: .trailing, spacing: 2) {
-               HStack(spacing: 6) {
-                  Circle()
-                     .fill(vibeRuntimeColor)
-                     .frame(width: 8, height: 8)
-                  Text(vibeRuntimeLabel)
-               }
-               Text(settings.vibeRuntimeDetail)
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
-            }
-         }
-      } header: {
-         Text(localized("Vibe Mode", locale: locale))
-      } footer: {
-         Text(localized("Vibe mode captures structured UI context when recording starts so AI enhancement can use your active app state as reference.", locale: locale))
-      }
-   }
-
-   private var vibeRuntimeLabel: String {
-      switch settings.vibeRuntimeState {
-      case .ready: return localized("Ready", locale: locale)
-      case .limited: return localized("Limited", locale: locale)
-      case .degraded: return localized("Degraded", locale: locale)
-      }
-   }
-
-   private var vibeRuntimeColor: Color {
-      switch settings.vibeRuntimeState {
-      case .ready: return .green
-      case .limited: return .orange
-      case .degraded: return .red
       }
    }
 

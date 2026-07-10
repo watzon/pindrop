@@ -163,6 +163,9 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */; };
 		LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */; };
 		HOMEPRESENTBUILD01A2B3C4D5 /* HomePresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */; };
+		SETTPRESENTBUILD01A2B3 /* SettingsPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTPRESENTFILE01A2B3 /* SettingsPresentation.swift */; };
+		SETTCHROMEBUILD01A2B3C /* SettingsChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTCHROMEFILE01A2B3C /* SettingsChrome.swift */; };
+		SETTPRESENTTESTBUILD01 /* SettingsPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTPRESENTTESTFILE01 /* SettingsPresentationTests.swift */; };
 		HOMEPRESENTTESTBUILD01A2 /* HomePresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */; };
 		LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */; };
 		LIBPRESENTTESTBUILD01A2 /* LibraryPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */; };
@@ -431,6 +434,10 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentation.swift; sourceTree = "<group>"; };
 		HOMEPRESENTFILE01A2B3C4D5 /* HomePresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePresentation.swift; sourceTree = "<group>"; };
+		SETTPRESENTFILE01A2B3 /* SettingsPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPresentation.swift; sourceTree = "<group>"; };
+		SETTCHROMEFILE01A2B3C /* SettingsChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChrome.swift; sourceTree = "<group>"; };
+		SETTPRESENTTESTFILE01 /* SettingsPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPresentationTests.swift; sourceTree = "<group>"; };
+
 		HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePresentationTests.swift; sourceTree = "<group>"; };
 		LIBEXPANDFILE01A2B3C4D5 /* LibraryExpandedPlayerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryExpandedPlayerCard.swift; sourceTree = "<group>"; };
 		LIBPRESENTTESTFILE01A2 /* LibraryPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPresentationTests.swift; sourceTree = "<group>"; };
@@ -728,6 +735,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				SETTINGSCOMPFILE01A2B3C4D5E6F /* SettingsComponents.swift */,
 				PRESETMANGSHEETFILE /* PresetManagementSheet.swift */,
 				8D0F64A2A0A44CE9B6B5A001 /* SettingsWindowController.swift */,
+				SETTPRESENTFILE01A2B3 /* SettingsPresentation.swift */,
+				SETTCHROMEFILE01A2B3C /* SettingsChrome.swift */,
 				8D0F64A2A0A44CE9B6B5A003 /* DictationSettingsView.swift */,
 				8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */,
 				THEMESETTINGSFILE01A2B3C4D5E6F /* ThemeSettingsView.swift */,
@@ -815,6 +824,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				DICTPRESENTTESTFILE01A2B3 /* DictionaryPresentationTests.swift */,
 				MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */,
 				HOMEPRESENTTESTFILE01A2 /* HomePresentationTests.swift */,
+				SETTPRESENTTESTFILE01 /* SettingsPresentationTests.swift */,
 				TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */,
 				CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */,
 				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
@@ -1178,6 +1188,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				DICTPRESENTTESTBUILD01A2B3 /* DictionaryPresentationTests.swift in Sources */,
 				MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */,
 				HOMEPRESENTTESTBUILD01A2 /* HomePresentationTests.swift in Sources */,
+				SETTPRESENTTESTBUILD01 /* SettingsPresentationTests.swift in Sources */,
 				TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */,
 				CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */,
 				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
@@ -1356,6 +1367,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */,
 				HOMEPRESENTBUILD01A2B3C4D5 /* HomePresentation.swift in Sources */,
+				SETTPRESENTBUILD01A2B3 /* SettingsPresentation.swift in Sources */,
+				SETTCHROMEBUILD01A2B3C /* SettingsChrome.swift in Sources */,
 				LIBEXPANDBUILD01A2B3C4D5 /* LibraryExpandedPlayerCard.swift in Sources */,
 				DICTVIEWMAIN1A2B3C4D5E6F70 /* DictionaryView.swift in Sources */,
 				FIXEDLAYOUT01A2B3C4D5E6F /* MainContentPageLayout.swift in Sources */,

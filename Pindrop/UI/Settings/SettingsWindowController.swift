@@ -107,10 +107,9 @@ struct SettingsPaneContent: View {
 @MainActor
 final class SettingsWindowController: NSWindowController {
     fileprivate enum Layout {
-        static let contentWidth: CGFloat = 620
-        static let minimumContentHeight: CGFloat = 420
-        static let defaultContentHeight: CGFloat = 600
-        static let contentPadding: CGFloat = 24
+        static let contentWidth: CGFloat = SettingsLayoutMetrics.windowWidth
+        static let minimumContentHeight: CGFloat = SettingsLayoutMetrics.minimumHeight
+        static let defaultContentHeight: CGFloat = SettingsLayoutMetrics.defaultHeight
         static let frameAutosaveName = "PindropSettings"
     }
 
@@ -118,8 +117,9 @@ final class SettingsWindowController: NSWindowController {
     private let modelContainer: ModelContainer
     private let launchAtLoginManager: LaunchAtLoginManager
     private let updateService: UpdateService
-    private var tabViewController: SettingsTabViewController?
+    private let windowModel = SettingsWindowModel()
     private var settingsObservation: AnyCancellable?
+    private var tabObservation: AnyCancellable?
     private var lastLocalizedAppLocale: AppLocale
 
     init(
@@ -140,6 +140,11 @@ final class SettingsWindowController: NSWindowController {
                 self?.reloadLocalizedStringsIfNeeded()
             }
         }
+        tabObservation = windowModel.objectWillChange.sink { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.updateWindowTitle()
+            }
+        }
     }
 
     @available(*, unavailable)
@@ -149,7 +154,7 @@ final class SettingsWindowController: NSWindowController {
 
     func show(tab: SettingsTab = .general) {
         ensureWindow()
-        select(tab: tab)
+        windowModel.select(tab)
         reloadLocalizedStrings()
 
         NSApp.activate(ignoringOtherApps: true)
@@ -157,79 +162,46 @@ final class SettingsWindowController: NSWindowController {
     }
 
     func reloadLocalizedStrings() {
-        guard let tabViewController else { return }
-
-        let locale = settings.selectedAppLocale.locale
-        for (index, tab) in SettingsTab.allCases.enumerated()
-            where index < tabViewController.tabViewItems.count
-        {
-            let item = tabViewController.tabViewItems[index]
-            let title = tab.title(locale: locale)
-            item.label = title
-            item.toolTip = title
-            item.viewController?.title = title
-        }
-
-        updateWindowForSelectedTab()
+        updateWindowTitle()
         if let window {
-            applyInterfaceLayoutDirection(to: window, locale: locale)
+            applyInterfaceLayoutDirection(to: window, locale: settings.selectedAppLocale.locale)
         }
         lastLocalizedAppLocale = settings.selectedAppLocale
+        // SwiftUI environment(\.locale) tracks settings.selectedAppLocale on the root view.
+        windowModel.objectWillChange.send()
     }
 
     private func ensureWindow() {
         guard window == nil else { return }
 
-        let tabViewController = SettingsTabViewController()
-        tabViewController.tabStyle = .toolbar
-        // Empty transitions avoid a stale translucent overlay that can linger under the
-        // toolbar when crossfading NSHostingController children during tab switches.
-        tabViewController.transitionOptions = []
-        tabViewController.onSelectionChange = { [weak self] in
-            self?.updateWindowForSelectedTab()
-        }
+        let rootView = SettingsRootHostingView(
+            settings: settings,
+            model: windowModel,
+            modelContainer: modelContainer,
+            launchAtLoginManager: launchAtLoginManager,
+            updateService: updateService
+        )
+        let hostingController = NSHostingController(rootView: AnyView(rootView))
 
-        for tab in SettingsTab.allCases {
-            let rootView = SettingsPaneRoot(
-                settings: settings,
-                modelContainer: modelContainer,
-                launchAtLoginManager: launchAtLoginManager,
-                updateService: updateService,
-                tab: tab
-            )
-            let hostingController = NSHostingController(rootView: AnyView(rootView))
-            // No preferredContentSize sizing: the window frame stays put across tab
-            // switches and each Form scrolls inside the fixed host size.
-            hostingController.title = tab.title(locale: settings.selectedAppLocale.locale)
-
-            let item = NSTabViewItem(viewController: hostingController)
-            item.identifier = tab.accessibilityIdentifier
-            item.label = tab.title(locale: settings.selectedAppLocale.locale)
-            item.image = NSImage(
-                systemSymbolName: tab.systemIcon,
-                accessibilityDescription: item.label
-            )
-            item.toolTip = item.label
-            tabViewController.addTabViewItem(item)
-        }
-
-        let window = NSWindow(
+        let window = SettingsWindow(
             contentRect: NSRect(
                 x: 0,
                 y: 0,
                 width: Layout.contentWidth,
                 height: Layout.defaultContentHeight
             ),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        window.contentViewController = tabViewController
-        window.toolbarStyle = .preference
-        window.titleVisibility = .visible
+        window.contentViewController = hostingController
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.toolbarStyle = .unified
         window.tabbingMode = .disallowed
         window.isReleasedWhenClosed = false
-        // Fixed width; free vertical resize. No max height so the user can grow the window.
+        window.backgroundColor = NSColor(AppColors.windowBackground)
+        // Fixed width; free vertical resize.
         window.contentMinSize = NSSize(
             width: Layout.contentWidth,
             height: Layout.minimumContentHeight
@@ -240,33 +212,24 @@ final class SettingsWindowController: NSWindowController {
         )
         window.standardWindowButton(.zoomButton)?.isEnabled = false
 
+        // Leave room for traffic lights under the transparent titlebar.
+        window.titlebarSeparatorStyle = .none
+
         if !window.setFrameUsingName(Layout.frameAutosaveName) {
             window.center()
         }
         window.setFrameAutosaveName(Layout.frameAutosaveName)
         applyInterfaceLayoutDirection(to: window, locale: settings.selectedAppLocale.locale)
 
-        self.tabViewController = tabViewController
         self.window = window
-        updateWindowForSelectedTab()
+        updateWindowTitle()
+        PindropThemeController.shared.apply(to: window)
     }
 
-    private func select(tab: SettingsTab) {
-        guard let tabViewController,
-              let index = SettingsTab.allCases.firstIndex(of: tab)
-        else { return }
-
-        tabViewController.selectedTabViewItemIndex = index
-        updateWindowForSelectedTab()
-    }
-
-    private func updateWindowForSelectedTab() {
-        guard let tabViewController,
-              SettingsTab.allCases.indices.contains(tabViewController.selectedTabViewItemIndex)
-        else { return }
-
-        let tab = SettingsTab.allCases[tabViewController.selectedTabViewItemIndex]
-        window?.title = tab.title(locale: settings.selectedAppLocale.locale)
+    private func updateWindowTitle() {
+        let title = windowModel.selectedTab.title(locale: settings.selectedAppLocale.locale)
+        // Keep accessibility / window-menu title even with hidden titlebar text.
+        window?.title = title
     }
 
     private func reloadLocalizedStringsIfNeeded() {
@@ -275,34 +238,33 @@ final class SettingsWindowController: NSWindowController {
     }
 }
 
-private final class SettingsTabViewController: NSTabViewController {
-    var onSelectionChange: (() -> Void)?
-
-    override func tabView(_ tabView: NSTabView, didSelect tabViewItem: NSTabViewItem?) {
-        super.tabView(tabView, didSelect: tabViewItem)
-        onSelectionChange?()
+/// Closes on Escape (cancelOperation reaches the window when no responder handles it —
+/// e.g. hotkey capture consumes Esc first, and performClose refuses while a sheet is attached).
+private final class SettingsWindow: NSWindow {
+    override func cancelOperation(_ sender: Any?) {
+        performClose(sender)
     }
 }
 
-private struct SettingsPaneRoot: View {
+private struct SettingsRootHostingView: View {
     @ObservedObject var settings: SettingsStore
+    @ObservedObject var model: SettingsWindowModel
     let modelContainer: ModelContainer
     let launchAtLoginManager: LaunchAtLoginManager
     let updateService: UpdateService
-    let tab: SettingsTab
 
     var body: some View {
-        SettingsPaneContent(
+        SettingsShellView(
             settings: settings,
-            tab: tab,
+            model: model,
             launchAtLoginManager: launchAtLoginManager,
             updateService: updateService
         )
-        // Fill the host so grouped Forms scroll inside the window rather than
-        // driving window height. Width stays fixed via the window's min/max size.
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .modelContainer(modelContainer)
+        // Clearance for traffic lights in the transparent titlebar (standard height).
+        .padding(.top, 28)
     }
 }
