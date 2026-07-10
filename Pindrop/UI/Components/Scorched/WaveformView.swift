@@ -5,7 +5,47 @@
 //  Created on 2026-07-09.
 //
 
+import AppKit
 import SwiftUI
+
+/// AppKit scrub surface for the waveform. The main window sets
+/// `isMovableByWindowBackground`, and AppKit treats non-interactive SwiftUI
+/// regions as background — a SwiftUI DragGesture here loses the fight and drags
+/// the window. A real NSView that returns `mouseDownCanMoveWindow = false` owns
+/// both click- and drag-to-seek.
+private struct WaveformScrubSurface: NSViewRepresentable {
+    let onFraction: (Double) -> Void
+
+    final class ScrubView: NSView {
+        var onFraction: ((Double) -> Void)?
+
+        override var mouseDownCanMoveWindow: Bool { false }
+
+        override func mouseDown(with event: NSEvent) {
+            report(event)
+        }
+
+        override func mouseDragged(with event: NSEvent) {
+            report(event)
+        }
+
+        private func report(_ event: NSEvent) {
+            guard bounds.width > 0 else { return }
+            let x = convert(event.locationInWindow, from: nil).x
+            onFraction?(min(max(0, Double(x / bounds.width)), 1))
+        }
+    }
+
+    func makeNSView(context: Context) -> ScrubView {
+        let view = ScrubView()
+        view.onFraction = onFraction
+        return view
+    }
+
+    func updateNSView(_ nsView: ScrubView, context: Context) {
+        nsView.onFraction = onFraction
+    }
+}
 
 /// Pure geometry helpers for the Scorched Earth waveform scrubber (spec §6).
 enum WaveformGeometry {
@@ -95,14 +135,13 @@ struct WaveformView: View {
             }
             .frame(height: WaveformGeometry.height)
             .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        guard let onSeek else { return }
-                        let x = min(max(0, value.location.x), width)
-                        onSeek(width > 0 ? Double(x / width) : 0)
+            .overlay {
+                if onSeek != nil {
+                    WaveformScrubSurface { fraction in
+                        onSeek?(fraction)
                     }
-            )
+                }
+            }
         }
         .frame(height: WaveformGeometry.height)
         .accessibilityElement(children: .ignore)
