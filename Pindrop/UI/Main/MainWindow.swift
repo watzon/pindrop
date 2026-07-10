@@ -14,6 +14,7 @@ import AppKit
 enum MainNavItem: String, Identifiable {
     case home = "Home"
     case history = "History"
+    case notes = "Notes"
     case transcribe = "Transcribe"
     case models = "Models"
     case dictionary = "Dictionary"
@@ -21,6 +22,7 @@ enum MainNavItem: String, Identifiable {
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
         .history,
+        .notes,
         .transcribe,
         .dictionary,
         .models
@@ -36,6 +38,7 @@ enum MainNavItem: String, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .history: return "clock.fill"
+        case .notes: return "note.text"
         case .transcribe: return "waveform"
         case .models: return "cpu"
         case .dictionary: return "text.book.closed"
@@ -222,6 +225,8 @@ struct MainWindow: View {
             )
         case .history:
             HistoryView()
+        case .notes:
+            NotesView()
         case .transcribe:
             if let mediaTranscriptionState,
                let modelManager,
