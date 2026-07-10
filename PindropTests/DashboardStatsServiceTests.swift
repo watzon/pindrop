@@ -213,6 +213,56 @@ struct DashboardStatsServiceTests {
         #expect(sut.streakDays == 1)
     }
 
+    // MARK: - DST transitions (America/Los_Angeles)
+
+    @Test func dstSpringForward_streakAndWeekdayBucketsHoldAcross23HourDay() {
+        // 2024-03-10: US spring-forward (02:00 → 03:00 PT). Calendar day is 23 hours; Sunday.
+        // "now" is later the same day, after the jump. firstWeekday = Sunday so the week is Mar 10–16.
+        let calendar = makeCalendar(firstWeekday: 1)
+        let now = date(year: 2024, month: 3, day: 10, hour: 10, minute: 0)
+        let samples = [
+            sample(year: 2024, month: 3, day: 8, hour: 12, wordCount: 1), // Fri — streak
+            sample(year: 2024, month: 3, day: 9, hour: 23, minute: 30, wordCount: 2), // Sat prior week
+            sample(year: 2024, month: 3, day: 10, hour: 1, minute: 30, wordCount: 3), // before jump (PST)
+            sample(year: 2024, month: 3, day: 10, hour: 3, minute: 30, wordCount: 4), // after jump (PDT)
+            sample(year: 2024, month: 3, day: 11, hour: 9, wordCount: 5), // Mon — same week
+        ]
+
+        let sut = DashboardStatsService.compute(samples: samples, calendar: calendar, now: now)
+
+        // Calendar-day streak walks Mar 10 → 9 → 8 despite the 23h wall-clock day.
+        #expect(sut.streakDays == 3)
+        // Both pre- and post-transition samples on Mar 10 count as the same weekday bucket.
+        #expect(sut.wordsToday == 7)
+        #expect(sut.sessionsToday == 2)
+        #expect(sut.wordsThisWeek == 12) // Mar 10 (7) + Mar 11 (5); Mar 9 is prior week
+        #expect(sut.wordsPerWeekday == [7, 5, 0, 0, 0, 0, 0]) // Sun, Mon
+    }
+
+    @Test func dstFallBack_streakAndWeekdayBucketsHoldAcross25HourDay() {
+        // 2024-11-03: US fall-back (02:00 → 01:00 PT). Calendar day is 25 hours; Sunday.
+        // "now" is afternoon of the transition day. Week with firstWeekday Sunday: Nov 3–9.
+        let calendar = makeCalendar(firstWeekday: 1)
+        let now = date(year: 2024, month: 11, day: 3, hour: 15, minute: 0)
+        let samples = [
+            sample(year: 2024, month: 11, day: 1, hour: 12, wordCount: 1), // Fri — streak
+            sample(year: 2024, month: 11, day: 2, hour: 18, wordCount: 2), // Sat prior week for buckets
+            // Unambiguous local times on the 25h day (avoid the repeated 01:00–02:00 hour).
+            sample(year: 2024, month: 11, day: 3, hour: 0, minute: 30, wordCount: 3), // early morning PDT
+            sample(year: 2024, month: 11, day: 3, hour: 14, minute: 0, wordCount: 4), // afternoon PST
+            sample(year: 2024, month: 11, day: 4, hour: 10, wordCount: 6), // Mon — same week
+        ]
+
+        let sut = DashboardStatsService.compute(samples: samples, calendar: calendar, now: now)
+
+        // Streak still counts calendar days Nov 3 → 2 → 1 across the 25h wall-clock day.
+        #expect(sut.streakDays == 3)
+        #expect(sut.wordsToday == 7)
+        #expect(sut.sessionsToday == 2)
+        #expect(sut.wordsThisWeek == 13) // Nov 3 (7) + Nov 4 (6); Nov 2 is prior week
+        #expect(sut.wordsPerWeekday == [7, 6, 0, 0, 0, 0, 0]) // Sun, Mon
+    }
+
     // MARK: - firstWeekday / wordsPerWeekday
 
     @Test func wordsPerWeekday_sundayFirstWeekday() {
