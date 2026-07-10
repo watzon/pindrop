@@ -796,15 +796,21 @@ private struct KeyboardFocusRingModifier<FocusShape: InsettableShape>: ViewModif
 
     func body(content: Content) -> some View {
         content
-            .focusable()
+            // .activate keeps this out of the click/first-responder path: the ring
+            // appears only for keyboard navigation, matching macOS convention.
+            .focusable(interactions: .activate)
             .focused($isFocused)
             .overlay {
-                shape.strokeBorder(
-                    isFocused ? AppColors.accent : Color.clear,
-                    lineWidth: 2
-                )
-                .padding(-3)
-                .allowsHitTesting(false)
+                if isFocused {
+                    // Inset the SHAPE (not the view) so corner radii grow with the
+                    // outset, and never animate the ring — interpolating it through
+                    // layout changes (sidebar collapse) smears it across stale frames.
+                    shape
+                        .inset(by: -3)
+                        .strokeBorder(AppColors.accent.opacity(0.7), lineWidth: 1.5)
+                        .allowsHitTesting(false)
+                        .transaction { $0.animation = nil }
+                }
             }
     }
 }

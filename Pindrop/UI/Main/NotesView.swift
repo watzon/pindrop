@@ -337,13 +337,15 @@ struct NotesView: View {
                     .frame(width: 88, alignment: .trailing)
             }
             .padding(.vertical, 13)
-            .padding(.horizontal, 20)
-            .background(isSelected ? AppColors.accent.opacity(0.06) : Color.clear)
+            // Divider inside the horizontal padding: constrained to the content
+            // column; the selected wash below stays full-bleed.
             .overlay(alignment: .bottom) {
                 Rectangle()
                     .fill(AppColors.border)
                     .frame(height: 1)
             }
+            .padding(.horizontal, 20)
+            .background(isSelected ? AppColors.accent.opacity(0.06) : Color.clear)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

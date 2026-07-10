@@ -63,18 +63,20 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
                 .accessibilityElement(children: .combine)
             }
             .buttonStyle(.plain)
-            .keyboardFocusRing(Rectangle())
+            .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
 
             playChip()
                 .frame(width: PlayChipMetrics.width, alignment: .trailing)
         }
         .padding(.vertical, 13)
-        .padding(.horizontal, 24)
+        // Divider before the horizontal padding so it spans the content column,
+        // not the padded row frame (it read as overshooting the section rule).
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(AppColors.border)
                 .frame(height: 1)
         }
+        .padding(.horizontal, 24)
     }
 }
 
