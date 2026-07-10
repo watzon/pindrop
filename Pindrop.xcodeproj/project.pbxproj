@@ -120,6 +120,11 @@
 		MEDIAPAUSEBUILD01A2B3C4D5E6F /* MediaPauseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */; };
 		MEDIAPREPBUILD01A2B3C4D5E6F /* MediaPreparationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */; };
 		MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */; };
+		REPLMATCHMODEBUILD01 /* ReplacementMatchMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */; };
+		STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRWORDCOUNTFILE01 /* String+WordCount.swift */; };
+		SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */; };
+		WORDCNTHLPTESTBUILD01 /* WordCountHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WORDCNTHLPTESTFILE01 /* WordCountHelperTests.swift */; };
+		REPLMATCHTESTBUILD01 /* ReplacementMatchModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = REPLMATCHTESTFILE01 /* ReplacementMatchModeTests.swift */; };
 		MEDIATRANSSTATEBUILDTEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */; };
 		MEDIATRANSTYPESBUILD01 /* MediaTranscriptionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */; };
 		MNTFMT01A2B3C4D5E6F /* MentionFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */; };
@@ -325,6 +330,11 @@
 		MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPauseService.swift; sourceTree = "<group>"; };
 		MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreparationService.swift; sourceTree = "<group>"; };
 		MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSourceKind.swift; sourceTree = "<group>"; };
+		REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplacementMatchMode.swift; sourceTree = "<group>"; };
+		STRWORDCOUNTFILE01 /* String+WordCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordCount.swift"; sourceTree = "<group>"; };
+		SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV8MigrationTests.swift; sourceTree = "<group>"; };
+		WORDCNTHLPTESTFILE01 /* WordCountHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCountHelperTests.swift; sourceTree = "<group>"; };
+		REPLMATCHTESTFILE01 /* ReplacementMatchModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplacementMatchModeTests.swift; sourceTree = "<group>"; };
 		MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionFeatureStateTests.swift; sourceTree = "<group>"; };
 		MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTranscriptionTypes.swift; sourceTree = "<group>"; };
 		MNTFMT02A2B3C4D5E6F /* MentionFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionFormatter.swift; sourceTree = "<group>"; };
@@ -457,6 +467,7 @@
 				MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */,
 				WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */,
 				VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */,
+				REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */,
 				FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */,
 				NOTESCH001A2B3C4D5E6 /* NoteSchema.swift */,
 				NOTESW001A2B3C4D5E6F7 /* Note.swift */,
@@ -665,6 +676,9 @@
 				MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */,
 				LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */,
 				DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */,
+				SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */,
+				WORDCNTHLPTESTFILE01 /* WordCountHelperTests.swift */,
+				REPLMATCHTESTFILE01 /* ReplacementMatchModeTests.swift */,
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
 				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 				E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
@@ -816,6 +830,7 @@
 				IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */,
 				MODELCAPS1A2B3C4D5E6F71 /* ModelCapabilities.swift */,
 				009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */,
+				STRWORDCOUNTFILE01 /* String+WordCount.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -996,6 +1011,9 @@
 				MODELMGRTESTBUILD1A2B3C4D5E6F70 /* ModelManagerTests.swift in Sources */,
 				LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */,
 				DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
+				SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */,
+				WORDCNTHLPTESTBUILD01 /* WordCountHelperTests.swift in Sources */,
+				REPLMATCHTESTBUILD01 /* ReplacementMatchModeTests.swift in Sources */,
 				MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */,
 				MOCKCAPT01A2B3C4D5E6F /* MockAudioCaptureBackend.swift in Sources */,
 				CTXADAPTTEST01A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift in Sources */,
@@ -1034,6 +1052,7 @@
 				ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */,
 				WORDRPLACEA1B2C3D4 /* WordReplacement.swift in Sources */,
 				VOCABWORDA1B2C3D4 /* VocabularyWord.swift in Sources */,
+				REPLMATCHMODEBUILD01 /* ReplacementMatchMode.swift in Sources */,
 				NOTESCH001A2B3C4D5 /* NoteSchema.swift in Sources */,
 				NOTESW001A2B3C4D5E6 /* Note.swift in Sources */,
 				FEATMODEL1A2B3C4D5E6F /* FeatureModelType.swift in Sources */,
@@ -1078,6 +1097,7 @@
 				LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */,
 				IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */,
 				MODELCAPS1A2B3C4D5E6F70 /* ModelCapabilities.swift in Sources */,
+				STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */,
 				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
 				ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */,
 				WHATVIEWBUILD01A2B3C4D5E6F /* WhatsNewView.swift in Sources */,
