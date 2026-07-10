@@ -3,6 +3,8 @@
 1:
   folder: "1 个文件夹"
   transcription: "1 个转录"
+  note: "1 条笔记"
+  word: "1 个词"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "一款使用 WhisperKit 进行本地语音转文本的原生 macOS 菜单栏听写应用。默认 100% 本地处理，可选 AI 增强。"
   big_round_of_upgrades_and_two_community_shout: "一大波升级 — 以及两位社区贡献者致谢。"
@@ -224,6 +226,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d 个样本 · %@"
+  words: "%d 个词"
 dark:
   _self: "深色"
   preview: "深色预览"
@@ -252,6 +255,7 @@ delete:
   all: "全部删除"
   all_participants: "删除所有参与者？"
   all_participants_60ed6e73: "删除所有参与者…"
+  note: "删除笔记？"
 dictionary:
   _self: "词典"
 direct:
@@ -717,6 +721,7 @@ processing:
   272bc02e: "处理中..."
   5aa377e2: "⏳ 处理中"
   transcript: "Processing transcript"
+  ellipsis: "处理中…"
 prompt:
   _self: "提示词"
   preset: "提示词预设"
@@ -809,6 +814,7 @@ save:
   continue: "保存并继续"
   credentials: "保存凭证"
   prompt: "保存提示词"
+  now_s: "立即保存 (⌘S)"
 saved:
   _self: "已保存"
   as_note: "已保存为笔记"
@@ -908,6 +914,7 @@ status:
   _self: "状态"
 stop:
   recording: "停止录制"
+  listening: "停止聆听"
 streaming:
   enhancement: "流式增强"
   transcription_currently_supports_engli: "流式转录当前仅支持英语，与所选语言无关。"
@@ -957,6 +964,7 @@ this:
   will_permanently_remove_the_transcript_and: "这将永久删除转录及其托管的媒体文件。"
   removes_all_learned_voice_profiles_and_trai: "这将删除所有已学习的声音配置和训练数据。此操作无法撤销。"
   will_clear_all_your_settings_including_api_2841f4a1: "这将清除包括 API 密钥在内的所有设置，并重新开始引导"
+  will_permanently_remove_this_note: "这将永久删除此笔记。"
 time:
   saved: "节省时间"
 to:
@@ -1176,3 +1184,7 @@ bring:
   all_to_front: "将全部置于顶层"
 home:
   _self: "主页"
+pinned:
+  _self: "已置顶"
+speak:
+  to_append: "说话追加"

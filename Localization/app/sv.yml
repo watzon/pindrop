@@ -3,6 +3,8 @@
 1:
   folder: "1 mapp"
   transcription: "1 transkription"
+  note: "1 anteckning"
+  word: "1 ord"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "En inbyggd macOS-menyradsdikteringsapp som använder lokalt tal-till-text med WhisperKit. 100 % lokal bearbetning som standard med valfri AI-förbättring."
   big_round_of_upgrades_and_two_community_shout: "En stor omgång uppgraderingar — och två tack till communityn."
@@ -224,6 +226,7 @@ cut:
 d:
   characters: "%d tecken"
   samples: "%d samples · %@"
+  words: "%d ord"
 dark:
   _self: "Mörk"
   preview: "Mörk förhandsgranskning"
@@ -252,6 +255,7 @@ delete:
   all: "Radera alla"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Ta bort anteckning?"
 dictionary:
   _self: "Ordbok"
 direct:
@@ -717,6 +721,7 @@ processing:
   272bc02e: "Bearbetar..."
   5aa377e2: "⏳ Bearbetning"
   transcript: "Bearbetar avskrift"
+  ellipsis: "Bearbetar…"
 prompt:
   _self: "Prompt"
   preset: "Fråga Preset"
@@ -809,6 +814,7 @@ save:
   continue: "Spara och fortsätt"
   credentials: "Spara inloggningsuppgifter"
   prompt: "Spara uppmaning"
+  now_s: "Spara nu (⌘S)"
 saved:
   _self: "Sparad"
   as_note: "Sparad som anteckning"
@@ -908,6 +914,7 @@ status:
   _self: "Status"
 stop:
   recording: "Stoppa inspelning"
+  listening: "Sluta lyssna"
 streaming:
   enhancement: "Streaming Enhancement"
   transcription_currently_supports_engli: "Strömmande transkription stöder för närvarande endast engelska, oavsett valt språk."
@@ -957,6 +964,7 @@ this:
   will_permanently_remove_the_transcript_and: "Detta tar permanent bort transkriptionen och dess hanterade mediefil."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Detta tar bort anteckningen permanent."
 time:
   saved: "Tid sparad"
 to:
@@ -1176,3 +1184,7 @@ bring:
   all_to_front: "Lägg alla överst"
 home:
   _self: "Hem"
+pinned:
+  _self: "Fästa"
+speak:
+  to_append: "Tala för att lägga till"

@@ -3,6 +3,8 @@
 1:
   folder: "1 folder"
   transcription: "1 transcription"
+  note: "1 note"
+  word: "1 word"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement."
   big_round_of_upgrades_and_two_community_shout: "A big round of upgrades — and two community shout-outs."
@@ -226,6 +228,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d samples · %@"
+  words: "%d words"
 dark:
   _self: "Dark"
   preview: "Dark Preview"
@@ -254,6 +257,7 @@ delete:
   all: "Delete All"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Delete note?"
 dictionary:
   _self: "Dictionary"
 direct:
@@ -725,6 +729,7 @@ processing:
   272bc02e: "Processing..."
   5aa377e2: "⏳ Processing"
   transcript: "Processing transcript"
+  ellipsis: "Processing…"
 prompt:
   _self: "Prompt"
   preset: "Prompt Preset"
@@ -817,6 +822,7 @@ save:
   continue: "Save & Continue"
   credentials: "Save Credentials"
   prompt: "Save Prompt"
+  now_s: "Save now (⌘S)"
 saved:
   _self: "Saved"
   as_note: "Saved as Note"
@@ -916,6 +922,7 @@ status:
   _self: "Status"
 stop:
   recording: "Stop Recording"
+  listening: "Stop listening"
 streaming:
   enhancement: "Streaming Enhancement"
   transcription_currently_supports_engli: "Streaming transcription currently supports English only, regardless of the selected language."
@@ -965,6 +972,7 @@ this:
   will_permanently_remove_the_transcript_and: "This will permanently remove the transcript and its managed media file."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "This will permanently remove this note."
 time:
   saved: "Time Saved"
 to:
@@ -1180,3 +1188,7 @@ bring:
   all_to_front: "Bring All to Front"
 home:
   _self: "Home"
+pinned:
+  _self: "Pinned"
+speak:
+  to_append: "Speak to append"

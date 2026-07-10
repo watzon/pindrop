@@ -3,6 +3,8 @@
 1:
   folder: "1 Ordner"
   transcription: "1 Transkription"
+  note: "1 Notiz"
+  word: "1 Wort"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Eine native macOS-Menüleisten-Diktier-App mit lokaler Spracherkennung durch WhisperKit. 100% lokale Verarbeitung standardmäßig mit optionaler KI-Verbesserung."
   big_round_of_upgrades_and_two_community_shout: "Eine große Runde Upgrades — und zwei Community-Danksagungen."
@@ -224,6 +226,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d Samples · %@"
+  words: "%d Wörter"
 dark:
   _self: "Dunkel"
   preview: "Dunkle Vorschau"
@@ -252,6 +255,7 @@ delete:
   all: "Alle löschen"
   all_participants: "Alle Teilnehmer löschen?"
   all_participants_60ed6e73: "Alle Teilnehmer löschen…"
+  note: "Notiz löschen?"
 dictionary:
   _self: "Wörterbuch"
 direct:
@@ -717,6 +721,7 @@ processing:
   272bc02e: "Verarbeitung..."
   5aa377e2: "⏳ Verarbeitung"
   transcript: "Processing transcript"
+  ellipsis: "Verarbeitung…"
 prompt:
   _self: "Prompt"
   preset: "Prompt-Voreinstellung"
@@ -809,6 +814,7 @@ save:
   continue: "Speichern und fortfahren"
   credentials: "Anmeldedaten speichern"
   prompt: "Prompt speichern"
+  now_s: "Jetzt speichern (⌘S)"
 saved:
   _self: "Gespeichert"
   as_note: "Als Notiz gespeichert"
@@ -908,6 +914,7 @@ status:
   _self: "Status"
 stop:
   recording: "Aufnahme stoppen"
+  listening: "Zuhören beenden"
 streaming:
   enhancement: "Streaming-Verbesserung"
   transcription_currently_supports_engli: "Die Streaming-Transkription unterstützt derzeit nur Englisch, unabhängig von der ausgewählten Sprache."
@@ -957,6 +964,7 @@ this:
   will_permanently_remove_the_transcript_and: "Dies entfernt die Transkription und ihre verwaltete Mediendatei dauerhaft."
   removes_all_learned_voice_profiles_and_trai: "Dadurch werden alle gelernten Stimmprofile und Trainingsdaten entfernt. Das kann nicht rückgängig gemacht werden."
   will_clear_all_your_settings_including_api_2841f4a1: "Dadurch werden alle Einstellungen inklusive API-Schlüssel gelöscht und die Einführung neu gestartet"
+  will_permanently_remove_this_note: "Dies entfernt diese Notiz dauerhaft."
 time:
   saved: "Gesparte Zeit"
 to:
@@ -1176,3 +1184,7 @@ bring:
   all_to_front: "Alle nach vorne bringen"
 home:
   _self: "Übersicht"
+pinned:
+  _self: "Angeheftet"
+speak:
+  to_append: "Sprechen zum Anhängen"

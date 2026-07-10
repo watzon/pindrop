@@ -3,6 +3,8 @@
 1:
   folder: "1 map"
   transcription: "1 transkripsi"
+  note: "1 catatan"
+  word: "1 kata"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Aplikasi dikte bilah menu macOS asli menggunakan ucapan-ke-teks lokal dengan WhisperKit. Pemrosesan lokal 100% secara default dengan peningkatan AI opsional."
   big_round_of_upgrades_and_two_community_shout: "Serangkaian peningkatan besar — dan dua apresiasi untuk komunitas."
@@ -224,6 +226,7 @@ cut:
 d:
   characters: "%d karakter"
   samples: "%d samples · %@"
+  words: "%d kata"
 dark:
   _self: "Gelap"
   preview: "Pratinjau Gelap"
@@ -252,6 +255,7 @@ delete:
   all: "Hapus semua"
   all_participants: "Delete All Participants?"
   all_participants_60ed6e73: "Delete All Participants…"
+  note: "Hapus catatan?"
 dictionary:
   _self: "Kamus"
 direct:
@@ -717,6 +721,7 @@ processing:
   272bc02e: "Pengolahan..."
   5aa377e2: "⏳ Pemrosesan"
   transcript: "Memproses transkrip"
+  ellipsis: "Memproses…"
 prompt:
   _self: "Mengingatkan"
   preset: "Prasetel Cepat"
@@ -809,6 +814,7 @@ save:
   continue: "Simpan & Lanjutkan"
   credentials: "Simpan Kredensial"
   prompt: "Simpan Perintah"
+  now_s: "Simpan sekarang (⌘S)"
 saved:
   _self: "Disimpan"
   as_note: "Disimpan sebagai Catatan"
@@ -908,6 +914,7 @@ status:
   _self: "Status"
 stop:
   recording: "Berhenti Merekam"
+  listening: "Berhenti mendengarkan"
 streaming:
   enhancement: "Peningkatan Streaming"
   transcription_currently_supports_engli: "Transkripsi streaming saat ini hanya mendukung bahasa Inggris, apa pun bahasa yang dipilih."
@@ -957,6 +964,7 @@ this:
   will_permanently_remove_the_transcript_and: "Tindakan ini akan menghapus transkrip dan file media yang dikelolanya secara permanen."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_this_note: "Ini akan menghapus catatan ini secara permanen."
 time:
   saved: "Waktu Dihemat"
 to:
@@ -1176,3 +1184,7 @@ bring:
   all_to_front: "Bawa Semua ke Depan"
 home:
   _self: "Beranda"
+pinned:
+  _self: "Disematkan"
+speak:
+  to_append: "Bicara untuk menambahkan"

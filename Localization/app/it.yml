@@ -3,6 +3,8 @@
 1:
   folder: "1 cartella"
   transcription: "1 trascrizione"
+  note: "1 nota"
+  word: "1 parola"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "Un'app nativa per la dettatura della barra dei menu di macOS che utilizza la sintesi vocale locale con WhisperKit. Elaborazione locale al 100% per impostazione predefinita con miglioramento dell'intelligenza artificiale opzionale."
   big_round_of_upgrades_and_two_community_shout: "Un grande ciclo di aggiornamenti — e due ringraziamenti alla community."
@@ -224,6 +226,7 @@ cut:
 d:
   characters: "%d characters"
   samples: "%d campioni · %@"
+  words: "%d parole"
 dark:
   _self: "Buio"
   preview: "Anteprima oscura"
@@ -252,6 +255,7 @@ delete:
   all: "Elimina tutto"
   all_participants: "Eliminare tutti i partecipanti?"
   all_participants_60ed6e73: "Elimina tutti i partecipanti…"
+  note: "Eliminare la nota?"
 dictionary:
   _self: "Dizionario"
 direct:
@@ -717,6 +721,7 @@ processing:
   272bc02e: "Elaborazione..."
   5aa377e2: "⏳ Elaborazione"
   transcript: "Processing transcript"
+  ellipsis: "Elaborazione…"
 prompt:
   _self: "Richiesta"
   preset: "Richiesta preimpostazione"
@@ -809,6 +814,7 @@ save:
   continue: "Salva e continua"
   credentials: "Salva credenziali"
   prompt: "Salva richiesta"
+  now_s: "Salva ora (⌘S)"
 saved:
   _self: "Salvato"
   as_note: "Salvato come nota"
@@ -908,6 +914,7 @@ status:
   _self: "Stato"
 stop:
   recording: "Interrompi la registrazione"
+  listening: "Interrompi ascolto"
 streaming:
   enhancement: "Miglioramento in streaming"
   transcription_currently_supports_engli: "La trascrizione in streaming attualmente supporta solo l'inglese, indipendentemente dalla lingua selezionata."
@@ -957,6 +964,7 @@ this:
   will_permanently_remove_the_transcript_and: "Ciò rimuoverà definitivamente la trascrizione e il relativo file multimediale gestito."
   removes_all_learned_voice_profiles_and_trai: "Rimuove tutti i profili vocali appresi e i dati di training. Non può essere annullato."
   will_clear_all_your_settings_including_api_2841f4a1: "Cancellerà tutte le impostazioni, incluse le chiavi API, e riavvierà la configurazione iniziale"
+  will_permanently_remove_this_note: "Questo rimuoverà permanentemente questa nota."
 time:
   saved: "Tempo risparmiato"
 to:
@@ -1176,3 +1184,7 @@ bring:
   all_to_front: "Porta tutto in primo piano"
 home:
   _self: "Inizio"
+pinned:
+  _self: "Fissate"
+speak:
+  to_append: "Parla per aggiungere"
