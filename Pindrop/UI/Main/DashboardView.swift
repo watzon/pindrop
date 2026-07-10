@@ -51,14 +51,6 @@ struct DashboardView: View {
 
     private var calendar: Calendar { Calendar.current }
 
-    private var stats: DashboardStats {
-        DashboardStatsService.compute(
-            records: transcriptions,
-            calendar: calendar,
-            now: Date()
-        )
-    }
-
     private var recentRecords: [TranscriptionRecord] {
         Array(transcriptions.prefix(3))
     }
@@ -67,15 +59,34 @@ struct DashboardView: View {
         transcriptions.isEmpty
     }
 
+    private func stats(now: Date) -> DashboardStats {
+        DashboardStatsService.compute(
+            records: transcriptions,
+            calendar: calendar,
+            now: now
+        )
+    }
+
     // MARK: - Body
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        // Re-render at each calendar midnight so date kicker, WORDS TODAY, STREAK,
+        // and the today-bar highlight do not freeze while the window stays open.
+        // Schedule is calendar midnights only (no per-minute / per-second timers).
+        TimelineView(HomeDayBoundarySchedule(calendar: calendar)) { _ in
+            // Date() is re-sampled when the schedule fires and when records change.
+            homeContent(now: Date())
+        }
+    }
+
+    private func homeContent(now: Date) -> some View {
+        let dashboardStats = stats(now: now)
+        return ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                heroBlock
-                statsStrip
+                heroBlock(now: now, stats: dashboardStats)
+                statsStrip(stats: dashboardStats)
                 recentSection
-                thisWeekChart
+                thisWeekChart(now: now, stats: dashboardStats)
             }
             .padding(.horizontal, 40)
             .padding(.top, 40)
@@ -87,9 +98,9 @@ struct DashboardView: View {
 
     // MARK: - Hero
 
-    private var heroBlock: some View {
+    private func heroBlock(now: Date, stats: DashboardStats) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(HomePresentation.dateKicker(date: Date(), locale: locale, calendar: calendar))
+            Text(HomePresentation.dateKicker(date: now, locale: locale, calendar: calendar))
                 .font(FontLoader.font(family: .inter, size: HomeLayoutMetrics.kickerSize, weight: .semibold))
                 .foregroundStyle(AppColors.textTertiary)
                 .tracking(HomeLayoutMetrics.kickerTrackingEm * HomeLayoutMetrics.kickerSize)
@@ -99,7 +110,7 @@ struct DashboardView: View {
                     .padding(.top, 8)
                     .padding(.bottom, HomeLayoutMetrics.heroBottomPadding)
             } else {
-                heroSentence
+                heroSentence(stats: stats)
                     .padding(.top, 6)
                     .padding(.bottom, HomeLayoutMetrics.heroBottomPadding)
 
@@ -136,7 +147,7 @@ struct DashboardView: View {
         }
     }
 
-    private var heroSentence: some View {
+    private func heroSentence(stats: DashboardStats) -> some View {
         let parts = HomePresentation.heroSentenceParts(
             wordsThisWeek: stats.wordsThisWeek,
             locale: locale
@@ -173,7 +184,7 @@ struct DashboardView: View {
 
     // MARK: - Stats strip
 
-    private var statsStrip: some View {
+    private func statsStrip(stats: DashboardStats) -> some View {
         HStack(spacing: 0) {
             homeStat(
                 value: HomePresentation.formatGrouped(stats.wordsToday, locale: locale),
@@ -330,12 +341,11 @@ struct DashboardView: View {
 
     // MARK: - THIS WEEK chart
 
-    private var thisWeekChart: some View {
+    private func thisWeekChart(now: Date, stats: DashboardStats) -> some View {
         let buckets = stats.wordsPerWeekday
         let maxWords = buckets.max() ?? 0
         let labels = HomePresentation.weekdayLabels(calendar: calendar, locale: locale)
         let names = HomePresentation.weekdayNames(calendar: calendar, locale: locale)
-        let now = Date()
 
         return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
             SectionHeader(title: localized("This week", locale: locale), isFirst: true)
@@ -410,6 +420,35 @@ struct DashboardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, HomeLayoutMetrics.chartTopPadding)
+    }
+}
+
+// MARK: - Day-boundary timeline
+
+/// Fires once per calendar midnight (local), not on a fixed wall-clock interval.
+/// Cheap: no per-minute / per-second ticks while the Home window is open.
+private struct HomeDayBoundarySchedule: TimelineSchedule {
+    let calendar: Calendar
+
+    func entries(from startDate: Date, mode: TimelineScheduleMode) -> Entries {
+        Entries(calendar: calendar, startDate: startDate)
+    }
+
+    struct Entries: Sequence, IteratorProtocol {
+        let calendar: Calendar
+        private var upcoming: Date
+
+        init(calendar: Calendar, startDate: Date) {
+            self.calendar = calendar
+            self.upcoming = HomePresentation.nextMidnight(after: startDate, calendar: calendar)
+        }
+
+        mutating func next() -> Date? {
+            let value = upcoming
+            // Advance by one calendar day from this midnight so DST stays correct.
+            upcoming = HomePresentation.nextMidnight(after: value, calendar: calendar)
+            return value
+        }
     }
 }
 

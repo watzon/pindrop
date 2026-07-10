@@ -90,6 +90,20 @@ enum HomePresentation {
         return String(format: localized("%d-day", locale: locale), days)
     }
 
+    // MARK: Day boundary
+
+    /// Start of the next calendar day after `date` (local midnight).
+    /// Used to schedule Home re-renders so WORDS TODAY / STREAK / kicker / today-bar
+    /// do not stay frozen when the window is left open overnight.
+    static func nextMidnight(after date: Date, calendar: Calendar = .current) -> Date {
+        let startOfDay = calendar.startOfDay(for: date)
+        if let next = calendar.date(byAdding: .day, value: 1, to: startOfDay) {
+            return next
+        }
+        // Extremely defensive fallback (calendar arithmetic should not fail for gregorian).
+        return date.addingTimeInterval(24 * 60 * 60)
+    }
+
     // MARK: Date kicker
 
     /// Uppercase weekday + date, e.g. "WEDNESDAY, JULY 9".

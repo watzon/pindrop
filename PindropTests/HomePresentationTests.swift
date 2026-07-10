@@ -71,6 +71,52 @@ struct HomePresentationTests {
         #expect(kicker == "THURSDAY, JULY 9")
     }
 
+    // MARK: - Next midnight
+
+    @Test func nextMidnightIsStartOfFollowingCalendarDay() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let afternoon = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 9, hour: 15, minute: 30))
+        )
+        let midnight = HomePresentation.nextMidnight(after: afternoon, calendar: calendar)
+        let expected = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 10, hour: 0, minute: 0))
+        )
+        #expect(midnight == expected)
+        #expect(calendar.component(.hour, from: midnight) == 0)
+        #expect(calendar.component(.minute, from: midnight) == 0)
+    }
+
+    @Test func nextMidnightFromExactlyMidnightAdvancesOneDay() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let midnight = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 9, hour: 0, minute: 0))
+        )
+        let next = HomePresentation.nextMidnight(after: midnight, calendar: calendar)
+        let expected = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 10, hour: 0, minute: 0))
+        )
+        #expect(next == expected)
+    }
+
+    @Test func nextMidnightRespectsCalendarTimeZone() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "America/Los_Angeles"))
+        // 2026-07-09 23:30 local → next midnight is 2026-07-10 00:00 local.
+        let late = try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 9, hour: 23, minute: 30))
+        )
+        let next = HomePresentation.nextMidnight(after: late, calendar: calendar)
+        #expect(calendar.isDate(next, inSameDayAs: try #require(
+            calendar.date(from: DateComponents(year: 2026, month: 7, day: 10, hour: 12))
+        )))
+        #expect(calendar.component(.hour, from: next) == 0)
+        #expect(calendar.component(.minute, from: next) == 0)
+        #expect(calendar.component(.second, from: next) == 0)
+    }
+
     // MARK: - Sub-line / duration
 
     @Test func compactDurationFormatsHoursAndMinutes() {
