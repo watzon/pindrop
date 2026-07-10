@@ -628,7 +628,7 @@ open:
   settings: "Nyissa meg a Beállítások lehetőséget"
   settings_fd7108f8: "Nyissa meg a beállításokat"
   system_settings: "Nyissa meg a Rendszerbeállítások"
-  library: "Open Library"
+  library: "Könyvtár megnyitása"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibilis helyi szerver"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Kész"
   ec1296e1: "● Kész"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Készen áll a diktálásra"
   to_record: "Felvételre kész"
   to_transcribe: "Átírásra kész"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Kilátás"
   all: "Az összes megtekintése"
+  library: "Könyvtár megtekintése"
   transcript_history: "Átírási előzmények megtekintése"
   transcription_history: "Átírási előzmények megtekintése"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Könyvtár"
 conflicts:
   with: "Conflicts with %@"
 file:

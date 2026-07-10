@@ -628,7 +628,7 @@ open:
   settings: "افتح الإعدادات"
   settings_fd7108f8: "افتح الإعدادات"
   system_settings: "افتح إعدادات النظام"
-  library: "Open Library"
+  library: "افتح المكتبة"
 openai:
   _self: "OpenAI"
   compatible_local_server: "خادم محلي متوافق مع OpenAI"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "مستعد"
   ec1296e1: "● جاهز"
-  to_dictate: "Ready to dictate"
+  to_dictate: "جاهز للإملاء"
   to_record: "جاهز للتسجيل"
   to_transcribe: "جاهز للنسخ"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "منظر"
   all: "عرض الكل"
+  library: "عرض المكتبة"
   transcript_history: "عرض تاريخ النسخ"
   transcription_history: "عرض تاريخ النسخ"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "المكتبة"
 conflicts:
   with: "Conflicts with %@"
 file:

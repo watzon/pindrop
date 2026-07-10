@@ -628,7 +628,7 @@ open:
   settings: "打开设置"
   settings_fd7108f8: "打开设置"
   system_settings: "打开系统设置"
-  library: "Open Library"
+  library: "打开资料库"
 openai:
   _self: "OpenAI"
   compatible_local_server: "与 OpenAI 兼容的本地服务器"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "就绪"
   ec1296e1: "● 就绪"
-  to_dictate: "Ready to dictate"
+  to_dictate: "准备好听写"
   to_record: "Ready to record"
   to_transcribe: "准备转录"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "视图"
   all: "查看全部"
+  library: "查看资料库"
   transcript_history: "查看转录历史"
   transcription_history: "查看转录历史"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "资料库"
 conflicts:
   with: "Conflicts with %@"
 file:

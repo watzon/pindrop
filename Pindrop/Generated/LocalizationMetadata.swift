@@ -1679,6 +1679,7 @@ enum LocalizationMetadata {
         "Vibe mode works best with Accessibility permission. Without it, Pindrop falls back to limited app metadata and transcription still works normally.": "vibe_mode_works_best_with_accessibility_permissi",
         "View": "view",
         "View all": "view_all",
+        "View library": "view_library",
         "View transcript history": "view_transcript_history",
         "View transcription history": "view_transcription_history",
         "Vocabulary": "vocabulary",

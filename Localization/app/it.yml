@@ -628,7 +628,7 @@ open:
   settings: "Apri Impostazioni"
   settings_fd7108f8: "Apri le impostazioni"
   system_settings: "Apri Impostazioni di sistema"
-  library: "Open Library"
+  library: "Apri libreria"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Server locale compatibile con OpenAI"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Pronto"
   ec1296e1: "● Pronto"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Pronto a dettare"
   to_record: "Ready to record"
   to_transcribe: "Pronto per trascrivere"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Visualizzazione"
   all: "Visualizza tutto"
+  library: "Visualizza libreria"
   transcript_history: "Visualizza la cronologia della trascrizione"
   transcription_history: "Visualizza la cronologia delle trascrizioni"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Libreria"
 conflicts:
   with: "Conflicts with %@"
 file:

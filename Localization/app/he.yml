@@ -628,7 +628,7 @@ open:
   settings: "פתח את ההגדרות"
   settings_fd7108f8: "פתח את ההגדרות"
   system_settings: "פתח את הגדרות מערכת"
-  library: "Open Library"
+  library: "פתח ספרייה"
 openai:
   _self: "OpenAI"
   compatible_local_server: "שרת מקומי תואם OpenAI"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "מוּכָן"
   ec1296e1: "● מוכן"
-  to_dictate: "Ready to dictate"
+  to_dictate: "מוכן להכתבה"
   to_record: "מוכן להקלטה"
   to_transcribe: "מוכן לתמלול"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "נוֹף"
   all: "הצג הכל"
+  library: "הצג ספרייה"
   transcript_history: "הצג היסטוריית תמלול"
   transcription_history: "הצג היסטוריית תמלול"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "ספרייה"
 conflicts:
   with: "Conflicts with %@"
 file:

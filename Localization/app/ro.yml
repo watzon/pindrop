@@ -628,7 +628,7 @@ open:
   settings: "Deschide Setări"
   settings_fd7108f8: "Deschideți setările"
   system_settings: "Deschide Setări sistem"
-  library: "Open Library"
+  library: "Deschide biblioteca"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Server local compatibil cu OpenAI"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Gata"
   ec1296e1: "● Gata"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Pregătit pentru dictare"
   to_record: "Gata de înregistrare"
   to_transcribe: "Gata de transcriere"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Vedere"
   all: "Vezi toate"
+  library: "Vezi biblioteca"
   transcript_history: "Vedeți istoricul transcrierilor"
   transcription_history: "Vedeți istoricul transcripțiilor"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Bibliotecă"
 conflicts:
   with: "Conflicts with %@"
 file:

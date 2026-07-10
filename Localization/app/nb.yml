@@ -628,7 +628,7 @@ open:
   settings: "Åpne Innstillinger"
   settings_fd7108f8: "Åpne innstillinger"
   system_settings: "Åpne Systeminnstillinger"
-  library: "Open Library"
+  library: "Åpne bibliotek"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibel lokal server"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Ferdig"
   ec1296e1: "● Klar"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Klar til å diktere"
   to_record: "Klar til å ta opp"
   to_transcribe: "Klar til å transkribere"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Utsikt"
   all: "Se alle"
+  library: "Vis bibliotek"
   transcript_history: "Se transkripsjonshistorikk"
   transcription_history: "Se transkripsjonshistorikk"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Bibliotek"
 conflicts:
   with: "Conflicts with %@"
 file:

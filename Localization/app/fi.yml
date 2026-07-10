@@ -628,7 +628,7 @@ open:
   settings: "Avaa Asetukset"
   settings_fd7108f8: "Avaa asetukset"
   system_settings: "Avaa Järjestelmäasetukset"
-  library: "Open Library"
+  library: "Avaa kirjasto"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-yhteensopiva paikallinen palvelin"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Valmis"
   ec1296e1: "● Valmis"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Valmis diktointiin"
   to_record: "Valmis tallentamaan"
   to_transcribe: "Valmis litteroimaan"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Näytä"
   all: "Näytä kaikki"
+  library: "Näytä kirjasto"
   transcript_history: "Näytä transkriptiohistoria"
   transcription_history: "Näytä transkriptiohistoria"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Kirjasto"
 conflicts:
   with: "Conflicts with %@"
 file:

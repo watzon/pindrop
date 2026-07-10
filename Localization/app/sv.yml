@@ -628,7 +628,7 @@ open:
   settings: "Öppna Inställningar"
   settings_fd7108f8: "Öppna inställningar"
   system_settings: "Öppna Systeminställningar"
-  library: "Open Library"
+  library: "Öppna bibliotek"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibel lokal server"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Redo"
   ec1296e1: "● Klar"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Redo att diktera"
   to_record: "Klar att spela in"
   to_transcribe: "Klar att transkribera"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Se"
   all: "Visa alla"
+  library: "Visa bibliotek"
   transcript_history: "Se transkriptionshistorik"
   transcription_history: "Visa transkriptionshistorik"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Bibliotek"
 conflicts:
   with: "Conflicts with %@"
 file:

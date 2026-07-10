@@ -628,7 +628,7 @@ open:
   settings: "Instellingen openen"
   settings_fd7108f8: "Instellingen openen"
   system_settings: "Open Systeeminstellingen"
-  library: "Open Library"
+  library: "Bibliotheek openen"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-compatibele lokale server"
@@ -748,7 +748,7 @@ quit:
 ready:
   _self: "Klaar"
   ec1296e1: "● Klaar"
-  to_dictate: "Ready to dictate"
+  to_dictate: "Klaar om te dicteren"
   to_record: "Ready to record"
   to_transcribe: "Klaar om te transcriberen"
 recent:
@@ -1058,6 +1058,7 @@ vibe:
 view:
   _self: "Weergave"
   all: "Bekijk alles"
+  library: "Bibliotheek weergeven"
   transcript_history: "Bekijk de transcriptiegeschiedenis"
   transcription_history: "Transcriptiegeschiedenis bekijken"
 vocabulary:
@@ -1169,7 +1170,7 @@ while:
 may:
   conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
 library:
-  _self: "Library"
+  _self: "Bibliotheek"
 conflicts:
   with: "Conflicts with %@"
 file:
