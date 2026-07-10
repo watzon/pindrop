@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 
 struct DashboardView: View {
+    @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
@@ -245,6 +246,8 @@ struct DashboardView: View {
                 .foregroundStyle(AppColors.textTertiary)
                 .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(value), \(label)")
     }
 
     // MARK: - Recent
@@ -255,9 +258,13 @@ struct DashboardView: View {
                 Button {
                     onViewAllHistory?()
                 } label: {
-                    Text(localized("Open Library →", locale: locale))
-                        .font(FontLoader.font(family: .inter, size: 11, weight: .semibold))
-                        .foregroundStyle(AppColors.accent)
+                    HStack(spacing: 3) {
+                        Text(localized("Open Library", locale: locale))
+                        Image(systemName: "arrow.right")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .font(FontLoader.font(family: .inter, size: 11, weight: .semibold))
+                    .foregroundStyle(AppColors.accent)
                 }
                 .buttonStyle(.plain)
             }
@@ -316,7 +323,10 @@ struct DashboardView: View {
             timeText: Self.rowTimeFormatter.string(from: record.timestamp),
             preview: preview,
             previewMeta: previewMeta,
-            destination: LibraryKindPresentation.destinationPill(appName: record.destinationAppName),
+            destination: LibraryKindPresentation.destinationPill(
+                appName: record.destinationAppName,
+                layoutDirection: layoutDirection
+            ),
             icon: {
                 Image(systemName: LibraryKindPresentation.systemImage(for: kind))
                     .font(.system(size: 13))

@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "تصميم أكثر دفئًا وهدوءًا يضع كلماتك أولًا. ستبقى إعدادات السمات لديك، مع سمة افتراضية جديدة: المكتبة."
   keyboard_title: "لوحة المفاتيح في كل مكان"
   keyboard_body: "تنقّل بين الصفحات وابحث وأنشئ الملاحظات وصدّر واحذف دون مغادرة لوحة المفاتيح."
+u11:
+  recording_started: "بدأ التسجيل"
+  recording_stopped: "توقف التسجيل"
+  recording_processing: "توقف التسجيل. جارٍ معالجة النسخ."
+  transcription_complete: "اكتمل النسخ"
+  live_transcript: "النص المباشر"
+  estimating_time: "جارٍ تقدير الوقت المتبقي…"
+  seconds_left: "حوالي %d ث متبقية"
+  minutes_left: "حوالي %d د متبقية"
+  microphone_muted: "الميكروفون مكتوم"
+u11b:
+  playback_position: "موضع التشغيل"
+  expired: "منتهي الصلاحية"
+  expand: "توسيع"
+  step_x_of_y: "الخطوة %d من %d"

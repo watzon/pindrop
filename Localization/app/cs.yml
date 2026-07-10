@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "Teplejší a klidnější design dává vašim slovům přednost. Předvolby motivů zůstávají a přibývá nový výchozí motiv Knihovna."
   keyboard_title: "Klávesnice všude"
   keyboard_body: "Procházejte stránky, hledejte, tvořte poznámky, exportujte a mažte bez opuštění klávesnice."
+u11:
+  recording_started: "Nahrávání zahájeno"
+  recording_stopped: "Nahrávání zastaveno"
+  recording_processing: "Nahrávání zastaveno. Zpracovává se přepis."
+  transcription_complete: "Přepis dokončen"
+  live_transcript: "Živý přepis"
+  estimating_time: "Odhaduje se zbývající čas…"
+  seconds_left: "zbývá asi %d s"
+  minutes_left: "zbývá asi %d min"
+  microphone_muted: "Mikrofon je ztlumen"
+u11b:
+  playback_position: "Pozice přehrávání"
+  expired: "Platnost vypršela"
+  expand: "Rozbalit"
+  step_x_of_y: "Krok %d z %d"

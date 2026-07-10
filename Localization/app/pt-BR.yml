@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "Um design mais acolhedor e tranquilo coloca suas palavras em primeiro lugar. Seus temas continuam, com um novo padrão: Biblioteca."
   keyboard_title: "Teclado em todo lugar"
   keyboard_body: "Navegue, pesquise, crie notas, exporte e exclua sem sair do teclado."
+u11:
+  recording_started: "Gravação iniciada"
+  recording_stopped: "Gravação interrompida"
+  recording_processing: "Gravação interrompida. Processando transcrição."
+  transcription_complete: "Transcrição concluída"
+  live_transcript: "Transcrição ao vivo"
+  estimating_time: "Estimando o tempo restante…"
+  seconds_left: "cerca de %d s restantes"
+  minutes_left: "cerca de %d min restantes"
+  microphone_muted: "Microfone silenciado"
+u11b:
+  playback_position: "Posição da reprodução"
+  expired: "Expirado"
+  expand: "Expandir"
+  step_x_of_y: "Etapa %d de %d"

@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "更溫暖、更安靜的設計讓你的文字成為主角。主題預設會繼續保留，並新增預設主題「資料庫」。"
   keyboard_title: "處處可用鍵盤"
   keyboard_body: "無需離開鍵盤，即可導覽、搜尋、建立筆記、匯出和刪除。"
+u11:
+  recording_started: "已開始錄音"
+  recording_stopped: "已停止錄音"
+  recording_processing: "已停止錄音。正在處理轉錄。"
+  transcription_complete: "轉錄完成"
+  live_transcript: "即時轉錄"
+  estimating_time: "正在估算剩餘時間…"
+  seconds_left: "約剩 %d 秒"
+  minutes_left: "約剩 %d 分鐘"
+  microphone_muted: "麥克風已靜音"
+u11b:
+  playback_position: "播放位置"
+  expired: "已過期"
+  expand: "展開"
+  step_x_of_y: "第 %d 步，共 %d 步"

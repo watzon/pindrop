@@ -289,7 +289,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         let localHostingView = hostingView
 
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = OrbMetrics.hideDuration
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : OrbMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             localPanel.animator().alphaValue = 0
         }) { [weak self] in
@@ -570,7 +570,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         self.panel = panel; self.hostingView = hostingView
         self.isVisible = true; self.lastScreen = screen
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = OrbMetrics.showDuration
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : OrbMetrics.showDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().alphaValue = 1
         }
@@ -596,6 +596,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         return AnyView(
             OrbIndicatorView(controller: self, state: state, transcript: liveTranscript)
                 .environment(\.locale, locale)
+                // Panel geometry is physical (goo shader + exit edges use absolute
+                // panel coords); RTL applies to text subtrees (LiveTranscriptView).
                 .environment(\.layoutDirection, .leftToRight)
         )
     }
@@ -605,7 +607,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         let screen = preferredScreen()
         let frame = panelFrame(for: screen)
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.22
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.22
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             panel.animator().setFrame(frame, display: false)
         }
@@ -966,10 +968,10 @@ struct OrbIndicatorView: View {
                 .frame(width: pillSize.width, height: pillSize.height, alignment: pillRevealAlignment)
                 .background(
                     RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
-                        .fill(Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92))
+                        .fill(AppColors.overlaySurface)
                         .overlay(
                             RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+                                .strokeBorder(AppColors.overlayLine, lineWidth: 1)
                         )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: pillCornerRadius, style: .continuous))
@@ -986,7 +988,7 @@ struct OrbIndicatorView: View {
                             .fixedSize()
                             .offset(y: exit == .down ? sz.orbActiveDiameter + 8 : -30)
                             .allowsHitTesting(false)
-                            .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
+                            .appAnimation(.smooth, value: state.recentCompletion)
                     }
                 }
         }
@@ -1030,7 +1032,16 @@ struct OrbIndicatorView: View {
         .accessibilityElement()
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(localized("Pindrop Orb", locale: locale))
+        .accessibilityValue(
+            localized(
+                state.isInputMuted
+                    ? "Microphone muted"
+                    : (state.isRecording ? "Recording" : (state.isProcessing ? "Transcribing…" : "Ready")),
+                locale: locale
+            )
+        )
         .accessibilityAction { controller.handleOrbTapped() }
+        // Floating indicators stay non-key by design; the global hotkey is the keyboard path.
     }
 
     // MARK: Pill content
@@ -1072,7 +1083,7 @@ struct OrbIndicatorView: View {
                         Color(nsColor: NSColor(pindropHex: showsTranscript ? "#A59D8C" : "#EFEBE2") ?? .white)
                     )
                     .contentTransition(.numericText(countsDown: false))
-                    .animation(AppTheme.Animation.fast, value: state.recordingDuration)
+                    .appAnimation(.fast, value: state.recordingDuration)
                     .fixedSize()
 
                 Spacer(minLength: 0)
@@ -1092,6 +1103,7 @@ struct OrbIndicatorView: View {
                         )
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(localized("Stop Recording", locale: locale))
             }
             .padding(.horizontal, showsTranscript ? 16 : 14)
         } else if state.isProcessing {
@@ -1193,9 +1205,13 @@ private struct OrbGlassFillView: View {
         return 0.5
     }
 
+    private var animationInterval: TimeInterval {
+        (isRecording || isProcessing || isHovered) ? (1.0 / 30.0) : (1.0 / 8.0)
+    }
+
     var body: some View {
         GeometryReader { proxy in
-            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || isMuted)) { timeline in
+            TimelineView(.animation(minimumInterval: animationInterval, paused: reduceMotion || isMuted)) { timeline in
                 let baseTime = reduceMotion
                     ? 0
                     : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
@@ -1404,12 +1420,13 @@ struct OrbBlobsView: View {
     let isExcited: Bool
 
     @State private var model = OrbBlobModel()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private static let blobColors = [OrbPalette.bandLow, OrbPalette.bandMid, OrbPalette.bandHigh]
     private static let baseRadiusFractions: [CGFloat] = [0.40, 0.34, 0.27]
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 40.0)) { timeline in
+        TimelineView(.animation(minimumInterval: 1.0 / 40.0, paused: reduceMotion)) { timeline in
             Canvas { context, size in
                 model.advance(
                     to: timeline.date.timeIntervalSinceReferenceDate,

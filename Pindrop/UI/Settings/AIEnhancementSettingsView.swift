@@ -141,7 +141,10 @@ struct AIEnhancementSettingsView: View {
          SettingsRow(showSeparator: settings.enhanceTranscriptsEnabled) {
             SettingsRowLabel(title: localized("Enhance transcripts", locale: locale))
          } control: {
-            SettingsToggle(isOn: enhanceTranscriptsBinding)
+            SettingsToggle(
+               isOn: enhanceTranscriptsBinding,
+               label: localized("Enhance transcripts", locale: locale)
+            )
                .accessibilityIdentifier("settings.toggle.enhanceTranscripts")
          }
 
@@ -447,7 +450,10 @@ struct AIEnhancementSettingsView: View {
                   : localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.", locale: locale)
             )
          } control: {
-            SettingsToggle(isOn: $settings.streamingPostStopEnhancementEnabled)
+            SettingsToggle(
+               isOn: $settings.streamingPostStopEnhancementEnabled,
+               label: localized("Run LLM polish after dictation stops", locale: locale)
+            )
                .accessibilityIdentifier("settings.toggle.streamingPostStopEnhancement")
          }
       }
@@ -467,7 +473,8 @@ struct AIEnhancementSettingsView: View {
                         requestAccessibilityPermissionIfNeeded()
                      }
                   }
-               )
+               ),
+               label: localized("Enable vibe mode (UI context)", locale: locale)
             )
             .accessibilityIdentifier("settings.toggle.enableUIContext")
          }
@@ -476,14 +483,20 @@ struct AIEnhancementSettingsView: View {
             SettingsRow(showSeparator: true) {
                SettingsRowLabel(title: localized("Enable live session updates during recording", locale: locale))
             } control: {
-               SettingsToggle(isOn: $settings.vibeLiveSessionEnabled)
+               SettingsToggle(
+                  isOn: $settings.vibeLiveSessionEnabled,
+                  label: localized("Enable live session updates during recording", locale: locale)
+               )
                   .accessibilityIdentifier("settings.toggle.vibeLiveSessionEnabled")
             }
 
             SettingsRow(showSeparator: true) {
                SettingsRowLabel(title: localized("Include clipboard text", locale: locale))
             } control: {
-               SettingsToggle(isOn: $settings.enableClipboardContext)
+               SettingsToggle(
+                  isOn: $settings.enableClipboardContext,
+                  label: localized("Include clipboard text", locale: locale)
+               )
                   .accessibilityIdentifier("settings.toggle.enableClipboardContext")
             }
          }
@@ -1296,6 +1309,11 @@ private struct ProviderEditSheet: View {
                            Image(systemName: showingAPIKey ? "eye.slash" : "eye")
                         }
                         .help(
+                           showingAPIKey
+                              ? localized("Hide API Key", locale: locale)
+                              : localized("Show API Key", locale: locale)
+                        )
+                        .accessibilityLabel(
                            showingAPIKey
                               ? localized("Hide API Key", locale: locale)
                               : localized("Show API Key", locale: locale)

@@ -18,6 +18,7 @@ enum PlayChipMetrics {
 
 /// Fixed 74 pt play duration chip (spec §5). Expired variant strikes through duration and hides play glyph.
 struct PlayChip: View {
+    @Environment(\.locale) private var locale
     let durationText: String
     var isExpired: Bool = false
     var action: (() -> Void)? = nil
@@ -52,6 +53,9 @@ struct PlayChip: View {
         .buttonStyle(.plain)
         .disabled(isExpired || action == nil)
         .opacity(isExpired ? 0.85 : 1)
+        .accessibilityLabel(
+            "\(localized(isExpired ? "Expired" : "Play", locale: locale)), \(durationText)"
+        )
     }
 }
 

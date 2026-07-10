@@ -1413,3 +1413,18 @@ u10_floating:
   new_look_body: "A warmer, quieter design puts your words first. Your theme presets carry over — plus a new default, Library."
   keyboard_title: "Keyboard everywhere"
   keyboard_body: "Navigate pages, search, create notes, export, and delete without leaving the keyboard."
+u11:
+  recording_started: "Recording started"
+  recording_stopped: "Recording stopped"
+  recording_processing: "Recording stopped. Processing transcription."
+  transcription_complete: "Transcription complete"
+  live_transcript: "Live transcript"
+  estimating_time: "Estimating time remaining…"
+  seconds_left: "about %d s left"
+  minutes_left: "about %d min left"
+  microphone_muted: "Microphone muted"
+u11b:
+  playback_position: "Playback position"
+  expired: "Expired"
+  expand: "Expand"
+  step_x_of_y: "Step %d of %d"

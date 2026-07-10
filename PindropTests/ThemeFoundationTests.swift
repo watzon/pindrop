@@ -163,6 +163,32 @@ struct ThemeFoundationTests {
         #expect(profile.accentHex.uppercased() == "#4CA582")
     }
 
+    @Test func increasedContrastStrengthensHairlineAgainstGround() {
+        let profile = PindropThemePresetCatalog.library.lightTheme
+        let normal = ResolvedPalette.resolve(profile: profile, isDark: false).palette
+        let increased = ResolvedPalette.resolve(
+            profile: profile,
+            isDark: false,
+            displayOptions: AccessibilityDisplayOptions(increaseContrast: true)
+        ).palette
+
+        let ground = ColorContrast.RGB(nsColor: normal.windowBackground)
+        let normalRatio = ColorContrast.contrastRatio(ColorContrast.RGB(nsColor: normal.border), ground)
+        let increasedRatio = ColorContrast.contrastRatio(ColorContrast.RGB(nsColor: increased.border), ground)
+        #expect(increasedRatio > normalRatio)
+    }
+
+    @Test func reducedTransparencyUsesOpaqueInkOverlaySurface() throws {
+        let palette = ResolvedPalette.resolve(
+            profile: PindropThemePresetCatalog.library.lightTheme,
+            isDark: false,
+            displayOptions: AccessibilityDisplayOptions(reduceTransparency: true)
+        ).palette
+        let expected = try #require(NSColor(pindropHex: "#181511"))
+        #expect(ColorContrast.RGB(nsColor: palette.overlaySurface) == ColorContrast.RGB(nsColor: expected))
+        #expect(palette.overlaySurface.alphaComponent == 1)
+    }
+
     // MARK: - Typography role metrics
 
     @Test func typographyRolesHaveConcreteSizeAndWeight() {
@@ -299,5 +325,37 @@ struct ThemeFoundationTests {
         #expect(metrics.family == family)
         #expect(metrics.lineHeight == lineHeight)
         #expect(metrics.lineSpacing == max(0, lineHeight - size))
+    }
+}
+
+@Suite("U11 accessibility logic")
+struct U11AccessibilityLogicTests {
+    @Test func downloadETAUsesRollingProgressRate() {
+        var sut = DownloadETAEstimator()
+        let start = Date(timeIntervalSinceReferenceDate: 1_000)
+        sut.record(progress: 0.2, at: start)
+        sut.record(progress: 0.5, at: start.addingTimeInterval(10))
+
+        let remaining = sut.remainingSeconds
+        #expect(remaining != nil)
+        #expect(abs((remaining ?? 0) - (50.0 / 3.0)) < 0.001)
+    }
+
+    @Test func downloadETAResetsWhenProgressMovesBackward() {
+        var sut = DownloadETAEstimator()
+        let start = Date(timeIntervalSinceReferenceDate: 2_000)
+        sut.record(progress: 0.6, at: start)
+        sut.record(progress: 0.1, at: start.addingTimeInterval(5))
+        #expect(sut.remainingSeconds == nil)
+    }
+
+    @Test func destinationPillMirrorsForRightToLeftLayout() {
+        #expect(LibraryKindPresentation.destinationPill(appName: "Slack") == "→ Slack")
+        #expect(
+            LibraryKindPresentation.destinationPill(
+                appName: "Slack",
+                layoutDirection: .rightToLeft
+            ) == "Slack ←"
+        )
     }
 }

@@ -20,10 +20,11 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
     var action: (() -> Void)? = nil
 
     var body: some View {
-        Button {
-            action?()
-        } label: {
-            HStack(spacing: 10) {
+        HStack(spacing: 10) {
+            Button {
+                action?()
+            } label: {
+                HStack(spacing: 10) {
                 Text(timeText)
                     .font(AppTypography.monoTime)
                     .foregroundStyle(AppColors.textSecondary)
@@ -57,15 +58,18 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
                         .lineLimit(1)
                         .layoutPriority(1)
                 }
-
-                playChip()
-                    .frame(width: PlayChipMetrics.width, alignment: .trailing)
+                }
+                .contentShape(Rectangle())
+                .accessibilityElement(children: .combine)
             }
-            .padding(.vertical, 13)
-            .padding(.horizontal, 24)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .keyboardFocusRing(Rectangle())
+
+            playChip()
+                .frame(width: PlayChipMetrics.width, alignment: .trailing)
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 13)
+        .padding(.horizontal, 24)
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(AppColors.border)

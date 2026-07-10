@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "Un design più caldo e tranquillo mette le tue parole al primo posto. I preset dei temi restano, con una nuova impostazione predefinita: Libreria."
   keyboard_title: "Tastiera ovunque"
   keyboard_body: "Naviga, cerca, crea note, esporta ed elimina senza lasciare la tastiera."
+u11:
+  recording_started: "Registrazione avviata"
+  recording_stopped: "Registrazione interrotta"
+  recording_processing: "Registrazione interrotta. Elaborazione della trascrizione."
+  transcription_complete: "Trascrizione completata"
+  live_transcript: "Trascrizione in tempo reale"
+  estimating_time: "Stima del tempo rimanente…"
+  seconds_left: "circa %d s rimanenti"
+  minutes_left: "circa %d min rimanenti"
+  microphone_muted: "Microfono disattivato"
+u11b:
+  playback_position: "Posizione di riproduzione"
+  expired: "Scaduto"
+  expand: "Espandi"
+  step_x_of_y: "Passaggio %d di %d"

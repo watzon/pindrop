@@ -7,6 +7,39 @@
 
 import SwiftUI
 
+struct DownloadETAEstimator: Equatable, Sendable {
+    private struct Sample: Equatable, Sendable {
+        let date: Date
+        let progress: Double
+    }
+
+    private var samples: [Sample] = []
+
+    mutating func record(progress: Double, at date: Date = Date()) {
+        let clamped = min(max(progress, 0), 1)
+        if let last = samples.last, clamped < last.progress {
+            samples.removeAll(keepingCapacity: true)
+        }
+        guard samples.last?.progress != clamped else { return }
+        samples.append(Sample(date: date, progress: clamped))
+        let cutoff = date.addingTimeInterval(-15)
+        samples = Array(samples.suffix(8).drop { $0.date < cutoff })
+    }
+
+    var remainingSeconds: TimeInterval? {
+        guard let first = samples.first,
+              let last = samples.last,
+              last.date > first.date,
+              last.progress > first.progress,
+              last.progress < 1
+        else { return nil }
+
+        let rate = (last.progress - first.progress) / last.date.timeIntervalSince(first.date)
+        guard rate > 0.000_01 else { return nil }
+        return max(1, (1 - last.progress) / rate)
+    }
+}
+
 struct ModelDownloadStepView: View {
     var modelManager: ModelManager
     var transcriptionService: TranscriptionService
@@ -17,6 +50,7 @@ struct ModelDownloadStepView: View {
     @Environment(\.locale) private var locale
     @State private var downloadError: String?
     @State private var hasStarted = false
+    @State private var etaEstimator = DownloadETAEstimator()
 
     private var selectedModel: ModelManager.WhisperModel? {
         modelManager.availableModels.first { $0.name == modelName }
@@ -57,6 +91,9 @@ struct ModelDownloadStepView: View {
         .task {
             await startDownload()
         }
+        .onChange(of: modelManager.downloadProgress, initial: true) { _, progress in
+            etaEstimator.record(progress: progress)
+        }
     }
 
     private var progressIndicator: some View {
@@ -71,18 +108,37 @@ struct ModelDownloadStepView: View {
             }
             .frame(height: 8)
             .clipShape(.capsule)
-            .animation(AppTheme.Animation.normal, value: modelManager.downloadProgress)
+            .appAnimation(.normal, value: modelManager.downloadProgress)
 
             HStack {
                 Text(downloadMeta)
                     .foregroundStyle(AppColors.textSecondary)
                 Spacer()
-                Text("\(Int(modelManager.downloadProgress * 100))%")
+                Text(etaText)
                     .foregroundStyle(AppColors.textTertiary)
             }
             .font(AppTypography.monoTime)
         }
         .frame(width: 440)
+    }
+
+    private var etaText: String {
+        guard modelManager.isDownloading else {
+            return "\(Int(modelManager.downloadProgress * 100))%"
+        }
+        guard let seconds = etaEstimator.remainingSeconds else {
+            return localized("Estimating time remaining…", locale: locale)
+        }
+        if seconds < 90 {
+            return String(
+                format: localized("about %d s left", locale: locale),
+                max(1, Int(seconds.rounded()))
+            )
+        }
+        return String(
+            format: localized("about %d min left", locale: locale),
+            max(1, Int((seconds / 60).rounded()))
+        )
     }
 
     private var downloadMeta: String {

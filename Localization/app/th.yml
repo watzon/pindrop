@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "ดีไซน์ที่อบอุ่นและสงบขึ้นให้ความสำคัญกับถ้อยคำของคุณ พรีเซ็ตธีมยังคงอยู่ พร้อมค่าเริ่มต้นใหม่คือ คลัง"
   keyboard_title: "แป้นพิมพ์ทุกที่"
   keyboard_body: "นำทาง ค้นหา สร้างโน้ต ส่งออก และลบได้โดยไม่ต้องละมือจากแป้นพิมพ์"
+u11:
+  recording_started: "เริ่มบันทึกแล้ว"
+  recording_stopped: "หยุดบันทึกแล้ว"
+  recording_processing: "หยุดบันทึกแล้ว กำลังประมวลผลคำถอดเสียง"
+  transcription_complete: "ถอดเสียงเสร็จแล้ว"
+  live_transcript: "คำถอดเสียงสด"
+  estimating_time: "กำลังประมาณเวลาที่เหลือ…"
+  seconds_left: "เหลือประมาณ %d วิ"
+  minutes_left: "เหลือประมาณ %d นาที"
+  microphone_muted: "ปิดเสียงไมโครโฟน"
+u11b:
+  playback_position: "ตำแหน่งการเล่น"
+  expired: "หมดอายุ"
+  expand: "ขยาย"
+  step_x_of_y: "ขั้นตอนที่ %d จาก %d"

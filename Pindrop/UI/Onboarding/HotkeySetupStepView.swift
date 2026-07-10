@@ -55,6 +55,7 @@ struct HotkeySetupStepView: View {
                 }
             }
             .buttonStyle(.plain)
+            .keyboardFocusRing(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .padding(.top, 34)
 
             Text(localized("Press a different combination to change it", locale: locale))

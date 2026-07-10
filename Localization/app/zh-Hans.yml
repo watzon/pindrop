@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "更温暖、更安静的设计让你的文字成为主角。主题预设会继续保留，并新增默认主题“资料库”。"
   keyboard_title: "处处可用键盘"
   keyboard_body: "无需离开键盘，即可导航、搜索、创建笔记、导出和删除。"
+u11:
+  recording_started: "已开始录音"
+  recording_stopped: "已停止录音"
+  recording_processing: "已停止录音。正在处理转写。"
+  transcription_complete: "转写完成"
+  live_transcript: "实时转写"
+  estimating_time: "正在估算剩余时间…"
+  seconds_left: "约剩 %d 秒"
+  minutes_left: "约剩 %d 分钟"
+  microphone_muted: "麦克风已静音"
+u11b:
+  playback_position: "播放位置"
+  expired: "已过期"
+  expand: "展开"
+  step_x_of_y: "第 %d 步，共 %d 步"

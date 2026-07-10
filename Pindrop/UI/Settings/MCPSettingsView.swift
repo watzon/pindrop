@@ -38,7 +38,10 @@ struct MCPSettingsView: View {
                 SettingsRow(showSeparator: settings.mcpServerEnabled) {
                     SettingsRowLabel(title: localized("MCP Server", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.mcpServerEnabled)
+                    SettingsToggle(
+                        isOn: $settings.mcpServerEnabled,
+                        label: localized("Enable MCP Server", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.mcpServerEnabled")
                 }
 

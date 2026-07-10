@@ -11,6 +11,7 @@ struct CopyButton: View {
     var useUndoToast: Bool = false
 
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     @State private var isCopied = false
     
@@ -47,9 +48,11 @@ struct CopyButton: View {
                     : AnyShapeStyle(Color.clear),
                 in: Capsule()
             )
-            .animation(.easeInOut(duration: 0.2), value: isCopied)
+            .appAnimation(.fast, value: isCopied)
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(Capsule())
+        .accessibilityLabel(isCopied ? copiedText : (label ?? copyTooltip))
         .help(isCopied ? copiedText : copyTooltip)
     }
     
@@ -66,12 +69,12 @@ struct CopyButton: View {
             pasteboard.setString(text, forType: .string)
         }
         
-        withAnimation {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             isCopied = true
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 isCopied = false
             }
         }
@@ -85,6 +88,7 @@ struct CopyButtonWithCallback: View {
     let onCopy: () -> Void
 
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     @State private var isCopied = false
     
@@ -121,21 +125,23 @@ struct CopyButtonWithCallback: View {
                     : AnyShapeStyle(Color.clear),
                 in: Capsule()
             )
-            .animation(.easeInOut(duration: 0.2), value: isCopied)
+            .appAnimation(.fast, value: isCopied)
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(Capsule())
+        .accessibilityLabel(isCopied ? copiedText : (label ?? copyTooltip))
         .help(isCopied ? copiedText : copyTooltip)
     }
     
     private func performCopy() {
         onCopy()
         
-        withAnimation {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             isCopied = true
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 isCopied = false
             }
         }

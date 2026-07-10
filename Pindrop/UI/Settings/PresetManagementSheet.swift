@@ -12,6 +12,7 @@ struct PresetManagementSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var store: PromptPresetStore?
     @State private var presets: [PromptPreset] = []
@@ -127,7 +128,7 @@ struct PresetManagementSheet: View {
 
     private var createButton: some View {
         Button {
-            withAnimation {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 isCreating = true
                 newName = ""
                 newPrompt = ""
@@ -156,7 +157,7 @@ struct PresetManagementSheet: View {
 
             HStack {
                 Button(localized("Cancel", locale: locale)) {
-                    withAnimation {
+                    withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                         isCreating = false
                     }
                 }
@@ -253,7 +254,7 @@ struct PresetManagementSheet: View {
         do {
             try store.add(preset)
             loadData()
-            withAnimation {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 isCreating = false
             }
         } catch {

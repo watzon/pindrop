@@ -68,10 +68,16 @@ struct WhatsNewView: View {
     private var trafficLights: some View {
         HStack(spacing: 8) {
             Button(action: onDismiss) {
-                Circle()
-                    .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
-                    .frame(width: 12, height: 12)
+                Color.clear
+                    .frame(width: 28, height: 28)
+                    .overlay {
+                        Circle()
+                            .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
+                            .frame(width: 12, height: 12)
+                    }
+                    .contentShape(Circle())
             }
+            .padding(-8)
             .buttonStyle(.plain)
             .accessibilityLabel(localized("Close", locale: locale))
 
@@ -185,6 +191,7 @@ private struct AnnouncementCreditView: View {
 @MainActor
 private struct AnnouncementOrbDemoView: View {
     @StateObject private var state = FloatingIndicatorState()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let timer = Timer.publish(every: 1.0 / 24.0, on: .main, in: .common).autoconnect()
 
@@ -213,7 +220,9 @@ private struct AnnouncementOrbDemoView: View {
         }
         .shadow(color: OrbPalette.bandMid.opacity(0.30), radius: 12, x: 0, y: 4)
         .onReceive(timer) { date in
-            updateSyntheticLevels(at: date)
+            if !reduceMotion {
+                updateSyntheticLevels(at: date)
+            }
         }
         .onDisappear {
             state.updateAudioLevel(0)

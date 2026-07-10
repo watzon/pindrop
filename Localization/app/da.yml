@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "Et varmere og roligere design sætter dine ord først. Dine temaforvalg følger med — plus en ny standard, Bibliotek."
   keyboard_title: "Tastatur overalt"
   keyboard_body: "Naviger, søg, opret noter, eksporter og slet uden at forlade tastaturet."
+u11:
+  recording_started: "Optagelse startet"
+  recording_stopped: "Optagelse stoppet"
+  recording_processing: "Optagelse stoppet. Behandler transskription."
+  transcription_complete: "Transskription fuldført"
+  live_transcript: "Direkte transskription"
+  estimating_time: "Beregner resterende tid…"
+  seconds_left: "ca. %d sek. tilbage"
+  minutes_left: "ca. %d min. tilbage"
+  microphone_muted: "Mikrofon slået fra"
+u11b:
+  playback_position: "Afspilningsposition"
+  expired: "Udløbet"
+  expand: "Udvid"
+  step_x_of_y: "Trin %d af %d"

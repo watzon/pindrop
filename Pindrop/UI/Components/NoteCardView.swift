@@ -16,6 +16,7 @@ struct NoteCardView: View {
     let onDelete: () -> Void
     
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
     
     var body: some View {
@@ -90,12 +91,20 @@ struct NoteCardView: View {
             y: 2
         )
         .onHover { hovering in
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 isHovered = hovering
             }
         }
         .onTapGesture(count: 2) {
             onOpen()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onOpen() }
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
+        .onKeyPress(.return) {
+            onOpen()
+            return .handled
         }
         .contextMenu {
             Button(action: onOpen) {

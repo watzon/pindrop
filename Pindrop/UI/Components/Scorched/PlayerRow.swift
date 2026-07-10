@@ -22,6 +22,8 @@ struct PlayerRow: View {
     var onCycleRate: () -> Void
     var rateHelp: String? = nil
 
+    @Environment(\.locale) private var locale
+
     var body: some View {
         HStack(spacing: 16) {
             Button(action: onTogglePlay) {
@@ -36,6 +38,8 @@ struct PlayerRow: View {
                     }
             }
             .buttonStyle(.plain)
+            .keyboardFocusRing(Circle())
+            .accessibilityLabel(localized(isPlaying ? "Pause" : "Play", locale: locale))
 
             WaveformView(
                 peaks: peaks,
@@ -62,6 +66,9 @@ struct PlayerRow: View {
             }
             .buttonStyle(.plain)
             .help(rateHelp ?? "")
+            .keyboardFocusRing(Capsule())
+            .accessibilityLabel(localized("Playback speed", locale: locale))
+            .accessibilityValue(rateLabel)
         }
         .frame(height: 44)
     }

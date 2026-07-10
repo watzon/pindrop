@@ -1420,3 +1420,18 @@ u10_floating:
   new_look_body: "Daha sıcak ve sakin tasarım sözlerinizi öne çıkarır. Tema ön ayarlarınız korunur ve yeni varsayılan Kitaplık eklenir."
   keyboard_title: "Her yerde klavye"
   keyboard_body: "Klavyeden ayrılmadan gezinin, arayın, not oluşturun, dışa aktarın ve silin."
+u11:
+  recording_started: "Kayıt başladı"
+  recording_stopped: "Kayıt durduruldu"
+  recording_processing: "Kayıt durduruldu. Transkripsiyon işleniyor."
+  transcription_complete: "Transkripsiyon tamamlandı"
+  live_transcript: "Canlı transkript"
+  estimating_time: "Kalan süre tahmin ediliyor…"
+  seconds_left: "yaklaşık %d sn kaldı"
+  minutes_left: "yaklaşık %d dk kaldı"
+  microphone_muted: "Mikrofon sessize alındı"
+u11b:
+  playback_position: "Oynatma konumu"
+  expired: "Süresi doldu"
+  expand: "Genişlet"
+  step_x_of_y: "Adım %d/%d"

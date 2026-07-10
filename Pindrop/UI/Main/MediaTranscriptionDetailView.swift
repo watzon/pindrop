@@ -22,6 +22,7 @@ struct MediaTranscriptionDetailView: View {
     let onDelete: () -> Void
 
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var playbackController = MediaPlaybackController()
     @State private var followPlayback = true
@@ -173,6 +174,7 @@ struct MediaTranscriptionDetailView: View {
             HStack(spacing: 4) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 12, weight: .semibold))
+                    .flipsForRightToLeftLayoutDirection(true)
                 Text(localized("Library", locale: locale))
                     .font(AppTypography.label)
             }
@@ -393,7 +395,7 @@ struct MediaTranscriptionDetailView: View {
                     }
                     .onChange(of: activeSegmentID) { _, identifier in
                         guard followPlayback, let identifier else { return }
-                        withAnimation(AppTheme.Animation.normal) {
+                        withAnimation(reduceMotion ? nil : AppTheme.Animation.normal) {
                             proxy.scrollTo(identifier, anchor: .center)
                         }
                     }
@@ -465,7 +467,7 @@ struct MediaTranscriptionDetailView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.fast, value: active)
+        .appAnimation(.fast, value: active)
         .contextMenu {
             if !segment.speakerId.isEmpty {
                 Button(localized("Edit", locale: locale)) {

@@ -5,6 +5,7 @@
 //  Created on 2026-03-11.
 //
 
+import AppKit
 import CoreGraphics
 import Foundation
 import Observation
@@ -143,6 +144,15 @@ final class ToastService: ToastShowing {
     }
 
     func show(_ payload: ToastPayload) {
+        NSAccessibility.post(
+            element: NSApp as Any,
+            notification: .announcementRequested,
+            userInfo: [
+                .announcement: payload.message,
+                .priority: NSAccessibilityPriorityLevel.high.rawValue,
+            ]
+        )
+
         if let activeToast, activeToast.payload.signature == payload.signature {
             self.activeToast = ActiveToast(payload: payload)
             presenter.show(

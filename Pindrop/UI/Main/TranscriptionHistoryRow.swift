@@ -27,6 +27,8 @@ struct TranscriptionHistoryRow: View {
 
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.locale) private var locale
     @Namespace private var enhancedNamespace
 
     private var isEnhanced: Bool { record.enhancedWith != nil }
@@ -38,9 +40,9 @@ struct TranscriptionHistoryRow: View {
     private var typeInfo: (icon: String, color: Color, label: String) {
         switch sourceKind {
         case .voiceRecording:
-            return ("mic.fill", AppColors.accent, "Voice")
+            return ("mic.fill", AppColors.accent, localized("Voice", locale: locale))
         case .manualCapture:
-            return ("person.2.fill", AppColors.success, "Meeting")
+            return ("person.2.fill", AppColors.success, localized("Meeting", locale: locale))
         case .importedFile:
             return ("headphones", AppColors.processing, "Audio")
         case .webLink:
@@ -140,10 +142,18 @@ struct TranscriptionHistoryRow: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
             style: cardBorder
         )
-        .animation(AppTheme.Animation.fast, value: isHovered)
-        .animation(AppTheme.Animation.fast, value: isSelected)
+        .appAnimation(.fast, value: isHovered)
+        .appAnimation(.fast, value: isSelected)
         .onHover { hovering in isHovered = hovering }
         .onTapGesture { onTap() }
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onTap() }
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
+        .onKeyPress(.return) {
+            onTap()
+            return .handled
+        }
         .contextMenu { contextMenuItems }
         .overlay(alignment: .bottom) {
             if showingSaveSuccess {
@@ -243,7 +253,7 @@ struct TranscriptionHistoryRow: View {
                     .fill(AppColors.divider)
                     .frame(height: 1)
 
-                Text("Original")
+                Text(localized("Original", locale: locale))
                     .font(AppTypography.tiny)
                     .foregroundStyle(AppColors.textTertiary)
 
@@ -263,7 +273,7 @@ struct TranscriptionHistoryRow: View {
 
     @ViewBuilder
     private func enhancedBadge(style: EnhancedBadgeStyle) -> some View {
-        Text("Enhanced")
+        Text(localized("Enhanced", locale: locale))
             .font(style == .inline ? AppTypography.caption : AppTypography.tiny)
             .foregroundStyle(style == .inline ? AppColors.textTertiary : AppColors.accent)
             .matchedGeometryEffect(id: "enhanced-label", in: enhancedNamespace)
@@ -326,12 +336,12 @@ struct TranscriptionHistoryRow: View {
     }
 
     private func flashSaveSuccess() {
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             showingSaveSuccess = true
         }
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 2_000_000_000)
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 showingSaveSuccess = false
             }
         }
