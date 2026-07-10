@@ -7,6 +7,8 @@ struct CopyButton: View {
     var label: String? = nil
     var size: CGFloat = 12
     var showBackground: Bool = false
+    /// When true, routes through AppCoordinator's clipboard-undo toast path.
+    var useUndoToast: Bool = false
 
     @Environment(\.locale) private var locale
     
@@ -52,9 +54,17 @@ struct CopyButton: View {
     }
     
     private func copyToClipboard() {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        if useUndoToast {
+            NotificationCenter.default.post(
+                name: .copyTextWithUndo,
+                object: nil,
+                userInfo: ["text": text]
+            )
+        } else {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(text, forType: .string)
+        }
         
         withAnimation {
             isCopied = true
