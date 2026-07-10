@@ -470,6 +470,8 @@ layout:
   _self: "Susun atur"
 learn:
   corrected_words_automatically: "Belajar perkataan yang diperbetulkan secara automatik"
+legacy:
+  _self: "Legacy"
 left:
   _self: "kiri"
 let:

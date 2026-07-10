@@ -470,6 +470,8 @@ layout:
   _self: "تَخطِيط"
 learn:
   corrected_words_automatically: "تعلم الكلمات المصححة تلقائيا"
+legacy:
+  _self: "Legacy"
 left:
   _self: "غادر"
 let:

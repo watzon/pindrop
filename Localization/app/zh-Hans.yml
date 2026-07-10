@@ -470,6 +470,8 @@ layout:
   _self: "布局"
 learn:
   corrected_words_automatically: "自动学习更正的词汇"
+legacy:
+  _self: "Legacy"
 left:
   _self: "左侧"
 let:

@@ -470,6 +470,8 @@ layout:
   _self: "מַעֲרָך"
 learn:
   corrected_words_automatically: "למד מילים מתוקנות באופן אוטומטי"
+legacy:
+  _self: "Legacy"
 left:
   _self: "שְׁמֹאל"
 let:

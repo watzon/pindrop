@@ -470,6 +470,8 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Lär dig korrigerade ord automatiskt"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Vänster"
 let:

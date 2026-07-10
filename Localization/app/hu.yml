@@ -470,6 +470,8 @@ layout:
   _self: "Elrendezés"
 learn:
   corrected_words_automatically: "Tanulja meg automatikusan a javított szavakat"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Balra"
 let:

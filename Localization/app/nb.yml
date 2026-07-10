@@ -470,6 +470,8 @@ layout:
   _self: "Oppsett"
 learn:
   corrected_words_automatically: "Lær korrigerte ord automatisk"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Igjen"
 let:

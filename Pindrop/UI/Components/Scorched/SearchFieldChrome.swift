@@ -20,10 +20,19 @@ struct SearchFieldChrome: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(AppColors.textTertiary)
 
-            TextField(placeholder, text: $text)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.textPrimary)
-                .textFieldStyle(.plain)
+            // Prompt styled as ink-3 (native TextField placeholder is not theme-aware).
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .allowsHitTesting(false)
+                }
+                TextField("", text: $text)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .textFieldStyle(.plain)
+            }
 
             if showsKeyboardHint, text.isEmpty {
                 Text(keyboardHint)

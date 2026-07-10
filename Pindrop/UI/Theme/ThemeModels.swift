@@ -165,7 +165,12 @@ enum ScorchedEarthBaseTokens {
 }
 
 enum PindropThemePresetCatalog {
-    /// New installs default to Library.
+    /// New installs (and any user still on the *implicit* default) resolve to Library.
+    ///
+    /// **Redesign release intent:** flipping the catalog default from `pindrop` → `library`
+    /// intentionally re-themes users who never explicitly chose a preset. Explicit
+    /// `lightThemePresetID` / `darkThemePresetID` values already stored in UserDefaults
+    /// are **not** migrated and continue to resolve (including legacy `graphite`).
     static let defaultPresetID = "library"
 
     /// Visible in the Appearance picker (excludes legacy/hidden presets).

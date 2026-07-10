@@ -470,6 +470,8 @@ layout:
   _self: "Cách trình bày"
 learn:
   corrected_words_automatically: "Tự động học các từ đã sửa"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Bên trái"
 let:

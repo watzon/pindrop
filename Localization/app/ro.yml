@@ -470,6 +470,8 @@ layout:
   _self: "Aspect"
 learn:
   corrected_words_automatically: "Învață cuvintele corectate automat"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Stânga"
 let:

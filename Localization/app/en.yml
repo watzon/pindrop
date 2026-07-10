@@ -474,6 +474,8 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Learn corrected words automatically"
+legacy:
+  _self: "Legacy"
 left:
   _self: "Left"
 let:
