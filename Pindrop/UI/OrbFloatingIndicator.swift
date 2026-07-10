@@ -998,7 +998,9 @@ struct OrbIndicatorView: View {
         ZStack {
             OrbGlassFillView(
                 palette: ribbonPalette,
-                bandLevels: state.bandLevels,
+                // Closure, not value: bandLevels is deliberately non-@Published, so it
+                // must be polled inside the shader timeline tick to stay live.
+                bands: { [weak state] in state?.bandLevels ?? .zero },
                 isHovered: controller.isHovered,
                 isRecording: state.isRecording,
                 isProcessing: state.isProcessing,
@@ -1187,7 +1189,8 @@ private struct OrbGooSurface: View, Animatable {
 
 private struct OrbGlassFillView: View {
     let palette: OrbRibbonPalette
-    let bandLevels: AudioBandLevels
+    /// Sampled once per timeline tick — see the call site for why this is a closure.
+    let bands: () -> AudioBandLevels
     let isHovered: Bool
     let isRecording: Bool
     let isProcessing: Bool
@@ -1219,7 +1222,7 @@ private struct OrbGlassFillView: View {
                     : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
                 let speed = isProcessing ? 0.18 : 0.42
                 let liveBands = isRecording && !isMuted && !reduceMotion
-                    ? bandLevels
+                    ? bands()
                     : .zero
 
                 Rectangle()
