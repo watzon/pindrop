@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Controla cómo pule los transcritos el flujo de dictado en vivo. El limpiador determinista (eliminación de muletillas, capitalización, puntuación hablada, normalización de números, unión de palabras partidas) se ejecuta siempre — este interruptor regula el pase de pulido opcional del LLM que se ejecuta cuando termina el dictado."
 copied:
   _self: "¡Copiado!"
+  to_clipboard: "Copiado al portapapeles"
 copy:
   _self: "Copy"
   enhanced: "Copiar mejorado"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Traer todo al frente"
 home:
   _self: "Inicio"
+newest:
+  _self: "Más recientes"
+oldest:
+  _self: "Más antiguos"
+plain:
+  text_txt: "Texto sin formato (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Subtítulos (.srt)"
+timestamps:
+  json: "Marcas de tiempo (.json)"
+inserted:
+  into_d_words: "Insertado en %@ · %d palabras"
+unknown:
+  app: "App desconocida"

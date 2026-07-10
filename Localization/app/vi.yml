@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Kiểm soát cách đường dẫn chính tả trực tiếp đánh bóng bản ghi. Trình dọn dẹp xác định (loại bỏ phụ, viết hoa, chấm câu nói, chuẩn hóa số, hợp nhất từ ​​tách) chạy theo một trong hai cách — nút chuyển đổi này sẽ chặn đường đánh bóng LLM tùy chọn sẽ kích hoạt sau khi dừng đọc chính tả."
 copied:
   _self: "Đã sao chép!"
+  to_clipboard: "Đã sao chép vào clipboard"
 copy:
   _self: "Sao chép"
   enhanced: "Sao chép nâng cao"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Đưa tất cả ra phía trước"
 home:
   _self: "Trang chủ"
+newest:
+  _self: "Mới nhất"
+oldest:
+  _self: "Cũ nhất"
+plain:
+  text_txt: "Văn bản thuần (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Phụ đề (.srt)"
+timestamps:
+  json: "Dấu thời gian (.json)"
+inserted:
+  into_d_words: "Đã chèn vào %@ · %d từ"
+unknown:
+  app: "Ứng dụng không xác định"

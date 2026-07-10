@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Mengawal cara laluan imlak langsung menggilap transkrip. Pembersih deterministik (penyingkiran pengisi, penggunaan huruf besar, tanda baca yang dituturkan, penormalan nombor, penggabungan perkataan berpecah) berjalan dengan cara sama ada — togol ini mengawal pas pengilat LLM pilihan yang menyala sebaik sahaja imlak berhenti."
 copied:
   _self: "disalin!"
+  to_clipboard: "Disalin ke papan keratan"
 copy:
   _self: "salin"
   enhanced: "Salin Dipertingkat"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Bawa Semua ke Hadapan"
 home:
   _self: "Laman Utama"
+newest:
+  _self: "Terbaru"
+oldest:
+  _self: "Terlama"
+plain:
+  text_txt: "Teks biasa (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Sari kata (.srt)"
+timestamps:
+  json: "Cap masa (.json)"
+inserted:
+  into_d_words: "Dimasukkan ke %@ · %d perkataan"
+unknown:
+  app: "Apl tidak diketahui"

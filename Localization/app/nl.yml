@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Bepaalt hoe het live-dicteerpad transcripties bijwerkt. De deterministische opschoner (verwijdering van stopwoorden, hoofdletters, uitgesproken interpunctie, getalsnormalisatie, samenvoegen van gesplitste woorden) loopt hoe dan ook — deze schakelaar regelt de optionele LLM-polijststap die start zodra het dicteren stopt."
 copied:
   _self: "Gekopieerd!"
+  to_clipboard: "Gekopieerd naar klembord"
 copy:
   _self: "Kopiëren"
   enhanced: "Kopieer verbeterd"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Alles op de voorgrond"
 home:
   _self: "Home"
+newest:
+  _self: "Nieuwste"
+oldest:
+  _self: "Oudste"
+plain:
+  text_txt: "Platte tekst (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Ondertitels (.srt)"
+timestamps:
+  json: "Tijdstempels (.json)"
+inserted:
+  into_d_words: "Ingevoegd in %@ · %d woorden"
+unknown:
+  app: "Onbekende app"

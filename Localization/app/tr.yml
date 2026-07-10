@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Canlı dikte yolunun transkriptleri nasıl rötuşladığını kontrol eder. Deterministik temizleyici (doldurucu sözcüklerin kaldırılması, büyük harf, sözlü noktalama, sayı normalleştirme, bölünmüş sözcüklerin birleştirilmesi) her durumda çalışır — bu anahtar, dikte durduğunda çalışan isteğe bağlı LLM cilalama adımını denetler."
 copied:
   _self: "Kopyalandı!"
+  to_clipboard: "Panoya kopyalandı"
 copy:
   _self: "Kopyala"
   enhanced: "Geliştirilmiş Kopyalama"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Tümünü Öne Getir"
 home:
   _self: "Ana Sayfa"
+newest:
+  _self: "En yeni"
+oldest:
+  _self: "En eski"
+plain:
+  text_txt: "Düz metin (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Altyazılar (.srt)"
+timestamps:
+  json: "Zaman damgaları (.json)"
+inserted:
+  into_d_words: "%@ uygulamasına eklendi · %d kelime"
+unknown:
+  app: "Bilinmeyen uygulama"

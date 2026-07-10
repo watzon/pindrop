@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Řídí, jak cesta živého diktování vyleští přepisy. Deterministický čistič (odstranění výplně, psaní velkých písmen, mluvená interpunkce, normalizace čísel, slučování rozdělených slov) běží v obou směrech – tento přepínač uzavírá volitelný LLM polský průchod, který se spustí, jakmile se diktování zastaví."
 copied:
   _self: "Zkopírováno!"
+  to_clipboard: "Zkopírováno do schránky"
 copy:
   _self: "Kopie"
   enhanced: "Vylepšené kopírování"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Přesunout vše do popředí"
 home:
   _self: "Domů"
+newest:
+  _self: "Nejnovější"
+oldest:
+  _self: "Nejstarší"
+plain:
+  text_txt: "Prostý text (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Titulky (.srt)"
+timestamps:
+  json: "Časová razítka (.json)"
+inserted:
+  into_d_words: "Vloženo do %@ · %d slov"
+unknown:
+  app: "Neznámá aplikace"

@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Azt szabályozza, hogy az élő diktálási útvonal hogyan csiszolja az átiratokat. A determinisztikus tisztító (kitöltés eltávolítása, nagybetűk írása, kimondott írásjelek, számnormalizálás, felosztott szavak összevonása) mindkét irányban fut – ez a kapcsoló az opcionális LLM-fényezési lépést állítja be, amely a diktálás leállása után indul el."
 copied:
   _self: "Másolva!"
+  to_clipboard: "Vágólapra másolva"
 copy:
   _self: "Másolat"
   enhanced: "Továbbfejlesztett másolás"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Összes előrehozása"
 home:
   _self: "Kezdőlap"
+newest:
+  _self: "Legújabb"
+oldest:
+  _self: "Legrégebbi"
+plain:
+  text_txt: "Egyszerű szöveg (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Feliratok (.srt)"
+timestamps:
+  json: "Időbélyegek (.json)"
+inserted:
+  into_d_words: "Beillesztve ide: %@ · %d szó"
+unknown:
+  app: "Ismeretlen alkalmazás"

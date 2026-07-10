@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "控制實時聽寫路徑如何修飾轉錄內容。確定性清理（填充詞移除、首字母大寫、口頭標點、數字規範化、拆分詞合併）始終執行——此開關控制可選的 LLM 潤色步驟，該步驟在聽寫停止後觸發。"
 copied:
   _self: "已複製！"
+  to_clipboard: "已複製到剪貼簿"
 copy:
   _self: "複製"
   enhanced: "複製增強版"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "將此程式所有視窗移至最前"
 home:
   _self: "主頁"
+newest:
+  _self: "最新"
+oldest:
+  _self: "最舊"
+plain:
+  text_txt: "純文字 (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "字幕 (.srt)"
+timestamps:
+  json: "時間戳記 (.json)"
+inserted:
+  into_d_words: "已插入 %@ · %d 詞"
+unknown:
+  app: "未知 App"

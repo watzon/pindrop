@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Mengontrol cara jalur dikte langsung memoles transkrip. Pembersih deterministik (penghapusan pengisi, kapitalisasi, tanda baca lisan, normalisasi angka, penggabungan kata terpisah) berjalan dengan cara apa pun — sakelar ini membuka gerbang penyempurnaan LLM opsional yang diaktifkan setelah dikte berhenti."
 copied:
   _self: "Disalin!"
+  to_clipboard: "Disalin ke papan klip"
 copy:
   _self: "Menyalin"
   enhanced: "Salin Ditingkatkan"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Bawa Semua ke Depan"
 home:
   _self: "Beranda"
+newest:
+  _self: "Terbaru"
+oldest:
+  _self: "Terlama"
+plain:
+  text_txt: "Teks biasa (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Subtitle (.srt)"
+timestamps:
+  json: "Stempel waktu (.json)"
+inserted:
+  into_d_words: "Disisipkan ke %@ · %d kata"
+unknown:
+  app: "Aplikasi tidak dikenal"

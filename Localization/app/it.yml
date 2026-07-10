@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Controlla come il percorso di dettatura in diretta rifinisce le trascrizioni. Il pulitore deterministico (rimozione riempitivi, maiuscole, punteggiatura parlata, normalizzazione dei numeri, unione di parole divise) viene eseguito comunque — questo interruttore abilita la lucidatura LLM opzionale al termine della dettatura."
 copied:
   _self: "Copiato!"
+  to_clipboard: "Copiato negli appunti"
 copy:
   _self: "Copia"
   enhanced: "Copia avanzata"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Porta tutto in primo piano"
 home:
   _self: "Inizio"
+newest:
+  _self: "Più recenti"
+oldest:
+  _self: "Più vecchi"
+plain:
+  text_txt: "Testo semplice (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Sottotitoli (.srt)"
+timestamps:
+  json: "Timestamp (.json)"
+inserted:
+  into_d_words: "Inserito in %@ · %d parole"
+unknown:
+  app: "App sconosciuta"

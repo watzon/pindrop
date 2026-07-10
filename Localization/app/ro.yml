@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Controlează modul în care calea de dictare live lustruiește transcrierile. Curățarea deterministă (înlăturarea umplerii, scrierea cu majuscule, punctuația rostită, normalizarea numerelor, îmbinarea cuvintelor împărțite) rulează în orice direcție - această comutare pornește trecerea opțională de lustruire LLM care se declanșează odată ce dictarea se oprește."
 copied:
   _self: "Copiat!"
+  to_clipboard: "Copiat în clipboard"
 copy:
   _self: "Copie"
   enhanced: "Copiere îmbunătățită"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Aduce totul în față"
 home:
   _self: "Acasă"
+newest:
+  _self: "Cele mai noi"
+oldest:
+  _self: "Cele mai vechi"
+plain:
+  text_txt: "Text simplu (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Subtitrări (.srt)"
+timestamps:
+  json: "Marcaje temporale (.json)"
+inserted:
+  into_d_words: "Inserat în %@ · %d cuvinte"
+unknown:
+  app: "Aplicație necunoscută"
