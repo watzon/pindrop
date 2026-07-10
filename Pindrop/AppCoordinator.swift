@@ -153,6 +153,7 @@ struct HotkeySettingsSnapshot: Equatable {
     let copyLastTranscript: HotkeyBindingSnapshot
     let quickCapturePTT: HotkeyBindingSnapshot
     let quickCaptureToggle: HotkeyBindingSnapshot
+    let openLibrary: HotkeyBindingSnapshot
 }
 
 struct SettingsObservationSnapshot: Equatable {
@@ -329,7 +330,7 @@ final class AppCoordinator {
     private let contextSessionPollInterval: TimeInterval = 1.25
     private let contextSessionFocusUpdateThrottle: TimeInterval = 0.75
     private var recordingStartAttemptCounter: UInt64 = 0
-    private var reportedHotkeyConflicts = Set<String>()
+
     private let appContextAdapterRegistry = AppContextAdapterRegistry()
     private let promptRoutingResolver: any PromptRoutingResolver = NoOpPromptRoutingResolver()
     private let enableSystemHooks: Bool
@@ -1177,7 +1178,6 @@ final class AppCoordinator {
         guard enableSystemHooks else { return }
 
         hotkeyManager.unregisterAll()
-        reportedHotkeyConflicts.removeAll()
         guard HotkeyRegistrationState.shouldRegisterHotkeys(hasCompletedOnboarding: settingsStore.hasCompletedOnboarding) else {
             Log.hotkey.info("Skipping hotkey registration until onboarding is complete")
             return
@@ -1365,8 +1365,43 @@ final class AppCoordinator {
                     handleHotkeyRegistrationFailure(displayName: "Note Capture (Toggle)", hotkeyString: settingsStore.quickCaptureToggleHotkey)
                 }
             }
+        }
+
+        if !settingsStore.openLibraryHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Open Library",
+               hotkeyString: settingsStore.openLibraryHotkey,
+               keyCodeValue: settingsStore.openLibraryHotkeyCode,
+               modifiersValue: settingsStore.openLibraryHotkeyModifiers
+           ) {
+            Log.hotkey.info("Registering open-library: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.openLibraryHotkey)")
+            if canRegisterHotkey(
+                identifier: "open-library",
+                displayName: "Open Library",
+                hotkeyString: settingsStore.openLibraryHotkey,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
+                registrationState: &registrationState
+            ) {
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
+                    identifier: "open-library",
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            self?.handleOpenHistory()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Open Library", hotkeyString: settingsStore.openLibraryHotkey)
+                }
+            }
+        }
     }
-    }
+
     private func validatedHotkeyBinding(
         displayName: String,
         hotkeyString: String,
@@ -1406,21 +1441,13 @@ final class AppCoordinator {
             modifiers: modifiers.rawValue
         ) {
             let existingDisplayName = hotkeyDisplayName(for: conflict.existingIdentifier)
-            let conflictKey = conflict.conflictKey
 
+            // Pre-save inline feedback in HotkeysSettingsView covers Pindrop-internal
+            // conflicts; skip the blocking NSAlert for those. Still refuse to register
+            // the duplicate and keep Carbon registration-failure alerts as fallback.
             Log.hotkey.error(
                 "Hotkey conflict detected for \(hotkeyString): \(existingDisplayName) conflicts with \(displayName). Ignoring \(displayName)"
             )
-
-            if !reportedHotkeyConflicts.contains(conflictKey) {
-                reportedHotkeyConflicts.insert(conflictKey)
-                AlertManager.shared.showHotkeyConflictAlert(
-                    hotkey: hotkeyString,
-                    firstAction: existingDisplayName,
-                    secondAction: displayName
-                )
-            }
-
             return false
         }
 
@@ -1439,6 +1466,8 @@ final class AppCoordinator {
             return "Note Capture (Push-to-Talk)"
         case "quick-capture-toggle":
             return "Note Capture (Toggle)"
+        case "open-library":
+            return "Open Library"
         default:
             return identifier
         }
@@ -1484,6 +1513,11 @@ final class AppCoordinator {
                     hotkey: settingsStore.quickCaptureToggleHotkey,
                     keyCode: settingsStore.quickCaptureToggleHotkeyCode,
                     modifiers: settingsStore.quickCaptureToggleHotkeyModifiers
+                ),
+                openLibrary: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.openLibraryHotkey,
+                    keyCode: settingsStore.openLibraryHotkeyCode,
+                    modifiers: settingsStore.openLibraryHotkeyModifiers
                 )
             ),
             mcpServerEnabled: settingsStore.mcpServerEnabled,

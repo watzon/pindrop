@@ -577,6 +577,7 @@ no:
   vocabulary_words: "語彙がありません"
   learned_participants_yet: "学習済みの参加者はまだありません"
   providers_configured_yet_e6bc0075: "プロバイダはまだ設定されていません"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "割り当てられていません"
   selected: "未選択"
@@ -618,6 +619,7 @@ open:
   settings: "設定を開く"
   settings_fd7108f8: "設定を開く"
   system_settings: "システム設定を開く"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI対応ローカルサーバー"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Finder にアプリを表示"
   in_dock: "ドックに表示"
   api_key: "API キーを表示"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
   as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "これらのオプションは排他的です。一方を有効にすると他方は無効になります。"
 while:
   recording: "録音中"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

@@ -577,6 +577,7 @@ no:
   vocabulary_words: "어휘 없음"
   learned_participants_yet: "아직 학습된 참가자가 없습니다"
   providers_configured_yet_e6bc0075: "아직 구성된 제공자가 없습니다"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "할당되지 않음"
   selected: "선택되지 않음"
@@ -618,6 +619,7 @@ open:
   settings: "설정 열기"
   settings_fd7108f8: "설정 열기"
   system_settings: "시스템 설정 열기"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI 호환 로컬 서버"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Finder에 앱 표시"
   in_dock: "Dock에 표시"
   api_key: "API 키 표시"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "화면 하단에 알약으로 표시됩니다."
   as_a_liquid_glass_orb_in_the_corner_of_the: "화면 모서리에 리퀴드 글래스 오브로 표시됩니다"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "이 옵션은 서로 배타적입니다. 하나를 켜면 다른 하나는 꺼집니다."
 while:
   recording: "녹음 중"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

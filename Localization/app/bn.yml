@@ -578,6 +578,7 @@ no:
   vocabulary_words: "কোন ভোকাবুলারি শব্দ নেই"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "বরাদ্দ করা হয়নি"
   selected: "নির্বাচিত হয়নি"
@@ -619,6 +620,7 @@ open:
   settings: "সেটিংস খুলুন"
   settings_fd7108f8: "সেটিংস খুলুন"
   system_settings: "সিস্টেম সেটিংস খুলুন"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI- সামঞ্জস্যপূর্ণ স্থানীয় সার্ভার"
@@ -857,6 +859,7 @@ show:
   app_in_finder: "ফাইন্ডারে অ্যাপ দেখান"
   in_dock: "ডকে দেখান"
   api_key: "API কী দেখান"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "পর্দার নীচে একটি বড়ি হিসাবে দেখায়"
   as_a_liquid_glass_orb_in_the_corner_of_the: "স্ক্রিনের কোণে একটি তরল কাচের গোলক হিসেবে দেখায়"
@@ -1156,3 +1159,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "রেকর্ডিংয়ের সময়"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

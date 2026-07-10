@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Fără cuvinte de vocabular"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Nu este atribuit"
   selected: "Neselectat"
@@ -618,6 +619,7 @@ open:
   settings: "Deschide Setări"
   settings_fd7108f8: "Deschideți setările"
   system_settings: "Deschide Setări sistem"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Server local compatibil cu OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Afișați aplicația în Finder"
   in_dock: "Afișați în Dock"
   api_key: "Afișează cheia API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Se afișează ca o pastilă în partea de jos a ecranului"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Se afișează ca o sferă de sticlă lichidă în colțul ecranului"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "În timpul înregistrării"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

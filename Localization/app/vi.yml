@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Không có từ vựng"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Chưa được chỉ định"
   selected: "Không được chọn"
@@ -618,6 +619,7 @@ open:
   settings: "Mở Cài đặt"
   settings_fd7108f8: "Mở cài đặt"
   system_settings: "Mở cài đặt hệ thống"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Máy chủ cục bộ tương thích với OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Hiển thị ứng dụng trong Finder"
   in_dock: "Hiển thị trong Dock"
   api_key: "Hiện khóa API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Hiển thị dưới dạng quả cầu thủy tinh lỏng ở góc màn hình"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Khi ghi âm"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

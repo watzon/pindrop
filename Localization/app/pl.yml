@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Brak słów ze słownika"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Nie przydzielono"
   selected: "Nie wybrano"
@@ -618,6 +619,7 @@ open:
   settings: "Otwórz Ustawienia"
   settings_fd7108f8: "Otwórz ustawienia"
   system_settings: "Otwórz Ustawienia systemowe"
+  library: "Open Library"
 openai:
   _self: "OtwórznAI"
   compatible_local_server: "Serwer lokalny kompatybilny z OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Pokaż aplikację w Finderze"
   in_dock: "Pokaż w Docku"
   api_key: "Pokaż klucz API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Pokazuje się jako pigułka na dole ekranu"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wyświetla się jako kula z płynnego szkła w rogu ekranu"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "Podczas nagrywania"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

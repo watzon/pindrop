@@ -292,6 +292,10 @@ final class SettingsStore: ObservableObject {
          static let quickCaptureToggleHotkey = ""
          static let quickCaptureToggleHotkeyCode = 0
          static let quickCaptureToggleHotkeyModifiers = 0
+
+         static let openLibraryHotkey = ""
+         static let openLibraryHotkeyCode = 0
+         static let openLibraryHotkeyModifiers = 0
       }
    }
 
@@ -329,6 +333,12 @@ final class SettingsStore: ObservableObject {
    var quickCaptureToggleHotkeyCode: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
    @AppStorage("quickCaptureToggleHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var quickCaptureToggleHotkeyModifiers: Int = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
+   @AppStorage("openLibraryHotkey", store: SettingsStoreRuntime.appStorageStore)
+   var openLibraryHotkey: String = Defaults.Hotkeys.openLibraryHotkey
+   @AppStorage("openLibraryHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
+   var openLibraryHotkeyCode: Int = Defaults.Hotkeys.openLibraryHotkeyCode
+   @AppStorage("openLibraryHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+   var openLibraryHotkeyModifiers: Int = Defaults.Hotkeys.openLibraryHotkeyModifiers
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
         Defaults.outputMode
      @AppStorage("selectedAppLocale", store: SettingsStoreRuntime.appStorageStore)
@@ -996,6 +1006,9 @@ final class SettingsStore: ObservableObject {
       quickCaptureToggleHotkey = Defaults.Hotkeys.quickCaptureToggleHotkey
       quickCaptureToggleHotkeyCode = Defaults.Hotkeys.quickCaptureToggleHotkeyCode
       quickCaptureToggleHotkeyModifiers = Defaults.Hotkeys.quickCaptureToggleHotkeyModifiers
+      openLibraryHotkey = Defaults.Hotkeys.openLibraryHotkey
+      openLibraryHotkeyCode = Defaults.Hotkeys.openLibraryHotkeyCode
+      openLibraryHotkeyModifiers = Defaults.Hotkeys.openLibraryHotkeyModifiers
       outputMode = Defaults.outputMode
       selectedAppLocaleRawValue = Defaults.selectedAppLocale
       selectedLanguage = Defaults.selectedLanguage
@@ -1108,6 +1121,50 @@ final class SettingsStore: ObservableObject {
          quickCaptureToggleHotkeyCode = keyCode
          quickCaptureToggleHotkeyModifiers = modifiers
       }
+   }
+
+   func updateOpenLibraryHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+      performHotkeyUpdate {
+         openLibraryHotkey = hotkey
+         openLibraryHotkeyCode = keyCode
+         openLibraryHotkeyModifiers = modifiers
+      }
+   }
+
+   /// Configured hotkey assignments for conflict checking (empty slots omitted).
+   func configuredHotkeyAssignments() -> [HotkeyAssignment] {
+      var assignments: [HotkeyAssignment] = []
+      if !toggleHotkey.isEmpty,
+         let keyCode = UInt32(exactly: toggleHotkeyCode),
+         let modifiers = UInt32(exactly: toggleHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .toggleRecording, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !pushToTalkHotkey.isEmpty,
+         let keyCode = UInt32(exactly: pushToTalkHotkeyCode),
+         let modifiers = UInt32(exactly: pushToTalkHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .pushToTalk, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !copyLastTranscriptHotkey.isEmpty,
+         let keyCode = UInt32(exactly: copyLastTranscriptHotkeyCode),
+         let modifiers = UInt32(exactly: copyLastTranscriptHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .copyLastTranscript, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !quickCapturePTTHotkey.isEmpty,
+         let keyCode = UInt32(exactly: quickCapturePTTHotkeyCode),
+         let modifiers = UInt32(exactly: quickCapturePTTHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .quickCapturePTT, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !quickCaptureToggleHotkey.isEmpty,
+         let keyCode = UInt32(exactly: quickCaptureToggleHotkeyCode),
+         let modifiers = UInt32(exactly: quickCaptureToggleHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .quickCaptureToggle, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !openLibraryHotkey.isEmpty,
+         let keyCode = UInt32(exactly: openLibraryHotkeyCode),
+         let modifiers = UInt32(exactly: openLibraryHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .openLibrary, keyCode: keyCode, modifiers: modifiers))
+      }
+      return assignments
    }
 
    private func performHotkeyUpdate(_ update: () -> Void) {

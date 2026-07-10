@@ -577,6 +577,7 @@ no:
   vocabulary_words: "Нет словарных слов"
   learned_participants_yet: "Пока нет выученных участников"
   providers_configured_yet_e6bc0075: "Провайдеры ещё не настроены"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "Не назначено"
   selected: "Не выбрано"
@@ -618,6 +619,7 @@ open:
   settings: "Открыть настройки"
   settings_fd7108f8: "Открыть настройки"
   system_settings: "Открыть настройки системы"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-совместимый локальный сервер"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "Показать приложение в Finder"
   in_dock: "Показать в доке"
   api_key: "Показать API-ключ"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "Отображается в виде таблетки внизу экрана."
   as_a_liquid_glass_orb_in_the_corner_of_the: "Отображается как сфера из жидкого стекла в углу экрана"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "Эти параметры взаимоисключающие. Включение одного отключает другой."
 while:
   recording: "Во время записи"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"

@@ -577,6 +577,7 @@ no:
   vocabulary_words: "ไม่มีคำศัพท์"
   learned_participants_yet: "No learned participants yet"
   providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
 not:
   assigned: "ไม่ได้รับมอบหมาย"
   selected: "ไม่ได้เลือก"
@@ -618,6 +619,7 @@ open:
   settings: "เปิดการตั้งค่า"
   settings_fd7108f8: "เปิดการตั้งค่า"
   system_settings: "เปิดการตั้งค่าระบบ"
+  library: "Open Library"
 openai:
   _self: "OpenAI"
   compatible_local_server: "เซิร์ฟเวอร์ภายในที่เข้ากันได้กับ OpenAI"
@@ -853,6 +855,7 @@ show:
   app_in_finder: "แสดงแอปใน Finder"
   in_dock: "แสดงในด็อค"
   api_key: "แสดงคีย์ API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
   as_a_pill_at_the_bottom_of_the_screen: "แสดงเป็นเม็ดยาที่ด้านล่างของหน้าจอ"
   as_a_liquid_glass_orb_in_the_corner_of_the: "แสดงเป็นออร์บแก้วเหลวที่มุมหน้าจอ"
@@ -1148,3 +1151,9 @@ these:
   options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 while:
   recording: "ขณะบันทึก"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"
