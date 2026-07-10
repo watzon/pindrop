@@ -2610,6 +2610,10 @@ final class AppCoordinator {
 
         await beginStreamingSessionIfAvailable()
 
+        // Retention encodes a native-rate copy so kept audio isn't the 16 kHz ASR feed.
+        audioRecorder.retainNativeAudioForSession =
+            settingsStore.dictationAudioRetention != .off
+
         let didStartRecording: Bool
         do {
             didStartRecording = try await audioRecorder.startRecording()
@@ -3004,8 +3008,10 @@ final class AppCoordinator {
                 destinationAppName: outcome.destinationAppName,
                 destinationAppBundleID: outcome.destinationAppBundleID
             )
+            let nativeAudio = audioRecorder.lastNativeAudio
             dictationAudioRetentionService.schedulePersist(
-                pcmFloatData: recordedAudioData,
+                pcmFloatData: nativeAudio?.data ?? recordedAudioData,
+                sampleRate: nativeAudio?.sampleRate ?? DictationAudioEncoder.inputSampleRate,
                 recordID: record.id
             )
             updateRecentTranscriptsMenu()
@@ -3388,8 +3394,10 @@ final class AppCoordinator {
                 destinationAppName: outputResult?.destinationAppName,
                 destinationAppBundleID: outputResult?.destinationAppBundleID
             )
+            let nativeAudio = audioRecorder.lastNativeAudio
             dictationAudioRetentionService.schedulePersist(
-                pcmFloatData: audioData,
+                pcmFloatData: nativeAudio?.data ?? audioData,
+                sampleRate: nativeAudio?.sampleRate ?? DictationAudioEncoder.inputSampleRate,
                 recordID: record.id
             )
             updateRecentTranscriptsMenu()

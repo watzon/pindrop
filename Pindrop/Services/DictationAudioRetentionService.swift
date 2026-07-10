@@ -9,15 +9,22 @@ import AVFoundation
 import Foundation
 
 /// Encodes float32 PCM dictation buffers to AAC `.m4a` under the managed DictationAudio area.
-/// Input is the 16 kHz mono float32 buffer produced by `AudioRecorder`; AAC is written at 44.1 kHz
-/// (Core Audio rejects MPEG-4 AAC at 16 kHz).
+/// Preferred input is the native-rate copy kept by `AudioRecorder` (44.1/48 kHz) so retained
+/// audio isn't telephone-bandwidth; the 16 kHz ASR feed remains the fallback. Sub-32 kHz
+/// input is resampled to 44.1 kHz (Core Audio rejects MPEG-4 AAC at 16 kHz).
 enum DictationAudioEncoder {
-    /// Sample rate of recorded dictation PCM from `AudioRecorder`.
+    /// Sample rate of the ASR-feed PCM from `AudioRecorder` (fallback input).
     static let inputSampleRate: Double = 16_000
-    /// AAC-friendly output rate.
+    /// AAC-friendly output rate for low-rate input.
     static let outputSampleRate: Double = 44_100
     static let channelCount: AVAudioChannelCount = 1
-    static let bitRate = 64_000
+    static let bitRate = 96_000
+
+    /// AAC output rate for a given input: keep native rates the encoder accepts,
+    /// resample only genuinely low-rate input.
+    static func encodeSampleRate(forInputRate inputRate: Double) -> Double {
+        inputRate >= 32_000 ? inputRate : outputSampleRate
+    }
 
     static func encodePCMFloatData(
         _ audioData: Data,
@@ -50,12 +57,13 @@ enum DictationAudioEncoder {
             inputChannelData[0].update(from: source, count: sampleCount)
         }
 
-        // Resample to an AAC-supported rate when needed.
+        // Resample only when the input rate isn't AAC-friendly (sub-32 kHz).
+        let encodeRate = encodeSampleRate(forInputRate: inputSampleRate)
         let encodeBuffer: AVAudioPCMBuffer
-        if abs(inputSampleRate - outputSampleRate) < 0.5 {
+        if abs(inputSampleRate - encodeRate) < 0.5 {
             encodeBuffer = inputBuffer
         } else {
-            encodeBuffer = try resample(inputBuffer, toSampleRate: outputSampleRate)
+            encodeBuffer = try resample(inputBuffer, toSampleRate: encodeRate)
         }
 
         let parent = destinationURL.deletingLastPathComponent()
@@ -196,7 +204,11 @@ final class DictationAudioRetentionService {
     /// Save the history record first, then call this with the captured PCM data.
     /// Encode + peaks run off the main actor; the record is updated when ready.
     /// When retention is `.off`, does nothing.
-    func schedulePersist(pcmFloatData: Data, recordID: UUID) {
+    func schedulePersist(
+        pcmFloatData: Data,
+        sampleRate: Double = DictationAudioEncoder.inputSampleRate,
+        recordID: UUID
+    ) {
         guard settingsStore.dictationAudioRetention != .off else {
             Log.audio.debug("Dictation audio persistence skipped (retention=off) record=\(recordID)")
             return
@@ -216,6 +228,7 @@ final class DictationAudioRetentionService {
                 let mediaURL = try await Task.detached(priority: .utility) {
                     try Self.encodeAndWritePeaks(
                         pcmFloatData: audioData,
+                        sampleRate: sampleRate,
                         recordID: recordID,
                         directoryURL: destinationDirectory
                     )
@@ -256,6 +269,7 @@ final class DictationAudioRetentionService {
     /// Synchronous encode used by tests and the detached persistence path.
     nonisolated static func encodeAndWritePeaks(
         pcmFloatData: Data,
+        sampleRate: Double = DictationAudioEncoder.inputSampleRate,
         recordID: UUID,
         directoryURL: URL
     ) throws -> URL {
@@ -266,12 +280,16 @@ final class DictationAudioRetentionService {
             .appendingPathComponent(recordID.uuidString)
             .appendingPathExtension("m4a")
 
-        try DictationAudioEncoder.encodePCMFloatData(pcmFloatData, to: mediaURL)
+        try DictationAudioEncoder.encodePCMFloatData(
+            pcmFloatData,
+            to: mediaURL,
+            inputSampleRate: sampleRate
+        )
 
         do {
             let peaks = try WaveformPeaks.extract(
                 fromPCMFloatData: pcmFloatData,
-                sampleRate: DictationAudioEncoder.inputSampleRate
+                sampleRate: sampleRate
             )
             try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
         } catch {
