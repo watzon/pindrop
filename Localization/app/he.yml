@@ -679,7 +679,7 @@ pindrop:
   theme: "נושא Pindrop"
   orb: "כדור Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "עזרה של Pindrop"
 play:
   _self: "לְשַׂחֵק"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "בזמן הקלטה"
 file:
-  _self: "File"
+  _self: "קובץ"
 window:
-  _self: "Window"
+  _self: "חלון"
 help:
-  _self: "Help"
+  _self: "עזרה"
 close:
-  _self: "Close"
+  _self: "סגור"
 find:
-  _self: "Find"
+  _self: "חפש"
 minimize:
-  _self: "Minimize"
+  _self: "מזער"
 zoom:
-  _self: "Zoom"
+  _self: "הגדל/הקטן"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "הבא הכול קדימה"
 home:
-  _self: "Home"
+  _self: "בית"

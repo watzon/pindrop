@@ -679,7 +679,7 @@ pindrop:
   theme: "Chủ đề ghim"
   orb: "Quả cầu Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Trợ giúp Pindrop"
 play:
   _self: "Chơi"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Khi ghi âm"
 file:
-  _self: "File"
+  _self: "Tệp"
 window:
-  _self: "Window"
+  _self: "Cửa sổ"
 help:
-  _self: "Help"
+  _self: "Trợ giúp"
 close:
-  _self: "Close"
+  _self: "Đóng"
 find:
-  _self: "Find"
+  _self: "Tìm"
 minimize:
-  _self: "Minimize"
+  _self: "Thu nhỏ"
 zoom:
-  _self: "Zoom"
+  _self: "Phóng to"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Đưa tất cả ra phía trước"
 home:
-  _self: "Home"
+  _self: "Trang chủ"

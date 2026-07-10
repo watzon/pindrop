@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop téma"
   orb: "Pindrop-gömb"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop súgó"
 play:
   _self: "Játék"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Felvétel közben"
 file:
-  _self: "File"
+  _self: "Fájl"
 window:
-  _self: "Window"
+  _self: "Ablak"
 help:
-  _self: "Help"
+  _self: "Súgó"
 close:
-  _self: "Close"
+  _self: "Bezárás"
 find:
-  _self: "Find"
+  _self: "Keresés"
 minimize:
-  _self: "Minimize"
+  _self: "Kis méret"
 zoom:
-  _self: "Zoom"
+  _self: "Nagyítás"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Összes előrehozása"
 home:
-  _self: "Home"
+  _self: "Kezdőlap"

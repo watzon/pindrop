@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop-tema"
   orb: "Pindrop-kule"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop-hjelp"
 play:
   _self: "Spille"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Under opptak"
 file:
-  _self: "File"
+  _self: "Arkiv"
 window:
-  _self: "Window"
+  _self: "Vindu"
 help:
-  _self: "Help"
+  _self: "Hjelp"
 close:
-  _self: "Close"
+  _self: "Lukk"
 find:
-  _self: "Find"
+  _self: "Søk"
 minimize:
-  _self: "Minimize"
+  _self: "Minimer"
 zoom:
   _self: "Zoom"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Legg alle forrest"
 home:
-  _self: "Home"
+  _self: "Hjem"

@@ -679,7 +679,7 @@ pindrop:
   theme: "Tema Pindrop"
   orb: "Sfera Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Aiuto di Pindrop"
 play:
   _self: "Giocare"
 please:
@@ -1152,18 +1152,18 @@ while:
 file:
   _self: "File"
 window:
-  _self: "Window"
+  _self: "Finestra"
 help:
-  _self: "Help"
+  _self: "Aiuto"
 close:
-  _self: "Close"
+  _self: "Chiudi"
 find:
-  _self: "Find"
+  _self: "Cerca"
 minimize:
-  _self: "Minimize"
+  _self: "Contrai"
 zoom:
   _self: "Zoom"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Porta tutto in primo piano"
 home:
-  _self: "Home"
+  _self: "Inizio"

@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop-thema"
   orb: "Pindrop-orb"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop-help"
 play:
   _self: "Toneelstuk"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Tijdens opname"
 file:
-  _self: "File"
+  _self: "Archief"
 window:
-  _self: "Window"
+  _self: "Venster"
 help:
   _self: "Help"
 close:
-  _self: "Close"
+  _self: "Sluit"
 find:
-  _self: "Find"
+  _self: "Zoek"
 minimize:
-  _self: "Minimize"
+  _self: "Minimaliseer"
 zoom:
   _self: "Zoom"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Alles op de voorgrond"
 home:
   _self: "Home"

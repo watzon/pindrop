@@ -679,7 +679,7 @@ pindrop:
   theme: "Tema Pindrop"
   orb: "Sfera Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Ajutor Pindrop"
 play:
   _self: "Juca"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "În timpul înregistrării"
 file:
-  _self: "File"
+  _self: "Fișier"
 window:
-  _self: "Window"
+  _self: "Fereastră"
 help:
-  _self: "Help"
+  _self: "Ajutor"
 close:
-  _self: "Close"
+  _self: "Închide"
 find:
-  _self: "Find"
+  _self: "Găsește"
 minimize:
-  _self: "Minimize"
+  _self: "Minimizează"
 zoom:
   _self: "Zoom"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Aduce totul în față"
 home:
-  _self: "Home"
+  _self: "Acasă"

@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop téma"
   orb: "Pindrop Koule"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Nápověda Pindrop"
 play:
   _self: "Hrát"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Během nahrávání"
 file:
-  _self: "File"
+  _self: "Soubor"
 window:
-  _self: "Window"
+  _self: "Okno"
 help:
-  _self: "Help"
+  _self: "Nápověda"
 close:
-  _self: "Close"
+  _self: "Zavřít"
 find:
-  _self: "Find"
+  _self: "Najít"
 minimize:
-  _self: "Minimize"
+  _self: "Minimalizovat"
 zoom:
-  _self: "Zoom"
+  _self: "Přiblížit"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Přesunout vše do popředí"
 home:
-  _self: "Home"
+  _self: "Domů"

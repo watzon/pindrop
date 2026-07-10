@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop Tema"
   orb: "Orb Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Bantuan Pindrop"
 play:
   _self: "Bermain"
 please:
@@ -1152,18 +1152,18 @@ while:
 file:
   _self: "File"
 window:
-  _self: "Window"
+  _self: "Jendela"
 help:
-  _self: "Help"
+  _self: "Bantuan"
 close:
-  _self: "Close"
+  _self: "Tutup"
 find:
-  _self: "Find"
+  _self: "Cari"
 minimize:
-  _self: "Minimize"
+  _self: "Minimalkan"
 zoom:
   _self: "Zoom"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Bawa Semua ke Depan"
 home:
-  _self: "Home"
+  _self: "Beranda"

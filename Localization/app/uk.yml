@@ -679,7 +679,7 @@ pindrop:
   theme: "Тема Pindrop"
   orb: "Сфера Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Довідка Pindrop"
 play:
   _self: "грати"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Під час запису"
 file:
-  _self: "File"
+  _self: "Файл"
 window:
-  _self: "Window"
+  _self: "Вікно"
 help:
-  _self: "Help"
+  _self: "Довідка"
 close:
-  _self: "Close"
+  _self: "Закрити"
 find:
-  _self: "Find"
+  _self: "Знайти"
 minimize:
-  _self: "Minimize"
+  _self: "Мінімізувати"
 zoom:
-  _self: "Zoom"
+  _self: "Масштаб"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Перемістити все наперед"
 home:
-  _self: "Home"
+  _self: "Головна"

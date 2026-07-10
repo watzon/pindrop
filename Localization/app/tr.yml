@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop Teması"
   orb: "Pindrop Küresi"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop Yardımı"
 play:
   _self: "Oynamak"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Kayıt sırasında"
 file:
-  _self: "File"
+  _self: "Dosya"
 window:
-  _self: "Window"
+  _self: "Pencere"
 help:
-  _self: "Help"
+  _self: "Yardım"
 close:
-  _self: "Close"
+  _self: "Kapat"
 find:
-  _self: "Find"
+  _self: "Bul"
 minimize:
-  _self: "Minimize"
+  _self: "Simge Durumuna Küçült"
 zoom:
-  _self: "Zoom"
+  _self: "Yakınlaştır"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Tümünü Öne Getir"
 home:
-  _self: "Home"
+  _self: "Ana Sayfa"

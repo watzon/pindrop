@@ -679,7 +679,7 @@ pindrop:
   theme: "موضوع بيندروب"
   orb: "كرة Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "مساعدة Pindrop"
 play:
   _self: "يلعب"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "أثناء التسجيل"
 file:
-  _self: "File"
+  _self: "ملف"
 window:
-  _self: "Window"
+  _self: "نافذة"
 help:
-  _self: "Help"
+  _self: "مساعدة"
 close:
-  _self: "Close"
+  _self: "إغلاق"
 find:
-  _self: "Find"
+  _self: "بحث"
 minimize:
-  _self: "Minimize"
+  _self: "تصغير"
 zoom:
-  _self: "Zoom"
+  _self: "تكبير/تصغير"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "إحضار الكل إلى الأمام"
 home:
-  _self: "Home"
+  _self: "الرئيسية"

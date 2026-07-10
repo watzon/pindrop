@@ -679,7 +679,7 @@ pindrop:
   theme: "Thème Pindrop"
   orb: "Orbe Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Aide Pindrop"
 play:
   _self: "Lire"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Pendant l’enregistrement"
 file:
-  _self: "File"
+  _self: "Fichier"
 window:
-  _self: "Window"
+  _self: "Fenêtre"
 help:
-  _self: "Help"
+  _self: "Aide"
 close:
-  _self: "Close"
+  _self: "Fermer"
 find:
-  _self: "Find"
+  _self: "Rechercher"
 minimize:
-  _self: "Minimize"
+  _self: "Réduire"
 zoom:
-  _self: "Zoom"
+  _self: "Réduire/agrandir"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Tout ramener au premier plan"
 home:
-  _self: "Home"
+  _self: "Accueil"

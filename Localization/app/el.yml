@@ -679,7 +679,7 @@ pindrop:
   theme: "Θέμα Pindrop"
   orb: "Σφαίρα Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Βοήθεια Pindrop"
 play:
   _self: "Παιχνίδι"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Κατά την εγγραφή"
 file:
-  _self: "File"
+  _self: "Αρχείο"
 window:
-  _self: "Window"
+  _self: "Παράθυρο"
 help:
-  _self: "Help"
+  _self: "Βοήθεια"
 close:
-  _self: "Close"
+  _self: "Κλείσιμο"
 find:
-  _self: "Find"
+  _self: "Εύρεση"
 minimize:
-  _self: "Minimize"
+  _self: "Ελαχιστοποίηση"
 zoom:
-  _self: "Zoom"
+  _self: "Ζουμ"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Μεταφορά όλων μπροστά"
 home:
-  _self: "Home"
+  _self: "Αρχική"

@@ -679,7 +679,7 @@ pindrop:
   theme: "पिनड्रॉप थीम"
   orb: "Pindrop ऑर्ब"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop सहायता"
 play:
   _self: "खेल"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "रिकॉर्डिंग के दौरान"
 file:
-  _self: "File"
+  _self: "फ़ाइल"
 window:
-  _self: "Window"
+  _self: "विंडो"
 help:
-  _self: "Help"
+  _self: "सहायता"
 close:
-  _self: "Close"
+  _self: "बंद करें"
 find:
-  _self: "Find"
+  _self: "खोजें"
 minimize:
-  _self: "Minimize"
+  _self: "छोटा करें"
 zoom:
-  _self: "Zoom"
+  _self: "ज़ूम"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "सभी को आगे लाएँ"
 home:
-  _self: "Home"
+  _self: "होम"

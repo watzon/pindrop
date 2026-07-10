@@ -679,7 +679,7 @@ pindrop:
   theme: "ピンドロップのテーマ"
   orb: "Pindrop オーブ"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindropヘルプ"
 play:
   _self: "遊ぶ"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "録音中"
 file:
-  _self: "File"
+  _self: "ファイル"
 window:
-  _self: "Window"
+  _self: "ウインドウ"
 help:
-  _self: "Help"
+  _self: "ヘルプ"
 close:
-  _self: "Close"
+  _self: "閉じる"
 find:
-  _self: "Find"
+  _self: "検索"
 minimize:
-  _self: "Minimize"
+  _self: "しまう"
 zoom:
-  _self: "Zoom"
+  _self: "拡大／縮小"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "すべてを手前に移動"
 home:
-  _self: "Home"
+  _self: "ホーム"

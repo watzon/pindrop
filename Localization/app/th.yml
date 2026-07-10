@@ -679,7 +679,7 @@ pindrop:
   theme: "ธีมพินดรอป"
   orb: "ออร์บ Pindrop"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "วิธีใช้ Pindrop"
 play:
   _self: "เล่น"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "ขณะบันทึก"
 file:
-  _self: "File"
+  _self: "ไฟล์"
 window:
-  _self: "Window"
+  _self: "หน้าต่าง"
 help:
-  _self: "Help"
+  _self: "ช่วยเหลือ"
 close:
-  _self: "Close"
+  _self: "ปิด"
 find:
-  _self: "Find"
+  _self: "ค้นหา"
 minimize:
-  _self: "Minimize"
+  _self: "ย่อหน้าต่าง"
 zoom:
-  _self: "Zoom"
+  _self: "ซูม"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "นำทั้งหมดมาด้านหน้า"
 home:
-  _self: "Home"
+  _self: "หน้าแรก"

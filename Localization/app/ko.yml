@@ -679,7 +679,7 @@ pindrop:
   theme: "핀드롭 테마"
   orb: "Pindrop 오브"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop 도움말"
 play:
   _self: "놀다"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "녹음 중"
 file:
-  _self: "File"
+  _self: "파일"
 window:
-  _self: "Window"
+  _self: "윈도우"
 help:
-  _self: "Help"
+  _self: "도움말"
 close:
-  _self: "Close"
+  _self: "닫기"
 find:
-  _self: "Find"
+  _self: "찾기"
 minimize:
-  _self: "Minimize"
+  _self: "최소화"
 zoom:
-  _self: "Zoom"
+  _self: "확대/축소"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "모두 앞으로 가져오기"
 home:
-  _self: "Home"
+  _self: "홈"

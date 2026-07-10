@@ -679,7 +679,7 @@ pindrop:
   theme: "Pindrop-teema"
   orb: "Pindrop-pallo"
   1_19: "Pindrop 1.19"
-  help: "Pindrop Help"
+  help: "Pindrop-ohje"
 play:
   _self: "Pelata"
 please:
@@ -1150,20 +1150,20 @@ these:
 while:
   recording: "Tallennuksen aikana"
 file:
-  _self: "File"
+  _self: "Arkisto"
 window:
-  _self: "Window"
+  _self: "Ikkuna"
 help:
-  _self: "Help"
+  _self: "Ohje"
 close:
-  _self: "Close"
+  _self: "Sulje"
 find:
-  _self: "Find"
+  _self: "Etsi"
 minimize:
-  _self: "Minimize"
+  _self: "Pienennä"
 zoom:
-  _self: "Zoom"
+  _self: "Zoomaa"
 bring:
-  all_to_front: "Bring All to Front"
+  all_to_front: "Tuo kaikki eteen"
 home:
-  _self: "Home"
+  _self: "Koti"
