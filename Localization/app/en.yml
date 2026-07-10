@@ -2,6 +2,7 @@
   local_processing: "100% local processing"
 1:
   folder: "1 folder"
+  speaker: "1 speaker"
   transcription: "1 transcription"
 a:
   native_macos_menu_bar_dictation_app_using_loca: "A native macOS menu bar dictation app using local speech-to-text with WhisperKit. 100% local processing by default with optional AI enhancement."
@@ -225,6 +226,7 @@ cut:
   _self: "Cut"
 d:
   characters: "%d characters"
+  speakers: "%d speakers"
   samples: "%d samples · %@"
 dark:
   _self: "Dark"
@@ -1180,3 +1182,29 @@ bring:
   all_to_front: "Bring All to Front"
 home:
   _self: "Home"
+
+diarized:
+  _self: "diarized"
+
+summary:
+  ready: "summary ready"
+
+prompts:
+  are_sent_in_english: "Prompts are sent in English"
+preset_example:
+  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
+  clean_output: "So the meeting is at 3:30. Can you confirm?"
+  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
+  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
+  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
+  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
+  social_input: "um we just shipped dark mode and it looks amazing you should try it"
+  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
+  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
+  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
+  technical_input: "call fetch user arrow then map the response equals equals two hundred"
+  technical_output: "Call `fetchUser` -> then map the response `==` 200."
+  live_input: "um so i think we should ship the beta by friday period"
+  live_output: "So I think we should ship the beta by Friday."
+  edits_input: "um this is correct ly twenty-five"
+  edits_output: "This is correctly 25"

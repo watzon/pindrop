@@ -1,1178 +1,870 @@
-100:
-  local_processing: "100 % lokal bearbetning"
-1:
-  folder: "1 mapp"
-  transcription: "1 transkription"
-a:
-  native_macos_menu_bar_dictation_app_using_loca: "En inbyggd macOS-menyradsdikteringsapp som använder lokalt tal-till-text med WhisperKit. 100 % lokal bearbetning som standard med valfri AI-förbättring."
-  big_round_of_upgrades_and_two_community_shout: "En stor omgång uppgraderingar — och två tack till communityn."
-about:
-  _self: "Om"
-  pindrop: "Om Pindrop"
-accessibility:
-  _self: "Tillgänglighet"
-  permission_is_enabled_full_ui_cont: "Tillgänglighetsbehörighet är aktiverad. Fullständig UI-kontext är tillgänglig."
-  permission_is_not_granted_vibe_mod: "Tillgänglighetstillstånd beviljas inte. Vibeläget förblir icke-blockerande med begränsad kontext."
-  permission_recommended: "Tillgänglighetsbehörighet rekommenderas"
-  permission_required: "Tillgänglighetsbehörighet krävs"
-  permission: "Behörighet för hjälpmedel"
-accuracy:
-  _self: "Noggrannhet"
-acknowledgments:
-  _self: "Erkännanden"
-active:
-  _self: "Aktiv"
-add:
-  _self: "Tillägga"
-  a_provider_to_start_using_ai_enhancement: "Lägg till en leverantör för att börja använda AI-förbättring."
-  custom_words_to_improve_transcription_accura: "Lägg till anpassade ord för att förbättra transkriptionsnoggrannheten för specialiserade termer, namn eller jargong."
-  provider: "Lägg till leverantör"
-  tag: "Lägg till tagg..."
-  to_existing: "Lägg till i befintliga"
-  trailing_space: "Lägg till efterföljande utrymme"
-  word_replacements_to_automatically_correct_c: "Lägg till ordersättningar för att automatiskt korrigera vanliga transkriptionsfel."
-  words_to_help_pindrop_recognize_them_properl: "Lägg till ord för att hjälpa Pindrop att känna igen dem ordentligt"
-  words_you_manually_correct_into_your_vocabul: "Lägg till ord som du manuellt korrigerar i ditt ordförråd för framtida transkriptioner."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
-ai:
-  _self: "AI"
-  enhancement: "AI-förbättring"
-  enhancement_529f5583: "AI-förbättring: %@"
-  enhancement_failed: "AI Enhancement misslyckades"
-  enhancement_is_disabled: "AI-förbättring är inaktiverad."
-  enhancement_will: "AI Enhancement kommer att:"
-  model: "AI-modell"
-all:
-  _self: "Alla"
-an:
-  error_occurred_while_enhancing_your_transcrip: |-
-    Ett fel uppstod när din transkription förbättrades:
-    
-    %@
-    
-    Den ursprungliga transkriptionen sparades utan förbättring.
-    Du kan försöka aktivera AI-förbättring igen i Inställningar.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Ett fel uppstod när din transkription förbättrades:nn%@nnDen ursprungliga transkriptionen sparades utan förbättring.nDu kan försöka aktivera AI-förbättring igen i Inställningar."
-anthropic:
-  _self: "Antropisk"
-api:
-  endpoint: "API-slutpunkt"
-  key: "API-nyckel"
-  key_saved: "API-nyckel sparad"
-  key_saved_endpoint: "API-nyckel sparad • Slutpunkt: %@"
-app:
-  info_acknowledgments_support_and_logs: "Appinformation, bekräftelser, support och loggar"
-append:
-  a_space_after_each_transcription_for_seam: "Lägg till ett blanksteg efter varje transkription för sömlös diktering."
-apple:
-  foundation_models_on_device: "Apple Foundation-modeller (på enheten)"
-  intelligence: "Apple Intelligence"
-  intelligence_is_unavailable_on_this_system: "Apple Intelligence är inte tillgängligt på det här systemet. Den här uppgiften kommer inte att lösas förrän Apple Intelligence har aktiverats."
-  intelligence_runs_on_device_and_requires_n: "Apple Intelligence körs på enheten och kräver inga inloggningsuppgifter."
-  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
-  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber kräver macOS 26."
-  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber är inte tillgänglig — använder Nemotron"
-are:
-  you_sure_you_want_to_delete_this_action_cann: "Är du säker på att du vill ta bort '%@'? Denna åtgärd kan inte ångras."
-assignments:
-  _self: "Uppdrag"
-attach:
-  logs_from_this_folder_when_filing_a_githu: "Bifoga loggar från den här mappen när du arkiverar ett GitHub-problem."
-audio:
-  input: "Ljudingång"
-automatic:
-  follow_system: "Automatisk (följ systemet)"
-  updates: "Automatiska uppdateringar"
-  updates_and_manual_update_checks: "Automatiska uppdateringar och manuella uppdateringskontroller"
-automatically:
-  check_for_new_versions_in_the_back: "Sök automatiskt efter nya versioner i bakgrunden."
-  start_pindrop_when_you_sign_in: "Starta Pindrop automatiskt när du loggar in."
-available:
-  models: "Tillgängliga modeller"
-avg:
-  speed: "Genomsnittlig hastighet"
-back:
-  _self: "Tillbaka"
-  to_library: "Tillbaka till biblioteket"
-base:
-  _self: "Bas"
-best:
-  _self: "Bäst"
-better:
-  _self: "Bättre"
-  bluetooth_external_mic_support: "Bättre stöd för Bluetooth och externa mikrofoner"
-built:
-  in_presets: "Inbyggda förinställningar"
-  in_read_only: "Inbyggd (skrivskyddad)"
-cancel:
-  _self: "Avboka"
-  operation: "Avbryt operation"
-capture:
-  directly_into_the_note_editor_with_a_hol: "Fånga direkt i anteckningsredigeraren med ett håll-till-spela-flöde."
-change:
-  microphone: "Byt mikrofon"
-  microphone_ac9970f4: "Byt mikrofon"
-check:
-  for_updates: "Sök efter uppdateringar..."
-  for_updates_736b9062: "Sök efter uppdateringar"
-  now: "Kontrollera nu"
-checking:
-  _self: "Kontroll..."
-choose:
-  a_location_to_save_the_dictionary: "Välj en plats för att spara ordlistan"
-  a_location_to_save_the_presets: "Välj en plats för att spara förinställningarna"
-  a_model: "Välj en modell"
-  a_provider_first: "Välj en leverantör först"
-  an_audio_or_video_file_to_transcribe: "Välj en ljud- eller videofil att transkribera"
-  between_nemotron_punctuated_downloaded_mod: "Välj mellan Nemotron (med skiljetecken, nedladdad modell) och Apple SpeechTranscriber (macOS 26+, medföljer systemet)."
-  file: "Välj fil"
-  how_dictated_text_lands_then_tune_the_fin: "Välj hur dikterad text landar och ställ sedan in det slutliga infogningsbeteendet."
-  how_pindrop_follows_system_appearance_the: "Välj hur Pindrop följer systemets utseende och blanda sedan utvalda ljusa och mörka paletter."
-  how_to_import_the_dictionary_data: "Välj hur du vill importera ordboksdata"
-  how_to_import_the_preset_data: "Välj hur förinställda data ska importeras"
-  languages_for_the_interface_and_for_dicta: "Välj språk för gränssnittet och för diktering. Automatisk följer systemet."
-  location_to_save_presets: "Välj plats för att spara förinställningar"
-  the_daytime_shell_used_in_light_mode: "Välj dagskalet som används i ljusläge."
-  the_low_glare_shell_used_in_dark_mode: "Välj skalet med låg bländning som används i mörkt läge."
-  which_microphone_pindrop_should_use_for_d: "Välj vilken mikrofon Pindrop ska använda för diktering och hur den beter sig under inspelning."
-  which_side_the_navigation_sidebar_appears: "Välj vilken sida navigeringssidofältet ska visas på."
-  how_pindrop_appears_on_screen_while_you_d: "Välj hur Pindrop visas på skärmen medan du dikterar."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
-  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
-  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
-clean:
-  up_filler_words: "Rensa upp utfyllnadsord"
-clear:
-  audio_buffer: "Rensa ljudbuffert"
-  hotkey: "Rensa snabbtangent"
-  shortcut: "Rensa genväg"
-clears:
-  preferences_and_restarts_onboarding: "Rensar inställningar och startar ombordningen"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
-click:
-  or_hold: "Klicka eller håll"
-  or_press: "Klicka eller tryck"
-  or_set_a_hotkey_to_start_talking: "Klicka eller ställ in en snabbtangent för att börja prata"
-  this_icon_anytime_to: "Klicka på den här ikonen när som helst för att:"
-clipboard:
-  _self: "Urklipp"
-  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
-cloud:
-  _self: "Moln"
-  model: "Molnmodell"
-collapse:
-  _self: "Kollapsa"
-coming:
-  soon: "%@ Kommer snart"
-  soon_04d2fd85: "Kommer snart"
-configure:
-  ai_providers_and_credentials_apple_int: "Konfigurera AI-leverantörer och autentiseringsuppgifter. Apple Intelligence körs på enheten; andra leverantörer kräver API-nycklar."
-  keyboard_shortcuts_for_recording_and_n: "Konfigurera kortkommandon för inspelning och anteckningar"
-continue:
-  _self: "Fortsätta"
-  with_default: "Fortsätt med Standard"
-  without: "Fortsätt utan"
-control:
-  how_pindrop_appears_in_macos_and_whether: "Styr hur Pindrop visas i macOS och om det börjar med din skrivbordssession."
-controls:
-  how_the_live_dictation_path_polishes_tr: "Styr hur den direkta dikteringsbanan polerar transkriptioner. Den deterministiska rensaren (borttagning av fyllnadsämnen, versaler, talad interpunktion, nummernormalisering, sammanslagning av delade ord) körs åt båda hållen - denna växling spärrar det valfria LLM-poleringspasset som aktiveras när dikteringen upphör."
-copied:
-  _self: "Kopierade!"
-copy:
-  _self: "Kopiera"
-  enhanced: "Kopiera förbättrad"
-  last_transcript: "Kopiera sista avskriften"
-  original: "Kopiera original"
-  system_info_for_bug_report: "Kopiera systeminformation för felrapport"
-  the_most_recent_transcript_to_the_clipboard: "Kopiera den senaste utskriften till urklippet"
-  to_clipboard: "Kopiera till urklipp"
-  transcript: "Kopiera avskrift"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
-correct:
-  grammar_mistakes: "Rätta grammatikfel"
-create:
-  _self: "Skapa"
-  new_note: "Skapa ny anteckning"
-  new_preset: "Skapa ny förinställning"
-  your_first_note_to_get_started: "Skapa din första anteckning för att komma igång"
-  your_first_preset_or_duplicate_a_built_in: "Skapa din första förinställning eller duplicera en inbyggd för att anpassa den."
-  your_own_presets_or_duplicate_built_in_on: "Skapa dina egna förinställningar eller duplicera inbyggda för att anpassa dem."
-  preset: "Create Preset"
-credentials:
-  are_stored_securely_in_keychain: "Inloggningsuppgifter lagras säkert i nyckelring"
-  saved_successfully: "Inloggningsuppgifterna har sparats"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
-current:
-  _self: "Aktuell: %@"
-custom:
-  _self: "Beställnings"
-  local: "Anpassad / Lokal"
-  openai_compatible: "Anpassad (OpenAI-kompatibel)"
-  presets: "Anpassade förinställningar"
-customize:
-  hotkey: "Anpassa snabbtangent"
-cut:
-  _self: "Skära"
-d:
-  characters: "%d tecken"
-  samples: "%d samples · %@"
-dark:
-  _self: "Mörk"
-  preview: "Mörk förhandsgranskning"
-  theme: "mörkt tema"
-database:
-  error: "Databasfel"
-date:
-  _self: "Datum"
-  7f823513: "Datum %@"
-default:
-  _self: "Standard"
-  model: "Standardmodell"
-define:
-  word_replacements_to_automatically_replac: "Definiera ordersättningar för att automatiskt ersätta specifika ord eller fraser"
-degraded:
-  _self: "Försämrad"
-delete:
-  _self: "Radera"
-  folder: "Ta bort mapp"
-  folder_e556e7c2: "Ta bort mapp?"
-  model: "Ta bort modell"
-  preset: "Ta bort förinställning"
-  preset_4f6cfe36: "Ta bort förinställning?"
-  transcription: "Ta bort transkription"
-  transcription_f82187c4: "Ta bort transkription?"
-  all: "Radera alla"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-dictionary:
-  _self: "Ordbok"
-direct:
-  insert: "Direkt insats"
-disabled:
-  _self: "Inaktiverad"
-dismiss:
-  _self: "Avfärda"
-display:
-  name: "Visningsnamn"
-  name_c7874aaa: "Visningsnamn"
-  pindrop_in_the_dock_instead_of_running_o: "Visa Pindrop i Dock istället för att endast köras som en menyradsapp."
-dock:
-  the_sidebar_to_the_left_or_right_edge_of_th: "Docka sidofältet till vänster eller höger kant av fönstret."
-download:
-  _self: "Ladda ner"
-  complete: "Nedladdningen är klar!"
-  continue: "Ladda ner & fortsätt"
-  failed: "Nedladdningen misslyckades"
-  model: "Ladda ner modell"
-  the_diarization_model_before_starting_m: "Ladda ner diariseringsmodellen innan du påbörjar mediatranskription."
-downloaded:
-  _self: "Nedladdat"
-downloading:
-  _self: "Laddar ned %@..."
-drop:
-  a_file_or_paste_a_link_to_create_a_diarized: "Släpp en fil eller klistra in en länk för att skapa ett diariefört, tidsstämplat transkript."
-  audio_or_video_here: "Släpp ljud eller video här"
-duplicate:
-  preset: "Duplicera förinställning"
-dutch:
-  _self: "holländska"
-edit:
-  _self: "Redigera"
-  preset: "Redigera förinställning"
-  provider: "Redigera leverantör"
-empty:
-  _self: "(Tömma)"
-enable:
-  ai_enhancement: "Aktivera AI Enhancement"
-  live_session_updates_during_recording: "Aktivera livesessionsuppdateringar under inspelning"
-  vibe_mode_ui_context: "Aktivera vibbläge (UI-kontext)"
-  mcp_server: "Enable MCP Server"
-enabled:
-  _self: "Aktiverad"
-endpoint:
-  _self: "Slutpunkt: %@"
-english:
-  _self: "engelska"
-  only: "Endast engelska"
-enhanced:
-  _self: "Förbättrad"
-enhancement:
-  prompts: "Förbättringsmeddelanden"
-enhancing:
-  _self: "Förbättrar…"
-enter:
-  an_openai_api_key_to_load_models: "Ange en OpenAI API-nyckel för att ladda modeller."
-  api_key: "Ange API-nyckel"
-  word_to_add: "Ange ord att lägga till"
-error:
-  _self: "Fel"
-european:
-  multilingual: "europeisk flerspråkig"
-excellent:
-  _self: "Excellent"
-export:
-  _self: "Exportera"
-  as_csv: "Exportera som CSV"
-  as_json: "Exportera som JSON"
-  as_plain_text: "Exportera som vanlig text"
-  dictionary: "Exportera ordbok"
-  failed: "Export misslyckades: %@"
-  last_transcript: "Exportera senaste transkription..."
-  presets: "Exportera förinställningar"
-failed:
-  to_add_replacement: "Det gick inte att lägga till ersättning: %@"
-  to_add_word: "Det gick inte att lägga till ordet: %@"
-  to_delete_folder: "Det gick inte att ta bort mappen: %@"
-  to_delete_note: "Det gick inte att ta bort anteckningen: %@"
-  to_delete_preset: "Det gick inte att ta bort förinställning: %@"
-  to_delete_replacement: "Det gick inte att ta bort ersättning: %@"
-  to_delete_transcription: "Det gick inte att ta bort transkriptionen: %@"
-  to_delete_word: "Det gick inte att ta bort ordet: %@"
-  to_export_dictionary: "Det gick inte att exportera ordboken: %@"
-  to_export_presets: "Det gick inte att exportera förinställningar: %@"
-  to_import_dictionary: "Det gick inte att importera ordboken: %@"
-  to_import_presets: "Det gick inte att importera förinställningar: %@"
-  to_initialize_the_database_nnthe_app_will: "Det gick inte att initiera databasen: %@nnAppen avslutas nu. Försök att starta om eller kontakta supporten om problemet kvarstår."
-  to_load_data: "Det gick inte att ladda data: %@"
-  to_load_history: "Det gick inte att ladda historiken: %@"
-  to_read_import_file: "Det gick inte att läsa importfilen: %@"
-  to_save: "Det gick inte att spara: %@"
-  to_save_preset: "Det gick inte att spara förinställningen: %@"
-  to_switch_model: "Det gick inte att byta modell: %@"
-  to_update_preset: "Det gick inte att uppdatera förinställningen: %@"
-  to_update_replacement: "Det gick inte att uppdatera ersättning: %@"
-  to_update_word: "Det gick inte att uppdatera ordet: %@"
-fast:
-  _self: "Snabb"
-feature:
-  models: "Funktionsmodeller"
-fetch:
-  models_in_models: "Hämta modeller i modeller"
-fix:
-  punctuation_and_capitalization: "Fixa skiljetecken och versaler"
-floating:
-  indicator: "%@ flytande indikator"
-  indicator_e0349402: "Flytande indikator"
-folder:
-  deleted: "Mapp raderad."
-  name: "Mappnamn"
-follow:
-  playback: "Följ uppspelningen"
-format:
-  text_appropriately: "Formatera text på rätt sätt"
-french:
-  _self: "franska"
-general:
-  _self: "Allmän"
-german:
-  _self: "tyska"
-get:
-  started: "Kom igång"
-global:
-  _self: "Globalt"
-  keyboard_shortcuts: "Globala kortkommandon"
-go:
-  back: "Gå tillbaka"
-  to_settings: "Gå till inställningar"
-good:
-  _self: "Bra"
-  afternoon: "God eftermiddag"
-  evening: "God afton"
-  morning: "God morgon"
-  night: "God natt"
-google:
-  _self: "Google"
-got:
-  it: "Jag förstår"
-grant:
-  _self: "Bevilja"
-great:
-  _self: "Stor"
-hide:
-  this_for_1_hour: "Göm detta i 1 timme"
-  api_key: "Dölj API-nyckel"
-history:
-  _self: "Historia"
-hold:
-  the_shortcut_to_record_then_release_to_tran: "Håll ned genvägen för att spela in och släpp sedan för att transkribera."
-  to_record_release_to_open_note_editor_with: "Håll ned för att spela in, släpp för att öppna anteckningsredigeraren med transkription"
-  to_record_release_to_stop_and_transcribe: "Håll ned för att spela in, släpp för att stoppa och transkribera"
-  to_record_release_to_transcribe: "Håll ned för att spela in, släpp för att transkribera"
-  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
-hotkey:
-  conflict: "Snabbknappskonflikt"
-hotkeys:
-  _self: "Snabbtangenter"
-identify:
-  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
-import:
-  _self: "Importera"
-  dictionary: "Importera ordbok"
-  error: "Importfel"
-  export: "Import/Export"
-  media: "Importera media"
-  or_transcribe_media_while_this_folder_is: "Importera eller transkribera media medan den här mappen är vald för att spara objekt här."
-  presets: "Importera förinställningar"
-  strategy: "Importstrategi"
-imported:
-  files_and_web_links_will_appear_here_on: "Importerade filer och webblänkar visas här när bearbetningen är klar."
-improve:
-  transcription_quality_using_ai: "Förbättra transkriptionskvaliteten med AI"
-include:
-  clipboard_text: "Inkludera urklippstext"
-interface:
-  _self: "Gränssnitt"
-  language: "Gränssnittsspråk"
-is:
-  assigned_to_both_and_only_the_first_action_wi: "%@ är tilldelad både %@ och %@. Endast den första åtgärden kommer att vara aktiv. Uppdatera dina snabbtangenter i Inställningar för att lösa denna konflikt."
-italian:
-  _self: "italienska"
-items:
-  _self: "föremål"
-japanese:
-  _self: "japanska"
-keep:
-  pindrop_current_automatically_or_trigger_a: "Håll Pindrop aktuell automatiskt eller utlös en manuell kontroll när du vill."
-  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-key:
-  _self: "#%@"
-  a979ef10: "+"
-  ab8f46d5: "%1$@ %2$@"
-keyboard:
-  shortcuts: "Kortkommandon"
-korean:
-  _self: "koreanska"
-language:
-  _self: "Språk"
-large:
-  _self: "Stor"
-launch:
-  at_login: "Lansering vid inloggning: %@"
-  at_login_0b36c78f: "Starta vid inloggning"
-  at_login_fd1a3b7b: "Starta vid inloggning"
-  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
-layout:
-  _self: "Layout"
-learn:
-  corrected_words_automatically: "Lär dig korrigerade ord automatiskt"
-left:
-  _self: "Vänster"
-let:
-  pindrop_quietly_learn_vocabulary_from_the_co: "Låt Pindrop tyst lära sig ordförråd från de korrigeringar du gör med tiden."
-light:
-  _self: "Ljus"
-  dark_and_curated_palette_presets: "Ljusa, mörka och utvalda palettförinställningar"
-  preview: "Ljus förhandsgranskning"
-  theme: "Lätt tema"
-limited:
-  _self: "Begränsad"
-listening:
-  _self: "Lyssnar…"
-live:
-  streaming_refinement: "Förfining av livestreaming"
-lld:
-  _self: "%1$lld %2$@"
-  197eb092: "%lld%%"
-  a2843d9b: "+%lld"
-  characters: "%lld tecken"
-  complete: "%lld%% klar"
-  items: "%lld objekt"
-  notes: "%lld anteckningar"
-  transcriptions: "%lld transkriptioner"
-lm:
-  studio: "LM Studio"
-  studio_only_needs_a_token_if_local_server_aut: "LM Studio behöver bara en token om lokal serverautentisering är aktiverad."
-load:
-  models: "Ladda modeller"
-loaded:
-  d_models: "Laddade %d modeller"
-loading:
-  history: "Laddar historik..."
-  models: "Laddar modeller..."
-local:
-  _self: "Lokal"
-  speech_to_text_right_from_your_menu_bar_fa: |-
-    Lokalt tal-till-text, direkt från din menyrad.
-    Snabbt, privat och alltid tillgängligt.
-  speech_to_text_right_from_your_menu_bar_nf: "Lokalt tal-till-text, direkt från din menyrad.nSnabbt, privat och alltid tillgängligt."
-  speech_to_text_with_whisperkit: "Lokalt tal-till-text med WhisperKit"
-  voice_to_text: "Lokal röst-till-text"
-low:
-  latency_mode_less_accurate: "Läge med låg latens (mindre exakt)"
-manage:
-  local_speech_models_feature_models_and_th: "Hantera lokala talmodeller, funktionsmodeller och standardmotorn Pindrop använder för transkription."
-  models: "Hantera modeller"
-  presets: "Hantera förinställningar"
-  presets_ab87986d: "Hantera förinställningar..."
-  presets_d5d4c2c2: "Manage Presets…"
-manually:
-  check_for_new_versions_now: "Kontrollera manuellt efter nya versioner nu."
-media:
-  library: "Mediebibliotek"
-  transcription: "Mediatranskription"
-  unavailable: "Media inte tillgänglig"
-  saved: "Media sparad"
-medium:
-  _self: "Medium"
-microphone:
-  _self: "Mikrofon"
-  permission_is_required_to_continue: "Mikrofontillstånd krävs för att fortsätta"
-  permission_is_required_to_continue_dc: "Mikrofontillstånd krävs för att fortsätta."
-  permission_required: "Mikrofontillstånd krävs"
-mit:
-  license: "MIT-licens"
-mode:
-  _self: "Läge: %@"
-model:
-  _self: "Modell"
-  loading_failed: "Modellladdning misslyckades"
-  loading_timed_out: "Tidsgräns för modellladdning"
-  validation: "Model Validation"
-models:
-  _self: "Modeller"
-move:
-  to_folder: "Flytta till mapp"
-multilingual:
-  _self: "Flerspråkig"
-must:
-  be_openai_compatible: "Måste vara OpenAI-kompatibel"
-mute:
-  system_audio_during_recording: "Stäng av systemljudet under inspelning"
-new:
-  folder: "Ny mapp"
-  note: "Ny anteckning"
-  preset: "Ny förinställning"
-next:
-  _self: "Nästa"
-no:
-  api_key: "Ingen API-nyckel"
-  api_key_endpoint: "Ingen API-nyckel • Slutpunkt: %@"
-  custom_presets: "Inga anpassade förinställningar"
-  downloaded_models: "Inga nedladdade modeller"
-  folders_yet: "Inga mappar ännu"
-  items_in: "Inga objekt i %@"
-  media_transcriptions_yet: "Inga mediatranskriptioner ännu"
-  model_loaded: "Ingen modell laddad"
-  model_selected: "Ingen modell har valts"
-  models_available: "Inga modeller tillgängliga"
-  models_available_ae9dbd29: "Inga modeller tillgängliga."
-  models_available_try_refresh_or_enter_a_model: "Inga modeller tillgängliga. Prova Uppdatera eller ange ett modell-ID manuellt."
-  models_found: "Inga modeller hittades."
-  models_loaded_open_edit_to_fetch_models: "Inga modeller laddade. Öppna Redigera för att hämta modeller."
-  models_match: "Inga modeller matchar \"%@\""
-  notes_yet: "Inga anteckningar än"
-  providers_configured_yet: "Inga leverantörer har konfigurerats ännu."
-  replacements: "Inga ersättningar"
-  results_found: "Inga resultat hittades"
-  settings_found: "Inga inställningar hittades"
-  transcriptions_yet: "Inga transkriptioner ännu"
-  vocabulary_words: "Inga ordförråd"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
-not:
-  assigned: "Ej tilldelad"
-  selected: "Ej vald"
-  set: "Ej inställd"
-  set_93039e60: "Inte inställt"
-  granted: "Inte beviljat"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
-note:
-  _self: "Notera"
-  capture_push_to_talk: "Note Capture (Push-to-Talk)"
-  capture_toggle: "Note Capture (växla)"
-  enhancement: "Anmärkning Förbättring"
-  from: "Anteckning från"
-  metadata: "Notera Metadata"
-  title: "Obs Titel"
-  saved: "Anteckning sparad"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
-notes:
-  _self: "Anteckningar"
-  3add7b96: "anteckningar"
-off:
-  _self: "Av"
-ok:
-  _self: "OK"
-ollama:
-  _self: "Ollama"
-  usually_does_not_require_authentication_f: "Ollama kräver vanligtvis inte autentisering för lokala förfrågningar."
-on:
-  _self: "På"
-  device_no_credentials_required: "På enheten, inga inloggningsuppgifter krävs"
-open:
-  _self: "Öppna"
-  history: "Öppna Historik"
-  logs_in_finder: "Öppna Loggar i Finder"
-  original_link: "Öppna originallänken"
-  progress: "Öppna framsteg"
-  settings: "Öppna Inställningar"
-  settings_fd7108f8: "Öppna inställningar"
-  system_settings: "Öppna Systeminställningar"
-  library: "Open Library"
-openai:
-  _self: "OpenAI"
-  compatible_local_server: "OpenAI-kompatibel lokal server"
-  whisper: "OpenAI Whisper"
-openrouter:
-  _self: "ÖppnaRouter"
-optional:
-  _self: "Frivillig"
-  insert_text_directly_into_apps: "Valfritt: Infoga text direkt i appar"
-  used_for_auto_generated_titles_and_summ: "Valfritt – används för automatiskt genererade titlar och sammanfattningar av mediatranskriptionsimport."
-optionally:
-  clean_up_transcriptions_with_ai: "Eventuellt rensa upp transkriptioner med AI"
-or:
-  _self: "eller"
-  just_use_your_hotkey: "Eller använd bara din snabbtangent!"
-original:
-  _self: "Original"
-  text_use_commas_for_multiple: "Originaltext (använd kommatecken för flera)"
-originals:
-  comma_separated: "Original (kommaseparerade)"
-output:
-  _self: "Produktion"
-  audio_interface_and_everyday_behavior: "Utdata, ljud, gränssnitt och vardagligt beteende"
-  mode: "Utdataläge"
-nemotron:
-  default: "Nemotron (default)"
-paste:
-  _self: "Klistra"
-  a_video_or_audio_link: "Klistra in en video- eller ljudlänk"
-  failed_transcript_copied_to_clipboard: "Det gick inte att klistra in. Transkriptionen kopierades till urklipp."
-  last_transcript: "Klistra in sista avskriften"
-  last_transcript_v: "Klistra in senaste avskriften ⌃⌘V"
-pause:
-  _self: "Paus"
-  media_during_transcription: "Pausa media under transkription"
-permissions:
-  _self: "Behörigheter"
-pick:
-  which_provider_and_model_handles_each_ai_ta: "Välj vilken leverantör och modell som hanterar varje AI-uppgift. Lämna som \"Inte tilldelad\" för att hoppa över ett syfte."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
-pill:
-  _self: "Piller"
-pin:
-  to_screen_always_on_top: "Fäst på skärmen (alltid överst)"
-pindrop:
-  _self: "Pindrop"
-  is_ready_to_use_click_the_menu_bar_icon: |-
-    Pindrop är redo att användas.
-    Klicka på menyradens ikon för att komma igång.
-  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop är redo att användas.nKlicka på menyradens ikon för att komma igång."
-  needs_a_few_permissions_to_work_nyour_pr: "Pindrop behöver några behörigheter för att fungera.nDin integritet respekteras alltid."
-  needs_a_few_permissions_to_work_your_pri: |-
-    Pindrop behöver några behörigheter för att fungera.
-    Din integritet respekteras alltid.
-  needs_accessibility_permission_to_insert: "\"\" Pindrop behöver tillgänglighetsbehörighet för att infoga text vid markören.                          För att bevilja behörighet: 1. Klicka på \"Öppna systeminställningar\" nedan 2. Klicka på +-knappen 3. Navigera till appen som visas i Finder 4. Starta om Pindrop efter att du har beviljat behörighet Utan denna behörighet kommer text bara att kopieras till ditt urklipp.             \"\""
-  needs_microphone_access_to_record_and_tr: "Pindrop behöver mikrofonåtkomst för att spela in och transkribera din röst.nnGe tillstånd i systeminställningarna."
-  on_github: "Pindrop på GitHub"
-  pill: "Pindrop piller"
-  theme: "Pindrop-tema"
-  orb: "Pindrop-kula"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop-hjälp"
-play:
-  _self: "Spela"
-please:
-  check_your_internet_connection_and_try_ag: "Kontrollera din internetanslutning och försök igen."
-  download_a_whisper_model_in_settings_befo: |-
-    Ladda ner en Whisper-modell i Inställningar innan du spelar in.
-    
-    Gå till Inställningar → Modeller för att ladda ner en modell.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Ladda ner en Whisper-modell i Inställningar före inspelning.nnGå till Inställningar → Modeller för att ladda ner en modell."
-  wait: "Vänligen vänta..."
-portuguese:
-  brazil: "portugisiska (Brasilien)"
-powered:
-  by_whisperkit: "Drivs av WhisperKit"
-preparing:
-  model: "Förbereder modell..."
-preset:
-  name: "Förinställt namn"
-press:
-  and_hold_to_dictate_in_any_app_pindrop_wil: "Tryck och håll ned för att diktera i valfri app. Pindrop kommer att transkribera ditt tal och infoga texten där markören är."
-  esc_to_cancel: "Tryck på Esc för att avbryta"
-  keys: "Tryck på tangenterna..."
-  once_to_start_again_to_stop: "Tryck en gång för att starta, igen för att stoppa"
-  once_to_start_recording_press_again_to_sto: "Tryck en gång för att starta inspelningen, tryck igen för att stoppa och transkribera"
-  once_to_start_recording_then_press_again_t: "Tryck en gång för att starta inspelningen, tryck sedan igen för att stoppa och transkribera."
-  to_start_recording_press_again_to_open_not: "Tryck för att starta inspelningen, tryck igen för att öppna anteckningsredigeraren"
-  keys_98b8167e: "Tryck tangenter…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
-primary:
-  text: "Primär text"
-processing:
-  _self: "Bearbetning"
-  272bc02e: "Bearbetar..."
-  5aa377e2: "⏳ Bearbetning"
-  transcript: "Bearbetar avskrift"
-prompt:
-  _self: "Prompt"
-  preset: "Fråga Preset"
-provider:
-  _self: "Leverantör"
-  kind: "Typ av leverantör"
-  type: "Typ av leverantör"
-providers:
-  _self: "Leverantörer"
-  prompts_and_vibe_mode_controls: "Providers, uppmaningar och vibelägeskontroller"
-push:
-  to_talk: "Push-to-Talk"
-quickly:
-  copy_your_last_transcription: "Kopiera snabbt din senaste transkription"
-  pull_your_latest_transcript_back_to_the: "Dra snabbt tillbaka din senaste utskrift till urklippet."
-quit:
-  _self: "Sluta"
-  pindrop: "Avsluta Pindrop"
-ready:
-  _self: "Redo"
-  ec1296e1: "● Klar"
-  to_record: "Klar att spela in"
-  to_transcribe: "Klar att transkribera"
-recent:
-  _self: "Ny"
-  transcriptions: "Senaste transkriptioner"
-  transcripts: "Senaste avskrifter"
-recommended:
-  _self: "Rekommenderad"
-  the_deterministic_cleaner_handles_mo: "Rekommenderas: den deterministiska rengöringsmaskinen hanterar de flesta diktering rent. Aktivera LLM-passet endast om du vill ha extra polering och accepterar enstaka modellegenheter (inledning, samtalssvar)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
-record:
-  _self: "Spela in"
-recording:
-  _self: "Inspelning"
-  3f8fd48c: "🔴 Inspelning"
-  from_external_and_bluetooth_microphone: "Inspelning från externa och Bluetooth-mikrofoner är nu mycket stabil, även när ljudutgången dirigeras någon annanstans."
-recordings:
-  _self: "inspelningar"
-redo:
-  _self: "Göra om"
-refresh:
-  _self: "Uppdatera"
-  the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
-remove:
-  _self: "Ta bort"
-  and_clear_any_assignments_that_reference: "Ta bort \"%@\" och rensa alla tilldelningar som refererar till det? Lagrade referenser kommer att raderas."
-  from_folder: "Ta bort från mapp"
-  provider: "Ta bort leverantör"
-rename:
-  _self: "Döpa om"
-  folder: "Byt namn på mapp"
-  participant: "Rename Participant"
-  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
-replace:
-  all: "Byt ut alla"
-  words_and_phrases: "Byt ut ord och fraser"
-replacement:
-  _self: "Ersättning"
-  text: "Ersättningstext"
-report:
-  an_issue: "Rapportera ett problem"
-  an_issue_bd7b4f00: "Rapportera ett problem"
-required:
-  _self: "Nödvändig"
-  for_recording_your_voice: "Krävs för att spela in din röst"
-requires:
-  diarization_model: "Requires diarization model"
-  speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Kräver en snabb leverantör (Apple Foundation-modeller rekommenderas). Molnleverantörer kommer att utfärda ett API-anrop per paus."
-reset:
-  _self: "Återställa"
-  all_settings: "Återställa alla inställningar?"
-  all_settings_7262c7b7: "Återställ alla inställningar"
-  to_default: "Återställ till standard"
-  all_settings_e5dbc5fc: "Reset All Settings…"
-retry:
-  _self: "Försöka igen"
-right:
-  _self: "Rätt"
-run:
-  llm_polish_after_dictation_stops: "Kör LLM-polering efter att dikteringen har slutat"
-  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-runtime:
-  _self: "Körtid: %@"
-  status: "Körningsstatus"
-save:
-  _self: "Spara"
-  as_note: "Spara som anteckning"
-  continue: "Spara och fortsätt"
-  credentials: "Spara inloggningsuppgifter"
-  prompt: "Spara uppmaning"
-saved:
-  _self: "Sparad"
-  as_note: "Sparad som anteckning"
-  transcription: "Sparad transkription"
-search:
-  media_transcripts: "Sök i mediatranskriptioner..."
-  models: "Sök efter modeller"
-  models_61c1b9fe: "Sök efter modeller..."
-  notes: "Sök anteckningar..."
-  settings: "Sökinställningar"
-  settings_or_jump_between_sections_without: "Sök i inställningar eller hoppa mellan avsnitt utan att lämna huvudarbetsytan."
-  transcriptions: "Sök efter transkriptioner..."
-secondary:
-  text: "Sekundär text"
-select:
-  a_dictionary_json_file_to_import: "Välj en JSON-fil för ordbok att importera"
-  a_model: "Välj en modell"
-  a_presets_json_file_to_import: "Välj en förinställd JSON-fil att importera"
-  a_provider_kind: "Välj en typ av leverantör"
-  a_provider_type: "Välj en leverantörstyp"
-  ai_model: "Välj AI-modell"
-  all: "Välj Alla"
-  language: "Välj Språk"
-  language_daea52c9: "Välj språk"
-  this_floating_indicator_style: "Välj denna flytande indikatorstil."
-  voice_model: "Välj Röstmodell"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
-selected:
-  _self: "Vald"
-sent:
-  to_the_ai_model_when_processing_dictation_f: "Skickas till AI-modellen vid bearbetning av diktering för direkt textinsättning."
-sessions:
-  _self: "Sessioner"
-  781791f5: "sessioner"
-set:
-  as_default: "Ställ in som standard"
-settings:
-  _self: "Inställningar"
-  bf83f07f: "Inställningar..."
-  fa67a397: "Inställningar..."
-setup:
-  required: "Installation krävs"
-show:
-  app: "Visa app"
-  app_in_finder: "Visa appen i Finder"
-  in_dock: "Visa i Dock"
-  api_key: "Visa API-nyckel"
-  the_main_window_and_open_the_library: "Show the main window and open the Library."
-shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Visas som ett piller längst ner på skärmen"
-  as_a_liquid_glass_orb_in_the_corner_of_the: "Visas som en kula av flytande glas i hörnet av skärmen"
-sidebar:
-  position: "Sidofältsposition"
-  position_916f66ea: "Sidofältets position"
-simplified:
-  chinese: "Förenklad kinesiska"
-size:
-  _self: "Storlek"
-skip:
-  for_now: "Hoppa över nu"
-slow:
-  _self: "Långsam"
-slower:
-  _self: "Långsammare"
-slowest:
-  _self: "Långsammast"
-small:
-  _self: "Små"
-smaller:
-  models_are_faster_but_less_accurate_nsta: "Mindre modeller är snabbare men mindre exakta.nBörja med Base för bästa balans."
-  models_are_faster_but_less_accurate_star: |-
-    Mindre modeller är snabbare men mindre exakta.
-    Börja med Base för bästa balans.
-something:
-  went_wrong: "Något gick fel"
-soon:
-  _self: "Snart"
-sort:
-  by: "Sortera efter"
-source:
-  _self: "Källa"
-spanish:
-  _self: "spanska"
-speaker:
-  diarization: "Speaker diarization"
-  diarization_and_timestamps_are_attached: "Högtalardiarisering och tidsstämplar är fästa vid uppspelning."
-  diarization_is_required: "Högtalarens diaarisering krävs"
-speed:
-  _self: "Hastighet"
-start:
-  fresh_when_you_want_to_clear_preferences_o: "Börja på nytt när du vill rensa inställningar, introduktionsstatus och sparade autentiseringsuppgifter."
-  recording: "Börja spela in"
-  recording_to_see_your_transcriptions_here: "Börja spela in för att se dina transkriptioner här"
-  stop_recording: "Starta/stoppa inspelning"
-  using_pindrop: "Börja använda Pindrop"
-status:
-  _self: "Status"
-stop:
-  recording: "Stoppa inspelning"
-streaming:
-  enhancement: "Streaming Enhancement"
-  transcription_currently_supports_engli: "Strömmande transkription stöder för närvarande endast engelska, oavsett valt språk."
-  transcription_is_disabled_while_ai_enh: "Strömmande transkription är inaktiverad medan AI Enhancement är aktiverat."
-  transcription_model_nemotron_speech: "Strömmande transkriptionsmodell (Nemotron Speech Streaming) licensierad av NVIDIA Corporation under NVIDIA Open Model License."
-  transcription_instantly_ready: "Strömmande transkribering, redo direkt"
-success:
-  _self: "Framgång!"
-support:
-  _self: "Stöd"
-  coming_soon: "%@ Support kommer snart"
-supports:
-  local_media_files_and_web_links_resolve: "Stöder lokala mediefiler och webblänkar lösta med yt-dlp."
-switch:
-  to_model: "Byt till modell"
-system:
-  _self: "System"
-  default: "System Standard"
-teach:
-  custom_words: "Lär ut anpassade ord"
-temporarily:
-  copy_text_paste_it_then_restore_your: "Kopiera text tillfälligt, klistra in den och återställ sedan ditt urklipp"
-  mute_speaker_output_while_dictation: "Stäng av högtalarutgången tillfälligt medan diktering pågår."
-  pause_active_media_playback_while_di: "Pausa aktiv mediauppspelning tillfälligt medan diktering spelas in."
-tertiary:
-  text: "Tertiär text"
-the:
-  model_failed_to_load_within_60_seconds_this: "\"\" Modellen kunde inte laddas inom 60 sekunder. Detta betyder vanligtvis att modellfilerna är skadade eller inkompatibla.                          För att åtgärda detta: 1. Öppna Inställningar → Modeller 2. Ta bort den problematiska modellen 3. Ladda ner modellen igen Om problemet kvarstår, prova en mindre modell (Tiny eller Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Den valda chunkvarianten har inte laddats ner ännu. Växling startar en nedladdning."
-  new_nemotron_streaming_engine_shows_words_as: "Den nya Nemotron-strömningsmotorn visar orden medan du säger dem och förvärms vid start så att din första diktering börjar utan fördröjning."
-theme:
-  _self: "Tema"
-  changes_apply_live_across_the_workspace_se: "Temaändringar gäller direkt i arbetsytan, inställningarna, anteckningsredigeraren och flytande indikatorer."
-  mode: "Temaläge"
-  mode_bb6b0b3d: "Temaläge"
-this:
-  preset_name_is_already_in_use: "Detta förinställda namn används redan."
-  provider_will_be_available_in_a_future_upda: |-
-    Denna leverantör kommer att finnas tillgänglig i en framtida uppdatering.
-    För nu, prova OpenAI eller använd en anpassad slutpunkt.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
-    Denna leverantör kommer att finnas tillgänglig i en framtida uppdatering.
-    Prova OpenAI eller använd en anpassad slutpunkt.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Denna leverantör kommer att vara tillgänglig i en framtida uppdatering.nFör nu, prova OpenAI eller använd en anpassad slutpunkt."
-  transcription_could_not_be_found: "Denna transkription kunde inte hittas."
-  will_clear_all_your_settings_including_api: "Detta kommer att rensa alla dina inställningar, inklusive API-nycklar, snabbtangenter och modellinställningar. Appen avslutas och visar onboarding igen vid nästa lansering."
-  will_permanently_remove_the_transcript_and: "Detta tar permanent bort transkriptionen och dess hanterade mediefil."
-  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
-time:
-  saved: "Tid sparad"
-to:
-  dictate_and_let_pindrop_transcribe_for_you: "att diktera och låta Pindrop transkribera åt dig"
-  start_talking: "att börja prata"
-today:
-  _self: "I dag"
-toggle:
-  _self: "Växla"
-  recording: "Växla inspelning"
-  sort_order: "Växla sorteringsordning"
-transcribe:
-  _self: "Transkribera"
-  media: "Transkribera media"
-transcribed:
-  _self: "transkriberat"
-transcription:
-  _self: "Transkription"
-  backend: "Transkriptionsbackend"
-  deleted: "Transkription raderad."
-  enhancement: "Transkriptionsförbättring"
-  failed: "Transkriptionen misslyckades"
-  finished: "Transkriptionen avslutad."
-  in_progress: "Transkription pågår"
-  metadata: "Transkriptionsmetadata"
-  update: "Uppdatering av transkription"
-  saved: "Transkription sparad"
-transcriptions:
-  _self: "Transkriptioner"
-  f0972acc: "transkriptioner"
-  in_this_folder_will_be_kept_and_m: "Transkriptioner i denna mapp kommer att sparas och flyttas tillbaka till biblioteket."
-transcripts:
-  _self: "Avskrifter"
-try:
-  a_different_search_term: "Prova en annan sökterm"
-  a_different_search_term_0ba628a3: "Prova en annan sökterm."
-  a_different_search_term_in_this_folder: "Försök med en annan sökterm i den här mappen."
-  searching_for_terms_like_hotkeys_microphone: "Testa att söka efter termer som snabbtangenter, mikrofon, uppdateringar eller vibbläge."
-turkish:
-  _self: "turkiska"
-type:
-  text_directly_into_the_active_app_when_poss: "Skriv text direkt i den aktiva appen när det är möjligt"
-unable:
-  to_connect_to_the_ai_enhancement_service: "\"\" Det går inte att ansluta till AI-förbättringstjänsten.                                  Kontrollera: 1. Din internetanslutning 2. API-slutpunktens URL är korrekt 3. Tjänsten upplever inte ett avbrott. Transkriptionen sparades utan förbättring.                 \"\""
-  to_finish_transcription: "Det gick inte att slutföra transkriptionen"
-  to_load_history: "Det gick inte att ladda historiken: %@"
-  to_load_models_try_refresh: "Det går inte att ladda modeller. Prova att uppdatera."
-  to_update_media_library: "Det gick inte att uppdatera mediebiblioteket"
-unavailable:
-  device: "Ej tillgänglig enhet"
-undo:
-  _self: "Ångra"
-unfiled:
-  _self: "Oarkiverat"
-unpin:
-  from_screen: "Lossa från skärmen"
-update:
-  _self: "Uppdatera"
-updates:
-  _self: "Uppdateringar"
-use:
-  a_tap_to_start_tap_to_finish_shortcut_for_no: "Använd en genväg med tryck för att starta, tryck för att avsluta för att fånga anteckningar."
-  clipboard_only: "Använd endast Urklipp"
-  the_hotkey_to_start_your_first_recording: "Använd snabbtangenten för att starta din första inspelning"
-  transcription_as_a_placeholder_for_the_trans: "Använd ${transcription} som platshållare för den transkriberade texten."
-  transcription_as_placeholder: "Använd ${transcription} som platshållare"
-used:
-  when_capturing_notes_via_hotkey_can_add_mar: "Används för att fånga anteckningar via snabbtangent. Kan lägga till markdown-formatering för längre innehåll."
-uses:
-  a_built_in_prompt_tuned_for_this_task: "Använder en inbyggd prompt som är inställd för denna uppgift."
-  the_560ms_nemotron_variant_for_snappier_par: "Använder 560 ms Nemotron-varianten för snabbare deltext. Standard är 1120 ms-varianten (bäst noggrannhet)."
-  the_transcription_enhancement_assignment_if: "Använder uppdraget Transcription Enhancement. Om ingen är inställd, hålls den deterministiska renare utsignalen som den är."
-v:
-  _self: "v%@"
-version:
-  _self: "Version %@ (%@)"
-very:
-  fast: "Mycket snabb"
-via:
-  _self: "via %@"
-vibe:
-  mode: "Vibeläge"
-  mode_captures_structured_ui_context_when_re: "Vibe-läget fångar strukturerat användargränssnitt när inspelningen startar så att AI-förbättring kan använda ditt aktiva apptillstånd som referens."
-  mode_works_best_with_accessibility_permissi: "Vibe-läge fungerar bäst med tillgänglighetsbehörighet. Utan det faller Pindrop tillbaka till begränsad appmetadata och transkription fungerar fortfarande normalt."
-view:
-  _self: "Se"
-  all: "Visa alla"
-  transcript_history: "Se transkriptionshistorik"
-  transcription_history: "Visa transkriptionshistorik"
-vocabulary:
-  _self: "Ordförråd"
-vs:
-  typing: "vs att skriva"
-welcome:
-  to_pindrop: "Välkommen till Pindrop"
-whisperkit:
-  _self: "WhisperKit"
-word:
-  _self: "Ord"
-  replacements: "Ordbyten"
-words:
-  _self: "Ord"
-  efb89361: "ord"
-  min: "ord/min"
-  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
-wpm:
-  _self: "WPM"
-yesterday:
-  _self: "I går"
-you:
-  are_a_note_formatting_assistant_transform_th: "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.nnRegler:n- Åtgärda grammatik, skiljetecken och stavfel.n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
-  are_a_text_enhancement_assistant_improve_the: "Du är en textförbättringsassistent. Förbättra grammatiken, skiljetecken och formateringen av den angivna texten samtidigt som dess ursprungliga betydelse och ton bevaras. Returnera endast den förbättrade texten utan ytterligare kommentarer."
-  can_change_these_anytime_from_the_menu_bar_s: "Du kan ändra dessa när som helst från menyraden → Inställningar → Snabbtangenter"
-  re_all_set: "Du är klar!"
-  re_all_set_058a8130: "Du är redo!"
-  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Du har överskridit din API-hastighetsgräns eller -kvot.                                  För att åtgärda detta: 1. Vänta några minuter och försök igen 2. Kontrollera din API-leverantörs användningsgränser 3. Överväg att uppgradera din API-plan. Transkriptionen sparades utan förbättring.                 \"\""
-your:
-  api_key_appears_to_be_invalid_or_expired_to: "\"\" Din API-nyckel verkar vara ogiltig eller har upphört att gälla.                                  För att åtgärda detta: 1. Öppna Inställningar → AI Enhancement 2. Kontrollera att din API-nyckel är korrekt 3. Kontrollera att din API-slutpunkt är korrekt. Transkriptionen sparades utan förbättring.                 \"\""
-  hotkeys_are_ready_to_use_nyou_can_customize: "Dina snabbtangenter är redo att användas.nDu kan anpassa dem senare i Inställningar."
-  hotkeys_are_ready_to_use_you_can_customize: |-
-    Dina snabbtangenter är redo att användas.
-    Du kan anpassa dem senare i Inställningar.
-  model_is_ready_to_use: "Din modell är redo att användas."
-  stats: "Din statistik"
-  floating_indicator_is_now_a_living_audio_re: "Din flytande indikator är nu en levande, ljudreaktiv orb. Den andas i vila, växer när du pratar och strömmar dina ord live medan du dikterar."
-orb:
-  _self: "Kula"
-meeting:
-  saved: "Möte sparat"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Nyheter i Pindrop"
-  s_new: "Nyheter…"
-meet:
-  the_new_orb: "Möt den nya Orb"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Tack till %@ för undersökningen och starten på korrigeringen (PR #64)."
-  to_for_the_contribution_pr_61: "Tack till %@ för bidraget (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Diktera på ryska och ukrainska"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Två nya dikteringsspråk, helt kopplade till modellrekommendationer."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Också nytt: stöd för RTL-layout och 20 nya gränssnittsspråk."
-advanced:
-  _self: "Avancerat"
-agent:
-  setup: "Agentinställning"
-appearance:
-  _self: "Utseende"
-bearer:
-  token: "Bearer-token"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "Klient"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Diktering"
-  language: "Dikteringsspråk"
-  polish: "Dikteringsputs"
-done:
-  _self: "Klar"
-input:
-  device: "Inmatningsenhet"
-license:
-  _self: "Licens"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP-server"
-main:
-  window: "Huvudfönster"
-name:
-  _self: "Namn"
-port:
-  _self: "Port"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Projekt"
-regenerate:
-  _self: "Återskapa"
-shortcuts:
-  _self: "Genvägar"
-speakers:
-  _self: "Talare"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Under inspelning"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Library"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Arkiv"
-window:
-  _self: "Fönster"
-help:
-  _self: "Hjälp"
-close:
-  _self: "Stäng"
-find:
-  _self: "Sök"
-minimize:
-  _self: "Minimera"
-zoom:
-  _self: "Zooma"
-bring:
-  all_to_front: "Lägg alla överst"
-home:
-  _self: "Hem"
+100_local_processing: "100 % lokal bearbetning"
+1_folder: "1 mapp"
+1_transcription: "1 transkription"
+a_native_macos_menu_bar_dictation_app_using_loca: "En inbyggd macOS-menyradsdikteringsapp som använder lokalt tal-till-text med WhisperKit. 100 % lokal bearbetning som standard med valfri AI-förbättring."
+a_big_round_of_upgrades_and_two_community_shout: "En stor omgång uppgraderingar — och två tack till communityn."
+about: "Om"
+about_pindrop: "Om Pindrop"
+accessibility: "Tillgänglighet"
+accessibility_permission_is_enabled_full_ui_cont: "Tillgänglighetsbehörighet är aktiverad. Fullständig UI-kontext är tillgänglig."
+accessibility_permission_is_not_granted_vibe_mod: "Tillgänglighetstillstånd beviljas inte. Vibeläget förblir icke-blockerande med begränsad kontext."
+accessibility_permission_recommended: "Tillgänglighetsbehörighet rekommenderas"
+accessibility_permission_required: "Tillgänglighetsbehörighet krävs"
+accessibility_permission: "Behörighet för hjälpmedel"
+accuracy: "Noggrannhet"
+acknowledgments: "Erkännanden"
+active: "Aktiv"
+add: "Tillägga"
+add_a_provider_to_start_using_ai_enhancement: "Lägg till en leverantör för att börja använda AI-förbättring."
+add_custom_words_to_improve_transcription_accura: "Lägg till anpassade ord för att förbättra transkriptionsnoggrannheten för specialiserade termer, namn eller jargong."
+add_provider: "Lägg till leverantör"
+add_tag: "Lägg till tagg..."
+add_to_existing: "Lägg till i befintliga"
+add_trailing_space: "Lägg till efterföljande utrymme"
+add_word_replacements_to_automatically_correct_c: "Lägg till ordersättningar för att automatiskt korrigera vanliga transkriptionsfel."
+add_words_to_help_pindrop_recognize_them_properl: "Lägg till ord för att hjälpa Pindrop att känna igen dem ordentligt"
+add_words_you_manually_correct_into_your_vocabul: "Lägg till ord som du manuellt korrigerar i ditt ordförråd för framtida transkriptioner."
+add_this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+add_this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+add_this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+add_this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+add_this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+ai: "AI"
+ai_enhancement: "AI-förbättring"
+ai_enhancement_529f5583: "AI-förbättring: %@"
+ai_enhancement_failed: "AI Enhancement misslyckades"
+ai_enhancement_is_disabled: "AI-förbättring är inaktiverad."
+ai_enhancement_will: "AI Enhancement kommer att:"
+ai_model: "AI-modell"
+all: "Alla"
+an_error_occurred_while_enhancing_your_transcrip: |-
+  Ett fel uppstod när din transkription förbättrades:
+  
+  %@
+  
+  Den ursprungliga transkriptionen sparades utan förbättring.
+  Du kan försöka aktivera AI-förbättring igen i Inställningar.
+an_error_occurred_while_enhancing_your_transcrip_8c664cb4: "Ett fel uppstod när din transkription förbättrades:nn%@nnDen ursprungliga transkriptionen sparades utan förbättring.nDu kan försöka aktivera AI-förbättring igen i Inställningar."
+anthropic: "Antropisk"
+api_endpoint: "API-slutpunkt"
+api_key: "API-nyckel"
+api_key_saved: "API-nyckel sparad"
+api_key_saved_endpoint: "API-nyckel sparad • Slutpunkt: %@"
+app_info_acknowledgments_support_and_logs: "Appinformation, bekräftelser, support och loggar"
+append_a_space_after_each_transcription_for_seam: "Lägg till ett blanksteg efter varje transkription för sömlös diktering."
+apple_foundation_models_on_device: "Apple Foundation-modeller (på enheten)"
+apple_intelligence: "Apple Intelligence"
+apple_intelligence_is_unavailable_on_this_system: "Apple Intelligence är inte tillgängligt på det här systemet. Den här uppgiften kommer inte att lösas förrän Apple Intelligence har aktiverats."
+apple_intelligence_runs_on_device_and_requires_n: "Apple Intelligence körs på enheten och kräver inga inloggningsuppgifter."
+apple_speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+apple_speechtranscriber_requires_macos_26: "Apple SpeechTranscriber kräver macOS 26."
+apple_speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber är inte tillgänglig — använder Nemotron"
+are_you_sure_you_want_to_delete_this_action_cann: "Är du säker på att du vill ta bort '%@'? Denna åtgärd kan inte ångras."
+assignments: "Uppdrag"
+attach_logs_from_this_folder_when_filing_a_githu: "Bifoga loggar från den här mappen när du arkiverar ett GitHub-problem."
+audio_input: "Ljudingång"
+automatic_follow_system: "Automatisk (följ systemet)"
+automatic_updates: "Automatiska uppdateringar"
+automatic_updates_and_manual_update_checks: "Automatiska uppdateringar och manuella uppdateringskontroller"
+automatically_check_for_new_versions_in_the_back: "Sök automatiskt efter nya versioner i bakgrunden."
+automatically_start_pindrop_when_you_sign_in: "Starta Pindrop automatiskt när du loggar in."
+available_models: "Tillgängliga modeller"
+avg_speed: "Genomsnittlig hastighet"
+back: "Tillbaka"
+back_to_library: "Tillbaka till biblioteket"
+base: "Bas"
+best: "Bäst"
+better: "Bättre"
+better_bluetooth_external_mic_support: "Bättre stöd för Bluetooth och externa mikrofoner"
+built_in_presets: "Inbyggda förinställningar"
+built_in_read_only: "Inbyggd (skrivskyddad)"
+cancel: "Avboka"
+cancel_operation: "Avbryt operation"
+capture_directly_into_the_note_editor_with_a_hol: "Fånga direkt i anteckningsredigeraren med ett håll-till-spela-flöde."
+change_microphone: "Byt mikrofon"
+change_microphone_ac9970f4: "Byt mikrofon"
+check_for_updates: "Sök efter uppdateringar..."
+check_for_updates_736b9062: "Sök efter uppdateringar"
+check_now: "Kontrollera nu"
+checking: "Kontroll..."
+choose_a_location_to_save_the_dictionary: "Välj en plats för att spara ordlistan"
+choose_a_location_to_save_the_presets: "Välj en plats för att spara förinställningarna"
+choose_a_model: "Välj en modell"
+choose_a_provider_first: "Välj en leverantör först"
+choose_an_audio_or_video_file_to_transcribe: "Välj en ljud- eller videofil att transkribera"
+choose_between_nemotron_punctuated_downloaded_mod: "Välj mellan Nemotron (med skiljetecken, nedladdad modell) och Apple SpeechTranscriber (macOS 26+, medföljer systemet)."
+choose_file: "Välj fil"
+choose_how_dictated_text_lands_then_tune_the_fin: "Välj hur dikterad text landar och ställ sedan in det slutliga infogningsbeteendet."
+choose_how_pindrop_follows_system_appearance_the: "Välj hur Pindrop följer systemets utseende och blanda sedan utvalda ljusa och mörka paletter."
+choose_how_to_import_the_dictionary_data: "Välj hur du vill importera ordboksdata"
+choose_how_to_import_the_preset_data: "Välj hur förinställda data ska importeras"
+choose_languages_for_the_interface_and_for_dicta: "Välj språk för gränssnittet och för diktering. Automatisk följer systemet."
+choose_location_to_save_presets: "Välj plats för att spara förinställningar"
+choose_the_daytime_shell_used_in_light_mode: "Välj dagskalet som används i ljusläge."
+choose_the_low_glare_shell_used_in_dark_mode: "Välj skalet med låg bländning som används i mörkt läge."
+choose_which_microphone_pindrop_should_use_for_d: "Välj vilken mikrofon Pindrop ska använda för diktering och hur den beter sig under inspelning."
+choose_which_side_the_navigation_sidebar_appears: "Välj vilken sida navigeringssidofältet ska visas på."
+choose_how_pindrop_appears_on_screen_while_you_d: "Välj hur Pindrop visas på skärmen medan du dikterar."
+choose_how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+choose_whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+choose_which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+choose_which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+choose_model: "Choose Model…"
+clean_up_filler_words: "Rensa upp utfyllnadsord"
+clear_audio_buffer: "Rensa ljudbuffert"
+clear_hotkey: "Rensa snabbtangent"
+clear_shortcut: "Rensa genväg"
+clears_preferences_and_restarts_onboarding: "Rensar inställningar och startar ombordningen"
+clears_preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+click_or_hold: "Klicka eller håll"
+click_or_press: "Klicka eller tryck"
+click_or_set_a_hotkey_to_start_talking: "Klicka eller ställ in en snabbtangent för att börja prata"
+click_this_icon_anytime_to: "Klicka på den här ikonen när som helst för att:"
+clipboard: "Urklipp"
+clipboard_temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+cloud: "Moln"
+cloud_model: "Molnmodell"
+collapse: "Kollapsa"
+coming_soon: "%@ Kommer snart"
+coming_soon_04d2fd85: "Kommer snart"
+configure_ai_providers_and_credentials_apple_int: "Konfigurera AI-leverantörer och autentiseringsuppgifter. Apple Intelligence körs på enheten; andra leverantörer kräver API-nycklar."
+configure_keyboard_shortcuts_for_recording_and_n: "Konfigurera kortkommandon för inspelning och anteckningar"
+continue: "Fortsätta"
+continue_with_default: "Fortsätt med Standard"
+continue_without: "Fortsätt utan"
+control_how_pindrop_appears_in_macos_and_whether: "Styr hur Pindrop visas i macOS och om det börjar med din skrivbordssession."
+controls_how_the_live_dictation_path_polishes_tr: "Styr hur den direkta dikteringsbanan polerar transkriptioner. Den deterministiska rensaren (borttagning av fyllnadsämnen, versaler, talad interpunktion, nummernormalisering, sammanslagning av delade ord) körs åt båda hållen - denna växling spärrar det valfria LLM-poleringspasset som aktiveras när dikteringen upphör."
+copied: "Kopierade!"
+copy: "Kopiera"
+copy_enhanced: "Kopiera förbättrad"
+copy_last_transcript: "Kopiera sista avskriften"
+copy_original: "Kopiera original"
+copy_system_info_for_bug_report: "Kopiera systeminformation för felrapport"
+copy_the_most_recent_transcript_to_the_clipboard: "Kopiera den senaste utskriften till urklippet"
+copy_to_clipboard: "Kopiera till urklipp"
+copy_transcript: "Kopiera avskrift"
+copy_system_info: "Copy System Info"
+copy_the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+copy_the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
+correct_grammar_mistakes: "Rätta grammatikfel"
+create: "Skapa"
+create_new_note: "Skapa ny anteckning"
+create_new_preset: "Skapa ny förinställning"
+create_your_first_note_to_get_started: "Skapa din första anteckning för att komma igång"
+create_your_first_preset_or_duplicate_a_built_in: "Skapa din första förinställning eller duplicera en inbyggd för att anpassa den."
+create_your_own_presets_or_duplicate_built_in_on: "Skapa dina egna förinställningar eller duplicera inbyggda för att anpassa dem."
+create_preset: "Create Preset"
+credentials_are_stored_securely_in_keychain: "Inloggningsuppgifter lagras säkert i nyckelring"
+credentials_saved_successfully: "Inloggningsuppgifterna har sparats"
+credentials_are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
+current: "Aktuell: %@"
+custom: "Beställnings"
+custom_local: "Anpassad / Lokal"
+custom_openai_compatible: "Anpassad (OpenAI-kompatibel)"
+custom_presets: "Anpassade förinställningar"
+customize_hotkey: "Anpassa snabbtangent"
+cut: "Skära"
+d_characters: "%d tecken"
+d_samples: "%d samples · %@"
+dark: "Mörk"
+dark_preview: "Mörk förhandsgranskning"
+dark_theme: "mörkt tema"
+database_error: "Databasfel"
+date: "Datum"
+date_7f823513: "Datum %@"
+default: "Standard"
+default_model: "Standardmodell"
+define_word_replacements_to_automatically_replac: "Definiera ordersättningar för att automatiskt ersätta specifika ord eller fraser"
+degraded: "Försämrad"
+delete: "Radera"
+delete_folder: "Ta bort mapp"
+delete_folder_e556e7c2: "Ta bort mapp?"
+delete_model: "Ta bort modell"
+delete_preset: "Ta bort förinställning"
+delete_preset_4f6cfe36: "Ta bort förinställning?"
+delete_transcription: "Ta bort transkription"
+delete_transcription_f82187c4: "Ta bort transkription?"
+delete_all: "Radera alla"
+delete_all_participants: "Delete All Participants?"
+delete_all_participants_60ed6e73: "Delete All Participants…"
+dictionary: "Ordbok"
+direct_insert: "Direkt insats"
+disabled: "Inaktiverad"
+dismiss: "Avfärda"
+display_name: "Visningsnamn"
+display_name_c7874aaa: "Visningsnamn"
+display_pindrop_in_the_dock_instead_of_running_o: "Visa Pindrop i Dock istället för att endast köras som en menyradsapp."
+dock_the_sidebar_to_the_left_or_right_edge_of_th: "Docka sidofältet till vänster eller höger kant av fönstret."
+download: "Ladda ner"
+download_complete: "Nedladdningen är klar!"
+download_continue: "Ladda ner & fortsätt"
+download_failed: "Nedladdningen misslyckades"
+download_model: "Ladda ner modell"
+download_the_diarization_model_before_starting_m: "Ladda ner diariseringsmodellen innan du påbörjar mediatranskription."
+downloaded: "Nedladdat"
+downloading: "Laddar ned %@..."
+drop_a_file_or_paste_a_link_to_create_a_diarized: "Släpp en fil eller klistra in en länk för att skapa ett diariefört, tidsstämplat transkript."
+drop_audio_or_video_here: "Släpp ljud eller video här"
+duplicate_preset: "Duplicera förinställning"
+dutch: "holländska"
+edit: "Redigera"
+edit_preset: "Redigera förinställning"
+edit_provider: "Redigera leverantör"
+empty: "(Tömma)"
+enable_ai_enhancement: "Aktivera AI Enhancement"
+enable_live_session_updates_during_recording: "Aktivera livesessionsuppdateringar under inspelning"
+enable_vibe_mode_ui_context: "Aktivera vibbläge (UI-kontext)"
+enable_mcp_server: "Enable MCP Server"
+enabled: "Aktiverad"
+endpoint: "Slutpunkt: %@"
+english: "engelska"
+english_only: "Endast engelska"
+enhanced: "Förbättrad"
+enhancement_prompts: "Förbättringsmeddelanden"
+enhancing: "Förbättrar…"
+enter_an_openai_api_key_to_load_models: "Ange en OpenAI API-nyckel för att ladda modeller."
+enter_api_key: "Ange API-nyckel"
+enter_word_to_add: "Ange ord att lägga till"
+error: "Fel"
+european_multilingual: "europeisk flerspråkig"
+excellent: "Excellent"
+export: "Exportera"
+export_as_csv: "Exportera som CSV"
+export_as_json: "Exportera som JSON"
+export_as_plain_text: "Exportera som vanlig text"
+export_dictionary: "Exportera ordbok"
+export_failed: "Export misslyckades: %@"
+export_last_transcript: "Exportera senaste transkription..."
+export_presets: "Exportera förinställningar"
+failed_to_add_replacement: "Det gick inte att lägga till ersättning: %@"
+failed_to_add_word: "Det gick inte att lägga till ordet: %@"
+failed_to_delete_folder: "Det gick inte att ta bort mappen: %@"
+failed_to_delete_note: "Det gick inte att ta bort anteckningen: %@"
+failed_to_delete_preset: "Det gick inte att ta bort förinställning: %@"
+failed_to_delete_replacement: "Det gick inte att ta bort ersättning: %@"
+failed_to_delete_transcription: "Det gick inte att ta bort transkriptionen: %@"
+failed_to_delete_word: "Det gick inte att ta bort ordet: %@"
+failed_to_export_dictionary: "Det gick inte att exportera ordboken: %@"
+failed_to_export_presets: "Det gick inte att exportera förinställningar: %@"
+failed_to_import_dictionary: "Det gick inte att importera ordboken: %@"
+failed_to_import_presets: "Det gick inte att importera förinställningar: %@"
+failed_to_initialize_the_database_nnthe_app_will: "Det gick inte att initiera databasen: %@nnAppen avslutas nu. Försök att starta om eller kontakta supporten om problemet kvarstår."
+failed_to_load_data: "Det gick inte att ladda data: %@"
+failed_to_load_history: "Det gick inte att ladda historiken: %@"
+failed_to_read_import_file: "Det gick inte att läsa importfilen: %@"
+failed_to_save: "Det gick inte att spara: %@"
+failed_to_save_preset: "Det gick inte att spara förinställningen: %@"
+failed_to_switch_model: "Det gick inte att byta modell: %@"
+failed_to_update_preset: "Det gick inte att uppdatera förinställningen: %@"
+failed_to_update_replacement: "Det gick inte att uppdatera ersättning: %@"
+failed_to_update_word: "Det gick inte att uppdatera ordet: %@"
+fast: "Snabb"
+feature_models: "Funktionsmodeller"
+fetch_models_in_models: "Hämta modeller i modeller"
+fix_punctuation_and_capitalization: "Fixa skiljetecken och versaler"
+floating_indicator: "%@ flytande indikator"
+floating_indicator_e0349402: "Flytande indikator"
+folder_deleted: "Mapp raderad."
+folder_name: "Mappnamn"
+follow_playback: "Följ uppspelningen"
+format_text_appropriately: "Formatera text på rätt sätt"
+french: "franska"
+general: "Allmän"
+german: "tyska"
+get_started: "Kom igång"
+global: "Globalt"
+global_keyboard_shortcuts: "Globala kortkommandon"
+go_back: "Gå tillbaka"
+go_to_settings: "Gå till inställningar"
+good: "Bra"
+good_afternoon: "God eftermiddag"
+good_evening: "God afton"
+good_morning: "God morgon"
+good_night: "God natt"
+google: "Google"
+got_it: "Jag förstår"
+grant: "Bevilja"
+great: "Stor"
+hide_this_for_1_hour: "Göm detta i 1 timme"
+hide_api_key: "Dölj API-nyckel"
+history: "Historia"
+hold_the_shortcut_to_record_then_release_to_tran: "Håll ned genvägen för att spela in och släpp sedan för att transkribera."
+hold_to_record_release_to_open_note_editor_with: "Håll ned för att spela in, släpp för att öppna anteckningsredigeraren med transkription"
+hold_to_record_release_to_stop_and_transcribe: "Håll ned för att spela in, släpp för att stoppa och transkribera"
+hold_to_record_release_to_transcribe: "Håll ned för att spela in, släpp för att transkribera"
+hold_to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+hotkey_conflict: "Snabbknappskonflikt"
+hotkeys: "Snabbtangenter"
+identify_speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
+import: "Importera"
+import_dictionary: "Importera ordbok"
+import_error: "Importfel"
+import_export: "Import/Export"
+import_media: "Importera media"
+import_or_transcribe_media_while_this_folder_is: "Importera eller transkribera media medan den här mappen är vald för att spara objekt här."
+import_presets: "Importera förinställningar"
+import_strategy: "Importstrategi"
+imported_files_and_web_links_will_appear_here_on: "Importerade filer och webblänkar visas här när bearbetningen är klar."
+improve_transcription_quality_using_ai: "Förbättra transkriptionskvaliteten med AI"
+include_clipboard_text: "Inkludera urklippstext"
+interface: "Gränssnitt"
+interface_language: "Gränssnittsspråk"
+is_assigned_to_both_and_only_the_first_action_wi: "%@ är tilldelad både %@ och %@. Endast den första åtgärden kommer att vara aktiv. Uppdatera dina snabbtangenter i Inställningar för att lösa denna konflikt."
+italian: "italienska"
+items: "föremål"
+japanese: "japanska"
+keep_pindrop_current_automatically_or_trigger_a: "Håll Pindrop aktuell automatiskt eller utlös en manuell kontroll när du vill."
+keep_pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+key: "#%@"
+key_a979ef10: "+"
+key_ab8f46d5: "%1$@ %2$@"
+keyboard_shortcuts: "Kortkommandon"
+korean: "koreanska"
+language: "Språk"
+large: "Stor"
+launch_at_login: "Lansering vid inloggning: %@"
+launch_at_login_0b36c78f: "Starta vid inloggning"
+launch_at_login_fd1a3b7b: "Starta vid inloggning"
+launch_at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+layout: "Layout"
+learn_corrected_words_automatically: "Lär dig korrigerade ord automatiskt"
+left: "Vänster"
+let_pindrop_quietly_learn_vocabulary_from_the_co: "Låt Pindrop tyst lära sig ordförråd från de korrigeringar du gör med tiden."
+light: "Ljus"
+light_dark_and_curated_palette_presets: "Ljusa, mörka och utvalda palettförinställningar"
+light_preview: "Ljus förhandsgranskning"
+light_theme: "Lätt tema"
+limited: "Begränsad"
+listening: "Lyssnar…"
+live_streaming_refinement: "Förfining av livestreaming"
+lld: "%1$lld %2$@"
+lld_197eb092: "%lld%%"
+lld_a2843d9b: "+%lld"
+lld_characters: "%lld tecken"
+lld_complete: "%lld%% klar"
+lld_items: "%lld objekt"
+lld_notes: "%lld anteckningar"
+lld_transcriptions: "%lld transkriptioner"
+lm_studio: "LM Studio"
+lm_studio_only_needs_a_token_if_local_server_aut: "LM Studio behöver bara en token om lokal serverautentisering är aktiverad."
+load_models: "Ladda modeller"
+loaded_d_models: "Laddade %d modeller"
+loading_history: "Laddar historik..."
+loading_models: "Laddar modeller..."
+local: "Lokal"
+local_speech_to_text_right_from_your_menu_bar_fa: |-
+  Lokalt tal-till-text, direkt från din menyrad.
+  Snabbt, privat och alltid tillgängligt.
+local_speech_to_text_right_from_your_menu_bar_nf: "Lokalt tal-till-text, direkt från din menyrad.nSnabbt, privat och alltid tillgängligt."
+local_speech_to_text_with_whisperkit: "Lokalt tal-till-text med WhisperKit"
+local_voice_to_text: "Lokal röst-till-text"
+low_latency_mode_less_accurate: "Läge med låg latens (mindre exakt)"
+manage_local_speech_models_feature_models_and_th: "Hantera lokala talmodeller, funktionsmodeller och standardmotorn Pindrop använder för transkription."
+manage_models: "Hantera modeller"
+manage_presets: "Hantera förinställningar"
+manage_presets_ab87986d: "Hantera förinställningar..."
+manage_presets_d5d4c2c2: "Manage Presets…"
+manually_check_for_new_versions_now: "Kontrollera manuellt efter nya versioner nu."
+media_library: "Mediebibliotek"
+media_transcription: "Mediatranskription"
+media_unavailable: "Media inte tillgänglig"
+media_saved: "Media sparad"
+medium: "Medium"
+microphone: "Mikrofon"
+microphone_permission_is_required_to_continue: "Mikrofontillstånd krävs för att fortsätta"
+microphone_permission_is_required_to_continue_dc: "Mikrofontillstånd krävs för att fortsätta."
+microphone_permission_required: "Mikrofontillstånd krävs"
+mit_license: "MIT-licens"
+mode: "Läge: %@"
+model: "Modell"
+model_loading_failed: "Modellladdning misslyckades"
+model_loading_timed_out: "Tidsgräns för modellladdning"
+model_validation: "Model Validation"
+models: "Modeller"
+move_to_folder: "Flytta till mapp"
+multilingual: "Flerspråkig"
+must_be_openai_compatible: "Måste vara OpenAI-kompatibel"
+mute_system_audio_during_recording: "Stäng av systemljudet under inspelning"
+new_folder: "Ny mapp"
+new_note: "Ny anteckning"
+new_preset: "Ny förinställning"
+next: "Nästa"
+no_api_key: "Ingen API-nyckel"
+no_api_key_endpoint: "Ingen API-nyckel • Slutpunkt: %@"
+no_custom_presets: "Inga anpassade förinställningar"
+no_downloaded_models: "Inga nedladdade modeller"
+no_folders_yet: "Inga mappar ännu"
+no_items_in: "Inga objekt i %@"
+no_media_transcriptions_yet: "Inga mediatranskriptioner ännu"
+no_model_loaded: "Ingen modell laddad"
+no_model_selected: "Ingen modell har valts"
+no_models_available: "Inga modeller tillgängliga"
+no_models_available_ae9dbd29: "Inga modeller tillgängliga."
+no_models_available_try_refresh_or_enter_a_model: "Inga modeller tillgängliga. Prova Uppdatera eller ange ett modell-ID manuellt."
+no_models_found: "Inga modeller hittades."
+no_models_loaded_open_edit_to_fetch_models: "Inga modeller laddade. Öppna Redigera för att hämta modeller."
+no_models_match: "Inga modeller matchar \"%@\""
+no_notes_yet: "Inga anteckningar än"
+no_providers_configured_yet: "Inga leverantörer har konfigurerats ännu."
+no_replacements: "Inga ersättningar"
+no_results_found: "Inga resultat hittades"
+no_settings_found: "Inga inställningar hittades"
+no_transcriptions_yet: "Inga transkriptioner ännu"
+no_vocabulary_words: "Inga ordförråd"
+no_learned_participants_yet: "No learned participants yet"
+no_providers_configured_yet_e6bc0075: "No providers configured yet"
+no_conflicts_found: "No conflicts found"
+not_assigned: "Ej tilldelad"
+not_selected: "Ej vald"
+not_set: "Ej inställd"
+not_set_93039e60: "Inte inställt"
+not_granted: "Inte beviljat"
+not_enough_voice_data_yet: "Not enough voice data yet"
+not_generated_yet_enable_the_server: "Not generated yet — enable the server"
+note: "Notera"
+note_capture_push_to_talk: "Note Capture (Push-to-Talk)"
+note_capture_toggle: "Note Capture (växla)"
+note_enhancement: "Anmärkning Förbättring"
+note_from: "Anteckning från"
+note_metadata: "Notera Metadata"
+note_title: "Obs Titel"
+note_saved: "Anteckning sparad"
+note_capture_hold: "Note Capture — Hold"
+note_capture_toggle_7139a240: "Note Capture — Toggle"
+notes: "Anteckningar"
+notes_3add7b96: "anteckningar"
+off: "Av"
+ok: "OK"
+ollama: "Ollama"
+ollama_usually_does_not_require_authentication_f: "Ollama kräver vanligtvis inte autentisering för lokala förfrågningar."
+on: "På"
+on_device_no_credentials_required: "På enheten, inga inloggningsuppgifter krävs"
+open: "Öppna"
+open_history: "Öppna Historik"
+open_logs_in_finder: "Öppna Loggar i Finder"
+open_original_link: "Öppna originallänken"
+open_progress: "Öppna framsteg"
+open_settings: "Öppna Inställningar"
+open_settings_fd7108f8: "Öppna inställningar"
+open_system_settings: "Öppna Systeminställningar"
+open_library: "Open Library"
+openai: "OpenAI"
+openai_compatible_local_server: "OpenAI-kompatibel lokal server"
+openai_whisper: "OpenAI Whisper"
+openrouter: "ÖppnaRouter"
+optional: "Frivillig"
+optional_insert_text_directly_into_apps: "Valfritt: Infoga text direkt i appar"
+optional_used_for_auto_generated_titles_and_summ: "Valfritt – används för automatiskt genererade titlar och sammanfattningar av mediatranskriptionsimport."
+optionally_clean_up_transcriptions_with_ai: "Eventuellt rensa upp transkriptioner med AI"
+or: "eller"
+or_just_use_your_hotkey: "Eller använd bara din snabbtangent!"
+original: "Original"
+original_text_use_commas_for_multiple: "Originaltext (använd kommatecken för flera)"
+originals_comma_separated: "Original (kommaseparerade)"
+output: "Produktion"
+output_audio_interface_and_everyday_behavior: "Utdata, ljud, gränssnitt och vardagligt beteende"
+output_mode: "Utdataläge"
+nemotron_default: "Nemotron (default)"
+paste: "Klistra"
+paste_a_video_or_audio_link: "Klistra in en video- eller ljudlänk"
+paste_failed_transcript_copied_to_clipboard: "Det gick inte att klistra in. Transkriptionen kopierades till urklipp."
+paste_last_transcript: "Klistra in sista avskriften"
+paste_last_transcript_v: "Klistra in senaste avskriften ⌃⌘V"
+pause: "Paus"
+pause_media_during_transcription: "Pausa media under transkription"
+permissions: "Behörigheter"
+pick_which_provider_and_model_handles_each_ai_ta: "Välj vilken leverantör och modell som hanterar varje AI-uppgift. Lämna som \"Inte tilldelad\" för att hoppa över ett syfte."
+pick_which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+pill: "Piller"
+pin_to_screen_always_on_top: "Fäst på skärmen (alltid överst)"
+pindrop: "Pindrop"
+pindrop_is_ready_to_use_click_the_menu_bar_icon: |-
+  Pindrop är redo att användas.
+  Klicka på menyradens ikon för att komma igång.
+pindrop_is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop är redo att användas.nKlicka på menyradens ikon för att komma igång."
+pindrop_needs_a_few_permissions_to_work_nyour_pr: "Pindrop behöver några behörigheter för att fungera.nDin integritet respekteras alltid."
+pindrop_needs_a_few_permissions_to_work_your_pri: |-
+  Pindrop behöver några behörigheter för att fungera.
+  Din integritet respekteras alltid.
+pindrop_needs_accessibility_permission_to_insert: "\"\" Pindrop behöver tillgänglighetsbehörighet för att infoga text vid markören.                          För att bevilja behörighet: 1. Klicka på \"Öppna systeminställningar\" nedan 2. Klicka på +-knappen 3. Navigera till appen som visas i Finder 4. Starta om Pindrop efter att du har beviljat behörighet Utan denna behörighet kommer text bara att kopieras till ditt urklipp.             \"\""
+pindrop_needs_microphone_access_to_record_and_tr: "Pindrop behöver mikrofonåtkomst för att spela in och transkribera din röst.nnGe tillstånd i systeminställningarna."
+pindrop_on_github: "Pindrop på GitHub"
+pindrop_pill: "Pindrop piller"
+pindrop_theme: "Pindrop-tema"
+pindrop_orb: "Pindrop-kula"
+pindrop_1_19: "Pindrop 1.19"
+pindrop_help: "Pindrop-hjälp"
+play: "Spela"
+please_check_your_internet_connection_and_try_ag: "Kontrollera din internetanslutning och försök igen."
+please_download_a_whisper_model_in_settings_befo: |-
+  Ladda ner en Whisper-modell i Inställningar innan du spelar in.
+  
+  Gå till Inställningar → Modeller för att ladda ner en modell.
+please_download_a_whisper_model_in_settings_befo_a71d286e: "Ladda ner en Whisper-modell i Inställningar före inspelning.nnGå till Inställningar → Modeller för att ladda ner en modell."
+please_wait: "Vänligen vänta..."
+portuguese_brazil: "portugisiska (Brasilien)"
+powered_by_whisperkit: "Drivs av WhisperKit"
+preparing_model: "Förbereder modell..."
+preset_name: "Förinställt namn"
+press_and_hold_to_dictate_in_any_app_pindrop_wil: "Tryck och håll ned för att diktera i valfri app. Pindrop kommer att transkribera ditt tal och infoga texten där markören är."
+press_esc_to_cancel: "Tryck på Esc för att avbryta"
+press_keys: "Tryck på tangenterna..."
+press_once_to_start_again_to_stop: "Tryck en gång för att starta, igen för att stoppa"
+press_once_to_start_recording_press_again_to_sto: "Tryck en gång för att starta inspelningen, tryck igen för att stoppa och transkribera"
+press_once_to_start_recording_then_press_again_t: "Tryck en gång för att starta inspelningen, tryck sedan igen för att stoppa och transkribera."
+press_to_start_recording_press_again_to_open_not: "Tryck för att starta inspelningen, tryck igen för att öppna anteckningsredigeraren"
+press_keys_98b8167e: "Tryck tangenter…"
+press_once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
+primary_text: "Primär text"
+processing: "Bearbetning"
+processing_272bc02e: "Bearbetar..."
+processing_5aa377e2: "⏳ Bearbetning"
+processing_transcript: "Bearbetar avskrift"
+prompt: "Prompt"
+prompt_preset: "Fråga Preset"
+provider: "Leverantör"
+provider_kind: "Typ av leverantör"
+provider_type: "Typ av leverantör"
+providers: "Leverantörer"
+providers_prompts_and_vibe_mode_controls: "Providers, uppmaningar och vibelägeskontroller"
+push_to_talk: "Push-to-Talk"
+quickly_copy_your_last_transcription: "Kopiera snabbt din senaste transkription"
+quickly_pull_your_latest_transcript_back_to_the: "Dra snabbt tillbaka din senaste utskrift till urklippet."
+quit: "Sluta"
+quit_pindrop: "Avsluta Pindrop"
+ready: "Redo"
+ready_ec1296e1: "● Klar"
+ready_to_record: "Klar att spela in"
+ready_to_transcribe: "Klar att transkribera"
+recent: "Ny"
+recent_transcriptions: "Senaste transkriptioner"
+recent_transcripts: "Senaste avskrifter"
+recommended: "Rekommenderad"
+recommended_the_deterministic_cleaner_handles_mo: "Rekommenderas: den deterministiska rengöringsmaskinen hanterar de flesta diktering rent. Aktivera LLM-passet endast om du vill ha extra polering och accepterar enstaka modellegenheter (inledning, samtalssvar)."
+recommended_the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+record: "Spela in"
+recording: "Inspelning"
+recording_3f8fd48c: "🔴 Inspelning"
+recording_from_external_and_bluetooth_microphone: "Inspelning från externa och Bluetooth-mikrofoner är nu mycket stabil, även när ljudutgången dirigeras någon annanstans."
+recordings: "inspelningar"
+redo: "Göra om"
+refresh: "Uppdatera"
+refresh_the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+remove: "Ta bort"
+remove_and_clear_any_assignments_that_reference: "Ta bort \"%@\" och rensa alla tilldelningar som refererar till det? Lagrade referenser kommer att raderas."
+remove_from_folder: "Ta bort från mapp"
+remove_provider: "Ta bort leverantör"
+rename: "Döpa om"
+rename_folder: "Byt namn på mapp"
+rename_participant: "Rename Participant"
+rename_speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+replace_all: "Byt ut alla"
+replace_words_and_phrases: "Byt ut ord och fraser"
+replacement: "Ersättning"
+replacement_text: "Ersättningstext"
+report_an_issue: "Rapportera ett problem"
+report_an_issue_bd7b4f00: "Rapportera ett problem"
+required: "Nödvändig"
+required_for_recording_your_voice: "Krävs för att spela in din röst"
+requires_diarization_model: "Requires diarization model"
+requires_speaker_diarization: "Requires speaker diarization"
+requires_a_fast_provider_apple_foundation_models: "Kräver en snabb leverantör (Apple Foundation-modeller rekommenderas). Molnleverantörer kommer att utfärda ett API-anrop per paus."
+reset: "Återställa"
+reset_all_settings: "Återställa alla inställningar?"
+reset_all_settings_7262c7b7: "Återställ alla inställningar"
+reset_to_default: "Återställ till standard"
+reset_all_settings_e5dbc5fc: "Reset All Settings…"
+retry: "Försöka igen"
+right: "Rätt"
+run_llm_polish_after_dictation_stops: "Kör LLM-polering efter att dikteringen har slutat"
+run_a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+runtime: "Körtid: %@"
+runtime_status: "Körningsstatus"
+save: "Spara"
+save_as_note: "Spara som anteckning"
+save_continue: "Spara och fortsätt"
+save_credentials: "Spara inloggningsuppgifter"
+save_prompt: "Spara uppmaning"
+saved: "Sparad"
+saved_as_note: "Sparad som anteckning"
+saved_transcription: "Sparad transkription"
+search_media_transcripts: "Sök i mediatranskriptioner..."
+search_models: "Sök efter modeller"
+search_models_61c1b9fe: "Sök efter modeller..."
+search_notes: "Sök anteckningar..."
+search_settings: "Sökinställningar"
+search_settings_or_jump_between_sections_without: "Sök i inställningar eller hoppa mellan avsnitt utan att lämna huvudarbetsytan."
+search_transcriptions: "Sök efter transkriptioner..."
+secondary_text: "Sekundär text"
+select_a_dictionary_json_file_to_import: "Välj en JSON-fil för ordbok att importera"
+select_a_model: "Välj en modell"
+select_a_presets_json_file_to_import: "Välj en förinställd JSON-fil att importera"
+select_a_provider_kind: "Välj en typ av leverantör"
+select_a_provider_type: "Välj en leverantörstyp"
+select_ai_model: "Välj AI-modell"
+select_all: "Välj Alla"
+select_language: "Välj Språk"
+select_language_daea52c9: "Välj språk"
+select_this_floating_indicator_style: "Välj denna flytande indikatorstil."
+select_voice_model: "Välj Röstmodell"
+select_the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+selected: "Vald"
+sent_to_the_ai_model_when_processing_dictation_f: "Skickas till AI-modellen vid bearbetning av diktering för direkt textinsättning."
+sessions: "Sessioner"
+sessions_781791f5: "sessioner"
+set_as_default: "Ställ in som standard"
+settings: "Inställningar"
+settings_bf83f07f: "Inställningar..."
+settings_fa67a397: "Inställningar..."
+setup_required: "Installation krävs"
+show_app: "Visa app"
+show_app_in_finder: "Visa appen i Finder"
+show_in_dock: "Visa i Dock"
+show_api_key: "Visa API-nyckel"
+show_the_main_window_and_open_the_library: "Show the main window and open the Library."
+shows_as_a_pill_at_the_bottom_of_the_screen: "Visas som ett piller längst ner på skärmen"
+shows_as_a_liquid_glass_orb_in_the_corner_of_the: "Visas som en kula av flytande glas i hörnet av skärmen"
+sidebar_position: "Sidofältsposition"
+sidebar_position_916f66ea: "Sidofältets position"
+simplified_chinese: "Förenklad kinesiska"
+size: "Storlek"
+skip_for_now: "Hoppa över nu"
+slow: "Långsam"
+slower: "Långsammare"
+slowest: "Långsammast"
+small: "Små"
+smaller_models_are_faster_but_less_accurate_nsta: "Mindre modeller är snabbare men mindre exakta.nBörja med Base för bästa balans."
+smaller_models_are_faster_but_less_accurate_star: |-
+  Mindre modeller är snabbare men mindre exakta.
+  Börja med Base för bästa balans.
+something_went_wrong: "Något gick fel"
+soon: "Snart"
+sort_by: "Sortera efter"
+source: "Källa"
+spanish: "spanska"
+speaker_diarization: "Speaker diarization"
+speaker_diarization_and_timestamps_are_attached: "Högtalardiarisering och tidsstämplar är fästa vid uppspelning."
+speaker_diarization_is_required: "Högtalarens diaarisering krävs"
+speed: "Hastighet"
+start_fresh_when_you_want_to_clear_preferences_o: "Börja på nytt när du vill rensa inställningar, introduktionsstatus och sparade autentiseringsuppgifter."
+start_recording: "Börja spela in"
+start_recording_to_see_your_transcriptions_here: "Börja spela in för att se dina transkriptioner här"
+start_stop_recording: "Starta/stoppa inspelning"
+start_using_pindrop: "Börja använda Pindrop"
+status: "Status"
+stop_recording: "Stoppa inspelning"
+streaming_enhancement: "Streaming Enhancement"
+streaming_transcription_currently_supports_engli: "Strömmande transkription stöder för närvarande endast engelska, oavsett valt språk."
+streaming_transcription_is_disabled_while_ai_enh: "Strömmande transkription är inaktiverad medan AI Enhancement är aktiverat."
+streaming_transcription_model_nemotron_speech: "Strömmande transkriptionsmodell (Nemotron Speech Streaming) licensierad av NVIDIA Corporation under NVIDIA Open Model License."
+streaming_transcription_instantly_ready: "Strömmande transkribering, redo direkt"
+success: "Framgång!"
+support: "Stöd"
+support_coming_soon: "%@ Support kommer snart"
+supports_local_media_files_and_web_links_resolve: "Stöder lokala mediefiler och webblänkar lösta med yt-dlp."
+switch_to_model: "Byt till modell"
+system: "System"
+system_default: "System Standard"
+teach_custom_words: "Lär ut anpassade ord"
+temporarily_copy_text_paste_it_then_restore_your: "Kopiera text tillfälligt, klistra in den och återställ sedan ditt urklipp"
+temporarily_mute_speaker_output_while_dictation: "Stäng av högtalarutgången tillfälligt medan diktering pågår."
+temporarily_pause_active_media_playback_while_di: "Pausa aktiv mediauppspelning tillfälligt medan diktering spelas in."
+tertiary_text: "Tertiär text"
+the_model_failed_to_load_within_60_seconds_this: "\"\" Modellen kunde inte laddas inom 60 sekunder. Detta betyder vanligtvis att modellfilerna är skadade eller inkompatibla.                          För att åtgärda detta: 1. Öppna Inställningar → Modeller 2. Ta bort den problematiska modellen 3. Ladda ner modellen igen Om problemet kvarstår, prova en mindre modell (Tiny eller Base).             \"\""
+the_selected_chunk_variant_isn_t_downloaded_yet: "Den valda chunkvarianten har inte laddats ner ännu. Växling startar en nedladdning."
+the_new_nemotron_streaming_engine_shows_words_as: "Den nya Nemotron-strömningsmotorn visar orden medan du säger dem och förvärms vid start så att din första diktering börjar utan fördröjning."
+theme: "Tema"
+theme_changes_apply_live_across_the_workspace_se: "Temaändringar gäller direkt i arbetsytan, inställningarna, anteckningsredigeraren och flytande indikatorer."
+theme_mode: "Temaläge"
+theme_mode_bb6b0b3d: "Temaläge"
+this_preset_name_is_already_in_use: "Detta förinställda namn används redan."
+this_provider_will_be_available_in_a_future_upda: |-
+  Denna leverantör kommer att finnas tillgänglig i en framtida uppdatering.
+  För nu, prova OpenAI eller använd en anpassad slutpunkt.
+this_provider_will_be_available_in_a_future_upda_3e35a952: |-
+  Denna leverantör kommer att finnas tillgänglig i en framtida uppdatering.
+  Prova OpenAI eller använd en anpassad slutpunkt.
+this_provider_will_be_available_in_a_future_upda_0677ac1d: "Denna leverantör kommer att vara tillgänglig i en framtida uppdatering.nFör nu, prova OpenAI eller använd en anpassad slutpunkt."
+this_transcription_could_not_be_found: "Denna transkription kunde inte hittas."
+this_will_clear_all_your_settings_including_api: "Detta kommer att rensa alla dina inställningar, inklusive API-nycklar, snabbtangenter och modellinställningar. Appen avslutas och visar onboarding igen vid nästa lansering."
+this_will_permanently_remove_the_transcript_and: "Detta tar permanent bort transkriptionen och dess hanterade mediefil."
+this_removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+this_will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+time_saved: "Tid sparad"
+to_dictate_and_let_pindrop_transcribe_for_you: "att diktera och låta Pindrop transkribera åt dig"
+to_start_talking: "att börja prata"
+today: "I dag"
+toggle: "Växla"
+toggle_recording: "Växla inspelning"
+toggle_sort_order: "Växla sorteringsordning"
+transcribe: "Transkribera"
+transcribe_media: "Transkribera media"
+transcribed: "transkriberat"
+transcription: "Transkription"
+transcription_backend: "Transkriptionsbackend"
+transcription_deleted: "Transkription raderad."
+transcription_enhancement: "Transkriptionsförbättring"
+transcription_failed: "Transkriptionen misslyckades"
+transcription_finished: "Transkriptionen avslutad."
+transcription_in_progress: "Transkription pågår"
+transcription_metadata: "Transkriptionsmetadata"
+transcription_update: "Uppdatering av transkription"
+transcription_saved: "Transkription sparad"
+transcriptions: "Transkriptioner"
+transcriptions_f0972acc: "transkriptioner"
+transcriptions_in_this_folder_will_be_kept_and_m: "Transkriptioner i denna mapp kommer att sparas och flyttas tillbaka till biblioteket."
+transcripts: "Avskrifter"
+try_a_different_search_term: "Prova en annan sökterm"
+try_a_different_search_term_0ba628a3: "Prova en annan sökterm."
+try_a_different_search_term_in_this_folder: "Försök med en annan sökterm i den här mappen."
+try_searching_for_terms_like_hotkeys_microphone: "Testa att söka efter termer som snabbtangenter, mikrofon, uppdateringar eller vibbläge."
+turkish: "turkiska"
+type_text_directly_into_the_active_app_when_poss: "Skriv text direkt i den aktiva appen när det är möjligt"
+unable_to_connect_to_the_ai_enhancement_service: "\"\" Det går inte att ansluta till AI-förbättringstjänsten.                                  Kontrollera: 1. Din internetanslutning 2. API-slutpunktens URL är korrekt 3. Tjänsten upplever inte ett avbrott. Transkriptionen sparades utan förbättring.                 \"\""
+unable_to_finish_transcription: "Det gick inte att slutföra transkriptionen"
+unable_to_load_history: "Det gick inte att ladda historiken: %@"
+unable_to_load_models_try_refresh: "Det går inte att ladda modeller. Prova att uppdatera."
+unable_to_update_media_library: "Det gick inte att uppdatera mediebiblioteket"
+unavailable_device: "Ej tillgänglig enhet"
+undo: "Ångra"
+unfiled: "Oarkiverat"
+unpin_from_screen: "Lossa från skärmen"
+update: "Uppdatera"
+updates: "Uppdateringar"
+use_a_tap_to_start_tap_to_finish_shortcut_for_no: "Använd en genväg med tryck för att starta, tryck för att avsluta för att fånga anteckningar."
+use_clipboard_only: "Använd endast Urklipp"
+use_the_hotkey_to_start_your_first_recording: "Använd snabbtangenten för att starta din första inspelning"
+use_transcription_as_a_placeholder_for_the_trans: "Använd ${transcription} som platshållare för den transkriberade texten."
+use_transcription_as_placeholder: "Använd ${transcription} som platshållare"
+used_when_capturing_notes_via_hotkey_can_add_mar: "Används för att fånga anteckningar via snabbtangent. Kan lägga till markdown-formatering för längre innehåll."
+uses_a_built_in_prompt_tuned_for_this_task: "Använder en inbyggd prompt som är inställd för denna uppgift."
+uses_the_560ms_nemotron_variant_for_snappier_par: "Använder 560 ms Nemotron-varianten för snabbare deltext. Standard är 1120 ms-varianten (bäst noggrannhet)."
+uses_the_transcription_enhancement_assignment_if: "Använder uppdraget Transcription Enhancement. Om ingen är inställd, hålls den deterministiska renare utsignalen som den är."
+v: "v%@"
+version: "Version %@ (%@)"
+very_fast: "Mycket snabb"
+via: "via %@"
+vibe_mode: "Vibeläge"
+vibe_mode_captures_structured_ui_context_when_re: "Vibe-läget fångar strukturerat användargränssnitt när inspelningen startar så att AI-förbättring kan använda ditt aktiva apptillstånd som referens."
+vibe_mode_works_best_with_accessibility_permissi: "Vibe-läge fungerar bäst med tillgänglighetsbehörighet. Utan det faller Pindrop tillbaka till begränsad appmetadata och transkription fungerar fortfarande normalt."
+view: "Se"
+view_all: "Visa alla"
+view_transcript_history: "Se transkriptionshistorik"
+view_transcription_history: "Visa transkriptionshistorik"
+vocabulary: "Ordförråd"
+vs_typing: "vs att skriva"
+welcome_to_pindrop: "Välkommen till Pindrop"
+whisperkit: "WhisperKit"
+word: "Ord"
+word_replacements: "Ordbyten"
+words: "Ord"
+words_efb89361: "ord"
+words_min: "ord/min"
+words_you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
+wpm: "WPM"
+yesterday: "I går"
+you_are_a_note_formatting_assistant_transform_th: "Du är en anteckningsformateringsassistent. Förvandla den transkriberade texten till en välstrukturerad anteckning.nnRegler:n- Åtgärda grammatik, skiljetecken och stavfel.n- För längre innehåll (3+ stycken), lägg till markdown-formatering:n - Använd rubriker (## eller ###) för att organisera sektionern - Använd punktlistor eller numrerade listor där det är lämpligtn - Använd **kortare nyckelord** för enklare format** för att betona det. Bevara den ursprungliga betydelsen och visa - Lägg inte till innehåll som inte fanns i originalet - Returnera endast den formaterade anteckningen utan någon kommentar"
+you_are_a_text_enhancement_assistant_improve_the: "Du är en textförbättringsassistent. Förbättra grammatiken, skiljetecken och formateringen av den angivna texten samtidigt som dess ursprungliga betydelse och ton bevaras. Returnera endast den förbättrade texten utan ytterligare kommentarer."
+you_can_change_these_anytime_from_the_menu_bar_s: "Du kan ändra dessa när som helst från menyraden → Inställningar → Snabbtangenter"
+you_re_all_set: "Du är klar!"
+you_re_all_set_058a8130: "Du är redo!"
+you_ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Du har överskridit din API-hastighetsgräns eller -kvot.                                  För att åtgärda detta: 1. Vänta några minuter och försök igen 2. Kontrollera din API-leverantörs användningsgränser 3. Överväg att uppgradera din API-plan. Transkriptionen sparades utan förbättring.                 \"\""
+your_api_key_appears_to_be_invalid_or_expired_to: "\"\" Din API-nyckel verkar vara ogiltig eller har upphört att gälla.                                  För att åtgärda detta: 1. Öppna Inställningar → AI Enhancement 2. Kontrollera att din API-nyckel är korrekt 3. Kontrollera att din API-slutpunkt är korrekt. Transkriptionen sparades utan förbättring.                 \"\""
+your_hotkeys_are_ready_to_use_nyou_can_customize: "Dina snabbtangenter är redo att användas.nDu kan anpassa dem senare i Inställningar."
+your_hotkeys_are_ready_to_use_you_can_customize: |-
+  Dina snabbtangenter är redo att användas.
+  Du kan anpassa dem senare i Inställningar.
+your_model_is_ready_to_use: "Din modell är redo att användas."
+your_stats: "Din statistik"
+your_floating_indicator_is_now_a_living_audio_re: "Din flytande indikator är nu en levande, ljudreaktiv orb. Den andas i vila, växer när du pratar och strömmar dina ord live medan du dikterar."
+orb: "Kula"
+meeting_saved: "Möte sparat"
+russian: "Russian"
+ukrainian: "Ukrainian"
+what_s_new_in_pindrop: "Nyheter i Pindrop"
+what_s_new: "Nyheter…"
+meet_the_new_orb: "Möt den nya Orb"
+thanks_to_for_investigating_and_kicking_off_the: "Tack till %@ för undersökningen och starten på korrigeringen (PR #64)."
+thanks_to_for_the_contribution_pr_61: "Tack till %@ för bidraget (PR #61)."
+dictate_in_russian_and_ukrainian: "Diktera på ryska och ukrainska"
+two_new_dictation_languages_fully_wired_into_mod: "Två nya dikteringsspråk, helt kopplade till modellrekommendationer."
+also_new_rtl_layout_support_and_20_new_interface: "Också nytt: stöd för RTL-layout och 20 nya gränssnittsspråk."
+advanced: "Avancerat"
+agent_setup: "Agentinställning"
+appearance: "Utseende"
+bearer_token: "Bearer-token"
+changes_the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client: "Klient"
+configuration_file: "Configuration File"
+configuration_scope: "Configuration Scope"
+configuration_snippet: "Configuration Snippet"
+dictation: "Diktering"
+dictation_language: "Dikteringsspråk"
+dictation_polish: "Dikteringsputs"
+done: "Klar"
+input_device: "Inmatningsenhet"
+license: "Licens"
+mcp_configuration_error: "MCP Configuration Error"
+mcp_server: "MCP-server"
+main_window: "Huvudfönster"
+name: "Namn"
+port: "Port"
+port_changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project: "Projekt"
+regenerate: "Återskapa"
+shortcuts: "Genvägar"
+speakers: "Talare"
+these_options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while_recording: "Under inspelning"
+may_conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library: "Library"
+conflicts_with: "Conflicts with %@"
+file: "Arkiv"
+window: "Fönster"
+help: "Hjälp"
+close: "Stäng"
+find: "Sök"
+minimize: "Minimera"
+zoom: "Zooma"
+bring_all_to_front: "Lägg alla överst"
+home: "Hem"
+1_speaker: "1 speaker"
+d_speakers: "%d speakers"
+inserted_into_d_words: "Inserted into %@ · %d words"
+unknown_app: "Unknown App"
+diarized: "diarized"
+summary_ready: "summary ready"
+prompts_are_sent_in_english: "Prompts are sent in English"
+preset_example_clean_input: "um so the meeting is at three thirty period can you confirm question mark"
+preset_example_clean_output: "So the meeting is at 3:30. Can you confirm?"
+preset_example_meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
+preset_example_meeting_output: |-
+  ## Action Items
+  - **Alice** will send the deck by **Friday**
+  - **Bob** owns the pricing review
+  
+  ## Next Steps
+  - Decision needed next week
+preset_example_email_input: "hey jordan just checking if you got my notes from yesterday thanks"
+preset_example_email_output: |-
+  Hi Jordan,
+  
+  Just checking if you got my notes from yesterday.
+  
+  Thanks,
+preset_example_social_input: "um we just shipped dark mode and it looks amazing you should try it"
+preset_example_social_output: |-
+  We just shipped dark mode.
+  
+  It looks amazing — you should try it.
+preset_example_bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
+preset_example_bullets_output: |-
+  - Onboarding latency
+  - Pricing
+  - Launch date: May 12
+preset_example_technical_input: "call fetch user arrow then map the response equals equals two hundred"
+preset_example_technical_output: "Call `fetchUser` -> then map the response `==` 200."
+preset_example_live_input: "um so i think we should ship the beta by friday period"
+preset_example_live_output: "So I think we should ship the beta by Friday."
+preset_example_edits_input: "um this is correct ly twenty-five"
+preset_example_edits_output: "This is correctly 25"
