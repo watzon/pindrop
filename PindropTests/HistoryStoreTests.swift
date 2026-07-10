@@ -160,6 +160,58 @@ struct HistoryStoreTests {
         #expect(records.first?.text == "Hello, world!")
         #expect(records.first?.duration == 5.0)
         #expect(records.first?.modelUsed == "tiny")
+        // wordCount is always computed from final text even without destination
+        #expect(records.first?.wordCount == 2)
+        #expect(records.first?.destinationAppName == nil)
+        #expect(records.first?.destinationAppBundleID == nil)
+    }
+
+    @Test func savePersistsDestinationAppAndWordCount() throws {
+        let fixture = try makeFixture()
+
+        let record = try fixture.historyStore.save(
+            text: "one two three four",
+            duration: 3.0,
+            modelUsed: "base",
+            destinationAppName: "Cursor",
+            destinationAppBundleID: "com.todesktop.230313mzl4w4u92"
+        )
+
+        #expect(record.destinationAppName == "Cursor")
+        #expect(record.destinationAppBundleID == "com.todesktop.230313mzl4w4u92")
+        #expect(record.wordCount == 4)
+
+        let fetched = try #require(try fixture.historyStore.fetchRecord(with: record.id))
+        #expect(fetched.destinationAppName == "Cursor")
+        #expect(fetched.destinationAppBundleID == "com.todesktop.230313mzl4w4u92")
+        #expect(fetched.wordCount == 4)
+    }
+
+    @Test func saveAlwaysComputesWordCountWhenDestinationIsNil() throws {
+        let fixture = try makeFixture()
+
+        let record = try fixture.historyStore.save(
+            text: "hello\nworld again",
+            duration: 1.0,
+            modelUsed: "tiny"
+        )
+
+        #expect(record.destinationAppName == nil)
+        #expect(record.destinationAppBundleID == nil)
+        #expect(record.wordCount == 3)
+    }
+
+    @Test func saveUsesExplicitWordCountWhenProvided() throws {
+        let fixture = try makeFixture()
+
+        let record = try fixture.historyStore.save(
+            text: "ignored for count",
+            duration: 1.0,
+            modelUsed: "tiny",
+            wordCount: 99
+        )
+
+        #expect(record.wordCount == 99)
     }
 
     @Test func saveAndFetchPreservesDiarizationSegmentsJSON() throws {
