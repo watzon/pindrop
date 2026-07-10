@@ -1,870 +1,1213 @@
-100_local_processing: "100% ローカル処理"
-1_folder: "1フォルダー"
-1_transcription: "1 転写"
-a_native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
-a_big_round_of_upgrades_and_two_community_shout: "大きなアップグレードの数々 — そしてコミュニティへの2つの感謝。"
-about: "について"
-about_pindrop: "ピンドロップについて"
-accessibility: "アクセシビリティ"
-accessibility_permission_is_enabled_full_ui_cont: "アクセシビリティ権限が有効になっています。完全な UI コンテキストが利用可能です。"
-accessibility_permission_is_not_granted_vibe_mod: "アクセシビリティ権限が付与されていません。 Vibe モードは、制限されたコンテキストでノンブロッキングのままです。"
-accessibility_permission_recommended: "アクセシビリティ許可の推奨"
-accessibility_permission_required: "アクセシビリティ許可が必要です"
-accessibility_permission: "アクセシビリティの許可"
-accuracy: "正確さ"
-acknowledgments: "謝辞"
-active: "アクティブ"
-add: "追加"
-add_a_provider_to_start_using_ai_enhancement: "AI 拡張機能の使用を開始するには、プロバイダーを追加します。"
-add_custom_words_to_improve_transcription_accura: "カスタム単語を追加して、専門用語、名前、専門用語の文字起こしの精度を向上させます。"
-add_provider: "プロバイダーの追加"
-add_tag: "タグを追加..."
-add_to_existing: "既存に追加"
-add_trailing_space: "末尾のスペースを追加する"
-add_word_replacements_to_automatically_correct_c: "単語の置換を追加して、一般的な転写エラーを自動的に修正します。"
-add_words_to_help_pindrop_recognize_them_properl: "Pindrop が正しく認識できるように単語を追加します"
-add_words_you_manually_correct_into_your_vocabul: "今後の文字起こしのために、手動で修正した単語を語彙に追加します。"
-add_this_to_claude_settings_json_in_your_project: "プロジェクト直下の .claude/settings.json、またはユーザー全体用の ~/.claude/settings.json に追加します。"
-add_this_to_cursor_mcp_json_in_your_project_root: "プロジェクト直下の .cursor/mcp.json、または全プロジェクト用の ~/.cursor/mcp.json に追加し、保存後に Cursor を再起動します。"
-add_this_to_opencode_json_in_your_project_root_f: "プロジェクト固有のアクセス用に、プロジェクト直下の opencode.json に追加します。"
-add_this_to_codex_config_toml_project_scoped_con: "~/.codex/config.toml に追加します。信頼できるプロジェクトでは .codex/config.toml にプロジェクト設定を置けます。"
-add_this_to_config_opencode_opencode_json_for_us: "すべてのプロジェクトでユーザー全体のアクセス用に ~/.config/opencode/opencode.json に追加します。"
-ai: "AI"
-ai_enhancement: "AIの強化"
-ai_enhancement_529f5583: "AI強化: %@"
-ai_enhancement_failed: "AI強化に失敗しました"
-ai_enhancement_is_disabled: "AI強化は無効になっています。"
-ai_enhancement_will: "AI の強化により次のことが可能になります。"
-ai_model: "AIモデル"
-all: "全て"
-an_error_occurred_while_enhancing_your_transcrip: |-
-  文字起こしを強化中にエラーが発生しました:
-  
-  %@
-  
-  元の文字起こしは補正なしで保存されました。
-  [設定] で AI 強化を再度有効にしてみてください。
-an_error_occurred_while_enhancing_your_transcrip_8c664cb4: "文字起こしの強化中にエラーが発生しました:nn%@nn元の文字起こしは強化なしで保存されました。n[設定] で AI 強化を再度有効にしてみてください。"
-anthropic: "Anthropic"
-api_endpoint: "APIエンドポイント"
-api_key: "APIキー"
-api_key_saved: "APIキーが保存されました"
-api_key_saved_endpoint: "API キーが保存されました • エンドポイント: %@"
-app_info_acknowledgments_support_and_logs: "アプリ情報、承認、サポート、ログ"
-append_a_space_after_each_transcription_for_seam: "シームレスなディクテーションのために、各文字起こしの後にスペースを追加します。"
-apple_foundation_models_on_device: "Apple Foundation モデル (オンデバイス)"
-apple_intelligence: "Apple Intelligence"
-apple_intelligence_is_unavailable_on_this_system: "このシステムでは Apple Intelligence を利用できません。この割り当ては、Apple Intelligence が有効になるまで解決されません。"
-apple_intelligence_runs_on_device_and_requires_n: "Apple Intelligence はデバイス上で実行され、認証情報は必要ありません。"
-apple_speechtranscriber_macos_26: "Apple SpeechTranscriber（macOS 26 以降）"
-apple_speechtranscriber_requires_macos_26: "Apple SpeechTranscriber には macOS 26 が必要です。"
-apple_speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriberが利用できません — Nemotronを使用します"
-are_you_sure_you_want_to_delete_this_action_cann: "「%@」を削除してもよろしいですか?この操作は元に戻すことができません。"
-assignments: "課題"
-attach_logs_from_this_folder_when_filing_a_githu: "GitHub の問題を提出する場合は、このフォルダーのログを添付してください。"
-audio_input: "オーディオ入力"
-automatic_follow_system: "自動（フォローシステム）"
-automatic_updates: "自動更新"
-automatic_updates_and_manual_update_checks: "自動更新と手動更新チェック"
-automatically_check_for_new_versions_in_the_back: "バックグラウンドで新しいバージョンを自動的にチェックします。"
-automatically_start_pindrop_when_you_sign_in: "サインインすると Pindrop が自動的に起動します。"
-available_models: "利用可能なモデル"
-avg_speed: "平均速度"
-back: "戻る"
-back_to_library: "ライブラリに戻る"
-base: "ベース"
-best: "最高"
-better: "より良い"
-better_bluetooth_external_mic_support: "Bluetooth と外部マイクのサポートを改善"
-built_in_presets: "内蔵プリセット"
-built_in_read_only: "組み込み (読み取り専用)"
-cancel: "キャンセル"
-cancel_operation: "操作のキャンセル"
-capture_directly_into_the_note_editor_with_a_hol: "ホールドして録音するフローを使用して、ノートエディターに直接キャプチャします。"
-change_microphone: "マイクを変更する"
-change_microphone_ac9970f4: "マイクを変更する"
-check_for_updates: "アップデートを確認してください..."
-check_for_updates_736b9062: "アップデートを確認する"
-check_now: "今すぐチェック"
-checking: "チェック中..."
-choose_a_location_to_save_the_dictionary: "辞書を保存する場所を選択してください"
-choose_a_location_to_save_the_presets: "プリセットを保存する場所を選択します"
-choose_a_model: "モデルを選択してください"
-choose_a_provider_first: "まずプロバイダーを選択してください"
-choose_an_audio_or_video_file_to_transcribe: "文字起こしするオーディオまたはビデオ ファイルを選択してください"
-choose_between_nemotron_punctuated_downloaded_mod: "Nemotron（句読点対応、ダウンロード型モデル）とApple SpeechTranscriber（macOS 26以降、OS同梱）から選択します。"
-choose_file: "ファイルを選択してください"
-choose_how_dictated_text_lands_then_tune_the_fin: "口述テキストの挿入方法を選択し、最終的な挿入動作を調整します。"
-choose_how_pindrop_follows_system_appearance_the: "Pindrop がシステムの外観に従う方法を選択し、厳選された明るいパレットと暗いパレットを組み合わせます。"
-choose_how_to_import_the_dictionary_data: "辞書データのインポート方法を選択します"
-choose_how_to_import_the_preset_data: "プリセットデータのインポート方法を選択します"
-choose_languages_for_the_interface_and_for_dicta: "インターフェースとディクテーションの言語を選びます。「自動」はシステムに合わせます。"
-choose_location_to_save_presets: "プリセットを保存する場所を選択してください"
-choose_the_daytime_shell_used_in_light_mode: "ライトモードで使用するデイタイムシェルを選択します。"
-choose_the_low_glare_shell_used_in_dark_mode: "ダークモードで使用される低光沢シェルを選択してください。"
-choose_which_microphone_pindrop_should_use_for_d: "Pindrop がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
-choose_which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
-choose_how_pindrop_appears_on_screen_while_you_d: "音声入力中に Pindrop を画面にどう表示するかを選択します。"
-choose_how_recording_and_processing_status_appea: "作業中の録音・処理ステータスの表示方法を選びます。"
-choose_whether_pindrop_starts_when_you_sign_in_a: "ログイン時に Pindrop を起動し、Dock に表示するかを選びます。"
-choose_which_edge_of_the_main_window_holds_the_n: "メインウィンドウのどちら側にナビゲーションサイドバーを置くか選びます。"
-choose_which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
-choose_model: "モデルを選択…"
-clean_up_filler_words: "つなぎ言葉をクリーンアップする"
-clear_audio_buffer: "クリアオーディオバッファ"
-clear_hotkey: "ホットキーをクリア"
-clear_shortcut: "ショートカットをクリア"
-clears_preferences_and_restarts_onboarding: "設定をクリアしてオンボーディングを再開します"
-clears_preferences_and_restarts_onboarding_7d85115c: "設定を消去し、オンボーディングを再開します。"
-click_or_hold: "クリックまたはホールド"
-click_or_press: "クリックまたは押してください"
-click_or_set_a_hotkey_to_start_talking: "クリックするかホットキーを設定して通話を開始します"
-click_this_icon_anytime_to: "このアイコンをクリックすると、いつでも次のことができます。"
-clipboard: "クリップボード"
-clipboard_temporarily_copies_the_transcript_for: "クリップボードは貼り付け用に一時コピーします。直接入力は可能な場合アクティブなアプリに入力します。"
-cloud: "雲"
-cloud_model: "クラウドモデル"
-collapse: "折りたたむ"
-coming_soon: "%@ 近日公開予定"
-coming_soon_04d2fd85: "近日公開"
-configure_ai_providers_and_credentials_apple_int: "AI プロバイダーと資格情報を構成します。 Apple Intelligence はデバイス上で実行されます。他のプロバイダーには API キーが必要です。"
-configure_keyboard_shortcuts_for_recording_and_n: "録音とメモのキャプチャのためのキーボード ショートカットを構成する"
-continue: "続く"
-continue_with_default: "デフォルトで続行"
-continue_without: "なしで続行"
-control_how_pindrop_appears_in_macos_and_whether: "Pindrop が macOS でどのように表示されるか、およびデスクトップ セッションで開始されるかどうかを制御します。"
-controls_how_the_live_dictation_path_polishes_tr: "ライブディクテーション経路の整形方法を制御します。決定論的クリーナー（フィラー除去、大文字化、口頭句読点、数値正規化、分割語の結合）は常に実行され、このトグルは口述停止後に動作する任意の LLM 仕上げを制御します。"
-copied: "コピーしました！"
-copy: "コピー"
-copy_enhanced: "コピー強化"
-copy_last_transcript: "最後のトランスクリプトをコピー"
-copy_original: "オリジナルをコピー"
-copy_system_info_for_bug_report: "バグレポート用にシステム情報をコピーする"
-copy_the_most_recent_transcript_to_the_clipboard: "最新のトランスクリプトをクリップボードにコピーします"
-copy_to_clipboard: "クリップボードにコピー"
-copy_transcript: "成績証明書のコピー"
-copy_system_info: "システム情報をコピー"
-copy_the_configuration_snippet_into_your_preferr: "設定スニペットを好みの AI エージェントホストにコピーします。"
-copy_the_most_recent_transcript_to_the_clipboard_b9736933: "最新の文字起こしをクリップボードにコピーします。"
-correct_grammar_mistakes: "文法の間違いを正す"
-create: "作成する"
-create_new_note: "新しいメモを作成する"
-create_new_preset: "新しいプリセットの作成"
-create_your_first_note_to_get_started: "始めるために最初のメモを作成します"
-create_your_first_preset_or_duplicate_a_built_in: "最初のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
-create_your_own_presets_or_duplicate_built_in_on: "独自のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
-create_preset: "プリセットを作成"
-credentials_are_stored_securely_in_keychain: "認証情報はキーチェーンに安全に保存されます"
-credentials_saved_successfully: "認証情報が正常に保存されました"
-credentials_are_stored_securely_in_keychain_5acff5d3: "認証情報はキーチェーンに安全に保存されます。"
-current: "現在: %@"
-custom: "カスタム"
-custom_local: "カスタム/ローカル"
-custom_openai_compatible: "カスタム（OpenAI互換）"
-custom_presets: "カスタムプリセット"
-customize_hotkey: "ホットキーをカスタマイズする"
-cut: "カット"
-d_characters: "%d characters"
-d_samples: "%d サンプル · %@"
-dark: "暗い"
-dark_preview: "ダークプレビュー"
-dark_theme: "ダークテーマ"
-database_error: "データベースエラー"
-date: "日付"
-date_7f823513: "日付 %@"
-default: "デフォルト"
-default_model: "デフォルトのモデル"
-define_word_replacements_to_automatically_replac: "単語の置換を定義して、特定の単語や語句を自動的に置き換えます"
-degraded: "劣化した"
-delete: "消去"
-delete_folder: "フォルダーの削除"
-delete_folder_e556e7c2: "フォルダを削除しますか?"
-delete_model: "モデルの削除"
-delete_preset: "プリセットの削除"
-delete_preset_4f6cfe36: "プリセットを削除しますか?"
-delete_transcription: "文字起こしの削除"
-delete_transcription_f82187c4: "転写を削除しますか?"
-delete_all: "すべて削除"
-delete_all_participants: "すべての参加者を削除しますか？"
-delete_all_participants_60ed6e73: "すべての参加者を削除…"
-dictionary: "辞書"
-direct_insert: "直接挿入"
-disabled: "無効"
-dismiss: "却下する"
-display_name: "表示名"
-display_name_c7874aaa: "表示名"
-display_pindrop_in_the_dock_instead_of_running_o: "メニュー バー アプリとしてのみ実行するのではなく、Dock に Pindrop を表示します。"
-dock_the_sidebar_to_the_left_or_right_edge_of_th: "サイドバーをウィンドウの左端または右端にドッキングします。"
-download: "ダウンロード"
-download_complete: "ダウンロード完了！"
-download_continue: "ダウンロードして続行"
-download_failed: "ダウンロードに失敗しました"
-download_model: "ダウンロードモデル"
-download_the_diarization_model_before_starting_m: "メディアの転写を開始する前に、ダイアライゼーション モデルをダウンロードします。"
-downloaded: "ダウンロード済み"
-downloading: "%@をダウンロード中..."
-drop_a_file_or_paste_a_link_to_create_a_diarized: "ファイルをドロップするかリンクを貼り付けて、タイムスタンプ付きの日記付きトランスクリプトを作成します。"
-drop_audio_or_video_here: "ここに音声またはビデオをドロップします"
-duplicate_preset: "プリセットの複製"
-dutch: "オランダ語"
-edit: "編集"
-edit_preset: "プリセットの編集"
-edit_provider: "プロバイダーの編集"
-empty: "（空の）"
-enable_ai_enhancement: "AI 強化を有効にする"
-enable_live_session_updates_during_recording: "録画中のライブセッション更新を有効にする"
-enable_vibe_mode_ui_context: "バイブモードを有効にする (UI コンテキスト)"
-enable_mcp_server: "MCP サーバーを有効化"
-enabled: "有効"
-endpoint: "エンドポイント: %@"
-english: "英語"
-english_only: "英語のみ"
-enhanced: "強化された"
-enhancement_prompts: "拡張プロンプト"
-enhancing: "補正中…"
-enter_an_openai_api_key_to_load_models: "OpenAI API キーを入力してモデルをロードします。"
-enter_api_key: "APIキーを入力してください"
-enter_word_to_add: "追加する単語を入力してください"
-error: "エラー"
-european_multilingual: "ヨーロッパの多言語"
-excellent: "素晴らしい"
-export: "輸出"
-export_as_csv: "CSVとしてエクスポート"
-export_as_json: "JSONとしてエクスポート"
-export_as_plain_text: "プレーンテキストとしてエクスポート"
-export_dictionary: "辞書のエクスポート"
-export_failed: "エクスポートに失敗しました: %@"
-export_last_transcript: "最新のトランスクリプトをエクスポート..."
-export_presets: "プリセットのエクスポート"
-failed_to_add_replacement: "置換の追加に失敗しました: %@"
-failed_to_add_word: "単語の追加に失敗しました: %@"
-failed_to_delete_folder: "フォルダーの削除に失敗しました: %@"
-failed_to_delete_note: "メモの削除に失敗しました: %@"
-failed_to_delete_preset: "プリセットの削除に失敗しました: %@"
-failed_to_delete_replacement: "置換を削除できませんでした: %@"
-failed_to_delete_transcription: "文字起こしの削除に失敗しました: %@"
-failed_to_delete_word: "単語の削除に失敗しました: %@"
-failed_to_export_dictionary: "辞書のエクスポートに失敗しました: %@"
-failed_to_export_presets: "プリセットのエクスポートに失敗しました: %@"
-failed_to_import_dictionary: "辞書のインポートに失敗しました: %@"
-failed_to_import_presets: "プリセットのインポートに失敗しました: %@"
-failed_to_initialize_the_database_nnthe_app_will: "データベースの初期化に失敗しました: %@nnアプリは終了します。問題が解決しない場合は、再起動するか、サポートにお問い合わせください。"
-failed_to_load_data: "データのロードに失敗しました: %@"
-failed_to_load_history: "履歴のロードに失敗しました: %@"
-failed_to_read_import_file: "インポート ファイルの読み取りに失敗しました: %@"
-failed_to_save: "保存に失敗しました: %@"
-failed_to_save_preset: "プリセットの保存に失敗しました: %@"
-failed_to_switch_model: "モデルの切り替えに失敗しました: %@"
-failed_to_update_preset: "プリセットの更新に失敗しました: %@"
-failed_to_update_replacement: "置換の更新に失敗しました: %@"
-failed_to_update_word: "単語の更新に失敗しました: %@"
-fast: "速い"
-feature_models: "機能モデル"
-fetch_models_in_models: "モデルでモデルを取得する"
-fix_punctuation_and_capitalization: "句読点と大文字の使用を修正する"
-floating_indicator: "%@ フローティングインジケーター"
-floating_indicator_e0349402: "フローティングインジケーター"
-folder_deleted: "フォルダーが削除されました。"
-folder_name: "フォルダ名"
-follow_playback: "再生をフォローする"
-format_text_appropriately: "テキストを適切に書式設定する"
-french: "フランス語"
-general: "一般的な"
-german: "ドイツ語"
-get_started: "始めましょう"
-global: "グローバル"
-global_keyboard_shortcuts: "グローバルキーボードショートカット"
-go_back: "戻る"
-go_to_settings: "設定に移動"
-good: "良い"
-good_afternoon: "こんにちは"
-good_evening: "こんばんは"
-good_morning: "おはよう"
-good_night: "おやすみ"
-google: "Google"
-got_it: "わかった"
-grant: "付与"
-great: "素晴らしい"
-hide_this_for_1_hour: "これを1時間非表示にします"
-hide_api_key: "API キーを隠す"
-history: "歴史"
-hold_the_shortcut_to_record_then_release_to_tran: "ショートカットを長押しして録音し、放して文字起こしします。"
-hold_to_record_release_to_open_note_editor_with: "長押しして録音、離すと文字起こし付きのノートエディターが開きます"
-hold_to_record_release_to_stop_and_transcribe: "押し続けると録音、放すと停止および転写"
-hold_to_record_release_to_transcribe: "押し続けると録音、放すと文字起こし"
-hold_to_record_then_release_to_open_the_note_edi: "押し続けて録音し、離すと文字起こし付きのノート編集が開きます。"
-hotkey_conflict: "ホットキーの競合"
-hotkeys: "ホットキー"
-identify_speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
-import: "読み込み"
-import_dictionary: "辞書のインポート"
-import_error: "インポートエラー"
-import_export: "インポート/エクスポート"
-import_media: "メディアをインポートする"
-import_or_transcribe_media_while_this_folder_is: "このフォルダーが選択されているときにメディアをインポートまたは転写して、アイテムをここに保存します。"
-import_presets: "プリセットをインポートする"
-import_strategy: "輸入戦略"
-imported_files_and_web_links_will_appear_here_on: "処理が完了すると、インポートされたファイルと Web リンクがここに表示されます。"
-improve_transcription_quality_using_ai: "AIを使用して文字起こしの品質を向上させる"
-include_clipboard_text: "クリップボードのテキストを含める"
-interface: "インタフェース"
-interface_language: "インターフェース言語"
-is_assigned_to_both_and_only_the_first_action_wi: "%@ は %@ と %@ の両方に割り当てられます。最初のアクションのみがアクティブになります。この競合を解決するには、設定でホットキーを更新してください。"
-italian: "イタリア語"
-items: "アイテム"
-japanese: "日本語"
-keep_pindrop_current_automatically_or_trigger_a: "Pindrop を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
-keep_pindrop_current_automatically_or_check_for: "Pindrop を自動更新するか、今すぐ新しいバージョンを確認します。"
-key: "#%@"
-key_a979ef10: "+"
-key_ab8f46d5: "%1$@ %2$@"
-keyboard_shortcuts: "キーボードショートカット"
-korean: "韓国人"
-language: "言語"
-large: "Large"
-launch_at_login: "ログイン時に起動: %@"
-launch_at_login_0b36c78f: "ログイン時に起動"
-launch_at_login_fd1a3b7b: "ログイン時に起動"
-launch_at_login_could_not_be_changed: "「ログイン時に起動」を変更できませんでした"
-layout: "レイアウト"
-learn_corrected_words_automatically: "修正された単語を自動的に学習します"
-left: "左"
-let_pindrop_quietly_learn_vocabulary_from_the_co: "Pindrop は、時間をかけて修正した単語を静かに学習させてください。"
-light: "ライト"
-light_dark_and_curated_palette_presets: "明るい、暗い、厳選されたパレット プリセット"
-light_preview: "ライトプレビュー"
-light_theme: "ライトテーマ"
-limited: "限定"
-listening: "聞き取り中…"
-live_streaming_refinement: "ライブストリーミングの改良"
-lld: "%1$lld %2$@"
-lld_197eb092: "%lld%%"
-lld_a2843d9b: "+%lld"
-lld_characters: "%lld 文字"
-lld_complete: "%lld%% 完了"
-lld_items: "%lld アイテム"
-lld_notes: "%lld メモ"
-lld_transcriptions: "%lld 転写"
-lm_studio: "LMスタジオ"
-lm_studio_only_needs_a_token_if_local_server_aut: "LM Studio は、ローカルサーバー認証が有効になっている場合にのみトークンを必要とします。"
-load_models: "モデルをロードする"
-loaded_d_models: "Loaded %d models"
-loading_history: "履歴を読み込んでいます..."
-loading_models: "モデルをロード中..."
-local: "地元"
-local_speech_to_text_right_from_your_menu_bar_fa: |-
-  ローカルの音声テキスト変換をメニュー バーから直接実行できます。
-  高速、プライベート、いつでも利用可能。
-local_speech_to_text_right_from_your_menu_bar_nf: "メニュー バーから直接、ローカルの音声テキスト変換を実行できます。n高速、プライベート、いつでも利用できます。"
-local_speech_to_text_with_whisperkit: "WhisperKit を使用したローカル音声テキスト変換"
-local_voice_to_text: "ローカル音声からテキストへの変換"
-low_latency_mode_less_accurate: "低遅延モード（精度が低下）"
-manage_local_speech_models_feature_models_and_th: "ローカル音声モデル、特徴モデル、および Pindrop が文字起こしに使用するデフォルト エンジンを管理します。"
-manage_models: "モデルの管理"
-manage_presets: "プリセットの管理"
-manage_presets_ab87986d: "プリセットを管理..."
-manage_presets_d5d4c2c2: "プリセットを管理…"
-manually_check_for_new_versions_now: "今すぐ新しいバージョンを手動で確認してください。"
-media_library: "メディアライブラリ"
-media_transcription: "メディア転写"
-media_unavailable: "メディアが利用できません"
-media_saved: "メディアを保存しました"
-medium: "中くらい"
-microphone: "マイクロフォン"
-microphone_permission_is_required_to_continue: "続行するにはマイクの許可が必要です"
-microphone_permission_is_required_to_continue_dc: "続行するにはマイクの許可が必要です。"
-microphone_permission_required: "マイクの許可が必要です"
-mit_license: "MITライセンス"
-mode: "モード: %@"
-model: "モデル"
-model_loading_failed: "モデルのロードに失敗しました"
-model_loading_timed_out: "モデルの読み込みがタイムアウトしました"
-model_validation: "モデル検証"
-models: "モデル"
-move_to_folder: "フォルダに移動"
-multilingual: "多言語対応"
-must_be_openai_compatible: "OpenAIと互換性がある必要があります"
-mute_system_audio_during_recording: "録音中にシステムオーディオをミュートする"
-new_folder: "新しいフォルダー"
-new_note: "新しいメモ"
-new_preset: "新しいプリセット"
-next: "次"
-no_api_key: "APIキーがありません"
-no_api_key_endpoint: "API キーなし • エンドポイント: %@"
-no_custom_presets: "カスタムプリセットなし"
-no_downloaded_models: "ダウンロードされたモデルはありません"
-no_folders_yet: "まだフォルダがありません"
-no_items_in: "%@ に項目がありません"
-no_media_transcriptions_yet: "メディアの転写はまだありません"
-no_model_loaded: "モデルがロードされていません"
-no_model_selected: "モデルが選択されていません"
-no_models_available: "利用可能なモデルはありません"
-no_models_available_ae9dbd29: "利用可能なモデルはありません。"
-no_models_available_try_refresh_or_enter_a_model: "利用可能なモデルはありません。更新を試すか、モデル ID を手動で入力してください。"
-no_models_found: "モデルが見つかりませんでした。"
-no_models_loaded_open_edit_to_fetch_models: "モデルがロードされていません。 Open Edit to fetch models."
-no_models_match: "「%@」に一致するモデルはありません"
-no_notes_yet: "まだメモはありません"
-no_providers_configured_yet: "まだプロバイダーが設定されていません。"
-no_replacements: "代替品なし"
-no_results_found: "結果が見つかりませんでした"
-no_settings_found: "設定が見つかりません"
-no_transcriptions_yet: "転写はまだありません"
-no_vocabulary_words: "語彙がありません"
-no_learned_participants_yet: "学習済みの参加者はまだありません"
-no_providers_configured_yet_e6bc0075: "プロバイダはまだ設定されていません"
-no_conflicts_found: "No conflicts found"
-not_assigned: "割り当てられていません"
-not_selected: "未選択"
-not_set: "未設定"
-not_set_93039e60: "未設定"
-not_granted: "未許可"
-not_enough_voice_data_yet: "音声データがまだ不足しています"
-not_generated_yet_enable_the_server: "未生成 — サーバーを有効にしてください"
-note: "注記"
-note_capture_push_to_talk: "ノートキャプチャ (プッシュツートーク)"
-note_capture_toggle: "ノートキャプチャ (トグル)"
-note_enhancement: "ノートの強化"
-note_from: "からのメモ"
-note_metadata: "メモのメタデータ"
-note_title: "メモのタイトル"
-note_saved: "メモを保存しました"
-note_capture_hold: "ノート録音 — 押し続け"
-note_capture_toggle_7139a240: "ノート録音 — トグル"
-notes: "注意事項"
-notes_3add7b96: "メモ"
-off: "オフ"
-ok: "わかりました"
-ollama: "Ollama"
-ollama_usually_does_not_require_authentication_f: "Ollama は通常、ローカル要求に対して認証を必要としません。"
-on: "の上"
-on_device_no_credentials_required: "デバイス上で認証情報は不要"
-open: "開ける"
-open_history: "履歴を開く"
-open_logs_in_finder: "Finder でログを開く"
-open_original_link: "元のリンクを開く"
-open_progress: "進行状況を開く"
-open_settings: "設定を開く"
-open_settings_fd7108f8: "設定を開く"
-open_system_settings: "システム設定を開く"
-open_library: "Open Library"
-openai: "OpenAI"
-openai_compatible_local_server: "OpenAI対応ローカルサーバー"
-openai_whisper: "OpenAI ウィスパー"
-openrouter: "OpenRouter"
-optional: "オプション"
-optional_insert_text_directly_into_apps: "オプション: テキストをアプリに直接挿入します"
-optional_used_for_auto_generated_titles_and_summ: "オプション — メディア文字起こしインポート時に自動生成されたタイトルと概要に使用されます。"
-optionally_clean_up_transcriptions_with_ai: "オプションで AI を使用して文字起こしをクリーンアップする"
-or: "または"
-or_just_use_your_hotkey: "またはホットキーを使用してください。"
-original: "オリジナル"
-original_text_use_commas_for_multiple: "元のテキスト (複数の場合はカンマを使用してください)"
-originals_comma_separated: "オリジナル (カンマ区切り)"
-output: "出力"
-output_audio_interface_and_everyday_behavior: "出力、オーディオ、インターフェイス、日常の動作"
-output_mode: "出力モード"
-nemotron_default: "Nemotron (default)"
-paste: "ペースト"
-paste_a_video_or_audio_link: "ビデオまたはオーディオのリンクを貼り付けます"
-paste_failed_transcript_copied_to_clipboard: "ペーストに失敗しました。テキストはクリップボードにコピーされました。"
-paste_last_transcript: "最後のトランスクリプトを貼り付け"
-paste_last_transcript_v: "最後のトランスクリプトを貼り付けます ⌃⌘V"
-pause: "一時停止"
-pause_media_during_transcription: "転写中にメディアを一時停止する"
-permissions: "権限"
-pick_which_provider_and_model_handles_each_ai_ta: "各 AI タスクを処理するプロバイダーとモデルを選択します。目的をスキップするには、「未割り当て」のままにします。"
-pick_which_provider_and_model_handles_each_ai_ta_b719504f: "各 AI タスクに使うプロバイダとモデルを選びます。未割り当てはスキップされます。"
-pill: "ピル"
-pin_to_screen_always_on_top: "画面にピン留めする (常に一番上)"
-pindrop: "ピンドロップ"
-pindrop_is_ready_to_use_click_the_menu_bar_icon: |-
-  ピンドロップを使用する準備ができました。
-  メニューバーのアイコンをクリックして開始します。
-pindrop_is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop を使用する準備ができました。nメニュー バーのアイコンをクリックして開始します。"
-pindrop_needs_a_few_permissions_to_work_nyour_pr: "Pindrop が動作するには、いくつかの権限が必要です。nあなたのプライバシーは常に尊重されます。"
-pindrop_needs_a_few_permissions_to_work_your_pri: |-
-  Pindrop が動作するには、いくつかの権限が必要です。
-  あなたのプライバシーは常に尊重されます。
-pindrop_needs_accessibility_permission_to_insert: "\"\" Pindrop では、カーソル位置にテキストを挿入するにはアクセシビリティ権限が必要です。                          権限を付与するには: 1. 下の「システム設定を開く」をクリックします。 2. + ボタンをクリックします。 3. Finder に表示されているアプリに移動します。 4. 権限を付与した後、Pindrop を再起動します。 この権限がないと、テキストはクリップボードにコピーされるだけです。             「」"
-pindrop_needs_microphone_access_to_record_and_tr: "Pindrop では、あなたの声を録音して転写するにはマイクへのアクセスが必要です。システム設定で許可を与えてください。"
-pindrop_on_github: "GitHub のピンドロップ"
-pindrop_pill: "ピンドロップピル"
-pindrop_theme: "ピンドロップのテーマ"
-pindrop_orb: "Pindrop オーブ"
-pindrop_1_19: "Pindrop 1.19"
-pindrop_help: "Pindropヘルプ"
-play: "遊ぶ"
-please_check_your_internet_connection_and_try_ag: "インターネット接続を確認して、もう一度試してください。"
-please_download_a_whisper_model_in_settings_befo: |-
-  録音する前に、設定で Whisper モデルをダウンロードしてください。
-  
-  [設定] → [モデル] に移動してモデルをダウンロードします。
-please_download_a_whisper_model_in_settings_befo_a71d286e: "録音する前に、設定で Whisper モデルをダウンロードしてください。モデルをダウンロードするには、[設定] → [モデル] に移動します。"
-please_wait: "お待ちください..."
-portuguese_brazil: "ポルトガル語 (ブラジル)"
-powered_by_whisperkit: "WhisperKit を搭載"
-preparing_model: "モデルを準備しています..."
-preset_name: "プリセット名"
-press_and_hold_to_dictate_in_any_app_pindrop_wil: "どのアプリでも押し続けると口述入力できます。 Pindrop はあなたのスピーチを文字に起こし、カーソルがある場所にテキストを挿入します。"
-press_esc_to_cancel: "キャンセルするにはEscを押してください"
-press_keys: "キーを押してください..."
-press_once_to_start_again_to_stop: "一度押すと開始し、もう一度押すと停止します"
-press_once_to_start_recording_press_again_to_sto: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
-press_once_to_start_recording_then_press_again_t: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
-press_to_start_recording_press_again_to_open_not: "押すと録音が開始され、もう一度押すとノートエディタが開きます"
-press_keys_98b8167e: "キーを押してください…"
-press_once_to_start_recording_then_again_to_open: "一度押して録音を開始し、もう一度押してノート編集を開きます。"
-primary_text: "一次テキスト"
-processing: "処理"
-processing_272bc02e: "処理..."
-processing_5aa377e2: "⏳ 処理"
-processing_transcript: "Processing transcript"
-prompt: "プロンプト"
-prompt_preset: "プロンプトプリセット"
-provider: "プロバイダー"
-provider_kind: "プロバイダーの種類"
-provider_type: "プロバイダーの種類"
-providers: "プロバイダー"
-providers_prompts_and_vibe_mode_controls: "プロバイダー、プロンプト、およびバイブ モード コントロール"
-push_to_talk: "プッシュツートーク"
-quickly_copy_your_last_transcription: "最後の文字起こしをすばやくコピーする"
-quickly_pull_your_latest_transcript_back_to_the: "最新のトランスクリプトをクリップボードにすばやく取り込みます。"
-quit: "やめる"
-quit_pindrop: "ピンドロップを終了する"
-ready: "準備ができて"
-ready_ec1296e1: "● 準備完了"
-ready_to_record: "Ready to record"
-ready_to_transcribe: "転写の準備ができました"
-recent: "最近の"
-recent_transcriptions: "最近の転写"
-recent_transcripts: "最近の成績証明書"
-recommended: "推奨"
-recommended_the_deterministic_cleaner_handles_mo: "推奨: 決定論的クリーナーで大半の口述は十分に整形されます。さらに仕上げが欲しい場合のみ LLM 処理を有効にし、モデル特有の癖（前置き、会話的な返答）を許容してください。"
-recommended_the_deterministic_cleaner_handles_mo_ca42c3e4: "推奨: 決定論的クリーナーで大半の音声入力は十分です。追加の仕上げが必要でモデルの癖を許容する場合のみ LLM を有効にしてください。"
-record: "記録"
-recording: "録音"
-recording_3f8fd48c: "🔴 録音"
-recording_from_external_and_bluetooth_microphone: "外部マイクや Bluetooth マイクからの録音が、音声出力が別の場所にルーティングされていても安定して動作するようになりました。"
-recordings: "録音"
-redo: "やり直し"
-refresh: "リフレッシュ"
-refresh_the_provider_or_open_edit_to_fetch_model: "プロバイダを更新するか、編集を開いてモデルを取得してください。"
-remove: "取り除く"
-remove_and_clear_any_assignments_that_reference: "「%@」を削除し、それを参照する割り当てをクリアしますか?保存されている認証情報は削除されます。"
-remove_from_folder: "フォルダーから削除"
-remove_provider: "プロバイダーの削除"
-rename: "名前の変更"
-rename_folder: "フォルダー名の変更"
-rename_participant: "参加者の名前を変更"
-rename_speakers_in_transcripts_to_teach_pindrop: "文字起こしで話者名を変え、Pindrop に声の自動認識を教えましょう。"
-replace_all: "すべて置換"
-replace_words_and_phrases: "単語やフレーズを置き換える"
-replacement: "交換"
-replacement_text: "置換テキスト"
-report_an_issue: "問題を報告する"
-report_an_issue_bd7b4f00: "問題を報告する"
-required: "必須"
-required_for_recording_your_voice: "音声を録音するために必要です"
-requires_diarization_model: "Requires diarization model"
-requires_speaker_diarization: "Requires speaker diarization"
-requires_a_fast_provider_apple_foundation_models: "高速プロバイダーが必要です (Apple Foundation モデルを推奨)。クラウド プロバイダーは、一時停止ごとに 1 つの API 呼び出しを発行します。"
-reset: "リセット"
-reset_all_settings: "すべての設定をリセットしますか?"
-reset_all_settings_7262c7b7: "すべての設定をリセットする"
-reset_to_default: "デフォルトにリセット"
-reset_all_settings_e5dbc5fc: "すべての設定をリセット…"
-retry: "リトライ"
-right: "右"
-run_llm_polish_after_dictation_stops: "口述停止後に LLM 仕上げを実行"
-run_a_local_http_server_so_ai_agents_can_submit: "AI エージェントが文字起こしジョブ送信・履歴検索・話者管理できるようローカル HTTP サーバーを実行します。"
-runtime: "ランタイム: %@"
-runtime_status: "ランタイム状態"
-save: "保存"
-save_as_note: "メモとして保存"
-save_continue: "保存して続行"
-save_credentials: "認証情報の保存"
-save_prompt: "保存プロンプト"
-saved: "保存されました"
-saved_as_note: "メモとして保存"
-saved_transcription: "保存された文字起こし"
-search_media_transcripts: "メディアのトランスクリプトを検索..."
-search_models: "モデルを検索する"
-search_models_61c1b9fe: "モデルを検索..."
-search_notes: "メモを検索..."
-search_settings: "検索設定"
-search_settings_or_jump_between_sections_without: "メイン ワークスペースを離れることなく、設定を検索したり、セクション間を移動したりできます。"
-search_transcriptions: "文字起こしを検索..."
-secondary_text: "二次テキスト"
-select_a_dictionary_json_file_to_import: "インポートする辞書 JSON ファイルを選択してください"
-select_a_model: "モデルを選択してください"
-select_a_presets_json_file_to_import: "インポートするプリセット JSON ファイルを選択してください"
-select_a_provider_kind: "プロバイダーの種類を選択してください"
-select_a_provider_type: "プロバイダーの種類を選択してください"
-select_ai_model: "AIモデルの選択"
-select_all: "すべて選択"
-select_language: "言語の選択"
-select_language_daea52c9: "言語を選択してください"
-select_this_floating_indicator_style: "このフローティング インジケーター スタイルを選択します。"
-select_voice_model: "音声モデルの選択"
-select_the_language_pindrop_should_expect_when_t: "音声を文字起こしするときに想定する言語を選びます。"
-selected: "選択済み"
-sent_to_the_ai_model_when_processing_dictation_f: "テキストを直接挿入するためのディクテーションを処理するときに AI モデルに送信されます。"
-sessions: "セッション"
-sessions_781791f5: "セッション"
-set_as_default: "デフォルトとして設定"
-settings: "設定"
-settings_bf83f07f: "設定..."
-settings_fa67a397: "設定…"
-setup_required: "セットアップが必要です"
-show_app: "アプリを表示"
-show_app_in_finder: "Finder にアプリを表示"
-show_in_dock: "ドックに表示"
-show_api_key: "API キーを表示"
-show_the_main_window_and_open_the_library: "Show the main window and open the Library."
-shows_as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
-shows_as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
-sidebar_position: "サイドバーの位置"
-sidebar_position_916f66ea: "サイドバーの位置"
-simplified_chinese: "簡体字中国語"
-size: "Size"
-skip_for_now: "今はスキップしてください"
-slow: "遅い"
-slower: "もっとゆっくり"
-slowest: "最も遅い"
-small: "Small"
-smaller_models_are_faster_but_less_accurate_nsta: "小さいモデルは高速ですが、精度が低くなります。最適なバランスを得るには、Base から始めてください。"
-smaller_models_are_faster_but_less_accurate_star: |-
-  モデルが小さいほど高速になりますが、精度は低くなります。
-  最適なバランスを得るには、Base から始めてください。
-something_went_wrong: "何か問題が発生しました"
-soon: "すぐ"
-sort_by: "並べ替え"
-source: "ソース"
-spanish: "スペイン語"
-speaker_diarization: "Speaker diarization"
-speaker_diarization_and_timestamps_are_attached: "再生にはスピーカーのダイアライゼーションとタイムスタンプが付加されます。"
-speaker_diarization_is_required: "スピーカーのダイアライゼーションが必要です"
-speed: "スピード"
-start_fresh_when_you_want_to_clear_preferences_o: "設定、オンボーディング状態、保存された認証情報をクリアする場合は、最初からやり直してください。"
-start_recording: "録音を開始する"
-start_recording_to_see_your_transcriptions_here: "録音を開始すると、ここで文字起こしが表示されます"
-start_stop_recording: "録音の開始/停止"
-start_using_pindrop: "ピンドロップの使用を開始する"
-status: "状態"
-stop_recording: "録音を停止する"
-streaming_enhancement: "ストリーミング時の整形"
-streaming_transcription_currently_supports_engli: "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
-streaming_transcription_is_disabled_while_ai_enh: "AI Enhancement が有効になっている間、ストリーミング文字起こしは無効になります。"
-streaming_transcription_model_nemotron_speech: "ストリーミング文字起こしモデル（Nemotron Speech Streaming）はNVIDIA CorporationによりNVIDIA Open Model Licenseの下でライセンスされています。"
-streaming_transcription_instantly_ready: "ストリーミング文字起こし、すぐに準備完了"
-success: "成功！"
-support: "サポート"
-support_coming_soon: "%@ のサポートが近日提供予定"
-supports_local_media_files_and_web_links_resolve: "yt-dlp で解決されるローカル メディア ファイルと Web リンクをサポートします。"
-switch_to_model: "モデルに切り替える"
-system: "システム"
-system_default: "システムのデフォルト"
-teach_custom_words: "カスタム単語を教える"
-temporarily_copy_text_paste_it_then_restore_your: "テキストを一時的にコピーして貼り付け、クリップボードを復元します"
-temporarily_mute_speaker_output_while_dictation: "ディクテーションの録音中にスピーカー出力を一時的にミュートします。"
-temporarily_pause_active_media_playback_while_di: "ディクテーションの録音中にアクティブなメディアの再生を一時停止します。"
-tertiary_text: "三次テキスト"
-the_model_failed_to_load_within_60_seconds_this: "\"\" モデルは 60 秒以内にロードできませんでした。これは通常、モデル ファイルが破損しているか、互換性がないことを意味します。                          これを修正するには: 1. [設定] → [モデル] を開きます。 2. 問題のあるモデルを削除します。 3. モデルを再ダウンロードします。 問題が解決しない場合は、より小さいモデル (Tiny または Base) を試してください。             「」"
-the_selected_chunk_variant_isn_t_downloaded_yet: "選択したチャンク版はまだダウンロードされていません。切り替えるとダウンロードが始まります。"
-the_new_nemotron_streaming_engine_shows_words_as: "新しい Nemotron ストリーミングエンジンは、話したそばから言葉を表示し、起動時にプリウォームされるため、最初のディクテーションも遅延なく始まります。"
-theme: "テーマ"
-theme_changes_apply_live_across_the_workspace_se: "テーマの変更は、ワークスペース、設定、ノートエディター、フローティングインジケーター全体にライブで適用されます。"
-theme_mode: "テーマモード"
-theme_mode_bb6b0b3d: "テーマモード"
-this_preset_name_is_already_in_use: "このプリセット名はすでに使用されています。"
-this_provider_will_be_available_in_a_future_upda: |-
-  このプロバイダーは将来のアップデートで利用可能になる予定です。
-  現時点では、OpenAI を試すか、カスタム エンドポイントを使用してください。
-this_provider_will_be_available_in_a_future_upda_3e35a952: |-
-  このプロバイダーは将来のアップデートで利用可能になる予定です。
-  OpenAI を試すか、カスタム エンドポイントを使用してください。
-this_provider_will_be_available_in_a_future_upda_0677ac1d: "このプロバイダーは将来のアップデートで利用可能になります。n現時点では、OpenAI を試すか、カスタム エンドポイントを使用してください。"
-this_transcription_could_not_be_found: "この転写は見つかりませんでした。"
-this_will_clear_all_your_settings_including_api: "これにより、API キー、ホットキー、モデル設定を含むすべての設定がクリアされます。アプリは終了し、次回起動時に再びオンボーディングが表示されます。"
-this_will_permanently_remove_the_transcript_and: "これにより、トランスクリプトとその管理対象メディア ファイルが完全に削除されます。"
-this_removes_all_learned_voice_profiles_and_trai: "学習済みの声プロファイルとトレーニングデータをすべて削除します。元に戻せません。"
-this_will_clear_all_your_settings_including_api_2841f4a1: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
-time_saved: "時間の節約"
-to_dictate_and_let_pindrop_transcribe_for_you: "Pindrop に口述して文字起こししてもらう"
-to_start_talking: "話し始める"
-today: "今日"
-toggle: "トグル"
-toggle_recording: "録音の切り替え"
-toggle_sort_order: "並べ替え順序を切り替える"
-transcribe: "転写する"
-transcribe_media: "メディアの転写"
-transcribed: "転写された"
-transcription: "転写"
-transcription_backend: "文字起こしバックエンド"
-transcription_deleted: "転写は削除されました。"
-transcription_enhancement: "転写の強化"
-transcription_failed: "転写に失敗しました"
-transcription_finished: "転写が完了しました。"
-transcription_in_progress: "文字起こし中です"
-transcription_metadata: "転写メタデータ"
-transcription_update: "文字起こしの更新"
-transcription_saved: "文字起こしを保存しました"
-transcriptions: "転写"
-transcriptions_f0972acc: "転写"
-transcriptions_in_this_folder_will_be_kept_and_m: "このフォルダー内の文字起こしは保存され、ライブラリに戻されます。"
-transcripts: "成績証明書"
-try_a_different_search_term: "別の検索語を試してください"
-try_a_different_search_term_0ba628a3: "別の検索語を試してください。"
-try_a_different_search_term_in_this_folder: "このフォルダー内で別の検索語を試してください。"
-try_searching_for_terms_like_hotkeys_microphone: "ホットキー、マイク、アップデート、バイブ モードなどの用語を検索してみてください。"
-turkish: "トルコ語"
-type_text_directly_into_the_active_app_when_poss: "可能な場合は、アクティブなアプリにテキストを直接入力します"
-unable_to_connect_to_the_ai_enhancement_service: "\"\" AI 拡張サービスに接続できません。                                  以下を確認してください。 1. インターネット接続 2. API エンドポイント URL が正しい 3. サービスが停止していない 文字起こしは拡張せずに保存されました。                 「」"
-unable_to_finish_transcription: "文字起こしを完了できません"
-unable_to_load_history: "履歴をロードできません: %@"
-unable_to_load_models_try_refresh: "モデルをロードできません。リフレッシュしてみてください。"
-unable_to_update_media_library: "メディア ライブラリを更新できません"
-unavailable_device: "利用できないデバイス"
-undo: "元に戻す"
-unfiled: "未ファイル"
-unpin_from_screen: "画面からの固定を解除する"
-update: "アップデート"
-updates: "アップデート"
-use_a_tap_to_start_tap_to_finish_shortcut_for_no: "タップして開始、タップして終了するショートカットを使用してメモをキャプチャします。"
-use_clipboard_only: "クリップボードのみを使用する"
-use_the_hotkey_to_start_your_first_recording: "ホットキーを使用して最初の録音を開始します"
-use_transcription_as_a_placeholder_for_the_trans: "${transcription} を転写されたテキストのプレースホルダーとして使用します。"
-use_transcription_as_placeholder: "${transcription} をプレースホルダーとして使用します"
-used_when_capturing_notes_via_hotkey_can_add_mar: "ホットキー経由でメモをキャプチャするときに使用します。長いコンテンツにマークダウン形式を追加できます。"
-uses_a_built_in_prompt_tuned_for_this_task: "このタスク用に調整された組み込みプロンプトを使用します。"
-uses_the_560ms_nemotron_variant_for_snappier_par: "560msのNemotronバリアントを使用して途中テキストの表示を速くします。デフォルトは1120msバリアント（最高精度）です。"
-uses_the_transcription_enhancement_assignment_if: "文字起こし強化の割り当てを使用します。未設定の場合は決定論的クリーナーの出力がそのまま残ります。"
-v: "v%@"
-version: "バージョン %@ (%@)"
-very_fast: "非常に速い"
-via: "%@経由"
-vibe_mode: "バイブモード"
-vibe_mode_captures_structured_ui_context_when_re: "Vibe モードでは、録音開始時に構造化された UI コンテキストをキャプチャするため、AI 拡張機能でアクティブなアプリの状態を参照として使用できます。"
-vibe_mode_works_best_with_accessibility_permissi: "Vibe モードは、アクセシビリティ権限を使用すると最適に動作します。これがなければ、Pindrop は制限されたアプリのメタデータにフォールバックし、トランスクリプションは引き続き正常に機能します。"
-view: "ビュー"
-view_all: "すべて見る"
-view_transcript_history: "トランスクリプト履歴の表示"
-view_transcription_history: "文字起こし履歴の表示"
-vocabulary: "語彙"
-vs_typing: "対タイピング"
-welcome_to_pindrop: "ピンドロップへようこそ"
-whisperkit: "ウィスパーキット"
-word: "言葉"
-word_replacements: "単語の置換"
-words: "言葉"
-words_efb89361: "言葉"
-words_min: "単語/分"
-words_you_manually_correct_can_be_added_to_your: "手動で修正した語を語彙に追加し、今後の音声入力に使えます。"
-wpm: "WPM"
-yesterday: "昨日"
-you_are_a_note_formatting_assistant_transform_th: "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。nnルール:n- 文法、句読点、およびスペルの誤りを修正しますn- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用しますn- 短いコンテンツの場合は、最小限の書式でシンプルにしますn- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
-you_are_a_text_enhancement_assistant_improve_the: "あなたはテキスト強化アシスタントです。提供されたテキストの元の意味と語調を維持しながら、文法、句読点、書式設定を改善します。追加のコメントなしで拡張テキストのみを返します。"
-you_can_change_these_anytime_from_the_menu_bar_s: "これらは、メニュー バー → 設定 → ホットキーからいつでも変更できます。"
-you_re_all_set: "準備は完了です!"
-you_re_all_set_058a8130: "準備は完了です!"
-you_ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API レート制限または割り当てを超過しました。                                  これを修正するには: 1. 数分待ってから再試行します。 2. API プロバイダーの使用制限を確認します。 3. API プランのアップグレードを検討してください。 文字起こしは拡張せずに保存されました。                 「」"
-your_api_key_appears_to_be_invalid_or_expired_to: "\"\" API キーが無効か期限切れのようです。                                  これを修正するには: 1. [設定] → [AI 拡張] を開きます。 2. API キーが正しいことを確認します。 3. API エンドポイントが正しいことを確認します。 文字起こしは拡張なしで保存されました。                 「」"
-your_hotkeys_are_ready_to_use_nyou_can_customize: "ホットキーを使用する準備ができました。n後から [設定] でホットキーをカスタマイズできます。"
-your_hotkeys_are_ready_to_use_you_can_customize: |-
-  ホットキーを使用する準備ができました。
-  後で [設定] でカスタマイズできます。
-your_model_is_ready_to_use: "モデルを使用する準備ができました。"
-your_stats: "あなたの統計"
-your_floating_indicator_is_now_a_living_audio_re: "フローティングインジケーターは、音声に反応する生きた Orb になりました。待機中は呼吸し、話すとふくらみ、ディクテーション中は言葉をライブで表示します。"
-orb: "オーブ"
-meeting_saved: "ミーティングを保存しました"
-russian: "Russian"
-ukrainian: "Ukrainian"
-what_s_new_in_pindrop: "Pindrop の新機能"
-what_s_new: "新機能…"
-meet_the_new_orb: "新しい Orb を紹介"
-thanks_to_for_investigating_and_kicking_off_the: "調査し修正のきっかけを作ってくれた %@ に感謝します (PR #64)。"
-thanks_to_for_the_contribution_pr_61: "貢献してくれた %@ に感謝します (PR #61)。"
-dictate_in_russian_and_ukrainian: "ロシア語とウクライナ語でディクテーション"
-two_new_dictation_languages_fully_wired_into_mod: "2つの新しいディクテーション言語が、モデル推奨に完全に組み込まれました。"
-also_new_rtl_layout_support_and_20_new_interface: "そのほか、RTL レイアウト対応と20の新しいインターフェイス言語も追加されました。"
-advanced: "詳細"
-agent_setup: "エージェント設定"
-appearance: "外観"
-bearer_token: "ベアラートークン"
-changes_the_language_used_by_pindrop_s_interface: "Pindrop のインターフェース言語を変更します。"
-client: "クライアント"
-configuration_file: "設定ファイル"
-configuration_scope: "設定スコープ"
-configuration_snippet: "設定スニペット"
-dictation: "音声入力"
-dictation_language: "音声入力の言語"
-dictation_polish: "音声入力の仕上げ"
-done: "完了"
-input_device: "入力デバイス"
-license: "ライセンス"
-mcp_configuration_error: "MCP 設定エラー"
-mcp_server: "MCP サーバー"
-main_window: "メインウィンドウ"
-name: "名前"
-port: "ポート"
-port_changes_take_effect_the_next_time_the_serve: "ポートの変更は次回サーバー起動時に反映されます。"
-project: "プロジェクト"
-regenerate: "再生成"
-shortcuts: "ショートカット"
-speakers: "話者"
-these_options_are_mutually_exclusive_enabling_on: "これらのオプションは排他的です。一方を有効にすると他方は無効になります。"
-while_recording: "録音中"
-may_conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library: "Library"
-conflicts_with: "Conflicts with %@"
-file: "ファイル"
-window: "ウインドウ"
-help: "ヘルプ"
-close: "閉じる"
-find: "検索"
-minimize: "しまう"
-zoom: "拡大／縮小"
-bring_all_to_front: "すべてを手前に移動"
-home: "ホーム"
-1_speaker: "1 speaker"
-d_speakers: "%d speakers"
-inserted_into_d_words: "Inserted into %@ · %d words"
-unknown_app: "Unknown App"
-diarized: "diarized"
-summary_ready: "summary ready"
-prompts_are_sent_in_english: "Prompts are sent in English"
-preset_example_clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-preset_example_clean_output: "So the meeting is at 3:30. Can you confirm?"
-preset_example_meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-preset_example_meeting_output: |-
-  ## Action Items
-  - **Alice** will send the deck by **Friday**
-  - **Bob** owns the pricing review
-  
-  ## Next Steps
-  - Decision needed next week
-preset_example_email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-preset_example_email_output: |-
-  Hi Jordan,
-  
-  Just checking if you got my notes from yesterday.
-  
-  Thanks,
-preset_example_social_input: "um we just shipped dark mode and it looks amazing you should try it"
-preset_example_social_output: |-
-  We just shipped dark mode.
-  
-  It looks amazing — you should try it.
-preset_example_bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-preset_example_bullets_output: |-
-  - Onboarding latency
-  - Pricing
-  - Launch date: May 12
-preset_example_technical_input: "call fetch user arrow then map the response equals equals two hundred"
-preset_example_technical_output: "Call `fetchUser` -> then map the response `==` 200."
-preset_example_live_input: "um so i think we should ship the beta by friday period"
-preset_example_live_output: "So I think we should ship the beta by Friday."
-preset_example_edits_input: "um this is correct ly twenty-five"
-preset_example_edits_output: "This is correctly 25"
+100:
+  local_processing: "100% ローカル処理"
+1:
+  folder: "1フォルダー"
+  speaker: "1 speaker"
+  transcription: "1 転写"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "WhisperKit によるローカル音声テキスト変換を使用するネイティブ macOS メニュー バー ディクテーション アプリ。デフォルトで 100% ローカル処理、オプションの AI 強化。"
+  big_round_of_upgrades_and_two_community_shout: "大きなアップグレードの数々 — そしてコミュニティへの2つの感謝。"
+about:
+  _self: "について"
+  pindrop: "ピンドロップについて"
+accessibility:
+  _self: "アクセシビリティ"
+  permission_is_enabled_full_ui_cont: "アクセシビリティ権限が有効になっています。完全な UI コンテキストが利用可能です。"
+  permission_is_not_granted_vibe_mod: "アクセシビリティ権限が付与されていません。 Vibe モードは、制限されたコンテキストでノンブロッキングのままです。"
+  permission_recommended: "アクセシビリティ許可の推奨"
+  permission_required: "アクセシビリティ許可が必要です"
+  permission: "アクセシビリティの許可"
+accuracy:
+  _self: "正確さ"
+acknowledgments:
+  _self: "謝辞"
+active:
+  _self: "アクティブ"
+add:
+  _self: "追加"
+  a_provider_to_start_using_ai_enhancement: "AI 拡張機能の使用を開始するには、プロバイダーを追加します。"
+  custom_words_to_improve_transcription_accura: "カスタム単語を追加して、専門用語、名前、専門用語の文字起こしの精度を向上させます。"
+  provider: "プロバイダーの追加"
+  tag: "タグを追加..."
+  to_existing: "既存に追加"
+  trailing_space: "末尾のスペースを追加する"
+  word_replacements_to_automatically_correct_c: "単語の置換を追加して、一般的な転写エラーを自動的に修正します。"
+  words_to_help_pindrop_recognize_them_properl: "Pindrop が正しく認識できるように単語を追加します"
+  words_you_manually_correct_into_your_vocabul: "今後の文字起こしのために、手動で修正した単語を語彙に追加します。"
+  this_to_claude_settings_json_in_your_project: "プロジェクト直下の .claude/settings.json、またはユーザー全体用の ~/.claude/settings.json に追加します。"
+  this_to_cursor_mcp_json_in_your_project_root: "プロジェクト直下の .cursor/mcp.json、または全プロジェクト用の ~/.cursor/mcp.json に追加し、保存後に Cursor を再起動します。"
+  this_to_opencode_json_in_your_project_root_f: "プロジェクト固有のアクセス用に、プロジェクト直下の opencode.json に追加します。"
+  this_to_codex_config_toml_project_scoped_con: "~/.codex/config.toml に追加します。信頼できるプロジェクトでは .codex/config.toml にプロジェクト設定を置けます。"
+  this_to_config_opencode_opencode_json_for_us: "すべてのプロジェクトでユーザー全体のアクセス用に ~/.config/opencode/opencode.json に追加します。"
+ai:
+  _self: "AI"
+  enhancement: "AIの強化"
+  enhancement_529f5583: "AI強化: %@"
+  enhancement_failed: "AI強化に失敗しました"
+  enhancement_is_disabled: "AI強化は無効になっています。"
+  enhancement_will: "AI の強化により次のことが可能になります。"
+  model: "AIモデル"
+all:
+  _self: "全て"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    文字起こしを強化中にエラーが発生しました:
+    
+    %@
+    
+    元の文字起こしは補正なしで保存されました。
+    [設定] で AI 強化を再度有効にしてみてください。
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "文字起こしの強化中にエラーが発生しました:nn%@nn元の文字起こしは強化なしで保存されました。n[設定] で AI 強化を再度有効にしてみてください。"
+anthropic:
+  _self: "Anthropic"
+api:
+  endpoint: "APIエンドポイント"
+  key: "APIキー"
+  key_saved: "APIキーが保存されました"
+  key_saved_endpoint: "API キーが保存されました • エンドポイント: %@"
+app:
+  info_acknowledgments_support_and_logs: "アプリ情報、承認、サポート、ログ"
+append:
+  a_space_after_each_transcription_for_seam: "シームレスなディクテーションのために、各文字起こしの後にスペースを追加します。"
+apple:
+  foundation_models_on_device: "Apple Foundation モデル (オンデバイス)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "このシステムでは Apple Intelligence を利用できません。この割り当ては、Apple Intelligence が有効になるまで解決されません。"
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence はデバイス上で実行され、認証情報は必要ありません。"
+  speechtranscriber_macos_26: "Apple SpeechTranscriber（macOS 26 以降）"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber には macOS 26 が必要です。"
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriberが利用できません — Nemotronを使用します"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "「%@」を削除してもよろしいですか?この操作は元に戻すことができません。"
+assignments:
+  _self: "課題"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "GitHub の問題を提出する場合は、このフォルダーのログを添付してください。"
+audio:
+  input: "オーディオ入力"
+automatic:
+  follow_system: "自動（フォローシステム）"
+  updates: "自動更新"
+  updates_and_manual_update_checks: "自動更新と手動更新チェック"
+automatically:
+  check_for_new_versions_in_the_back: "バックグラウンドで新しいバージョンを自動的にチェックします。"
+  start_pindrop_when_you_sign_in: "サインインすると Pindrop が自動的に起動します。"
+available:
+  models: "利用可能なモデル"
+avg:
+  speed: "平均速度"
+back:
+  _self: "戻る"
+  to_library: "ライブラリに戻る"
+base:
+  _self: "ベース"
+best:
+  _self: "最高"
+better:
+  _self: "より良い"
+  bluetooth_external_mic_support: "Bluetooth と外部マイクのサポートを改善"
+built:
+  in_presets: "内蔵プリセット"
+  in_read_only: "組み込み (読み取り専用)"
+cancel:
+  _self: "キャンセル"
+  operation: "操作のキャンセル"
+capture:
+  directly_into_the_note_editor_with_a_hol: "ホールドして録音するフローを使用して、ノートエディターに直接キャプチャします。"
+change:
+  microphone: "マイクを変更する"
+  microphone_ac9970f4: "マイクを変更する"
+check:
+  for_updates: "アップデートを確認してください..."
+  for_updates_736b9062: "アップデートを確認する"
+  now: "今すぐチェック"
+checking:
+  _self: "チェック中..."
+choose:
+  a_location_to_save_the_dictionary: "辞書を保存する場所を選択してください"
+  a_location_to_save_the_presets: "プリセットを保存する場所を選択します"
+  a_model: "モデルを選択してください"
+  a_provider_first: "まずプロバイダーを選択してください"
+  an_audio_or_video_file_to_transcribe: "文字起こしするオーディオまたはビデオ ファイルを選択してください"
+  between_nemotron_punctuated_downloaded_mod: "Nemotron（句読点対応、ダウンロード型モデル）とApple SpeechTranscriber（macOS 26以降、OS同梱）から選択します。"
+  file: "ファイルを選択してください"
+  how_dictated_text_lands_then_tune_the_fin: "口述テキストの挿入方法を選択し、最終的な挿入動作を調整します。"
+  how_pindrop_follows_system_appearance_the: "Pindrop がシステムの外観に従う方法を選択し、厳選された明るいパレットと暗いパレットを組み合わせます。"
+  how_to_import_the_dictionary_data: "辞書データのインポート方法を選択します"
+  how_to_import_the_preset_data: "プリセットデータのインポート方法を選択します"
+  languages_for_the_interface_and_for_dicta: "インターフェースとディクテーションの言語を選びます。「自動」はシステムに合わせます。"
+  location_to_save_presets: "プリセットを保存する場所を選択してください"
+  the_daytime_shell_used_in_light_mode: "ライトモードで使用するデイタイムシェルを選択します。"
+  the_low_glare_shell_used_in_dark_mode: "ダークモードで使用される低光沢シェルを選択してください。"
+  which_microphone_pindrop_should_use_for_d: "Pindrop がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
+  which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
+  how_pindrop_appears_on_screen_while_you_d: "音声入力中に Pindrop を画面にどう表示するかを選択します。"
+  how_recording_and_processing_status_appea: "作業中の録音・処理ステータスの表示方法を選びます。"
+  whether_pindrop_starts_when_you_sign_in_a: "ログイン時に Pindrop を起動し、Dock に表示するかを選びます。"
+  which_edge_of_the_main_window_holds_the_n: "メインウィンドウのどちら側にナビゲーションサイドバーを置くか選びます。"
+  which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
+  model: "モデルを選択…"
+clean:
+  up_filler_words: "つなぎ言葉をクリーンアップする"
+clear:
+  audio_buffer: "クリアオーディオバッファ"
+  hotkey: "ホットキーをクリア"
+  shortcut: "ショートカットをクリア"
+clears:
+  preferences_and_restarts_onboarding: "設定をクリアしてオンボーディングを再開します"
+  preferences_and_restarts_onboarding_7d85115c: "設定を消去し、オンボーディングを再開します。"
+click:
+  or_hold: "クリックまたはホールド"
+  or_press: "クリックまたは押してください"
+  or_set_a_hotkey_to_start_talking: "クリックするかホットキーを設定して通話を開始します"
+  this_icon_anytime_to: "このアイコンをクリックすると、いつでも次のことができます。"
+clipboard:
+  _self: "クリップボード"
+  temporarily_copies_the_transcript_for: "クリップボードは貼り付け用に一時コピーします。直接入力は可能な場合アクティブなアプリに入力します。"
+cloud:
+  _self: "雲"
+  model: "クラウドモデル"
+collapse:
+  _self: "折りたたむ"
+coming:
+  soon: "%@ 近日公開予定"
+  soon_04d2fd85: "近日公開"
+configure:
+  ai_providers_and_credentials_apple_int: "AI プロバイダーと資格情報を構成します。 Apple Intelligence はデバイス上で実行されます。他のプロバイダーには API キーが必要です。"
+  keyboard_shortcuts_for_recording_and_n: "録音とメモのキャプチャのためのキーボード ショートカットを構成する"
+continue:
+  _self: "続く"
+  with_default: "デフォルトで続行"
+  without: "なしで続行"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Pindrop が macOS でどのように表示されるか、およびデスクトップ セッションで開始されるかどうかを制御します。"
+controls:
+  how_the_live_dictation_path_polishes_tr: "ライブディクテーション経路の整形方法を制御します。決定論的クリーナー（フィラー除去、大文字化、口頭句読点、数値正規化、分割語の結合）は常に実行され、このトグルは口述停止後に動作する任意の LLM 仕上げを制御します。"
+copied:
+  _self: "コピーしました！"
+copy:
+  _self: "コピー"
+  enhanced: "コピー強化"
+  last_transcript: "最後のトランスクリプトをコピー"
+  original: "オリジナルをコピー"
+  system_info_for_bug_report: "バグレポート用にシステム情報をコピーする"
+  the_most_recent_transcript_to_the_clipboard: "最新のトランスクリプトをクリップボードにコピーします"
+  to_clipboard: "クリップボードにコピー"
+  transcript: "成績証明書のコピー"
+  system_info: "システム情報をコピー"
+  the_configuration_snippet_into_your_preferr: "設定スニペットを好みの AI エージェントホストにコピーします。"
+  the_most_recent_transcript_to_the_clipboard_b9736933: "最新の文字起こしをクリップボードにコピーします。"
+correct:
+  grammar_mistakes: "文法の間違いを正す"
+create:
+  _self: "作成する"
+  new_note: "新しいメモを作成する"
+  new_preset: "新しいプリセットの作成"
+  your_first_note_to_get_started: "始めるために最初のメモを作成します"
+  your_first_preset_or_duplicate_a_built_in: "最初のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
+  your_own_presets_or_duplicate_built_in_on: "独自のプリセットを作成するか、組み込みのプリセットを複製してカスタマイズします。"
+  preset: "プリセットを作成"
+credentials:
+  are_stored_securely_in_keychain: "認証情報はキーチェーンに安全に保存されます"
+  saved_successfully: "認証情報が正常に保存されました"
+  are_stored_securely_in_keychain_5acff5d3: "認証情報はキーチェーンに安全に保存されます。"
+current:
+  _self: "現在: %@"
+custom:
+  _self: "カスタム"
+  local: "カスタム/ローカル"
+  openai_compatible: "カスタム（OpenAI互換）"
+  presets: "カスタムプリセット"
+customize:
+  hotkey: "ホットキーをカスタマイズする"
+cut:
+  _self: "カット"
+d:
+  characters: "%d characters"
+  speakers: "%d speakers"
+  samples: "%d サンプル · %@"
+dark:
+  _self: "暗い"
+  preview: "ダークプレビュー"
+  theme: "ダークテーマ"
+database:
+  error: "データベースエラー"
+date:
+  _self: "日付"
+  7f823513: "日付 %@"
+default:
+  _self: "デフォルト"
+  model: "デフォルトのモデル"
+define:
+  word_replacements_to_automatically_replac: "単語の置換を定義して、特定の単語や語句を自動的に置き換えます"
+degraded:
+  _self: "劣化した"
+delete:
+  _self: "消去"
+  folder: "フォルダーの削除"
+  folder_e556e7c2: "フォルダを削除しますか?"
+  model: "モデルの削除"
+  preset: "プリセットの削除"
+  preset_4f6cfe36: "プリセットを削除しますか?"
+  transcription: "文字起こしの削除"
+  transcription_f82187c4: "転写を削除しますか?"
+  all: "すべて削除"
+  all_participants: "すべての参加者を削除しますか？"
+  all_participants_60ed6e73: "すべての参加者を削除…"
+dictionary:
+  _self: "辞書"
+direct:
+  insert: "直接挿入"
+disabled:
+  _self: "無効"
+dismiss:
+  _self: "却下する"
+display:
+  name: "表示名"
+  name_c7874aaa: "表示名"
+  pindrop_in_the_dock_instead_of_running_o: "メニュー バー アプリとしてのみ実行するのではなく、Dock に Pindrop を表示します。"
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "サイドバーをウィンドウの左端または右端にドッキングします。"
+download:
+  _self: "ダウンロード"
+  complete: "ダウンロード完了！"
+  continue: "ダウンロードして続行"
+  failed: "ダウンロードに失敗しました"
+  model: "ダウンロードモデル"
+  the_diarization_model_before_starting_m: "メディアの転写を開始する前に、ダイアライゼーション モデルをダウンロードします。"
+downloaded:
+  _self: "ダウンロード済み"
+downloading:
+  _self: "%@をダウンロード中..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "ファイルをドロップするかリンクを貼り付けて、タイムスタンプ付きの日記付きトランスクリプトを作成します。"
+  audio_or_video_here: "ここに音声またはビデオをドロップします"
+duplicate:
+  preset: "プリセットの複製"
+dutch:
+  _self: "オランダ語"
+edit:
+  _self: "編集"
+  preset: "プリセットの編集"
+  provider: "プロバイダーの編集"
+empty:
+  _self: "（空の）"
+enable:
+  ai_enhancement: "AI 強化を有効にする"
+  live_session_updates_during_recording: "録画中のライブセッション更新を有効にする"
+  vibe_mode_ui_context: "バイブモードを有効にする (UI コンテキスト)"
+  mcp_server: "MCP サーバーを有効化"
+enabled:
+  _self: "有効"
+endpoint:
+  _self: "エンドポイント: %@"
+english:
+  _self: "英語"
+  only: "英語のみ"
+enhanced:
+  _self: "強化された"
+enhancement:
+  prompts: "拡張プロンプト"
+enhancing:
+  _self: "補正中…"
+enter:
+  an_openai_api_key_to_load_models: "OpenAI API キーを入力してモデルをロードします。"
+  api_key: "APIキーを入力してください"
+  word_to_add: "追加する単語を入力してください"
+error:
+  _self: "エラー"
+european:
+  multilingual: "ヨーロッパの多言語"
+excellent:
+  _self: "素晴らしい"
+export:
+  _self: "輸出"
+  as_csv: "CSVとしてエクスポート"
+  as_json: "JSONとしてエクスポート"
+  as_plain_text: "プレーンテキストとしてエクスポート"
+  dictionary: "辞書のエクスポート"
+  failed: "エクスポートに失敗しました: %@"
+  last_transcript: "最新のトランスクリプトをエクスポート..."
+  presets: "プリセットのエクスポート"
+failed:
+  to_add_replacement: "置換の追加に失敗しました: %@"
+  to_add_word: "単語の追加に失敗しました: %@"
+  to_delete_folder: "フォルダーの削除に失敗しました: %@"
+  to_delete_note: "メモの削除に失敗しました: %@"
+  to_delete_preset: "プリセットの削除に失敗しました: %@"
+  to_delete_replacement: "置換を削除できませんでした: %@"
+  to_delete_transcription: "文字起こしの削除に失敗しました: %@"
+  to_delete_word: "単語の削除に失敗しました: %@"
+  to_export_dictionary: "辞書のエクスポートに失敗しました: %@"
+  to_export_presets: "プリセットのエクスポートに失敗しました: %@"
+  to_import_dictionary: "辞書のインポートに失敗しました: %@"
+  to_import_presets: "プリセットのインポートに失敗しました: %@"
+  to_initialize_the_database_nnthe_app_will: "データベースの初期化に失敗しました: %@nnアプリは終了します。問題が解決しない場合は、再起動するか、サポートにお問い合わせください。"
+  to_load_data: "データのロードに失敗しました: %@"
+  to_load_history: "履歴のロードに失敗しました: %@"
+  to_read_import_file: "インポート ファイルの読み取りに失敗しました: %@"
+  to_save: "保存に失敗しました: %@"
+  to_save_preset: "プリセットの保存に失敗しました: %@"
+  to_switch_model: "モデルの切り替えに失敗しました: %@"
+  to_update_preset: "プリセットの更新に失敗しました: %@"
+  to_update_replacement: "置換の更新に失敗しました: %@"
+  to_update_word: "単語の更新に失敗しました: %@"
+fast:
+  _self: "速い"
+feature:
+  models: "機能モデル"
+fetch:
+  models_in_models: "モデルでモデルを取得する"
+fix:
+  punctuation_and_capitalization: "句読点と大文字の使用を修正する"
+floating:
+  indicator: "%@ フローティングインジケーター"
+  indicator_e0349402: "フローティングインジケーター"
+folder:
+  deleted: "フォルダーが削除されました。"
+  name: "フォルダ名"
+follow:
+  playback: "再生をフォローする"
+format:
+  text_appropriately: "テキストを適切に書式設定する"
+french:
+  _self: "フランス語"
+general:
+  _self: "一般的な"
+german:
+  _self: "ドイツ語"
+get:
+  started: "始めましょう"
+global:
+  _self: "グローバル"
+  keyboard_shortcuts: "グローバルキーボードショートカット"
+go:
+  back: "戻る"
+  to_settings: "設定に移動"
+good:
+  _self: "良い"
+  afternoon: "こんにちは"
+  evening: "こんばんは"
+  morning: "おはよう"
+  night: "おやすみ"
+google:
+  _self: "Google"
+got:
+  it: "わかった"
+grant:
+  _self: "付与"
+great:
+  _self: "素晴らしい"
+hide:
+  this_for_1_hour: "これを1時間非表示にします"
+  api_key: "API キーを隠す"
+history:
+  _self: "歴史"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "ショートカットを長押しして録音し、放して文字起こしします。"
+  to_record_release_to_open_note_editor_with: "長押しして録音、離すと文字起こし付きのノートエディターが開きます"
+  to_record_release_to_stop_and_transcribe: "押し続けると録音、放すと停止および転写"
+  to_record_release_to_transcribe: "押し続けると録音、放すと文字起こし"
+  to_record_then_release_to_open_the_note_edi: "押し続けて録音し、離すと文字起こし付きのノート編集が開きます。"
+hotkey:
+  conflict: "ホットキーの競合"
+hotkeys:
+  _self: "ホットキー"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
+import:
+  _self: "読み込み"
+  dictionary: "辞書のインポート"
+  error: "インポートエラー"
+  export: "インポート/エクスポート"
+  media: "メディアをインポートする"
+  or_transcribe_media_while_this_folder_is: "このフォルダーが選択されているときにメディアをインポートまたは転写して、アイテムをここに保存します。"
+  presets: "プリセットをインポートする"
+  strategy: "輸入戦略"
+imported:
+  files_and_web_links_will_appear_here_on: "処理が完了すると、インポートされたファイルと Web リンクがここに表示されます。"
+improve:
+  transcription_quality_using_ai: "AIを使用して文字起こしの品質を向上させる"
+include:
+  clipboard_text: "クリップボードのテキストを含める"
+interface:
+  _self: "インタフェース"
+  language: "インターフェース言語"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ は %@ と %@ の両方に割り当てられます。最初のアクションのみがアクティブになります。この競合を解決するには、設定でホットキーを更新してください。"
+italian:
+  _self: "イタリア語"
+items:
+  _self: "アイテム"
+japanese:
+  _self: "日本語"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Pindrop を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
+  pindrop_current_automatically_or_check_for: "Pindrop を自動更新するか、今すぐ新しいバージョンを確認します。"
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "キーボードショートカット"
+korean:
+  _self: "韓国人"
+language:
+  _self: "言語"
+large:
+  _self: "Large"
+launch:
+  at_login: "ログイン時に起動: %@"
+  at_login_0b36c78f: "ログイン時に起動"
+  at_login_fd1a3b7b: "ログイン時に起動"
+  at_login_could_not_be_changed: "「ログイン時に起動」を変更できませんでした"
+layout:
+  _self: "レイアウト"
+learn:
+  corrected_words_automatically: "修正された単語を自動的に学習します"
+left:
+  _self: "左"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Pindrop は、時間をかけて修正した単語を静かに学習させてください。"
+light:
+  _self: "ライト"
+  dark_and_curated_palette_presets: "明るい、暗い、厳選されたパレット プリセット"
+  preview: "ライトプレビュー"
+  theme: "ライトテーマ"
+limited:
+  _self: "限定"
+listening:
+  _self: "聞き取り中…"
+live:
+  streaming_refinement: "ライブストリーミングの改良"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld 文字"
+  complete: "%lld%% 完了"
+  items: "%lld アイテム"
+  notes: "%lld メモ"
+  transcriptions: "%lld 転写"
+lm:
+  studio: "LMスタジオ"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio は、ローカルサーバー認証が有効になっている場合にのみトークンを必要とします。"
+load:
+  models: "モデルをロードする"
+loaded:
+  d_models: "Loaded %d models"
+loading:
+  history: "履歴を読み込んでいます..."
+  models: "モデルをロード中..."
+local:
+  _self: "地元"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    ローカルの音声テキスト変換をメニュー バーから直接実行できます。
+    高速、プライベート、いつでも利用可能。
+  speech_to_text_right_from_your_menu_bar_nf: "メニュー バーから直接、ローカルの音声テキスト変換を実行できます。n高速、プライベート、いつでも利用できます。"
+  speech_to_text_with_whisperkit: "WhisperKit を使用したローカル音声テキスト変換"
+  voice_to_text: "ローカル音声からテキストへの変換"
+low:
+  latency_mode_less_accurate: "低遅延モード（精度が低下）"
+manage:
+  local_speech_models_feature_models_and_th: "ローカル音声モデル、特徴モデル、および Pindrop が文字起こしに使用するデフォルト エンジンを管理します。"
+  models: "モデルの管理"
+  presets: "プリセットの管理"
+  presets_ab87986d: "プリセットを管理..."
+  presets_d5d4c2c2: "プリセットを管理…"
+manually:
+  check_for_new_versions_now: "今すぐ新しいバージョンを手動で確認してください。"
+media:
+  library: "メディアライブラリ"
+  transcription: "メディア転写"
+  unavailable: "メディアが利用できません"
+  saved: "メディアを保存しました"
+medium:
+  _self: "中くらい"
+microphone:
+  _self: "マイクロフォン"
+  permission_is_required_to_continue: "続行するにはマイクの許可が必要です"
+  permission_is_required_to_continue_dc: "続行するにはマイクの許可が必要です。"
+  permission_required: "マイクの許可が必要です"
+mit:
+  license: "MITライセンス"
+mode:
+  _self: "モード: %@"
+model:
+  _self: "モデル"
+  loading_failed: "モデルのロードに失敗しました"
+  loading_timed_out: "モデルの読み込みがタイムアウトしました"
+  validation: "モデル検証"
+models:
+  _self: "モデル"
+move:
+  to_folder: "フォルダに移動"
+multilingual:
+  _self: "多言語対応"
+must:
+  be_openai_compatible: "OpenAIと互換性がある必要があります"
+mute:
+  system_audio_during_recording: "録音中にシステムオーディオをミュートする"
+new:
+  folder: "新しいフォルダー"
+  note: "新しいメモ"
+  preset: "新しいプリセット"
+next:
+  _self: "次"
+no:
+  api_key: "APIキーがありません"
+  api_key_endpoint: "API キーなし • エンドポイント: %@"
+  custom_presets: "カスタムプリセットなし"
+  downloaded_models: "ダウンロードされたモデルはありません"
+  folders_yet: "まだフォルダがありません"
+  items_in: "%@ に項目がありません"
+  media_transcriptions_yet: "メディアの転写はまだありません"
+  model_loaded: "モデルがロードされていません"
+  model_selected: "モデルが選択されていません"
+  models_available: "利用可能なモデルはありません"
+  models_available_ae9dbd29: "利用可能なモデルはありません。"
+  models_available_try_refresh_or_enter_a_model: "利用可能なモデルはありません。更新を試すか、モデル ID を手動で入力してください。"
+  models_found: "モデルが見つかりませんでした。"
+  models_loaded_open_edit_to_fetch_models: "モデルがロードされていません。 Open Edit to fetch models."
+  models_match: "「%@」に一致するモデルはありません"
+  notes_yet: "まだメモはありません"
+  providers_configured_yet: "まだプロバイダーが設定されていません。"
+  replacements: "代替品なし"
+  results_found: "結果が見つかりませんでした"
+  settings_found: "設定が見つかりません"
+  transcriptions_yet: "転写はまだありません"
+  vocabulary_words: "語彙がありません"
+  learned_participants_yet: "学習済みの参加者はまだありません"
+  providers_configured_yet_e6bc0075: "プロバイダはまだ設定されていません"
+  conflicts_found: "No conflicts found"
+not:
+  assigned: "割り当てられていません"
+  selected: "未選択"
+  set: "未設定"
+  set_93039e60: "未設定"
+  granted: "未許可"
+  enough_voice_data_yet: "音声データがまだ不足しています"
+  generated_yet_enable_the_server: "未生成 — サーバーを有効にしてください"
+note:
+  _self: "注記"
+  capture_push_to_talk: "ノートキャプチャ (プッシュツートーク)"
+  capture_toggle: "ノートキャプチャ (トグル)"
+  enhancement: "ノートの強化"
+  from: "からのメモ"
+  metadata: "メモのメタデータ"
+  title: "メモのタイトル"
+  saved: "メモを保存しました"
+  capture_hold: "ノート録音 — 押し続け"
+  capture_toggle_7139a240: "ノート録音 — トグル"
+notes:
+  _self: "注意事項"
+  3add7b96: "メモ"
+off:
+  _self: "オフ"
+ok:
+  _self: "わかりました"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama は通常、ローカル要求に対して認証を必要としません。"
+on:
+  _self: "の上"
+  device_no_credentials_required: "デバイス上で認証情報は不要"
+open:
+  _self: "開ける"
+  history: "履歴を開く"
+  logs_in_finder: "Finder でログを開く"
+  original_link: "元のリンクを開く"
+  progress: "進行状況を開く"
+  settings: "設定を開く"
+  settings_fd7108f8: "設定を開く"
+  system_settings: "システム設定を開く"
+  library: "Open Library"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "OpenAI対応ローカルサーバー"
+  whisper: "OpenAI ウィスパー"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "オプション"
+  insert_text_directly_into_apps: "オプション: テキストをアプリに直接挿入します"
+  used_for_auto_generated_titles_and_summ: "オプション — メディア文字起こしインポート時に自動生成されたタイトルと概要に使用されます。"
+optionally:
+  clean_up_transcriptions_with_ai: "オプションで AI を使用して文字起こしをクリーンアップする"
+or:
+  _self: "または"
+  just_use_your_hotkey: "またはホットキーを使用してください。"
+original:
+  _self: "オリジナル"
+  text_use_commas_for_multiple: "元のテキスト (複数の場合はカンマを使用してください)"
+originals:
+  comma_separated: "オリジナル (カンマ区切り)"
+output:
+  _self: "出力"
+  audio_interface_and_everyday_behavior: "出力、オーディオ、インターフェイス、日常の動作"
+  mode: "出力モード"
+nemotron:
+  default: "Nemotron (default)"
+paste:
+  _self: "ペースト"
+  a_video_or_audio_link: "ビデオまたはオーディオのリンクを貼り付けます"
+  failed_transcript_copied_to_clipboard: "ペーストに失敗しました。テキストはクリップボードにコピーされました。"
+  last_transcript: "最後のトランスクリプトを貼り付け"
+  last_transcript_v: "最後のトランスクリプトを貼り付けます ⌃⌘V"
+pause:
+  _self: "一時停止"
+  media_during_transcription: "転写中にメディアを一時停止する"
+permissions:
+  _self: "権限"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "各 AI タスクを処理するプロバイダーとモデルを選択します。目的をスキップするには、「未割り当て」のままにします。"
+  which_provider_and_model_handles_each_ai_ta_b719504f: "各 AI タスクに使うプロバイダとモデルを選びます。未割り当てはスキップされます。"
+pill:
+  _self: "ピル"
+pin:
+  to_screen_always_on_top: "画面にピン留めする (常に一番上)"
+pindrop:
+  _self: "ピンドロップ"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    ピンドロップを使用する準備ができました。
+    メニューバーのアイコンをクリックして開始します。
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop を使用する準備ができました。nメニュー バーのアイコンをクリックして開始します。"
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop が動作するには、いくつかの権限が必要です。nあなたのプライバシーは常に尊重されます。"
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop が動作するには、いくつかの権限が必要です。
+    あなたのプライバシーは常に尊重されます。
+  needs_accessibility_permission_to_insert: "\"\" Pindrop では、カーソル位置にテキストを挿入するにはアクセシビリティ権限が必要です。                          権限を付与するには: 1. 下の「システム設定を開く」をクリックします。 2. + ボタンをクリックします。 3. Finder に表示されているアプリに移動します。 4. 権限を付与した後、Pindrop を再起動します。 この権限がないと、テキストはクリップボードにコピーされるだけです。             「」"
+  needs_microphone_access_to_record_and_tr: "Pindrop では、あなたの声を録音して転写するにはマイクへのアクセスが必要です。システム設定で許可を与えてください。"
+  on_github: "GitHub のピンドロップ"
+  pill: "ピンドロップピル"
+  theme: "ピンドロップのテーマ"
+  orb: "Pindrop オーブ"
+  1_19: "Pindrop 1.19"
+  help: "Pindropヘルプ"
+play:
+  _self: "遊ぶ"
+please:
+  check_your_internet_connection_and_try_ag: "インターネット接続を確認して、もう一度試してください。"
+  download_a_whisper_model_in_settings_befo: |-
+    録音する前に、設定で Whisper モデルをダウンロードしてください。
+    
+    [設定] → [モデル] に移動してモデルをダウンロードします。
+  download_a_whisper_model_in_settings_befo_a71d286e: "録音する前に、設定で Whisper モデルをダウンロードしてください。モデルをダウンロードするには、[設定] → [モデル] に移動します。"
+  wait: "お待ちください..."
+portuguese:
+  brazil: "ポルトガル語 (ブラジル)"
+powered:
+  by_whisperkit: "WhisperKit を搭載"
+preparing:
+  model: "モデルを準備しています..."
+preset:
+  name: "プリセット名"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "どのアプリでも押し続けると口述入力できます。 Pindrop はあなたのスピーチを文字に起こし、カーソルがある場所にテキストを挿入します。"
+  esc_to_cancel: "キャンセルするにはEscを押してください"
+  keys: "キーを押してください..."
+  once_to_start_again_to_stop: "一度押すと開始し、もう一度押すと停止します"
+  once_to_start_recording_press_again_to_sto: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
+  once_to_start_recording_then_press_again_t: "1 回押すと録音が開始され、もう一度押すと停止して文字起こしされます。"
+  to_start_recording_press_again_to_open_not: "押すと録音が開始され、もう一度押すとノートエディタが開きます"
+  keys_98b8167e: "キーを押してください…"
+  once_to_start_recording_then_again_to_open: "一度押して録音を開始し、もう一度押してノート編集を開きます。"
+primary:
+  text: "一次テキスト"
+processing:
+  _self: "処理"
+  272bc02e: "処理..."
+  5aa377e2: "⏳ 処理"
+  transcript: "Processing transcript"
+prompt:
+  _self: "プロンプト"
+  preset: "プロンプトプリセット"
+provider:
+  _self: "プロバイダー"
+  kind: "プロバイダーの種類"
+  type: "プロバイダーの種類"
+providers:
+  _self: "プロバイダー"
+  prompts_and_vibe_mode_controls: "プロバイダー、プロンプト、およびバイブ モード コントロール"
+push:
+  to_talk: "プッシュツートーク"
+quickly:
+  copy_your_last_transcription: "最後の文字起こしをすばやくコピーする"
+  pull_your_latest_transcript_back_to_the: "最新のトランスクリプトをクリップボードにすばやく取り込みます。"
+quit:
+  _self: "やめる"
+  pindrop: "ピンドロップを終了する"
+ready:
+  _self: "準備ができて"
+  ec1296e1: "● 準備完了"
+  to_record: "Ready to record"
+  to_transcribe: "転写の準備ができました"
+recent:
+  _self: "最近の"
+  transcriptions: "最近の転写"
+  transcripts: "最近の成績証明書"
+recommended:
+  _self: "推奨"
+  the_deterministic_cleaner_handles_mo: "推奨: 決定論的クリーナーで大半の口述は十分に整形されます。さらに仕上げが欲しい場合のみ LLM 処理を有効にし、モデル特有の癖（前置き、会話的な返答）を許容してください。"
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "推奨: 決定論的クリーナーで大半の音声入力は十分です。追加の仕上げが必要でモデルの癖を許容する場合のみ LLM を有効にしてください。"
+record:
+  _self: "記録"
+recording:
+  _self: "録音"
+  3f8fd48c: "🔴 録音"
+  from_external_and_bluetooth_microphone: "外部マイクや Bluetooth マイクからの録音が、音声出力が別の場所にルーティングされていても安定して動作するようになりました。"
+recordings:
+  _self: "録音"
+redo:
+  _self: "やり直し"
+refresh:
+  _self: "リフレッシュ"
+  the_provider_or_open_edit_to_fetch_model: "プロバイダを更新するか、編集を開いてモデルを取得してください。"
+remove:
+  _self: "取り除く"
+  and_clear_any_assignments_that_reference: "「%@」を削除し、それを参照する割り当てをクリアしますか?保存されている認証情報は削除されます。"
+  from_folder: "フォルダーから削除"
+  provider: "プロバイダーの削除"
+rename:
+  _self: "名前の変更"
+  folder: "フォルダー名の変更"
+  participant: "参加者の名前を変更"
+  speakers_in_transcripts_to_teach_pindrop: "文字起こしで話者名を変え、Pindrop に声の自動認識を教えましょう。"
+replace:
+  all: "すべて置換"
+  words_and_phrases: "単語やフレーズを置き換える"
+replacement:
+  _self: "交換"
+  text: "置換テキスト"
+report:
+  an_issue: "問題を報告する"
+  an_issue_bd7b4f00: "問題を報告する"
+required:
+  _self: "必須"
+  for_recording_your_voice: "音声を録音するために必要です"
+requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
+  a_fast_provider_apple_foundation_models: "高速プロバイダーが必要です (Apple Foundation モデルを推奨)。クラウド プロバイダーは、一時停止ごとに 1 つの API 呼び出しを発行します。"
+reset:
+  _self: "リセット"
+  all_settings: "すべての設定をリセットしますか?"
+  all_settings_7262c7b7: "すべての設定をリセットする"
+  to_default: "デフォルトにリセット"
+  all_settings_e5dbc5fc: "すべての設定をリセット…"
+retry:
+  _self: "リトライ"
+right:
+  _self: "右"
+run:
+  llm_polish_after_dictation_stops: "口述停止後に LLM 仕上げを実行"
+  a_local_http_server_so_ai_agents_can_submit: "AI エージェントが文字起こしジョブ送信・履歴検索・話者管理できるようローカル HTTP サーバーを実行します。"
+runtime:
+  _self: "ランタイム: %@"
+  status: "ランタイム状態"
+save:
+  _self: "保存"
+  as_note: "メモとして保存"
+  continue: "保存して続行"
+  credentials: "認証情報の保存"
+  prompt: "保存プロンプト"
+saved:
+  _self: "保存されました"
+  as_note: "メモとして保存"
+  transcription: "保存された文字起こし"
+search:
+  media_transcripts: "メディアのトランスクリプトを検索..."
+  models: "モデルを検索する"
+  models_61c1b9fe: "モデルを検索..."
+  notes: "メモを検索..."
+  settings: "検索設定"
+  settings_or_jump_between_sections_without: "メイン ワークスペースを離れることなく、設定を検索したり、セクション間を移動したりできます。"
+  transcriptions: "文字起こしを検索..."
+secondary:
+  text: "二次テキスト"
+select:
+  a_dictionary_json_file_to_import: "インポートする辞書 JSON ファイルを選択してください"
+  a_model: "モデルを選択してください"
+  a_presets_json_file_to_import: "インポートするプリセット JSON ファイルを選択してください"
+  a_provider_kind: "プロバイダーの種類を選択してください"
+  a_provider_type: "プロバイダーの種類を選択してください"
+  ai_model: "AIモデルの選択"
+  all: "すべて選択"
+  language: "言語の選択"
+  language_daea52c9: "言語を選択してください"
+  this_floating_indicator_style: "このフローティング インジケーター スタイルを選択します。"
+  voice_model: "音声モデルの選択"
+  the_language_pindrop_should_expect_when_t: "音声を文字起こしするときに想定する言語を選びます。"
+selected:
+  _self: "選択済み"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "テキストを直接挿入するためのディクテーションを処理するときに AI モデルに送信されます。"
+sessions:
+  _self: "セッション"
+  781791f5: "セッション"
+set:
+  as_default: "デフォルトとして設定"
+settings:
+  _self: "設定"
+  bf83f07f: "設定..."
+  fa67a397: "設定…"
+setup:
+  required: "セットアップが必要です"
+show:
+  app: "アプリを表示"
+  app_in_finder: "Finder にアプリを表示"
+  in_dock: "ドックに表示"
+  api_key: "API キーを表示"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
+shows:
+  as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
+sidebar:
+  position: "サイドバーの位置"
+  position_916f66ea: "サイドバーの位置"
+simplified:
+  chinese: "簡体字中国語"
+size:
+  _self: "Size"
+skip:
+  for_now: "今はスキップしてください"
+slow:
+  _self: "遅い"
+slower:
+  _self: "もっとゆっくり"
+slowest:
+  _self: "最も遅い"
+small:
+  _self: "Small"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "小さいモデルは高速ですが、精度が低くなります。最適なバランスを得るには、Base から始めてください。"
+  models_are_faster_but_less_accurate_star: |-
+    モデルが小さいほど高速になりますが、精度は低くなります。
+    最適なバランスを得るには、Base から始めてください。
+something:
+  went_wrong: "何か問題が発生しました"
+soon:
+  _self: "すぐ"
+sort:
+  by: "並べ替え"
+source:
+  _self: "ソース"
+spanish:
+  _self: "スペイン語"
+speaker:
+  diarization: "Speaker diarization"
+  diarization_and_timestamps_are_attached: "再生にはスピーカーのダイアライゼーションとタイムスタンプが付加されます。"
+  diarization_is_required: "スピーカーのダイアライゼーションが必要です"
+speed:
+  _self: "スピード"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "設定、オンボーディング状態、保存された認証情報をクリアする場合は、最初からやり直してください。"
+  recording: "録音を開始する"
+  recording_to_see_your_transcriptions_here: "録音を開始すると、ここで文字起こしが表示されます"
+  stop_recording: "録音の開始/停止"
+  using_pindrop: "ピンドロップの使用を開始する"
+status:
+  _self: "状態"
+stop:
+  recording: "録音を停止する"
+streaming:
+  enhancement: "ストリーミング時の整形"
+  transcription_currently_supports_engli: "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
+  transcription_is_disabled_while_ai_enh: "AI Enhancement が有効になっている間、ストリーミング文字起こしは無効になります。"
+  transcription_model_nemotron_speech: "ストリーミング文字起こしモデル（Nemotron Speech Streaming）はNVIDIA CorporationによりNVIDIA Open Model Licenseの下でライセンスされています。"
+  transcription_instantly_ready: "ストリーミング文字起こし、すぐに準備完了"
+success:
+  _self: "成功！"
+support:
+  _self: "サポート"
+  coming_soon: "%@ のサポートが近日提供予定"
+supports:
+  local_media_files_and_web_links_resolve: "yt-dlp で解決されるローカル メディア ファイルと Web リンクをサポートします。"
+switch:
+  to_model: "モデルに切り替える"
+system:
+  _self: "システム"
+  default: "システムのデフォルト"
+teach:
+  custom_words: "カスタム単語を教える"
+temporarily:
+  copy_text_paste_it_then_restore_your: "テキストを一時的にコピーして貼り付け、クリップボードを復元します"
+  mute_speaker_output_while_dictation: "ディクテーションの録音中にスピーカー出力を一時的にミュートします。"
+  pause_active_media_playback_while_di: "ディクテーションの録音中にアクティブなメディアの再生を一時停止します。"
+tertiary:
+  text: "三次テキスト"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" モデルは 60 秒以内にロードできませんでした。これは通常、モデル ファイルが破損しているか、互換性がないことを意味します。                          これを修正するには: 1. [設定] → [モデル] を開きます。 2. 問題のあるモデルを削除します。 3. モデルを再ダウンロードします。 問題が解決しない場合は、より小さいモデル (Tiny または Base) を試してください。             「」"
+  selected_chunk_variant_isn_t_downloaded_yet: "選択したチャンク版はまだダウンロードされていません。切り替えるとダウンロードが始まります。"
+  new_nemotron_streaming_engine_shows_words_as: "新しい Nemotron ストリーミングエンジンは、話したそばから言葉を表示し、起動時にプリウォームされるため、最初のディクテーションも遅延なく始まります。"
+theme:
+  _self: "テーマ"
+  changes_apply_live_across_the_workspace_se: "テーマの変更は、ワークスペース、設定、ノートエディター、フローティングインジケーター全体にライブで適用されます。"
+  mode: "テーマモード"
+  mode_bb6b0b3d: "テーマモード"
+this:
+  preset_name_is_already_in_use: "このプリセット名はすでに使用されています。"
+  provider_will_be_available_in_a_future_upda: |-
+    このプロバイダーは将来のアップデートで利用可能になる予定です。
+    現時点では、OpenAI を試すか、カスタム エンドポイントを使用してください。
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    このプロバイダーは将来のアップデートで利用可能になる予定です。
+    OpenAI を試すか、カスタム エンドポイントを使用してください。
+  provider_will_be_available_in_a_future_upda_0677ac1d: "このプロバイダーは将来のアップデートで利用可能になります。n現時点では、OpenAI を試すか、カスタム エンドポイントを使用してください。"
+  transcription_could_not_be_found: "この転写は見つかりませんでした。"
+  will_clear_all_your_settings_including_api: "これにより、API キー、ホットキー、モデル設定を含むすべての設定がクリアされます。アプリは終了し、次回起動時に再びオンボーディングが表示されます。"
+  will_permanently_remove_the_transcript_and: "これにより、トランスクリプトとその管理対象メディア ファイルが完全に削除されます。"
+  removes_all_learned_voice_profiles_and_trai: "学習済みの声プロファイルとトレーニングデータをすべて削除します。元に戻せません。"
+  will_clear_all_your_settings_including_api_2841f4a1: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
+time:
+  saved: "時間の節約"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "Pindrop に口述して文字起こししてもらう"
+  start_talking: "話し始める"
+today:
+  _self: "今日"
+toggle:
+  _self: "トグル"
+  recording: "録音の切り替え"
+  sort_order: "並べ替え順序を切り替える"
+transcribe:
+  _self: "転写する"
+  media: "メディアの転写"
+transcribed:
+  _self: "転写された"
+transcription:
+  _self: "転写"
+  backend: "文字起こしバックエンド"
+  deleted: "転写は削除されました。"
+  enhancement: "転写の強化"
+  failed: "転写に失敗しました"
+  finished: "転写が完了しました。"
+  in_progress: "文字起こし中です"
+  metadata: "転写メタデータ"
+  update: "文字起こしの更新"
+  saved: "文字起こしを保存しました"
+transcriptions:
+  _self: "転写"
+  f0972acc: "転写"
+  in_this_folder_will_be_kept_and_m: "このフォルダー内の文字起こしは保存され、ライブラリに戻されます。"
+transcripts:
+  _self: "成績証明書"
+try:
+  a_different_search_term: "別の検索語を試してください"
+  a_different_search_term_0ba628a3: "別の検索語を試してください。"
+  a_different_search_term_in_this_folder: "このフォルダー内で別の検索語を試してください。"
+  searching_for_terms_like_hotkeys_microphone: "ホットキー、マイク、アップデート、バイブ モードなどの用語を検索してみてください。"
+turkish:
+  _self: "トルコ語"
+type:
+  text_directly_into_the_active_app_when_poss: "可能な場合は、アクティブなアプリにテキストを直接入力します"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" AI 拡張サービスに接続できません。                                  以下を確認してください。 1. インターネット接続 2. API エンドポイント URL が正しい 3. サービスが停止していない 文字起こしは拡張せずに保存されました。                 「」"
+  to_finish_transcription: "文字起こしを完了できません"
+  to_load_history: "履歴をロードできません: %@"
+  to_load_models_try_refresh: "モデルをロードできません。リフレッシュしてみてください。"
+  to_update_media_library: "メディア ライブラリを更新できません"
+unavailable:
+  device: "利用できないデバイス"
+undo:
+  _self: "元に戻す"
+unfiled:
+  _self: "未ファイル"
+unpin:
+  from_screen: "画面からの固定を解除する"
+update:
+  _self: "アップデート"
+updates:
+  _self: "アップデート"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "タップして開始、タップして終了するショートカットを使用してメモをキャプチャします。"
+  clipboard_only: "クリップボードのみを使用する"
+  the_hotkey_to_start_your_first_recording: "ホットキーを使用して最初の録音を開始します"
+  transcription_as_a_placeholder_for_the_trans: "${transcription} を転写されたテキストのプレースホルダーとして使用します。"
+  transcription_as_placeholder: "${transcription} をプレースホルダーとして使用します"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "ホットキー経由でメモをキャプチャするときに使用します。長いコンテンツにマークダウン形式を追加できます。"
+uses:
+  a_built_in_prompt_tuned_for_this_task: "このタスク用に調整された組み込みプロンプトを使用します。"
+  the_560ms_nemotron_variant_for_snappier_par: "560msのNemotronバリアントを使用して途中テキストの表示を速くします。デフォルトは1120msバリアント（最高精度）です。"
+  the_transcription_enhancement_assignment_if: "文字起こし強化の割り当てを使用します。未設定の場合は決定論的クリーナーの出力がそのまま残ります。"
+v:
+  _self: "v%@"
+version:
+  _self: "バージョン %@ (%@)"
+very:
+  fast: "非常に速い"
+via:
+  _self: "%@経由"
+vibe:
+  mode: "バイブモード"
+  mode_captures_structured_ui_context_when_re: "Vibe モードでは、録音開始時に構造化された UI コンテキストをキャプチャするため、AI 拡張機能でアクティブなアプリの状態を参照として使用できます。"
+  mode_works_best_with_accessibility_permissi: "Vibe モードは、アクセシビリティ権限を使用すると最適に動作します。これがなければ、Pindrop は制限されたアプリのメタデータにフォールバックし、トランスクリプションは引き続き正常に機能します。"
+view:
+  _self: "ビュー"
+  all: "すべて見る"
+  transcript_history: "トランスクリプト履歴の表示"
+  transcription_history: "文字起こし履歴の表示"
+vocabulary:
+  _self: "語彙"
+vs:
+  typing: "対タイピング"
+welcome:
+  to_pindrop: "ピンドロップへようこそ"
+whisperkit:
+  _self: "ウィスパーキット"
+word:
+  _self: "言葉"
+  replacements: "単語の置換"
+words:
+  _self: "言葉"
+  efb89361: "言葉"
+  min: "単語/分"
+  you_manually_correct_can_be_added_to_your: "手動で修正した語を語彙に追加し、今後の音声入力に使えます。"
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "昨日"
+you:
+  are_a_note_formatting_assistant_transform_th: "あなたはメモの書式設定アシスタントです。転写されたテキストを適切に構造化されたメモに変換します。nnルール:n- 文法、句読点、およびスペルの誤りを修正しますn- 長いコンテンツ (3 段落以上) の場合は、マークダウン書式を追加します:n - ヘッダー (## または ###) を使用してセクションを整理しますn - 必要に応じて箇条書きまたは番号付きリストを使用しますn - 重要な用語を強調するには **太字** を使用しますn- 短いコンテンツの場合は、最小限の書式でシンプルにしますn- 元の意味と文体を維持します-元の内容にない内容を追加しないでください - コメントなしで書式設定されたメモのみを返します"
+  are_a_text_enhancement_assistant_improve_the: "あなたはテキスト強化アシスタントです。提供されたテキストの元の意味と語調を維持しながら、文法、句読点、書式設定を改善します。追加のコメントなしで拡張テキストのみを返します。"
+  can_change_these_anytime_from_the_menu_bar_s: "これらは、メニュー バー → 設定 → ホットキーからいつでも変更できます。"
+  re_all_set: "準備は完了です!"
+  re_all_set_058a8130: "準備は完了です!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API レート制限または割り当てを超過しました。                                  これを修正するには: 1. 数分待ってから再試行します。 2. API プロバイダーの使用制限を確認します。 3. API プランのアップグレードを検討してください。 文字起こしは拡張せずに保存されました。                 「」"
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" API キーが無効か期限切れのようです。                                  これを修正するには: 1. [設定] → [AI 拡張] を開きます。 2. API キーが正しいことを確認します。 3. API エンドポイントが正しいことを確認します。 文字起こしは拡張なしで保存されました。                 「」"
+  hotkeys_are_ready_to_use_nyou_can_customize: "ホットキーを使用する準備ができました。n後から [設定] でホットキーをカスタマイズできます。"
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    ホットキーを使用する準備ができました。
+    後で [設定] でカスタマイズできます。
+  model_is_ready_to_use: "モデルを使用する準備ができました。"
+  stats: "あなたの統計"
+  floating_indicator_is_now_a_living_audio_re: "フローティングインジケーターは、音声に反応する生きた Orb になりました。待機中は呼吸し、話すとふくらみ、ディクテーション中は言葉をライブで表示します。"
+orb:
+  _self: "オーブ"
+meeting:
+  saved: "ミーティングを保存しました"
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
+what:
+  s_new_in_pindrop: "Pindrop の新機能"
+  s_new: "新機能…"
+meet:
+  the_new_orb: "新しい Orb を紹介"
+thanks:
+  to_for_investigating_and_kicking_off_the: "調査し修正のきっかけを作ってくれた %@ に感謝します (PR #64)。"
+  to_for_the_contribution_pr_61: "貢献してくれた %@ に感謝します (PR #61)。"
+dictate:
+  in_russian_and_ukrainian: "ロシア語とウクライナ語でディクテーション"
+two:
+  new_dictation_languages_fully_wired_into_mod: "2つの新しいディクテーション言語が、モデル推奨に完全に組み込まれました。"
+also:
+  new_rtl_layout_support_and_20_new_interface: "そのほか、RTL レイアウト対応と20の新しいインターフェイス言語も追加されました。"
+advanced:
+  _self: "詳細"
+agent:
+  setup: "エージェント設定"
+appearance:
+  _self: "外観"
+bearer:
+  token: "ベアラートークン"
+changes:
+  the_language_used_by_pindrop_s_interface: "Pindrop のインターフェース言語を変更します。"
+client:
+  _self: "クライアント"
+configuration:
+  file: "設定ファイル"
+  scope: "設定スコープ"
+  snippet: "設定スニペット"
+dictation:
+  _self: "音声入力"
+  language: "音声入力の言語"
+  polish: "音声入力の仕上げ"
+done:
+  _self: "完了"
+input:
+  device: "入力デバイス"
+license:
+  _self: "ライセンス"
+mcp:
+  configuration_error: "MCP 設定エラー"
+  server: "MCP サーバー"
+main:
+  window: "メインウィンドウ"
+name:
+  _self: "名前"
+port:
+  _self: "ポート"
+  changes_take_effect_the_next_time_the_serve: "ポートの変更は次回サーバー起動時に反映されます。"
+project:
+  _self: "プロジェクト"
+regenerate:
+  _self: "再生成"
+shortcuts:
+  _self: "ショートカット"
+speakers:
+  _self: "話者"
+these:
+  options_are_mutually_exclusive_enabling_on: "これらのオプションは排他的です。一方を有効にすると他方は無効になります。"
+while:
+  recording: "録音中"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"
+file:
+  _self: "ファイル"
+window:
+  _self: "ウインドウ"
+help:
+  _self: "ヘルプ"
+close:
+  _self: "閉じる"
+find:
+  _self: "検索"
+minimize:
+  _self: "しまう"
+zoom:
+  _self: "拡大／縮小"
+bring:
+  all_to_front: "すべてを手前に移動"
+home:
+  _self: "ホーム"
+
+diarized:
+  _self: "diarized"
+
+summary:
+  ready: "summary ready"
+
+prompts:
+  are_sent_in_english: "Prompts are sent in English"
+
+preset_example:
+  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
+  clean_output: "So the meeting is at 3:30. Can you confirm?"
+  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
+  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
+  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
+  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
+  social_input: "um we just shipped dark mode and it looks amazing you should try it"
+  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
+  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
+  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
+  technical_input: "call fetch user arrow then map the response equals equals two hundred"
+  technical_output: "Call `fetchUser` -> then map the response `==` 200."
+  live_input: "um so i think we should ship the beta by friday period"
+  live_output: "So I think we should ship the beta by Friday."
+  edits_input: "um this is correct ly twenty-five"
+  edits_output: "This is correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

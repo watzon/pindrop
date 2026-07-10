@@ -1,870 +1,1213 @@
-100_local_processing: "100% pengolahan lokal"
-1_folder: "1 map"
-1_transcription: "1 transkripsi"
-a_native_macos_menu_bar_dictation_app_using_loca: "Aplikasi dikte bilah menu macOS asli menggunakan ucapan-ke-teks lokal dengan WhisperKit. Pemrosesan lokal 100% secara default dengan peningkatan AI opsional."
-a_big_round_of_upgrades_and_two_community_shout: "Serangkaian peningkatan besar — dan dua apresiasi untuk komunitas."
-about: "Tentang"
-about_pindrop: "Tentang Pindrop"
-accessibility: "Aksesibilitas"
-accessibility_permission_is_enabled_full_ui_cont: "Izin aksesibilitas diaktifkan. Konteks UI lengkap tersedia."
-accessibility_permission_is_not_granted_vibe_mod: "Izin aksesibilitas tidak diberikan. Mode getar tetap non-pemblokiran dengan konteks terbatas."
-accessibility_permission_recommended: "Izin Aksesibilitas Direkomendasikan"
-accessibility_permission_required: "Izin Aksesibilitas Diperlukan"
-accessibility_permission: "Izin aksesibilitas"
-accuracy: "Ketepatan"
-acknowledgments: "Ucapan Terima Kasih"
-active: "Aktif"
-add: "Menambahkan"
-add_a_provider_to_start_using_ai_enhancement: "Tambahkan penyedia untuk mulai menggunakan peningkatan AI."
-add_custom_words_to_improve_transcription_accura: "Tambahkan kata khusus untuk meningkatkan akurasi transkripsi untuk istilah, nama, atau jargon khusus."
-add_provider: "Tambahkan Penyedia"
-add_tag: "Tambahkan tanda..."
-add_to_existing: "Tambahkan ke Yang Ada"
-add_trailing_space: "Tambahkan spasi tambahan"
-add_word_replacements_to_automatically_correct_c: "Tambahkan pengganti kata untuk memperbaiki kesalahan transkripsi umum secara otomatis."
-add_words_to_help_pindrop_recognize_them_properl: "Tambahkan kata-kata untuk membantu Pindrop mengenalinya dengan benar"
-add_words_you_manually_correct_into_your_vocabul: "Tambahkan kata-kata yang Anda koreksi secara manual ke dalam kosakata Anda untuk transkripsi di masa mendatang."
-add_this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-add_this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-add_this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-add_this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-add_this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
-ai: "AI"
-ai_enhancement: "Peningkatan AI"
-ai_enhancement_529f5583: "Peningkatan AI: %@"
-ai_enhancement_failed: "Peningkatan AI Gagal"
-ai_enhancement_is_disabled: "Peningkatan AI dinonaktifkan."
-ai_enhancement_will: "Peningkatan AI akan:"
-ai_model: "Model AI"
-all: "Semua"
-an_error_occurred_while_enhancing_your_transcrip: |-
-  Terjadi kesalahan saat menyempurnakan transkripsi Anda:
-  
-  %@
-  
-  Transkripsi asli disimpan tanpa penyempurnaan.
-  Anda dapat mencoba mengaktifkan lagi peningkatan AI di Pengaturan.
-an_error_occurred_while_enhancing_your_transcrip_8c664cb4: "Terjadi kesalahan saat menyempurnakan transkripsi Anda:nn%@nnTranskripsi asli disimpan tanpa penyempurnaan.nAnda dapat mencoba mengaktifkan penyempurnaan AI lagi di Pengaturan."
-anthropic: "__TETAPKAN_ANTHROPIS__"
-api_endpoint: "Titik Akhir API"
-api_key: "Kunci API"
-api_key_saved: "Kunci API disimpan"
-api_key_saved_endpoint: "Kunci API disimpan • Titik akhir: %@"
-app_info_acknowledgments_support_and_logs: "Info aplikasi, ucapan terima kasih, dukungan, dan log"
-append_a_space_after_each_transcription_for_seam: "Tambahkan spasi setelah setiap transkripsi untuk pendiktean yang lancar."
-apple_foundation_models_on_device: "Model Apple Foundation (di perangkat)"
-apple_intelligence: "__TETAPKAN_APPLE_INTELLIGENCE__"
-apple_intelligence_is_unavailable_on_this_system: "Apple Intelligence tidak tersedia di sistem ini. Tugas ini tidak akan terselesaikan sampai Apple Intelligence diaktifkan."
-apple_intelligence_runs_on_device_and_requires_n: "Apple Intelligence berjalan di perangkat dan tidak memerlukan kredensial."
-apple_speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
-apple_speechtranscriber_requires_macos_26: "Apple SpeechTranscriber memerlukan macOS 26."
-apple_speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber tidak tersedia — menggunakan Nemotron"
-are_you_sure_you_want_to_delete_this_action_cann: "Apakah Anda yakin ingin menghapus '%@'? Tindakan ini tidak dapat diurungkan."
-assignments: "Tugas"
-attach_logs_from_this_folder_when_filing_a_githu: "Lampirkan log dari folder ini saat mengajukan masalah GitHub."
-audio_input: "Masukan Audio"
-automatic_follow_system: "Otomatis (Ikuti Sistem)"
-automatic_updates: "Pembaruan otomatis"
-automatic_updates_and_manual_update_checks: "Pembaruan otomatis dan pemeriksaan pembaruan manual"
-automatically_check_for_new_versions_in_the_back: "Secara otomatis memeriksa versi baru di latar belakang."
-automatically_start_pindrop_when_you_sign_in: "Secara otomatis memulai Pindrop saat Anda masuk."
-available_models: "Model yang Tersedia"
-avg_speed: "Kecepatan Rata-Rata"
-back: "Kembali"
-back_to_library: "Kembali ke perpustakaan"
-base: "Basis"
-best: "Terbaik"
-better: "Lebih baik"
-better_bluetooth_external_mic_support: "Dukungan Bluetooth dan mikrofon eksternal lebih baik"
-built_in_presets: "Preset Bawaan"
-built_in_read_only: "Terintegrasi (hanya baca)"
-cancel: "Membatalkan"
-cancel_operation: "Batalkan Operasi"
-capture_directly_into_the_note_editor_with_a_hol: "Tangkap langsung ke editor catatan dengan alur tahan untuk merekam."
-change_microphone: "Ganti Mikrofon"
-change_microphone_ac9970f4: "Ganti mikrofon"
-check_for_updates: "Periksa Pembaruan..."
-check_for_updates_736b9062: "Periksa pembaruan"
-check_now: "Periksa Sekarang"
-checking: "Memeriksa..."
-choose_a_location_to_save_the_dictionary: "Pilih lokasi untuk menyimpan kamus"
-choose_a_location_to_save_the_presets: "Pilih lokasi untuk menyimpan preset"
-choose_a_model: "Pilih Model"
-choose_a_provider_first: "Pilih penyedia terlebih dahulu"
-choose_an_audio_or_video_file_to_transcribe: "Pilih file audio atau video untuk ditranskripsikan"
-choose_between_nemotron_punctuated_downloaded_mod: "Pilih antara Nemotron (dengan tanda baca, model yang diunduh) dan Apple SpeechTranscriber (macOS 26+, bawaan OS)."
-choose_file: "Pilih berkas"
-choose_how_dictated_text_lands_then_tune_the_fin: "Pilih cara teks yang didiktekan mendarat, lalu sesuaikan perilaku penyisipan terakhir."
-choose_how_pindrop_follows_system_appearance_the: "Pilih bagaimana Pindrop mengikuti tampilan sistem, lalu gabungkan palet terang dan gelap yang dikurasi."
-choose_how_to_import_the_dictionary_data: "Pilih cara mengimpor data kamus"
-choose_how_to_import_the_preset_data: "Pilih cara mengimpor data preset"
-choose_languages_for_the_interface_and_for_dicta: "Pilih bahasa untuk antarmuka dan dikte. Otomatis mengikuti sistem."
-choose_location_to_save_presets: "Pilih lokasi untuk menyimpan preset"
-choose_the_daytime_shell_used_in_light_mode: "Pilih cangkang siang hari yang digunakan dalam mode terang."
-choose_the_low_glare_shell_used_in_dark_mode: "Pilih cangkang rendah silau yang digunakan dalam mode gelap."
-choose_which_microphone_pindrop_should_use_for_d: "Pilih mikrofon mana yang harus digunakan Pindrop untuk dikte dan bagaimana perilakunya saat merekam."
-choose_which_side_the_navigation_sidebar_appears: "Pilih di sisi mana bar samping navigasi muncul."
-choose_how_pindrop_appears_on_screen_while_you_d: "Pilih bagaimana Pindrop muncul di layar saat Anda mendikte."
-choose_how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
-choose_whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
-choose_which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
-choose_which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-choose_model: "Choose Model…"
-clean_up_filler_words: "Bersihkan kata-kata pengisi"
-clear_audio_buffer: "Hapus Penyangga Audio"
-clear_hotkey: "Hapus tombol pintas"
-clear_shortcut: "Hapus pintasan"
-clears_preferences_and_restarts_onboarding: "Menghapus preferensi dan memulai kembali orientasi"
-clears_preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
-click_or_hold: "Klik atau tahan"
-click_or_press: "Klik atau tekan"
-click_or_set_a_hotkey_to_start_talking: "Klik atau atur hotkey untuk mulai berbicara"
-click_this_icon_anytime_to: "Klik ikon ini kapan saja untuk:"
-clipboard: "papan klip"
-clipboard_temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
-cloud: "Awan"
-cloud_model: "Model Awan"
-collapse: "Runtuh"
-coming_soon: "%@ Segera Hadir"
-coming_soon_04d2fd85: "Segera hadir"
-configure_ai_providers_and_credentials_apple_int: "Konfigurasikan penyedia dan kredensial AI. Apple Intelligence berjalan di perangkat; penyedia lain memerlukan kunci API."
-configure_keyboard_shortcuts_for_recording_and_n: "Konfigurasikan pintasan keyboard untuk merekam dan mengambil catatan"
-continue: "Melanjutkan"
-continue_with_default: "Lanjutkan dengan Default"
-continue_without: "Lanjutkan Tanpa"
-control_how_pindrop_appears_in_macos_and_whether: "Kontrol bagaimana Pindrop muncul di macOS dan apakah Pindrop dimulai dengan sesi desktop Anda."
-controls_how_the_live_dictation_path_polishes_tr: "Mengontrol cara jalur dikte langsung memoles transkrip. Pembersih deterministik (penghapusan pengisi, kapitalisasi, tanda baca lisan, normalisasi angka, penggabungan kata terpisah) berjalan dengan cara apa pun — sakelar ini membuka gerbang penyempurnaan LLM opsional yang diaktifkan setelah dikte berhenti."
-copied: "Disalin!"
-copy: "Menyalin"
-copy_enhanced: "Salin Ditingkatkan"
-copy_last_transcript: "Salin Transkrip Terakhir"
-copy_original: "Salin Asli"
-copy_system_info_for_bug_report: "Salin Info Sistem untuk Laporan Bug"
-copy_the_most_recent_transcript_to_the_clipboard: "Salin transkrip terbaru ke clipboard"
-copy_to_clipboard: "Salin ke papan klip"
-copy_transcript: "Salin Transkrip"
-copy_system_info: "Copy System Info"
-copy_the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-copy_the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
-correct_grammar_mistakes: "Memperbaiki kesalahan tata bahasa"
-create: "Membuat"
-create_new_note: "Buat Catatan Baru"
-create_new_preset: "Buat Prasetel Baru"
-create_your_first_note_to_get_started: "Buat catatan pertama Anda untuk memulai"
-create_your_first_preset_or_duplicate_a_built_in: "Buat preset pertama Anda atau duplikat preset bawaan untuk menyesuaikannya."
-create_your_own_presets_or_duplicate_built_in_on: "Buat preset Anda sendiri atau duplikat preset bawaan untuk menyesuaikannya."
-create_preset: "Create Preset"
-credentials_are_stored_securely_in_keychain: "Kredensial disimpan dengan aman di Gantungan Kunci"
-credentials_saved_successfully: "Kredensial berhasil disimpan"
-credentials_are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
-current: "Saat ini: %@"
-custom: "Kebiasaan"
-custom_local: "Adat / Lokal"
-custom_openai_compatible: "Khusus (kompatibel dengan OpenAI)"
-custom_presets: "Preset Kustom"
-customize_hotkey: "Sesuaikan tombol pintas"
-cut: "Memotong"
-d_characters: "%d karakter"
-d_samples: "%d samples · %@"
-dark: "Gelap"
-dark_preview: "Pratinjau Gelap"
-dark_theme: "Tema Gelap"
-database_error: "Kesalahan Basis Data"
-date: "Tanggal"
-date_7f823513: "Tanggal %@"
-default: "Bawaan"
-default_model: "Model Bawaan"
-define_word_replacements_to_automatically_replac: "Tentukan penggantian kata untuk secara otomatis mengganti kata atau frasa tertentu"
-degraded: "Terdegradasi"
-delete: "Menghapus"
-delete_folder: "Hapus Folder"
-delete_folder_e556e7c2: "Hapus map?"
-delete_model: "Hapus Model"
-delete_preset: "Hapus Prasetel"
-delete_preset_4f6cfe36: "Hapus Prasetel?"
-delete_transcription: "Hapus transkripsi"
-delete_transcription_f82187c4: "Hapus transkripsi?"
-delete_all: "Hapus semua"
-delete_all_participants: "Delete All Participants?"
-delete_all_participants_60ed6e73: "Delete All Participants…"
-dictionary: "Kamus"
-direct_insert: "Sisipkan Langsung"
-disabled: "Dengan disabilitas"
-dismiss: "Membubarkan"
-display_name: "Nama Tampilan"
-display_name_c7874aaa: "Nama tampilan"
-display_pindrop_in_the_dock_instead_of_running_o: "Tampilkan Pindrop di Dock alih-alih menggunakannn hanya sebagai aplikasi bilah menu."
-dock_the_sidebar_to_the_left_or_right_edge_of_th: "Tempatkan sidebar di tepi kiri atau kanan jendela."
-download: "Unduh"
-download_complete: "Unduh Selesai!"
-download_continue: "Unduh & Lanjutkan"
-download_failed: "Pengunduhan Gagal"
-download_model: "Unduh modelnya"
-download_the_diarization_model_before_starting_m: "Unduh model diarisasi sebelum memulai transkripsi media."
-downloaded: "Diunduh"
-downloading: "Mengunduh %@..."
-drop_a_file_or_paste_a_link_to_create_a_diarized: "Letakkan file atau tempelkan tautan untuk membuat transkrip yang diari dan diberi stempel waktu."
-drop_audio_or_video_here: "Letakkan audio atau video di sini"
-duplicate_preset: "Duplikat Preset"
-dutch: "Belanda"
-edit: "Sunting"
-edit_preset: "Sunting Prasetel"
-edit_provider: "Sunting Penyedia"
-empty: "(Kosong)"
-enable_ai_enhancement: "Aktifkan Peningkatan AI"
-enable_live_session_updates_during_recording: "Aktifkan pembaruan sesi langsung selama perekaman"
-enable_vibe_mode_ui_context: "Aktifkan mode getaran (konteks UI)"
-enable_mcp_server: "Enable MCP Server"
-enabled: "Diaktifkan"
-endpoint: "Titik akhir: %@"
-english: "Bahasa inggris"
-english_only: "Hanya dalam bahasa Inggris"
-enhanced: "Ditingkatkan"
-enhancement_prompts: "Anjuran Peningkatan"
-enhancing: "Menyempurnakan…"
-enter_an_openai_api_key_to_load_models: "Masukkan kunci API OpenAI untuk memuat model."
-enter_api_key: "Masukkan kunci API"
-enter_word_to_add: "Masukkan kata untuk ditambahkan"
-error: "Kesalahan"
-european_multilingual: "multibahasa Eropa"
-excellent: "Bagus sekali"
-export: "Ekspor"
-export_as_csv: "Ekspor sebagai CSV"
-export_as_json: "Ekspor sebagai JSON"
-export_as_plain_text: "Ekspor sebagai Teks Biasa"
-export_dictionary: "Ekspor Kamus"
-export_failed: "Ekspor gagal: %@"
-export_last_transcript: "Ekspor Transkrip Terakhir..."
-export_presets: "Ekspor Preset"
-failed_to_add_replacement: "Gagal menambahkan pengganti: %@"
-failed_to_add_word: "Gagal menambahkan kata: %@"
-failed_to_delete_folder: "Gagal menghapus folder: %@"
-failed_to_delete_note: "Gagal menghapus catatan: %@"
-failed_to_delete_preset: "Gagal menghapus preset: %@"
-failed_to_delete_replacement: "Gagal menghapus pengganti: %@"
-failed_to_delete_transcription: "Gagal menghapus transkripsi: %@"
-failed_to_delete_word: "Gagal menghapus kata: %@"
-failed_to_export_dictionary: "Gagal mengekspor kamus: %@"
-failed_to_export_presets: "Gagal mengekspor preset: %@"
-failed_to_import_dictionary: "Gagal mengimpor kamus: %@"
-failed_to_import_presets: "Gagal mengimpor preset: %@"
-failed_to_initialize_the_database_nnthe_app_will: "Gagal menginisialisasi database: %@nnAplikasi sekarang akan ditutup. Silakan coba memulai ulang atau hubungi dukungan jika masalah terus berlanjut."
-failed_to_load_data: "Gagal memuat data: %@"
-failed_to_load_history: "Gagal memuat riwayat: %@"
-failed_to_read_import_file: "Gagal membaca file impor: %@"
-failed_to_save: "Gagal menyimpan: %@"
-failed_to_save_preset: "Gagal menyimpan preset: %@"
-failed_to_switch_model: "Gagal mengganti model: %@"
-failed_to_update_preset: "Gagal memperbarui prasetel: %@"
-failed_to_update_replacement: "Gagal memperbarui pengganti: %@"
-failed_to_update_word: "Gagal memperbarui kata: %@"
-fast: "Cepat"
-feature_models: "Model Fitur"
-fetch_models_in_models: "Ambil model di Models"
-fix_punctuation_and_capitalization: "Perbaiki tanda baca dan kapitalisasi"
-floating_indicator: "%@ indikator mengambang"
-floating_indicator_e0349402: "Indikator Mengambang"
-folder_deleted: "Foldernya dihapus."
-folder_name: "Nama folder"
-follow_playback: "Ikuti pemutaran"
-format_text_appropriately: "Format teks dengan tepat"
-french: "Perancis"
-general: "Umum"
-german: "Jerman"
-get_started: "Memulai"
-global: "Global"
-global_keyboard_shortcuts: "Pintasan keyboard global"
-go_back: "Kembali"
-go_to_settings: "Buka pengaturan"
-good: "Bagus"
-good_afternoon: "Selamat siang"
-good_evening: "Selamat malam"
-good_morning: "Selamat pagi"
-good_night: "Selamat malam"
-google: "Google"
-got_it: "Mengerti"
-grant: "Menganugerahkan"
-great: "Besar"
-hide_this_for_1_hour: "Sembunyikan ini selama 1 jam"
-hide_api_key: "Sembunyikan kunci API"
-history: "Sejarah"
-hold_the_shortcut_to_record_then_release_to_tran: "Tahan pintasan untuk merekam, lalu lepaskan untuk menyalin."
-hold_to_record_release_to_open_note_editor_with: "Tahan untuk merekam, lepaskan untuk membuka editor catatan dengan transkripsi"
-hold_to_record_release_to_stop_and_transcribe: "Tahan untuk merekam, lepaskan untuk berhenti dan menyalin"
-hold_to_record_release_to_transcribe: "Tahan untuk merekam, lepaskan untuk menyalin"
-hold_to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
-hotkey_conflict: "Konflik Tombol Pintas"
-hotkeys: "Tombol pintas"
-identify_speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
-import: "Impor"
-import_dictionary: "Impor Kamus"
-import_error: "Kesalahan Impor"
-import_export: "Impor/Ekspor"
-import_media: "Impor media"
-import_or_transcribe_media_while_this_folder_is: "Impor atau transkripsikan media saat folder ini dipilih untuk menyimpan item di sini."
-import_presets: "Impor Preset"
-import_strategy: "Strategi Impor"
-imported_files_and_web_links_will_appear_here_on: "File dan tautan web yang diimpor akan muncul di sini setelah pemrosesan selesai."
-improve_transcription_quality_using_ai: "Tingkatkan kualitas transkripsi menggunakan AI"
-include_clipboard_text: "Sertakan teks papan klip"
-interface: "Antarmuka"
-interface_language: "Bahasa antarmuka"
-is_assigned_to_both_and_only_the_first_action_wi: "%@ ditugaskan ke %@ dan %@. Hanya tindakan pertama yang akan aktif. Perbarui tombol pintas Anda di Pengaturan untuk mengatasi konflik ini."
-italian: "Italia"
-items: "item"
-japanese: "Jepang"
-keep_pindrop_current_automatically_or_trigger_a: "Pertahankan Pindrop terkini secara otomatis, atau picu pemeriksaan manual kapan pun Anda mau."
-keep_pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
-key: "#%@"
-key_a979ef10: "+"
-key_ab8f46d5: "%1$@ %2$@"
-keyboard_shortcuts: "Pintasan Papan Ketik"
-korean: "Korea"
-language: "Bahasa"
-large: "Besar"
-launch_at_login: "Peluncuran saat Masuk: %@"
-launch_at_login_0b36c78f: "Luncurkan saat login"
-launch_at_login_fd1a3b7b: "Jalankan saat login"
-launch_at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
-layout: "Tata Letak"
-learn_corrected_words_automatically: "Pelajari kata-kata yang dikoreksi secara otomatis"
-left: "Kiri"
-let_pindrop_quietly_learn_vocabulary_from_the_co: "Biarkan Pindrop diam-diam mempelajari kosakata dari koreksi yang Anda lakukan seiring waktu."
-light: "Lampu"
-light_dark_and_curated_palette_presets: "Preset palet terang, gelap, dan terkurasi"
-light_preview: "Pratinjau Ringan"
-light_theme: "Tema Ringan"
-limited: "Terbatas"
-listening: "Mendengarkan…"
-live_streaming_refinement: "Penyempurnaan Streaming Langsung"
-lld: "%1$lld %2$@"
-lld_197eb092: "%lld%%"
-lld_a2843d9b: "+%lld"
-lld_characters: "%lld karakter"
-lld_complete: "%lld%% selesai"
-lld_items: "%lld item"
-lld_notes: "%lld catatan"
-lld_transcriptions: "%lld transkripsi"
-lm_studio: "__TETAP_LM_STUDIO__"
-lm_studio_only_needs_a_token_if_local_server_aut: "LM Studio hanya memerlukan token jika otentikasi server lokal diaktifkan."
-load_models: "Memuat Model"
-loaded_d_models: "Memuat model %d"
-loading_history: "Memuat riwayat..."
-loading_models: "Memuat model..."
-local: "Lokal"
-local_speech_to_text_right_from_your_menu_bar_fa: |-
-  Ucapan lokal-ke-teks, langsung dari bilah menu Anda.
-  Cepat, pribadi, dan selalu tersedia.
-local_speech_to_text_right_from_your_menu_bar_nf: "Ucapan lokal-ke-teks, langsung dari bilah menu Anda. Cepat, pribadi, dan selalu tersedia."
-local_speech_to_text_with_whisperkit: "Pidato lokal-ke-teks dengan WhisperKit"
-local_voice_to_text: "Suara-ke-teks lokal"
-low_latency_mode_less_accurate: "Mode latensi rendah (kurang akurat)"
-manage_local_speech_models_feature_models_and_th: "Kelola model ucapan lokal, model fitur, dan mesin default yang digunakan Pindrop untuk transkripsi."
-manage_models: "Kelola model"
-manage_presets: "Kelola Preset"
-manage_presets_ab87986d: "Kelola Preset..."
-manage_presets_d5d4c2c2: "Manage Presets…"
-manually_check_for_new_versions_now: "Periksa versi baru secara manual sekarang."
-media_library: "Perpustakaan Media"
-media_transcription: "Transkripsi Media"
-media_unavailable: "Media tidak tersedia"
-media_saved: "Media disimpan"
-medium: "Sedang"
-microphone: "Mikropon"
-microphone_permission_is_required_to_continue: "Izin mikrofon diperlukan untuk melanjutkan"
-microphone_permission_is_required_to_continue_dc: "Izin mikrofon diperlukan untuk melanjutkan."
-microphone_permission_required: "Izin Mikrofon Diperlukan"
-mit_license: "Lisensi MIT"
-mode: "Modus: %@"
-model: "Model"
-model_loading_failed: "Pemuatan Model Gagal"
-model_loading_timed_out: "Waktu Pemuatan Model Habis"
-model_validation: "Model Validation"
-models: "Model"
-move_to_folder: "Pindah ke Map"
-multilingual: "Multibahasa"
-must_be_openai_compatible: "Harus kompatibel dengan OpenAI"
-mute_system_audio_during_recording: "Bisukan audio sistem selama perekaman"
-new_folder: "Folder Baru"
-new_note: "Catatan Baru"
-new_preset: "Prasetel Baru"
-next: "Berikutnya"
-no_api_key: "Tidak ada kunci API"
-no_api_key_endpoint: "Tidak ada kunci API • Titik akhir: %@"
-no_custom_presets: "Tidak Ada Preset Kustom"
-no_downloaded_models: "Tidak ada model yang diunduh"
-no_folders_yet: "Belum ada folder"
-no_items_in: "Tidak ada item di %@"
-no_media_transcriptions_yet: "Belum ada transkripsi media"
-no_model_loaded: "Tidak Ada Model yang Dimuat"
-no_model_selected: "Tidak ada model yang dipilih"
-no_models_available: "Tidak ada model yang tersedia"
-no_models_available_ae9dbd29: "Tidak ada model yang tersedia."
-no_models_available_try_refresh_or_enter_a_model: "Tidak ada model yang tersedia. Coba Refresh atau masukkan ID model secara manual."
-no_models_found: "Tidak ada model yang ditemukan."
-no_models_loaded_open_edit_to_fetch_models: "Tidak ada model yang dimuat. Buka Edit untuk mengambil model."
-no_models_match: "Tidak ada model yang cocok dengan \"%@\""
-no_notes_yet: "Belum ada catatan"
-no_providers_configured_yet: "Belum ada penyedia yang dikonfigurasi."
-no_replacements: "Tidak Ada Penggantian"
-no_results_found: "Tidak ada hasil yang ditemukan"
-no_settings_found: "Tidak ada pengaturan yang ditemukan"
-no_transcriptions_yet: "Belum ada transkripsi"
-no_vocabulary_words: "Tidak Ada Kata Kosakata"
-no_learned_participants_yet: "No learned participants yet"
-no_providers_configured_yet_e6bc0075: "No providers configured yet"
-no_conflicts_found: "No conflicts found"
-not_assigned: "Tidak ditugaskan"
-not_selected: "Tidak dipilih"
-not_set: "Tidak Ditetapkan"
-not_set_93039e60: "Tidak disetel"
-not_granted: "Tidak diberikan"
-not_enough_voice_data_yet: "Not enough voice data yet"
-not_generated_yet_enable_the_server: "Not generated yet — enable the server"
-note: "Catatan"
-note_capture_push_to_talk: "Pengambilan Catatan (Push-to-Talk)"
-note_capture_toggle: "Pengambilan Catatan (Beralih)"
-note_enhancement: "Peningkatan Catatan"
-note_from: "Catatan dari"
-note_metadata: "Catatan Metadata"
-note_title: "Judul Catatan"
-note_saved: "Catatan disimpan"
-note_capture_hold: "Note Capture — Hold"
-note_capture_toggle_7139a240: "Note Capture — Toggle"
-notes: "Catatan"
-notes_3add7b96: "catatan"
-off: "Mati"
-ok: "OKE"
-ollama: "__TETAP_OLLAMA__"
-ollama_usually_does_not_require_authentication_f: "Ollama biasanya tidak memerlukan otentikasi untuk permintaan lokal."
-on: "Pada"
-on_device_no_credentials_required: "Di perangkat, tidak diperlukan kredensial"
-open: "Membuka"
-open_history: "Buka Sejarah"
-open_logs_in_finder: "Buka Log di Finder"
-open_original_link: "Buka tautan asli"
-open_progress: "Buka kemajuan"
-open_settings: "Buka Pengaturan"
-open_settings_fd7108f8: "Buka pengaturan"
-open_system_settings: "Buka Pengaturan Sistem"
-open_library: "Open Library"
-openai: "__TETAP_BUKA__"
-openai_compatible_local_server: "Server lokal yang kompatibel dengan OpenAI"
-openai_whisper: "__TETAP_OPENAI__ Bisikan"
-openrouter: "__TETAP_BUKAROUTER__"
-optional: "Opsional"
-optional_insert_text_directly_into_apps: "Opsional: Sisipkan teks langsung ke dalam aplikasi"
-optional_used_for_auto_generated_titles_and_summ: "Opsional — digunakan untuk judul dan ringkasan yang dibuat secara otomatis pada impor transkripsi media."
-optionally_clean_up_transcriptions_with_ai: "Secara opsional, bersihkan transkripsi dengan AI"
-or: "atau"
-or_just_use_your_hotkey: "Atau cukup gunakan hotkey Anda!"
-original: "Asli"
-original_text_use_commas_for_multiple: "Teks asli (gunakan koma untuk banyak)"
-originals_comma_separated: "Dokumen asli (dipisahkan koma)"
-output: "Keluaran"
-output_audio_interface_and_everyday_behavior: "Output, audio, antarmuka, dan perilaku sehari-hari"
-output_mode: "Mode keluaran"
-nemotron_default: "Nemotron (default)"
-paste: "Pasta"
-paste_a_video_or_audio_link: "Tempelkan tautan video atau audio"
-paste_failed_transcript_copied_to_clipboard: "Gagal menempel. Transkrip disalin ke papan klip."
-paste_last_transcript: "Tempel Transkrip Terakhir"
-paste_last_transcript_v: "Tempel transkrip terakhir ⌃⌘V"
-pause: "Berhenti sebentar"
-pause_media_during_transcription: "Jeda media selama transkripsi"
-permissions: "Izin"
-pick_which_provider_and_model_handles_each_ai_ta: "Pilih penyedia dan model mana yang menangani setiap tugas AI. Biarkan sebagai \"Tidak ditugaskan\" untuk melewatkan suatu tujuan."
-pick_which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
-pill: "Pil"
-pin_to_screen_always_on_top: "Sematkan ke layar (selalu di atas)"
-pindrop: "__TETAPKAN_PINDROP__"
-pindrop_is_ready_to_use_click_the_menu_bar_icon: |-
-  Pindrop siap digunakan.
-  Klik ikon bilah menu untuk memulai.
-pindrop_is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop siap digunakan.nKlik ikon bilah menu untuk memulai."
-pindrop_needs_a_few_permissions_to_work_nyour_pr: "Pindrop memerlukan beberapa izin untuk bekerja.nPrivasi Anda selalu dihormati."
-pindrop_needs_a_few_permissions_to_work_your_pri: |-
-  Pindrop memerlukan beberapa izin agar dapat berfungsi.
-  Privasi Anda selalu dihormati.
-pindrop_needs_accessibility_permission_to_insert: "\"\" Pindrop memerlukan izin Aksesibilitas untuk menyisipkan teks pada kursor Anda.                          Untuk memberikan izin: 1. Klik \"Buka Pengaturan Sistem\" di bawah 2. Klik tombol + 3. Navigasikan ke aplikasi yang ditampilkan di Finder 4. Mulai ulang Pindrop setelah memberikan izin Tanpa izin ini, teks hanya akan disalin ke papan klip Anda.             \"\""
-pindrop_needs_microphone_access_to_record_and_tr: "Pindrop memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.nnHarap berikan izin di Pengaturan Sistem."
-pindrop_on_github: "Pindrop di GitHub"
-pindrop_pill: "Pindrop Pil"
-pindrop_theme: "Pindrop Tema"
-pindrop_orb: "Orb Pindrop"
-pindrop_1_19: "Pindrop 1.19"
-pindrop_help: "Bantuan Pindrop"
-play: "Bermain"
-please_check_your_internet_connection_and_try_ag: "Silakan periksa koneksi internet Anda dan coba lagi."
-please_download_a_whisper_model_in_settings_befo: |-
-  Silakan unduh model Whisper di Pengaturan sebelum merekam.
-  
-  Buka Pengaturan → Model untuk mengunduh model.
-please_download_a_whisper_model_in_settings_befo_a71d286e: "Silakan unduh model Whisper di Pengaturan sebelum merekam.nnBuka Pengaturan → Model untuk mengunduh model."
-please_wait: "Harap tunggu..."
-portuguese_brazil: "Portugis (Brasil)"
-powered_by_whisperkit: "Didukung oleh WhisperKit"
-preparing_model: "Mempersiapkan Model..."
-preset_name: "Nama Prasetel"
-press_and_hold_to_dictate_in_any_app_pindrop_wil: "Tekan dan tahan untuk mendikte di aplikasi apa pun. Pindrop akan menyalin ucapan Anda dan menyisipkan teks di tempat kursor Anda berada."
-press_esc_to_cancel: "Tekan Esc untuk membatalkan"
-press_keys: "Tekan tombol..."
-press_once_to_start_again_to_stop: "Tekan sekali untuk memulai, tekan sekali lagi untuk berhenti"
-press_once_to_start_recording_press_again_to_sto: "Tekan sekali untuk mulai merekam, tekan lagi untuk berhenti dan menyalin"
-press_once_to_start_recording_then_press_again_t: "Tekan sekali untuk mulai merekam, lalu tekan lagi untuk berhenti dan menyalin."
-press_to_start_recording_press_again_to_open_not: "Tekan untuk mulai merekam, tekan lagi untuk membuka editor catatan"
-press_keys_98b8167e: "Tekan tombol…"
-press_once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
-primary_text: "Teks Utama"
-processing: "Pengolahan"
-processing_272bc02e: "Pengolahan..."
-processing_5aa377e2: "⏳ Pemrosesan"
-processing_transcript: "Memproses transkrip"
-prompt: "Mengingatkan"
-prompt_preset: "Prasetel Cepat"
-provider: "Penyedia"
-provider_kind: "Jenis Penyedia"
-provider_type: "Jenis Penyedia"
-providers: "Penyedia"
-providers_prompts_and_vibe_mode_controls: "Penyedia, petunjuk, dan kontrol mode getaran"
-push_to_talk: "Dorong untuk Bicara"
-quickly_copy_your_last_transcription: "Salin transkripsi terakhir Anda dengan cepat"
-quickly_pull_your_latest_transcript_back_to_the: "Tarik kembali transkrip terbaru Anda ke papan klip dengan cepat."
-quit: "Berhenti"
-quit_pindrop: "Keluar dari Pindrop"
-ready: "Siap"
-ready_ec1296e1: "● Siap"
-ready_to_record: "Siap untuk merekam"
-ready_to_transcribe: "Siap untuk ditranskrip"
-recent: "Terkini"
-recent_transcriptions: "Transkripsi Terbaru"
-recent_transcripts: "Transkrip Terbaru"
-recommended: "Direkomendasikan"
-recommended_the_deterministic_cleaner_handles_mo: "Direkomendasikan: pembersih deterministik menangani sebagian besar dikte dengan bersih. Aktifkan pass LLM hanya jika Anda ingin polesan ekstra dan menerima keunikan model sesekali (pembukaan, balasan percakapan)."
-recommended_the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
-record: "Catatan"
-recording: "Rekaman"
-recording_3f8fd48c: "🔴 Rekaman"
-recording_from_external_and_bluetooth_microphone: "Perekaman dari mikrofon eksternal dan Bluetooth kini sangat stabil, bahkan saat output audio diarahkan ke tempat lain."
-recordings: "rekaman"
-redo: "Mengulangi"
-refresh: "Menyegarkan"
-refresh_the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
-remove: "Menghapus"
-remove_and_clear_any_assignments_that_reference: "Hapus \"%@\" dan hapus semua tugas yang mereferensikannya? Kredensial yang disimpan akan dihapus."
-remove_from_folder: "Hapus dari Folder"
-remove_provider: "Hapus Penyedia"
-rename: "Ganti nama"
-rename_folder: "Ganti Nama Folder"
-rename_participant: "Rename Participant"
-rename_speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
-replace_all: "Ganti Semua"
-replace_words_and_phrases: "Ganti kata dan frasa"
-replacement: "Penggantian"
-replacement_text: "Teks pengganti"
-report_an_issue: "Laporkan Masalah"
-report_an_issue_bd7b4f00: "Laporkan masalah"
-required: "Diperlukan"
-required_for_recording_your_voice: "Diperlukan untuk merekam suara Anda"
-requires_diarization_model: "Requires diarization model"
-requires_speaker_diarization: "Requires speaker diarization"
-requires_a_fast_provider_apple_foundation_models: "Membutuhkan penyedia yang cepat (disarankan Apple Foundation Models). Penyedia cloud akan mengeluarkan satu panggilan API per jeda."
-reset: "Mengatur ulang"
-reset_all_settings: "Atur Ulang Semua Pengaturan?"
-reset_all_settings_7262c7b7: "Atur ulang semua pengaturan"
-reset_to_default: "Atur Ulang ke Default"
-reset_all_settings_e5dbc5fc: "Reset All Settings…"
-retry: "Mencoba kembali"
-right: "Benar"
-run_llm_polish_after_dictation_stops: "Jalankan pemolesan LLM setelah dikte berhenti"
-run_a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-runtime: "Waktu tayang: %@"
-runtime_status: "Status runtime"
-save: "Menyimpan"
-save_as_note: "Simpan sebagai Catatan"
-save_continue: "Simpan & Lanjutkan"
-save_credentials: "Simpan Kredensial"
-save_prompt: "Simpan Perintah"
-saved: "Disimpan"
-saved_as_note: "Disimpan sebagai Catatan"
-saved_transcription: "Transkripsi yang disimpan"
-search_media_transcripts: "Telusuri transkrip media..."
-search_models: "Model pencarian"
-search_models_61c1b9fe: "Telusuri model..."
-search_notes: "Telusuri catatan..."
-search_settings: "Pengaturan pencarian"
-search_settings_or_jump_between_sections_without: "Cari pengaturan atau lompat antar bagian tanpa meninggalkan ruang kerja utama."
-search_transcriptions: "Telusuri transkripsi..."
-secondary_text: "Teks Sekunder"
-select_a_dictionary_json_file_to_import: "Pilih file JSON kamus yang akan diimpor"
-select_a_model: "Pilih model"
-select_a_presets_json_file_to_import: "Pilih file JSON preset untuk diimpor"
-select_a_provider_kind: "Pilih jenis penyedia"
-select_a_provider_type: "Pilih jenis penyedia"
-select_ai_model: "Pilih Model AI"
-select_all: "Pilih Semua"
-select_language: "Pilih Bahasa"
-select_language_daea52c9: "Pilih bahasa"
-select_this_floating_indicator_style: "Pilih gaya indikator mengambang ini."
-select_voice_model: "Pilih Model Suara"
-select_the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
-selected: "Terpilih"
-sent_to_the_ai_model_when_processing_dictation_f: "Dikirim ke model AI saat memproses dikte untuk penyisipan teks langsung."
-sessions: "Sesi"
-sessions_781791f5: "sesi"
-set_as_default: "Tetapkan sebagai Default"
-settings: "Pengaturan"
-settings_bf83f07f: "Pengaturan..."
-settings_fa67a397: "Pengaturan…"
-setup_required: "Diperlukan pengaturan"
-show_app: "Tampilkan Aplikasi"
-show_app_in_finder: "Tampilkan Aplikasi di Finder"
-show_in_dock: "Tampilkan di Dock"
-show_api_key: "Tampilkan kunci API"
-show_the_main_window_and_open_the_library: "Show the main window and open the Library."
-shows_as_a_pill_at_the_bottom_of_the_screen: "Ditampilkan sebagai pil di bagian bawah layar"
-shows_as_a_liquid_glass_orb_in_the_corner_of_the: "Muncul sebagai bola kaca cair di sudut layar"
-sidebar_position: "Posisi bilah sisi"
-sidebar_position_916f66ea: "Posisi bilah sisi"
-simplified_chinese: "Cina Sederhana"
-size: "Ukuran"
-skip_for_now: "Lewati untuk Saat Ini"
-slow: "Lambat"
-slower: "Lebih lambat"
-slowest: "Paling lambat"
-small: "Kecil"
-smaller_models_are_faster_but_less_accurate_nsta: "Model yang lebih kecil lebih cepat namun kurang akurat. Mulailah dengan Base untuk keseimbangan terbaik."
-smaller_models_are_faster_but_less_accurate_star: |-
-  Model yang lebih kecil lebih cepat namun kurang akurat.
-  Mulailah dengan Base untuk keseimbangan terbaik.
-something_went_wrong: "Ada yang tidak beres"
-soon: "Segera"
-sort_by: "Urutkan berdasarkan"
-source: "Sumber"
-spanish: "Spanyol"
-speaker_diarization: "Speaker diarization"
-speaker_diarization_and_timestamps_are_attached: "Diarisasi speaker dan stempel waktu dilampirkan pada pemutaran."
-speaker_diarization_is_required: "Diarisasi pembicara diperlukan"
-speed: "Kecepatan"
-start_fresh_when_you_want_to_clear_preferences_o: "Mulai dari awal ketika Anda ingin menghapus preferensi, status orientasi, dan kredensial yang disimpan."
-start_recording: "Mulai Merekam"
-start_recording_to_see_your_transcriptions_here: "Mulai merekam untuk melihat transkripsi Anda di sini"
-start_stop_recording: "Memulai/menghentikan perekaman"
-start_using_pindrop: "Mulai Menggunakan Pindrop"
-status: "Status"
-stop_recording: "Berhenti Merekam"
-streaming_enhancement: "Peningkatan Streaming"
-streaming_transcription_currently_supports_engli: "Transkripsi streaming saat ini hanya mendukung bahasa Inggris, apa pun bahasa yang dipilih."
-streaming_transcription_is_disabled_while_ai_enh: "Transkripsi streaming dinonaktifkan saat Peningkatan AI diaktifkan."
-streaming_transcription_model_nemotron_speech: "Model transkripsi streaming (Nemotron Speech Streaming) dilisensikan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
-streaming_transcription_instantly_ready: "Transkripsi streaming, langsung siap"
-success: "Kesuksesan!"
-support: "Mendukung"
-support_coming_soon: "%@ Dukungan Segera Hadir"
-supports_local_media_files_and_web_links_resolve: "Mendukung file media lokal dan tautan web yang diselesaikan dengan yt-dlp."
-switch_to_model: "Beralih ke Model"
-system: "Sistem"
-system_default: "Bawaan Sistem"
-teach_custom_words: "Ajarkan kata-kata khusus"
-temporarily_copy_text_paste_it_then_restore_your: "Salin teks untuk sementara, tempel, lalu pulihkan clipboard Anda"
-temporarily_mute_speaker_output_while_dictation: "Menonaktifkan sementara output speaker saat dikte sedang direkam."
-temporarily_pause_active_media_playback_while_di: "Jeda sementara pemutaran media aktif saat dikte sedang direkam."
-tertiary_text: "Teks Tersier"
-the_model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuat dalam waktu 60 detik. Ini biasanya berarti file model rusak atau tidak kompatibel.                          Untuk memperbaikinya: 1. Buka Pengaturan → Model 2. Hapus model yang bermasalah 3. Unduh ulang model Jika masalah terus berlanjut, coba model yang lebih kecil (Tiny atau Base).             \"\""
-the_selected_chunk_variant_isn_t_downloaded_yet: "Varian potongan yang dipilih belum diunduh. Beralih akan memulai pengunduhan."
-the_new_nemotron_streaming_engine_shows_words_as: "Mesin streaming Nemotron baru menampilkan kata saat Anda mengucapkannya, dan mesin dipanaskan saat peluncuran agar dikte pertama Anda dimulai tanpa jeda."
-theme: "Tema"
-theme_changes_apply_live_across_the_workspace_se: "Perubahan tema berlaku langsung di seluruh ruang kerja, pengaturan, editor catatan, dan indikator mengambang."
-theme_mode: "Modus tema"
-theme_mode_bb6b0b3d: "Mode tema"
-this_preset_name_is_already_in_use: "Nama preset ini sudah digunakan."
-this_provider_will_be_available_in_a_future_upda: |-
-  Penyedia ini akan tersedia dalam pembaruan mendatang.
-  Untuk saat ini, coba OpenAI atau gunakan titik akhir Kustom.
-this_provider_will_be_available_in_a_future_upda_3e35a952: |-
-  Penyedia ini akan tersedia dalam pembaruan mendatang.
-  Coba OpenAI atau gunakan titik akhir Kustom.
-this_provider_will_be_available_in_a_future_upda_0677ac1d: "Penyedia ini akan tersedia pada pembaruan mendatang.nUntuk saat ini, coba OpenAI atau gunakan titik akhir Kustom."
-this_transcription_could_not_be_found: "Transkripsi ini tidak dapat ditemukan."
-this_will_clear_all_your_settings_including_api: "Ini akan menghapus semua pengaturan Anda, termasuk kunci API, tombol pintas, dan preferensi model. Aplikasi akan berhenti dan menampilkan orientasi lagi pada peluncuran berikutnya."
-this_will_permanently_remove_the_transcript_and: "Tindakan ini akan menghapus transkrip dan file media yang dikelolanya secara permanen."
-this_removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-this_will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
-time_saved: "Waktu Dihemat"
-to_dictate_and_let_pindrop_transcribe_for_you: "untuk mendiktekan dan membiarkan Pindrop menuliskannya untuk Anda"
-to_start_talking: "untuk mulai berbicara"
-today: "Hari ini"
-toggle: "Beralih"
-toggle_recording: "Alihkan Perekaman"
-toggle_sort_order: "Alihkan urutan pengurutan"
-transcribe: "Menuliskan"
-transcribe_media: "Transkrip Media"
-transcribed: "ditranskrip"
-transcription: "Transkripsi"
-transcription_backend: "Bagian belakang transkripsi"
-transcription_deleted: "Transkripsi dihapus."
-transcription_enhancement: "Peningkatan Transkripsi"
-transcription_failed: "Transkripsi Gagal"
-transcription_finished: "Transkripsi selesai."
-transcription_in_progress: "Transkripsi sedang berlangsung"
-transcription_metadata: "Metadata Transkripsi"
-transcription_update: "Pembaruan transkripsi"
-transcription_saved: "Transkripsi disimpan"
-transcriptions: "Transkripsi"
-transcriptions_f0972acc: "transkripsi"
-transcriptions_in_this_folder_will_be_kept_and_m: "Transkripsi dalam folder ini akan disimpan dan dipindahkan kembali ke perpustakaan."
-transcripts: "Transkrip"
-try_a_different_search_term: "Coba istilah pencarian lain"
-try_a_different_search_term_0ba628a3: "Coba istilah pencarian lain."
-try_a_different_search_term_in_this_folder: "Coba istilah pencarian lain di folder ini."
-try_searching_for_terms_like_hotkeys_microphone: "Coba telusuri istilah seperti tombol pintas, mikrofon, pembaruan, atau mode getar."
-turkish: "Turki"
-type_text_directly_into_the_active_app_when_poss: "Ketik teks langsung ke aplikasi yang aktif jika memungkinkan"
-unable_to_connect_to_the_ai_enhancement_service: "\"\" Tidak dapat menghubungkannn ke layanan peningkatan AI.                                  Silakan periksa: 1. Koneksi internet Andann 2. URL titik akhir API sudah benar 3. Layanan tidak mengalami gangguan Transkripsi disimpan tanpa penyempurnaan.                 \"\""
-unable_to_finish_transcription: "Tidak dapat menyelesaikan transkripsi"
-unable_to_load_history: "Tidak dapat memuat riwayat: %@"
-unable_to_load_models_try_refresh: "Tidak dapat memuat model. Coba segarkan."
-unable_to_update_media_library: "Tidak dapat memperbarui perpustakaan media"
-unavailable_device: "Perangkat tidak tersedia"
-undo: "Membuka"
-unfiled: "Tidak diarsipkan"
-unpin_from_screen: "Lepas sematan dari layar"
-update: "Memperbarui"
-updates: "Pembaruan"
-use_a_tap_to_start_tap_to_finish_shortcut_for_no: "Gunakan pintasan ketuk untuk memulai, ketuk untuk menyelesaikan untuk pengambilan catatan."
-use_clipboard_only: "Gunakan Papan Klip Saja"
-use_the_hotkey_to_start_your_first_recording: "Gunakan tombol pintas untuk memulai rekaman pertama Anda"
-use_transcription_as_a_placeholder_for_the_trans: "Gunakan ${transcription} sebagai pengganti teks yang ditranskripsi."
-use_transcription_as_placeholder: "Gunakan ${transcription} sebagai pengganti"
-used_when_capturing_notes_via_hotkey_can_add_mar: "Digunakan saat mengambil catatan melalui hotkey. Dapat menambahkan format penurunan harga untuk konten yang lebih panjang."
-uses_a_built_in_prompt_tuned_for_this_task: "Menggunakan prompt bawaan yang disesuaikan untuk tugas ini."
-uses_the_560ms_nemotron_variant_for_snappier_par: "Menggunakan varian Nemotron 560 md untuk teks parsial yang lebih responsif. Default adalah varian 1120 md (akurasi terbaik)."
-uses_the_transcription_enhancement_assignment_if: "Menggunakan tugas Peningkatan Transkripsi. Jika tidak ada yang disetel, keluaran pembersih deterministik akan dipertahankan apa adanya."
-v: "v%@"
-version: "Versi %@ (%@)"
-very_fast: "Sangat cepat"
-via: "melalui %@"
-vibe_mode: "Mode Getaran"
-vibe_mode_captures_structured_ui_context_when_re: "Mode getar menangkap konteks UI terstruktur saat perekaman dimulai sehingga peningkatan AI dapat menggunakan status aplikasi aktif Anda sebagai referensi."
-vibe_mode_works_best_with_accessibility_permissi: "Mode getaran berfungsi paling baik dengan izin Aksesibilitas. Tanpanya, Pindrop kembali ke metadata aplikasi terbatas dan transkripsi masih berfungsi normal."
-view: "Melihat"
-view_all: "Lihat semua"
-view_transcript_history: "Lihat riwayat transkrip"
-view_transcription_history: "Lihat riwayat transkripsi"
-vocabulary: "Kosakata"
-vs_typing: "vs mengetik"
-welcome_to_pindrop: "Selamat datang di Pindrop"
-whisperkit: "__TETAPKAN_WHISPERKIT__"
-word: "Kata"
-word_replacements: "Penggantian Kata"
-words: "Kata-kata"
-words_efb89361: "kata-kata"
-words_min: "kata/menit"
-words_you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
-wpm: "WPM"
-yesterday: "Kemarin"
-you_are_a_note_formatting_assistant_transform_th: "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.nnAturan:n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaann- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kuncin- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimaln- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinyan- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
-you_are_a_text_enhancement_assistant_improve_the: "Anda adalah asisten peningkatan teks. Memperbaiki tata bahasa, tanda baca, dan format teks yang disediakan dengan tetap mempertahankan makna dan nada aslinya. Kembalikan hanya teks yang disempurnakan tanpa komentar tambahan apa pun."
-you_can_change_these_anytime_from_the_menu_bar_s: "Anda dapat mengubahnya kapan saja dari bilah menu → Pengaturan → Tombol pintas"
-you_re_all_set: "Anda sudah siap!"
-you_re_all_set_058a8130: "Anda sudah siap!"
-you_ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Anda telah melampaui batas laju atau kuota API Anda.                                  Untuk memperbaikinya: 1. Tunggu beberapa menit dan coba lagi 2. Periksa batas penggunaan penyedia API Anda 3. Pertimbangkan untuk meningkatkan paket API Anda Transkripsi disimpan tanpa penyempurnaan.                 \"\""
-your_api_key_appears_to_be_invalid_or_expired_to: "\"\" Kunci API Anda tampaknya tidak valid atau kedaluwarsa.                                  Untuk memperbaikinya: 1. Buka Pengaturan → Peningkatan AI 2. Verifikasikan kunci API Anda sudah benar 3. Periksa apakah titik akhir API Anda sudah benar Transkrip disimpan tanpa peningkatan.                 \"\""
-your_hotkeys_are_ready_to_use_nyou_can_customize: "Tombol pintas Anda siap digunakan.nAnda dapat menyesuaikannya nanti di Pengaturan."
-your_hotkeys_are_ready_to_use_you_can_customize: |-
-  Tombol pintas Anda siap digunakan.
-  Anda dapat menyesuaikannya nanti di Pengaturan.
-your_model_is_ready_to_use: "Model Anda siap digunakan."
-your_stats: "Statistik Anda"
-your_floating_indicator_is_now_a_living_audio_re: "Indikator mengambang Anda kini menjadi orb hidup yang reaktif terhadap audio. Ia bernapas saat idle, membesar saat Anda berbicara, dan menayangkan kata-kata Anda secara langsung saat mendikte."
-orb: "Orb"
-meeting_saved: "Rapat disimpan"
-russian: "Russian"
-ukrainian: "Ukrainian"
-what_s_new_in_pindrop: "Yang Baru di Pindrop"
-what_s_new: "Yang Baru…"
-meet_the_new_orb: "Kenali Orb baru"
-thanks_to_for_investigating_and_kicking_off_the: "Terima kasih kepada %@ karena telah menyelidiki dan memulai perbaikan (PR #64)."
-thanks_to_for_the_contribution_pr_61: "Terima kasih kepada %@ atas kontribusinya (PR #61)."
-dictate_in_russian_and_ukrainian: "Dikte dalam bahasa Rusia dan Ukraina"
-two_new_dictation_languages_fully_wired_into_mod: "Dua bahasa dikte baru, sepenuhnya terhubung ke rekomendasi model."
-also_new_rtl_layout_support_and_20_new_interface: "Juga baru: dukungan tata letak RTL dan 20 bahasa antarmuka baru."
-advanced: "Lanjutan"
-agent_setup: "Pengaturan agen"
-appearance: "Tampilan"
-bearer_token: "Token Bearer"
-changes_the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client: "Klien"
-configuration_file: "Configuration File"
-configuration_scope: "Configuration Scope"
-configuration_snippet: "Configuration Snippet"
-dictation: "Dikte"
-dictation_language: "Bahasa dikte"
-dictation_polish: "Pemolesan dikte"
-done: "Selesai"
-input_device: "Perangkat masukan"
-license: "Lisensi"
-mcp_configuration_error: "MCP Configuration Error"
-mcp_server: "Server MCP"
-main_window: "Jendela utama"
-name: "Nama"
-port: "Port"
-port_changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project: "Proyek"
-regenerate: "Buat ulang"
-shortcuts: "Pintasan"
-speakers: "Pembicara"
-these_options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while_recording: "Saat merekam"
-may_conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library: "Library"
-conflicts_with: "Conflicts with %@"
-file: "File"
-window: "Jendela"
-help: "Bantuan"
-close: "Tutup"
-find: "Cari"
-minimize: "Minimalkan"
-zoom: "Zoom"
-bring_all_to_front: "Bawa Semua ke Depan"
-home: "Beranda"
-1_speaker: "1 speaker"
-d_speakers: "%d speakers"
-inserted_into_d_words: "Inserted into %@ · %d words"
-unknown_app: "Unknown App"
-diarized: "diarized"
-summary_ready: "summary ready"
-prompts_are_sent_in_english: "Prompts are sent in English"
-preset_example_clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-preset_example_clean_output: "So the meeting is at 3:30. Can you confirm?"
-preset_example_meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-preset_example_meeting_output: |-
-  ## Action Items
-  - **Alice** will send the deck by **Friday**
-  - **Bob** owns the pricing review
-  
-  ## Next Steps
-  - Decision needed next week
-preset_example_email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-preset_example_email_output: |-
-  Hi Jordan,
-  
-  Just checking if you got my notes from yesterday.
-  
-  Thanks,
-preset_example_social_input: "um we just shipped dark mode and it looks amazing you should try it"
-preset_example_social_output: |-
-  We just shipped dark mode.
-  
-  It looks amazing — you should try it.
-preset_example_bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-preset_example_bullets_output: |-
-  - Onboarding latency
-  - Pricing
-  - Launch date: May 12
-preset_example_technical_input: "call fetch user arrow then map the response equals equals two hundred"
-preset_example_technical_output: "Call `fetchUser` -> then map the response `==` 200."
-preset_example_live_input: "um so i think we should ship the beta by friday period"
-preset_example_live_output: "So I think we should ship the beta by Friday."
-preset_example_edits_input: "um this is correct ly twenty-five"
-preset_example_edits_output: "This is correctly 25"
+100:
+  local_processing: "100% pengolahan lokal"
+1:
+  folder: "1 map"
+  speaker: "1 speaker"
+  transcription: "1 transkripsi"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Aplikasi dikte bilah menu macOS asli menggunakan ucapan-ke-teks lokal dengan WhisperKit. Pemrosesan lokal 100% secara default dengan peningkatan AI opsional."
+  big_round_of_upgrades_and_two_community_shout: "Serangkaian peningkatan besar — dan dua apresiasi untuk komunitas."
+about:
+  _self: "Tentang"
+  pindrop: "Tentang Pindrop"
+accessibility:
+  _self: "Aksesibilitas"
+  permission_is_enabled_full_ui_cont: "Izin aksesibilitas diaktifkan. Konteks UI lengkap tersedia."
+  permission_is_not_granted_vibe_mod: "Izin aksesibilitas tidak diberikan. Mode getar tetap non-pemblokiran dengan konteks terbatas."
+  permission_recommended: "Izin Aksesibilitas Direkomendasikan"
+  permission_required: "Izin Aksesibilitas Diperlukan"
+  permission: "Izin aksesibilitas"
+accuracy:
+  _self: "Ketepatan"
+acknowledgments:
+  _self: "Ucapan Terima Kasih"
+active:
+  _self: "Aktif"
+add:
+  _self: "Menambahkan"
+  a_provider_to_start_using_ai_enhancement: "Tambahkan penyedia untuk mulai menggunakan peningkatan AI."
+  custom_words_to_improve_transcription_accura: "Tambahkan kata khusus untuk meningkatkan akurasi transkripsi untuk istilah, nama, atau jargon khusus."
+  provider: "Tambahkan Penyedia"
+  tag: "Tambahkan tanda..."
+  to_existing: "Tambahkan ke Yang Ada"
+  trailing_space: "Tambahkan spasi tambahan"
+  word_replacements_to_automatically_correct_c: "Tambahkan pengganti kata untuk memperbaiki kesalahan transkripsi umum secara otomatis."
+  words_to_help_pindrop_recognize_them_properl: "Tambahkan kata-kata untuk membantu Pindrop mengenalinya dengan benar"
+  words_you_manually_correct_into_your_vocabul: "Tambahkan kata-kata yang Anda koreksi secara manual ke dalam kosakata Anda untuk transkripsi di masa mendatang."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+ai:
+  _self: "AI"
+  enhancement: "Peningkatan AI"
+  enhancement_529f5583: "Peningkatan AI: %@"
+  enhancement_failed: "Peningkatan AI Gagal"
+  enhancement_is_disabled: "Peningkatan AI dinonaktifkan."
+  enhancement_will: "Peningkatan AI akan:"
+  model: "Model AI"
+all:
+  _self: "Semua"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Terjadi kesalahan saat menyempurnakan transkripsi Anda:
+    
+    %@
+    
+    Transkripsi asli disimpan tanpa penyempurnaan.
+    Anda dapat mencoba mengaktifkan lagi peningkatan AI di Pengaturan.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Terjadi kesalahan saat menyempurnakan transkripsi Anda:nn%@nnTranskripsi asli disimpan tanpa penyempurnaan.nAnda dapat mencoba mengaktifkan penyempurnaan AI lagi di Pengaturan."
+anthropic:
+  _self: "__TETAPKAN_ANTHROPIS__"
+api:
+  endpoint: "Titik Akhir API"
+  key: "Kunci API"
+  key_saved: "Kunci API disimpan"
+  key_saved_endpoint: "Kunci API disimpan • Titik akhir: %@"
+app:
+  info_acknowledgments_support_and_logs: "Info aplikasi, ucapan terima kasih, dukungan, dan log"
+append:
+  a_space_after_each_transcription_for_seam: "Tambahkan spasi setelah setiap transkripsi untuk pendiktean yang lancar."
+apple:
+  foundation_models_on_device: "Model Apple Foundation (di perangkat)"
+  intelligence: "__TETAPKAN_APPLE_INTELLIGENCE__"
+  intelligence_is_unavailable_on_this_system: "Apple Intelligence tidak tersedia di sistem ini. Tugas ini tidak akan terselesaikan sampai Apple Intelligence diaktifkan."
+  intelligence_runs_on_device_and_requires_n: "Apple Intelligence berjalan di perangkat dan tidak memerlukan kredensial."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "Apple SpeechTranscriber memerlukan macOS 26."
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber tidak tersedia — menggunakan Nemotron"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Apakah Anda yakin ingin menghapus '%@'? Tindakan ini tidak dapat diurungkan."
+assignments:
+  _self: "Tugas"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Lampirkan log dari folder ini saat mengajukan masalah GitHub."
+audio:
+  input: "Masukan Audio"
+automatic:
+  follow_system: "Otomatis (Ikuti Sistem)"
+  updates: "Pembaruan otomatis"
+  updates_and_manual_update_checks: "Pembaruan otomatis dan pemeriksaan pembaruan manual"
+automatically:
+  check_for_new_versions_in_the_back: "Secara otomatis memeriksa versi baru di latar belakang."
+  start_pindrop_when_you_sign_in: "Secara otomatis memulai Pindrop saat Anda masuk."
+available:
+  models: "Model yang Tersedia"
+avg:
+  speed: "Kecepatan Rata-Rata"
+back:
+  _self: "Kembali"
+  to_library: "Kembali ke perpustakaan"
+base:
+  _self: "Basis"
+best:
+  _self: "Terbaik"
+better:
+  _self: "Lebih baik"
+  bluetooth_external_mic_support: "Dukungan Bluetooth dan mikrofon eksternal lebih baik"
+built:
+  in_presets: "Preset Bawaan"
+  in_read_only: "Terintegrasi (hanya baca)"
+cancel:
+  _self: "Membatalkan"
+  operation: "Batalkan Operasi"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Tangkap langsung ke editor catatan dengan alur tahan untuk merekam."
+change:
+  microphone: "Ganti Mikrofon"
+  microphone_ac9970f4: "Ganti mikrofon"
+check:
+  for_updates: "Periksa Pembaruan..."
+  for_updates_736b9062: "Periksa pembaruan"
+  now: "Periksa Sekarang"
+checking:
+  _self: "Memeriksa..."
+choose:
+  a_location_to_save_the_dictionary: "Pilih lokasi untuk menyimpan kamus"
+  a_location_to_save_the_presets: "Pilih lokasi untuk menyimpan preset"
+  a_model: "Pilih Model"
+  a_provider_first: "Pilih penyedia terlebih dahulu"
+  an_audio_or_video_file_to_transcribe: "Pilih file audio atau video untuk ditranskripsikan"
+  between_nemotron_punctuated_downloaded_mod: "Pilih antara Nemotron (dengan tanda baca, model yang diunduh) dan Apple SpeechTranscriber (macOS 26+, bawaan OS)."
+  file: "Pilih berkas"
+  how_dictated_text_lands_then_tune_the_fin: "Pilih cara teks yang didiktekan mendarat, lalu sesuaikan perilaku penyisipan terakhir."
+  how_pindrop_follows_system_appearance_the: "Pilih bagaimana Pindrop mengikuti tampilan sistem, lalu gabungkan palet terang dan gelap yang dikurasi."
+  how_to_import_the_dictionary_data: "Pilih cara mengimpor data kamus"
+  how_to_import_the_preset_data: "Pilih cara mengimpor data preset"
+  languages_for_the_interface_and_for_dicta: "Pilih bahasa untuk antarmuka dan dikte. Otomatis mengikuti sistem."
+  location_to_save_presets: "Pilih lokasi untuk menyimpan preset"
+  the_daytime_shell_used_in_light_mode: "Pilih cangkang siang hari yang digunakan dalam mode terang."
+  the_low_glare_shell_used_in_dark_mode: "Pilih cangkang rendah silau yang digunakan dalam mode gelap."
+  which_microphone_pindrop_should_use_for_d: "Pilih mikrofon mana yang harus digunakan Pindrop untuk dikte dan bagaimana perilakunya saat merekam."
+  which_side_the_navigation_sidebar_appears: "Pilih di sisi mana bar samping navigasi muncul."
+  how_pindrop_appears_on_screen_while_you_d: "Pilih bagaimana Pindrop muncul di layar saat Anda mendikte."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
+  whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
+  which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
+  model: "Choose Model…"
+clean:
+  up_filler_words: "Bersihkan kata-kata pengisi"
+clear:
+  audio_buffer: "Hapus Penyangga Audio"
+  hotkey: "Hapus tombol pintas"
+  shortcut: "Hapus pintasan"
+clears:
+  preferences_and_restarts_onboarding: "Menghapus preferensi dan memulai kembali orientasi"
+  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+click:
+  or_hold: "Klik atau tahan"
+  or_press: "Klik atau tekan"
+  or_set_a_hotkey_to_start_talking: "Klik atau atur hotkey untuk mulai berbicara"
+  this_icon_anytime_to: "Klik ikon ini kapan saja untuk:"
+clipboard:
+  _self: "papan klip"
+  temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+cloud:
+  _self: "Awan"
+  model: "Model Awan"
+collapse:
+  _self: "Runtuh"
+coming:
+  soon: "%@ Segera Hadir"
+  soon_04d2fd85: "Segera hadir"
+configure:
+  ai_providers_and_credentials_apple_int: "Konfigurasikan penyedia dan kredensial AI. Apple Intelligence berjalan di perangkat; penyedia lain memerlukan kunci API."
+  keyboard_shortcuts_for_recording_and_n: "Konfigurasikan pintasan keyboard untuk merekam dan mengambil catatan"
+continue:
+  _self: "Melanjutkan"
+  with_default: "Lanjutkan dengan Default"
+  without: "Lanjutkan Tanpa"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Kontrol bagaimana Pindrop muncul di macOS dan apakah Pindrop dimulai dengan sesi desktop Anda."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Mengontrol cara jalur dikte langsung memoles transkrip. Pembersih deterministik (penghapusan pengisi, kapitalisasi, tanda baca lisan, normalisasi angka, penggabungan kata terpisah) berjalan dengan cara apa pun — sakelar ini membuka gerbang penyempurnaan LLM opsional yang diaktifkan setelah dikte berhenti."
+copied:
+  _self: "Disalin!"
+copy:
+  _self: "Menyalin"
+  enhanced: "Salin Ditingkatkan"
+  last_transcript: "Salin Transkrip Terakhir"
+  original: "Salin Asli"
+  system_info_for_bug_report: "Salin Info Sistem untuk Laporan Bug"
+  the_most_recent_transcript_to_the_clipboard: "Salin transkrip terbaru ke clipboard"
+  to_clipboard: "Salin ke papan klip"
+  transcript: "Salin Transkrip"
+  system_info: "Copy System Info"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
+correct:
+  grammar_mistakes: "Memperbaiki kesalahan tata bahasa"
+create:
+  _self: "Membuat"
+  new_note: "Buat Catatan Baru"
+  new_preset: "Buat Prasetel Baru"
+  your_first_note_to_get_started: "Buat catatan pertama Anda untuk memulai"
+  your_first_preset_or_duplicate_a_built_in: "Buat preset pertama Anda atau duplikat preset bawaan untuk menyesuaikannya."
+  your_own_presets_or_duplicate_built_in_on: "Buat preset Anda sendiri atau duplikat preset bawaan untuk menyesuaikannya."
+  preset: "Create Preset"
+credentials:
+  are_stored_securely_in_keychain: "Kredensial disimpan dengan aman di Gantungan Kunci"
+  saved_successfully: "Kredensial berhasil disimpan"
+  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
+current:
+  _self: "Saat ini: %@"
+custom:
+  _self: "Kebiasaan"
+  local: "Adat / Lokal"
+  openai_compatible: "Khusus (kompatibel dengan OpenAI)"
+  presets: "Preset Kustom"
+customize:
+  hotkey: "Sesuaikan tombol pintas"
+cut:
+  _self: "Memotong"
+d:
+  characters: "%d karakter"
+  speakers: "%d speakers"
+  samples: "%d samples · %@"
+dark:
+  _self: "Gelap"
+  preview: "Pratinjau Gelap"
+  theme: "Tema Gelap"
+database:
+  error: "Kesalahan Basis Data"
+date:
+  _self: "Tanggal"
+  7f823513: "Tanggal %@"
+default:
+  _self: "Bawaan"
+  model: "Model Bawaan"
+define:
+  word_replacements_to_automatically_replac: "Tentukan penggantian kata untuk secara otomatis mengganti kata atau frasa tertentu"
+degraded:
+  _self: "Terdegradasi"
+delete:
+  _self: "Menghapus"
+  folder: "Hapus Folder"
+  folder_e556e7c2: "Hapus map?"
+  model: "Hapus Model"
+  preset: "Hapus Prasetel"
+  preset_4f6cfe36: "Hapus Prasetel?"
+  transcription: "Hapus transkripsi"
+  transcription_f82187c4: "Hapus transkripsi?"
+  all: "Hapus semua"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
+dictionary:
+  _self: "Kamus"
+direct:
+  insert: "Sisipkan Langsung"
+disabled:
+  _self: "Dengan disabilitas"
+dismiss:
+  _self: "Membubarkan"
+display:
+  name: "Nama Tampilan"
+  name_c7874aaa: "Nama tampilan"
+  pindrop_in_the_dock_instead_of_running_o: "Tampilkan Pindrop di Dock alih-alih menggunakannn hanya sebagai aplikasi bilah menu."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Tempatkan sidebar di tepi kiri atau kanan jendela."
+download:
+  _self: "Unduh"
+  complete: "Unduh Selesai!"
+  continue: "Unduh & Lanjutkan"
+  failed: "Pengunduhan Gagal"
+  model: "Unduh modelnya"
+  the_diarization_model_before_starting_m: "Unduh model diarisasi sebelum memulai transkripsi media."
+downloaded:
+  _self: "Diunduh"
+downloading:
+  _self: "Mengunduh %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Letakkan file atau tempelkan tautan untuk membuat transkrip yang diari dan diberi stempel waktu."
+  audio_or_video_here: "Letakkan audio atau video di sini"
+duplicate:
+  preset: "Duplikat Preset"
+dutch:
+  _self: "Belanda"
+edit:
+  _self: "Sunting"
+  preset: "Sunting Prasetel"
+  provider: "Sunting Penyedia"
+empty:
+  _self: "(Kosong)"
+enable:
+  ai_enhancement: "Aktifkan Peningkatan AI"
+  live_session_updates_during_recording: "Aktifkan pembaruan sesi langsung selama perekaman"
+  vibe_mode_ui_context: "Aktifkan mode getaran (konteks UI)"
+  mcp_server: "Enable MCP Server"
+enabled:
+  _self: "Diaktifkan"
+endpoint:
+  _self: "Titik akhir: %@"
+english:
+  _self: "Bahasa inggris"
+  only: "Hanya dalam bahasa Inggris"
+enhanced:
+  _self: "Ditingkatkan"
+enhancement:
+  prompts: "Anjuran Peningkatan"
+enhancing:
+  _self: "Menyempurnakan…"
+enter:
+  an_openai_api_key_to_load_models: "Masukkan kunci API OpenAI untuk memuat model."
+  api_key: "Masukkan kunci API"
+  word_to_add: "Masukkan kata untuk ditambahkan"
+error:
+  _self: "Kesalahan"
+european:
+  multilingual: "multibahasa Eropa"
+excellent:
+  _self: "Bagus sekali"
+export:
+  _self: "Ekspor"
+  as_csv: "Ekspor sebagai CSV"
+  as_json: "Ekspor sebagai JSON"
+  as_plain_text: "Ekspor sebagai Teks Biasa"
+  dictionary: "Ekspor Kamus"
+  failed: "Ekspor gagal: %@"
+  last_transcript: "Ekspor Transkrip Terakhir..."
+  presets: "Ekspor Preset"
+failed:
+  to_add_replacement: "Gagal menambahkan pengganti: %@"
+  to_add_word: "Gagal menambahkan kata: %@"
+  to_delete_folder: "Gagal menghapus folder: %@"
+  to_delete_note: "Gagal menghapus catatan: %@"
+  to_delete_preset: "Gagal menghapus preset: %@"
+  to_delete_replacement: "Gagal menghapus pengganti: %@"
+  to_delete_transcription: "Gagal menghapus transkripsi: %@"
+  to_delete_word: "Gagal menghapus kata: %@"
+  to_export_dictionary: "Gagal mengekspor kamus: %@"
+  to_export_presets: "Gagal mengekspor preset: %@"
+  to_import_dictionary: "Gagal mengimpor kamus: %@"
+  to_import_presets: "Gagal mengimpor preset: %@"
+  to_initialize_the_database_nnthe_app_will: "Gagal menginisialisasi database: %@nnAplikasi sekarang akan ditutup. Silakan coba memulai ulang atau hubungi dukungan jika masalah terus berlanjut."
+  to_load_data: "Gagal memuat data: %@"
+  to_load_history: "Gagal memuat riwayat: %@"
+  to_read_import_file: "Gagal membaca file impor: %@"
+  to_save: "Gagal menyimpan: %@"
+  to_save_preset: "Gagal menyimpan preset: %@"
+  to_switch_model: "Gagal mengganti model: %@"
+  to_update_preset: "Gagal memperbarui prasetel: %@"
+  to_update_replacement: "Gagal memperbarui pengganti: %@"
+  to_update_word: "Gagal memperbarui kata: %@"
+fast:
+  _self: "Cepat"
+feature:
+  models: "Model Fitur"
+fetch:
+  models_in_models: "Ambil model di Models"
+fix:
+  punctuation_and_capitalization: "Perbaiki tanda baca dan kapitalisasi"
+floating:
+  indicator: "%@ indikator mengambang"
+  indicator_e0349402: "Indikator Mengambang"
+folder:
+  deleted: "Foldernya dihapus."
+  name: "Nama folder"
+follow:
+  playback: "Ikuti pemutaran"
+format:
+  text_appropriately: "Format teks dengan tepat"
+french:
+  _self: "Perancis"
+general:
+  _self: "Umum"
+german:
+  _self: "Jerman"
+get:
+  started: "Memulai"
+global:
+  _self: "Global"
+  keyboard_shortcuts: "Pintasan keyboard global"
+go:
+  back: "Kembali"
+  to_settings: "Buka pengaturan"
+good:
+  _self: "Bagus"
+  afternoon: "Selamat siang"
+  evening: "Selamat malam"
+  morning: "Selamat pagi"
+  night: "Selamat malam"
+google:
+  _self: "Google"
+got:
+  it: "Mengerti"
+grant:
+  _self: "Menganugerahkan"
+great:
+  _self: "Besar"
+hide:
+  this_for_1_hour: "Sembunyikan ini selama 1 jam"
+  api_key: "Sembunyikan kunci API"
+history:
+  _self: "Sejarah"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Tahan pintasan untuk merekam, lalu lepaskan untuk menyalin."
+  to_record_release_to_open_note_editor_with: "Tahan untuk merekam, lepaskan untuk membuka editor catatan dengan transkripsi"
+  to_record_release_to_stop_and_transcribe: "Tahan untuk merekam, lepaskan untuk berhenti dan menyalin"
+  to_record_release_to_transcribe: "Tahan untuk merekam, lepaskan untuk menyalin"
+  to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+hotkey:
+  conflict: "Konflik Tombol Pintas"
+hotkeys:
+  _self: "Tombol pintas"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
+import:
+  _self: "Impor"
+  dictionary: "Impor Kamus"
+  error: "Kesalahan Impor"
+  export: "Impor/Ekspor"
+  media: "Impor media"
+  or_transcribe_media_while_this_folder_is: "Impor atau transkripsikan media saat folder ini dipilih untuk menyimpan item di sini."
+  presets: "Impor Preset"
+  strategy: "Strategi Impor"
+imported:
+  files_and_web_links_will_appear_here_on: "File dan tautan web yang diimpor akan muncul di sini setelah pemrosesan selesai."
+improve:
+  transcription_quality_using_ai: "Tingkatkan kualitas transkripsi menggunakan AI"
+include:
+  clipboard_text: "Sertakan teks papan klip"
+interface:
+  _self: "Antarmuka"
+  language: "Bahasa antarmuka"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ ditugaskan ke %@ dan %@. Hanya tindakan pertama yang akan aktif. Perbarui tombol pintas Anda di Pengaturan untuk mengatasi konflik ini."
+italian:
+  _self: "Italia"
+items:
+  _self: "item"
+japanese:
+  _self: "Jepang"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Pertahankan Pindrop terkini secara otomatis, atau picu pemeriksaan manual kapan pun Anda mau."
+  pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Pintasan Papan Ketik"
+korean:
+  _self: "Korea"
+language:
+  _self: "Bahasa"
+large:
+  _self: "Besar"
+launch:
+  at_login: "Peluncuran saat Masuk: %@"
+  at_login_0b36c78f: "Luncurkan saat login"
+  at_login_fd1a3b7b: "Jalankan saat login"
+  at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+layout:
+  _self: "Tata Letak"
+learn:
+  corrected_words_automatically: "Pelajari kata-kata yang dikoreksi secara otomatis"
+left:
+  _self: "Kiri"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Biarkan Pindrop diam-diam mempelajari kosakata dari koreksi yang Anda lakukan seiring waktu."
+light:
+  _self: "Lampu"
+  dark_and_curated_palette_presets: "Preset palet terang, gelap, dan terkurasi"
+  preview: "Pratinjau Ringan"
+  theme: "Tema Ringan"
+limited:
+  _self: "Terbatas"
+listening:
+  _self: "Mendengarkan…"
+live:
+  streaming_refinement: "Penyempurnaan Streaming Langsung"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld karakter"
+  complete: "%lld%% selesai"
+  items: "%lld item"
+  notes: "%lld catatan"
+  transcriptions: "%lld transkripsi"
+lm:
+  studio: "__TETAP_LM_STUDIO__"
+  studio_only_needs_a_token_if_local_server_aut: "LM Studio hanya memerlukan token jika otentikasi server lokal diaktifkan."
+load:
+  models: "Memuat Model"
+loaded:
+  d_models: "Memuat model %d"
+loading:
+  history: "Memuat riwayat..."
+  models: "Memuat model..."
+local:
+  _self: "Lokal"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Ucapan lokal-ke-teks, langsung dari bilah menu Anda.
+    Cepat, pribadi, dan selalu tersedia.
+  speech_to_text_right_from_your_menu_bar_nf: "Ucapan lokal-ke-teks, langsung dari bilah menu Anda. Cepat, pribadi, dan selalu tersedia."
+  speech_to_text_with_whisperkit: "Pidato lokal-ke-teks dengan WhisperKit"
+  voice_to_text: "Suara-ke-teks lokal"
+low:
+  latency_mode_less_accurate: "Mode latensi rendah (kurang akurat)"
+manage:
+  local_speech_models_feature_models_and_th: "Kelola model ucapan lokal, model fitur, dan mesin default yang digunakan Pindrop untuk transkripsi."
+  models: "Kelola model"
+  presets: "Kelola Preset"
+  presets_ab87986d: "Kelola Preset..."
+  presets_d5d4c2c2: "Manage Presets…"
+manually:
+  check_for_new_versions_now: "Periksa versi baru secara manual sekarang."
+media:
+  library: "Perpustakaan Media"
+  transcription: "Transkripsi Media"
+  unavailable: "Media tidak tersedia"
+  saved: "Media disimpan"
+medium:
+  _self: "Sedang"
+microphone:
+  _self: "Mikropon"
+  permission_is_required_to_continue: "Izin mikrofon diperlukan untuk melanjutkan"
+  permission_is_required_to_continue_dc: "Izin mikrofon diperlukan untuk melanjutkan."
+  permission_required: "Izin Mikrofon Diperlukan"
+mit:
+  license: "Lisensi MIT"
+mode:
+  _self: "Modus: %@"
+model:
+  _self: "Model"
+  loading_failed: "Pemuatan Model Gagal"
+  loading_timed_out: "Waktu Pemuatan Model Habis"
+  validation: "Model Validation"
+models:
+  _self: "Model"
+move:
+  to_folder: "Pindah ke Map"
+multilingual:
+  _self: "Multibahasa"
+must:
+  be_openai_compatible: "Harus kompatibel dengan OpenAI"
+mute:
+  system_audio_during_recording: "Bisukan audio sistem selama perekaman"
+new:
+  folder: "Folder Baru"
+  note: "Catatan Baru"
+  preset: "Prasetel Baru"
+next:
+  _self: "Berikutnya"
+no:
+  api_key: "Tidak ada kunci API"
+  api_key_endpoint: "Tidak ada kunci API • Titik akhir: %@"
+  custom_presets: "Tidak Ada Preset Kustom"
+  downloaded_models: "Tidak ada model yang diunduh"
+  folders_yet: "Belum ada folder"
+  items_in: "Tidak ada item di %@"
+  media_transcriptions_yet: "Belum ada transkripsi media"
+  model_loaded: "Tidak Ada Model yang Dimuat"
+  model_selected: "Tidak ada model yang dipilih"
+  models_available: "Tidak ada model yang tersedia"
+  models_available_ae9dbd29: "Tidak ada model yang tersedia."
+  models_available_try_refresh_or_enter_a_model: "Tidak ada model yang tersedia. Coba Refresh atau masukkan ID model secara manual."
+  models_found: "Tidak ada model yang ditemukan."
+  models_loaded_open_edit_to_fetch_models: "Tidak ada model yang dimuat. Buka Edit untuk mengambil model."
+  models_match: "Tidak ada model yang cocok dengan \"%@\""
+  notes_yet: "Belum ada catatan"
+  providers_configured_yet: "Belum ada penyedia yang dikonfigurasi."
+  replacements: "Tidak Ada Penggantian"
+  results_found: "Tidak ada hasil yang ditemukan"
+  settings_found: "Tidak ada pengaturan yang ditemukan"
+  transcriptions_yet: "Belum ada transkripsi"
+  vocabulary_words: "Tidak Ada Kata Kosakata"
+  learned_participants_yet: "No learned participants yet"
+  providers_configured_yet_e6bc0075: "No providers configured yet"
+  conflicts_found: "No conflicts found"
+not:
+  assigned: "Tidak ditugaskan"
+  selected: "Tidak dipilih"
+  set: "Tidak Ditetapkan"
+  set_93039e60: "Tidak disetel"
+  granted: "Tidak diberikan"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+note:
+  _self: "Catatan"
+  capture_push_to_talk: "Pengambilan Catatan (Push-to-Talk)"
+  capture_toggle: "Pengambilan Catatan (Beralih)"
+  enhancement: "Peningkatan Catatan"
+  from: "Catatan dari"
+  metadata: "Catatan Metadata"
+  title: "Judul Catatan"
+  saved: "Catatan disimpan"
+  capture_hold: "Note Capture — Hold"
+  capture_toggle_7139a240: "Note Capture — Toggle"
+notes:
+  _self: "Catatan"
+  3add7b96: "catatan"
+off:
+  _self: "Mati"
+ok:
+  _self: "OKE"
+ollama:
+  _self: "__TETAP_OLLAMA__"
+  usually_does_not_require_authentication_f: "Ollama biasanya tidak memerlukan otentikasi untuk permintaan lokal."
+on:
+  _self: "Pada"
+  device_no_credentials_required: "Di perangkat, tidak diperlukan kredensial"
+open:
+  _self: "Membuka"
+  history: "Buka Sejarah"
+  logs_in_finder: "Buka Log di Finder"
+  original_link: "Buka tautan asli"
+  progress: "Buka kemajuan"
+  settings: "Buka Pengaturan"
+  settings_fd7108f8: "Buka pengaturan"
+  system_settings: "Buka Pengaturan Sistem"
+  library: "Open Library"
+openai:
+  _self: "__TETAP_BUKA__"
+  compatible_local_server: "Server lokal yang kompatibel dengan OpenAI"
+  whisper: "__TETAP_OPENAI__ Bisikan"
+openrouter:
+  _self: "__TETAP_BUKAROUTER__"
+optional:
+  _self: "Opsional"
+  insert_text_directly_into_apps: "Opsional: Sisipkan teks langsung ke dalam aplikasi"
+  used_for_auto_generated_titles_and_summ: "Opsional — digunakan untuk judul dan ringkasan yang dibuat secara otomatis pada impor transkripsi media."
+optionally:
+  clean_up_transcriptions_with_ai: "Secara opsional, bersihkan transkripsi dengan AI"
+or:
+  _self: "atau"
+  just_use_your_hotkey: "Atau cukup gunakan hotkey Anda!"
+original:
+  _self: "Asli"
+  text_use_commas_for_multiple: "Teks asli (gunakan koma untuk banyak)"
+originals:
+  comma_separated: "Dokumen asli (dipisahkan koma)"
+output:
+  _self: "Keluaran"
+  audio_interface_and_everyday_behavior: "Output, audio, antarmuka, dan perilaku sehari-hari"
+  mode: "Mode keluaran"
+nemotron:
+  default: "Nemotron (default)"
+paste:
+  _self: "Pasta"
+  a_video_or_audio_link: "Tempelkan tautan video atau audio"
+  failed_transcript_copied_to_clipboard: "Gagal menempel. Transkrip disalin ke papan klip."
+  last_transcript: "Tempel Transkrip Terakhir"
+  last_transcript_v: "Tempel transkrip terakhir ⌃⌘V"
+pause:
+  _self: "Berhenti sebentar"
+  media_during_transcription: "Jeda media selama transkripsi"
+permissions:
+  _self: "Izin"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Pilih penyedia dan model mana yang menangani setiap tugas AI. Biarkan sebagai \"Tidak ditugaskan\" untuk melewatkan suatu tujuan."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+pill:
+  _self: "Pil"
+pin:
+  to_screen_always_on_top: "Sematkan ke layar (selalu di atas)"
+pindrop:
+  _self: "__TETAPKAN_PINDROP__"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    Pindrop siap digunakan.
+    Klik ikon bilah menu untuk memulai.
+  is_ready_to_use_nclick_the_menu_bar_icon: "Pindrop siap digunakan.nKlik ikon bilah menu untuk memulai."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop memerlukan beberapa izin untuk bekerja.nPrivasi Anda selalu dihormati."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop memerlukan beberapa izin agar dapat berfungsi.
+    Privasi Anda selalu dihormati.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop memerlukan izin Aksesibilitas untuk menyisipkan teks pada kursor Anda.                          Untuk memberikan izin: 1. Klik \"Buka Pengaturan Sistem\" di bawah 2. Klik tombol + 3. Navigasikan ke aplikasi yang ditampilkan di Finder 4. Mulai ulang Pindrop setelah memberikan izin Tanpa izin ini, teks hanya akan disalin ke papan klip Anda.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop memerlukan akses mikrofon untuk merekam dan menyalin suara Anda.nnHarap berikan izin di Pengaturan Sistem."
+  on_github: "Pindrop di GitHub"
+  pill: "Pindrop Pil"
+  theme: "Pindrop Tema"
+  orb: "Orb Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Bantuan Pindrop"
+play:
+  _self: "Bermain"
+please:
+  check_your_internet_connection_and_try_ag: "Silakan periksa koneksi internet Anda dan coba lagi."
+  download_a_whisper_model_in_settings_befo: |-
+    Silakan unduh model Whisper di Pengaturan sebelum merekam.
+    
+    Buka Pengaturan → Model untuk mengunduh model.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Silakan unduh model Whisper di Pengaturan sebelum merekam.nnBuka Pengaturan → Model untuk mengunduh model."
+  wait: "Harap tunggu..."
+portuguese:
+  brazil: "Portugis (Brasil)"
+powered:
+  by_whisperkit: "Didukung oleh WhisperKit"
+preparing:
+  model: "Mempersiapkan Model..."
+preset:
+  name: "Nama Prasetel"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Tekan dan tahan untuk mendikte di aplikasi apa pun. Pindrop akan menyalin ucapan Anda dan menyisipkan teks di tempat kursor Anda berada."
+  esc_to_cancel: "Tekan Esc untuk membatalkan"
+  keys: "Tekan tombol..."
+  once_to_start_again_to_stop: "Tekan sekali untuk memulai, tekan sekali lagi untuk berhenti"
+  once_to_start_recording_press_again_to_sto: "Tekan sekali untuk mulai merekam, tekan lagi untuk berhenti dan menyalin"
+  once_to_start_recording_then_press_again_t: "Tekan sekali untuk mulai merekam, lalu tekan lagi untuk berhenti dan menyalin."
+  to_start_recording_press_again_to_open_not: "Tekan untuk mulai merekam, tekan lagi untuk membuka editor catatan"
+  keys_98b8167e: "Tekan tombol…"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
+primary:
+  text: "Teks Utama"
+processing:
+  _self: "Pengolahan"
+  272bc02e: "Pengolahan..."
+  5aa377e2: "⏳ Pemrosesan"
+  transcript: "Memproses transkrip"
+prompt:
+  _self: "Mengingatkan"
+  preset: "Prasetel Cepat"
+provider:
+  _self: "Penyedia"
+  kind: "Jenis Penyedia"
+  type: "Jenis Penyedia"
+providers:
+  _self: "Penyedia"
+  prompts_and_vibe_mode_controls: "Penyedia, petunjuk, dan kontrol mode getaran"
+push:
+  to_talk: "Dorong untuk Bicara"
+quickly:
+  copy_your_last_transcription: "Salin transkripsi terakhir Anda dengan cepat"
+  pull_your_latest_transcript_back_to_the: "Tarik kembali transkrip terbaru Anda ke papan klip dengan cepat."
+quit:
+  _self: "Berhenti"
+  pindrop: "Keluar dari Pindrop"
+ready:
+  _self: "Siap"
+  ec1296e1: "● Siap"
+  to_record: "Siap untuk merekam"
+  to_transcribe: "Siap untuk ditranskrip"
+recent:
+  _self: "Terkini"
+  transcriptions: "Transkripsi Terbaru"
+  transcripts: "Transkrip Terbaru"
+recommended:
+  _self: "Direkomendasikan"
+  the_deterministic_cleaner_handles_mo: "Direkomendasikan: pembersih deterministik menangani sebagian besar dikte dengan bersih. Aktifkan pass LLM hanya jika Anda ingin polesan ekstra dan menerima keunikan model sesekali (pembukaan, balasan percakapan)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+record:
+  _self: "Catatan"
+recording:
+  _self: "Rekaman"
+  3f8fd48c: "🔴 Rekaman"
+  from_external_and_bluetooth_microphone: "Perekaman dari mikrofon eksternal dan Bluetooth kini sangat stabil, bahkan saat output audio diarahkan ke tempat lain."
+recordings:
+  _self: "rekaman"
+redo:
+  _self: "Mengulangi"
+refresh:
+  _self: "Menyegarkan"
+  the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+remove:
+  _self: "Menghapus"
+  and_clear_any_assignments_that_reference: "Hapus \"%@\" dan hapus semua tugas yang mereferensikannya? Kredensial yang disimpan akan dihapus."
+  from_folder: "Hapus dari Folder"
+  provider: "Hapus Penyedia"
+rename:
+  _self: "Ganti nama"
+  folder: "Ganti Nama Folder"
+  participant: "Rename Participant"
+  speakers_in_transcripts_to_teach_pindrop: "Rename speakers in transcripts to teach Pindrop to recognize voices automatically."
+replace:
+  all: "Ganti Semua"
+  words_and_phrases: "Ganti kata dan frasa"
+replacement:
+  _self: "Penggantian"
+  text: "Teks pengganti"
+report:
+  an_issue: "Laporkan Masalah"
+  an_issue_bd7b4f00: "Laporkan masalah"
+required:
+  _self: "Diperlukan"
+  for_recording_your_voice: "Diperlukan untuk merekam suara Anda"
+requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
+  a_fast_provider_apple_foundation_models: "Membutuhkan penyedia yang cepat (disarankan Apple Foundation Models). Penyedia cloud akan mengeluarkan satu panggilan API per jeda."
+reset:
+  _self: "Mengatur ulang"
+  all_settings: "Atur Ulang Semua Pengaturan?"
+  all_settings_7262c7b7: "Atur ulang semua pengaturan"
+  to_default: "Atur Ulang ke Default"
+  all_settings_e5dbc5fc: "Reset All Settings…"
+retry:
+  _self: "Mencoba kembali"
+right:
+  _self: "Benar"
+run:
+  llm_polish_after_dictation_stops: "Jalankan pemolesan LLM setelah dikte berhenti"
+  a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+runtime:
+  _self: "Waktu tayang: %@"
+  status: "Status runtime"
+save:
+  _self: "Menyimpan"
+  as_note: "Simpan sebagai Catatan"
+  continue: "Simpan & Lanjutkan"
+  credentials: "Simpan Kredensial"
+  prompt: "Simpan Perintah"
+saved:
+  _self: "Disimpan"
+  as_note: "Disimpan sebagai Catatan"
+  transcription: "Transkripsi yang disimpan"
+search:
+  media_transcripts: "Telusuri transkrip media..."
+  models: "Model pencarian"
+  models_61c1b9fe: "Telusuri model..."
+  notes: "Telusuri catatan..."
+  settings: "Pengaturan pencarian"
+  settings_or_jump_between_sections_without: "Cari pengaturan atau lompat antar bagian tanpa meninggalkan ruang kerja utama."
+  transcriptions: "Telusuri transkripsi..."
+secondary:
+  text: "Teks Sekunder"
+select:
+  a_dictionary_json_file_to_import: "Pilih file JSON kamus yang akan diimpor"
+  a_model: "Pilih model"
+  a_presets_json_file_to_import: "Pilih file JSON preset untuk diimpor"
+  a_provider_kind: "Pilih jenis penyedia"
+  a_provider_type: "Pilih jenis penyedia"
+  ai_model: "Pilih Model AI"
+  all: "Pilih Semua"
+  language: "Pilih Bahasa"
+  language_daea52c9: "Pilih bahasa"
+  this_floating_indicator_style: "Pilih gaya indikator mengambang ini."
+  voice_model: "Pilih Model Suara"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
+selected:
+  _self: "Terpilih"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Dikirim ke model AI saat memproses dikte untuk penyisipan teks langsung."
+sessions:
+  _self: "Sesi"
+  781791f5: "sesi"
+set:
+  as_default: "Tetapkan sebagai Default"
+settings:
+  _self: "Pengaturan"
+  bf83f07f: "Pengaturan..."
+  fa67a397: "Pengaturan…"
+setup:
+  required: "Diperlukan pengaturan"
+show:
+  app: "Tampilkan Aplikasi"
+  app_in_finder: "Tampilkan Aplikasi di Finder"
+  in_dock: "Tampilkan di Dock"
+  api_key: "Tampilkan kunci API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
+shows:
+  as_a_pill_at_the_bottom_of_the_screen: "Ditampilkan sebagai pil di bagian bawah layar"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Muncul sebagai bola kaca cair di sudut layar"
+sidebar:
+  position: "Posisi bilah sisi"
+  position_916f66ea: "Posisi bilah sisi"
+simplified:
+  chinese: "Cina Sederhana"
+size:
+  _self: "Ukuran"
+skip:
+  for_now: "Lewati untuk Saat Ini"
+slow:
+  _self: "Lambat"
+slower:
+  _self: "Lebih lambat"
+slowest:
+  _self: "Paling lambat"
+small:
+  _self: "Kecil"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Model yang lebih kecil lebih cepat namun kurang akurat. Mulailah dengan Base untuk keseimbangan terbaik."
+  models_are_faster_but_less_accurate_star: |-
+    Model yang lebih kecil lebih cepat namun kurang akurat.
+    Mulailah dengan Base untuk keseimbangan terbaik.
+something:
+  went_wrong: "Ada yang tidak beres"
+soon:
+  _self: "Segera"
+sort:
+  by: "Urutkan berdasarkan"
+source:
+  _self: "Sumber"
+spanish:
+  _self: "Spanyol"
+speaker:
+  diarization: "Speaker diarization"
+  diarization_and_timestamps_are_attached: "Diarisasi speaker dan stempel waktu dilampirkan pada pemutaran."
+  diarization_is_required: "Diarisasi pembicara diperlukan"
+speed:
+  _self: "Kecepatan"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Mulai dari awal ketika Anda ingin menghapus preferensi, status orientasi, dan kredensial yang disimpan."
+  recording: "Mulai Merekam"
+  recording_to_see_your_transcriptions_here: "Mulai merekam untuk melihat transkripsi Anda di sini"
+  stop_recording: "Memulai/menghentikan perekaman"
+  using_pindrop: "Mulai Menggunakan Pindrop"
+status:
+  _self: "Status"
+stop:
+  recording: "Berhenti Merekam"
+streaming:
+  enhancement: "Peningkatan Streaming"
+  transcription_currently_supports_engli: "Transkripsi streaming saat ini hanya mendukung bahasa Inggris, apa pun bahasa yang dipilih."
+  transcription_is_disabled_while_ai_enh: "Transkripsi streaming dinonaktifkan saat Peningkatan AI diaktifkan."
+  transcription_model_nemotron_speech: "Model transkripsi streaming (Nemotron Speech Streaming) dilisensikan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
+  transcription_instantly_ready: "Transkripsi streaming, langsung siap"
+success:
+  _self: "Kesuksesan!"
+support:
+  _self: "Mendukung"
+  coming_soon: "%@ Dukungan Segera Hadir"
+supports:
+  local_media_files_and_web_links_resolve: "Mendukung file media lokal dan tautan web yang diselesaikan dengan yt-dlp."
+switch:
+  to_model: "Beralih ke Model"
+system:
+  _self: "Sistem"
+  default: "Bawaan Sistem"
+teach:
+  custom_words: "Ajarkan kata-kata khusus"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Salin teks untuk sementara, tempel, lalu pulihkan clipboard Anda"
+  mute_speaker_output_while_dictation: "Menonaktifkan sementara output speaker saat dikte sedang direkam."
+  pause_active_media_playback_while_di: "Jeda sementara pemutaran media aktif saat dikte sedang direkam."
+tertiary:
+  text: "Teks Tersier"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuat dalam waktu 60 detik. Ini biasanya berarti file model rusak atau tidak kompatibel.                          Untuk memperbaikinya: 1. Buka Pengaturan → Model 2. Hapus model yang bermasalah 3. Unduh ulang model Jika masalah terus berlanjut, coba model yang lebih kecil (Tiny atau Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "Varian potongan yang dipilih belum diunduh. Beralih akan memulai pengunduhan."
+  new_nemotron_streaming_engine_shows_words_as: "Mesin streaming Nemotron baru menampilkan kata saat Anda mengucapkannya, dan mesin dipanaskan saat peluncuran agar dikte pertama Anda dimulai tanpa jeda."
+theme:
+  _self: "Tema"
+  changes_apply_live_across_the_workspace_se: "Perubahan tema berlaku langsung di seluruh ruang kerja, pengaturan, editor catatan, dan indikator mengambang."
+  mode: "Modus tema"
+  mode_bb6b0b3d: "Mode tema"
+this:
+  preset_name_is_already_in_use: "Nama preset ini sudah digunakan."
+  provider_will_be_available_in_a_future_upda: |-
+    Penyedia ini akan tersedia dalam pembaruan mendatang.
+    Untuk saat ini, coba OpenAI atau gunakan titik akhir Kustom.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Penyedia ini akan tersedia dalam pembaruan mendatang.
+    Coba OpenAI atau gunakan titik akhir Kustom.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Penyedia ini akan tersedia pada pembaruan mendatang.nUntuk saat ini, coba OpenAI atau gunakan titik akhir Kustom."
+  transcription_could_not_be_found: "Transkripsi ini tidak dapat ditemukan."
+  will_clear_all_your_settings_including_api: "Ini akan menghapus semua pengaturan Anda, termasuk kunci API, tombol pintas, dan preferensi model. Aplikasi akan berhenti dan menampilkan orientasi lagi pada peluncuran berikutnya."
+  will_permanently_remove_the_transcript_and: "Tindakan ini akan menghapus transkrip dan file media yang dikelolanya secara permanen."
+  removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
+  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+time:
+  saved: "Waktu Dihemat"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "untuk mendiktekan dan membiarkan Pindrop menuliskannya untuk Anda"
+  start_talking: "untuk mulai berbicara"
+today:
+  _self: "Hari ini"
+toggle:
+  _self: "Beralih"
+  recording: "Alihkan Perekaman"
+  sort_order: "Alihkan urutan pengurutan"
+transcribe:
+  _self: "Menuliskan"
+  media: "Transkrip Media"
+transcribed:
+  _self: "ditranskrip"
+transcription:
+  _self: "Transkripsi"
+  backend: "Bagian belakang transkripsi"
+  deleted: "Transkripsi dihapus."
+  enhancement: "Peningkatan Transkripsi"
+  failed: "Transkripsi Gagal"
+  finished: "Transkripsi selesai."
+  in_progress: "Transkripsi sedang berlangsung"
+  metadata: "Metadata Transkripsi"
+  update: "Pembaruan transkripsi"
+  saved: "Transkripsi disimpan"
+transcriptions:
+  _self: "Transkripsi"
+  f0972acc: "transkripsi"
+  in_this_folder_will_be_kept_and_m: "Transkripsi dalam folder ini akan disimpan dan dipindahkan kembali ke perpustakaan."
+transcripts:
+  _self: "Transkrip"
+try:
+  a_different_search_term: "Coba istilah pencarian lain"
+  a_different_search_term_0ba628a3: "Coba istilah pencarian lain."
+  a_different_search_term_in_this_folder: "Coba istilah pencarian lain di folder ini."
+  searching_for_terms_like_hotkeys_microphone: "Coba telusuri istilah seperti tombol pintas, mikrofon, pembaruan, atau mode getar."
+turkish:
+  _self: "Turki"
+type:
+  text_directly_into_the_active_app_when_poss: "Ketik teks langsung ke aplikasi yang aktif jika memungkinkan"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Tidak dapat menghubungkannn ke layanan peningkatan AI.                                  Silakan periksa: 1. Koneksi internet Andann 2. URL titik akhir API sudah benar 3. Layanan tidak mengalami gangguan Transkripsi disimpan tanpa penyempurnaan.                 \"\""
+  to_finish_transcription: "Tidak dapat menyelesaikan transkripsi"
+  to_load_history: "Tidak dapat memuat riwayat: %@"
+  to_load_models_try_refresh: "Tidak dapat memuat model. Coba segarkan."
+  to_update_media_library: "Tidak dapat memperbarui perpustakaan media"
+unavailable:
+  device: "Perangkat tidak tersedia"
+undo:
+  _self: "Membuka"
+unfiled:
+  _self: "Tidak diarsipkan"
+unpin:
+  from_screen: "Lepas sematan dari layar"
+update:
+  _self: "Memperbarui"
+updates:
+  _self: "Pembaruan"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Gunakan pintasan ketuk untuk memulai, ketuk untuk menyelesaikan untuk pengambilan catatan."
+  clipboard_only: "Gunakan Papan Klip Saja"
+  the_hotkey_to_start_your_first_recording: "Gunakan tombol pintas untuk memulai rekaman pertama Anda"
+  transcription_as_a_placeholder_for_the_trans: "Gunakan ${transcription} sebagai pengganti teks yang ditranskripsi."
+  transcription_as_placeholder: "Gunakan ${transcription} sebagai pengganti"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Digunakan saat mengambil catatan melalui hotkey. Dapat menambahkan format penurunan harga untuk konten yang lebih panjang."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Menggunakan prompt bawaan yang disesuaikan untuk tugas ini."
+  the_560ms_nemotron_variant_for_snappier_par: "Menggunakan varian Nemotron 560 md untuk teks parsial yang lebih responsif. Default adalah varian 1120 md (akurasi terbaik)."
+  the_transcription_enhancement_assignment_if: "Menggunakan tugas Peningkatan Transkripsi. Jika tidak ada yang disetel, keluaran pembersih deterministik akan dipertahankan apa adanya."
+v:
+  _self: "v%@"
+version:
+  _self: "Versi %@ (%@)"
+very:
+  fast: "Sangat cepat"
+via:
+  _self: "melalui %@"
+vibe:
+  mode: "Mode Getaran"
+  mode_captures_structured_ui_context_when_re: "Mode getar menangkap konteks UI terstruktur saat perekaman dimulai sehingga peningkatan AI dapat menggunakan status aplikasi aktif Anda sebagai referensi."
+  mode_works_best_with_accessibility_permissi: "Mode getaran berfungsi paling baik dengan izin Aksesibilitas. Tanpanya, Pindrop kembali ke metadata aplikasi terbatas dan transkripsi masih berfungsi normal."
+view:
+  _self: "Melihat"
+  all: "Lihat semua"
+  transcript_history: "Lihat riwayat transkrip"
+  transcription_history: "Lihat riwayat transkripsi"
+vocabulary:
+  _self: "Kosakata"
+vs:
+  typing: "vs mengetik"
+welcome:
+  to_pindrop: "Selamat datang di Pindrop"
+whisperkit:
+  _self: "__TETAPKAN_WHISPERKIT__"
+word:
+  _self: "Kata"
+  replacements: "Penggantian Kata"
+words:
+  _self: "Kata-kata"
+  efb89361: "kata-kata"
+  min: "kata/menit"
+  you_manually_correct_can_be_added_to_your: "Words you manually correct can be added to your vocabulary for future dictation."
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Kemarin"
+you:
+  are_a_note_formatting_assistant_transform_th: "Anda adalah asisten pemformatan catatan. Ubah teks yang ditranskrip menjadi catatan yang terstruktur dengan baik.nnAturan:n- Memperbaiki kesalahan tata bahasa, tanda baca, dan ejaann- Untuk konten yang lebih panjang (3+ paragraf), tambahkan pemformatan penurunan harga:n - Gunakan header (## atau ###) untuk mengatur bagiann - Gunakan poin-poin atau daftar bernomor jika diperlukan - Gunakan **tebal** untuk penekanan pada istilah-istilah kuncin- Untuk konten yang lebih pendek, buat tetap sederhana dengan format minimaln- Pertahankan makna dan nada asli- Lakukan tidak menambahkan konten yang tidak ada dalam aslinyan- Hanya mengembalikan catatan yang diformat tanpa komentar apa pun"
+  are_a_text_enhancement_assistant_improve_the: "Anda adalah asisten peningkatan teks. Memperbaiki tata bahasa, tanda baca, dan format teks yang disediakan dengan tetap mempertahankan makna dan nada aslinya. Kembalikan hanya teks yang disempurnakan tanpa komentar tambahan apa pun."
+  can_change_these_anytime_from_the_menu_bar_s: "Anda dapat mengubahnya kapan saja dari bilah menu → Pengaturan → Tombol pintas"
+  re_all_set: "Anda sudah siap!"
+  re_all_set_058a8130: "Anda sudah siap!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Anda telah melampaui batas laju atau kuota API Anda.                                  Untuk memperbaikinya: 1. Tunggu beberapa menit dan coba lagi 2. Periksa batas penggunaan penyedia API Anda 3. Pertimbangkan untuk meningkatkan paket API Anda Transkripsi disimpan tanpa penyempurnaan.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Kunci API Anda tampaknya tidak valid atau kedaluwarsa.                                  Untuk memperbaikinya: 1. Buka Pengaturan → Peningkatan AI 2. Verifikasikan kunci API Anda sudah benar 3. Periksa apakah titik akhir API Anda sudah benar Transkrip disimpan tanpa peningkatan.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Tombol pintas Anda siap digunakan.nAnda dapat menyesuaikannya nanti di Pengaturan."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Tombol pintas Anda siap digunakan.
+    Anda dapat menyesuaikannya nanti di Pengaturan.
+  model_is_ready_to_use: "Model Anda siap digunakan."
+  stats: "Statistik Anda"
+  floating_indicator_is_now_a_living_audio_re: "Indikator mengambang Anda kini menjadi orb hidup yang reaktif terhadap audio. Ia bernapas saat idle, membesar saat Anda berbicara, dan menayangkan kata-kata Anda secara langsung saat mendikte."
+orb:
+  _self: "Orb"
+meeting:
+  saved: "Rapat disimpan"
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
+what:
+  s_new_in_pindrop: "Yang Baru di Pindrop"
+  s_new: "Yang Baru…"
+meet:
+  the_new_orb: "Kenali Orb baru"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Terima kasih kepada %@ karena telah menyelidiki dan memulai perbaikan (PR #64)."
+  to_for_the_contribution_pr_61: "Terima kasih kepada %@ atas kontribusinya (PR #61)."
+dictate:
+  in_russian_and_ukrainian: "Dikte dalam bahasa Rusia dan Ukraina"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Dua bahasa dikte baru, sepenuhnya terhubung ke rekomendasi model."
+also:
+  new_rtl_layout_support_and_20_new_interface: "Juga baru: dukungan tata letak RTL dan 20 bahasa antarmuka baru."
+advanced:
+  _self: "Lanjutan"
+agent:
+  setup: "Pengaturan agen"
+appearance:
+  _self: "Tampilan"
+bearer:
+  token: "Token Bearer"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
+client:
+  _self: "Klien"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
+dictation:
+  _self: "Dikte"
+  language: "Bahasa dikte"
+  polish: "Pemolesan dikte"
+done:
+  _self: "Selesai"
+input:
+  device: "Perangkat masukan"
+license:
+  _self: "Lisensi"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "Server MCP"
+main:
+  window: "Jendela utama"
+name:
+  _self: "Nama"
+port:
+  _self: "Port"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
+project:
+  _self: "Proyek"
+regenerate:
+  _self: "Buat ulang"
+shortcuts:
+  _self: "Pintasan"
+speakers:
+  _self: "Pembicara"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
+while:
+  recording: "Saat merekam"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"
+file:
+  _self: "File"
+window:
+  _self: "Jendela"
+help:
+  _self: "Bantuan"
+close:
+  _self: "Tutup"
+find:
+  _self: "Cari"
+minimize:
+  _self: "Minimalkan"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Bawa Semua ke Depan"
+home:
+  _self: "Beranda"
+
+diarized:
+  _self: "diarized"
+
+summary:
+  ready: "summary ready"
+
+prompts:
+  are_sent_in_english: "Prompts are sent in English"
+
+preset_example:
+  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
+  clean_output: "So the meeting is at 3:30. Can you confirm?"
+  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
+  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
+  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
+  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
+  social_input: "um we just shipped dark mode and it looks amazing you should try it"
+  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
+  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
+  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
+  technical_input: "call fetch user arrow then map the response equals equals two hundred"
+  technical_output: "Call `fetchUser` -> then map the response `==` 200."
+  live_input: "um so i think we should ship the beta by friday period"
+  live_output: "So I think we should ship the beta by Friday."
+  edits_input: "um this is correct ly twenty-five"
+  edits_output: "This is correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"

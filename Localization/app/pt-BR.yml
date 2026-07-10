@@ -1,870 +1,1213 @@
-100_local_processing: "Processamento 100% local"
-1_folder: "1 pasta"
-1_transcription: "1 transcrição"
-a_native_macos_menu_bar_dictation_app_using_loca: "Um aplicativo nativo de ditado da barra de menus do macOS usando fala para texto local com WhisperKit. Processamento 100% local por padrão com aprimoramento de IA opcional."
-a_big_round_of_upgrades_and_two_community_shout: "Uma grande rodada de melhorias — e dois agradecimentos à comunidade."
-about: "Sobre"
-about_pindrop: "Sobre Pindrop"
-accessibility: "Acessibilidade"
-accessibility_permission_is_enabled_full_ui_cont: "A permissão de acessibilidade está habilitada. O contexto completo da UI está disponível."
-accessibility_permission_is_not_granted_vibe_mod: "A permissão de acessibilidade não é concedida. O modo Vibe permanece sem bloqueio com contexto limitado."
-accessibility_permission_recommended: "Permissão de acessibilidade recomendada"
-accessibility_permission_required: "Permissão de acessibilidade necessária"
-accessibility_permission: "Permissão de Acessibilidade"
-accuracy: "Precisão"
-acknowledgments: "Agradecimentos"
-active: "Ativo"
-add: "Adicionar"
-add_a_provider_to_start_using_ai_enhancement: "Adicione um provedor para começar a usar o aprimoramento de IA."
-add_custom_words_to_improve_transcription_accura: "Adicione palavras personalizadas para melhorar a precisão da transcrição de termos, nomes ou jargões especializados."
-add_provider: "Adicionar provedor"
-add_tag: "Adicionar etiqueta..."
-add_to_existing: "Adicionar ao existente"
-add_trailing_space: "Adicionar espaço à direita"
-add_word_replacements_to_automatically_correct_c: "Adicione substituições de palavras para corrigir automaticamente erros comuns de transcrição."
-add_words_to_help_pindrop_recognize_them_properl: "Adicione palavras para ajudar o Pindrop a reconhecê-las corretamente"
-add_words_you_manually_correct_into_your_vocabul: "Adicione palavras que você corrige manualmente em seu vocabulário para transcrições futuras."
-add_this_to_claude_settings_json_in_your_project: "Adicione isto a .claude/settings.json na raiz do projeto ou a ~/.claude/settings.json para acesso do usuário."
-add_this_to_cursor_mcp_json_in_your_project_root: "Adicione isto a .cursor/mcp.json na raiz do projeto ou a ~/.cursor/mcp.json para todos os projetos. Reinicie o Cursor após salvar."
-add_this_to_opencode_json_in_your_project_root_f: "Adicione isto a opencode.json na raiz do projeto para acesso específico do projeto."
-add_this_to_codex_config_toml_project_scoped_con: "Adicione isto a ~/.codex/config.toml. A configuração do projeto pode ficar em .codex/config.toml para projetos confiáveis."
-add_this_to_config_opencode_opencode_json_for_us: "Adicione isto a ~/.config/opencode/opencode.json para acesso do usuário em todos os projetos."
-ai: "IA"
-ai_enhancement: "Aprimoramento de IA"
-ai_enhancement_529f5583: "Aprimoramento de IA: %@"
-ai_enhancement_failed: "Falha no aprimoramento de IA"
-ai_enhancement_is_disabled: "O aprimoramento de IA está desativado."
-ai_enhancement_will: "O aprimoramento de IA irá:"
-ai_model: "Modelo de IA"
-all: "Todos"
-an_error_occurred_while_enhancing_your_transcrip: |-
-  Ocorreu um erro ao aprimorar sua transcrição:
-  
-  %@
-  
-  A transcrição original foi salva sem aprimoramento.
-  Você pode tentar ativar o aprimoramento de IA novamente em Configurações.
-an_error_occurred_while_enhancing_your_transcrip_8c664cb4: "Ocorreu um erro ao aprimorar sua transcrição:nn%@nnA transcrição original foi salva sem melhorias.nVocê pode tentar ativar o aprimoramento de IA novamente em Configurações."
-anthropic: "Anthropic"
-api_endpoint: "Ponto final da API"
-api_key: "Chave de API"
-api_key_saved: "Chave de API salva"
-api_key_saved_endpoint: "Chave de API salva • Endpoint: %@"
-app_info_acknowledgments_support_and_logs: "Informações, reconhecimentos, suporte e registros do aplicativo"
-append_a_space_after_each_transcription_for_seam: "Acrescente um espaço após cada transcrição para um ditado perfeito."
-apple_foundation_models_on_device: "Modelos Apple Foundation (no dispositivo)"
-apple_intelligence: "Apple Intelligence"
-apple_intelligence_is_unavailable_on_this_system: "O Apple Intelligence não está disponível neste sistema. Esta atribuição não será resolvida até que o Apple Intelligence seja ativado."
-apple_intelligence_runs_on_device_and_requires_n: "O Apple Intelligence é executado no dispositivo e não requer credenciais."
-apple_speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
-apple_speechtranscriber_requires_macos_26: "O Apple SpeechTranscriber requer macOS 26."
-apple_speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber indisponível — usando Nemotron"
-are_you_sure_you_want_to_delete_this_action_cann: "Tem certeza de que deseja excluir '%@'? Esta ação não pode ser desfeita."
-assignments: "Tarefas"
-attach_logs_from_this_folder_when_filing_a_githu: "Anexe logs desta pasta ao registrar um problema no GitHub."
-audio_input: "Entrada de áudio"
-automatic_follow_system: "Automático (Siga Sistema)"
-automatic_updates: "Atualizações automáticas"
-automatic_updates_and_manual_update_checks: "Atualizações automáticas e verificações manuais de atualizações"
-automatically_check_for_new_versions_in_the_back: "Verifique automaticamente novas versões em segundo plano."
-automatically_start_pindrop_when_you_sign_in: "Inicie o Pindrop automaticamente quando você fizer login."
-available_models: "Modelos Disponíveis"
-avg_speed: "Velocidade média"
-back: "Voltar"
-back_to_library: "De volta à biblioteca"
-base: "Base"
-best: "Melhor"
-better: "Melhorar"
-better_bluetooth_external_mic_support: "Melhor suporte a Bluetooth e microfones externos"
-built_in_presets: "Predefinições integradas"
-built_in_read_only: "Integrado (somente leitura)"
-cancel: "Cancelar"
-cancel_operation: "Cancelar operação"
-capture_directly_into_the_note_editor_with_a_hol: "Capture diretamente no editor de notas com um fluxo de retenção para gravação."
-change_microphone: "Mudar microfone"
-change_microphone_ac9970f4: "Mudar microfone"
-check_for_updates: "Verifique se há atualizações..."
-check_for_updates_736b9062: "Verifique se há atualizações"
-check_now: "Verifique agora"
-checking: "Verificando..."
-choose_a_location_to_save_the_dictionary: "Escolha um local para salvar o dicionário"
-choose_a_location_to_save_the_presets: "Escolha um local para salvar as predefinições"
-choose_a_model: "Escolha um modelo"
-choose_a_provider_first: "Escolha um provedor primeiro"
-choose_an_audio_or_video_file_to_transcribe: "Escolha um arquivo de áudio ou vídeo para transcrever"
-choose_between_nemotron_punctuated_downloaded_mod: "Escolha entre Nemotron (com pontuação, modelo baixado) e Apple SpeechTranscriber (macOS 26+, incluído no sistema)."
-choose_file: "Escolha o arquivo"
-choose_how_dictated_text_lands_then_tune_the_fin: "Escolha como o texto ditado será exibido e ajuste o comportamento de inserção final."
-choose_how_pindrop_follows_system_appearance_the: "Escolha como o Pindrop segue a aparência do sistema e, em seguida, misture paletas claras e escuras selecionadas."
-choose_how_to_import_the_dictionary_data: "Escolha como importar os dados do dicionário"
-choose_how_to_import_the_preset_data: "Escolha como importar os dados predefinidos"
-choose_languages_for_the_interface_and_for_dicta: "Escolha os idiomas para a interface e para o ditado. Automático segue o sistema."
-choose_location_to_save_presets: "Escolha o local para salvar as predefinições"
-choose_the_daytime_shell_used_in_light_mode: "Escolha o shell diurno usado no modo claro."
-choose_the_low_glare_shell_used_in_dark_mode: "Escolha a concha de baixo brilho usada no modo escuro."
-choose_which_microphone_pindrop_should_use_for_d: "Escolha qual microfone o Pindrop deve usar para ditado e como ele se comporta durante a gravação."
-choose_which_side_the_navigation_sidebar_appears: "Escolha em qual lado a barra de navegação lateral aparece."
-choose_how_pindrop_appears_on_screen_while_you_d: "Escolha como o Pindrop aparece na tela enquanto você dita."
-choose_how_recording_and_processing_status_appea: "Escolha como o status de gravação e processamento aparece enquanto você trabalha."
-choose_whether_pindrop_starts_when_you_sign_in_a: "Escolha se o Pindrop inicia ao entrar e aparece no Dock."
-choose_which_edge_of_the_main_window_holds_the_n: "Escolha em qual lado da janela principal fica a barra de navegação."
-choose_which_microphone_pindrop_uses_for_dictati: "Escolha o microfone que o Pindrop usa para o ditado."
-choose_model: "Escolher modelo…"
-clean_up_filler_words: "Limpe palavras de preenchimento"
-clear_audio_buffer: "Limpar buffer de áudio"
-clear_hotkey: "Limpar tecla de atalho"
-clear_shortcut: "Limpar atalho"
-clears_preferences_and_restarts_onboarding: "Limpa preferências e reinicia a integração"
-clears_preferences_and_restarts_onboarding_7d85115c: "Limpa as preferências e reinicia a introdução."
-click_or_hold: "Clique ou segure"
-click_or_press: "Clique ou pressione"
-click_or_set_a_hotkey_to_start_talking: "Clique ou defina uma tecla de atalho para começar a falar"
-click_this_icon_anytime_to: "Clique neste ícone a qualquer momento para:"
-clipboard: "Área de transferência"
-clipboard_temporarily_copies_the_transcript_for: "A área de transferência copia o texto para colar. A inserção direta digita no app ativo quando possível."
-cloud: "Nuvem"
-cloud_model: "Modelo de nuvem"
-collapse: "Recolher"
-coming_soon: "%@ Em breve"
-coming_soon_04d2fd85: "Em breve"
-configure_ai_providers_and_credentials_apple_int: "Configure provedores e credenciais de IA. O Apple Intelligence é executado no dispositivo; outros provedores exigem chaves de API."
-configure_keyboard_shortcuts_for_recording_and_n: "Configure atalhos de teclado para gravação e captura de notas"
-continue: "Continuar"
-continue_with_default: "Continuar com o padrão"
-continue_without: "Continuar sem"
-control_how_pindrop_appears_in_macos_and_whether: "Controle como o Pindrop aparece no macOS e se ele inicia na sua sessão de desktop."
-controls_how_the_live_dictation_path_polishes_tr: "Controla como o caminho de ditado ao vivo refina as transcrições. O limpador determinístico (remoção de muletas, capitalização, pontuação falada, normalização de números, fusão de palavras divididas) é executado de qualquer forma — esta chave controla o polimento LLM opcional disparado após o fim do ditado."
-copied: "Copiado!"
-copy: "Cópia"
-copy_enhanced: "Cópia aprimorada"
-copy_last_transcript: "Copiar a última transcrição"
-copy_original: "Copiar original"
-copy_system_info_for_bug_report: "Copiar informações do sistema para relatório de bug"
-copy_the_most_recent_transcript_to_the_clipboard: "Copie a transcrição mais recente para a área de transferência"
-copy_to_clipboard: "Copiar para a área de transferência"
-copy_transcript: "Copiar transcrição"
-copy_system_info: "Copiar info do sistema"
-copy_the_configuration_snippet_into_your_preferr: "Copie o trecho de configuração para o host de agente de IA de sua preferência."
-copy_the_most_recent_transcript_to_the_clipboard_b9736933: "Copia a transcrição mais recente para a área de transferência."
-correct_grammar_mistakes: "Corrigir erros gramaticais"
-create: "Criar"
-create_new_note: "Criar nova nota"
-create_new_preset: "Criar nova predefinição"
-create_your_first_note_to_get_started: "Crie sua primeira nota para começar"
-create_your_first_preset_or_duplicate_a_built_in: "Crie sua primeira predefinição ou duplique uma predefinida para personalizá-la."
-create_your_own_presets_or_duplicate_built_in_on: "Crie suas próprias predefinições ou duplique as predefinidas para personalizá-las."
-create_preset: "Criar predefinição"
-credentials_are_stored_securely_in_keychain: "As credenciais são armazenadas com segurança no Keychain"
-credentials_saved_successfully: "Credenciais salvas com sucesso"
-credentials_are_stored_securely_in_keychain_5acff5d3: "As credenciais são armazenadas com segurança no Keychain."
-current: "Atual: %@"
-custom: "Personalizado"
-custom_local: "Personalizado/Local"
-custom_openai_compatible: "Personalizado (compatível com OpenAI)"
-custom_presets: "Predefinições personalizadas"
-customize_hotkey: "Personalizar tecla de atalho"
-cut: "Corte"
-d_characters: "%d characters"
-d_samples: "%d amostras · %@"
-dark: "Escuro"
-dark_preview: "Pré-visualização escura"
-dark_theme: "Tema escuro"
-database_error: "Erro de banco de dados"
-date: "Data"
-date_7f823513: "Data %@"
-default: "Padrão"
-default_model: "Modelo padrão"
-define_word_replacements_to_automatically_replac: "Defina substituições de palavras para substituir automaticamente palavras ou frases específicas"
-degraded: "Degradado"
-delete: "Excluir"
-delete_folder: "Excluir pasta"
-delete_folder_e556e7c2: "Excluir pasta?"
-delete_model: "Excluir modelo"
-delete_preset: "Excluir predefinição"
-delete_preset_4f6cfe36: "Excluir predefinição?"
-delete_transcription: "Excluir transcrição"
-delete_transcription_f82187c4: "Excluir transcrição?"
-delete_all: "Excluir tudo"
-delete_all_participants: "Excluir todos os participantes?"
-delete_all_participants_60ed6e73: "Excluir todos os participantes…"
-dictionary: "Dicionário"
-direct_insert: "Inserção Direta"
-disabled: "Desabilitado"
-dismiss: "Liberar"
-display_name: "Nome de exibição"
-display_name_c7874aaa: "Nome de exibição"
-display_pindrop_in_the_dock_instead_of_running_o: "Exiba o Pindrop no Dock em vez de executá-lo apenas como um aplicativo da barra de menus."
-dock_the_sidebar_to_the_left_or_right_edge_of_th: "Encaixe a barra lateral na borda esquerda ou direita da janela."
-download: "Download"
-download_complete: "Download completo!"
-download_continue: "Baixar e continuar"
-download_failed: "Falha no download"
-download_model: "Baixar modelo"
-download_the_diarization_model_before_starting_m: "Baixe o modelo de diarização antes de iniciar a transcrição da mídia."
-downloaded: "Baixado"
-downloading: "Baixando %@..."
-drop_a_file_or_paste_a_link_to_create_a_diarized: "Solte um arquivo ou cole um link para criar uma transcrição com carimbo de data e hora."
-drop_audio_or_video_here: "Solte áudio ou vídeo aqui"
-duplicate_preset: "Predefinição duplicada"
-dutch: "Holandês"
-edit: "Editar"
-edit_preset: "Editar predefinição"
-edit_provider: "Editar provedor"
-empty: "(Vazio)"
-enable_ai_enhancement: "Habilitar aprimoramento de IA"
-enable_live_session_updates_during_recording: "Habilite atualizações de sessão ao vivo durante a gravação"
-enable_vibe_mode_ui_context: "Ativar o modo vibe (contexto da IU)"
-enable_mcp_server: "Ativar servidor MCP"
-enabled: "Habilitado"
-endpoint: "Ponto final: %@"
-english: "Inglês"
-english_only: "Somente inglês"
-enhanced: "Aprimorado"
-enhancement_prompts: "Solicitações de melhorias"
-enhancing: "Aprimorando…"
-enter_an_openai_api_key_to_load_models: "Insira uma chave de API OpenAI para carregar modelos."
-enter_api_key: "Insira a chave API"
-enter_word_to_add: "Digite a palavra para adicionar"
-error: "Erro"
-european_multilingual: "Multilíngue europeu"
-excellent: "Excelente"
-export: "Exportar"
-export_as_csv: "Exportar como CSV"
-export_as_json: "Exportar como JSON"
-export_as_plain_text: "Exportar como texto simples"
-export_dictionary: "Dicionário de exportação"
-export_failed: "Falha na exportação: %@"
-export_last_transcript: "Exportar a última transcrição..."
-export_presets: "Exportar predefinições"
-failed_to_add_replacement: "Falha ao adicionar substituição: %@"
-failed_to_add_word: "Falha ao adicionar palavra: %@"
-failed_to_delete_folder: "Falha ao excluir pasta: %@"
-failed_to_delete_note: "Falha ao excluir nota: %@"
-failed_to_delete_preset: "Falha ao excluir predefinição: %@"
-failed_to_delete_replacement: "Falha ao excluir substituição: %@"
-failed_to_delete_transcription: "Falha ao excluir a transcrição: %@"
-failed_to_delete_word: "Falha ao excluir palavra: %@"
-failed_to_export_dictionary: "Falha ao exportar dicionário: %@"
-failed_to_export_presets: "Falha ao exportar predefinições: %@"
-failed_to_import_dictionary: "Falha ao importar dicionário: %@"
-failed_to_import_presets: "Falha ao importar predefinições: %@"
-failed_to_initialize_the_database_nnthe_app_will: "Falha ao inicializar o banco de dados: %@nnO aplicativo será encerrado agora. Tente reiniciar ou entre em contato com o suporte se o problema persistir."
-failed_to_load_data: "Falha ao carregar dados: %@"
-failed_to_load_history: "Falha ao carregar o histórico: %@"
-failed_to_read_import_file: "Falha ao ler o arquivo de importação: %@"
-failed_to_save: "Falha ao salvar: %@"
-failed_to_save_preset: "Falha ao salvar a predefinição: %@"
-failed_to_switch_model: "Falha ao mudar de modelo: %@"
-failed_to_update_preset: "Falha ao atualizar a predefinição: %@"
-failed_to_update_replacement: "Falha ao atualizar a substituição: %@"
-failed_to_update_word: "Falha ao atualizar a palavra: %@"
-fast: "Rápido"
-feature_models: "Modelos de recursos"
-fetch_models_in_models: "Buscar modelos em Modelos"
-fix_punctuation_and_capitalization: "Corrigir pontuação e letras maiúsculas"
-floating_indicator: "%@ indicador flutuante"
-floating_indicator_e0349402: "Indicador flutuante"
-folder_deleted: "Pasta excluída."
-folder_name: "Nome da pasta"
-follow_playback: "Siga a reprodução"
-format_text_appropriately: "Formate o texto adequadamente"
-french: "Francês"
-general: "Em geral"
-german: "Alemão"
-get_started: "Comece"
-global: "Global"
-global_keyboard_shortcuts: "Atalhos de teclado globais"
-go_back: "Volte"
-go_to_settings: "Vá para configurações"
-good: "Bom"
-good_afternoon: "Boa tarde"
-good_evening: "Boa noite"
-good_morning: "Bom dia"
-good_night: "Boa noite"
-google: "Google"
-got_it: "Entendi"
-grant: "Conceder"
-great: "Ótimo"
-hide_this_for_1_hour: "Ocultar isso por 1 hora"
-hide_api_key: "Ocultar chave de API"
-history: "História"
-hold_the_shortcut_to_record_then_release_to_tran: "Segure o atalho para gravar e solte para transcrever."
-hold_to_record_release_to_open_note_editor_with: "Segure para gravar, solte para abrir o editor de notas com transcrição"
-hold_to_record_release_to_stop_and_transcribe: "Segure para gravar, solte para parar e transcrever"
-hold_to_record_release_to_transcribe: "Segure para gravar, solte para transcrever"
-hold_to_record_then_release_to_open_the_note_edi: "Segure para gravar e solte para abrir o editor de notas com a transcrição."
-hotkey_conflict: "Conflito de teclas de atalho"
-hotkeys: "Teclas de atalho"
-identify_speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
-import: "Importar"
-import_dictionary: "Dicionário de importação"
-import_error: "Erro de importação"
-import_export: "Importar/Exportar"
-import_media: "Importar mídia"
-import_or_transcribe_media_while_this_folder_is: "Importe ou transcreva mídia enquanto esta pasta estiver selecionada para salvar itens aqui."
-import_presets: "Importar predefinições"
-import_strategy: "Estratégia de Importação"
-imported_files_and_web_links_will_appear_here_on: "Arquivos importados e links da web aparecerão aqui assim que o processamento for concluído."
-improve_transcription_quality_using_ai: "Melhore a qualidade da transcrição usando IA"
-include_clipboard_text: "Incluir texto da área de transferência"
-interface: "Interface"
-interface_language: "Idioma da interface"
-is_assigned_to_both_and_only_the_first_action_wi: "%@ é atribuído a %@ e %@. Apenas a primeira ação estará ativa. Atualize suas teclas de atalho em Configurações para resolver este conflito."
-italian: "italiano"
-items: "Unid"
-japanese: "japonês"
-keep_pindrop_current_automatically_or_trigger_a: "Mantenha o Pindrop atualizado automaticamente ou acione uma verificação manual sempre que desejar."
-keep_pindrop_current_automatically_or_check_for: "Mantenha o Pindrop atualizado automaticamente ou verifique uma nova versão agora."
-key: "#%@"
-key_a979ef10: "+"
-key_ab8f46d5: "%1$@ %2$@"
-keyboard_shortcuts: "Atalhos de teclado"
-korean: "coreano"
-language: "Linguagem"
-large: "Large"
-launch_at_login: "Iniciar no login: %@"
-launch_at_login_0b36c78f: "Iniciar no login"
-launch_at_login_fd1a3b7b: "Abrir ao iniciar sessão"
-launch_at_login_could_not_be_changed: "Não foi possível alterar «Abrir ao iniciar sessão»"
-layout: "Layout"
-learn_corrected_words_automatically: "Aprenda palavras corrigidas automaticamente"
-left: "Esquerda"
-let_pindrop_quietly_learn_vocabulary_from_the_co: "Deixe o Pindrop aprender silenciosamente o vocabulário com as correções que você faz ao longo do tempo."
-light: "Luz"
-light_dark_and_curated_palette_presets: "Predefinições de paleta claras, escuras e selecionadas"
-light_preview: "Visualização clara"
-light_theme: "Tema claro"
-limited: "Limitado"
-listening: "Ouvindo…"
-live_streaming_refinement: "Refinamento de transmissão ao vivo"
-lld: "%1$lld %2$@"
-lld_197eb092: "%lld%%"
-lld_a2843d9b: "+%lld"
-lld_characters: "%lld caracteres"
-lld_complete: "%lld%% concluído"
-lld_items: "%lld itens"
-lld_notes: "%lld notas"
-lld_transcriptions: "%lld transcrições"
-lm_studio: "Estúdio LM"
-lm_studio_only_needs_a_token_if_local_server_aut: "O LM Studio só precisa de um token se a autenticação do servidor local estiver habilitada."
-load_models: "Carregar Modelos"
-loaded_d_models: "Loaded %d models"
-loading_history: "Carregando histórico..."
-loading_models: "Carregando modelos..."
-local: "Local"
-local_speech_to_text_right_from_your_menu_bar_fa: |-
-  Conversão local de fala para texto, diretamente na barra de menu.
-  Rápido, privado e sempre disponível.
-local_speech_to_text_right_from_your_menu_bar_nf: "Conversão local de fala para texto, diretamente na barra de menus.nRápido, privado e sempre disponível."
-local_speech_to_text_with_whisperkit: "Conversão local de fala para texto com WhisperKit"
-local_voice_to_text: "Voz local para texto"
-low_latency_mode_less_accurate: "Modo de baixa latência (menos preciso)"
-manage_local_speech_models_feature_models_and_th: "Gerencie modelos de fala locais, modelos de recursos e o mecanismo padrão que o Pindrop usa para transcrição."
-manage_models: "Gerenciar modelos"
-manage_presets: "Gerenciar predefinições"
-manage_presets_ab87986d: "Gerenciar predefinições..."
-manage_presets_d5d4c2c2: "Gerenciar predefinições…"
-manually_check_for_new_versions_now: "Verifique manualmente se há novas versões agora."
-media_library: "Biblioteca de mídia"
-media_transcription: "Transcrição de mídia"
-media_unavailable: "Mídia indisponível"
-media_saved: "Mídia salva"
-medium: "Médio"
-microphone: "Microfone"
-microphone_permission_is_required_to_continue: "É necessária permissão do microfone para continuar"
-microphone_permission_is_required_to_continue_dc: "É necessária permissão do microfone para continuar."
-microphone_permission_required: "Permissão de microfone necessária"
-mit_license: "Licença MIT"
-mode: "Modo: %@"
-model: "Modelo"
-model_loading_failed: "Falha no carregamento do modelo"
-model_loading_timed_out: "O carregamento do modelo expirou"
-model_validation: "Validação do modelo"
-models: "Modelos"
-move_to_folder: "Mover para pasta"
-multilingual: "Multilíngue"
-must_be_openai_compatible: "Deve ser compatível com OpenAI"
-mute_system_audio_during_recording: "Silenciar o áudio do sistema durante a gravação"
-new_folder: "Nova pasta"
-new_note: "Nova nota"
-new_preset: "Nova predefinição"
-next: "Próximo"
-no_api_key: "Nenhuma chave de API"
-no_api_key_endpoint: "Sem chave de API • Endpoint: %@"
-no_custom_presets: "Sem predefinições personalizadas"
-no_downloaded_models: "Nenhum modelo baixado"
-no_folders_yet: "Ainda não há pastas"
-no_items_in: "Nenhum item em %@"
-no_media_transcriptions_yet: "Ainda não há transcrições de mídia"
-no_model_loaded: "Nenhum modelo carregado"
-no_model_selected: "Nenhum modelo selecionado"
-no_models_available: "Nenhum modelo disponível"
-no_models_available_ae9dbd29: "Nenhum modelo disponível."
-no_models_available_try_refresh_or_enter_a_model: "Nenhum modelo disponível. Tente atualizar ou insira um ID de modelo manualmente."
-no_models_found: "Nenhum modelo encontrado."
-no_models_loaded_open_edit_to_fetch_models: "Nenhum modelo carregado. Abra Editar para buscar modelos."
-no_models_match: "Nenhum modelo corresponde a \"%@\""
-no_notes_yet: "Ainda não há notas"
-no_providers_configured_yet: "Nenhum provedor configurado ainda."
-no_replacements: "Sem substituições"
-no_results_found: "Nenhum resultado encontrado"
-no_settings_found: "Nenhuma configuração encontrada"
-no_transcriptions_yet: "Ainda não há transcrições"
-no_vocabulary_words: "Sem palavras de vocabulário"
-no_learned_participants_yet: "Nenhum participante aprendido ainda"
-no_providers_configured_yet_e6bc0075: "Nenhum provedor configurado ainda"
-no_conflicts_found: "No conflicts found"
-not_assigned: "Não atribuído"
-not_selected: "Não selecionado"
-not_set: "Não definido"
-not_set_93039e60: "Não definido"
-not_granted: "Não concedido"
-not_enough_voice_data_yet: "Ainda não há dados de voz suficientes"
-not_generated_yet_enable_the_server: "Ainda não gerado — ative o servidor"
-note: "Observação"
-note_capture_push_to_talk: "Captura de notas (Push-to-Talk)"
-note_capture_toggle: "Captura de notas (alternar)"
-note_enhancement: "Aprimoramento de notas"
-note_from: "Nota de"
-note_metadata: "Nota Metadados"
-note_title: "Título da nota"
-note_saved: "Nota salva"
-note_capture_hold: "Captura de nota — Segurar"
-note_capture_toggle_7139a240: "Captura de nota — Alternar"
-notes: "Notas"
-notes_3add7b96: "notas"
-off: "Desligado"
-ok: "OK"
-ollama: "Ollama"
-ollama_usually_does_not_require_authentication_f: "Ollama geralmente não requer autenticação para solicitações locais."
-on: "Sobre"
-on_device_no_credentials_required: "No dispositivo, sem necessidade de credenciais"
-open: "Abrir"
-open_history: "Abrir histórico"
-open_logs_in_finder: "Abrir registros no Finder"
-open_original_link: "Abrir link original"
-open_progress: "Progresso aberto"
-open_settings: "Abra Configurações"
-open_settings_fd7108f8: "Abrir configurações"
-open_system_settings: "Abra as configurações do sistema"
-open_library: "Open Library"
-openai: "OpenAI"
-openai_compatible_local_server: "Servidor local compatível com OpenAI"
-openai_whisper: "Sussurro OpenAI"
-openrouter: "OpenRouter"
-optional: "Opcional"
-optional_insert_text_directly_into_apps: "Opcional: insira texto diretamente nos aplicativos"
-optional_used_for_auto_generated_titles_and_summ: "Opcional — usado para títulos e resumos gerados automaticamente em importações de transcrição de mídia."
-optionally_clean_up_transcriptions_with_ai: "Opcionalmente, limpe as transcrições com IA"
-or: "ou"
-or_just_use_your_hotkey: "Ou apenas use sua tecla de atalho!"
-original: "Original"
-original_text_use_commas_for_multiple: "Texto original (use vírgulas para múltiplos)"
-originals_comma_separated: "Originais (separados por vírgula)"
-output: "Saída"
-output_audio_interface_and_everyday_behavior: "Saída, áudio, interface e comportamento diário"
-output_mode: "Modo de saída"
-nemotron_default: "Nemotron (default)"
-paste: "Colar"
-paste_a_video_or_audio_link: "Cole um link de vídeo ou áudio"
-paste_failed_transcript_copied_to_clipboard: "Falha ao colar. Transcrição copiada para a área de transferência."
-paste_last_transcript: "Colar a última transcrição"
-paste_last_transcript_v: "Cole a última transcrição ⌃⌘V"
-pause: "Pausa"
-pause_media_during_transcription: "Pausar mídia durante a transcrição"
-permissions: "Permissões"
-pick_which_provider_and_model_handles_each_ai_ta: "Escolha qual provedor e modelo lida com cada tarefa de IA. Deixe como \"Não atribuído\" para pular uma finalidade."
-pick_which_provider_and_model_handles_each_ai_ta_b719504f: "Escolha qual provedor e modelo cuida de cada tarefa de IA. Deixe um propósito sem atribuição para pular."
-pill: "Pílula"
-pin_to_screen_always_on_top: "Fixar na tela (sempre no topo)"
-pindrop: "Pindrop"
-pindrop_is_ready_to_use_click_the_menu_bar_icon: |-
-  O Pindrop está pronto para uso.
-  Clique no ícone da barra de menu para começar.
-pindrop_is_ready_to_use_nclick_the_menu_bar_icon: "O Pindrop está pronto para uso.nClique no ícone da barra de menu para começar."
-pindrop_needs_a_few_permissions_to_work_nyour_pr: "Pindrop precisa de algumas permissões para funcionar.nSua privacidade é sempre respeitada."
-pindrop_needs_a_few_permissions_to_work_your_pri: |-
-  Pindrop precisa de algumas permissões para funcionar.
-  Sua privacidade é sempre respeitada.
-pindrop_needs_accessibility_permission_to_insert: "\"\" Pindrop precisa de permissão de acessibilidade para inserir texto no cursor.                          Para conceder permissão: 1. Clique em \"Abrir configurações do sistema\" abaixo 2. Clique no botão + 3. Navegue até o aplicativo mostrado no Finder 4. Reinicie o Pindrop após conceder permissão Sem essa permissão, o texto só será copiado para sua área de transferência.             \"\""
-pindrop_needs_microphone_access_to_record_and_tr: "Pindrop precisa de acesso ao microfone para gravar e transcrever sua voz.nnPor favor, conceda permissão nas configurações do sistema."
-pindrop_on_github: "Pindrop no GitHub"
-pindrop_pill: "Pílula Pindrop"
-pindrop_theme: "Tema Pindrop"
-pindrop_orb: "Orbe do Pindrop"
-pindrop_1_19: "Pindrop 1.19"
-pindrop_help: "Ajuda do Pindrop"
-play: "Jogar"
-please_check_your_internet_connection_and_try_ag: "Verifique sua conexão com a Internet e tente novamente."
-please_download_a_whisper_model_in_settings_befo: |-
-  Baixe um modelo Whisper em Configurações antes de gravar.
-  
-  Vá para Configurações → Modelos para baixar um modelo.
-please_download_a_whisper_model_in_settings_befo_a71d286e: "Baixe um modelo Whisper em Configurações antes de gravar.nnVá para Configurações → Modelos para baixar um modelo."
-please_wait: "Por favor, aguarde..."
-portuguese_brazil: "Português (Brasil)"
-powered_by_whisperkit: "Desenvolvido por WhisperKit"
-preparing_model: "Preparando modelo..."
-preset_name: "Nome predefinido"
-press_and_hold_to_dictate_in_any_app_pindrop_wil: "Pressione e segure para ditar em qualquer aplicativo. Pindrop transcreverá sua fala e inserirá o texto onde estiver o cursor."
-press_esc_to_cancel: "Pressione Esc para cancelar"
-press_keys: "Pressione as teclas..."
-press_once_to_start_again_to_stop: "Pressione uma vez para iniciar, novamente para parar"
-press_once_to_start_recording_press_again_to_sto: "Pressione uma vez para iniciar a gravação, pressione novamente para parar e transcrever"
-press_once_to_start_recording_then_press_again_t: "Pressione uma vez para iniciar a gravação e pressione novamente para parar e transcrever."
-press_to_start_recording_press_again_to_open_not: "Pressione para iniciar a gravação, pressione novamente para abrir o editor de notas"
-press_keys_98b8167e: "Pressione as teclas…"
-press_once_to_start_recording_then_again_to_open: "Pressione uma vez para gravar e outra para abrir o editor de notas."
-primary_text: "Texto Primário"
-processing: "Processamento"
-processing_272bc02e: "Processamento..."
-processing_5aa377e2: "⏳ Processamento"
-processing_transcript: "Processing transcript"
-prompt: "Incitar"
-prompt_preset: "Predefinição de prompt"
-provider: "Provedor"
-provider_kind: "Tipo de provedor"
-provider_type: "Tipo de provedor"
-providers: "Provedores"
-providers_prompts_and_vibe_mode_controls: "Provedores, prompts e controles do modo vibe"
-push_to_talk: "Aperte para falar"
-quickly_copy_your_last_transcription: "Copie rapidamente sua última transcrição"
-quickly_pull_your_latest_transcript_back_to_the: "Puxe rapidamente sua transcrição mais recente de volta para a área de transferência."
-quit: "Desistir"
-quit_pindrop: "Sair do Pindrop"
-ready: "Preparar"
-ready_ec1296e1: "● Pronto"
-ready_to_record: "Ready to record"
-ready_to_transcribe: "Pronto para transcrever"
-recent: "Recente"
-recent_transcriptions: "Transcrições recentes"
-recent_transcripts: "Transcrições recentes"
-recommended: "Recomendado"
-recommended_the_deterministic_cleaner_handles_mo: "Recomendado: o limpador determinístico cuida bem da maior parte dos ditados. Ative a etapa LLM apenas se quiser polimento extra e aceitar peculiaridades ocasionais do modelo (preâmbulo, respostas conversacionais)."
-recommended_the_deterministic_cleaner_handles_mo_ca42c3e4: "Recomendado: o limpador determinístico trata a maior parte do ditado. Ative o passo LLM só se quiser polimento extra e aceitar peculiaridades ocasionais do modelo."
-record: "Registro"
-recording: "Gravação"
-recording_3f8fd48c: "🔴 Gravação"
-recording_from_external_and_bluetooth_microphone: "A gravação por microfones externos e Bluetooth agora é muito estável, mesmo quando a saída de áudio está roteada para outro lugar."
-recordings: "gravações"
-redo: "Refazer"
-refresh: "Atualizar"
-refresh_the_provider_or_open_edit_to_fetch_model: "Atualize o provedor ou abra Editar para buscar modelos."
-remove: "Remover"
-remove_and_clear_any_assignments_that_reference: "Remover \"%@\" e limpar todas as atribuições que fazem referência a ele? As credenciais armazenadas serão excluídas."
-remove_from_folder: "Remover da pasta"
-remove_provider: "Remover provedor"
-rename: "Renomear"
-rename_folder: "Renomear pasta"
-rename_participant: "Renomear participante"
-rename_speakers_in_transcripts_to_teach_pindrop: "Renomeie falantes nas transcrições para ensinar o Pindrop a reconhecer vozes."
-replace_all: "Substituir tudo"
-replace_words_and_phrases: "Substitua palavras e frases"
-replacement: "Substituição"
-replacement_text: "Texto de substituição"
-report_an_issue: "Informar um problema"
-report_an_issue_bd7b4f00: "Informar um problema"
-required: "Obrigatório"
-required_for_recording_your_voice: "Necessário para gravar sua voz"
-requires_diarization_model: "Requires diarization model"
-requires_speaker_diarization: "Requires speaker diarization"
-requires_a_fast_provider_apple_foundation_models: "Requer um provedor rápido (recomenda-se modelos Apple Foundation). Os provedores de nuvem emitirão uma chamada de API por pausa."
-reset: "Reiniciar"
-reset_all_settings: "Redefinir todas as configurações?"
-reset_all_settings_7262c7b7: "Redefinir todas as configurações"
-reset_to_default: "Redefinir para o padrão"
-reset_all_settings_e5dbc5fc: "Redefinir todas as configurações…"
-retry: "Tentar novamente"
-right: "Direita"
-run_llm_polish_after_dictation_stops: "Executar polimento LLM ao encerrar o ditado"
-run_a_local_http_server_so_ai_agents_can_submit: "Executa um servidor HTTP local para agentes de IA enviarem trabalhos de transcrição, pesquisarem o histórico e gerenciarem falantes."
-runtime: "Tempo de execução: %@"
-runtime_status: "Status de execução"
-save: "Salvar"
-save_as_note: "Salvar como nota"
-save_continue: "Salvar e continuar"
-save_credentials: "Salvar credenciais"
-save_prompt: "Salvar prompt"
-saved: "Salvo"
-saved_as_note: "Salvo como nota"
-saved_transcription: "Transcrição salva"
-search_media_transcripts: "Pesquisar transcrições de mídia..."
-search_models: "Pesquisar modelos"
-search_models_61c1b9fe: "Pesquisar modelos..."
-search_notes: "Pesquisar notas..."
-search_settings: "Configurações de pesquisa"
-search_settings_or_jump_between_sections_without: "Pesquise configurações ou salte entre seções sem sair da área de trabalho principal."
-search_transcriptions: "Pesquisar transcrições..."
-secondary_text: "Texto Secundário"
-select_a_dictionary_json_file_to_import: "Selecione um arquivo JSON de dicionário para importar"
-select_a_model: "Selecione um modelo"
-select_a_presets_json_file_to_import: "Selecione um arquivo JSON predefinido para importar"
-select_a_provider_kind: "Selecione um tipo de provedor"
-select_a_provider_type: "Selecione um tipo de provedor"
-select_ai_model: "Selecione o modelo de IA"
-select_all: "Selecionar tudo"
-select_language: "Selecione o idioma"
-select_language_daea52c9: "Selecione o idioma"
-select_this_floating_indicator_style: "Selecione este estilo de indicador flutuante."
-select_voice_model: "Selecione o modelo de voz"
-select_the_language_pindrop_should_expect_when_t: "Selecione o idioma que o Pindrop deve esperar ao transcrever a fala."
-selected: "Selecionado"
-sent_to_the_ai_model_when_processing_dictation_f: "Enviado ao modelo de IA ao processar o ditado para inserção direta de texto."
-sessions: "Sessões"
-sessions_781791f5: "sessões"
-set_as_default: "Definir como padrão"
-settings: "Configurações"
-settings_bf83f07f: "Configurações..."
-settings_fa67a397: "Configurações…"
-setup_required: "Configuração necessária"
-show_app: "Mostrar aplicativo"
-show_app_in_finder: "Mostrar aplicativo no Finder"
-show_in_dock: "Mostrar no Dock"
-show_api_key: "Mostrar chave de API"
-show_the_main_window_and_open_the_library: "Show the main window and open the Library."
-shows_as_a_pill_at_the_bottom_of_the_screen: "Mostra como uma pílula na parte inferior da tela"
-shows_as_a_liquid_glass_orb_in_the_corner_of_the: "Aparece como um orbe de vidro líquido no canto da tela"
-sidebar_position: "Posição da barra lateral"
-sidebar_position_916f66ea: "Posição da barra lateral"
-simplified_chinese: "Chinês simplificado"
-size: "Size"
-skip_for_now: "Pular por agora"
-slow: "Lento"
-slower: "Mais devagar"
-slowest: "Mais lento"
-small: "Small"
-smaller_models_are_faster_but_less_accurate_nsta: "Modelos menores são mais rápidos, mas menos precisos.nComece com Base para obter o melhor equilíbrio."
-smaller_models_are_faster_but_less_accurate_star: |-
-  Modelos menores são mais rápidos, mas menos precisos.
-  Comece com Base para obter o melhor equilíbrio.
-something_went_wrong: "Algo deu errado"
-soon: "Breve"
-sort_by: "Ordenar por"
-source: "Fonte"
-spanish: "Espanhol"
-speaker_diarization: "Speaker diarization"
-speaker_diarization_and_timestamps_are_attached: "A diarização do alto-falante e os carimbos de data/hora são anexados à reprodução."
-speaker_diarization_is_required: "A diarização do orador é obrigatória"
-speed: "Velocidade"
-start_fresh_when_you_want_to_clear_preferences_o: "Comece do zero quando quiser limpar preferências, estado de integração e credenciais salvas."
-start_recording: "Comece a gravar"
-start_recording_to_see_your_transcriptions_here: "Comece a gravar para ver suas transcrições aqui"
-start_stop_recording: "Iniciar/parar gravação"
-start_using_pindrop: "Comece a usar o Pindrop"
-status: "Status"
-stop_recording: "Pare de gravar"
-streaming_enhancement: "Aprimoramento em streaming"
-streaming_transcription_currently_supports_engli: "A transcrição em streaming atualmente oferece suporte apenas ao inglês, independentemente do idioma selecionado."
-streaming_transcription_is_disabled_while_ai_enh: "A transcrição de streaming está desativada enquanto o AI Enhancement está ativado."
-streaming_transcription_model_nemotron_speech: "Modelo de transcrição em streaming (Nemotron Speech Streaming) licenciado pela NVIDIA Corporation sob a NVIDIA Open Model License."
-streaming_transcription_instantly_ready: "Transcrição em streaming, pronta na hora"
-success: "Sucesso!"
-support: "Apoiar"
-support_coming_soon: "%@ Suporte em breve"
-supports_local_media_files_and_web_links_resolve: "Suporta arquivos de mídia local e links da web resolvidos com yt-dlp."
-switch_to_model: "Mudar para modelo"
-system: "Sistema"
-system_default: "Padrão do sistema"
-teach_custom_words: "Ensine palavras personalizadas"
-temporarily_copy_text_paste_it_then_restore_your: "Copie o texto temporariamente, cole-o e restaure a área de transferência"
-temporarily_mute_speaker_output_while_dictation: "Silencie temporariamente a saída do alto-falante durante a gravação do ditado."
-temporarily_pause_active_media_playback_while_di: "Pause temporariamente a reprodução de mídia ativa enquanto o ditado está sendo gravado."
-tertiary_text: "Texto Terciário"
-the_model_failed_to_load_within_60_seconds_this: "\"\" O modelo não foi carregado em 60 segundos. Isso geralmente significa que os arquivos do modelo estão corrompidos ou incompatíveis.                          Para corrigir isso: 1. Abra Configurações → Modelos 2. Exclua o modelo problemático 3. Baixe novamente o modelo Se o problema persistir, tente um modelo menor (Tiny ou Base).             \"\""
-the_selected_chunk_variant_isn_t_downloaded_yet: "A variante selecionada ainda não foi baixada. Alternar iniciará um download."
-the_new_nemotron_streaming_engine_shows_words_as: "O novo mecanismo de streaming Nemotron mostra as palavras conforme você fala e é pré-aquecido na inicialização para que seu primeiro ditado comece sem atraso."
-theme: "Tema"
-theme_changes_apply_live_across_the_workspace_se: "As alterações de tema são aplicadas ao vivo na área de trabalho, nas configurações, no editor de notas e nos indicadores flutuantes."
-theme_mode: "Modo tema"
-theme_mode_bb6b0b3d: "Modo do tema"
-this_preset_name_is_already_in_use: "Este nome predefinido já está em uso."
-this_provider_will_be_available_in_a_future_upda: |-
-  Este provedor estará disponível em uma atualização futura.
-  Por enquanto, experimente o OpenAI ou use um endpoint personalizado.
-this_provider_will_be_available_in_a_future_upda_3e35a952: |-
-  Este provedor estará disponível em uma atualização futura.
-  Experimente o OpenAI ou use um endpoint personalizado.
-this_provider_will_be_available_in_a_future_upda_0677ac1d: "Este provedor estará disponível em uma atualização futura. Por enquanto, experimente o OpenAI ou use um endpoint personalizado."
-this_transcription_could_not_be_found: "Esta transcrição não foi encontrada."
-this_will_clear_all_your_settings_including_api: "Isso limpará todas as suas configurações, incluindo chaves de API, teclas de atalho e preferências de modelo. O aplicativo será encerrado e mostrará a integração novamente na próxima inicialização."
-this_will_permanently_remove_the_transcript_and: "Isso removerá permanentemente a transcrição e seu arquivo de mídia gerenciado."
-this_removes_all_learned_voice_profiles_and_trai: "Isso remove todos os perfis de voz aprendidos e dados de treino. Não pode ser desfeito."
-this_will_clear_all_your_settings_including_api_2841f4a1: "Isso limpará todas as configurações, incluindo chaves de API, e reiniciará a introdução"
-time_saved: "Tempo economizado"
-to_dictate_and_let_pindrop_transcribe_for_you: "para ditar e deixar o Pindrop transcrever para você"
-to_start_talking: "para começar a falar"
-today: "Hoje"
-toggle: "Alternar"
-toggle_recording: "Alternar gravação"
-toggle_sort_order: "Alternar ordem de classificação"
-transcribe: "Transcrever"
-transcribe_media: "Transcrever mídia"
-transcribed: "transcrito"
-transcription: "Transcrição"
-transcription_backend: "Mecanismo de transcrição"
-transcription_deleted: "Transcrição excluída."
-transcription_enhancement: "Aprimoramento de transcrição"
-transcription_failed: "Falha na transcrição"
-transcription_finished: "Transcrição concluída."
-transcription_in_progress: "Transcrição em andamento"
-transcription_metadata: "Metadados de transcrição"
-transcription_update: "Atualização de transcrição"
-transcription_saved: "Transcrição salva"
-transcriptions: "Transcrições"
-transcriptions_f0972acc: "transcrições"
-transcriptions_in_this_folder_will_be_kept_and_m: "As transcrições nesta pasta serão mantidas e movidas de volta para a biblioteca."
-transcripts: "Transcrições"
-try_a_different_search_term: "Experimente um termo de pesquisa diferente"
-try_a_different_search_term_0ba628a3: "Experimente um termo de pesquisa diferente."
-try_a_different_search_term_in_this_folder: "Tente um termo de pesquisa diferente nesta pasta."
-try_searching_for_terms_like_hotkeys_microphone: "Tente pesquisar termos como teclas de atalho, microfone, atualizações ou modo vibe."
-turkish: "Turco"
-type_text_directly_into_the_active_app_when_poss: "Digite texto diretamente no aplicativo ativo, quando possível"
-unable_to_connect_to_the_ai_enhancement_service: "\"\" Não é possível conectar-se ao serviço de aprimoramento de IA.                                  Verifique: 1. Sua conexão com a Internet 2. O URL do terminal da API está correto 3. O serviço não está sofrendo uma interrupção A transcrição foi salva sem melhorias.                 \"\""
-unable_to_finish_transcription: "Não foi possível concluir a transcrição"
-unable_to_load_history: "Não foi possível carregar o histórico: %@"
-unable_to_load_models_try_refresh: "Não foi possível carregar modelos. Tente atualizar."
-unable_to_update_media_library: "Não foi possível atualizar a biblioteca de mídia"
-unavailable_device: "Dispositivo indisponível"
-undo: "Desfazer"
-unfiled: "Não arquivado"
-unpin_from_screen: "Soltar da tela"
-update: "Atualizar"
-updates: "Atualizações"
-use_a_tap_to_start_tap_to_finish_shortcut_for_no: "Use um atalho toque para iniciar e toque para terminar para capturar notas."
-use_clipboard_only: "Use apenas a área de transferência"
-use_the_hotkey_to_start_your_first_recording: "Use a tecla de atalho para iniciar sua primeira gravação"
-use_transcription_as_a_placeholder_for_the_trans: "Use ${transcription} como espaço reservado para o texto transcrito."
-use_transcription_as_placeholder: "Use ${transcription} como espaço reservado"
-used_when_capturing_notes_via_hotkey_can_add_mar: "Usado ao capturar notas via tecla de atalho. Pode adicionar formatação de redução para conteúdo mais longo."
-uses_a_built_in_prompt_tuned_for_this_task: "Usa um prompt interno ajustado para esta tarefa."
-uses_the_560ms_nemotron_variant_for_snappier_par: "Usa a variante Nemotron de 560 ms para texto parcial mais ágil. O padrão é a variante de 1120 ms (melhor precisão)."
-uses_the_transcription_enhancement_assignment_if: "Usa a atribuição de Aprimoramento de transcrição. Se nenhuma estiver definida, a saída do limpador determinístico é mantida."
-v: "v%@"
-version: "Versão %@ (%@)"
-very_fast: "Muito rápido"
-via: "através de %@"
-vibe_mode: "Modo vibração"
-vibe_mode_captures_structured_ui_context_when_re: "O modo Vibe captura o contexto estruturado da UI quando a gravação é iniciada para que o aprimoramento da IA ​​possa usar o estado ativo do seu aplicativo como referência."
-vibe_mode_works_best_with_accessibility_permissi: "O modo Vibe funciona melhor com permissão de acessibilidade. Sem ele, o Pindrop recorre a metadados limitados do aplicativo e a transcrição ainda funciona normalmente."
-view: "Visualizar"
-view_all: "Ver tudo"
-view_transcript_history: "Ver histórico de transcrição"
-view_transcription_history: "Ver histórico de transcrição"
-vocabulary: "Vocabulário"
-vs_typing: "versus digitação"
-welcome_to_pindrop: "Bem-vindo ao Pindrop"
-whisperkit: "Kit Sussurro"
-word: "Palavra"
-word_replacements: "Substituições de palavras"
-words: "Palavras"
-words_efb89361: "palavras"
-words_min: "palavras/min"
-words_you_manually_correct_can_be_added_to_your: "As palavras que você corrige manualmente podem ser adicionadas ao vocabulário para ditados futuros."
-wpm: "WPM"
-yesterday: "Ontem"
-you_are_a_note_formatting_assistant_transform_th: "Você é um assistente de formatação de notas. Transforme o texto transcrito em uma nota bem estruturada.nnRegras:n- Corrija erros de gramática, pontuação e ortografian- Para conteúdo mais longo (3+ parágrafos), adicione formatação remarcada:n - Use cabeçalhos (## ou ###) para organizar seçõesn - Use marcadores ou listas numeradas quando apropriado - Use **negrito** para ênfase em termos-chaven- Para conteúdo mais curto, mantenha-o simples com formatação míniman- Preservar o significado e o tom originais- Não adicionar conteúdo que não estava no original- Retorna apenas a nota formatada sem nenhum comentário"
-you_are_a_text_enhancement_assistant_improve_the: "Você é um assistente de aprimoramento de texto. Melhore a gramática, pontuação e formatação do texto fornecido, preservando seu significado e tom originais. Retorne apenas o texto aprimorado sem comentários adicionais."
-you_can_change_these_anytime_from_the_menu_bar_s: "Você pode alterá-los a qualquer momento na barra de menu → Configurações → Teclas de atalho"
-you_re_all_set: "Está tudo pronto!"
-you_re_all_set_058a8130: "Está tudo pronto!"
-you_ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Você excedeu seu limite ou cota de taxa de API.                                  Para corrigir isso: 1. Aguarde alguns minutos e tente novamente 2. Verifique os limites de uso do seu provedor de API 3. Considere atualizar seu plano de API A transcrição foi salva sem melhorias.                 \"\""
-your_api_key_appears_to_be_invalid_or_expired_to: "\"\" Sua chave de API parece ser inválida ou expirou.                                  Para corrigir isso: 1. Abra Configurações → Aprimoramento de IA 2. Verifique se sua chave de API está correta 3. Verifique se seu endpoint de API está correto A transcrição foi salva sem aprimoramento.                 \"\""
-your_hotkeys_are_ready_to_use_nyou_can_customize: "Suas teclas de atalho estão prontas para uso. Você pode personalizá-las posteriormente em Configurações."
-your_hotkeys_are_ready_to_use_you_can_customize: |-
-  Suas teclas de atalho estão prontas para uso.
-  Você pode personalizá-los posteriormente em Configurações.
-your_model_is_ready_to_use: "Seu modelo está pronto para uso."
-your_stats: "Suas estatísticas"
-your_floating_indicator_is_now_a_living_audio_re: "Seu indicador flutuante agora é um orb vivo e reativo ao áudio. Ele respira quando está inativo, cresce quando você fala e transmite suas palavras ao vivo enquanto você dita."
-orb: "Orbe"
-meeting_saved: "Reunião salva"
-russian: "Russian"
-ukrainian: "Ukrainian"
-what_s_new_in_pindrop: "Novidades no Pindrop"
-what_s_new: "Novidades…"
-meet_the_new_orb: "Conheça o novo Orb"
-thanks_to_for_investigating_and_kicking_off_the: "Obrigado a %@ por investigar e iniciar a correção (PR #64)."
-thanks_to_for_the_contribution_pr_61: "Obrigado a %@ pela contribuição (PR #61)."
-dictate_in_russian_and_ukrainian: "Dite em russo e ucraniano"
-two_new_dictation_languages_fully_wired_into_mod: "Dois novos idiomas de ditado, totalmente integrados às recomendações de modelos."
-also_new_rtl_layout_support_and_20_new_interface: "Também novo: suporte a layout RTL e 20 novos idiomas de interface."
-advanced: "Avançado"
-agent_setup: "Configuração do agente"
-appearance: "Aparência"
-bearer_token: "Token Bearer"
-changes_the_language_used_by_pindrop_s_interface: "Altera o idioma da interface do Pindrop."
-client: "Cliente"
-configuration_file: "Arquivo de configuração"
-configuration_scope: "Escopo da configuração"
-configuration_snippet: "Trecho de configuração"
-dictation: "Ditado"
-dictation_language: "Idioma de ditado"
-dictation_polish: "Polimento de ditado"
-done: "Concluído"
-input_device: "Dispositivo de entrada"
-license: "Licença"
-mcp_configuration_error: "Erro de configuração MCP"
-mcp_server: "Servidor MCP"
-main_window: "Janela principal"
-name: "Nome"
-port: "Porta"
-port_changes_take_effect_the_next_time_the_serve: "As alterações de porta entram em vigor na próxima inicialização do servidor."
-project: "Projeto"
-regenerate: "Regenerar"
-shortcuts: "Atalhos"
-speakers: "Falantes"
-these_options_are_mutually_exclusive_enabling_on: "Essas opções são mutuamente exclusivas. Ativar uma desativa a outra."
-while_recording: "Durante a gravação"
-may_conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library: "Library"
-conflicts_with: "Conflicts with %@"
-file: "Arquivo"
-window: "Janela"
-help: "Ajuda"
-close: "Fechar"
-find: "Buscar"
-minimize: "Minimizar"
-zoom: "Zoom"
-bring_all_to_front: "Trazer Tudo para a Frente"
-home: "Início"
-1_speaker: "1 speaker"
-d_speakers: "%d speakers"
-inserted_into_d_words: "Inserted into %@ · %d words"
-unknown_app: "Unknown App"
-diarized: "diarized"
-summary_ready: "summary ready"
-prompts_are_sent_in_english: "Prompts are sent in English"
-preset_example_clean_input: "um so the meeting is at three thirty period can you confirm question mark"
-preset_example_clean_output: "So the meeting is at 3:30. Can you confirm?"
-preset_example_meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
-preset_example_meeting_output: |-
-  ## Action Items
-  - **Alice** will send the deck by **Friday**
-  - **Bob** owns the pricing review
-  
-  ## Next Steps
-  - Decision needed next week
-preset_example_email_input: "hey jordan just checking if you got my notes from yesterday thanks"
-preset_example_email_output: |-
-  Hi Jordan,
-  
-  Just checking if you got my notes from yesterday.
-  
-  Thanks,
-preset_example_social_input: "um we just shipped dark mode and it looks amazing you should try it"
-preset_example_social_output: |-
-  We just shipped dark mode.
-  
-  It looks amazing — you should try it.
-preset_example_bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
-preset_example_bullets_output: |-
-  - Onboarding latency
-  - Pricing
-  - Launch date: May 12
-preset_example_technical_input: "call fetch user arrow then map the response equals equals two hundred"
-preset_example_technical_output: "Call `fetchUser` -> then map the response `==` 200."
-preset_example_live_input: "um so i think we should ship the beta by friday period"
-preset_example_live_output: "So I think we should ship the beta by Friday."
-preset_example_edits_input: "um this is correct ly twenty-five"
-preset_example_edits_output: "This is correctly 25"
+100:
+  local_processing: "Processamento 100% local"
+1:
+  folder: "1 pasta"
+  speaker: "1 speaker"
+  transcription: "1 transcrição"
+a:
+  native_macos_menu_bar_dictation_app_using_loca: "Um aplicativo nativo de ditado da barra de menus do macOS usando fala para texto local com WhisperKit. Processamento 100% local por padrão com aprimoramento de IA opcional."
+  big_round_of_upgrades_and_two_community_shout: "Uma grande rodada de melhorias — e dois agradecimentos à comunidade."
+about:
+  _self: "Sobre"
+  pindrop: "Sobre Pindrop"
+accessibility:
+  _self: "Acessibilidade"
+  permission_is_enabled_full_ui_cont: "A permissão de acessibilidade está habilitada. O contexto completo da UI está disponível."
+  permission_is_not_granted_vibe_mod: "A permissão de acessibilidade não é concedida. O modo Vibe permanece sem bloqueio com contexto limitado."
+  permission_recommended: "Permissão de acessibilidade recomendada"
+  permission_required: "Permissão de acessibilidade necessária"
+  permission: "Permissão de Acessibilidade"
+accuracy:
+  _self: "Precisão"
+acknowledgments:
+  _self: "Agradecimentos"
+active:
+  _self: "Ativo"
+add:
+  _self: "Adicionar"
+  a_provider_to_start_using_ai_enhancement: "Adicione um provedor para começar a usar o aprimoramento de IA."
+  custom_words_to_improve_transcription_accura: "Adicione palavras personalizadas para melhorar a precisão da transcrição de termos, nomes ou jargões especializados."
+  provider: "Adicionar provedor"
+  tag: "Adicionar etiqueta..."
+  to_existing: "Adicionar ao existente"
+  trailing_space: "Adicionar espaço à direita"
+  word_replacements_to_automatically_correct_c: "Adicione substituições de palavras para corrigir automaticamente erros comuns de transcrição."
+  words_to_help_pindrop_recognize_them_properl: "Adicione palavras para ajudar o Pindrop a reconhecê-las corretamente"
+  words_you_manually_correct_into_your_vocabul: "Adicione palavras que você corrige manualmente em seu vocabulário para transcrições futuras."
+  this_to_claude_settings_json_in_your_project: "Adicione isto a .claude/settings.json na raiz do projeto ou a ~/.claude/settings.json para acesso do usuário."
+  this_to_cursor_mcp_json_in_your_project_root: "Adicione isto a .cursor/mcp.json na raiz do projeto ou a ~/.cursor/mcp.json para todos os projetos. Reinicie o Cursor após salvar."
+  this_to_opencode_json_in_your_project_root_f: "Adicione isto a opencode.json na raiz do projeto para acesso específico do projeto."
+  this_to_codex_config_toml_project_scoped_con: "Adicione isto a ~/.codex/config.toml. A configuração do projeto pode ficar em .codex/config.toml para projetos confiáveis."
+  this_to_config_opencode_opencode_json_for_us: "Adicione isto a ~/.config/opencode/opencode.json para acesso do usuário em todos os projetos."
+ai:
+  _self: "IA"
+  enhancement: "Aprimoramento de IA"
+  enhancement_529f5583: "Aprimoramento de IA: %@"
+  enhancement_failed: "Falha no aprimoramento de IA"
+  enhancement_is_disabled: "O aprimoramento de IA está desativado."
+  enhancement_will: "O aprimoramento de IA irá:"
+  model: "Modelo de IA"
+all:
+  _self: "Todos"
+an:
+  error_occurred_while_enhancing_your_transcrip: |-
+    Ocorreu um erro ao aprimorar sua transcrição:
+    
+    %@
+    
+    A transcrição original foi salva sem aprimoramento.
+    Você pode tentar ativar o aprimoramento de IA novamente em Configurações.
+  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Ocorreu um erro ao aprimorar sua transcrição:nn%@nnA transcrição original foi salva sem melhorias.nVocê pode tentar ativar o aprimoramento de IA novamente em Configurações."
+anthropic:
+  _self: "Anthropic"
+api:
+  endpoint: "Ponto final da API"
+  key: "Chave de API"
+  key_saved: "Chave de API salva"
+  key_saved_endpoint: "Chave de API salva • Endpoint: %@"
+app:
+  info_acknowledgments_support_and_logs: "Informações, reconhecimentos, suporte e registros do aplicativo"
+append:
+  a_space_after_each_transcription_for_seam: "Acrescente um espaço após cada transcrição para um ditado perfeito."
+apple:
+  foundation_models_on_device: "Modelos Apple Foundation (no dispositivo)"
+  intelligence: "Apple Intelligence"
+  intelligence_is_unavailable_on_this_system: "O Apple Intelligence não está disponível neste sistema. Esta atribuição não será resolvida até que o Apple Intelligence seja ativado."
+  intelligence_runs_on_device_and_requires_n: "O Apple Intelligence é executado no dispositivo e não requer credenciais."
+  speechtranscriber_macos_26: "Apple SpeechTranscriber (macOS 26+)"
+  speechtranscriber_requires_macos_26: "O Apple SpeechTranscriber requer macOS 26."
+  speechtranscriber_unavailable_using_nemotr: "Apple SpeechTranscriber indisponível — usando Nemotron"
+are:
+  you_sure_you_want_to_delete_this_action_cann: "Tem certeza de que deseja excluir '%@'? Esta ação não pode ser desfeita."
+assignments:
+  _self: "Tarefas"
+attach:
+  logs_from_this_folder_when_filing_a_githu: "Anexe logs desta pasta ao registrar um problema no GitHub."
+audio:
+  input: "Entrada de áudio"
+automatic:
+  follow_system: "Automático (Siga Sistema)"
+  updates: "Atualizações automáticas"
+  updates_and_manual_update_checks: "Atualizações automáticas e verificações manuais de atualizações"
+automatically:
+  check_for_new_versions_in_the_back: "Verifique automaticamente novas versões em segundo plano."
+  start_pindrop_when_you_sign_in: "Inicie o Pindrop automaticamente quando você fizer login."
+available:
+  models: "Modelos Disponíveis"
+avg:
+  speed: "Velocidade média"
+back:
+  _self: "Voltar"
+  to_library: "De volta à biblioteca"
+base:
+  _self: "Base"
+best:
+  _self: "Melhor"
+better:
+  _self: "Melhorar"
+  bluetooth_external_mic_support: "Melhor suporte a Bluetooth e microfones externos"
+built:
+  in_presets: "Predefinições integradas"
+  in_read_only: "Integrado (somente leitura)"
+cancel:
+  _self: "Cancelar"
+  operation: "Cancelar operação"
+capture:
+  directly_into_the_note_editor_with_a_hol: "Capture diretamente no editor de notas com um fluxo de retenção para gravação."
+change:
+  microphone: "Mudar microfone"
+  microphone_ac9970f4: "Mudar microfone"
+check:
+  for_updates: "Verifique se há atualizações..."
+  for_updates_736b9062: "Verifique se há atualizações"
+  now: "Verifique agora"
+checking:
+  _self: "Verificando..."
+choose:
+  a_location_to_save_the_dictionary: "Escolha um local para salvar o dicionário"
+  a_location_to_save_the_presets: "Escolha um local para salvar as predefinições"
+  a_model: "Escolha um modelo"
+  a_provider_first: "Escolha um provedor primeiro"
+  an_audio_or_video_file_to_transcribe: "Escolha um arquivo de áudio ou vídeo para transcrever"
+  between_nemotron_punctuated_downloaded_mod: "Escolha entre Nemotron (com pontuação, modelo baixado) e Apple SpeechTranscriber (macOS 26+, incluído no sistema)."
+  file: "Escolha o arquivo"
+  how_dictated_text_lands_then_tune_the_fin: "Escolha como o texto ditado será exibido e ajuste o comportamento de inserção final."
+  how_pindrop_follows_system_appearance_the: "Escolha como o Pindrop segue a aparência do sistema e, em seguida, misture paletas claras e escuras selecionadas."
+  how_to_import_the_dictionary_data: "Escolha como importar os dados do dicionário"
+  how_to_import_the_preset_data: "Escolha como importar os dados predefinidos"
+  languages_for_the_interface_and_for_dicta: "Escolha os idiomas para a interface e para o ditado. Automático segue o sistema."
+  location_to_save_presets: "Escolha o local para salvar as predefinições"
+  the_daytime_shell_used_in_light_mode: "Escolha o shell diurno usado no modo claro."
+  the_low_glare_shell_used_in_dark_mode: "Escolha a concha de baixo brilho usada no modo escuro."
+  which_microphone_pindrop_should_use_for_d: "Escolha qual microfone o Pindrop deve usar para ditado e como ele se comporta durante a gravação."
+  which_side_the_navigation_sidebar_appears: "Escolha em qual lado a barra de navegação lateral aparece."
+  how_pindrop_appears_on_screen_while_you_d: "Escolha como o Pindrop aparece na tela enquanto você dita."
+  how_recording_and_processing_status_appea: "Escolha como o status de gravação e processamento aparece enquanto você trabalha."
+  whether_pindrop_starts_when_you_sign_in_a: "Escolha se o Pindrop inicia ao entrar e aparece no Dock."
+  which_edge_of_the_main_window_holds_the_n: "Escolha em qual lado da janela principal fica a barra de navegação."
+  which_microphone_pindrop_uses_for_dictati: "Escolha o microfone que o Pindrop usa para o ditado."
+  model: "Escolher modelo…"
+clean:
+  up_filler_words: "Limpe palavras de preenchimento"
+clear:
+  audio_buffer: "Limpar buffer de áudio"
+  hotkey: "Limpar tecla de atalho"
+  shortcut: "Limpar atalho"
+clears:
+  preferences_and_restarts_onboarding: "Limpa preferências e reinicia a integração"
+  preferences_and_restarts_onboarding_7d85115c: "Limpa as preferências e reinicia a introdução."
+click:
+  or_hold: "Clique ou segure"
+  or_press: "Clique ou pressione"
+  or_set_a_hotkey_to_start_talking: "Clique ou defina uma tecla de atalho para começar a falar"
+  this_icon_anytime_to: "Clique neste ícone a qualquer momento para:"
+clipboard:
+  _self: "Área de transferência"
+  temporarily_copies_the_transcript_for: "A área de transferência copia o texto para colar. A inserção direta digita no app ativo quando possível."
+cloud:
+  _self: "Nuvem"
+  model: "Modelo de nuvem"
+collapse:
+  _self: "Recolher"
+coming:
+  soon: "%@ Em breve"
+  soon_04d2fd85: "Em breve"
+configure:
+  ai_providers_and_credentials_apple_int: "Configure provedores e credenciais de IA. O Apple Intelligence é executado no dispositivo; outros provedores exigem chaves de API."
+  keyboard_shortcuts_for_recording_and_n: "Configure atalhos de teclado para gravação e captura de notas"
+continue:
+  _self: "Continuar"
+  with_default: "Continuar com o padrão"
+  without: "Continuar sem"
+control:
+  how_pindrop_appears_in_macos_and_whether: "Controle como o Pindrop aparece no macOS e se ele inicia na sua sessão de desktop."
+controls:
+  how_the_live_dictation_path_polishes_tr: "Controla como o caminho de ditado ao vivo refina as transcrições. O limpador determinístico (remoção de muletas, capitalização, pontuação falada, normalização de números, fusão de palavras divididas) é executado de qualquer forma — esta chave controla o polimento LLM opcional disparado após o fim do ditado."
+copied:
+  _self: "Copiado!"
+copy:
+  _self: "Cópia"
+  enhanced: "Cópia aprimorada"
+  last_transcript: "Copiar a última transcrição"
+  original: "Copiar original"
+  system_info_for_bug_report: "Copiar informações do sistema para relatório de bug"
+  the_most_recent_transcript_to_the_clipboard: "Copie a transcrição mais recente para a área de transferência"
+  to_clipboard: "Copiar para a área de transferência"
+  transcript: "Copiar transcrição"
+  system_info: "Copiar info do sistema"
+  the_configuration_snippet_into_your_preferr: "Copie o trecho de configuração para o host de agente de IA de sua preferência."
+  the_most_recent_transcript_to_the_clipboard_b9736933: "Copia a transcrição mais recente para a área de transferência."
+correct:
+  grammar_mistakes: "Corrigir erros gramaticais"
+create:
+  _self: "Criar"
+  new_note: "Criar nova nota"
+  new_preset: "Criar nova predefinição"
+  your_first_note_to_get_started: "Crie sua primeira nota para começar"
+  your_first_preset_or_duplicate_a_built_in: "Crie sua primeira predefinição ou duplique uma predefinida para personalizá-la."
+  your_own_presets_or_duplicate_built_in_on: "Crie suas próprias predefinições ou duplique as predefinidas para personalizá-las."
+  preset: "Criar predefinição"
+credentials:
+  are_stored_securely_in_keychain: "As credenciais são armazenadas com segurança no Keychain"
+  saved_successfully: "Credenciais salvas com sucesso"
+  are_stored_securely_in_keychain_5acff5d3: "As credenciais são armazenadas com segurança no Keychain."
+current:
+  _self: "Atual: %@"
+custom:
+  _self: "Personalizado"
+  local: "Personalizado/Local"
+  openai_compatible: "Personalizado (compatível com OpenAI)"
+  presets: "Predefinições personalizadas"
+customize:
+  hotkey: "Personalizar tecla de atalho"
+cut:
+  _self: "Corte"
+d:
+  characters: "%d characters"
+  speakers: "%d speakers"
+  samples: "%d amostras · %@"
+dark:
+  _self: "Escuro"
+  preview: "Pré-visualização escura"
+  theme: "Tema escuro"
+database:
+  error: "Erro de banco de dados"
+date:
+  _self: "Data"
+  7f823513: "Data %@"
+default:
+  _self: "Padrão"
+  model: "Modelo padrão"
+define:
+  word_replacements_to_automatically_replac: "Defina substituições de palavras para substituir automaticamente palavras ou frases específicas"
+degraded:
+  _self: "Degradado"
+delete:
+  _self: "Excluir"
+  folder: "Excluir pasta"
+  folder_e556e7c2: "Excluir pasta?"
+  model: "Excluir modelo"
+  preset: "Excluir predefinição"
+  preset_4f6cfe36: "Excluir predefinição?"
+  transcription: "Excluir transcrição"
+  transcription_f82187c4: "Excluir transcrição?"
+  all: "Excluir tudo"
+  all_participants: "Excluir todos os participantes?"
+  all_participants_60ed6e73: "Excluir todos os participantes…"
+dictionary:
+  _self: "Dicionário"
+direct:
+  insert: "Inserção Direta"
+disabled:
+  _self: "Desabilitado"
+dismiss:
+  _self: "Liberar"
+display:
+  name: "Nome de exibição"
+  name_c7874aaa: "Nome de exibição"
+  pindrop_in_the_dock_instead_of_running_o: "Exiba o Pindrop no Dock em vez de executá-lo apenas como um aplicativo da barra de menus."
+dock:
+  the_sidebar_to_the_left_or_right_edge_of_th: "Encaixe a barra lateral na borda esquerda ou direita da janela."
+download:
+  _self: "Download"
+  complete: "Download completo!"
+  continue: "Baixar e continuar"
+  failed: "Falha no download"
+  model: "Baixar modelo"
+  the_diarization_model_before_starting_m: "Baixe o modelo de diarização antes de iniciar a transcrição da mídia."
+downloaded:
+  _self: "Baixado"
+downloading:
+  _self: "Baixando %@..."
+drop:
+  a_file_or_paste_a_link_to_create_a_diarized: "Solte um arquivo ou cole um link para criar uma transcrição com carimbo de data e hora."
+  audio_or_video_here: "Solte áudio ou vídeo aqui"
+duplicate:
+  preset: "Predefinição duplicada"
+dutch:
+  _self: "Holandês"
+edit:
+  _self: "Editar"
+  preset: "Editar predefinição"
+  provider: "Editar provedor"
+empty:
+  _self: "(Vazio)"
+enable:
+  ai_enhancement: "Habilitar aprimoramento de IA"
+  live_session_updates_during_recording: "Habilite atualizações de sessão ao vivo durante a gravação"
+  vibe_mode_ui_context: "Ativar o modo vibe (contexto da IU)"
+  mcp_server: "Ativar servidor MCP"
+enabled:
+  _self: "Habilitado"
+endpoint:
+  _self: "Ponto final: %@"
+english:
+  _self: "Inglês"
+  only: "Somente inglês"
+enhanced:
+  _self: "Aprimorado"
+enhancement:
+  prompts: "Solicitações de melhorias"
+enhancing:
+  _self: "Aprimorando…"
+enter:
+  an_openai_api_key_to_load_models: "Insira uma chave de API OpenAI para carregar modelos."
+  api_key: "Insira a chave API"
+  word_to_add: "Digite a palavra para adicionar"
+error:
+  _self: "Erro"
+european:
+  multilingual: "Multilíngue europeu"
+excellent:
+  _self: "Excelente"
+export:
+  _self: "Exportar"
+  as_csv: "Exportar como CSV"
+  as_json: "Exportar como JSON"
+  as_plain_text: "Exportar como texto simples"
+  dictionary: "Dicionário de exportação"
+  failed: "Falha na exportação: %@"
+  last_transcript: "Exportar a última transcrição..."
+  presets: "Exportar predefinições"
+failed:
+  to_add_replacement: "Falha ao adicionar substituição: %@"
+  to_add_word: "Falha ao adicionar palavra: %@"
+  to_delete_folder: "Falha ao excluir pasta: %@"
+  to_delete_note: "Falha ao excluir nota: %@"
+  to_delete_preset: "Falha ao excluir predefinição: %@"
+  to_delete_replacement: "Falha ao excluir substituição: %@"
+  to_delete_transcription: "Falha ao excluir a transcrição: %@"
+  to_delete_word: "Falha ao excluir palavra: %@"
+  to_export_dictionary: "Falha ao exportar dicionário: %@"
+  to_export_presets: "Falha ao exportar predefinições: %@"
+  to_import_dictionary: "Falha ao importar dicionário: %@"
+  to_import_presets: "Falha ao importar predefinições: %@"
+  to_initialize_the_database_nnthe_app_will: "Falha ao inicializar o banco de dados: %@nnO aplicativo será encerrado agora. Tente reiniciar ou entre em contato com o suporte se o problema persistir."
+  to_load_data: "Falha ao carregar dados: %@"
+  to_load_history: "Falha ao carregar o histórico: %@"
+  to_read_import_file: "Falha ao ler o arquivo de importação: %@"
+  to_save: "Falha ao salvar: %@"
+  to_save_preset: "Falha ao salvar a predefinição: %@"
+  to_switch_model: "Falha ao mudar de modelo: %@"
+  to_update_preset: "Falha ao atualizar a predefinição: %@"
+  to_update_replacement: "Falha ao atualizar a substituição: %@"
+  to_update_word: "Falha ao atualizar a palavra: %@"
+fast:
+  _self: "Rápido"
+feature:
+  models: "Modelos de recursos"
+fetch:
+  models_in_models: "Buscar modelos em Modelos"
+fix:
+  punctuation_and_capitalization: "Corrigir pontuação e letras maiúsculas"
+floating:
+  indicator: "%@ indicador flutuante"
+  indicator_e0349402: "Indicador flutuante"
+folder:
+  deleted: "Pasta excluída."
+  name: "Nome da pasta"
+follow:
+  playback: "Siga a reprodução"
+format:
+  text_appropriately: "Formate o texto adequadamente"
+french:
+  _self: "Francês"
+general:
+  _self: "Em geral"
+german:
+  _self: "Alemão"
+get:
+  started: "Comece"
+global:
+  _self: "Global"
+  keyboard_shortcuts: "Atalhos de teclado globais"
+go:
+  back: "Volte"
+  to_settings: "Vá para configurações"
+good:
+  _self: "Bom"
+  afternoon: "Boa tarde"
+  evening: "Boa noite"
+  morning: "Bom dia"
+  night: "Boa noite"
+google:
+  _self: "Google"
+got:
+  it: "Entendi"
+grant:
+  _self: "Conceder"
+great:
+  _self: "Ótimo"
+hide:
+  this_for_1_hour: "Ocultar isso por 1 hora"
+  api_key: "Ocultar chave de API"
+history:
+  _self: "História"
+hold:
+  the_shortcut_to_record_then_release_to_tran: "Segure o atalho para gravar e solte para transcrever."
+  to_record_release_to_open_note_editor_with: "Segure para gravar, solte para abrir o editor de notas com transcrição"
+  to_record_release_to_stop_and_transcribe: "Segure para gravar, solte para parar e transcrever"
+  to_record_release_to_transcribe: "Segure para gravar, solte para transcrever"
+  to_record_then_release_to_open_the_note_edi: "Segure para gravar e solte para abrir o editor de notas com a transcrição."
+hotkey:
+  conflict: "Conflito de teclas de atalho"
+hotkeys:
+  _self: "Teclas de atalho"
+identify:
+  speakers_and_enable_timestamped_exports: "Identify speakers and enable timestamped exports."
+import:
+  _self: "Importar"
+  dictionary: "Dicionário de importação"
+  error: "Erro de importação"
+  export: "Importar/Exportar"
+  media: "Importar mídia"
+  or_transcribe_media_while_this_folder_is: "Importe ou transcreva mídia enquanto esta pasta estiver selecionada para salvar itens aqui."
+  presets: "Importar predefinições"
+  strategy: "Estratégia de Importação"
+imported:
+  files_and_web_links_will_appear_here_on: "Arquivos importados e links da web aparecerão aqui assim que o processamento for concluído."
+improve:
+  transcription_quality_using_ai: "Melhore a qualidade da transcrição usando IA"
+include:
+  clipboard_text: "Incluir texto da área de transferência"
+interface:
+  _self: "Interface"
+  language: "Idioma da interface"
+is:
+  assigned_to_both_and_only_the_first_action_wi: "%@ é atribuído a %@ e %@. Apenas a primeira ação estará ativa. Atualize suas teclas de atalho em Configurações para resolver este conflito."
+italian:
+  _self: "italiano"
+items:
+  _self: "Unid"
+japanese:
+  _self: "japonês"
+keep:
+  pindrop_current_automatically_or_trigger_a: "Mantenha o Pindrop atualizado automaticamente ou acione uma verificação manual sempre que desejar."
+  pindrop_current_automatically_or_check_for: "Mantenha o Pindrop atualizado automaticamente ou verifique uma nova versão agora."
+key:
+  _self: "#%@"
+  a979ef10: "+"
+  ab8f46d5: "%1$@ %2$@"
+keyboard:
+  shortcuts: "Atalhos de teclado"
+korean:
+  _self: "coreano"
+language:
+  _self: "Linguagem"
+large:
+  _self: "Large"
+launch:
+  at_login: "Iniciar no login: %@"
+  at_login_0b36c78f: "Iniciar no login"
+  at_login_fd1a3b7b: "Abrir ao iniciar sessão"
+  at_login_could_not_be_changed: "Não foi possível alterar «Abrir ao iniciar sessão»"
+layout:
+  _self: "Layout"
+learn:
+  corrected_words_automatically: "Aprenda palavras corrigidas automaticamente"
+left:
+  _self: "Esquerda"
+let:
+  pindrop_quietly_learn_vocabulary_from_the_co: "Deixe o Pindrop aprender silenciosamente o vocabulário com as correções que você faz ao longo do tempo."
+light:
+  _self: "Luz"
+  dark_and_curated_palette_presets: "Predefinições de paleta claras, escuras e selecionadas"
+  preview: "Visualização clara"
+  theme: "Tema claro"
+limited:
+  _self: "Limitado"
+listening:
+  _self: "Ouvindo…"
+live:
+  streaming_refinement: "Refinamento de transmissão ao vivo"
+lld:
+  _self: "%1$lld %2$@"
+  197eb092: "%lld%%"
+  a2843d9b: "+%lld"
+  characters: "%lld caracteres"
+  complete: "%lld%% concluído"
+  items: "%lld itens"
+  notes: "%lld notas"
+  transcriptions: "%lld transcrições"
+lm:
+  studio: "Estúdio LM"
+  studio_only_needs_a_token_if_local_server_aut: "O LM Studio só precisa de um token se a autenticação do servidor local estiver habilitada."
+load:
+  models: "Carregar Modelos"
+loaded:
+  d_models: "Loaded %d models"
+loading:
+  history: "Carregando histórico..."
+  models: "Carregando modelos..."
+local:
+  _self: "Local"
+  speech_to_text_right_from_your_menu_bar_fa: |-
+    Conversão local de fala para texto, diretamente na barra de menu.
+    Rápido, privado e sempre disponível.
+  speech_to_text_right_from_your_menu_bar_nf: "Conversão local de fala para texto, diretamente na barra de menus.nRápido, privado e sempre disponível."
+  speech_to_text_with_whisperkit: "Conversão local de fala para texto com WhisperKit"
+  voice_to_text: "Voz local para texto"
+low:
+  latency_mode_less_accurate: "Modo de baixa latência (menos preciso)"
+manage:
+  local_speech_models_feature_models_and_th: "Gerencie modelos de fala locais, modelos de recursos e o mecanismo padrão que o Pindrop usa para transcrição."
+  models: "Gerenciar modelos"
+  presets: "Gerenciar predefinições"
+  presets_ab87986d: "Gerenciar predefinições..."
+  presets_d5d4c2c2: "Gerenciar predefinições…"
+manually:
+  check_for_new_versions_now: "Verifique manualmente se há novas versões agora."
+media:
+  library: "Biblioteca de mídia"
+  transcription: "Transcrição de mídia"
+  unavailable: "Mídia indisponível"
+  saved: "Mídia salva"
+medium:
+  _self: "Médio"
+microphone:
+  _self: "Microfone"
+  permission_is_required_to_continue: "É necessária permissão do microfone para continuar"
+  permission_is_required_to_continue_dc: "É necessária permissão do microfone para continuar."
+  permission_required: "Permissão de microfone necessária"
+mit:
+  license: "Licença MIT"
+mode:
+  _self: "Modo: %@"
+model:
+  _self: "Modelo"
+  loading_failed: "Falha no carregamento do modelo"
+  loading_timed_out: "O carregamento do modelo expirou"
+  validation: "Validação do modelo"
+models:
+  _self: "Modelos"
+move:
+  to_folder: "Mover para pasta"
+multilingual:
+  _self: "Multilíngue"
+must:
+  be_openai_compatible: "Deve ser compatível com OpenAI"
+mute:
+  system_audio_during_recording: "Silenciar o áudio do sistema durante a gravação"
+new:
+  folder: "Nova pasta"
+  note: "Nova nota"
+  preset: "Nova predefinição"
+next:
+  _self: "Próximo"
+no:
+  api_key: "Nenhuma chave de API"
+  api_key_endpoint: "Sem chave de API • Endpoint: %@"
+  custom_presets: "Sem predefinições personalizadas"
+  downloaded_models: "Nenhum modelo baixado"
+  folders_yet: "Ainda não há pastas"
+  items_in: "Nenhum item em %@"
+  media_transcriptions_yet: "Ainda não há transcrições de mídia"
+  model_loaded: "Nenhum modelo carregado"
+  model_selected: "Nenhum modelo selecionado"
+  models_available: "Nenhum modelo disponível"
+  models_available_ae9dbd29: "Nenhum modelo disponível."
+  models_available_try_refresh_or_enter_a_model: "Nenhum modelo disponível. Tente atualizar ou insira um ID de modelo manualmente."
+  models_found: "Nenhum modelo encontrado."
+  models_loaded_open_edit_to_fetch_models: "Nenhum modelo carregado. Abra Editar para buscar modelos."
+  models_match: "Nenhum modelo corresponde a \"%@\""
+  notes_yet: "Ainda não há notas"
+  providers_configured_yet: "Nenhum provedor configurado ainda."
+  replacements: "Sem substituições"
+  results_found: "Nenhum resultado encontrado"
+  settings_found: "Nenhuma configuração encontrada"
+  transcriptions_yet: "Ainda não há transcrições"
+  vocabulary_words: "Sem palavras de vocabulário"
+  learned_participants_yet: "Nenhum participante aprendido ainda"
+  providers_configured_yet_e6bc0075: "Nenhum provedor configurado ainda"
+  conflicts_found: "No conflicts found"
+not:
+  assigned: "Não atribuído"
+  selected: "Não selecionado"
+  set: "Não definido"
+  set_93039e60: "Não definido"
+  granted: "Não concedido"
+  enough_voice_data_yet: "Ainda não há dados de voz suficientes"
+  generated_yet_enable_the_server: "Ainda não gerado — ative o servidor"
+note:
+  _self: "Observação"
+  capture_push_to_talk: "Captura de notas (Push-to-Talk)"
+  capture_toggle: "Captura de notas (alternar)"
+  enhancement: "Aprimoramento de notas"
+  from: "Nota de"
+  metadata: "Nota Metadados"
+  title: "Título da nota"
+  saved: "Nota salva"
+  capture_hold: "Captura de nota — Segurar"
+  capture_toggle_7139a240: "Captura de nota — Alternar"
+notes:
+  _self: "Notas"
+  3add7b96: "notas"
+off:
+  _self: "Desligado"
+ok:
+  _self: "OK"
+ollama:
+  _self: "Ollama"
+  usually_does_not_require_authentication_f: "Ollama geralmente não requer autenticação para solicitações locais."
+on:
+  _self: "Sobre"
+  device_no_credentials_required: "No dispositivo, sem necessidade de credenciais"
+open:
+  _self: "Abrir"
+  history: "Abrir histórico"
+  logs_in_finder: "Abrir registros no Finder"
+  original_link: "Abrir link original"
+  progress: "Progresso aberto"
+  settings: "Abra Configurações"
+  settings_fd7108f8: "Abrir configurações"
+  system_settings: "Abra as configurações do sistema"
+  library: "Open Library"
+openai:
+  _self: "OpenAI"
+  compatible_local_server: "Servidor local compatível com OpenAI"
+  whisper: "Sussurro OpenAI"
+openrouter:
+  _self: "OpenRouter"
+optional:
+  _self: "Opcional"
+  insert_text_directly_into_apps: "Opcional: insira texto diretamente nos aplicativos"
+  used_for_auto_generated_titles_and_summ: "Opcional — usado para títulos e resumos gerados automaticamente em importações de transcrição de mídia."
+optionally:
+  clean_up_transcriptions_with_ai: "Opcionalmente, limpe as transcrições com IA"
+or:
+  _self: "ou"
+  just_use_your_hotkey: "Ou apenas use sua tecla de atalho!"
+original:
+  _self: "Original"
+  text_use_commas_for_multiple: "Texto original (use vírgulas para múltiplos)"
+originals:
+  comma_separated: "Originais (separados por vírgula)"
+output:
+  _self: "Saída"
+  audio_interface_and_everyday_behavior: "Saída, áudio, interface e comportamento diário"
+  mode: "Modo de saída"
+nemotron:
+  default: "Nemotron (default)"
+paste:
+  _self: "Colar"
+  a_video_or_audio_link: "Cole um link de vídeo ou áudio"
+  failed_transcript_copied_to_clipboard: "Falha ao colar. Transcrição copiada para a área de transferência."
+  last_transcript: "Colar a última transcrição"
+  last_transcript_v: "Cole a última transcrição ⌃⌘V"
+pause:
+  _self: "Pausa"
+  media_during_transcription: "Pausar mídia durante a transcrição"
+permissions:
+  _self: "Permissões"
+pick:
+  which_provider_and_model_handles_each_ai_ta: "Escolha qual provedor e modelo lida com cada tarefa de IA. Deixe como \"Não atribuído\" para pular uma finalidade."
+  which_provider_and_model_handles_each_ai_ta_b719504f: "Escolha qual provedor e modelo cuida de cada tarefa de IA. Deixe um propósito sem atribuição para pular."
+pill:
+  _self: "Pílula"
+pin:
+  to_screen_always_on_top: "Fixar na tela (sempre no topo)"
+pindrop:
+  _self: "Pindrop"
+  is_ready_to_use_click_the_menu_bar_icon: |-
+    O Pindrop está pronto para uso.
+    Clique no ícone da barra de menu para começar.
+  is_ready_to_use_nclick_the_menu_bar_icon: "O Pindrop está pronto para uso.nClique no ícone da barra de menu para começar."
+  needs_a_few_permissions_to_work_nyour_pr: "Pindrop precisa de algumas permissões para funcionar.nSua privacidade é sempre respeitada."
+  needs_a_few_permissions_to_work_your_pri: |-
+    Pindrop precisa de algumas permissões para funcionar.
+    Sua privacidade é sempre respeitada.
+  needs_accessibility_permission_to_insert: "\"\" Pindrop precisa de permissão de acessibilidade para inserir texto no cursor.                          Para conceder permissão: 1. Clique em \"Abrir configurações do sistema\" abaixo 2. Clique no botão + 3. Navegue até o aplicativo mostrado no Finder 4. Reinicie o Pindrop após conceder permissão Sem essa permissão, o texto só será copiado para sua área de transferência.             \"\""
+  needs_microphone_access_to_record_and_tr: "Pindrop precisa de acesso ao microfone para gravar e transcrever sua voz.nnPor favor, conceda permissão nas configurações do sistema."
+  on_github: "Pindrop no GitHub"
+  pill: "Pílula Pindrop"
+  theme: "Tema Pindrop"
+  orb: "Orbe do Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Ajuda do Pindrop"
+play:
+  _self: "Jogar"
+please:
+  check_your_internet_connection_and_try_ag: "Verifique sua conexão com a Internet e tente novamente."
+  download_a_whisper_model_in_settings_befo: |-
+    Baixe um modelo Whisper em Configurações antes de gravar.
+    
+    Vá para Configurações → Modelos para baixar um modelo.
+  download_a_whisper_model_in_settings_befo_a71d286e: "Baixe um modelo Whisper em Configurações antes de gravar.nnVá para Configurações → Modelos para baixar um modelo."
+  wait: "Por favor, aguarde..."
+portuguese:
+  brazil: "Português (Brasil)"
+powered:
+  by_whisperkit: "Desenvolvido por WhisperKit"
+preparing:
+  model: "Preparando modelo..."
+preset:
+  name: "Nome predefinido"
+press:
+  and_hold_to_dictate_in_any_app_pindrop_wil: "Pressione e segure para ditar em qualquer aplicativo. Pindrop transcreverá sua fala e inserirá o texto onde estiver o cursor."
+  esc_to_cancel: "Pressione Esc para cancelar"
+  keys: "Pressione as teclas..."
+  once_to_start_again_to_stop: "Pressione uma vez para iniciar, novamente para parar"
+  once_to_start_recording_press_again_to_sto: "Pressione uma vez para iniciar a gravação, pressione novamente para parar e transcrever"
+  once_to_start_recording_then_press_again_t: "Pressione uma vez para iniciar a gravação e pressione novamente para parar e transcrever."
+  to_start_recording_press_again_to_open_not: "Pressione para iniciar a gravação, pressione novamente para abrir o editor de notas"
+  keys_98b8167e: "Pressione as teclas…"
+  once_to_start_recording_then_again_to_open: "Pressione uma vez para gravar e outra para abrir o editor de notas."
+primary:
+  text: "Texto Primário"
+processing:
+  _self: "Processamento"
+  272bc02e: "Processamento..."
+  5aa377e2: "⏳ Processamento"
+  transcript: "Processing transcript"
+prompt:
+  _self: "Incitar"
+  preset: "Predefinição de prompt"
+provider:
+  _self: "Provedor"
+  kind: "Tipo de provedor"
+  type: "Tipo de provedor"
+providers:
+  _self: "Provedores"
+  prompts_and_vibe_mode_controls: "Provedores, prompts e controles do modo vibe"
+push:
+  to_talk: "Aperte para falar"
+quickly:
+  copy_your_last_transcription: "Copie rapidamente sua última transcrição"
+  pull_your_latest_transcript_back_to_the: "Puxe rapidamente sua transcrição mais recente de volta para a área de transferência."
+quit:
+  _self: "Desistir"
+  pindrop: "Sair do Pindrop"
+ready:
+  _self: "Preparar"
+  ec1296e1: "● Pronto"
+  to_record: "Ready to record"
+  to_transcribe: "Pronto para transcrever"
+recent:
+  _self: "Recente"
+  transcriptions: "Transcrições recentes"
+  transcripts: "Transcrições recentes"
+recommended:
+  _self: "Recomendado"
+  the_deterministic_cleaner_handles_mo: "Recomendado: o limpador determinístico cuida bem da maior parte dos ditados. Ative a etapa LLM apenas se quiser polimento extra e aceitar peculiaridades ocasionais do modelo (preâmbulo, respostas conversacionais)."
+  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recomendado: o limpador determinístico trata a maior parte do ditado. Ative o passo LLM só se quiser polimento extra e aceitar peculiaridades ocasionais do modelo."
+record:
+  _self: "Registro"
+recording:
+  _self: "Gravação"
+  3f8fd48c: "🔴 Gravação"
+  from_external_and_bluetooth_microphone: "A gravação por microfones externos e Bluetooth agora é muito estável, mesmo quando a saída de áudio está roteada para outro lugar."
+recordings:
+  _self: "gravações"
+redo:
+  _self: "Refazer"
+refresh:
+  _self: "Atualizar"
+  the_provider_or_open_edit_to_fetch_model: "Atualize o provedor ou abra Editar para buscar modelos."
+remove:
+  _self: "Remover"
+  and_clear_any_assignments_that_reference: "Remover \"%@\" e limpar todas as atribuições que fazem referência a ele? As credenciais armazenadas serão excluídas."
+  from_folder: "Remover da pasta"
+  provider: "Remover provedor"
+rename:
+  _self: "Renomear"
+  folder: "Renomear pasta"
+  participant: "Renomear participante"
+  speakers_in_transcripts_to_teach_pindrop: "Renomeie falantes nas transcrições para ensinar o Pindrop a reconhecer vozes."
+replace:
+  all: "Substituir tudo"
+  words_and_phrases: "Substitua palavras e frases"
+replacement:
+  _self: "Substituição"
+  text: "Texto de substituição"
+report:
+  an_issue: "Informar um problema"
+  an_issue_bd7b4f00: "Informar um problema"
+required:
+  _self: "Obrigatório"
+  for_recording_your_voice: "Necessário para gravar sua voz"
+requires:
+  diarization_model: "Requires diarization model"
+  speaker_diarization: "Requires speaker diarization"
+  a_fast_provider_apple_foundation_models: "Requer um provedor rápido (recomenda-se modelos Apple Foundation). Os provedores de nuvem emitirão uma chamada de API por pausa."
+reset:
+  _self: "Reiniciar"
+  all_settings: "Redefinir todas as configurações?"
+  all_settings_7262c7b7: "Redefinir todas as configurações"
+  to_default: "Redefinir para o padrão"
+  all_settings_e5dbc5fc: "Redefinir todas as configurações…"
+retry:
+  _self: "Tentar novamente"
+right:
+  _self: "Direita"
+run:
+  llm_polish_after_dictation_stops: "Executar polimento LLM ao encerrar o ditado"
+  a_local_http_server_so_ai_agents_can_submit: "Executa um servidor HTTP local para agentes de IA enviarem trabalhos de transcrição, pesquisarem o histórico e gerenciarem falantes."
+runtime:
+  _self: "Tempo de execução: %@"
+  status: "Status de execução"
+save:
+  _self: "Salvar"
+  as_note: "Salvar como nota"
+  continue: "Salvar e continuar"
+  credentials: "Salvar credenciais"
+  prompt: "Salvar prompt"
+saved:
+  _self: "Salvo"
+  as_note: "Salvo como nota"
+  transcription: "Transcrição salva"
+search:
+  media_transcripts: "Pesquisar transcrições de mídia..."
+  models: "Pesquisar modelos"
+  models_61c1b9fe: "Pesquisar modelos..."
+  notes: "Pesquisar notas..."
+  settings: "Configurações de pesquisa"
+  settings_or_jump_between_sections_without: "Pesquise configurações ou salte entre seções sem sair da área de trabalho principal."
+  transcriptions: "Pesquisar transcrições..."
+secondary:
+  text: "Texto Secundário"
+select:
+  a_dictionary_json_file_to_import: "Selecione um arquivo JSON de dicionário para importar"
+  a_model: "Selecione um modelo"
+  a_presets_json_file_to_import: "Selecione um arquivo JSON predefinido para importar"
+  a_provider_kind: "Selecione um tipo de provedor"
+  a_provider_type: "Selecione um tipo de provedor"
+  ai_model: "Selecione o modelo de IA"
+  all: "Selecionar tudo"
+  language: "Selecione o idioma"
+  language_daea52c9: "Selecione o idioma"
+  this_floating_indicator_style: "Selecione este estilo de indicador flutuante."
+  voice_model: "Selecione o modelo de voz"
+  the_language_pindrop_should_expect_when_t: "Selecione o idioma que o Pindrop deve esperar ao transcrever a fala."
+selected:
+  _self: "Selecionado"
+sent:
+  to_the_ai_model_when_processing_dictation_f: "Enviado ao modelo de IA ao processar o ditado para inserção direta de texto."
+sessions:
+  _self: "Sessões"
+  781791f5: "sessões"
+set:
+  as_default: "Definir como padrão"
+settings:
+  _self: "Configurações"
+  bf83f07f: "Configurações..."
+  fa67a397: "Configurações…"
+setup:
+  required: "Configuração necessária"
+show:
+  app: "Mostrar aplicativo"
+  app_in_finder: "Mostrar aplicativo no Finder"
+  in_dock: "Mostrar no Dock"
+  api_key: "Mostrar chave de API"
+  the_main_window_and_open_the_library: "Show the main window and open the Library."
+shows:
+  as_a_pill_at_the_bottom_of_the_screen: "Mostra como uma pílula na parte inferior da tela"
+  as_a_liquid_glass_orb_in_the_corner_of_the: "Aparece como um orbe de vidro líquido no canto da tela"
+sidebar:
+  position: "Posição da barra lateral"
+  position_916f66ea: "Posição da barra lateral"
+simplified:
+  chinese: "Chinês simplificado"
+size:
+  _self: "Size"
+skip:
+  for_now: "Pular por agora"
+slow:
+  _self: "Lento"
+slower:
+  _self: "Mais devagar"
+slowest:
+  _self: "Mais lento"
+small:
+  _self: "Small"
+smaller:
+  models_are_faster_but_less_accurate_nsta: "Modelos menores são mais rápidos, mas menos precisos.nComece com Base para obter o melhor equilíbrio."
+  models_are_faster_but_less_accurate_star: |-
+    Modelos menores são mais rápidos, mas menos precisos.
+    Comece com Base para obter o melhor equilíbrio.
+something:
+  went_wrong: "Algo deu errado"
+soon:
+  _self: "Breve"
+sort:
+  by: "Ordenar por"
+source:
+  _self: "Fonte"
+spanish:
+  _self: "Espanhol"
+speaker:
+  diarization: "Speaker diarization"
+  diarization_and_timestamps_are_attached: "A diarização do alto-falante e os carimbos de data/hora são anexados à reprodução."
+  diarization_is_required: "A diarização do orador é obrigatória"
+speed:
+  _self: "Velocidade"
+start:
+  fresh_when_you_want_to_clear_preferences_o: "Comece do zero quando quiser limpar preferências, estado de integração e credenciais salvas."
+  recording: "Comece a gravar"
+  recording_to_see_your_transcriptions_here: "Comece a gravar para ver suas transcrições aqui"
+  stop_recording: "Iniciar/parar gravação"
+  using_pindrop: "Comece a usar o Pindrop"
+status:
+  _self: "Status"
+stop:
+  recording: "Pare de gravar"
+streaming:
+  enhancement: "Aprimoramento em streaming"
+  transcription_currently_supports_engli: "A transcrição em streaming atualmente oferece suporte apenas ao inglês, independentemente do idioma selecionado."
+  transcription_is_disabled_while_ai_enh: "A transcrição de streaming está desativada enquanto o AI Enhancement está ativado."
+  transcription_model_nemotron_speech: "Modelo de transcrição em streaming (Nemotron Speech Streaming) licenciado pela NVIDIA Corporation sob a NVIDIA Open Model License."
+  transcription_instantly_ready: "Transcrição em streaming, pronta na hora"
+success:
+  _self: "Sucesso!"
+support:
+  _self: "Apoiar"
+  coming_soon: "%@ Suporte em breve"
+supports:
+  local_media_files_and_web_links_resolve: "Suporta arquivos de mídia local e links da web resolvidos com yt-dlp."
+switch:
+  to_model: "Mudar para modelo"
+system:
+  _self: "Sistema"
+  default: "Padrão do sistema"
+teach:
+  custom_words: "Ensine palavras personalizadas"
+temporarily:
+  copy_text_paste_it_then_restore_your: "Copie o texto temporariamente, cole-o e restaure a área de transferência"
+  mute_speaker_output_while_dictation: "Silencie temporariamente a saída do alto-falante durante a gravação do ditado."
+  pause_active_media_playback_while_di: "Pause temporariamente a reprodução de mídia ativa enquanto o ditado está sendo gravado."
+tertiary:
+  text: "Texto Terciário"
+the:
+  model_failed_to_load_within_60_seconds_this: "\"\" O modelo não foi carregado em 60 segundos. Isso geralmente significa que os arquivos do modelo estão corrompidos ou incompatíveis.                          Para corrigir isso: 1. Abra Configurações → Modelos 2. Exclua o modelo problemático 3. Baixe novamente o modelo Se o problema persistir, tente um modelo menor (Tiny ou Base).             \"\""
+  selected_chunk_variant_isn_t_downloaded_yet: "A variante selecionada ainda não foi baixada. Alternar iniciará um download."
+  new_nemotron_streaming_engine_shows_words_as: "O novo mecanismo de streaming Nemotron mostra as palavras conforme você fala e é pré-aquecido na inicialização para que seu primeiro ditado comece sem atraso."
+theme:
+  _self: "Tema"
+  changes_apply_live_across_the_workspace_se: "As alterações de tema são aplicadas ao vivo na área de trabalho, nas configurações, no editor de notas e nos indicadores flutuantes."
+  mode: "Modo tema"
+  mode_bb6b0b3d: "Modo do tema"
+this:
+  preset_name_is_already_in_use: "Este nome predefinido já está em uso."
+  provider_will_be_available_in_a_future_upda: |-
+    Este provedor estará disponível em uma atualização futura.
+    Por enquanto, experimente o OpenAI ou use um endpoint personalizado.
+  provider_will_be_available_in_a_future_upda_3e35a952: |-
+    Este provedor estará disponível em uma atualização futura.
+    Experimente o OpenAI ou use um endpoint personalizado.
+  provider_will_be_available_in_a_future_upda_0677ac1d: "Este provedor estará disponível em uma atualização futura. Por enquanto, experimente o OpenAI ou use um endpoint personalizado."
+  transcription_could_not_be_found: "Esta transcrição não foi encontrada."
+  will_clear_all_your_settings_including_api: "Isso limpará todas as suas configurações, incluindo chaves de API, teclas de atalho e preferências de modelo. O aplicativo será encerrado e mostrará a integração novamente na próxima inicialização."
+  will_permanently_remove_the_transcript_and: "Isso removerá permanentemente a transcrição e seu arquivo de mídia gerenciado."
+  removes_all_learned_voice_profiles_and_trai: "Isso remove todos os perfis de voz aprendidos e dados de treino. Não pode ser desfeito."
+  will_clear_all_your_settings_including_api_2841f4a1: "Isso limpará todas as configurações, incluindo chaves de API, e reiniciará a introdução"
+time:
+  saved: "Tempo economizado"
+to:
+  dictate_and_let_pindrop_transcribe_for_you: "para ditar e deixar o Pindrop transcrever para você"
+  start_talking: "para começar a falar"
+today:
+  _self: "Hoje"
+toggle:
+  _self: "Alternar"
+  recording: "Alternar gravação"
+  sort_order: "Alternar ordem de classificação"
+transcribe:
+  _self: "Transcrever"
+  media: "Transcrever mídia"
+transcribed:
+  _self: "transcrito"
+transcription:
+  _self: "Transcrição"
+  backend: "Mecanismo de transcrição"
+  deleted: "Transcrição excluída."
+  enhancement: "Aprimoramento de transcrição"
+  failed: "Falha na transcrição"
+  finished: "Transcrição concluída."
+  in_progress: "Transcrição em andamento"
+  metadata: "Metadados de transcrição"
+  update: "Atualização de transcrição"
+  saved: "Transcrição salva"
+transcriptions:
+  _self: "Transcrições"
+  f0972acc: "transcrições"
+  in_this_folder_will_be_kept_and_m: "As transcrições nesta pasta serão mantidas e movidas de volta para a biblioteca."
+transcripts:
+  _self: "Transcrições"
+try:
+  a_different_search_term: "Experimente um termo de pesquisa diferente"
+  a_different_search_term_0ba628a3: "Experimente um termo de pesquisa diferente."
+  a_different_search_term_in_this_folder: "Tente um termo de pesquisa diferente nesta pasta."
+  searching_for_terms_like_hotkeys_microphone: "Tente pesquisar termos como teclas de atalho, microfone, atualizações ou modo vibe."
+turkish:
+  _self: "Turco"
+type:
+  text_directly_into_the_active_app_when_poss: "Digite texto diretamente no aplicativo ativo, quando possível"
+unable:
+  to_connect_to_the_ai_enhancement_service: "\"\" Não é possível conectar-se ao serviço de aprimoramento de IA.                                  Verifique: 1. Sua conexão com a Internet 2. O URL do terminal da API está correto 3. O serviço não está sofrendo uma interrupção A transcrição foi salva sem melhorias.                 \"\""
+  to_finish_transcription: "Não foi possível concluir a transcrição"
+  to_load_history: "Não foi possível carregar o histórico: %@"
+  to_load_models_try_refresh: "Não foi possível carregar modelos. Tente atualizar."
+  to_update_media_library: "Não foi possível atualizar a biblioteca de mídia"
+unavailable:
+  device: "Dispositivo indisponível"
+undo:
+  _self: "Desfazer"
+unfiled:
+  _self: "Não arquivado"
+unpin:
+  from_screen: "Soltar da tela"
+update:
+  _self: "Atualizar"
+updates:
+  _self: "Atualizações"
+use:
+  a_tap_to_start_tap_to_finish_shortcut_for_no: "Use um atalho toque para iniciar e toque para terminar para capturar notas."
+  clipboard_only: "Use apenas a área de transferência"
+  the_hotkey_to_start_your_first_recording: "Use a tecla de atalho para iniciar sua primeira gravação"
+  transcription_as_a_placeholder_for_the_trans: "Use ${transcription} como espaço reservado para o texto transcrito."
+  transcription_as_placeholder: "Use ${transcription} como espaço reservado"
+used:
+  when_capturing_notes_via_hotkey_can_add_mar: "Usado ao capturar notas via tecla de atalho. Pode adicionar formatação de redução para conteúdo mais longo."
+uses:
+  a_built_in_prompt_tuned_for_this_task: "Usa um prompt interno ajustado para esta tarefa."
+  the_560ms_nemotron_variant_for_snappier_par: "Usa a variante Nemotron de 560 ms para texto parcial mais ágil. O padrão é a variante de 1120 ms (melhor precisão)."
+  the_transcription_enhancement_assignment_if: "Usa a atribuição de Aprimoramento de transcrição. Se nenhuma estiver definida, a saída do limpador determinístico é mantida."
+v:
+  _self: "v%@"
+version:
+  _self: "Versão %@ (%@)"
+very:
+  fast: "Muito rápido"
+via:
+  _self: "através de %@"
+vibe:
+  mode: "Modo vibração"
+  mode_captures_structured_ui_context_when_re: "O modo Vibe captura o contexto estruturado da UI quando a gravação é iniciada para que o aprimoramento da IA ​​possa usar o estado ativo do seu aplicativo como referência."
+  mode_works_best_with_accessibility_permissi: "O modo Vibe funciona melhor com permissão de acessibilidade. Sem ele, o Pindrop recorre a metadados limitados do aplicativo e a transcrição ainda funciona normalmente."
+view:
+  _self: "Visualizar"
+  all: "Ver tudo"
+  transcript_history: "Ver histórico de transcrição"
+  transcription_history: "Ver histórico de transcrição"
+vocabulary:
+  _self: "Vocabulário"
+vs:
+  typing: "versus digitação"
+welcome:
+  to_pindrop: "Bem-vindo ao Pindrop"
+whisperkit:
+  _self: "Kit Sussurro"
+word:
+  _self: "Palavra"
+  replacements: "Substituições de palavras"
+words:
+  _self: "Palavras"
+  efb89361: "palavras"
+  min: "palavras/min"
+  you_manually_correct_can_be_added_to_your: "As palavras que você corrige manualmente podem ser adicionadas ao vocabulário para ditados futuros."
+wpm:
+  _self: "WPM"
+yesterday:
+  _self: "Ontem"
+you:
+  are_a_note_formatting_assistant_transform_th: "Você é um assistente de formatação de notas. Transforme o texto transcrito em uma nota bem estruturada.nnRegras:n- Corrija erros de gramática, pontuação e ortografian- Para conteúdo mais longo (3+ parágrafos), adicione formatação remarcada:n - Use cabeçalhos (## ou ###) para organizar seçõesn - Use marcadores ou listas numeradas quando apropriado - Use **negrito** para ênfase em termos-chaven- Para conteúdo mais curto, mantenha-o simples com formatação míniman- Preservar o significado e o tom originais- Não adicionar conteúdo que não estava no original- Retorna apenas a nota formatada sem nenhum comentário"
+  are_a_text_enhancement_assistant_improve_the: "Você é um assistente de aprimoramento de texto. Melhore a gramática, pontuação e formatação do texto fornecido, preservando seu significado e tom originais. Retorne apenas o texto aprimorado sem comentários adicionais."
+  can_change_these_anytime_from_the_menu_bar_s: "Você pode alterá-los a qualquer momento na barra de menu → Configurações → Teclas de atalho"
+  re_all_set: "Está tudo pronto!"
+  re_all_set_058a8130: "Está tudo pronto!"
+  ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Você excedeu seu limite ou cota de taxa de API.                                  Para corrigir isso: 1. Aguarde alguns minutos e tente novamente 2. Verifique os limites de uso do seu provedor de API 3. Considere atualizar seu plano de API A transcrição foi salva sem melhorias.                 \"\""
+your:
+  api_key_appears_to_be_invalid_or_expired_to: "\"\" Sua chave de API parece ser inválida ou expirou.                                  Para corrigir isso: 1. Abra Configurações → Aprimoramento de IA 2. Verifique se sua chave de API está correta 3. Verifique se seu endpoint de API está correto A transcrição foi salva sem aprimoramento.                 \"\""
+  hotkeys_are_ready_to_use_nyou_can_customize: "Suas teclas de atalho estão prontas para uso. Você pode personalizá-las posteriormente em Configurações."
+  hotkeys_are_ready_to_use_you_can_customize: |-
+    Suas teclas de atalho estão prontas para uso.
+    Você pode personalizá-los posteriormente em Configurações.
+  model_is_ready_to_use: "Seu modelo está pronto para uso."
+  stats: "Suas estatísticas"
+  floating_indicator_is_now_a_living_audio_re: "Seu indicador flutuante agora é um orb vivo e reativo ao áudio. Ele respira quando está inativo, cresce quando você fala e transmite suas palavras ao vivo enquanto você dita."
+orb:
+  _self: "Orbe"
+meeting:
+  saved: "Reunião salva"
+russian:
+  _self: "Russian"
+ukrainian:
+  _self: "Ukrainian"
+what:
+  s_new_in_pindrop: "Novidades no Pindrop"
+  s_new: "Novidades…"
+meet:
+  the_new_orb: "Conheça o novo Orb"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Obrigado a %@ por investigar e iniciar a correção (PR #64)."
+  to_for_the_contribution_pr_61: "Obrigado a %@ pela contribuição (PR #61)."
+dictate:
+  in_russian_and_ukrainian: "Dite em russo e ucraniano"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Dois novos idiomas de ditado, totalmente integrados às recomendações de modelos."
+also:
+  new_rtl_layout_support_and_20_new_interface: "Também novo: suporte a layout RTL e 20 novos idiomas de interface."
+advanced:
+  _self: "Avançado"
+agent:
+  setup: "Configuração do agente"
+appearance:
+  _self: "Aparência"
+bearer:
+  token: "Token Bearer"
+changes:
+  the_language_used_by_pindrop_s_interface: "Altera o idioma da interface do Pindrop."
+client:
+  _self: "Cliente"
+configuration:
+  file: "Arquivo de configuração"
+  scope: "Escopo da configuração"
+  snippet: "Trecho de configuração"
+dictation:
+  _self: "Ditado"
+  language: "Idioma de ditado"
+  polish: "Polimento de ditado"
+done:
+  _self: "Concluído"
+input:
+  device: "Dispositivo de entrada"
+license:
+  _self: "Licença"
+mcp:
+  configuration_error: "Erro de configuração MCP"
+  server: "Servidor MCP"
+main:
+  window: "Janela principal"
+name:
+  _self: "Nome"
+port:
+  _self: "Porta"
+  changes_take_effect_the_next_time_the_serve: "As alterações de porta entram em vigor na próxima inicialização do servidor."
+project:
+  _self: "Projeto"
+regenerate:
+  _self: "Regenerar"
+shortcuts:
+  _self: "Atalhos"
+speakers:
+  _self: "Falantes"
+these:
+  options_are_mutually_exclusive_enabling_on: "Essas opções são mutuamente exclusivas. Ativar uma desativa a outra."
+while:
+  recording: "Durante a gravação"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+library:
+  _self: "Library"
+conflicts:
+  with: "Conflicts with %@"
+file:
+  _self: "Arquivo"
+window:
+  _self: "Janela"
+help:
+  _self: "Ajuda"
+close:
+  _self: "Fechar"
+find:
+  _self: "Buscar"
+minimize:
+  _self: "Minimizar"
+zoom:
+  _self: "Zoom"
+bring:
+  all_to_front: "Trazer Tudo para a Frente"
+home:
+  _self: "Início"
+
+diarized:
+  _self: "diarized"
+
+summary:
+  ready: "summary ready"
+
+prompts:
+  are_sent_in_english: "Prompts are sent in English"
+
+preset_example:
+  clean_input: "um so the meeting is at three thirty period can you confirm question mark"
+  clean_output: "So the meeting is at 3:30. Can you confirm?"
+  meeting_input: "alice will send the deck by friday bob owns the pricing review we need a decision next week"
+  meeting_output: "## Action Items\n- **Alice** will send the deck by **Friday**\n- **Bob** owns the pricing review\n\n## Next Steps\n- Decision needed next week"
+  email_input: "hey jordan just checking if you got my notes from yesterday thanks"
+  email_output: "Hi Jordan,\n\nJust checking if you got my notes from yesterday.\n\nThanks,"
+  social_input: "um we just shipped dark mode and it looks amazing you should try it"
+  social_output: "We just shipped dark mode.\n\nIt looks amazing — you should try it."
+  bullets_input: "we covered onboarding latency and then pricing and finally the launch date of may twelfth"
+  bullets_output: "- Onboarding latency\n- Pricing\n- Launch date: May 12"
+  technical_input: "call fetch user arrow then map the response equals equals two hundred"
+  technical_output: "Call `fetchUser` -> then map the response `==` 200."
+  live_input: "um so i think we should ship the beta by friday period"
+  live_output: "So I think we should ship the beta by Friday."
+  edits_input: "um this is correct ly twenty-five"
+  edits_output: "This is correctly 25"
+
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
+
+unknown:
+  app: "Unknown App"
