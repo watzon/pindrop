@@ -97,25 +97,45 @@ enum HotkeyConflictChecker {
     ///
     /// - Self-conflict is not a conflict: re-recording the same slot with its current combo is clean.
     /// - Pindrop-internal conflicts take precedence over system-shortcut soft warnings.
+    /// - Arrow and other non-fn keys often arrive from capture with `kEventKeyModifierFnMask`
+    ///   set; that mask is stripped before comparison so system-table entries match real capture.
     static func check(
         keyCode: UInt32,
         modifiers: UInt32,
         slot: HotkeySlot,
         assignments: [HotkeyAssignment]
     ) -> HotkeyConflictStatus {
+        let normalizedModifiers = normalizeModifiers(keyCode: keyCode, modifiers: modifiers)
+
         for assignment in assignments {
             guard assignment.slot != slot else { continue }
-            if assignment.keyCode == keyCode && assignment.modifiers == modifiers {
+            let assignmentModifiers = normalizeModifiers(
+                keyCode: assignment.keyCode,
+                modifiers: assignment.modifiers
+            )
+            if assignment.keyCode == keyCode && assignmentModifiers == normalizedModifiers {
                 return .pindropConflict(conflictingSlot: assignment.slot)
             }
         }
 
         for system in systemShortcuts {
-            if system.keyCode == keyCode && system.modifiers == modifiers {
+            if system.keyCode == keyCode && system.modifiers == normalizedModifiers {
                 return .systemShortcut(name: system.name)
             }
         }
 
         return .noConflict
+    }
+
+    /// Strips `kEventKeyModifierFnMask` for non-fn primary keys.
+    ///
+    /// Capture on macOS often sets the fn flag for arrow keys (and similar) even when the user
+    /// did not press fn as part of the intended shortcut. Keep the mask only when the primary
+    /// key is the fn key itself (solo-fn modifier hotkeys).
+    static func normalizeModifiers(keyCode: UInt32, modifiers: UInt32) -> UInt32 {
+        if keyCode == UInt32(kVK_Function) {
+            return modifiers
+        }
+        return modifiers & ~UInt32(kEventKeyModifierFnMask)
     }
 }

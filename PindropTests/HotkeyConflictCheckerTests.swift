@@ -111,4 +111,36 @@ struct HotkeyConflictCheckerTests {
         #expect(missionControl == .systemShortcut(name: "Mission Control"))
         #expect(screenshot == .systemShortcut(name: "Screenshot"))
     }
+
+    @Test("Ctrl-Up with real capture modifiers (control|fn) matches Mission Control")
+    func controlUpWithFnMaskMatchesMissionControl() {
+        // HotkeysSettingsView.carbonModifiersFrom includes kEventKeyModifierFnMask for arrows.
+        let capturedModifiers = control | UInt32(kEventKeyModifierFnMask)
+
+        let status = HotkeyConflictChecker.check(
+            keyCode: UInt32(kVK_UpArrow),
+            modifiers: capturedModifiers,
+            slot: .openLibrary,
+            assignments: []
+        )
+
+        #expect(status == .systemShortcut(name: "Mission Control"))
+        #expect(
+            HotkeyConflictChecker.normalizeModifiers(
+                keyCode: UInt32(kVK_UpArrow),
+                modifiers: capturedModifiers
+            ) == control
+        )
+    }
+
+    @Test("Fn-primary key keeps the fn mask during normalization")
+    func fnPrimaryKeyKeepsFnMask() {
+        let modifiers = UInt32(kEventKeyModifierFnMask)
+        #expect(
+            HotkeyConflictChecker.normalizeModifiers(
+                keyCode: UInt32(kVK_Function),
+                modifiers: modifiers
+            ) == modifiers
+        )
+    }
 }
