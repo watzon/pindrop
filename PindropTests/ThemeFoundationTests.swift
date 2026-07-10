@@ -180,7 +180,7 @@ struct ThemeFoundationTests {
         assertRole(AppTypography.captionMetrics, size: 11, weight: .regular, family: .inter, lineHeight: 14)
         assertRole(AppTypography.monoTimeMetrics, size: 12, weight: .medium, family: .jetbrainsMono, lineHeight: 16)
         assertRole(AppTypography.monoSmallMetrics, size: 11, weight: .medium, family: .jetbrainsMono, lineHeight: 14)
-        assertRole(AppTypography.sectionHeaderMetrics, size: 11, weight: .medium, family: .inter, lineHeight: 14)
+        assertRole(AppTypography.sectionHeaderMetrics, size: 11, weight: .semibold, family: .inter, lineHeight: 14)
         assertRole(AppTypography.statLargeMetrics, size: 34, weight: .medium, family: .newsreader, lineHeight: 38)
         assertRole(AppTypography.statMediumMetrics, size: 24, weight: .semibold, family: .newsreader, lineHeight: 28)
     }

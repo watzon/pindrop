@@ -18,7 +18,7 @@ struct SectionHeader: View {
             Text(title.uppercased())
                 .font(AppTypography.sectionHeader)
                 .foregroundStyle(AppColors.textTertiary)
-                .tracking(0.6)
+                .tracking(0.88)
 
             Rectangle()
                 .fill(AppColors.border)

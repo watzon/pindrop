@@ -36,7 +36,7 @@ Theme presets remap ONLY accent (+accent-soft derivation) and the two grounds: L
 | caption | Inter | 11/14 | 400 | 0 | "audio kept 7 days" |
 | mono-time | JetBrains Mono | 12/16 | 500 | 0 | row times, elapsed/total |
 | mono-small | JetBrains Mono | 11/14 | 400–500 | 0 | counts, kbd hints (⌘F, ⌘,), speed chip |
-| section header | Inter (assumed; verify vs mono) | 11–12/14 | 500 | uppercase, wide | "TODAY", "VOCABULARY" |
+| section header | Inter (measured, artboards 02/08) | 11/14 | 600 | uppercase, +0.08em | "TODAY", "SUMMARY", "THIS WEEK" |
 
 Icons: 16×16 viewBox custom strokes at 1.4 width (thin-stroke look). Map to SF Symbols light/thin weights; keep 1.4-ish optical weight. Icon slots are fixed-width frames (18×18 nav, 16×16 rows) with flexShrink 0 — lane alignment matters.
 

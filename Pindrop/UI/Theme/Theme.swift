@@ -237,7 +237,7 @@ enum AppTypography {
         family: .jetbrainsMono, size: 11, weight: .medium, lineHeight: 14
     )
     static let sectionHeaderMetrics = TypographyRoleMetrics(
-        family: .inter, size: 11, weight: .medium, lineHeight: 14
+        family: .inter, size: 11, weight: .semibold, lineHeight: 14
     )
     static let statLargeMetrics = TypographyRoleMetrics(
         family: .newsreader, size: 34, weight: .medium, lineHeight: 38
