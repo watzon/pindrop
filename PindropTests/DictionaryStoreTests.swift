@@ -241,7 +241,10 @@ struct DictionaryStoreTests {
         #expect(applied3.count == 1)
     }
 
-    @Test func longerMatchWins() throws {
+    /// sortOrder-primary: earlier rule wins overlapping spans (not longest-first).
+    /// When the longer phrase is listed first, it still wins — same outcome as the old
+    /// length-priority path for this fixture, but for order reasons.
+    @Test func sortOrderEarlierRuleWinsOverlappingLongerPhraseFirst() throws {
         let dictionaryStore = try makeStore()
         let r1 = WordReplacement(originals: ["new york"], replacement: "NYC", sortOrder: 0)
         let r2 = WordReplacement(originals: ["york"], replacement: "York City", sortOrder: 1)
@@ -254,6 +257,212 @@ struct DictionaryStoreTests {
         #expect(applied.count == 1)
         #expect(applied[0].original == "new york")
         #expect(applied[0].replacement == "NYC")
+    }
+
+    /// Flipping sortOrder flips the outcome: shorter earlier rule consumes "york".
+    @Test func sortOrderEarlierRuleWinsWhenShorterIsFirst() throws {
+        let dictionaryStore = try makeStore()
+        let r1 = WordReplacement(originals: ["york"], replacement: "York City", sortOrder: 0)
+        let r2 = WordReplacement(originals: ["new york"], replacement: "NYC", sortOrder: 1)
+
+        try dictionaryStore.add(r1)
+        try dictionaryStore.add(r2)
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "new york city")
+        #expect(result == "new York City city")
+        #expect(applied.count == 1)
+        #expect(applied[0].original == "york")
+        #expect(applied[0].replacement == "York City")
+    }
+
+    @Test func exactModeIsCaseSensitive() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GitHub",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.exact.rawValue
+            )
+        )
+
+        let (hit, appliedHit) = try dictionaryStore.applyReplacements(to: "Check GitHub please")
+        #expect(hit == "Check GitHub please")
+        #expect(appliedHit.count == 1)
+
+        let (miss, appliedMiss) = try dictionaryStore.applyReplacements(to: "Check github please")
+        #expect(miss == "Check github please")
+        #expect(appliedMiss.isEmpty)
+    }
+
+    @Test func caseInsensitiveModeIgnoresCase() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GH",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.caseInsensitive.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "Check github please")
+        #expect(result == "Check GH please")
+        #expect(applied.count == 1)
+    }
+
+    @Test func commandModeResolvesPaletteTokens() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new paragraph"],
+                replacement: "newParagraph",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new line"],
+                replacement: "new line",
+                sortOrder: 1,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["indent"],
+                replacement: "tab",
+                sortOrder: 2,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(
+            to: "Hello new paragraph world new line indent here"
+        )
+        #expect(result == "Hello \n\n world \n \t here")
+        #expect(applied.count == 3)
+        #expect(applied.contains { $0.replacement == "\n\n" })
+        #expect(applied.contains { $0.replacement == "\n" })
+        #expect(applied.contains { $0.replacement == "\t" })
+    }
+
+    @Test func commandModeMatchesSpokenPhraseCaseInsensitively() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["new paragraph"],
+                replacement: "newParagraph",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "NEW PARAGRAPH")
+        #expect(result == "\n\n")
+        #expect(applied.count == 1)
+    }
+
+    @Test func commandModeAcceptsLiteralControlSequences() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["break"],
+                replacement: "\n\n",
+                sortOrder: 0,
+                matchModeRawValue: ReplacementMatchMode.command.rawValue
+            )
+        )
+
+        let (result, _) = try dictionaryStore.applyReplacements(to: "break")
+        #expect(result == "\n\n")
+    }
+
+    @Test func firstMatchWinsSpanIsNotRematched() throws {
+        let dictionaryStore = try makeStore()
+        // First rule consumes "alpha beta"; second rule would match "beta" alone.
+        try dictionaryStore.add(
+            WordReplacement(originals: ["alpha beta"], replacement: "AB", sortOrder: 0)
+        )
+        try dictionaryStore.add(
+            WordReplacement(originals: ["beta"], replacement: "B", sortOrder: 1)
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "alpha beta gamma")
+        #expect(result == "AB gamma")
+        #expect(applied.count == 1)
+        #expect(applied[0].replacement == "AB")
+    }
+
+    @Test func usageCountIncrementsWhenRuleFires() throws {
+        let dictionaryStore = try makeStore()
+        let rule = WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        try dictionaryStore.add(rule)
+
+        _ = try dictionaryStore.applyReplacements(to: "teh cat and teh dog")
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 2)
+    }
+
+    @Test func usageCountDoesNotIncrementWhenRuleDoesNotFire() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        )
+
+        _ = try dictionaryStore.applyReplacements(to: "the cat")
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 0)
+    }
+
+    @Test func usageCountSkippedWhenTrackUsageFalse() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(originals: ["teh"], replacement: "the", sortOrder: 0)
+        )
+
+        _ = try dictionaryStore.applyReplacements(to: "teh cat", trackUsage: false)
+        let replacements = try dictionaryStore.fetchAllReplacements()
+        #expect(replacements.first?.usageCount == 0)
+    }
+
+    @Test func vocabularyHitCountingIncrementsPerOccurrence() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(VocabularyWord(word: "Pindrop"))
+        try dictionaryStore.add(VocabularyWord(word: "WhisperKit"))
+
+        try dictionaryStore.recordVocabularyHits(
+            in: "Pindrop and pindrop use WhisperKit; PINDROP rocks."
+        )
+
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        let pindrop = try #require(words.first { $0.word == "Pindrop" })
+        let whisper = try #require(words.first { $0.word == "WhisperKit" })
+        #expect(pindrop.usageCount == 3)
+        #expect(whisper.usageCount == 1)
+    }
+
+    @Test func vocabularyHitCountingRespectsWordBoundaries() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(VocabularyWord(word: "cat"))
+
+        try dictionaryStore.recordVocabularyHits(in: "cat category concatenate cat")
+        let words = try dictionaryStore.fetchAllVocabularyWords()
+        #expect(words.first?.usageCount == 2)
+    }
+
+    @Test func vocabularyBiasWordsOrdersByUsageThenRecency() throws {
+        let dictionaryStore = try makeStore()
+        let older = Date(timeIntervalSince1970: 1_000)
+        let newer = Date(timeIntervalSince1970: 2_000)
+        try dictionaryStore.add(VocabularyWord(word: "low", createdAt: newer, usageCount: 1))
+        try dictionaryStore.add(VocabularyWord(word: "high", createdAt: older, usageCount: 10))
+        try dictionaryStore.add(VocabularyWord(word: "midNew", createdAt: newer, usageCount: 5))
+        try dictionaryStore.add(VocabularyWord(word: "midOld", createdAt: older, usageCount: 5))
+
+        let bias = try dictionaryStore.vocabularyBiasWords()
+        #expect(bias == ["high", "midNew", "midOld", "low"])
     }
 
     @Test func singlePassReplacement() throws {
@@ -335,5 +544,67 @@ struct DictionaryStoreTests {
         let (result, applied) = try dictionaryStore.applyReplacements(to: "this is a test")
         #expect(result == "this is a test-123")
         #expect(applied.count == 1)
+    }
+
+    /// Unknown persisted `matchModeRawValue` must behave like case-insensitive application
+    /// (same fallback as `WordReplacement.matchMode`).
+    @Test func applyReplacementsUnknownMatchModeFallsBackToCaseInsensitive() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["GitHub"],
+                replacement: "GH",
+                sortOrder: 0,
+                matchModeRawValue: "not-a-real-mode"
+            )
+        )
+
+        let (result, applied) = try dictionaryStore.applyReplacements(to: "check github today")
+        #expect(result == "check GH today")
+        #expect(applied.count == 1)
+    }
+
+    /// Punctuation-containing patterns (e.g. `C++`) use lookaround token boundaries
+    /// `(?<!\w)…(?!\w)` (not classic `\b…\b`).
+    ///
+    /// Semantics:
+    /// - Match a standalone token `C++` when not adjacent to a word char (`[A-Za-z0-9_]`),
+    ///   including when flanked by whitespace, punctuation, or string edges.
+    /// - Do **not** match a bare `C` (full pattern required).
+    /// - Do **not** match as a prefix of `C++abi` (followed by a word char).
+    /// - Do **not** match when glued to a leading word char (`myC++`).
+    ///
+    /// Rationale: `\b` is a word↔non-word *transition*, so `C++` followed by space has no
+    /// trailing `\b` (both non-word) while `C++abi` spuriously has one (`+`→`a`). Lookarounds
+    /// give the sane "whole token" behavior for punctuated terms.
+    @Test func punctuationContainingPatternMatchesAtWordBoundaries() throws {
+        let dictionaryStore = try makeStore()
+        try dictionaryStore.add(
+            WordReplacement(
+                originals: ["C++"],
+                replacement: "CXX",
+                sortOrder: 0
+            )
+        )
+
+        let (standalone, appliedStandalone) = try dictionaryStore.applyReplacements(
+            to: "I write C++ code"
+        )
+        #expect(standalone == "I write CXX code")
+        #expect(appliedStandalone.count == 1)
+
+        let (noBareC, appliedBare) = try dictionaryStore.applyReplacements(to: "grade C only")
+        #expect(noBareC == "grade C only")
+        #expect(appliedBare.isEmpty)
+
+        let (embedded, appliedEmbedded) = try dictionaryStore.applyReplacements(
+            to: "see C++abi notes"
+        )
+        #expect(embedded == "see C++abi notes")
+        #expect(appliedEmbedded.isEmpty)
+
+        let (leadingGlue, appliedGlue) = try dictionaryStore.applyReplacements(to: "myC++ tool")
+        #expect(leadingGlue == "myC++ tool")
+        #expect(appliedGlue.isEmpty)
     }
 }

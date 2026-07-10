@@ -237,30 +237,24 @@ final class StreamingSessionController {
         clearBindings(cancelPendingWork: false)
         isSessionActive = false
 
+        // Live/refinement text first. Empty live transcripts short-circuit before the
+        // offline re-transcription pass (and its Enhancing affordance), matching the
+        // pre-dictionary-semantics finalize ordering.
+        var candidateRawText = finalStreamedText
+        let coord = refinementCoordinator
+        if let coord {
+            // Coordinator text is what is currently displayed; use it as the stream
+            // fallback when offline re-transcription is unavailable.
+            candidateRawText = await coord.awaitFinalTextAndDrain()
+        }
+
+        // Preview apply without usage tracking so a later offline winner does not
+        // double-count, and empty sessions do not pay for offline re-transcription.
         var (textAfterReplacements, appliedReplacements) =
-            try dictionaryStore.applyReplacements(to: finalStreamedText)
+            try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: false)
         textAfterReplacements = normalizeText(textAfterReplacements)
         if !appliedReplacements.isEmpty {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
-        }
-
-        // If the refinement coordinator is active, it owns the authoritative final text:
-        // fold dictionary replacements onto its refined output rather than the raw stream.
-        // The coordinator's drained text is the currently-displayed string; dictionary
-        // replacements run on top, and the sink's finishStreamingInsertion below lands
-        // the post-replacement text in the target app with a single paste.
-        let coord = refinementCoordinator
-        if let coord {
-            let coordText = await coord.awaitFinalTextAndDrain()
-            let (coordAfterReplacements, coordReplacements) = try dictionaryStore.applyReplacements(
-                to: coordText
-            )
-            textAfterReplacements = normalizeText(coordAfterReplacements)
-            appliedReplacements = coordReplacements
-            if !coordReplacements.isEmpty {
-                Log.app.info(
-                    "Applied \(coordReplacements.count) dictionary replacements to refined stream")
-            }
         }
 
         guard !isEffectivelyEmptyText(textAfterReplacements) else {
@@ -291,6 +285,7 @@ final class StreamingSessionController {
             liveTranscriptState.beginEnhancing()
             do {
                 let language = settingsStore.selectedAppLanguage
+                let vocabularyBias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
                 let timeout = Self.offlineRetranscriptionTimeout(recordingDuration: recordingDuration)
                 let refinedText = try await Self.withFinalizeTimeout(
                     nanoseconds: UInt64(timeout * 1_000_000_000)
@@ -298,15 +293,15 @@ final class StreamingSessionController {
                     try await transcriptionService.transcribe(
                         audioData: recordedAudioData,
                         diarizationEnabled: false,
-                        options: TranscriptionOptions(language: language)
+                        options: TranscriptionOptions(
+                            language: language,
+                            vocabularyBiasWords: vocabularyBias
+                        )
                     ).text
                 }
-                let (refinedAfterReplacements, refinedReplacements) =
-                    try dictionaryStore.applyReplacements(to: refinedText)
-                let normalizedRefined = normalizeText(refinedAfterReplacements)
+                let normalizedRefined = normalizeText(refinedText)
                 if !isEffectivelyEmptyText(normalizedRefined) {
-                    textAfterReplacements = normalizedRefined
-                    appliedReplacements = refinedReplacements
+                    candidateRawText = refinedText
                     Log.transcription.info(
                         "Streaming finalize: offline re-transcription applied (\(normalizedRefined.count) chars)"
                     )
@@ -321,6 +316,15 @@ final class StreamingSessionController {
                 )
             }
         }
+
+        // Authoritative apply on the winning raw text: single usage-count batch.
+        (textAfterReplacements, appliedReplacements) =
+            try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: true)
+        textAfterReplacements = normalizeText(textAfterReplacements)
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+        try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
 
         // Post-stop holistic enhancement for streaming sessions. Gated by the
         // `streamingPostStopEnhancementEnabled` setting (default OFF): the deterministic

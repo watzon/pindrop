@@ -159,6 +159,19 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             )
             decodeOptions.detectLanguage = options.language == .automatic
             decodeOptions.usePrefillPrompt = true
+
+            // Vocabulary biasing via decoder promptTokens. Cap is enforced by
+            // VocabularyBiasPrompt.maxWordCount (~40); empty vocabulary is a no-op.
+            if let promptText = VocabularyBiasPrompt.assemblePrompt(words: options.vocabularyBiasWords),
+               let tokenizer = whisperKit.tokenizer {
+                let encoded = tokenizer.encode(
+                    text: " " + promptText.trimmingCharacters(in: .whitespaces)
+                )
+                let filtered = encoded.filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+                if !filtered.isEmpty {
+                    decodeOptions.promptTokens = filtered
+                }
+            }
             
             let results = try await whisperKit.transcribe(audioArray: samples, decodeOptions: decodeOptions)
             guard let result = results.first else {

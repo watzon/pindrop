@@ -2232,7 +2232,7 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: makeTranscriptionOptions()
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -2276,6 +2276,7 @@ final class AppCoordinator {
             return nil
         }
         self.lastAppliedReplacements = appliedReplacements
+        try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
 
         if !appliedReplacements.isEmpty {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
@@ -2489,6 +2490,17 @@ final class AppCoordinator {
 
         Log.app.info(
             "recording_start_attempt id=\(self.recordingStartAttemptCounter) source=\(source.rawValue) resolved=\(String(describing: snapshot.resolvedStatus)) avaudio=\(snapshot.audioApplicationStatus) avcapture=\(snapshot.captureDeviceStatus) requestedThisLaunch=\(snapshot.hasRequestedThisLaunch) cachedDecision=\(cachedDecision) bundleId=\(bundleIdentifier) shortVersion=\(shortVersion) buildVersion=\(buildVersion) pid=\(ProcessInfo.processInfo.processIdentifier) onboardingCompleted=\(self.settingsStore.hasCompletedOnboarding) bundlePath=\(bundlePath) executablePath=\(executablePath)"
+        )
+    }
+
+    /// Builds transcription options including WhisperKit vocabulary bias words.
+    private func makeTranscriptionOptions(
+        language: AppLanguage? = nil
+    ) -> TranscriptionOptions {
+        let bias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
+        return TranscriptionOptions(
+            language: language ?? settingsStore.selectedAppLanguage,
+            vocabularyBiasWords: bias
         )
     }
 
@@ -2813,7 +2825,7 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: makeTranscriptionOptions()
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -2858,6 +2870,7 @@ final class AppCoordinator {
             return
         }
         self.lastAppliedReplacements = appliedReplacements
+        try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
         
         if !appliedReplacements.isEmpty {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
@@ -3965,7 +3978,7 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: job.options.diarizationEnabled,
-                options: TranscriptionOptions(language: settingsStore.selectedAppLanguage)
+                options: makeTranscriptionOptions()
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 
@@ -4159,7 +4172,7 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
                 diarizationEnabled: options.diarizationEnabled,
-                options: TranscriptionOptions(language: options.language)
+                options: makeTranscriptionOptions(language: options.language)
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 
