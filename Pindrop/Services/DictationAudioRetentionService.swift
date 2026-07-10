@@ -222,15 +222,25 @@ final class DictationAudioRetentionService {
                 }.value
 
                 guard !Task.isCancelled else {
-                    try? FileManager.default.removeItem(at: mediaURL)
-                    WaveformPeaks.removeSidecar(for: mediaURL)
+                    Self.removeUnlinkedMedia(at: mediaURL)
                     return
                 }
 
-                try self.historyStore.updateManagedMediaPath(for: recordID, path: mediaURL.path)
-                Log.audio.info(
-                    "Persisted dictation audio for \(recordID.uuidString) → \(mediaURL.lastPathComponent)"
+                let didAttach = try self.historyStore.updateManagedMediaPath(
+                    for: recordID,
+                    path: mediaURL.path
                 )
+                if didAttach {
+                    Log.audio.info(
+                        "Persisted dictation audio for \(recordID.uuidString) → \(mediaURL.lastPathComponent)"
+                    )
+                } else {
+                    // Record was deleted (or otherwise missing) while encode ran — drop orphans.
+                    Self.removeUnlinkedMedia(at: mediaURL)
+                    Log.audio.info(
+                        "Discarded dictation audio for missing record \(recordID.uuidString)"
+                    )
+                }
             } catch {
                 Log.audio.error(
                     "Failed to persist dictation audio for \(recordID.uuidString): \(error.localizedDescription)"
@@ -271,6 +281,12 @@ final class DictationAudioRetentionService {
         }
 
         return mediaURL
+    }
+
+    /// Removes a just-written media file and its peaks sidecar when they will never be linked.
+    nonisolated static func removeUnlinkedMedia(at mediaURL: URL) {
+        try? FileManager.default.removeItem(at: mediaURL)
+        WaveformPeaks.removeSidecar(for: mediaURL)
     }
 
     // MARK: - Retention sweep

@@ -601,15 +601,19 @@ final class HistoryStore {
     }
 
     /// Attaches (or clears) the managed media path on an existing record after async encode.
-    func updateManagedMediaPath(for recordID: UUID, path: String?) throws {
+    /// - Returns: `true` if the record was found and updated; `false` if no matching record exists
+    ///   (caller should clean up any unlinked media files).
+    @discardableResult
+    func updateManagedMediaPath(for recordID: UUID, path: String?) throws -> Bool {
         guard let record = try fetchRecord(with: recordID) else {
             Log.app.warning("updateManagedMediaPath: record \(recordID) not found")
-            return
+            return false
         }
         record.managedMediaPath = path
         do {
             try modelContext.save()
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+            return true
         } catch {
             throw HistoryStoreError.saveFailed(error.localizedDescription)
         }

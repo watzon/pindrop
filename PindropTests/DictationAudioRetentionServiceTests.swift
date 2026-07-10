@@ -238,6 +238,58 @@ struct DictationAudioRetentionServiceTests {
         #expect(FileManager.default.fileExists(atPath: WaveformPeaks.sidecarURL(for: URL(fileURLWithPath: path)).path))
     }
 
+    @Test func testUpdateManagedMediaPathReturnsFalseWhenRecordMissing() throws {
+        let fixture = try makeFixture()
+        defer { cleanup(fixture) }
+
+        let didAttach = try fixture.historyStore.updateManagedMediaPath(
+            for: UUID(),
+            path: "/tmp/missing-record.m4a"
+        )
+        #expect(didAttach == false)
+    }
+
+    /// If the history row is deleted while AAC encode is still running, the completed
+    /// files must not be left orphaned under DictationAudio.
+    @Test func testDeletedRecordBeforeEncodeCompletesCleansUpOrphans() async throws {
+        let fixture = try makeFixture(retention: .days7)
+        defer { cleanup(fixture) }
+
+        let record = try fixture.historyStore.save(
+            text: "delete during encode",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording
+        )
+        let recordID = record.id
+        let expectedMediaURL = fixture.directoryURL
+            .appendingPathComponent(recordID.uuidString)
+            .appendingPathExtension("m4a")
+        let expectedPeaksURL = WaveformPeaks.sidecarURL(for: expectedMediaURL)
+
+        // Longer buffer so encode is more likely to still be running when we delete.
+        fixture.sut.schedulePersist(pcmFloatData: makeSinePCM(seconds: 1.0), recordID: recordID)
+        try fixture.historyStore.delete(record)
+
+        // Wait until any residual files from the race have been cleaned up.
+        var cleaned = false
+        for _ in 0..<80 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            let mediaExists = FileManager.default.fileExists(atPath: expectedMediaURL.path)
+            let peaksExist = FileManager.default.fileExists(atPath: expectedPeaksURL.path)
+            if !mediaExists && !peaksExist {
+                cleaned = true
+                break
+            }
+        }
+
+        #expect(cleaned)
+        #expect(try fixture.historyStore.fetchRecord(with: recordID) == nil)
+        #expect(!FileManager.default.fileExists(atPath: expectedMediaURL.path))
+        #expect(!FileManager.default.fileExists(atPath: expectedPeaksURL.path))
+        #expect(try fixture.sut.diskUsage().snippetCount == 0)
+    }
+
     // MARK: - Disk usage
 
     @Test func testDiskUsageAggregation() throws {
