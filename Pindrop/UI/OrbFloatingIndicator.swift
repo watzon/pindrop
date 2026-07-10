@@ -998,6 +998,7 @@ struct OrbIndicatorView: View {
         ZStack {
             OrbGlassFillView(
                 palette: ribbonPalette,
+                bandLevels: state.bandLevels,
                 isHovered: controller.isHovered,
                 isRecording: state.isRecording,
                 isProcessing: state.isProcessing,
@@ -1186,6 +1187,7 @@ private struct OrbGooSurface: View, Animatable {
 
 private struct OrbGlassFillView: View {
     let palette: OrbRibbonPalette
+    let bandLevels: AudioBandLevels
     let isHovered: Bool
     let isRecording: Bool
     let isProcessing: Bool
@@ -1216,6 +1218,9 @@ private struct OrbGlassFillView: View {
                     ? 0
                     : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
                 let speed = isProcessing ? 0.18 : 0.42
+                let liveBands = isRecording && !isMuted && !reduceMotion
+                    ? bandLevels
+                    : .zero
 
                 Rectangle()
                     .fill(Color.white)
@@ -1227,7 +1232,10 @@ private struct OrbGlassFillView: View {
                             .color(palette.secondaryColor),
                             .float(ribbonIntensity),
                             .float(isRecording ? 1 : 0),
-                            .float(isMuted ? 1 : 0)
+                            .float(isMuted ? 1 : 0),
+                            .float(liveBands.low),
+                            .float(liveBands.mid),
+                            .float(liveBands.high)
                         )
                     )
             }
