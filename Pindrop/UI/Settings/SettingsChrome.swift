@@ -46,8 +46,10 @@ struct SettingsShellView: View {
 
     private var titlebar: some View {
         HStack(spacing: 0) {
+            // height: 0 keeps the lane width-only — a bare Color.clear is greedy in
+            // both axes and makes the whole title row expand to half the window.
             Color.clear
-                .frame(width: SettingsLayoutMetrics.titlebarTrafficLane)
+                .frame(width: SettingsLayoutMetrics.titlebarTrafficLane, height: 0)
             Spacer(minLength: 0)
             Text(model.selectedTab.title(locale: locale))
                 .font(AppTypography.labelStrongSelected)
@@ -55,7 +57,7 @@ struct SettingsShellView: View {
                 .lineLimit(1)
             Spacer(minLength: 0)
             Color.clear
-                .frame(width: SettingsLayoutMetrics.titlebarTrafficLane)
+                .frame(width: SettingsLayoutMetrics.titlebarTrafficLane, height: 0)
         }
         .padding(.top, SettingsLayoutMetrics.titlebarTopPadding)
         .padding(.horizontal, SettingsLayoutMetrics.titlebarSidePadding)
