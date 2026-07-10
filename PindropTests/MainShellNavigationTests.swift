@@ -36,8 +36,7 @@ struct MainShellNavigationTests {
 
     @Test func historyTitleKeyIsLibrary() {
         let title = MainNavItem.history.title(locale: Locale(identifier: "en"))
-        // Localised via "Library" key; English fallback or bundle value.
-        #expect(title == "Library" || title.lowercased().contains("library") || title == "History")
+        #expect(title == "Library")
         // rawValue stays History for notification identity stability
         #expect(MainNavItem.history.rawValue == "History")
     }
