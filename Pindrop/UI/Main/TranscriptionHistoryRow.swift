@@ -23,6 +23,7 @@ struct TranscriptionHistoryRow: View {
     var onTap: () -> Void = {}
     var onSaveAsNote: (() -> Void)? = nil
     var onDelete: (() -> Void)? = nil
+    var onExport: ((TranscriptExportFormat) -> Void)? = nil
 
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
@@ -213,7 +214,7 @@ struct TranscriptionHistoryRow: View {
                     )
             }
 
-            CopyButton(text: record.text, size: 11)
+            CopyButton(text: record.text, size: 11, useUndoToast: true)
                 .opacity(isHovered || isSelected ? 1 : 0)
         }
     }
@@ -271,18 +272,36 @@ struct TranscriptionHistoryRow: View {
     @ViewBuilder
     private var contextMenuItems: some View {
         Button {
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(record.text, forType: .string)
+            NotificationCenter.default.post(
+                name: .copyTextWithUndo,
+                object: nil,
+                userInfo: ["text": record.text]
+            )
         } label: {
             Label("Copy Transcript", systemImage: "doc.on.doc")
         }
 
         if hasOriginalText {
             Button {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(record.originalText ?? "", forType: .string)
+                NotificationCenter.default.post(
+                    name: .copyTextWithUndo,
+                    object: nil,
+                    userInfo: ["text": record.originalText ?? ""]
+                )
             } label: {
                 Label("Copy Original", systemImage: "doc.on.doc.fill")
+            }
+        }
+
+        if let onExport {
+            Menu {
+                ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
+                    Button(format.displayName(locale: Locale.current)) {
+                        onExport(format)
+                    }
+                }
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
             }
         }
 

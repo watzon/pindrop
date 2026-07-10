@@ -86,7 +86,7 @@ struct DashboardView: View {
 
     var body: some View {
         Group {
-            if let record = detailRecord, record.isMediaTranscription {
+            if let record = detailRecord, TranscriptionDetailAccess.canOpenDetail(for: record) {
                 MediaTranscriptionDetailView(
                     record: record,
                     folders: folders,
@@ -692,23 +692,17 @@ struct DashboardView: View {
                             isSelected: selectedTranscriptionID == record.persistentModelID,
                             timestampStyle: .relative,
                             onTap: {
-                                if record.isMediaTranscription {
-                                    var transaction = Transaction()
-                                    transaction.disablesAnimations = true
-                                    withTransaction(transaction) {
-                                        detailRecord = record
-                                    }
-                                } else {
-                                    withAnimation(AppTheme.Animation.fast) {
-                                        if selectedTranscriptionID == record.persistentModelID {
-                                            selectedTranscriptionID = nil
-                                        } else {
-                                            selectedTranscriptionID = record.persistentModelID
-                                        }
-                                    }
+                                selectedTranscriptionID = record.persistentModelID
+                                var transaction = Transaction()
+                                transaction.disablesAnimations = true
+                                withTransaction(transaction) {
+                                    detailRecord = record
                                 }
                             },
-                            onSaveAsNote: { saveAsNote(record: record) }
+                            onSaveAsNote: { saveAsNote(record: record) },
+                            onExport: { format in
+                                try? TranscriptExportService.presentSavePanel(for: record, format: format)
+                            }
                         )
                     }
                 }
