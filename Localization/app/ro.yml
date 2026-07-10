@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Activează îmbunătățirea"
   accessibility_clipboard_fallback: "Fără Accesibilitate, Pindrop copiază textul în clipboard."
   change_hotkey_hint: "Apăsați o altă combinație pentru a o schimba"
+  granted_state: "Acordat"
   ready_heading: "Totul este gata."
-  ready_instruction_suffix: "și începeți să vorbiți — Pindrop scrie oriunde se află cursorul."
+  ready_instruction_format: "Apăsați %@ și începeți să vorbiți — Pindrop scrie oriunde se află cursorul."
   try_it_now: "Încercați acum"
 
 100:

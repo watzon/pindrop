@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Verbetering inschakelen"
   accessibility_clipboard_fallback: "Zonder Toegankelijkheid kopieert Pindrop de tekst naar het klembord."
   change_hotkey_hint: "Druk op een andere combinatie om deze te wijzigen"
+  granted_state: "Verleend"
   ready_heading: "Je bent klaar."
-  ready_instruction_suffix: "en begin te praten — Pindrop typt waar je cursor staat."
+  ready_instruction_format: "Druk op %@ en begin te praten — Pindrop typt waar je cursor staat."
   try_it_now: "Probeer het nu"
 
 100:

@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Ενεργοποίηση βελτίωσης"
   accessibility_clipboard_fallback: "Χωρίς την Προσβασιμότητα, το Pindrop αντιγράφει το κείμενο στο πρόχειρο."
   change_hotkey_hint: "Πατήστε διαφορετικό συνδυασμό για να τον αλλάξετε"
+  granted_state: "Παραχωρήθηκε"
   ready_heading: "Είστε έτοιμοι."
-  ready_instruction_suffix: "και αρχίστε να μιλάτε — το Pindrop πληκτρολογεί όπου βρίσκεται ο δρομέας."
+  ready_instruction_format: "Πατήστε %@ και αρχίστε να μιλάτε — το Pindrop πληκτρολογεί όπου βρίσκεται ο δρομέας."
   try_it_now: "Δοκιμάστε το τώρα"
 
 100:

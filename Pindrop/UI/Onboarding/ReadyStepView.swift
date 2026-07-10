@@ -28,16 +28,10 @@ struct ReadyStepView: View {
                 .tracking(-0.8)
                 .foregroundStyle(AppColors.textPrimary)
 
-            HStack(alignment: .firstTextBaseline, spacing: 7) {
-                Text(localized("Press", locale: locale))
-                SettingsKbdChip(text: settings.toggleHotkey.isEmpty
-                    ? localized("Not Set", locale: locale)
-                    : settings.toggleHotkey)
-                Text(localized("and start talking — Pindrop types wherever your cursor is.", locale: locale))
-            }
-            .font(OnboardingType.welcomeSubtitle)
-            .foregroundStyle(AppColors.textSecondary)
-            .padding(.top, 14)
+            instructionLine
+                .font(OnboardingType.welcomeSubtitle)
+                .foregroundStyle(AppColors.textSecondary)
+                .padding(.top, 14)
 
             OnboardingPrimaryButton(
                 title: localized("Try it now", locale: locale),
@@ -46,6 +40,45 @@ struct ReadyStepView: View {
             )
             .padding(.top, 30)
         }
+    }
+
+    /// One localized format string split around the kbd chip so locales control
+    /// word order (e.g. Japanese puts the verb after the shortcut).
+    private var instructionLine: some View {
+        let format = localized(
+            "Press %@ and start talking — Pindrop types wherever your cursor is.",
+            locale: locale
+        )
+        let parts = format.components(separatedBy: "%@")
+        let prefix = parts.first?.trimmingCharacters(in: .whitespaces) ?? ""
+        let suffix = parts.count > 1
+            ? parts[1].trimmingCharacters(in: .whitespaces)
+            : ""
+
+        return HStack(alignment: .firstTextBaseline, spacing: 7) {
+            if !prefix.isEmpty {
+                Text(prefix)
+            }
+            finaleKbdChip
+            if !suffix.isEmpty {
+                Text(suffix)
+            }
+        }
+    }
+
+    /// §14 finale chip: page bg, radius 6, padding 2/8, JetBrains Mono 12 · 500 ink.
+    private var finaleKbdChip: some View {
+        Text(settings.toggleHotkey.isEmpty
+            ? localized("Not Set", locale: locale)
+            : settings.toggleHotkey)
+            .font(FontLoader.font(family: .jetbrainsMono, size: 12, weight: .medium))
+            .foregroundStyle(AppColors.textPrimary)
+            .padding(.vertical, 2)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(AppColors.contentBackground)
+            )
     }
 }
 

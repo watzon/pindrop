@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Включить улучшение"
   accessibility_clipboard_fallback: "Без Универсального доступа Pindrop копирует текст в буфер обмена."
   change_hotkey_hint: "Нажмите другое сочетание, чтобы изменить его"
+  granted_state: "Предоставлено"
   ready_heading: "Всё готово."
-  ready_instruction_suffix: "и начинайте говорить — Pindrop печатает там, где находится курсор."
+  ready_instruction_format: "Нажмите %@ и начинайте говорить — Pindrop печатает там, где находится курсор."
   try_it_now: "Попробовать сейчас"
 
 100:

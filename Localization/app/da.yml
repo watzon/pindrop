@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Slå forbedring til"
   accessibility_clipboard_fallback: "Uden Tilgængelighed kopierer Pindrop i stedet teksten til udklipsholderen."
   change_hotkey_hint: "Tryk på en anden kombination for at ændre den"
+  granted_state: "Givet"
   ready_heading: "Du er klar."
-  ready_instruction_suffix: "og begynd at tale — Pindrop skriver, hvor markøren er."
+  ready_instruction_format: "Tryk på %@ og begynd at tale — Pindrop skriver, hvor markøren er."
   try_it_now: "Prøv det nu"
 
 100:

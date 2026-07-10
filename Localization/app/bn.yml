@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "উন্নয়ন চালু করুন"
   accessibility_clipboard_fallback: "অ্যাক্সেসিবিলিটি ছাড়া Pindrop পাঠ্যটি ক্লিপবোর্ডে কপি করে।"
   change_hotkey_hint: "এটি বদলাতে অন্য একটি কী সমন্বয় চাপুন"
+  granted_state: "মঞ্জুর"
   ready_heading: "আপনি প্রস্তুত।"
-  ready_instruction_suffix: "এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Pindrop সেখানেই টাইপ করে।"
+  ready_instruction_format: "%@ চাপুন এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Pindrop সেখানেই টাইপ করে।"
   try_it_now: "এখনই চেষ্টা করুন"
 
 100:

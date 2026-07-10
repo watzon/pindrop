@@ -5,6 +5,9 @@
 //  Created on 2026-01-25.
 //
 
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
 import Foundation
 import SwiftUI
 
@@ -929,10 +932,27 @@ struct AIEnhancementStepView: View {
        // Preserve a complete saved configuration when one exists. Fresh onboarding has no
        // credentials UI in the U9 artboard, so use the credential-free on-device provider.
        if !canContinue {
+          // Don't persist assignments to a provider that can't run on this system;
+          // Settings → AI handles setup later.
+          guard Self.isAppleIntelligenceAvailable else {
+             onContinue()
+             return
+          }
           selectedProvider = .apple
           selectedModel = "apple_intelligence"
        }
        saveAndContinue()
+    }
+
+    private static var isAppleIntelligenceAvailable: Bool {
+       #if canImport(FoundationModels)
+       if #available(macOS 26, *) {
+          return SystemLanguageModel.default.availability == .available
+       }
+       return false
+       #else
+       return false
+       #endif
     }
 
     private var canContinue: Bool {

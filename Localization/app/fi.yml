@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Ota parannus käyttöön"
   accessibility_clipboard_fallback: "Ilman Käyttöapua Pindrop kopioi tekstin leikepöydälle."
   change_hotkey_hint: "Vaihda painamalla eri näppäinyhdistelmää"
+  granted_state: "Myönnetty"
   ready_heading: "Kaikki valmista."
-  ready_instruction_suffix: "ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
+  ready_instruction_format: "Paina %@ ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
   try_it_now: "Kokeile nyt"
 
 100:

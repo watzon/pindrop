@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "향상 기능 활성화"
   accessibility_clipboard_fallback: "손쉬운 사용 권한이 없으면 Pindrop이 텍스트를 클립보드에 복사합니다."
   change_hotkey_hint: "변경하려면 다른 키 조합을 누르세요"
+  granted_state: "허용됨"
   ready_heading: "준비되었습니다."
-  ready_instruction_suffix: "을 누르고 말하기 시작하세요. Pindrop이 커서가 있는 곳에 입력합니다."
+  ready_instruction_format: "%@을 누르고 말하기 시작하세요. Pindrop이 커서가 있는 곳에 입력합니다."
   try_it_now: "지금 사용해 보기"
 
 100:

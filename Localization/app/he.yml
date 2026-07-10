@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "הפעלת שיפור"
   accessibility_clipboard_fallback: "ללא נגישות, Pindrop מעתיק את הטקסט ללוח במקום זאת."
   change_hotkey_hint: "לחצו על צירוף אחר כדי לשנות אותו"
+  granted_state: "הוענק"
   ready_heading: "הכול מוכן."
-  ready_instruction_suffix: "והתחילו לדבר — Pindrop מקליד בכל מקום שבו נמצא הסמן."
+  ready_instruction_format: "לחצו על %@ והתחילו לדבר — Pindrop מקליד בכל מקום שבו נמצא הסמן."
   try_it_now: "לנסות עכשיו"
 
 100:

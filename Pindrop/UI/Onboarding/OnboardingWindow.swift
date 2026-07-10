@@ -160,17 +160,19 @@ struct OnboardingWindow: View {
         }
     }
     
+    // Renders through OnboardingProgressPresentation so the unit tests pin the
+    // actual dot row (7 dots, download step included).
     private var stepIndicator: some View {
         HStack(spacing: 7) {
-            ForEach(OnboardingStep.allCases, id: \.rawValue) { step in
-                stepDot(for: step)
+            ForEach(0..<OnboardingProgressPresentation.dotCount, id: \.self) { index in
+                stepDot(at: index)
             }
         }
     }
-    
+
     @ViewBuilder
-    private func stepDot(for step: OnboardingStep) -> some View {
-        let isActive = step == currentStep
+    private func stepDot(at index: Int) -> some View {
+        let isActive = index == OnboardingProgressPresentation.activeIndex(for: currentStep)
 
         Capsule()
             .fill(isActive ? AppColors.accent : AppColors.border)

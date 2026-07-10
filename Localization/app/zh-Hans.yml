@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "启用增强"
   accessibility_clipboard_fallback: "没有辅助功能权限时，Pindrop 会将文本复制到剪贴板。"
   change_hotkey_hint: "按下其他组合键即可更改"
+  granted_state: "已授予"
   ready_heading: "一切就绪。"
-  ready_instruction_suffix: "并开始说话 — Pindrop 会在光标所在位置输入。"
+  ready_instruction_format: "按下 %@ 并开始说话 — Pindrop 会在光标所在位置输入。"
   try_it_now: "立即试用"
 
 100:

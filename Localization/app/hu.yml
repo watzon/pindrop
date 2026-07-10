@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Javítás engedélyezése"
   accessibility_clipboard_fallback: "Kisegítő lehetőségek nélkül a Pindrop a vágólapra másolja a szöveget."
   change_hotkey_hint: "A módosításhoz nyomjon meg egy másik kombinációt"
+  granted_state: "Megadva"
   ready_heading: "Minden kész."
-  ready_instruction_suffix: "és kezdjen beszélni — a Pindrop oda gépel, ahol a kurzor van."
+  ready_instruction_format: "Nyomja meg ezt: %@, és kezdjen beszélni — a Pindrop oda gépel, ahol a kurzor van."
   try_it_now: "Próbálja ki most"
 
 100:

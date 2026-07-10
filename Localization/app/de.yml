@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Verbesserung aktivieren"
   accessibility_clipboard_fallback: "Ohne Bedienungshilfen kopiert Pindrop den Text stattdessen in die Zwischenablage."
   change_hotkey_hint: "Drücke eine andere Kombination, um sie zu ändern"
+  granted_state: "Erteilt"
   ready_heading: "Alles bereit."
-  ready_instruction_suffix: "und sprich los — Pindrop schreibt dort, wo sich dein Cursor befindet."
+  ready_instruction_format: "Drücke %@ und sprich los — Pindrop schreibt dort, wo sich dein Cursor befindet."
   try_it_now: "Jetzt ausprobieren"
 
 100:

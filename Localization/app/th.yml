@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "เปิดใช้การปรับปรุง"
   accessibility_clipboard_fallback: "หากไม่มีการช่วยการเข้าถึง Pindrop จะคัดลอกข้อความไปยังคลิปบอร์ดแทน"
   change_hotkey_hint: "กดชุดปุ่มอื่นเพื่อเปลี่ยน"
+  granted_state: "ได้รับอนุญาตแล้ว"
   ready_heading: "พร้อมแล้ว"
-  ready_instruction_suffix: "แล้วเริ่มพูด — Pindrop จะพิมพ์ตรงตำแหน่งเคอร์เซอร์"
+  ready_instruction_format: "กด %@ แล้วเริ่มพูด — Pindrop จะพิมพ์ตรงตำแหน่งเคอร์เซอร์"
   try_it_now: "ลองตอนนี้"
 
 100:

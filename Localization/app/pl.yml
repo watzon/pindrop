@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Włącz ulepszanie"
   accessibility_clipboard_fallback: "Bez Dostępności Pindrop kopiuje tekst do schowka."
   change_hotkey_hint: "Naciśnij inną kombinację, aby ją zmienić"
+  granted_state: "Przyznano"
   ready_heading: "Wszystko gotowe."
-  ready_instruction_suffix: "i zacznij mówić — Pindrop pisze tam, gdzie znajduje się kursor."
+  ready_instruction_format: "Naciśnij %@ i zacznij mówić — Pindrop pisze tam, gdzie znajduje się kursor."
   try_it_now: "Wypróbuj teraz"
 
 100:

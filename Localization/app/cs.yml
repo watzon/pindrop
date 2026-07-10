@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Zapnout vylepšení"
   accessibility_clipboard_fallback: "Bez Zpřístupnění Pindrop místo toho zkopíruje text do schránky."
   change_hotkey_hint: "Změníte ji stisknutím jiné kombinace"
+  granted_state: "Uděleno"
   ready_heading: "Vše je připraveno."
-  ready_instruction_suffix: "a začněte mluvit — Pindrop píše všude, kde je kurzor."
+  ready_instruction_format: "Stiskněte %@ a začněte mluvit — Pindrop píše všude, kde je kurzor."
   try_it_now: "Vyzkoušet nyní"
 
 100:

@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "Bật tính năng cải thiện"
   accessibility_clipboard_fallback: "Nếu không có Trợ năng, Pindrop sẽ sao chép văn bản vào bảng nhớ tạm."
   change_hotkey_hint: "Nhấn một tổ hợp khác để thay đổi"
+  granted_state: "Đã cấp"
   ready_heading: "Bạn đã sẵn sàng."
-  ready_instruction_suffix: "và bắt đầu nói — Pindrop nhập tại vị trí con trỏ."
+  ready_instruction_format: "Nhấn %@ và bắt đầu nói — Pindrop nhập tại vị trí con trỏ."
   try_it_now: "Thử ngay"
 
 100:

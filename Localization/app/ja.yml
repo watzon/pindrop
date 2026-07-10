@@ -6,8 +6,9 @@ u9_onboarding:
   enable_enhancement: "補正を有効にする"
   accessibility_clipboard_fallback: "アクセシビリティがない場合、Pindrop はテキストをクリップボードにコピーします。"
   change_hotkey_hint: "変更するには別のキーの組み合わせを押してください"
+  granted_state: "許可済み"
   ready_heading: "準備ができました。"
-  ready_instruction_suffix: "を押して話し始めてください。Pindrop がカーソルの位置に入力します。"
+  ready_instruction_format: "%@ を押して話し始めてください。Pindrop がカーソルの位置に入力します。"
   try_it_now: "今すぐ試す"
 
 100:
