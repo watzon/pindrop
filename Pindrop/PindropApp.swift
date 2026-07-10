@@ -617,7 +617,10 @@ final class SwiftDataStoreRepairService {
         let backupsRootURL = applicationSupportRootURL
             .appendingPathComponent("Pindrop", isDirectory: true)
             .appendingPathComponent("DatabaseBackups", isDirectory: true)
-        let backupDirectoryURL = backupsRootURL.appendingPathComponent(Self.repairTimestampString(), isDirectory: true)
+        // Include a UUID so concurrent repair paths (e.g. parallel unit tests) never
+        // collide on second-granularity timestamp folders (NSCocoaErrorDomain 516).
+        let backupDirectoryName = "\(Self.repairTimestampString())_\(UUID().uuidString)"
+        let backupDirectoryURL = backupsRootURL.appendingPathComponent(backupDirectoryName, isDirectory: true)
 
         try fileManager.createDirectory(at: backupDirectoryURL, withIntermediateDirectories: true)
 
