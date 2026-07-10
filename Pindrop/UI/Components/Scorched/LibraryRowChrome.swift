@@ -46,7 +46,7 @@ struct LibraryRowChrome<Icon: View, Play: View>: View {
                 }
 
                 playChip()
-                    .frame(width: 74, alignment: .trailing)
+                    .frame(width: PlayChipMetrics.width, alignment: .trailing)
             }
             .padding(.vertical, 13)
             .padding(.horizontal, 24)

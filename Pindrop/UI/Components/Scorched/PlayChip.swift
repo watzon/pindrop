@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+/// Load-bearing play-chip metrics (spec §5).
+/// Total rendered width must stay `width` — padding is applied *before* the outer frame.
+enum PlayChipMetrics {
+    static let width: CGFloat = 74
+    static let verticalPadding: CGFloat = 3
+    static let horizontalPadding: CGFloat = 9
+    static let iconTextGap: CGFloat = 5
+}
+
 /// Fixed 74 pt play duration chip (spec §5). Expired variant strikes through duration and hides play glyph.
 struct PlayChip: View {
     let durationText: String
@@ -19,7 +28,9 @@ struct PlayChip: View {
                 action?()
             }
         } label: {
-            HStack(spacing: 5) {
+            // Order is load-bearing: content → padding → frame(width) → background.
+            // Framing before padding would push padding outside the 74 pt lane (→ 92 pt).
+            HStack(spacing: PlayChipMetrics.iconTextGap) {
                 if !isExpired {
                     Image(systemName: "play.fill")
                         .font(.system(size: 8, weight: .semibold))
@@ -30,9 +41,9 @@ struct PlayChip: View {
                     .foregroundStyle(AppColors.textSecondary)
                     .strikethrough(isExpired, color: AppColors.textSecondary)
             }
-            .frame(width: 74)
-            .padding(.vertical, 3)
-            .padding(.horizontal, 9)
+            .padding(.vertical, PlayChipMetrics.verticalPadding)
+            .padding(.horizontal, PlayChipMetrics.horizontalPadding)
+            .frame(width: PlayChipMetrics.width)
             .background(
                 Capsule(style: .continuous)
                     .strokeBorder(AppColors.border, lineWidth: 1)
