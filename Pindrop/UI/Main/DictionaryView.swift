@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
+import AppKit
 
 enum DictionarySection: String, CaseIterable {
     case replacements = "Word Replacements"
@@ -88,13 +89,24 @@ struct DictionaryView: View {
     @State private var showingImportStrategyDialog = false
     @State private var importDataCache: Data?
     
-    // Hover state
+    // Hover / selection state
     @State private var hoveredRowID: UUID?
-    
+    @State private var selectedRowID: UUID?
+    @State private var keyMonitor: Any?
+
     private var totalItemCount: Int {
         replacements.count + vocabularyWords.count
     }
-    
+
+    private var orderedSelectableIDs: [UUID] {
+        switch selectedSection {
+        case .replacements:
+            return replacements.sorted(by: { $0.sortOrder < $1.sortOrder }).map(\.id)
+        case .vocabulary:
+            return vocabularyWords.sorted(by: { $0.word < $1.word }).map(\.id)
+        }
+    }
+
     var body: some View {
         MainContentPageLayout(scrollContent: false) {
             headerSection
@@ -106,6 +118,13 @@ struct DictionaryView: View {
             Log.app.info("DictionaryView appeared, initializing store with modelContext")
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
+            installKeyMonitorIfNeeded()
+        }
+        .onDisappear {
+            removeKeyMonitor()
+        }
+        .onChange(of: selectedSection) { _, _ in
+            selectedRowID = nil
         }
         .alert(localized("Import Error", locale: locale), isPresented: .constant(errorMessage != nil)) {
             Button(localized("OK", locale: locale)) {
@@ -439,9 +458,13 @@ struct DictionaryView: View {
                             onCancelEdit: { cancelEditingReplacement() },
                             onDelete: { deleteReplacement(replacement) }
                         )
-                        .background(
-                            hoveredRowID == replacement.id ? AppColors.surfaceBackground : Color.clear
-                        )
+                        .background(rowBackground(for: replacement.id))
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if editingReplacement == nil {
+                                selectedRowID = replacement.id
+                            }
+                        }
                         .onHover { isHovered in
                             withAnimation(.easeInOut(duration: 0.15)) {
                                 hoveredRowID = isHovered ? replacement.id : nil
@@ -503,9 +526,13 @@ struct DictionaryView: View {
                             onCancelEdit: { cancelEditingVocabulary() },
                             onDelete: { deleteVocabularyWord(word) }
                         )
-                        .background(
-                            hoveredRowID == word.id ? AppColors.surfaceBackground : Color.clear
-                        )
+                        .background(rowBackground(for: word.id))
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if editingVocabulary == nil {
+                                selectedRowID = word.id
+                            }
+                        }
                         .onHover { isHovered in
                             withAnimation(.easeInOut(duration: 0.15)) {
                                 hoveredRowID = isHovered ? word.id : nil
@@ -672,6 +699,104 @@ struct DictionaryView: View {
         editPrimaryInput = ""
     }
     
+    private func rowBackground(for id: UUID) -> Color {
+        if selectedRowID == id {
+            return AppColors.accentBackground
+        }
+        if hoveredRowID == id {
+            return AppColors.surfaceBackground
+        }
+        return Color.clear
+    }
+
+    // MARK: - Keyboard Selection
+
+    private func installKeyMonitorIfNeeded() {
+        guard keyMonitor == nil else { return }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            guard Self.shouldHandleListKeyEvent(event) else { return event }
+            // Skip while inline editing or typing in the add form.
+            if self.editingReplacement != nil || self.editingVocabulary != nil {
+                return event
+            }
+            return self.handleListKeyEvent(event)
+        }
+    }
+
+    private func removeKeyMonitor() {
+        if let keyMonitor {
+            NSEvent.removeMonitor(keyMonitor)
+            self.keyMonitor = nil
+        }
+    }
+
+    private static func shouldHandleListKeyEvent(_ event: NSEvent) -> Bool {
+        guard let window = event.window, window.isKeyWindow else { return false }
+        if isTextInputFirstResponder(window.firstResponder) {
+            return false
+        }
+        return true
+    }
+
+    private static func isTextInputFirstResponder(_ responder: NSResponder?) -> Bool {
+        guard let responder else { return false }
+        if responder is NSTextField { return true }
+        if let textView = responder as? NSTextView {
+            return textView.isEditable || textView.isSelectable
+        }
+        if responder is NSText { return true }
+        return false
+    }
+
+    private func handleListKeyEvent(_ event: NSEvent) -> NSEvent? {
+        switch event.keyCode {
+        case 126:
+            moveSelection(delta: -1)
+            return nil
+        case 125:
+            moveSelection(delta: 1)
+            return nil
+        case 51, 117:
+            deleteSelectedRow()
+            return nil
+        case 53:
+            if selectedRowID != nil {
+                selectedRowID = nil
+                return nil
+            }
+            return event
+        default:
+            return event
+        }
+    }
+
+    private func moveSelection(delta: Int) {
+        let ids = orderedSelectableIDs
+        let currentIndex = ids.firstIndex(where: { $0 == selectedRowID })
+        guard let nextIndex = ListSelectionNavigation.moveIndex(
+            current: currentIndex,
+            count: ids.count,
+            delta: delta
+        ) else { return }
+        selectedRowID = ids[nextIndex]
+    }
+
+    private func deleteSelectedRow() {
+        guard let selectedRowID else { return }
+        switch selectedSection {
+        case .replacements:
+            if let replacement = replacements.first(where: { $0.id == selectedRowID }) {
+                deleteReplacement(replacement)
+                self.selectedRowID = nil
+            }
+        case .vocabulary:
+            if let word = vocabularyWords.first(where: { $0.id == selectedRowID }) {
+                deleteVocabularyWord(word)
+                self.selectedRowID = nil
+            }
+        }
+    }
+
     private func deleteReplacement(_ replacement: WordReplacement) {
         guard let store = dictionaryStore else { return }
         
