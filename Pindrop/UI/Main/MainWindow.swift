@@ -220,12 +220,22 @@ struct MainWindow: View {
                 onNewNote: onStartNoteCapture
             )
         case .history:
-            HistoryView()
+            HistoryView(
+                mediaTranscriptionState: mediaTranscriptionState,
+                settingsStore: settingsStore,
+                onImportMediaFiles: onImportMediaFiles,
+                onSubmitMediaLink: onSubmitMediaLink
+            )
         case .notes:
             NotesView()
         case .transcribe:
             // Unreachable via primary nav; resolvedDestination maps .transcribe → .history.
-            HistoryView()
+            HistoryView(
+                mediaTranscriptionState: mediaTranscriptionState,
+                settingsStore: settingsStore,
+                onImportMediaFiles: onImportMediaFiles,
+                onSubmitMediaLink: onSubmitMediaLink
+            )
         case .models:
             if let modelManager {
                 ModelsSettingsView(settings: settingsStore, modelManager: modelManager)
@@ -589,7 +599,7 @@ final class MainWindowController {
         show(navigationItem: .history)
     }
 
-    /// U2: Transcribe page is unrouted; open Library until U3 adds inline import.
+    /// Transcribe page removed in U3 — open Library (inline import lives there).
     func showTranscribe() {
         show(navigationItem: .history)
     }

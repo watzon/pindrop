@@ -2,11 +2,7 @@
 //  MediaTranscriptionDetailView.swift
 //  Pindrop
 //
-//  Unified transcription detail view used by both History and the Transcribe
-//  tab, for voice/meeting/imported/media records. Layout inspired by the
-//  Pencil reference: header with title + status, transcript with active-line
-//  highlight, bottom playback bar, right sidebar with preview + structured
-//  details + actions row + summary placeholder.
+//  Meeting / media / voice detail page (U3 scorched-earth restyle, spec §8).
 //
 
 import AVFoundation
@@ -29,12 +25,21 @@ struct MediaTranscriptionDetailView: View {
 
     @State private var playbackController = MediaPlaybackController()
     @State private var followPlayback = true
-    @State private var sliderValue: Double = 0
-    @State private var isDraggingSlider = false
     @State private var playbackRate: Float = 1.0
     @State private var speakerLabelsByID: [String: String] = [:]
     @State private var editingSpeakerID: String?
     @State private var editedSpeakerLabel = ""
+    @State private var peaks: [Float] = []
+
+    private static let detailTitleMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 30, weight: .medium, lineHeight: 36
+    )
+    private static let turnBodyMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 15, weight: .regular, lineHeight: 23
+    )
+    private static let summaryBodyMetrics = TypographyRoleMetrics(
+        family: .newsreader, size: 15, weight: .regular, lineHeight: 23
+    )
 
     private var segments: [DiarizedTranscriptSegment] {
         record.diarizedSegments
@@ -93,54 +98,46 @@ struct MediaTranscriptionDetailView: View {
     }
 
     private var hasMedia: Bool { TranscriptionDetailAccess.shouldShowPlayback(for: record) }
-    private var wordCount: Int { record.text.split(separator: " ").count }
+    private var showsSpeakerLanes: Bool { !segments.isEmpty }
 
-    private var kindInfo: (label: String, color: Color, icon: String) {
-        switch record.resolvedSourceKind {
-        case .voiceRecording: return ("Voice", AppColors.accent, "mic.fill")
-        case .manualCapture:  return ("Meeting", AppColors.success, "person.2.fill")
-        case .importedFile:   return ("Audio", AppColors.processing, "headphones")
-        case .webLink:        return ("Video", AppColors.processing, "film")
-        }
-    }
+    private static let metaDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
     var body: some View {
-        VStack(spacing: 0) {
-            headerBar
-                .padding(.horizontal, AppTheme.Spacing.xxl)
-                .padding(.top, AppTheme.Window.mainContentTopInset)
-                .padding(.bottom, AppTheme.Spacing.lg)
-                .background(AppColors.contentBackground)
-
-            HStack(alignment: .top, spacing: AppTheme.Spacing.xl) {
-                leftColumn
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                ScrollView(.vertical) {
-                    sidebar
-                        .frame(width: 340, alignment: .topLeading)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 24) {
+                breadcrumb
+                titleBlock
+                if hasMedia {
+                    playerBarCard
                 }
-                .frame(width: 340)
-                .scrollIndicators(.hidden)
+                if record.hasSummary, let summary = record.aiSummary {
+                    summaryBlock(summary)
+                }
+                transcriptSection
             }
-            .frame(maxHeight: .infinity)
-            .padding(.horizontal, AppTheme.Spacing.xxl)
-            .padding(.bottom, AppTheme.Spacing.xxl)
+            .padding(.horizontal, 40)
+            .padding(.top, 40)
+            .padding(.bottom, 40)
+            .frame(maxWidth: 920, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(AppColors.contentBackground)
         .task(id: record.id) {
             if let mediaURL = record.managedMediaURL {
                 playbackController.load(url: mediaURL)
+                peaks = (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
+            } else {
+                peaks = []
             }
             speakerLabelsByID = currentSpeakerLabelsByID()
         }
         .onChange(of: record.diarizationSegmentsJSON) { _, _ in
             speakerLabelsByID = currentSpeakerLabelsByID()
-        }
-        .onChange(of: playbackController.currentTime) { _, newValue in
-            if !isDraggingSlider {
-                sliderValue = newValue
-            }
         }
         .alert(localized("Edit", locale: locale), isPresented: isRenameAlertPresented) {
             TextField("", text: $editedSpeakerLabel)
@@ -154,50 +151,110 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
-    // MARK: - Header
+    // MARK: - Breadcrumb
 
-    private var headerBar: some View {
-        HStack(alignment: .center, spacing: AppTheme.Spacing.md) {
-            Button(action: onBack) {
+    private var breadcrumb: some View {
+        Button(action: onBack) {
+            HStack(spacing: 4) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 12, weight: .semibold))
+                Text(localized("Library", locale: locale))
+                    .font(AppTypography.label)
+            }
+            .foregroundStyle(AppColors.textSecondary)
+        }
+        .buttonStyle(.plain)
+        .padding(.bottom, 0)
+    }
+
+    // MARK: - Title
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(displayTitle)
+                .font(Self.detailTitleMetrics.font)
+                .tracking(-0.015 * 30)
+                .foregroundStyle(AppColors.textPrimary)
+                .textSelection(.enabled)
+
+            HStack(spacing: 10) {
+                Text(Self.metaDateFormatter.string(from: record.timestamp))
+                    .font(AppTypography.monoTime)
                     .foregroundStyle(AppColors.textSecondary)
-                    .frame(width: 32, height: 32)
+                    .monospacedDigit()
+
+                Text("·")
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textTertiary)
+
+                if record.duration > 0 {
+                    Text(formatDuration(record.duration))
+                        .font(AppTypography.monoTime)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .monospacedDigit()
+                }
+
+                if showsSpeakerLanes, record.speakerCount > 0 {
+                    Text("·")
+                        .font(AppTypography.label)
+                        .foregroundStyle(AppColors.textTertiary)
+
+                    Text(speakersMetaLabel)
+                        .font(AppTypography.label)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+
+                Spacer(minLength: 12)
+
+                SecondaryButton(
+                    title: localized("Copy", locale: locale),
+                    systemImage: "doc.on.doc"
+                ) {
+                    NotificationCenter.default.post(
+                        name: .copyTextWithUndo,
+                        object: nil,
+                        userInfo: ["text": record.text]
+                    )
+                }
+
+                Menu {
+                    ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
+                        Button(format.displayName(locale: locale)) {
+                            exportTranscript(format: format)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 12, weight: .medium))
+                        Text(localized("Export", locale: locale))
+                            .font(AppTypography.label)
+                    }
+                    .foregroundStyle(AppColors.textPrimary)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
                     .background(
-                        Circle().fill(AppColors.surfaceBackground)
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(AppColors.contentBackground)
                     )
                     .overlay(
-                        Circle().strokeBorder(AppColors.border, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(AppColors.border, lineWidth: 1)
                     )
-            }
-            .buttonStyle(.plain)
-            .help("Back")
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    Text(displayTitle)
-                        .font(AppTypography.largeTitle)
-                        .foregroundStyle(AppColors.textPrimary)
-                        .lineLimit(1)
-
-                    kindBadge
                 }
-
-                Text(subtitleText)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textTertiary)
-            }
-
-            Spacer()
-
-            if hasMedia {
-                Toggle(isOn: $followPlayback) {
-                    Text("Follow playback").font(AppTypography.caption)
-                }
-                .toggleStyle(.switch)
-                .controlSize(.mini)
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
             }
         }
+    }
+
+    private var speakersMetaLabel: String {
+        let count = record.speakerCount
+        if count == 1 {
+            return localized("1 speaker", locale: locale)
+        }
+        return String(format: localized("%d speakers", locale: locale), count)
     }
 
     private var displayTitle: String {
@@ -210,71 +267,152 @@ struct MediaTranscriptionDetailView: View {
             return name
         }
         switch record.resolvedSourceKind {
-        case .manualCapture: return "Meeting Recording"
-        case .voiceRecording: return "Voice Transcription"
-        case .importedFile: return "Imported Audio"
-        case .webLink: return "Web Transcription"
+        case .manualCapture:
+            return localized("Meeting Recording", locale: locale)
+        case .voiceRecording:
+            return localized("Voice Transcription", locale: locale)
+        case .importedFile:
+            return localized("Imported Audio", locale: locale)
+        case .webLink:
+            return localized("Web Transcription", locale: locale)
         }
     }
 
-    private var subtitleText: String {
-        var parts: [String] = [kindInfo.label]
-        parts.append(record.timestamp.formatted(date: .abbreviated, time: .shortened))
-        if record.duration > 0 {
-            parts.append(formatDuration(record.duration))
+    // MARK: - Player bar
+
+    private var playerBarCard: some View {
+        HStack(spacing: 16) {
+            Button {
+                playbackController.togglePlayback()
+                if playbackController.isPlaying {
+                    playbackController.setRate(playbackRate)
+                }
+            } label: {
+                Circle()
+                    .fill(AppColors.accent)
+                    .frame(width: 44, height: 44)
+                    .overlay {
+                        Image(systemName: playbackController.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AppColors.contentBackground)
+                            .offset(x: playbackController.isPlaying ? 0 : 1)
+                    }
+            }
+            .buttonStyle(.plain)
+
+            WaveformView(
+                peaks: peaks,
+                progress: playbackProgress,
+                onSeek: { fraction in
+                    let duration = max(playbackController.duration, record.duration)
+                    guard duration > 0 else { return }
+                    playbackController.seek(to: fraction * duration)
+                }
+            )
+            .frame(maxWidth: .infinity)
+
+            Text(elapsedTotalLabel)
+                .font(AppTypography.monoTime)
+                .foregroundStyle(AppColors.textSecondary)
+                .monospacedDigit()
+                .fixedSize()
+
+            Button {
+                let next = LibraryPlaybackRate.next(after: playbackRate)
+                playbackRate = next
+                if playbackController.isPlaying {
+                    playbackController.setRate(next)
+                }
+            } label: {
+                Text(LibraryPlaybackRate.label(for: playbackRate))
+                    .font(AppTypography.monoSmall)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 10)
+                    .overlay(
+                        Capsule().strokeBorder(AppColors.border, lineWidth: 1)
+                    )
+            }
+            .buttonStyle(.plain)
         }
-        return parts.joined(separator: " · ")
+        .padding(16)
+        .frame(height: 44 + 32)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppColors.windowBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
     }
 
-    private var kindBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: kindInfo.icon)
-                .font(.system(size: 9, weight: .semibold))
-            Text(kindInfo.label)
-                .font(AppTypography.tiny)
-        }
-        .foregroundStyle(kindInfo.color)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, 3)
-        .background(Capsule().fill(kindInfo.color.opacity(0.12)))
+    private var playbackProgress: Double {
+        let duration = max(playbackController.duration, record.duration)
+        guard duration > 0 else { return 0 }
+        return min(1, max(0, playbackController.currentTime / duration))
     }
 
-    // MARK: - Left column (transcript + player)
+    private var elapsedTotalLabel: String {
+        let elapsed = playbackController.currentTime
+        let total = max(playbackController.duration, record.duration)
+        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: total))"
+    }
 
-    private var leftColumn: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            transcriptArea
+    // MARK: - Summary
+
+    private func summaryBlock(_ summary: String) -> some View {
+        HStack(alignment: .top, spacing: 16) {
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .fill(AppColors.accent)
+                .frame(width: 3)
                 .frame(maxHeight: .infinity)
 
-            if hasMedia {
-                bottomPlayerBar
-            } else {
-                exportOnlyBar
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("SUMMARY", locale: locale))
+                    .font(AppTypography.badge)
+                    .tracking(0.08 * 11)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .textCase(.uppercase)
+
+                Text(summary)
+                    .font(Self.summaryBodyMetrics.font)
+                    .lineSpacing(Self.summaryBodyMetrics.lineSpacing)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(.vertical, 4)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var transcriptArea: some View {
-        Group {
+    // MARK: - Transcript
+
+    private var transcriptSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(
+                title: localized("Transcript", locale: locale),
+                trailing: hasMedia
+                    ? localized("click a line to jump playback", locale: locale)
+                    : nil,
+                isFirst: true
+            )
+
             if segments.isEmpty {
-                ScrollView {
-                    Text(record.text)
-                        .font(.system(size: 16, weight: .regular, design: .default))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
-                        .padding(AppTheme.Spacing.xl)
-                }
+                Text(record.text)
+                    .font(Self.turnBodyMetrics.font)
+                    .lineSpacing(Self.turnBodyMetrics.lineSpacing)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                            ForEach(Array(displayedSegments.enumerated()), id: \.offset) { index, segment in
-                                segmentRow(segment, index: index)
-                                    .id(segmentIdentifier(segment, index: index))
-                            }
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(displayedSegments.enumerated()), id: \.offset) { index, segment in
+                            turnRow(segment, index: index)
+                                .id(segmentIdentifier(segment, index: index))
                         }
-                        .padding(AppTheme.Spacing.lg)
                     }
                     .onChange(of: activeSegmentID) { _, identifier in
                         guard followPlayback, let identifier else { return }
@@ -284,502 +422,104 @@ struct MediaTranscriptionDetailView: View {
                     }
                 }
             }
+
+            if showsSpeakerLanes, !participants.isEmpty {
+                participantsFooter
+                    .padding(.top, 16)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xl, style: .continuous),
-            style: AppColors.border
-        )
     }
 
-    private func segmentRow(_ segment: DiarizedTranscriptSegment, index: Int) -> some View {
+    private func turnRow(_ segment: DiarizedTranscriptSegment, index: Int) -> some View {
         let active = isActive(segment, index: index)
+        let speakerKey = segment.speakerId.isEmpty ? segment.speakerLabel : segment.speakerId
+        let speakerColor = LibrarySpeakerColor.color(for: speakerKey)
+
         return Button {
-            playbackController.seek(to: segment.startTime)
+            if hasMedia {
+                playbackController.seek(to: segment.startTime)
+            }
         } label: {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: 14) {
                 Text(timestampLabel(for: segment.startTime))
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+                    .font(AppTypography.monoSmall)
                     .foregroundStyle(active ? AppColors.accent : AppColors.textTertiary)
                     .frame(width: 44, alignment: .leading)
                     .padding(.top, 3)
+                    .monospacedDigit()
 
-                VStack(alignment: .leading, spacing: 2) {
-                    if !segment.speakerLabel.isEmpty {
-                        Text(segment.speakerLabel)
-                            .font(AppTypography.tiny)
-                            .foregroundStyle(active ? AppColors.accent : AppColors.textTertiary)
+                if showsSpeakerLanes {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(speakerColor)
+                            .frame(width: 7, height: 7)
+                        Text(segment.speakerLabel.isEmpty
+                             ? localized("Speaker", locale: locale)
+                             : segment.speakerLabel)
+                            .font(AppTypography.labelSemibold)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .lineLimit(1)
                     }
-
-                    Text(segment.text)
-                        .font(.system(size: 15, weight: active ? .medium : .regular))
-                        .foregroundStyle(active ? AppColors.textPrimary : AppColors.textSecondary)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
+                    .frame(width: 92, alignment: .leading)
+                    .padding(.top, 2)
                 }
+
+                Text(segment.text)
+                    .font(Self.turnBodyMetrics.font)
+                    .lineSpacing(Self.turnBodyMetrics.lineSpacing)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
             }
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 10)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                    .fill(active ? AppColors.accent.opacity(0.12) : Color.clear)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(active ? AppColors.accentBackground : Color.clear)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                    .strokeBorder(active ? AppColors.accent.opacity(0.25) : Color.clear, lineWidth: 1)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
         .animation(AppTheme.Animation.fast, value: active)
-    }
-
-    private var bottomPlayerBar: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            // Play/pause circle
-            Button {
-                playbackController.togglePlayback()
-                // Re-apply rate since AVPlayer resets to 1.0 after pause().
-                if playbackController.isPlaying {
-                    playbackController.setRate(playbackRate)
-                }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(hasMedia ? AppColors.accent : AppColors.accent.opacity(0.3))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: playbackController.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(.white)
-                        .offset(x: playbackController.isPlaying ? 0 : 1)
-                }
-            }
-            .buttonStyle(.plain)
-            .disabled(!hasMedia)
-
-            // Scrubber
-            Slider(
-                value: Binding(
-                    get: { sliderValue },
-                    set: { sliderValue = $0 }
-                ),
-                in: 0...max(playbackController.duration, 1),
-                onEditingChanged: { editing in
-                    isDraggingSlider = editing
-                    if !editing {
-                        playbackController.seek(to: sliderValue)
-                    }
-                }
-            )
-            .tint(AppColors.accent)
-            .disabled(!hasMedia)
-
-            Text("\(timestampLabel(for: sliderValue)) / \(timestampLabel(for: playbackController.duration))")
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(AppColors.textSecondary)
-
-            Menu {
-                ForEach([0.5, 0.75, 1.0, 1.25, 1.5, 2.0], id: \.self) { rate in
-                    Button {
-                        playbackRate = Float(rate)
-                        if playbackController.isPlaying {
-                            playbackController.setRate(Float(rate))
-                        }
-                    } label: {
-                        HStack {
-                            Text(rateLabel(for: Float(rate)))
-                            if abs(playbackRate - Float(rate)) < 0.01 {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
-            } label: {
-                Text(rateLabel(for: playbackRate))
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(minWidth: 36)
-                    .padding(.horizontal, AppTheme.Spacing.sm)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule().fill(AppColors.elevatedSurface)
-                    )
-                    .overlay(
-                        Capsule().strokeBorder(AppColors.border, lineWidth: 1)
-                    )
-            }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
-
-            exportMenuButton
-        }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
-            style: AppColors.border
-        )
-    }
-
-    /// When there is no playable media, keep export reachable without a dead player bar.
-    private var exportOnlyBar: some View {
-        HStack {
-            Spacer()
-            exportMenuButton
-        }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
-            style: AppColors.border
-        )
-    }
-
-    private var exportMenuButton: some View {
-        Menu {
-            ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
-                Button(format.displayName(locale: locale)) {
-                    exportTranscript(format: format)
-                }
-            }
-        } label: {
-            Label(localized("Export", locale: locale), systemImage: "square.and.arrow.up")
-                .font(AppTypography.caption)
-        }
-        .menuStyle(.borderlessButton)
-        .fixedSize()
-    }
-
-    private func rateLabel(for rate: Float) -> String {
-        let rounded = (rate * 100).rounded() / 100
-        if rounded == 1.0 { return "1x" }
-        if rounded == rounded.rounded() {
-            return "\(Int(rounded))x"
-        }
-        return String(format: "%.2gx", rounded)
-    }
-
-    // MARK: - Sidebar
-
-    private var sidebar: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
-            mediaPreviewCard
-                .transaction { $0.animation = nil }
-
-            detailsCard
-
-            if !participants.isEmpty {
-                participantsCard
-            }
-
-            actionsRow
-
-            summaryCard
-        }
-    }
-
-    @ViewBuilder
-    private var mediaPreviewCard: some View {
-        if let mediaURL = record.managedMediaURL {
-            if playbackController.hasVideoTrack {
-                AVPlayerViewRepresentable(player: playbackController.player)
-                    .frame(height: 180)
-                    .background(Color.black)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                            .strokeBorder(AppColors.border, lineWidth: 1)
-                    )
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                        .fill(AppColors.elevatedSurface)
-                    VStack(spacing: AppTheme.Spacing.sm) {
-                        Image(systemName: kindInfo.icon)
-                            .font(.system(size: 28))
-                            .foregroundStyle(kindInfo.color.opacity(0.9))
-                        Text(mediaURL.lastPathComponent)
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.textTertiary)
-                            .lineLimit(1)
-                    }
-                }
-                .frame(height: 140)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                        .strokeBorder(AppColors.border, lineWidth: 1)
-                )
-            }
-        }
-        // No media path (plain voice dictation): omit preview card entirely.
-    }
-
-    private var detailsCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("Details")
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-
-            VStack(spacing: AppTheme.Spacing.sm) {
-                detailRow("Type", value: kindInfo.label)
-                detailRow("Duration", value: record.duration > 0 ? formatDuration(record.duration) : "—")
-                if !record.modelUsed.isEmpty {
-                    detailRow("Model", value: record.modelUsed)
-                }
-                if let enhancedWith = record.enhancedWith {
-                    detailRow("Enhanced", value: enhancedWith)
-                }
-                detailRow("Word Count", value: "\(wordCount)")
-                detailRow("Created", value: record.timestamp.formatted(date: .abbreviated, time: .shortened))
-                detailRow("Folder", value: record.folder?.name ?? "Unfiled")
-
-                if let originalSourceURL = record.originalSourceURL,
-                   let url = URL(string: originalSourceURL),
-                   record.resolvedSourceKind == .webLink {
-                    Divider().padding(.vertical, 2)
-                    Link(destination: url) {
-                        Label("Open original link", systemImage: "arrow.up.right.square")
-                            .font(AppTypography.caption)
-                    }
+        .contextMenu {
+            if !segment.speakerId.isEmpty {
+                Button(localized("Edit", locale: locale)) {
+                    editingSpeakerID = segment.speakerId
+                    editedSpeakerLabel = segment.speakerLabel
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
-            style: AppColors.border
-        )
     }
 
-    private func detailRow(_ label: String, value: String) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(label)
-                .font(AppTypography.caption)
+    private var participantsFooter: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized("Speakers", locale: locale))
+                .font(AppTypography.sectionHeader)
                 .foregroundStyle(AppColors.textTertiary)
-            Spacer()
-            Text(value)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textPrimary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
-    }
+                .textCase(.uppercase)
 
-    private var actionsRow: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            actionButton(title: "Copy All", systemImage: "doc.on.doc") {
-                NotificationCenter.default.post(
-                    name: .copyTextWithUndo,
-                    object: nil,
-                    userInfo: ["text": record.text]
-                )
-            }
-
-            Menu {
-                ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
-                    Button(format.displayName(locale: locale)) {
-                        exportTranscript(format: format)
+            ForEach(participants, id: \.speakerID) { participant in
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(LibrarySpeakerColor.color(for: participant.speakerID))
+                        .frame(width: 7, height: 7)
+                    Text(participant.label)
+                        .font(AppTypography.label)
+                        .foregroundStyle(AppColors.textPrimary)
+                    Spacer()
+                    Button(localized("Edit", locale: locale)) {
+                        editingSpeakerID = participant.speakerID
+                        editedSpeakerLabel = participant.label
                     }
-                }
-                if !segments.isEmpty {
-                    Divider()
-                    Button("Copy with Timestamps") {
-                        NotificationCenter.default.post(
-                            name: .copyTextWithUndo,
-                            object: nil,
-                            userInfo: ["text": transcriptWithTimestamps()]
-                        )
-                    }
-                }
-                if let mediaURL = record.managedMediaURL {
-                    Divider()
-                    Button("Show in Finder") {
-                        NSWorkspace.shared.activateFileViewerSelecting([mediaURL])
-                    }
-                }
-            } label: {
-                actionButtonLabel(title: localized("Export", locale: locale), systemImage: "square.and.arrow.up")
-            }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
-
-            Menu {
-                if folders.isEmpty {
-                    Button("No folders yet") {}.disabled(true)
-                } else {
-                    ForEach(folders) { folder in
-                        Button(folder.name) { onAssignFolder(folder) }
-                    }
-                }
-                if record.folder != nil {
-                    Divider()
-                    Button("Remove from Folder", role: .destructive) {
-                        onRemoveFromFolder()
-                    }
-                }
-                Divider()
-                Button("Delete Transcription", role: .destructive) {
-                    onDelete()
-                }
-            } label: {
-                actionButtonLabel(title: "More", systemImage: "ellipsis")
-            }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
-        }
-    }
-
-    private var participantsCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                ForEach(participants, id: \.speakerID) { participant in
-                    HStack {
-                        Text(participant.label)
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.textPrimary)
-                            .lineLimit(1)
-
-                        Spacer(minLength: AppTheme.Spacing.sm)
-
-                        Button(localized("Edit", locale: locale)) {
-                            editingSpeakerID = participant.speakerID
-                            editedSpeakerLabel = participant.label
-                        }
-                        .buttonStyle(.borderless)
-                        .font(AppTypography.caption)
-                    }
+                    .buttonStyle(.borderless)
+                    .font(AppTypography.caption)
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .hairlineStroke(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
-            style: AppColors.border
-        )
-    }
-
-    private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            actionButtonLabel(title: title, systemImage: systemImage)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func actionButtonLabel(title: String, systemImage: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-                .font(.system(size: 11, weight: .semibold))
-            Text(title)
-                .font(AppTypography.caption)
-        }
-        .foregroundStyle(AppColors.textPrimary)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .fill(AppColors.surfaceBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.md, style: .continuous)
-                .strokeBorder(AppColors.border, lineWidth: 1)
-        )
-    }
-
-    @ViewBuilder
-    private var summaryCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(AppColors.accent)
-                Text("AI Summary")
-                    .font(AppTypography.headline)
-                    .foregroundStyle(AppColors.textPrimary)
-
-                Spacer()
-
-                if let summary = record.aiSummary, !summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Button {
-                        NotificationCenter.default.post(
-                            name: .copyTextWithUndo,
-                            object: nil,
-                            userInfo: ["text": summary]
-                        )
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(AppColors.textTertiary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Copy summary")
-                }
-            }
-
-            Text(summaryPreviewText)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(AppTheme.Spacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(AppColors.accent.opacity(0.06))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .strokeBorder(AppColors.accent.opacity(0.2), lineWidth: 1)
-        )
-    }
-
-    private var summaryPreviewText: String {
-        if let aiSummary = record.aiSummary?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !aiSummary.isEmpty {
-            return aiSummary
-        }
-        let trimmed = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            return "A summary will appear here once generated."
-        }
-        return "A summary will appear here once generated."
     }
 
     // MARK: - Actions
-
-    private func transcriptWithTimestamps() -> String {
-        guard !displayedSegments.isEmpty else { return record.text }
-        return displayedSegments.map { segment -> String in
-            let ts = timestampLabel(for: segment.startTime)
-            let speaker = segment.speakerLabel.isEmpty ? "" : "\(segment.speakerLabel) "
-            return "[\(ts)] \(speaker)\(segment.text)"
-        }.joined(separator: "\n")
-    }
 
     private func exportTranscript(format: TranscriptExportFormat) {
         do {
