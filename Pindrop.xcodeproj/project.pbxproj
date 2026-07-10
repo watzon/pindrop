@@ -63,6 +63,13 @@
 		ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ALERT001A2B3C4D5E6F71 /* AlertManager.swift */; };
 		LISTSELNAVBUILD01A2B3C4D5E6 /* ListSelectionNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */; };
 		LISTSELNAVTESTBUILD01A2B3C4 /* ListSelectionNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */; };
+		NOTESGROUPBUILD01A2B3C4D5 /* NotesGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESGROUPFILE01A2B3C4D5 /* NotesGrouping.swift */; };
+		MDCHECKBOXBUILD01A2B3C4D5 /* MarkdownCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = MDCHECKBOXFILE01A2B3C4D5 /* MarkdownCheckbox.swift */; };
+		NOTEAPPENDBUILD01A2B3C4D5 /* NoteContentAppend.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEAPPENDFILE01A2B3C4D5 /* NoteContentAppend.swift */; };
+		NOTEAPPLISTENBUILD01A2B3 /* NoteAppendListeningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEAPPLISTENFILE01A2B3 /* NoteAppendListeningState.swift */; };
+		NOTESGROUPTESTBUILD01A2B3 /* NotesGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESGROUPTESTFILE01A2B3 /* NotesGroupingTests.swift */; };
+		MDCHECKBOXTESTBUILD01A2B3 /* MarkdownCheckboxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */; };
+		NOTEAPPENDTESTBUILD01A2B3 /* NoteAppendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */; };
 		ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */ = {isa = PBXBuildFile; fileRef = ICNS01A2B3C4D5E6F71 /* Pindrop.icns */; };
 		AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */; };
 		AUTOLEARNBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */; };
@@ -277,6 +284,13 @@
 		ALERT001A2B3C4D5E6F71 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigation.swift; sourceTree = "<group>"; };
 		LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSelectionNavigationTests.swift; sourceTree = "<group>"; };
+		NOTESGROUPFILE01A2B3C4D5 /* NotesGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesGrouping.swift; sourceTree = "<group>"; };
+		MDCHECKBOXFILE01A2B3C4D5 /* MarkdownCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownCheckbox.swift; sourceTree = "<group>"; };
+		NOTEAPPENDFILE01A2B3C4D5 /* NoteContentAppend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteContentAppend.swift; sourceTree = "<group>"; };
+		NOTEAPPLISTENFILE01A2B3 /* NoteAppendListeningState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAppendListeningState.swift; sourceTree = "<group>"; };
+		NOTESGROUPTESTFILE01A2B3 /* NotesGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesGroupingTests.swift; sourceTree = "<group>"; };
+		MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownCheckboxTests.swift; sourceTree = "<group>"; };
+		NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAppendTests.swift; sourceTree = "<group>"; };
 		ICNS01A2B3C4D5E6F71 /* Pindrop.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Pindrop.icns; sourceTree = "<group>"; };
 		AUDIOCAPS01A2B3C4D5E6F /* AudioEngineCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineCapabilities.swift; sourceTree = "<group>"; };
 		AUTOLEARNFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningService.swift; sourceTree = "<group>"; };
@@ -545,6 +559,7 @@
 				CB05E1BC11534652810B091F /* OutputManager.swift */,
 				CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
 				NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
+				NOTEAPPLISTENFILE01A2B3 /* NoteAppendListeningState.swift */,
 				DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
 				VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */,
 				PRESETSTORE1A2B3C4D5E6F71 /* PromptPresetStore.swift */,
@@ -733,6 +748,9 @@
 				MNTFMTTEST02A2B3C4D5E6F /* MentionFormatterTests.swift */,
 				AIENHTEST02A2B3C4D5E6F /* AIEnhancementServiceTests.swift */,
 				LISTSELNAVTESTFILE01A2B3C4 /* ListSelectionNavigationTests.swift */,
+				NOTESGROUPTESTFILE01A2B3 /* NotesGroupingTests.swift */,
+				MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */,
+				NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */,
 				9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */,
 			);
 			path = PindropTests;
@@ -864,6 +882,9 @@
 				009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */,
 				STRWORDCOUNTFILE01 /* String+WordCount.swift */,
 				LISTSELNAVFILE01A2B3C4D5E6 /* ListSelectionNavigation.swift */,
+				NOTESGROUPFILE01A2B3C4D5 /* NotesGrouping.swift */,
+				MDCHECKBOXFILE01A2B3C4D5 /* MarkdownCheckbox.swift */,
+				NOTEAPPENDFILE01A2B3C4D5 /* NoteContentAppend.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1064,6 +1085,9 @@
 				MNTFMTTEST01A2B3C4D5E6F /* MentionFormatterTests.swift in Sources */,
 				AIENHTEST01A2B3C4D5E6F /* AIEnhancementServiceTests.swift in Sources */,
 				LISTSELNAVTESTBUILD01A2B3C4 /* ListSelectionNavigationTests.swift in Sources */,
+				NOTESGROUPTESTBUILD01A2B3 /* NotesGroupingTests.swift in Sources */,
+				MDCHECKBOXTESTBUILD01A2B3 /* MarkdownCheckboxTests.swift in Sources */,
+				NOTEAPPENDTESTBUILD01A2B3 /* NoteAppendTests.swift in Sources */,
 				735CDA1E1288B02683BE5ED6 /* TestSupport.swift in Sources */,
 			);
 		};
@@ -1138,6 +1162,10 @@
 				IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */,
 				MODELCAPS1A2B3C4D5E6F70 /* ModelCapabilities.swift in Sources */,
 				STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */,
+				NOTESGROUPBUILD01A2B3C4D5 /* NotesGrouping.swift in Sources */,
+				MDCHECKBOXBUILD01A2B3C4D5 /* MarkdownCheckbox.swift in Sources */,
+				NOTEAPPENDBUILD01A2B3C4D5 /* NoteContentAppend.swift in Sources */,
+				NOTEAPPLISTENBUILD01A2B3 /* NoteAppendListeningState.swift in Sources */,
 				ALERT001A2B3C4D5E6F70 /* AlertManager.swift in Sources */,
 				LISTSELNAVBUILD01A2B3C4D5E6 /* ListSelectionNavigation.swift in Sources */,
 				ANNWINBUILD01A2B3C4D5E6F /* AnnouncementWindowController.swift in Sources */,
