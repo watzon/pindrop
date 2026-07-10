@@ -32,7 +32,6 @@ struct MediaTranscriptionDetailView: View {
     @State private var sliderValue: Double = 0
     @State private var isDraggingSlider = false
     @State private var playbackRate: Float = 1.0
-    @State private var showCopiedToast = false
     @State private var speakerLabelsByID: [String: String] = [:]
     @State private var editingSpeakerID: String?
     @State private var editedSpeakerLabel = ""
@@ -93,7 +92,7 @@ struct MediaTranscriptionDetailView: View {
         return segmentIdentifier(segments[index], index: index)
     }
 
-    private var hasMedia: Bool { record.managedMediaURL != nil }
+    private var hasMedia: Bool { TranscriptionDetailAccess.shouldShowPlayback(for: record) }
     private var wordCount: Int { record.text.split(separator: " ").count }
 
     private var kindInfo: (label: String, color: Color, icon: String) {
@@ -153,18 +152,6 @@ struct MediaTranscriptionDetailView: View {
                 saveEditedSpeakerLabel()
             }
         }
-        .overlay(alignment: .bottom) {
-            if showCopiedToast {
-                Text("Copied to clipboard")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.xs)
-                    .background(Capsule(style: .continuous).fill(AppColors.accent))
-                    .padding(.bottom, AppTheme.Spacing.xxl)
-                    .transition(.opacity.combined(with: .scale))
-            }
-        }
     }
 
     // MARK: - Header
@@ -203,11 +190,13 @@ struct MediaTranscriptionDetailView: View {
 
             Spacer()
 
-            Toggle(isOn: $followPlayback) {
-                Text("Follow playback").font(AppTypography.caption)
+            if hasMedia {
+                Toggle(isOn: $followPlayback) {
+                    Text("Follow playback").font(AppTypography.caption)
+                }
+                .toggleStyle(.switch)
+                .controlSize(.mini)
             }
-            .toggleStyle(.switch)
-            .controlSize(.mini)
         }
     }
 
@@ -257,7 +246,11 @@ struct MediaTranscriptionDetailView: View {
             transcriptArea
                 .frame(maxHeight: .infinity)
 
-            bottomPlayerBar
+            if hasMedia {
+                bottomPlayerBar
+            } else {
+                exportOnlyBar
+            }
         }
     }
 
@@ -424,14 +417,7 @@ struct MediaTranscriptionDetailView: View {
             .menuIndicator(.hidden)
             .fixedSize()
 
-            Button {
-                exportTranscript()
-            } label: {
-                Label("Export", systemImage: "square.and.arrow.up")
-                    .font(AppTypography.caption)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            exportMenuButton
         }
         .padding(.horizontal, AppTheme.Spacing.lg)
         .padding(.vertical, AppTheme.Spacing.md)
@@ -443,6 +429,39 @@ struct MediaTranscriptionDetailView: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
             style: AppColors.border
         )
+    }
+
+    /// When there is no playable media, keep export reachable without a dead player bar.
+    private var exportOnlyBar: some View {
+        HStack {
+            Spacer()
+            exportMenuButton
+        }
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
+                .fill(AppColors.surfaceBackground)
+        )
+        .hairlineStroke(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
+            style: AppColors.border
+        )
+    }
+
+    private var exportMenuButton: some View {
+        Menu {
+            ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
+                Button(format.displayName(locale: locale)) {
+                    exportTranscript(format: format)
+                }
+            }
+        } label: {
+            Label(localized("Export", locale: locale), systemImage: "square.and.arrow.up")
+                .font(AppTypography.caption)
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
     }
 
     private func rateLabel(for rate: Float) -> String {
@@ -505,14 +524,8 @@ struct MediaTranscriptionDetailView: View {
                         .strokeBorder(AppColors.border, lineWidth: 1)
                 )
             }
-        } else {
-            MessageCardView(
-                title: "Media unavailable",
-                message: "The managed media file could not be found on disk.",
-                icon: "exclamationmark.triangle.fill",
-                tint: AppColors.warning
-            )
         }
+        // No media path (plain voice dictation): omit preview card entirely.
     }
 
     private var detailsCard: some View {
@@ -574,30 +587,37 @@ struct MediaTranscriptionDetailView: View {
     private var actionsRow: some View {
         HStack(spacing: AppTheme.Spacing.sm) {
             actionButton(title: "Copy All", systemImage: "doc.on.doc") {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(record.text, forType: .string)
-                flashCopied()
+                NotificationCenter.default.post(
+                    name: .copyTextWithUndo,
+                    object: nil,
+                    userInfo: ["text": record.text]
+                )
             }
 
             Menu {
-                Button("Copy as Plain Text") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(record.text, forType: .string)
-                    flashCopied()
+                ForEach(TranscriptExportService.availableFormats(for: record), id: \.rawValue) { format in
+                    Button(format.displayName(locale: locale)) {
+                        exportTranscript(format: format)
+                    }
                 }
-                Button("Copy with Timestamps") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(transcriptWithTimestamps(), forType: .string)
-                    flashCopied()
+                if !segments.isEmpty {
+                    Divider()
+                    Button("Copy with Timestamps") {
+                        NotificationCenter.default.post(
+                            name: .copyTextWithUndo,
+                            object: nil,
+                            userInfo: ["text": transcriptWithTimestamps()]
+                        )
+                    }
                 }
-                Divider()
                 if let mediaURL = record.managedMediaURL {
+                    Divider()
                     Button("Show in Finder") {
                         NSWorkspace.shared.activateFileViewerSelecting([mediaURL])
                     }
                 }
             } label: {
-                actionButtonLabel(title: "Export", systemImage: "square.and.arrow.up")
+                actionButtonLabel(title: localized("Export", locale: locale), systemImage: "square.and.arrow.up")
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
@@ -706,9 +726,11 @@ struct MediaTranscriptionDetailView: View {
 
                 if let summary = record.aiSummary, !summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Button {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(summary, forType: .string)
-                        flashCopied()
+                        NotificationCenter.default.post(
+                            name: .copyTextWithUndo,
+                            object: nil,
+                            userInfo: ["text": summary]
+                        )
                     } label: {
                         Image(systemName: "doc.on.doc")
                             .font(.system(size: 11, weight: .medium))
@@ -759,13 +781,13 @@ struct MediaTranscriptionDetailView: View {
         }.joined(separator: "\n")
     }
 
-    private func exportTranscript() {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.plainText]
-        panel.nameFieldStringValue = (record.preferredTitle ?? record.sourceDisplayName ?? "transcript") + ".txt"
-        if panel.runModal() == .OK, let url = panel.url {
-            let content = displayedSegments.isEmpty ? record.text : transcriptWithTimestamps()
-            try? content.write(to: url, atomically: true, encoding: .utf8)
+    private func exportTranscript(format: TranscriptExportFormat) {
+        do {
+            try TranscriptExportService.presentSavePanel(for: record, format: format)
+        } catch TranscriptExportService.ExportError.cancelled {
+            // User dismissed the panel.
+        } catch {
+            Log.app.error("Export failed: \(error.localizedDescription)")
         }
     }
 
@@ -790,14 +812,6 @@ struct MediaTranscriptionDetailView: View {
 
         editingSpeakerID = nil
         editedSpeakerLabel = ""
-    }
-
-    private func flashCopied() {
-        withAnimation(AppTheme.Animation.fast) { showCopiedToast = true }
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            withAnimation(AppTheme.Animation.fast) { showCopiedToast = false }
-        }
     }
 
     private func isActive(_ segment: DiarizedTranscriptSegment, index: Int) -> Bool {

@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Kontroluje sposób, w jaki ścieżka dyktowania na żywo poprawia transkrypcje. Deterministyczne czyszczenie (usuwanie wypełniaczy, wielkie litery, interpunkcja mówiona, normalizacja liczb, łączenie podzielonych słów) działa w obie strony — ten przełącznik umożliwia opcjonalną polską przepustkę LLM, która uruchamia się po zakończeniu dyktowania."
 copied:
   _self: "Skopiowano!"
+  to_clipboard: "Skopiowano do schowka"
 copy:
   _self: "Kopia"
   enhanced: "Ulepszone kopiowanie"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Przenieś wszystko na wierzch"
 home:
   _self: "Start"
+newest:
+  _self: "Najnowsze"
+oldest:
+  _self: "Najstarsze"
+plain:
+  text_txt: "Zwykły tekst (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Napisy (.srt)"
+timestamps:
+  json: "Znaczniki czasu (.json)"
+inserted:
+  into_d_words: "Wstawiono do %@ · %d słów"
+unknown:
+  app: "Nieznana aplikacja"

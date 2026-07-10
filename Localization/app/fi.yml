@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Ohjaa, kuinka suora sanelupolku kiillottaa transkriptioita. Deterministinen puhdistin (täyteaineen poisto, isot kirjaimet, puhutut välimerkit, numeroiden normalisointi, jaetun sanan yhdistäminen) toimii kumpaankin suuntaan – tämä vaihtokytkin porttia valinnaisen LLM-kiillotuspassin, joka käynnistyy, kun sanelu loppuu."
 copied:
   _self: "Kopioitu!"
+  to_clipboard: "Kopioitu leikepöydälle"
 copy:
   _self: "Kopioida"
   enhanced: "Kopioi parannettu"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Tuo kaikki eteen"
 home:
   _self: "Koti"
+newest:
+  _self: "Uusimmat"
+oldest:
+  _self: "Vanhimmat"
+plain:
+  text_txt: "Muotoilematon teksti (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Tekstitykset (.srt)"
+timestamps:
+  json: "Aikaleimat (.json)"
+inserted:
+  into_d_words: "Lisätty kohteeseen %@ · %d sanaa"
+unknown:
+  app: "Tuntematon sovellus"

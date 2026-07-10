@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Controla como o caminho de ditado ao vivo refina as transcrições. O limpador determinístico (remoção de muletas, capitalização, pontuação falada, normalização de números, fusão de palavras divididas) é executado de qualquer forma — esta chave controla o polimento LLM opcional disparado após o fim do ditado."
 copied:
   _self: "Copiado!"
+  to_clipboard: "Copiado para a área de transferência"
 copy:
   _self: "Cópia"
   enhanced: "Cópia aprimorada"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Trazer Tudo para a Frente"
 home:
   _self: "Início"
+newest:
+  _self: "Mais recentes"
+oldest:
+  _self: "Mais antigos"
+plain:
+  text_txt: "Texto simples (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Legendas (.srt)"
+timestamps:
+  json: "Carimbos de data/hora (.json)"
+inserted:
+  into_d_words: "Inserido em %@ · %d palavras"
+unknown:
+  app: "App desconhecido"

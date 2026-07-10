@@ -94,6 +94,8 @@ extension Notification.Name {
     static let modelActiveChanged = Notification.Name("tech.watzon.pindrop.modelActiveChanged")
     static let requestActiveModel = Notification.Name("tech.watzon.pindrop.requestActiveModel")
     static let showWhatsNew = Notification.Name("tech.watzon.pindrop.showWhatsNew")
+    /// UI posts this with `userInfo["text"]` (String) to copy with clipboard-undo toast.
+    static let copyTextWithUndo = Notification.Name("tech.watzon.pindrop.copyTextWithUndo")
 }
 
 struct HotkeyConflict: Equatable {
@@ -693,6 +695,16 @@ final class AppCoordinator {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.handleShowWhatsNew()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .copyTextWithUndo,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor [weak self] in
+                self?.handleCopyTextWithUndoNotification(notification)
             }
         }
     }
@@ -3768,15 +3780,42 @@ final class AppCoordinator {
                 return
             }
 
-            await MainActor.run {
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents()
-                pasteboard.writeObjects([lastRecord.text as NSString])
-            }
+            copyTextWithUndo(lastRecord.text)
             Log.app.info("Copied last transcript to clipboard")
         } catch {
             Log.app.error("Failed to copy last transcript: \(error)")
         }
+    }
+
+    /// Snapshots the pasteboard, writes text, and shows a "Copied — Undo" toast.
+    func copyTextWithUndo(_ text: String) {
+        guard !text.isEmpty else { return }
+        do {
+            let snapshot = try outputManager.copyReplacingClipboard(text)
+            let locale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: localized("Copied to clipboard", locale: locale),
+                    actions: [
+                        ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
+                            let restored = self?.outputManager.restoreClipboardSnapshot(snapshot) ?? false
+                            if restored {
+                                Log.output.info("Restored clipboard after copy undo")
+                            } else {
+                                Log.output.error("Failed to restore clipboard after copy undo")
+                            }
+                        }
+                    ]
+                )
+            )
+        } catch {
+            Log.output.error("Failed to copy text with undo: \(error)")
+        }
+    }
+
+    @objc private func handleCopyTextWithUndoNotification(_ notification: Notification) {
+        guard let text = notification.userInfo?["text"] as? String else { return }
+        copyTextWithUndo(text)
     }
 
     private func handlePasteLastTranscript() async {
@@ -4255,47 +4294,13 @@ final class AppCoordinator {
             guard let segments = output.diarizedSegments, !segments.isEmpty else {
                 return output.text
             }
-            return formatAsSRT(segments)
+            return TranscriptExportService.formatAsSRT(segments)
         case .timestamps:
             guard let segments = output.diarizedSegments, !segments.isEmpty else {
                 return output.text
             }
-            return formatAsTimestampedJSON(segments, plainText: output.text)
+            return TranscriptExportService.formatAsTimestampedJSON(segments, plainText: output.text)
         }
-    }
-
-    private func formatAsSRT(_ segments: [DiarizedTranscriptSegment]) -> String {
-        segments.enumerated().map { idx, seg in
-            let start = srtTimestamp(seg.startTime)
-            let end = srtTimestamp(seg.endTime)
-            let speaker = seg.speakerLabel.isEmpty ? "" : "\(seg.speakerLabel): "
-            return "\(idx + 1)\n\(start) --> \(end)\n\(speaker)\(seg.text)"
-        }.joined(separator: "\n\n")
-    }
-
-    private func srtTimestamp(_ t: TimeInterval) -> String {
-        let h = Int(t) / 3600
-        let m = (Int(t) % 3600) / 60
-        let s = Int(t) % 60
-        let ms = Int((t - Double(Int(t))) * 1000)
-        return String(format: "%02d:%02d:%02d,%03d", h, m, s, ms)
-    }
-
-    private func formatAsTimestampedJSON(_ segments: [DiarizedTranscriptSegment], plainText: String) -> String {
-        struct Seg: Encodable {
-            let start: Double
-            let end: Double
-            let speaker: String
-            let text: String
-        }
-        let mapped = segments.map { Seg(start: $0.startTime, end: $0.endTime, speaker: $0.speakerLabel, text: $0.text) }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        guard let data = try? encoder.encode(mapped),
-              let string = String(data: data, encoding: .utf8) else {
-            return plainText
-        }
-        return string
     }
 
     private func generateTranscriptionMetadataIfNeeded(

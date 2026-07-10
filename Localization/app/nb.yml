@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Kontrollerer hvordan den direkte dikteringsbanen polerer transkripsjoner. Den deterministiske renseren (fjerning av fyllstoff, bruk av store og små bokstaver, talt tegnsetting, tallnormalisering, sammenslåing av delte ord) kjører begge veier - denne bryteren åpner for det valgfrie LLM-poleringspasset som utløses når dikteringen stopper."
 copied:
   _self: "Kopiert!"
+  to_clipboard: "Kopiert til utklippstavlen"
 copy:
   _self: "Kopiere"
   enhanced: "Kopier forbedret"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Legg alle forrest"
 home:
   _self: "Hjem"
+newest:
+  _self: "Nyeste"
+oldest:
+  _self: "Eldste"
+plain:
+  text_txt: "Ren tekst (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Undertekster (.srt)"
+timestamps:
+  json: "Tidsstempler (.json)"
+inserted:
+  into_d_words: "Satt inn i %@ · %d ord"
+unknown:
+  app: "Ukjent app"

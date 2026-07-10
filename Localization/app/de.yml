@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Steuert, wie die Live-Diktierspur Transkripte poliert. Die deterministische Bereinigung (Füllwortentfernung, Groß-/Kleinschreibung, gesprochene Satzzeichen, Zahlnormalisierung, Zusammenführung getrennter Wörter) läuft in jedem Fall – dieser Schalter regelt den optionalen LLM-Nachschliff, der nach Ende des Diktats einsetzt."
 copied:
   _self: "Kopiert!"
+  to_clipboard: "In die Zwischenablage kopiert"
 copy:
   _self: "Kopieren"
   enhanced: "Verbessertes kopieren"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Alle nach vorne bringen"
 home:
   _self: "Übersicht"
+newest:
+  _self: "Neueste"
+oldest:
+  _self: "Älteste"
+plain:
+  text_txt: "Nur Text (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Untertitel (.srt)"
+timestamps:
+  json: "Zeitstempel (.json)"
+inserted:
+  into_d_words: "Eingefügt in %@ · %d Wörter"
+unknown:
+  app: "Unbekannte App"

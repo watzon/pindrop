@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "ライブディクテーション経路の整形方法を制御します。決定論的クリーナー（フィラー除去、大文字化、口頭句読点、数値正規化、分割語の結合）は常に実行され、このトグルは口述停止後に動作する任意の LLM 仕上げを制御します。"
 copied:
   _self: "コピーしました！"
+  to_clipboard: "クリップボードにコピーしました"
 copy:
   _self: "コピー"
   enhanced: "コピー強化"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "すべてを手前に移動"
 home:
   _self: "ホーム"
+newest:
+  _self: "新しい順"
+oldest:
+  _self: "古い順"
+plain:
+  text_txt: "プレーンテキスト (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "字幕 (.srt)"
+timestamps:
+  json: "タイムスタンプ (.json)"
+inserted:
+  into_d_words: "%@ に挿入 · %d 語"
+unknown:
+  app: "不明なアプリ"

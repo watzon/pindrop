@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "يتحكم في كيفية تحسين مسار الإملاء المباشر للنصوص. يعمل المنظف الحتمي (إزالة الحشو، الكتابة بالأحرف الكبيرة، علامات الترقيم المنطوقة، تطبيع الأرقام، دمج الكلمات المنقسمة) في كلا الاتجاهين - يؤدي هذا التبديل إلى تمرير تمرير تلميع LLM الاختياري الذي يتم تشغيله بمجرد توقف الإملاء."
 copied:
   _self: "منسوخ!"
+  to_clipboard: "تم النسخ إلى الحافظة"
 copy:
   _self: "ينسخ"
   enhanced: "نسخة محسنة"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "إحضار الكل إلى الأمام"
 home:
   _self: "الرئيسية"
+newest:
+  _self: "الأحدث"
+oldest:
+  _self: "الأقدم"
+plain:
+  text_txt: "نص عادي (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "ترجمات (.srt)"
+timestamps:
+  json: "طوابع زمنية (.json)"
+inserted:
+  into_d_words: "أُدرج في %@ · %d كلمة"
+unknown:
+  app: "تطبيق غير معروف"

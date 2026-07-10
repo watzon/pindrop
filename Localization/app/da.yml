@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Styrer, hvordan den direkte dikteringssti polerer udskrifter. Den deterministiske renser (fjernelse af fyldstof, brug af store bogstaver, talt tegnsætning, talnormalisering, fletning af split-ord) kører begge veje - denne skift åbner det valgfrie LLM-poleringspas, der udløses, når dikteringen stopper."
 copied:
   _self: "Kopieret!"
+  to_clipboard: "Kopieret til udklipsholder"
 copy:
   _self: "Kopi"
   enhanced: "Kopier forbedret"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Anbring alle forrest"
 home:
   _self: "Hjem"
+newest:
+  _self: "Nyeste"
+oldest:
+  _self: "Ældste"
+plain:
+  text_txt: "Almindelig tekst (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Undertekster (.srt)"
+timestamps:
+  json: "Tidsstempler (.json)"
+inserted:
+  into_d_words: "Indsat i %@ · %d ord"
+unknown:
+  app: "Ukendt app"

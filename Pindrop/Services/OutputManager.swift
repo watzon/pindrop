@@ -414,6 +414,23 @@ final class OutputManager {
             throw OutputManagerError.clipboardWriteFailed
         }
     }
+
+    /// Snapshots the pasteboard, writes `text`, and returns the prior contents for undo.
+    @discardableResult
+    func copyReplacingClipboard(_ text: String) throws -> ClipboardSnapshot {
+        let snapshot = clipboard.captureSnapshot()
+        try copyToClipboard(text)
+        return snapshot
+    }
+
+    func captureClipboardSnapshot() -> ClipboardSnapshot {
+        clipboard.captureSnapshot()
+    }
+
+    @discardableResult
+    func restoreClipboardSnapshot(_ snapshot: ClipboardSnapshot) -> Bool {
+        clipboard.restoreSnapshot(snapshot)
+    }
     
     func checkAccessibilityPermission() -> Bool {
         accessibilityPermissionChecker()

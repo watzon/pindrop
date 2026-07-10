@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "שולט כיצד נתיב ההכתבה החיה ללטש תמלילים. מנקה הדטרמיניסטי (הסרת חומרי מילוי, שימוש באותיות רישיות, סימני פיסוק מדוברים, נורמליזציה של מספרים, מיזוג של פיצול מילים) פועל לשני הכיוונים - החלפה זו משדרת את מעבר הפוליש האופציונלי של LLM שנפתח ברגע שההכתבה נפסקת."
 copied:
   _self: "מוּעֲתָק!"
+  to_clipboard: "הועתק ללוח"
 copy:
   _self: "לְהַעְתִיק"
   enhanced: "העתקה משופרת"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "הבא הכול קדימה"
 home:
   _self: "בית"
+newest:
+  _self: "החדשים ביותר"
+oldest:
+  _self: "הישנים ביותר"
+plain:
+  text_txt: "טקסט רגיל (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "כתוביות (.srt)"
+timestamps:
+  json: "חותמות זמן (.json)"
+inserted:
+  into_d_words: "הוכנס אל %@ · %d מילים"
+unknown:
+  app: "אפליקציה לא ידועה"

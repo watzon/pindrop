@@ -563,37 +563,67 @@ final class HistoryStore {
         limit: Int,
         offset: Int = 0,
         query: String = "",
-        filter: HistoryFilter = .all
+        filter: HistoryFilter = .all,
+        sort: MediaLibrarySortMode = .newest
     ) throws -> [TranscriptionRecord] {
-        var descriptor = transcriptionsDescriptor(query: query, filter: filter)
-        descriptor.fetchLimit = limit
-        descriptor.fetchOffset = offset
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Empty search can paginate at the SQL layer. Non-empty search matches
+        // title/summary/source in memory (Core Data cannot SQL-generate
+        // optional-string CONTAINS via #Predicate coalescing).
+        if trimmedQuery.isEmpty {
+            var descriptor = transcriptionsDescriptor(query: "", filter: filter, sort: sort)
+            descriptor.fetchLimit = limit
+            descriptor.fetchOffset = offset
+            do {
+                return try modelContext.fetch(descriptor)
+            } catch {
+                throw HistoryStoreError.fetchFailed(error.localizedDescription)
+            }
+        }
+
+        let allMatching = try fetchAllTranscriptions(query: trimmedQuery, filter: filter, sort: sort)
+        guard offset < allMatching.count else { return [] }
+        let end = min(offset + limit, allMatching.count)
+        return Array(allMatching[offset..<end])
+    }
+
+    func fetchAllTranscriptions(
+        query: String = "",
+        filter: HistoryFilter = .all,
+        sort: MediaLibrarySortMode = .newest
+    ) throws -> [TranscriptionRecord] {
+        // Filter + sort in SQL; broaden search in memory for optional fields.
+        let descriptor = transcriptionsDescriptor(query: "", filter: filter, sort: sort)
 
         do {
-            return try modelContext.fetch(descriptor)
+            var records = try modelContext.fetch(descriptor)
+            let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedQuery.isEmpty {
+                // Parity with media-library search (title/summary/source + body).
+                records = records.filter { $0.matchesMediaLibrarySearch(trimmedQuery) }
+            }
+            return records
         } catch {
             throw HistoryStoreError.fetchFailed(error.localizedDescription)
         }
     }
 
-    func fetchAllTranscriptions(query: String = "", filter: HistoryFilter = .all) throws -> [TranscriptionRecord] {
-        let descriptor = transcriptionsDescriptor(query: query, filter: filter)
-
-        do {
-            return try modelContext.fetch(descriptor)
-        } catch {
-            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+    func countTranscriptions(
+        query: String = "",
+        filter: HistoryFilter = .all,
+        sort: MediaLibrarySortMode = .newest
+    ) throws -> Int {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedQuery.isEmpty {
+            let descriptor = transcriptionsDescriptor(query: "", filter: filter, sort: sort)
+            do {
+                return try modelContext.fetchCount(descriptor)
+            } catch {
+                throw HistoryStoreError.fetchFailed(error.localizedDescription)
+            }
         }
-    }
-
-    func countTranscriptions(query: String = "", filter: HistoryFilter = .all) throws -> Int {
-        let descriptor = transcriptionsDescriptor(query: query, filter: filter)
-
-        do {
-            return try modelContext.fetchCount(descriptor)
-        } catch {
-            throw HistoryStoreError.fetchFailed(error.localizedDescription)
-        }
+        return try fetchAllTranscriptions(query: trimmedQuery, filter: filter, sort: sort).count
     }
 
     func fetchRecord(with id: UUID) throws -> TranscriptionRecord? {
@@ -1080,12 +1110,26 @@ final class HistoryStore {
         return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
     }
 
+    private func transcriptionsSortDescriptors(
+        for sort: MediaLibrarySortMode
+    ) -> [SortDescriptor<TranscriptionRecord>] {
+        // Library list currently exposes newest/oldest. Name sorts fall back to
+        // newest-first at the SQL level (media library keeps its own in-memory sort).
+        switch sort {
+        case .oldest:
+            return [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .forward)]
+        case .newest, .nameAscending, .nameDescending:
+            return [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .reverse)]
+        }
+    }
+
     private func transcriptionsDescriptor(
         query: String,
-        filter: HistoryFilter
+        filter: HistoryFilter,
+        sort: MediaLibrarySortMode = .newest
     ) -> FetchDescriptor<TranscriptionRecord> {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let sortDescriptors = [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .reverse)]
+        let sortDescriptors = transcriptionsSortDescriptors(for: sort)
 
         let voiceRawValue = MediaSourceKind.voiceRecording.rawValue
         let manualCaptureRawValue = MediaSourceKind.manualCapture.rawValue
@@ -1097,6 +1141,9 @@ final class HistoryStore {
             return FetchDescriptor(sortBy: sortDescriptors)
 
         case (.all, false):
+            // Text-only SQL path kept for any callers that still pass a query
+            // into the descriptor. `fetchTranscriptions` prefers in-memory
+            // matching via `matchesLibrarySearch` for optional title/summary/source.
             let predicate = #Predicate<TranscriptionRecord> { record in
                 record.text.localizedStandardContains(trimmedQuery)
             }

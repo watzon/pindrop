@@ -184,6 +184,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Contrôle la façon dont le chemin de dictée en direct peaufine les transcriptions. Le nettoyeur déterministe (suppression des hésitations, capitalisation, ponctuation orale, normalisation des nombres, fusion des mots coupés) s'exécute dans tous les cas — ce commutateur active le polissage LLM optionnel qui s'exécute une fois la dictée arrêtée."
 copied:
   _self: "Copié !"
+  to_clipboard: "Copié dans le presse-papiers"
 copy:
   _self: "Copier"
   enhanced: "Copier amélioré"
@@ -1176,3 +1177,19 @@ bring:
   all_to_front: "Tout ramener au premier plan"
 home:
   _self: "Accueil"
+newest:
+  _self: "Plus récents"
+oldest:
+  _self: "Plus anciens"
+plain:
+  text_txt: "Texte brut (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Sous-titres (.srt)"
+timestamps:
+  json: "Horodatages (.json)"
+inserted:
+  into_d_words: "Inséré dans %@ · %d mots"
+unknown:
+  app: "App inconnue"

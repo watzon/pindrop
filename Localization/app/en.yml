@@ -186,6 +186,7 @@ controls:
   how_the_live_dictation_path_polishes_tr: "Controls how the live dictation path polishes transcripts. The deterministic cleaner (filler removal, capitalization, spoken punctuation, number normalization, split-word merging) runs either way — this toggle gates the optional LLM polish pass that fires once dictation stops."
 copied:
   _self: "Copied!"
+  to_clipboard: "Copied to clipboard"
 copy:
   _self: "Copy"
   enhanced: "Copy Enhanced"
@@ -1180,3 +1181,15 @@ bring:
   all_to_front: "Bring All to Front"
 home:
   _self: "Home"
+newest:
+  _self: "Newest"
+oldest:
+  _self: "Oldest"
+plain:
+  text_txt: "Plain Text (.txt)"
+markdown:
+  md: "Markdown (.md)"
+subtitles:
+  srt: "Subtitles (.srt)"
+timestamps:
+  json: "Timestamps (.json)"
