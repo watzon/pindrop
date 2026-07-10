@@ -97,3 +97,26 @@ Icons: 16×16 viewBox custom strokes at 1.4 width (thin-stroke look). Map to SF 
 - **Stats strip**: 36 pt top / 40 pt bottom padding. Stat groups separated by 1×40 pt line dividers with 32 pt horizontal padding between. Each stat (4 pt gap): number **JetBrains Mono 22/28 · 500 ink** ("1,214", "96", "12", "14-day") over label **Inter 11 · 600 +0.07em ink-3 uppercase** (WORDS TODAY / WORDS / MIN / SESSIONS / STREAK).
 - **Recent**: §5 section-header pattern with trailing "Open Library →" accent link; 3 rows reusing the Library row anatomy (time lane, icon, preview, destination, play chip).
 - **THIS WEEK chart** (40 pt top padding, 14 pt gap): section header (Inter 11 · 600 +0.08em ink-3 + hairline rule). Bars row: 110 pt tall, bottom-aligned, 28 pt gaps; bars **30 pt wide, top radius 5 / bottom radius 2**; past days with data = line color at proportional heights; **today = accent bar + accent 600 label**; future days = 4 pt stub in line color; weekday labels Inter 11 · 500 ink-3, 8 pt below bars. Right-aligned week total: mono 22/28 · 500 ink over "WORDS SO FAR" label, 24 pt bottom padding.
+
+## 10. Notes page + note editor (artboards 05/30 — extracted)
+
+- Header: title "Notes" + "24 notes" meta (§4 pattern); search field ~200 pt; **primary button** "＋ New note ⌘N" (accent bg, page-color label — the one filled-accent button in the app; radius 8, ~32 pt tall).
+- **Pinned card**: ground bg, 1 pt line border, **radius 12**, padding 16 vert / 20 horiz, 6 pt gap, 8 pt bottom margin. Title row (10 pt gaps): title **Newsreader 17/22 · 500 ink** (flex) · 12 pt pin icon (accent stroke) · "edited 2 h ago" Inter 12 ink-3. Preview Inter 13/20 ink-2.
+- **Note row**: 1 pt bottom border; padding 13 vert / 20 horiz; 10 pt gaps. Lanes: 16 pt note icon slot (13 pt glyph ink-3) · title Inter 13 · 500 ink **fixed 220 pt** · preview Inter 13 ink-2 1-line clamp (flex) · date Inter 12 ink-3 right-aligned **88 pt** lane.
+- **Note editor window (480×560)**: titlebar 46 pt (traffic lights + "Pinned" badge right); editor content 432 pt wide: title Newsreader ~22/30, body Inter 13/20-ish, checkbox rows (MarkdownEditor); **listening chip**: accent-soft bg, radius 10, padding 10 vert / 12 horiz, 6 pt top margin, 8 pt gaps — 7 pt record-color dot · "Listening — speak to append…" Inter 12 · 500 ink · spacer · elapsed mono 11 ink-2. Footer 39 pt: "42 words · edited just now" (11-ish ink-3) · "⌘S to save" mono right.
+
+## 11. Dictionary page (artboard 06 — extracted)
+
+- Header: title + "Teach Pindrop your words" meta + primary "＋ Add word" button.
+- **Vocabulary chips** (8 pt wrap gaps): ground bg, 1 pt line border, radius full, padding 6 vert / 12 horiz, 7 pt gap — word Inter 13 · 500 ink + count **JetBrains Mono 10/12 ink-3**. **Add chip**: DASHED 1 pt line border, 10 pt plus icon ink-3 + "Add" Inter 13 · 500 ink-3.
+- Section headers: §5 pattern ("VOCABULARY" + trailing "Words the recognizer should trust"; "REPLACEMENTS" + "Applied after transcription, before insert").
+- **Replacement row**: 1 pt bottom border; padding 12 vert / 20 horiz; 14 pt gaps. Lanes: pattern **JetBrains Mono 13 · 500 ink, fixed 220 pt** · 14 pt arrow icon (accent, →) · replacement JetBrains Mono 13 ink (flex) · mode label Inter 12 ink-3 right ("case-insensitive" / "exact" / "command"). Drag-to-reorder wired to DictionaryStore.reorder.
+- Footnote: 12 pt info icon + "Replacements run in order. Drag rows to re-order — the first match wins." (ink-3).
+
+## 12. Models page (artboard 07 — extracted)
+
+- Header: title + "Everything runs on this Mac" meta + right-aligned disk total (mono 15-ish "3.2 GB" over "ON DISK" caption).
+- Section headers: SPEECH TO TEXT / ON-DEVICE HELPERS (§5 pattern, 10 pt below-padding).
+- **Model row card**: radius 12, padding 14 vert / 20 horiz, 12 pt gaps, 8 pt stacking margin. **Active row: ground bg + 1 pt ACCENT border**; inactive: 1 pt line border, no fill. Content: name **Inter 14/18 · 600 ink** + **Active badge** (accent-soft pill, padding 2/9, 5 pt gap, 6 pt accent dot, Inter 11 · 600 accent) over description Inter 12 ink-2 (3 pt gap); right: size **JetBrains Mono 12 ink-2** · "Installed" Inter 12 · 500 ink-3 OR **Download button** (line border, radius 8, padding 5/12, 11 pt download icon + Inter 12 · 500 ink).
+- Footnote: shield icon + privacy line (ink-3): "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+- Per product decision: NO "Text corrector — 340 M" row (deferred runtime).
