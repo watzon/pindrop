@@ -335,6 +335,7 @@ struct DictionaryView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(AppColors.accent)
                     .frame(width: 14, height: 14)
+                    .flipsForRightToLeftLayoutDirection(true)
 
                 Text(value)
                     .font(FontLoader.font(family: .jetbrainsMono, size: 13, weight: .regular))

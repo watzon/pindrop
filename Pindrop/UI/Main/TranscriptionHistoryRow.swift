@@ -27,6 +27,7 @@ struct TranscriptionHistoryRow: View {
 
     @State private var isHovered = false
     @State private var showingSaveSuccess = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var enhancedNamespace
 
     private var isEnhanced: Bool { record.enhancedWith != nil }
@@ -140,10 +141,18 @@ struct TranscriptionHistoryRow: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
             style: cardBorder
         )
-        .animation(AppTheme.Animation.fast, value: isHovered)
-        .animation(AppTheme.Animation.fast, value: isSelected)
+        .appAnimation(.fast, value: isHovered)
+        .appAnimation(.fast, value: isSelected)
         .onHover { hovering in isHovered = hovering }
         .onTapGesture { onTap() }
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onTap() }
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
+        .onKeyPress(.return) {
+            onTap()
+            return .handled
+        }
         .contextMenu { contextMenuItems }
         .overlay(alignment: .bottom) {
             if showingSaveSuccess {
@@ -326,12 +335,12 @@ struct TranscriptionHistoryRow: View {
     }
 
     private func flashSaveSuccess() {
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             showingSaveSuccess = true
         }
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 2_000_000_000)
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 showingSaveSuccess = false
             }
         }

@@ -550,6 +550,7 @@ struct HotkeyRecorderRow: View {
                 }
                 .buttonStyle(.plain)
                 .help(localized("Clear shortcut", locale: locale))
+                .accessibilityLabel(localized("Clear shortcut", locale: locale))
             }
         }
     }

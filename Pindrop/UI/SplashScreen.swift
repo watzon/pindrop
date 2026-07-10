@@ -5,6 +5,7 @@
 //  Splash screen shown during app initialization
 //
 
+import AppKit
 import SwiftUI
 
 // MARK: - Splash Screen State
@@ -49,6 +50,7 @@ struct SplashScreen: View {
     
     @ObservedObject var state: SplashScreenState
     @State private var isAnimating = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         ZStack {
@@ -86,7 +88,9 @@ struct SplashScreen: View {
                             .scaleEffect(isAnimating ? 1.05 : 1.0)
                     }
                     .animation(
-                        .easeInOut(duration: 1.5).repeatForever(autoreverses: true),
+                        reduceMotion
+                            ? nil
+                            : .easeInOut(duration: 1.5).repeatForever(autoreverses: true),
                         value: isAnimating
                     )
                     
@@ -204,7 +208,7 @@ final class SplashWindowController {
         }
         
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.3
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.3
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             window.animator().alphaValue = 0
         }, completionHandler: { [weak self] in

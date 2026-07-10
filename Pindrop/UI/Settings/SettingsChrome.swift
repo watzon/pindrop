@@ -19,6 +19,7 @@ struct SettingsShellView: View {
     let updateService: UpdateService
 
     @Environment(\.locale) private var locale
+    @Environment(\.layoutDirection) private var layoutDirection
 
     var body: some View {
         VStack(spacing: 0) {
@@ -78,12 +79,30 @@ struct SettingsShellView: View {
             .padding(.top, SettingsLayoutMetrics.tabTopPadding)
             .padding(.bottom, SettingsLayoutMetrics.tabBottomPadding)
             .frame(maxWidth: .infinity)
+            .onMoveCommand { direction in
+                moveTabFocus(direction)
+            }
 
             Rectangle()
                 .fill(AppColors.border)
                 .frame(height: 1)
         }
         .background(AppColors.windowBackground)
+    }
+
+    private func moveTabFocus(_ direction: MoveCommandDirection) {
+        guard direction == .left || direction == .right,
+              let currentIndex = SettingsTab.allCases.firstIndex(of: model.selectedTab)
+        else { return }
+
+        let visualStep: Int
+        switch (direction, layoutDirection) {
+        case (.right, .leftToRight), (.left, .rightToLeft): visualStep = 1
+        default: visualStep = -1
+        }
+        let tabs = SettingsTab.allCases
+        let nextIndex = min(max(currentIndex + visualStep, tabs.startIndex), tabs.index(before: tabs.endIndex))
+        model.selectedTab = tabs[nextIndex]
     }
 }
 
@@ -118,6 +137,8 @@ struct SettingsTabChip: View {
             .contentShape(RoundedRectangle(cornerRadius: SettingsLayoutMetrics.tabRadius, style: .continuous))
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: SettingsLayoutMetrics.tabRadius, style: .continuous))
+        .accessibilityLabel(tab.title(locale: locale))
         .accessibilityIdentifier(tab.accessibilityIdentifier)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
@@ -132,6 +153,7 @@ struct SettingsGroupCard<Content: View>: View {
         VStack(spacing: 0) {
             content
         }
+        .accessibilityElement(children: .contain)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: SettingsLayoutMetrics.cardRadius, style: .continuous)
@@ -195,6 +217,9 @@ struct SettingsRowLabel: View {
 
 struct SettingsToggle: View {
     @Binding var isOn: Bool
+    let label: String
+
+    @Environment(\.locale) private var locale
 
     var body: some View {
         Button {
@@ -217,9 +242,15 @@ struct SettingsToggle: View {
             }
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.fast, value: isOn)
+        .appAnimation(.fast, value: isOn)
+        .keyboardFocusRing(Capsule(style: .continuous))
+        .accessibilityLabel(label)
         .accessibilityAddTraits(.isButton)
-        .accessibilityValue(isOn ? "on" : "off")
+        .accessibilityValue(
+            isOn
+                ? localized("On", locale: locale)
+                : localized("Off", locale: locale)
+        )
     }
 }
 
@@ -364,8 +395,9 @@ struct SettingsThemePresetChip: View {
             )
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityIdentifier("settings.theme.preset.\(preset.id)")
-        .accessibilityValue(isSelected ? "selected" : "")
+        .accessibilityValue(isSelected ? localized("Selected", locale: locale) : "")
     }
 }
 

@@ -179,14 +179,20 @@ struct DictationSettingsView: View {
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Pause media during transcription", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.pauseMediaOnRecording)
+                    SettingsToggle(
+                        isOn: $settings.pauseMediaOnRecording,
+                        label: localized("Pause media during transcription", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.pauseMediaOnRecording")
                 }
 
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Mute system audio during recording", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.muteAudioDuringRecording)
+                    SettingsToggle(
+                        isOn: $settings.muteAudioDuringRecording,
+                        label: localized("Mute system audio during recording", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.muteAudioDuringRecording")
                 }
 
@@ -211,14 +217,20 @@ struct DictationSettingsView: View {
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Add trailing space", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.addTrailingSpace)
+                    SettingsToggle(
+                        isOn: $settings.addTrailingSpace,
+                        label: localized("Add trailing space", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.addTrailingSpace")
                 }
 
                 SettingsRow(showSeparator: false) {
                     SettingsRowLabel(title: localized("Learn corrected words automatically", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.automaticDictionaryLearningEnabled)
+                    SettingsToggle(
+                        isOn: $settings.automaticDictionaryLearningEnabled,
+                        label: localized("Learn corrected words automatically", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.automaticDictionaryLearningEnabled")
                 }
             }
@@ -492,6 +504,7 @@ private struct SpeakerProfilesManageSheet: View {
                             }
                             .buttonStyle(.borderless)
                             .help(localized("Rename", locale: locale))
+                            .accessibilityLabel(localized("Rename", locale: locale))
 
                             Button(role: .destructive) {
                                 onDelete(profile)
@@ -500,6 +513,7 @@ private struct SpeakerProfilesManageSheet: View {
                             }
                             .buttonStyle(.borderless)
                             .help(localized("Delete", locale: locale))
+                            .accessibilityLabel(localized("Delete", locale: locale))
                         }
                     }
                 }

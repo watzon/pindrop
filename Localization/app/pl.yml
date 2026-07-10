@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Cieplejszy, spokojniejszy wygląd stawia Twoje słowa na pierwszym miejscu. Ustawienia motywów pozostają, a nowym domyślnym motywem jest Biblioteka."
   keyboard_title: "Klawiatura wszędzie"
   keyboard_body: "Nawiguj, wyszukuj, twórz notatki, eksportuj i usuwaj bez odrywania rąk od klawiatury."
+u11:
+  recording_started: "Nagrywanie rozpoczęte"
+  recording_stopped: "Nagrywanie zatrzymane"
+  recording_processing: "Nagrywanie zatrzymane. Przetwarzanie transkrypcji."
+  transcription_complete: "Transkrypcja ukończona"
+  live_transcript: "Transkrypcja na żywo"
+  estimating_time: "Szacowanie pozostałego czasu…"
+  seconds_left: "pozostało około %d s"
+  minutes_left: "pozostało około %d min"
+  microphone_muted: "Mikrofon wyciszony"

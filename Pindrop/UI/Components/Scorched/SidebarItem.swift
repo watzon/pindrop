@@ -65,6 +65,7 @@ struct SidebarItem: View {
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .help(isCollapsed ? title : "")
         .accessibilityLabel(title)
     }

@@ -1428,3 +1428,13 @@ u10_floating:
   new_look_body: "আরও উষ্ণ, শান্ত নকশা আপনার কথাকে অগ্রাধিকার দেয়। আপনার থিম প্রিসেট থাকবে—সঙ্গে নতুন ডিফল্ট Library।"
   keyboard_title: "সবখানে কীবোর্ড"
   keyboard_body: "কীবোর্ড না ছেড়েই পৃষ্ঠা বদলান, খুঁজুন, নোট তৈরি করুন, এক্সপোর্ট ও মুছুন।"
+u11:
+  recording_started: "রেকর্ডিং শুরু হয়েছে"
+  recording_stopped: "রেকর্ডিং বন্ধ হয়েছে"
+  recording_processing: "রেকর্ডিং বন্ধ হয়েছে। ট্রান্সক্রিপশন প্রক্রিয়া করা হচ্ছে।"
+  transcription_complete: "ট্রান্সক্রিপশন সম্পূর্ণ"
+  live_transcript: "লাইভ ট্রান্সক্রিপ্ট"
+  estimating_time: "অবশিষ্ট সময় অনুমান করা হচ্ছে…"
+  seconds_left: "প্রায় %d সে বাকি"
+  minutes_left: "প্রায় %d মি বাকি"
+  microphone_muted: "মাইক্রোফোন নিঃশব্দ"

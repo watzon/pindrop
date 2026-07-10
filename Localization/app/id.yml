@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Desain yang lebih hangat dan tenang mengutamakan kata-kata Anda. Preset tema tetap tersedia, ditambah default baru: Perpustakaan."
   keyboard_title: "Papan ketik di mana saja"
   keyboard_body: "Navigasi, cari, buat catatan, ekspor, dan hapus tanpa meninggalkan papan ketik."
+u11:
+  recording_started: "Perekaman dimulai"
+  recording_stopped: "Perekaman dihentikan"
+  recording_processing: "Perekaman dihentikan. Memproses transkripsi."
+  transcription_complete: "Transkripsi selesai"
+  live_transcript: "Transkrip langsung"
+  estimating_time: "Memperkirakan waktu tersisa…"
+  seconds_left: "sekitar %d dtk lagi"
+  minutes_left: "sekitar %d mnt lagi"
+  microphone_muted: "Mikrofon dibisukan"

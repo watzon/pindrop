@@ -37,6 +37,9 @@ struct FilterChip: View {
             )
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(Capsule(style: .continuous))
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

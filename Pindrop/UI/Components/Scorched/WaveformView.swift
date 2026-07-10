@@ -63,6 +63,8 @@ struct WaveformView: View {
     var progress: Double
     var onSeek: ((Double) -> Void)?
 
+    @Environment(\.locale) private var locale
+
     var body: some View {
         GeometryReader { geo in
             let width = geo.size.width
@@ -103,6 +105,14 @@ struct WaveformView: View {
             )
         }
         .frame(height: WaveformGeometry.height)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(localized("Play", locale: locale))
+        .accessibilityValue("\(Int(min(max(progress, 0), 1) * 100))%")
+        .accessibilityAdjustableAction { direction in
+            guard let onSeek else { return }
+            let delta = direction == .increment ? 0.05 : -0.05
+            onSeek(min(max(progress + delta, 0), 1))
+        }
     }
 }
 

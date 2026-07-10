@@ -163,7 +163,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         isVisible = true
 
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.25
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.25
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().alphaValue = 1
         }
@@ -600,7 +600,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         isContextMenuOpen = false
 
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.15
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.15
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
@@ -719,7 +719,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func makeRootView(for contentView: PillIndicatorView) -> AnyView {
         AnyView(contentView
             .environment(\.locale, settingsStore.selectedAppLocale.locale)
-            .environment(\.layoutDirection, .leftToRight))
+            .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection))
     }
 
     private func size(for layoutState: LayoutState) -> CGSize {
@@ -785,7 +785,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             self.hostingView?.frame = NSRect(origin: .zero, size: contentSize)
         }
 
-        if animated {
+        if animated && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = duration
                 context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
@@ -858,6 +858,10 @@ struct PillIndicatorView: View {
             }
             .buttonStyle(.plain)
             .contentShape(Capsule())
+            .keyboardFocusRing(Capsule())
+            .accessibilityLabel(
+                localized(state.isInputMuted ? "Microphone muted" : "Start Recording", locale: locale)
+            )
 
             if controller.isHoverTooltipVisible {
                 PillHoverTooltip(
@@ -877,7 +881,7 @@ struct PillIndicatorView: View {
                 IndicatorCompletionOverlay(completion: completion)
                     .offset(y: -34)
                     .allowsHitTesting(false)
-                    .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
+                    .appAnimation(.smooth, value: state.recentCompletion)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -961,6 +965,8 @@ struct PillIndicatorView: View {
                         .frame(width: showsTranscript ? 9 : 10, height: showsTranscript ? 9 : 10)
                 }
                 .buttonStyle(.plain)
+                .keyboardFocusRing(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                .accessibilityLabel(localized("Stop Recording", locale: locale))
             }
             .padding(.horizontal, showsTranscript ? 16 : 14)
         } else {
@@ -997,7 +1003,7 @@ struct PillIndicatorView: View {
                         )
                     )
             )
-            .hairlineStroke(Capsule(), style: Color.white.opacity(0.14))
+            .hairlineStroke(Capsule(), style: AppColors.overlayLine)
             .frame(width: 44, height: 10)
             .shadow(color: Color.black.opacity(0.4), radius: 10, y: 3)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
@@ -1011,8 +1017,8 @@ struct PillIndicatorView: View {
             style: .continuous
         )
         return shape
-            .fill(Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92))
-            .hairlineStroke(shape, style: Color.white.opacity(0.12))
+            .fill(AppColors.overlaySurface)
+            .hairlineStroke(shape, style: AppColors.overlayLine)
             .shadow(color: Color.black.opacity(0.4), radius: 14, y: 4)
             .matchedGeometryEffect(id: "pillShell", in: pillShellNamespace)
     }

@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "עיצוב חם ושקט יותר שם את המילים שלכם במרכז. ערכות הנושא נשמרות, ונוספה ברירת מחדל חדשה: ספרייה."
   keyboard_title: "מקלדת בכל מקום"
   keyboard_body: "נווטו, חפשו, צרו הערות, ייצאו ומחקו בלי לעזוב את המקלדת."
+u11:
+  recording_started: "ההקלטה התחילה"
+  recording_stopped: "ההקלטה הופסקה"
+  recording_processing: "ההקלטה הופסקה. התמלול מעובד."
+  transcription_complete: "התמלול הושלם"
+  live_transcript: "תמלול חי"
+  estimating_time: "מתבצעת הערכת הזמן שנותר…"
+  seconds_left: "נותרו כ־%d שנ׳"
+  minutes_left: "נותרו כ־%d דק׳"
+  microphone_muted: "המיקרופון מושתק"

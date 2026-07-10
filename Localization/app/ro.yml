@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Un design mai cald și mai liniștit pune cuvintele pe primul loc. Presetările temei se păstrează, plus noua opțiune implicită Bibliotecă."
   keyboard_title: "Tastatură peste tot"
   keyboard_body: "Navigați, căutați, creați note, exportați și ștergeți fără să părăsiți tastatura."
+u11:
+  recording_started: "Înregistrare pornită"
+  recording_stopped: "Înregistrare oprită"
+  recording_processing: "Înregistrare oprită. Se procesează transcrierea."
+  transcription_complete: "Transcriere finalizată"
+  live_transcript: "Transcriere în direct"
+  estimating_time: "Se estimează timpul rămas…"
+  seconds_left: "aproximativ %d s rămase"
+  minutes_left: "aproximativ %d min rămase"
+  microphone_muted: "Microfon dezactivat"

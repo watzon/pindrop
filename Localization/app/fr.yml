@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Un design plus chaleureux et plus calme donne la priorité à vos mots. Vos thèmes sont conservés, avec un nouveau choix par défaut : Bibliothèque."
   keyboard_title: "Le clavier partout"
   keyboard_body: "Naviguez, recherchez, créez des notes, exportez et supprimez sans quitter le clavier."
+u11:
+  recording_started: "Enregistrement démarré"
+  recording_stopped: "Enregistrement arrêté"
+  recording_processing: "Enregistrement arrêté. Traitement de la transcription."
+  transcription_complete: "Transcription terminée"
+  live_transcript: "Transcription en direct"
+  estimating_time: "Estimation du temps restant…"
+  seconds_left: "environ %d s restantes"
+  minutes_left: "environ %d min restantes"
+  microphone_muted: "Microphone coupé"

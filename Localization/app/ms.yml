@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Reka bentuk yang lebih mesra dan tenang mengutamakan kata-kata anda. Pratetap tema dikekalkan, dengan lalai baharu: Pustaka."
   keyboard_title: "Papan kekunci di mana-mana"
   keyboard_body: "Navigasi, cari, cipta nota, eksport dan padam tanpa meninggalkan papan kekunci."
+u11:
+  recording_started: "Rakaman dimulakan"
+  recording_stopped: "Rakaman dihentikan"
+  recording_processing: "Rakaman dihentikan. Memproses transkripsi."
+  transcription_complete: "Transkripsi selesai"
+  live_transcript: "Transkrip langsung"
+  estimating_time: "Menganggarkan baki masa…"
+  seconds_left: "kira-kira %d saat lagi"
+  minutes_left: "kira-kira %d min lagi"
+  microphone_muted: "Mikrofon dibisukan"

@@ -238,11 +238,14 @@ enum LibraryKindPresentation {
         }
     }
 
-    static func destinationPill(appName: String?) -> String? {
+    static func destinationPill(
+        appName: String?,
+        layoutDirection: LayoutDirection = .leftToRight
+    ) -> String? {
         guard let appName, !appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
-        return "→ \(appName)"
+        return layoutDirection == .rightToLeft ? "\(appName) ←" : "→ \(appName)"
     }
 
     static func insertedIntoCaption(appName: String?, locale: Locale) -> String? {

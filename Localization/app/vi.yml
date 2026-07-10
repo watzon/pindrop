@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Thiết kế ấm áp và yên tĩnh hơn đặt lời của bạn lên trước. Các cài đặt chủ đề được giữ lại, cùng mặc định mới là Thư viện."
   keyboard_title: "Bàn phím ở mọi nơi"
   keyboard_body: "Điều hướng, tìm kiếm, tạo ghi chú, xuất và xóa mà không rời bàn phím."
+u11:
+  recording_started: "Đã bắt đầu ghi âm"
+  recording_stopped: "Đã dừng ghi âm"
+  recording_processing: "Đã dừng ghi âm. Đang xử lý bản chép lời."
+  transcription_complete: "Đã chép lời xong"
+  live_transcript: "Bản chép lời trực tiếp"
+  estimating_time: "Đang ước tính thời gian còn lại…"
+  seconds_left: "còn khoảng %d giây"
+  minutes_left: "còn khoảng %d phút"
+  microphone_muted: "Micrô đã tắt tiếng"

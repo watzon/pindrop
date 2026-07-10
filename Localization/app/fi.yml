@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Lämpimämpi ja rauhallisempi ulkoasu nostaa sanasi etusijalle. Teema-asetuksesi säilyvät, ja uusi oletus on Kirjasto."
   keyboard_title: "Näppäimistö kaikkialla"
   keyboard_body: "Selaa, hae, luo muistiinpanoja, vie ja poista irrottamatta käsiä näppäimistöltä."
+u11:
+  recording_started: "Tallennus aloitettu"
+  recording_stopped: "Tallennus lopetettu"
+  recording_processing: "Tallennus lopetettu. Litterointia käsitellään."
+  transcription_complete: "Litterointi valmis"
+  live_transcript: "Reaaliaikainen litterointi"
+  estimating_time: "Arvioidaan jäljellä olevaa aikaa…"
+  seconds_left: "noin %d s jäljellä"
+  minutes_left: "noin %d min jäljellä"
+  microphone_muted: "Mikrofoni mykistetty"

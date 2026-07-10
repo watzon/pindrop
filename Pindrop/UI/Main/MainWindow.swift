@@ -270,6 +270,7 @@ struct MainWindow: View {
 
 private struct MainSidebar: View {
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var isExpanded: Bool
     let position: SidebarPosition
     let selectedNav: MainNavItem
@@ -362,7 +363,7 @@ private struct MainSidebar: View {
             .environment(\.layoutDirection, .leftToRight)
             .allowsHitTesting(false)
         }
-        .animation(AppTheme.Animation.smooth, value: isExpanded)
+        .appAnimation(.smooth, value: isExpanded)
     }
 
     // MARK: - App Header
@@ -463,6 +464,7 @@ private struct MainSidebar: View {
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(localized("Settings", locale: locale))
         .help(localized("Settings", locale: locale))
         .onHover { hovering in isSettingsHovered = hovering }
     }
@@ -472,7 +474,7 @@ private struct MainSidebar: View {
             ? (isExpanded ? "sidebar.right" : "sidebar.left")
             : (isExpanded ? "sidebar.left" : "sidebar.right")
         return Button {
-            withAnimation(AppTheme.Animation.smooth) {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.smooth) {
                 isExpanded.toggle()
             }
         } label: {
@@ -507,6 +509,7 @@ private struct MainSidebar: View {
             .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(localized("Collapse", locale: locale))
         .help(localized("Collapse", locale: locale))
         .onHover { hovering in isCollapseHovered = hovering }
     }

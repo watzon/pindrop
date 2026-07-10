@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "En varmare och lugnare design sätter dina ord främst. Dina temaförval följer med, plus den nya standarden Bibliotek."
   keyboard_title: "Tangentbord överallt"
   keyboard_body: "Navigera, sök, skapa anteckningar, exportera och radera utan att lämna tangentbordet."
+u11:
+  recording_started: "Inspelning startad"
+  recording_stopped: "Inspelning stoppad"
+  recording_processing: "Inspelning stoppad. Bearbetar transkribering."
+  transcription_complete: "Transkribering klar"
+  live_transcript: "Live-transkribering"
+  estimating_time: "Beräknar återstående tid…"
+  seconds_left: "cirka %d s kvar"
+  minutes_left: "cirka %d min kvar"
+  microphone_muted: "Mikrofon avstängd"

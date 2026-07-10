@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Ein wärmeres, ruhigeres Design stellt deine Worte in den Mittelpunkt. Deine Designvorgaben bleiben erhalten — plus der neue Standard Bibliothek."
   keyboard_title: "Tastatur überall"
   keyboard_body: "Navigiere, suche, erstelle Notizen, exportiere und lösche, ohne die Tastatur zu verlassen."
+u11:
+  recording_started: "Aufnahme gestartet"
+  recording_stopped: "Aufnahme gestoppt"
+  recording_processing: "Aufnahme gestoppt. Transkription wird verarbeitet."
+  transcription_complete: "Transkription abgeschlossen"
+  live_transcript: "Live-Transkript"
+  estimating_time: "Verbleibende Zeit wird geschätzt…"
+  seconds_left: "noch etwa %d Sek."
+  minutes_left: "noch etwa %d Min."
+  microphone_muted: "Mikrofon stummgeschaltet"

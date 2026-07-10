@@ -120,10 +120,18 @@ struct NoteHistoryRow: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous),
             style: cardBorder
         )
-        .animation(AppTheme.Animation.fast, value: isHovered)
-        .animation(AppTheme.Animation.fast, value: isSelected)
+        .appAnimation(.fast, value: isHovered)
+        .appAnimation(.fast, value: isSelected)
         .onHover { hovering in isHovered = hovering }
         .onTapGesture { onTap() }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onTap() }
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
+        .onKeyPress(.return) {
+            onTap()
+            return .handled
+        }
         .contextMenu {
             Button {
                 onTap()

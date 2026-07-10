@@ -243,6 +243,31 @@ struct LiveTranscriptView: View {
             }
         }
         .allowsHitTesting(false)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(localized("Live transcript", locale: locale))
+        .accessibilityValue(
+            transcript.displayText.isEmpty
+                ? localized("Listening…", locale: locale)
+                : transcript.displayText
+        )
+        // AppKit's announcement notification is the macOS live-region equivalent.
+        // Announce only committed chunks; tentative token churn would overwhelm VoiceOver.
+        .onChange(of: transcript.committedText) { _, committedText in
+            announceCommittedTranscript(committedText)
+        }
+    }
+
+    private func announceCommittedTranscript(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        NSAccessibility.post(
+            element: NSApp as Any,
+            notification: .announcementRequested,
+            userInfo: [
+                .announcement: trimmed,
+                .priority: NSAccessibilityPriorityLevel.medium.rawValue,
+            ]
+        )
     }
 }
 
@@ -290,10 +315,14 @@ struct FloatingIndicatorWaveformView: View {
     let isRecording: Bool
     let style: FloatingIndicatorWaveformStyle
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         switch style.layout {
         case .fixed(let count, let heightScale):
-            TimelineView(.animation(minimumInterval: style.animationInterval)) { timeline in
+            // Audio level remains reactive through @Published updates. Reduce Motion only
+            // freezes the decorative phase wobble driven by the timeline.
+            TimelineView(.animation(minimumInterval: style.animationInterval, paused: reduceMotion)) { timeline in
                 HStack(spacing: style.barSpacing) {
                     ForEach(0..<count, id: \.self) { index in
                         RoundedRectangle(cornerRadius: style.barWidth / 2)
@@ -313,7 +342,7 @@ struct FloatingIndicatorWaveformView: View {
 
         case .dynamic(let minimumCount, _):
             GeometryReader { proxy in
-                TimelineView(.animation(minimumInterval: style.animationInterval)) { timeline in
+                TimelineView(.animation(minimumInterval: style.animationInterval, paused: reduceMotion)) { timeline in
                     let barCount = max(
                         minimumCount,
                         Int((proxy.size.width + style.barSpacing) / (style.barWidth + style.barSpacing))
@@ -479,21 +508,41 @@ final class FloatingIndicatorState: ObservableObject {
         recordingStartTime = Date()
         recordingDuration = 0
         startDurationTimer()
+        announce(localized("Recording started", locale: AppLocale.currentSelection().locale))
     }
 
     func transitionToProcessing() {
         isRecording = false
         isProcessing = true
         stopDurationTimer()
+        announce(localized("Recording stopped. Processing transcription.", locale: AppLocale.currentSelection().locale))
     }
 
     func finishSession() {
+        let wasRecording = isRecording
+        let wasProcessing = isProcessing
         isRecording = false
         isProcessing = false
         recordingDuration = 0
         audioLevel = 0
         clearEscapePrimed()
         stopDurationTimer()
+        if wasRecording {
+            announce(localized("Recording stopped", locale: AppLocale.currentSelection().locale))
+        } else if wasProcessing {
+            announce(localized("Transcription complete", locale: AppLocale.currentSelection().locale))
+        }
+    }
+
+    private func announce(_ message: String) {
+        NSAccessibility.post(
+            element: NSApp as Any,
+            notification: .announcementRequested,
+            userInfo: [
+                .announcement: message,
+                .priority: NSAccessibilityPriorityLevel.high.rawValue,
+            ]
+        )
     }
 
     func updateAudioLevel(_ level: Float) {

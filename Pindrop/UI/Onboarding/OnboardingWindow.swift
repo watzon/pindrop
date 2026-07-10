@@ -58,12 +58,19 @@ struct OnboardingPrimaryButton: View {
     var icon: Icon?
     let action: () -> Void
 
+    @Environment(\.layoutDirection) private var layoutDirection
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Text(title)
                 if let icon {
                     IconView(icon: icon, size: 13)
+                        .scaleEffect(
+                            x: icon.rawValue == Icon.arrowRight.rawValue && layoutDirection == .rightToLeft
+                                ? -1
+                                : 1
+                        )
                 }
             }
             .font(OnboardingType.primaryButton)
@@ -74,6 +81,7 @@ struct OnboardingPrimaryButton: View {
             .contentShape(.rect(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 
@@ -86,6 +94,7 @@ struct OnboardingGhostButton: View {
             .buttonStyle(.plain)
             .font(OnboardingType.ghostButton)
             .foregroundStyle(AppColors.textSecondary)
+            .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 
@@ -98,6 +107,8 @@ struct OnboardingWindow: View {
     let onPreferredContentSizeChange: (CGSize) -> Void
     
     @State private var currentStep: OnboardingStep = .welcome
+    @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedModelName: String = "openai_whisper-base"
     @State private var direction: Int = 1
     
@@ -134,12 +145,14 @@ struct OnboardingWindow: View {
                     Button(action: goBack) {
                         HStack(spacing: 4) {
                             IconView(icon: .chevronLeft, size: 14)
+                                .scaleEffect(x: layoutDirection == .rightToLeft ? -1 : 1)
                             Text(localized("Back", locale: settings.selectedAppLocale.locale))
                         }
                         .font(AppTypography.label)
                         .foregroundStyle(AppColors.textSecondary)
                     }
                     .buttonStyle(.plain)
+                    .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
             }
 
@@ -177,7 +190,7 @@ struct OnboardingWindow: View {
         Capsule()
             .fill(isActive ? AppColors.accent : AppColors.border)
             .frame(width: isActive ? 18 : 6, height: 6)
-            .animation(AppTheme.Animation.fast, value: currentStep)
+            .appAnimation(.fast, value: currentStep)
     }
     
     @ViewBuilder
@@ -186,10 +199,7 @@ struct OnboardingWindow: View {
             switch currentStep {
             case .welcome:
                 WelcomeStepView(onContinue: { goToStep(.modelSelection) })
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .trailing).combined(with: .opacity),
-                        removal: .move(edge: .leading).combined(with: .opacity)
-                    ))
+                    .transition(stepTransition)
                 
             case .modelSelection:
                 ModelSelectionStepView(
@@ -197,10 +207,7 @@ struct OnboardingWindow: View {
                     selectedModelName: $selectedModelName,
                     onContinue: { startModelDownload() }
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: direction > 0 ? .trailing : .leading).combined(with: .opacity),
-                    removal: .move(edge: direction > 0 ? .leading : .trailing).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
                 
             case .modelDownload:
                 ModelDownloadStepView(
@@ -210,10 +217,7 @@ struct OnboardingWindow: View {
                     onComplete: { goToStep(.aiEnhancement) },
                     onCancel: { goToStep(.modelSelection, direction: -1) }
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .move(edge: .leading).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
                 
             case .aiEnhancement:
                 AIEnhancementStepView(
@@ -224,20 +228,14 @@ struct OnboardingWindow: View {
                         onPreferredContentSizeChange(size)
                     }
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: direction > 0 ? .trailing : .leading).combined(with: .opacity),
-                    removal: .move(edge: direction > 0 ? .leading : .trailing).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
                 
             case .permissions:
                 PermissionsStepView(
                     permissionManager: permissionManager,
                     onContinue: { goToStep(.hotkeySetup) }
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: direction > 0 ? .trailing : .leading).combined(with: .opacity),
-                    removal: .move(edge: direction > 0 ? .leading : .trailing).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
                 
             case .hotkeySetup:
                 HotkeySetupStepView(
@@ -245,10 +243,7 @@ struct OnboardingWindow: View {
                     onContinue: { goToStep(.ready) },
                     onSkip: { goToStep(.ready) }
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: direction > 0 ? .trailing : .leading).combined(with: .opacity),
-                    removal: .move(edge: direction > 0 ? .leading : .trailing).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
                 
             case .ready:
                 ReadyStepView(
@@ -257,19 +252,28 @@ struct OnboardingWindow: View {
                     selectedModelName: selectedModelName,
                     onComplete: completeOnboarding
                 )
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .move(edge: .leading).combined(with: .opacity)
-                ))
+                .transition(stepTransition)
             }
         }
-        .animation(.spring(duration: 0.4, bounce: 0.2), value: currentStep)
+        .animation(reduceMotion ? nil : AppTheme.Animation.smooth, value: currentStep)
+    }
+
+    private var stepTransition: AnyTransition {
+        guard !reduceMotion else { return .opacity }
+        let localeForward: Edge = layoutDirection == .rightToLeft ? .leading : .trailing
+        let localeBackward: Edge = layoutDirection == .rightToLeft ? .trailing : .leading
+        let insertion = direction > 0 ? localeForward : localeBackward
+        let removal = direction > 0 ? localeBackward : localeForward
+        return .asymmetric(
+            insertion: .move(edge: insertion).combined(with: .opacity),
+            removal: .move(edge: removal).combined(with: .opacity)
+        )
     }
     
     private func goToStep(_ step: OnboardingStep, direction: Int = 1) {
         Log.boot.info("Onboarding goToStep -> \(step.title) direction=\(direction)")
         self.direction = direction
-        withAnimation {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.smooth) {
             currentStep = step
             settings.currentOnboardingStep = step.rawValue
         }

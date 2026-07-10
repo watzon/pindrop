@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "Een warmer en rustiger ontwerp zet je woorden voorop. Je themavoorinstellingen blijven behouden, met een nieuwe standaard: Bibliotheek."
   keyboard_title: "Toetsenbord overal"
   keyboard_body: "Navigeer, zoek, maak notities, exporteer en verwijder zonder het toetsenbord te verlaten."
+u11:
+  recording_started: "Opname gestart"
+  recording_stopped: "Opname gestopt"
+  recording_processing: "Opname gestopt. Transcriptie wordt verwerkt."
+  transcription_complete: "Transcriptie voltooid"
+  live_transcript: "Live transcript"
+  estimating_time: "Resterende tijd wordt geschat…"
+  seconds_left: "nog ongeveer %d sec."
+  minutes_left: "nog ongeveer %d min."
+  microphone_muted: "Microfoon gedempt"

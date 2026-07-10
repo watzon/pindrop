@@ -185,6 +185,7 @@ private struct AnnouncementCreditView: View {
 @MainActor
 private struct AnnouncementOrbDemoView: View {
     @StateObject private var state = FloatingIndicatorState()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let timer = Timer.publish(every: 1.0 / 24.0, on: .main, in: .common).autoconnect()
 
@@ -213,7 +214,9 @@ private struct AnnouncementOrbDemoView: View {
         }
         .shadow(color: OrbPalette.bandMid.opacity(0.30), radius: 12, x: 0, y: 4)
         .onReceive(timer) { date in
-            updateSyntheticLevels(at: date)
+            if !reduceMotion {
+                updateSyntheticLevels(at: date)
+            }
         }
         .onDisappear {
             state.updateAudioLevel(0)

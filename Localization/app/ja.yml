@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "より温かく静かなデザインで、言葉を主役にしました。テーマ設定は引き継がれ、新しいデフォルトの「ライブラリ」が加わります。"
   keyboard_title: "どこでもキーボード"
   keyboard_body: "キーボードから手を離さずに、移動、検索、ノート作成、書き出し、削除ができます。"
+u11:
+  recording_started: "録音を開始しました"
+  recording_stopped: "録音を停止しました"
+  recording_processing: "録音を停止しました。文字起こしを処理中です。"
+  transcription_complete: "文字起こしが完了しました"
+  live_transcript: "ライブ文字起こし"
+  estimating_time: "残り時間を計算中…"
+  seconds_left: "残り約%d秒"
+  minutes_left: "残り約%d分"
+  microphone_muted: "マイクはミュートされています"

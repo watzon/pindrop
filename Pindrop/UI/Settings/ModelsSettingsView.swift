@@ -230,6 +230,21 @@ struct ModelsSettingsView: View {
                 )
         )
         .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(isDownloaded && !isActive ? .isButton : [])
+        .accessibilityAction {
+            if isDownloaded && !isActive && !isComingSoon && !isSwitching {
+                switchModel(model)
+            }
+        }
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .onKeyPress(.return) {
+            guard isDownloaded && !isActive && !isComingSoon && !isSwitching else {
+                return .ignored
+            }
+            switchModel(model)
+            return .handled
+        }
         .onTapGesture {
             if isDownloaded && !isActive && !isComingSoon && !isSwitching {
                 switchModel(model)
@@ -288,6 +303,7 @@ struct ModelsSettingsView: View {
             )
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     // MARK: - ON-DEVICE HELPERS
@@ -359,6 +375,7 @@ struct ModelsSettingsView: View {
                     .toggleStyle(.switch)
                     .controlSize(.mini)
                     .labelsHidden()
+                    .accessibilityLabel(feature.displayName)
                 } else {
                     downloadButton { downloadFeatureModel(feature) }
                 }
@@ -377,6 +394,7 @@ struct ModelsSettingsView: View {
                     lineWidth: 1
                 )
         )
+        .accessibilityElement(children: .contain)
     }
 
     private var privacyFootnote: some View {

@@ -144,6 +144,7 @@ struct NoteEditorView: View {
     @ObservedObject private var appendListeningState = NoteAppendListeningCoordinator.shared.state
 
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var titleFieldFocused: Bool
     @FocusState private var contentFieldFocused: Bool
 
@@ -277,6 +278,11 @@ struct NoteEditorView: View {
             .help(isPinned
                   ? localized("Unpin from screen", locale: locale)
                   : localized("Pin to screen (always on top)", locale: locale))
+            .accessibilityLabel(
+                isPinned
+                    ? localized("Unpin from screen", locale: locale)
+                    : localized("Pin to screen (always on top)", locale: locale)
+            )
         }
         .padding(.horizontal, 24)
         .frame(height: 46)
@@ -298,6 +304,11 @@ struct NoteEditorView: View {
         }
         .buttonStyle(.plain)
         .help(
+            isThisEditorListening
+                ? localized("Stop listening", locale: locale)
+                : localized("Speak to append", locale: locale)
+        )
+        .accessibilityLabel(
             isThisEditorListening
                 ? localized("Stop listening", locale: locale)
                 : localized("Speak to append", locale: locale)
@@ -430,7 +441,7 @@ struct NoteEditorView: View {
                 .frame(width: 0, height: 0)
                 .allowsHitTesting(false)
         }
-        .animation(AppTheme.Animation.fast, value: showSavedConfirmation)
+        .appAnimation(.fast, value: showSavedConfirmation)
     }
 
     // MARK: - Actions
@@ -499,14 +510,14 @@ struct NoteEditorView: View {
 
     private func showSavedFlash() {
         savedConfirmationTask?.cancel()
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             showSavedConfirmation = true
         }
         savedConfirmationTask = Task {
             try? await Task.sleep(for: .seconds(1.5))
             guard !Task.isCancelled else { return }
             await MainActor.run {
-                withAnimation(AppTheme.Animation.fast) {
+                withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                     showSavedConfirmation = false
                 }
             }
@@ -557,6 +568,8 @@ struct TagChip: View {
     let tag: String
     let onRemove: () -> Void
 
+    @Environment(\.locale) private var locale
+
     var body: some View {
         HStack(spacing: 4) {
             Text(tag)
@@ -569,6 +582,7 @@ struct TagChip: View {
                     .foregroundStyle(AppColors.textTertiary)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(localized("Remove", locale: locale))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)

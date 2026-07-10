@@ -1420,3 +1420,13 @@ u10_floating:
   new_look_body: "A melegebb, nyugodtabb kialakítás a szavait helyezi előtérbe. A téma-beállítások megmaradnak, és új alapértelmezett téma érkezik: Könyvtár."
   keyboard_title: "Billentyűzet mindenütt"
   keyboard_body: "Navigáljon, keressen, hozzon létre jegyzeteket, exportáljon és töröljön a billentyűzet elhagyása nélkül."
+u11:
+  recording_started: "Felvétel elindítva"
+  recording_stopped: "Felvétel leállítva"
+  recording_processing: "Felvétel leállítva. Az átirat feldolgozása folyamatban."
+  transcription_complete: "Átirat kész"
+  live_transcript: "Élő átirat"
+  estimating_time: "Hátralévő idő becslése…"
+  seconds_left: "még kb. %d mp"
+  minutes_left: "még kb. %d perc"
+  microphone_muted: "Mikrofon némítva"

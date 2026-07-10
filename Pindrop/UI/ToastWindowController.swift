@@ -25,6 +25,10 @@ private enum ToastMetrics {
     static let shadowMargin: CGFloat = 20
 }
 
+private var shouldReduceToastMotion: Bool {
+    NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+}
+
 private final class ToastPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
@@ -96,7 +100,7 @@ final class ToastWindowController: ToastPresenting {
             self.hostingView = hostingView
 
             NSAnimationContext.runAnimationGroup { context in
-                context.duration = ToastMetrics.showDuration
+                context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.showDuration
                 context.timingFunction = CAMediaTimingFunction(name: .easeOut)
                 panel.animator().alphaValue = 1
             }
@@ -112,7 +116,7 @@ final class ToastWindowController: ToastPresenting {
         panel?.orderFrontRegardless()
 
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = ToastMetrics.showDuration
+            context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.showDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel?.animator().alphaValue = 1
         }
@@ -123,7 +127,7 @@ final class ToastWindowController: ToastPresenting {
         let closingPanel = panel
 
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = ToastMetrics.hideDuration
+            context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             closingPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
@@ -199,7 +203,7 @@ final class ToastWindowController: ToastPresenting {
             )
 
             NSAnimationContext.runAnimationGroup { context in
-                context.duration = ToastMetrics.showDuration
+                context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.showDuration
                 context.timingFunction = CAMediaTimingFunction(name: .easeOut)
                 panel.animator().setFrame(frame, display: true)
             }
@@ -266,7 +270,7 @@ private struct ToastView: View {
         .frame(maxWidth: ToastMetrics.maxWidth)
         .background(
             RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous)
-                .fill(Color(nsColor: NSColor(pindropHex: "#201D18") ?? .black))
+                .fill(AppColors.overlaySurface)
         )
         .clipShape(RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous))
         .background {
@@ -358,6 +362,7 @@ private struct ToastView: View {
 
 private struct ToastTimerBorderView: View {
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private struct TimerState {
         let duration: TimeInterval
@@ -402,7 +407,7 @@ private struct ToastTimerBorderView: View {
                 .stroke(AppColors.border, lineWidth: hairlineWidth)
 
             if hasTimer {
-                TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { context in
+                TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused || reduceMotion)) { context in
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                         .trim(from: 0, to: timerState?.progress(at: context.date) ?? 1)
                         .stroke(
@@ -468,7 +473,7 @@ private struct ToastActionButtonStyle: ButtonStyle {
         configuration.label
             .font(FontLoader.font(family: .inter, size: 12, weight: .semibold))
             .foregroundStyle(foregroundColor(isPressed: configuration.isPressed))
-            .animation(AppTheme.Animation.fast, value: configuration.isPressed)
+            .appAnimation(.fast, value: configuration.isPressed)
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {

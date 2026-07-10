@@ -14,6 +14,8 @@ import UniformTypeIdentifiers
 struct HistoryView: View {
     @Environment(\.locale) private var locale
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
 
     var mediaTranscriptionState: MediaTranscriptionFeatureState?
     var settingsStore: SettingsStore?
@@ -268,7 +270,7 @@ struct HistoryView: View {
                     title: chip.title(locale: locale),
                     isSelected: selectedFilter == chip
                 ) {
-                    withAnimation(AppTheme.Animation.fast) {
+                    withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                         selectedFilter = chip
                         expandedTranscriptionID = nil
                     }
@@ -551,7 +553,10 @@ struct HistoryView: View {
             timeText: Self.rowTimeFormatter.string(from: record.timestamp),
             preview: preview,
             previewMeta: previewMeta,
-            destination: LibraryKindPresentation.destinationPill(appName: record.destinationAppName),
+            destination: LibraryKindPresentation.destinationPill(
+                appName: record.destinationAppName,
+                layoutDirection: layoutDirection
+            ),
             icon: {
                 Image(systemName: LibraryKindPresentation.systemImage(for: kind))
                     .font(.system(size: 13))
@@ -592,7 +597,7 @@ struct HistoryView: View {
     }
 
     private func toggleExpansion(for record: TranscriptionRecord) {
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             if expandedTranscriptionID == record.persistentModelID {
                 expandedTranscriptionID = nil
             } else {
@@ -965,7 +970,7 @@ struct HistoryView: View {
             count: records.count,
             delta: delta
         ) else { return }
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             selectedTranscriptionID = records[nextIndex].persistentModelID
         }
     }
@@ -982,13 +987,13 @@ struct HistoryView: View {
     @discardableResult
     private func clearOrCollapseSelection() -> Bool {
         if expandedTranscriptionID != nil {
-            withAnimation(AppTheme.Animation.fast) {
+            withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
                 expandedTranscriptionID = nil
             }
             return true
         }
         guard selectedTranscriptionID != nil else { return false }
-        withAnimation(AppTheme.Animation.fast) {
+        withAnimation(reduceMotion ? nil : AppTheme.Animation.fast) {
             selectedTranscriptionID = nil
         }
         return true

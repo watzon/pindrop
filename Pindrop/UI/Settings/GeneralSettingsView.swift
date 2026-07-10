@@ -24,14 +24,20 @@ struct GeneralSettingsView: View {
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Launch at Login", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: launchAtLoginBinding)
+                    SettingsToggle(
+                        isOn: launchAtLoginBinding,
+                        label: localized("Launch at Login", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.launchAtLogin")
                 }
 
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Show in Dock", locale: locale))
                 } control: {
-                    SettingsToggle(isOn: $settings.showInDock)
+                    SettingsToggle(
+                        isOn: $settings.showInDock,
+                        label: localized("Show in Dock", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.showInDock")
                 }
 
@@ -64,7 +70,10 @@ struct GeneralSettingsView: View {
                         )
                     )
                 } control: {
-                    SettingsToggle(isOn: $automaticallyCheckForUpdates)
+                    SettingsToggle(
+                        isOn: $automaticallyCheckForUpdates,
+                        label: localized("Automatically check for updates", locale: locale)
+                    )
                         .accessibilityIdentifier("settings.toggle.automaticUpdates")
                         .onChange(of: automaticallyCheckForUpdates) { _, newValue in
                             updateService.automaticallyChecksForUpdates = newValue

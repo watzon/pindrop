@@ -118,6 +118,7 @@ struct ModelCard: View {
             .contentShape(.rect(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .keyboardFocusRing(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var modelDescription: String {

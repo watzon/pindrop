@@ -14,8 +14,21 @@ final class PindropThemeController: ObservableObject {
 
     @Published private(set) var revision = 0
 
+    private var displayOptionsObserver: NSObjectProtocol?
+
     private init() {
+        AccessibilityDisplayOptionsCache.current = .systemCurrent
         applyAppAppearance()
+        displayOptionsObserver = NotificationCenter.default.addObserver(
+            forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                AccessibilityDisplayOptionsCache.current = .systemCurrent
+                self?.refresh()
+            }
+        }
     }
 
     func refresh() {
@@ -90,11 +103,47 @@ enum AppTheme {
     }
 
     enum Animation {
+        enum Token {
+            case fast
+            case normal
+            case smooth
+            case bouncy
+        }
+
         static let fast: SwiftUI.Animation = .easeOut(duration: 0.16)
         static let normal: SwiftUI.Animation = .easeInOut(duration: 0.24)
         static let smooth: SwiftUI.Animation = .spring(response: 0.38, dampingFraction: 0.84)
         static let bouncy: SwiftUI.Animation = .spring(response: 0.45, dampingFraction: 0.74)
+
+        static func resolved(_ token: Token) -> SwiftUI.Animation {
+            switch token {
+            case .fast: fast
+            case .normal: normal
+            case .smooth: smooth
+            case .bouncy: bouncy
+            }
+        }
     }
+}
+
+struct AccessibilityDisplayOptions: Equatable, Sendable {
+    var increaseContrast = false
+    var reduceTransparency = false
+
+    @MainActor
+    static var systemCurrent: AccessibilityDisplayOptions {
+        AccessibilityDisplayOptions(
+            increaseContrast: NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast,
+            reduceTransparency: NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+        )
+    }
+}
+
+private enum AccessibilityDisplayOptionsCache {
+    // NSColor's dynamic-provider closure is nonisolated. Updates are serialized by the
+    // main-actor theme controller; reads copy this two-Boolean value atomically enough
+    // for display preference resolution.
+    nonisolated(unsafe) static var current = AccessibilityDisplayOptions()
 }
 
 struct ShadowStyle {
@@ -161,7 +210,11 @@ enum AppColors {
         let storageKey = isDark ? PindropThemeStorageKeys.darkThemePresetID : PindropThemeStorageKeys.lightThemePresetID
         let presetID = UserDefaults.standard.string(forKey: storageKey)
         let profile = PindropThemePresetCatalog.profile(for: presetID, variant: variant)
-        return ResolvedPalette(profile: profile, isDark: isDark)
+        return ResolvedPalette(
+            profile: profile,
+            isDark: isDark,
+            displayOptions: AccessibilityDisplayOptionsCache.current
+        )
     }
 
     private static func isDark(_ appearance: NSAppearance) -> Bool {
@@ -384,15 +437,24 @@ struct ResolvedPalette {
     /// Whether WCAG clamping adjusted ink-2 / ink-3 for this palette.
     let didClampTextColors: Bool
 
-    init(profile: PindropThemeProfile, isDark: Bool) {
-        let resolved = Self.resolve(profile: profile, isDark: isDark)
+    init(
+        profile: PindropThemeProfile,
+        isDark: Bool,
+        displayOptions: AccessibilityDisplayOptions = AccessibilityDisplayOptions()
+    ) {
+        let resolved = Self.resolve(
+            profile: profile,
+            isDark: isDark,
+            displayOptions: displayOptions
+        )
         self = resolved.palette
     }
 
     /// Pure resolution entry used by tests — returns palette + clamp flag + optional log message.
     static func resolve(
         profile: PindropThemeProfile,
-        isDark: Bool
+        isDark: Bool,
+        displayOptions: AccessibilityDisplayOptions = AccessibilityDisplayOptions()
     ) -> (palette: ResolvedPalette, didClamp: Bool) {
         let ground = NSColor(pindropHex: profile.groundHex)
             ?? (isDark
@@ -413,7 +475,10 @@ struct ResolvedPalette {
         let ink = NSColor(pindropHex: inkHex) ?? (isDark ? .white : .black)
         var ink2 = NSColor(pindropHex: ink2Hex) ?? ink.withAlphaComponent(0.72)
         var ink3 = NSColor(pindropHex: ink3Hex) ?? ink.withAlphaComponent(0.48)
-        let line = NSColor(pindropHex: lineHex) ?? ink.withAlphaComponent(0.12)
+        let baseLine = NSColor(pindropHex: lineHex) ?? ink.withAlphaComponent(0.12)
+        let line = displayOptions.increaseContrast
+            ? baseLine.mixed(with: ink, ratio: isDark ? 0.34 : 0.28)
+            : baseLine
 
         // WCAG clamp ink-2 / ink-3 against ground + page (≥4.5:1 for normal text roles).
         let grounds = [ground, page]
@@ -468,7 +533,9 @@ struct ResolvedPalette {
             contentBackground: page,
             surfaceBackground: ground,
             elevatedSurface: page,
-            mutedSurface: line.withAlphaComponent(isDark ? 0.45 : 0.55),
+            mutedSurface: line.withAlphaComponent(
+                displayOptions.reduceTransparency ? 1 : (isDark ? 0.45 : 0.55)
+            ),
             inputBackground: ground,
             inputBorder: line,
             inputBorderFocused: accentBase,
@@ -490,9 +557,21 @@ struct ResolvedPalette {
             processing: accentBase,
             sidebarItemHover: ink.withAlphaComponent(isDark ? 0.06 : 0.04),
             sidebarItemActive: page,
-            overlaySurface: isDark ? ground.darker(by: 0.12) : ground.darker(by: 0.82),
-            overlaySurfaceStrong: isDark ? ground.darker(by: 0.22) : ground.darker(by: 0.9),
-            overlayLine: isDark ? line : NSColor.white.withAlphaComponent(0.14),
+            overlaySurface: Self.overlaySurface(
+                ground: ground,
+                isDark: isDark,
+                reduceTransparency: displayOptions.reduceTransparency,
+                strong: false
+            ),
+            overlaySurfaceStrong: Self.overlaySurface(
+                ground: ground,
+                isDark: isDark,
+                reduceTransparency: displayOptions.reduceTransparency,
+                strong: true
+            ),
+            overlayLine: displayOptions.increaseContrast
+                ? NSColor.white.withAlphaComponent(0.34)
+                : (isDark ? line : NSColor.white.withAlphaComponent(0.14)),
             overlayTextPrimary: NSColor.white.withAlphaComponent(0.96),
             overlayTextSecondary: NSColor.white.withAlphaComponent(0.74),
             overlayWaveform: accentBase.mixed(with: NSColor.white, ratio: isDark ? 0.24 : 0.42),
@@ -503,6 +582,21 @@ struct ResolvedPalette {
             didClampTextColors: didClamp
         )
         return (palette, didClamp)
+    }
+
+    private static func overlaySurface(
+        ground: NSColor,
+        isDark: Bool,
+        reduceTransparency: Bool,
+        strong: Bool
+    ) -> NSColor {
+        if reduceTransparency {
+            return NSColor(pindropHex: strong ? "#100E0C" : "#181511") ?? .black
+        }
+        if isDark {
+            return ground.darker(by: strong ? 0.22 : 0.12)
+        }
+        return ground.darker(by: strong ? 0.9 : 0.82)
     }
 
     private init(
@@ -638,7 +732,54 @@ private struct HairlineStrokeModifier<BorderShape: Shape, BorderStyle: ShapeStyl
     }
 }
 
+private struct AppAnimationModifier<Value: Equatable>: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let token: AppTheme.Animation.Token
+    let value: Value
+
+    func body(content: Content) -> some View {
+        content.animation(
+            reduceMotion ? nil : AppTheme.Animation.resolved(token),
+            value: value
+        )
+    }
+}
+
+private struct KeyboardFocusRingModifier<FocusShape: InsettableShape>: ViewModifier {
+    @FocusState private var isFocused: Bool
+
+    let shape: FocusShape
+
+    func body(content: Content) -> some View {
+        content
+            .focusable()
+            .focused($isFocused)
+            .overlay {
+                shape.strokeBorder(
+                    isFocused ? AppColors.accent : Color.clear,
+                    lineWidth: 2
+                )
+                .padding(-3)
+                .allowsHitTesting(false)
+            }
+    }
+}
+
 extension View {
+    func appAnimation<Value: Equatable>(
+        _ token: AppTheme.Animation.Token,
+        value: Value
+    ) -> some View {
+        modifier(AppAnimationModifier(token: token, value: value))
+    }
+
+    func keyboardFocusRing<FocusShape: InsettableShape>(
+        _ shape: FocusShape
+    ) -> some View {
+        modifier(KeyboardFocusRingModifier(shape: shape))
+    }
+
     func hairlineBorder<BorderShape: InsettableShape, BorderStyle: ShapeStyle>(
         _ shape: BorderShape,
         style: BorderStyle
