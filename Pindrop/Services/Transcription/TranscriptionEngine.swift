@@ -9,9 +9,12 @@ import Foundation
 
 public struct TranscriptionOptions: Sendable, Equatable {
     public let language: AppLanguage
+    /// Vocabulary words for WhisperKit initial-prompt biasing. Empty = no bias.
+    public let vocabularyBiasWords: [String]
 
-    public init(language: AppLanguage = .automatic) {
+    public init(language: AppLanguage = .automatic, vocabularyBiasWords: [String] = []) {
         self.language = language
+        self.vocabularyBiasWords = vocabularyBiasWords
     }
 }
 

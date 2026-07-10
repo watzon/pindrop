@@ -740,7 +740,10 @@ class TranscriptionService {
             }
 
             Log.transcription.info("Pinned detected language for diarized transcription segments: \(detectedLanguage.rawValue)")
-            return TranscriptionOptions(language: detectedLanguage)
+            return TranscriptionOptions(
+                language: detectedLanguage,
+                vocabularyBiasWords: options.vocabularyBiasWords
+            )
         } catch {
             Log.transcription.warning(
                 "Language detection for diarized transcription failed; using per-segment automatic detection: \(error.localizedDescription)"

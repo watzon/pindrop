@@ -232,44 +232,15 @@ final class StreamingSessionController {
         clearBindings(cancelPendingWork: false)
         isSessionActive = false
 
-        var (textAfterReplacements, appliedReplacements) =
-            try dictionaryStore.applyReplacements(to: finalStreamedText)
-        textAfterReplacements = normalizeText(textAfterReplacements)
-        if !appliedReplacements.isEmpty {
-            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
-        }
-
-        // If the refinement coordinator is active, it owns the authoritative final text:
-        // fold dictionary replacements onto its refined output rather than the raw stream.
-        // The coordinator's drained text is the currently-displayed string; dictionary
-        // replacements run on top, and the sink's finishStreamingInsertion below lands
-        // the post-replacement text in the target app with a single paste.
+        // Pick the authoritative raw transcript first, then apply dictionary
+        // replacements once so usage counts are not inflated by intermediate passes.
+        // Preference: offline re-transcription > live refinement coordinator > stream text.
+        var rawTranscript = finalStreamedText
         let coord = refinementCoordinator
         if let coord {
-            let coordText = await coord.awaitFinalTextAndDrain()
-            let (coordAfterReplacements, coordReplacements) = try dictionaryStore.applyReplacements(
-                to: coordText
-            )
-            textAfterReplacements = normalizeText(coordAfterReplacements)
-            appliedReplacements = coordReplacements
-            if !coordReplacements.isEmpty {
-                Log.app.info(
-                    "Applied \(coordReplacements.count) dictionary replacements to refined stream")
-            }
-        }
-
-        guard !isEffectivelyEmptyText(textAfterReplacements) else {
-            // Empty finish collapses the overlay without pasting anything.
-            try? await overlaySink?.finishStreamingInsertion(
-                finalText: "", appendTrailingSpace: false)
-            refinementCoordinator = nil
-            return FinalizeOutcome(
-                finalText: "",
-                originalStreamedText: nil,
-                enhancedWithModel: nil,
-                appliedReplacements: appliedReplacements,
-                outputSucceeded: false
-            )
+            // Coordinator text is what is currently displayed; use it as the stream
+            // fallback when offline re-transcription is unavailable.
+            rawTranscript = await coord.awaitFinalTextAndDrain()
         }
 
         // Offline finalize pass: re-transcribe the recorded audio with the batch model.
@@ -283,6 +254,7 @@ final class StreamingSessionController {
             liveTranscriptState.beginEnhancing()
             do {
                 let language = settingsStore.selectedAppLanguage
+                let vocabularyBias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
                 let timeout = Self.offlineRetranscriptionTimeout(recordingDuration: recordingDuration)
                 let refinedText = try await Self.withFinalizeTimeout(
                     nanoseconds: UInt64(timeout * 1_000_000_000)
@@ -290,15 +262,15 @@ final class StreamingSessionController {
                     try await transcriptionService.transcribe(
                         audioData: recordedAudioData,
                         diarizationEnabled: false,
-                        options: TranscriptionOptions(language: language)
+                        options: TranscriptionOptions(
+                            language: language,
+                            vocabularyBiasWords: vocabularyBias
+                        )
                     ).text
                 }
-                let (refinedAfterReplacements, refinedReplacements) =
-                    try dictionaryStore.applyReplacements(to: refinedText)
-                let normalizedRefined = normalizeText(refinedAfterReplacements)
+                let normalizedRefined = normalizeText(refinedText)
                 if !isEffectivelyEmptyText(normalizedRefined) {
-                    textAfterReplacements = normalizedRefined
-                    appliedReplacements = refinedReplacements
+                    rawTranscript = refinedText
                     Log.transcription.info(
                         "Streaming finalize: offline re-transcription applied (\(normalizedRefined.count) chars)"
                     )
@@ -312,6 +284,30 @@ final class StreamingSessionController {
                     "Streaming finalize: offline re-transcription failed, keeping streamed text: \(error.localizedDescription)"
                 )
             }
+        }
+
+        var (textAfterReplacements, appliedReplacements) =
+            try dictionaryStore.applyReplacements(to: rawTranscript)
+        textAfterReplacements = normalizeText(textAfterReplacements)
+        if !appliedReplacements.isEmpty {
+            Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
+        }
+
+        // Vocabulary usage is counted on the post-replacement transcript (single batch).
+        try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
+
+        guard !isEffectivelyEmptyText(textAfterReplacements) else {
+            // Empty finish collapses the overlay without pasting anything.
+            try? await overlaySink?.finishStreamingInsertion(
+                finalText: "", appendTrailingSpace: false)
+            refinementCoordinator = nil
+            return FinalizeOutcome(
+                finalText: "",
+                originalStreamedText: nil,
+                enhancedWithModel: nil,
+                appliedReplacements: appliedReplacements,
+                outputSucceeded: false
+            )
         }
 
         // Post-stop holistic enhancement for streaming sessions. Gated by the
