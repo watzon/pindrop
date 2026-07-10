@@ -1585,6 +1585,7 @@ enum LocalizationMetadata {
         "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks (preamble, conversational replies).": "recommended_the_deterministic_cleaner_handles_mo",
         "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.": "recommended_the_deterministic_cleaner_handles_mo_ca42c3e4",
         "Record": "record",
+        "Record Meeting…": "u3_library_record_meeting_ellipsis",
         "Record a meeting from the Home page to see it here.": "u3_library_record_meeting_from_home",
         "Recording": "recording",
         "Recording from external and Bluetooth microphones is now rock solid, even when your audio output is routed elsewhere.": "recording_from_external_and_bluetooth_microphone",

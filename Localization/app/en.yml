@@ -1252,6 +1252,7 @@ preset_example:
   edits_output: "This is correctly 25"
 
 u3_library:
+  record_meeting_ellipsis: "Record Meeting…"
   dictations: "Dictations"
   meetings: "Meetings"
   one_recording: "1 recording"

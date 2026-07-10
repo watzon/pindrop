@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Ta opp møte…"
   dictations: "Dikteringer"
   meetings: "Møter"
   one_recording: "1 opptak"

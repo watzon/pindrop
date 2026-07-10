@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Értekezlet felvétele…"
   dictations: "Diktálások"
   meetings: "Találkozók"
   one_recording: "1 felvétel"

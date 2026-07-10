@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "会議を録音…"
   dictations: "ディクテーション"
   meetings: "ミーティング"
   one_recording: "1 件の録音"

@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "บันทึกการประชุม…"
   dictations: "การพิมพ์เสียง"
   meetings: "การประชุม"
   one_recording: "1 รายการ"

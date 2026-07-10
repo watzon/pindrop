@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Ghi âm cuộc họp…"
   dictations: "Chính tả nói"
   meetings: "Cuộc họp"
   one_recording: "1 bản ghi"

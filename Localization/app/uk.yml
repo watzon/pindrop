@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Записати зустріч…"
   dictations: "Диктування"
   meetings: "Зустрічі"
   one_recording: "1 запис"

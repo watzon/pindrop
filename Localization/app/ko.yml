@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "회의 녹음…"
   dictations: "받아쓰기"
   meetings: "회의"
   one_recording: "녹음 1개"

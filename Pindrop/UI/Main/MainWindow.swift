@@ -224,7 +224,8 @@ struct MainWindow: View {
                 mediaTranscriptionState: mediaTranscriptionState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
-                onSubmitMediaLink: onSubmitMediaLink
+                onSubmitMediaLink: onSubmitMediaLink,
+                onStartMeetingCapture: onStartMeetingCapture
             )
         case .notes:
             NotesView()
@@ -234,7 +235,8 @@ struct MainWindow: View {
                 mediaTranscriptionState: mediaTranscriptionState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
-                onSubmitMediaLink: onSubmitMediaLink
+                onSubmitMediaLink: onSubmitMediaLink,
+                onStartMeetingCapture: onStartMeetingCapture
             )
         case .models:
             if let modelManager {

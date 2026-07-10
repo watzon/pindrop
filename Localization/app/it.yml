@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Registra riunione…"
   dictations: "Dettature"
   meetings: "Riunioni"
   one_recording: "1 registrazione"

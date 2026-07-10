@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "录制会议…"
   dictations: "听写"
   meetings: "会议"
   one_recording: "1 条录音"

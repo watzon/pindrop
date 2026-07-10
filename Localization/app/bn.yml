@@ -1267,6 +1267,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "মিটিং রেকর্ড করুন…"
   dictations: "ডিকটেশন"
   meetings: "মিটিং"
   one_recording: "১টি রেকর্ডিং"

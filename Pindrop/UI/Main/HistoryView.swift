@@ -21,6 +21,7 @@ struct HistoryView: View {
     var settingsStore: SettingsStore?
     var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     var onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
+    var onStartMeetingCapture: (() -> Void)?
 
     // MARK: - State
 
@@ -219,7 +220,7 @@ struct HistoryView: View {
     private var headerSection: some View {
         PageHeader(title: localized("Library", locale: locale), meta: headerMetaText) {
             HStack(spacing: 10) {
-                if onImportMediaFiles != nil || onSubmitMediaLink != nil {
+                if onImportMediaFiles != nil || onSubmitMediaLink != nil || onStartMeetingCapture != nil {
                     importMenu
                 }
                 SearchFieldChrome(
@@ -250,10 +251,18 @@ struct HistoryView: View {
                     Label(localized("Paste Link…", locale: locale), systemImage: "link")
                 }
             }
+            if onStartMeetingCapture != nil {
+                Divider()
+                Button {
+                    onStartMeetingCapture?()
+                } label: {
+                    Label(localized("Record Meeting…", locale: locale), systemImage: "person.2.wave.2")
+                }
+            }
         } label: {
             SecondaryButton(
-                title: localized("Import", locale: locale),
-                systemImage: "square.and.arrow.down",
+                title: localized("Transcribe", locale: locale),
+                systemImage: "plus",
                 action: {}
             )
             .allowsHitTesting(false)
@@ -576,9 +585,22 @@ struct HistoryView: View {
         )
     }
 
-    /// Play chip and row agree: meetings → detail; others with audio → expand.
+    /// Whether this record drills into the detail page (spec §8) instead of the
+    /// inline player card: meetings AND imported/linked media — their transcripts
+    /// are long-form and swallow the list when expanded inline. Quick dictations
+    /// keep the inline card.
+    private func opensDetailPage(_ record: TranscriptionRecord) -> Bool {
+        switch record.resolvedSourceKind {
+        case .manualCapture, .importedFile, .webLink:
+            return true
+        case .voiceRecording:
+            return false
+        }
+    }
+
+    /// Play chip and row agree: detail-page kinds → detail; dictations with audio → expand.
     private func playChipAction(for record: TranscriptionRecord, hasAudio: Bool) -> (() -> Void)? {
-        if record.resolvedSourceKind == .manualCapture {
+        if opensDetailPage(record) {
             return { openDetail(record) }
         }
         guard hasAudio else { return nil }
@@ -588,8 +610,7 @@ struct HistoryView: View {
     private func handleRowTap(_ record: TranscriptionRecord) {
         selectedTranscriptionID = record.persistentModelID
 
-        // Meetings open the detail page (spec §8 drill-in).
-        if record.resolvedSourceKind == .manualCapture {
+        if opensDetailPage(record) {
             openDetail(record)
             return
         }

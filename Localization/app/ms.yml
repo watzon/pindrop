@@ -1259,6 +1259,7 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  record_meeting_ellipsis: "Rakam mesyuarat…"
   dictations: "Dikte"
   meetings: "Mesyuarat"
   one_recording: "1 rakaman"
