@@ -78,3 +78,13 @@ Icons: 16×16 viewBox custom strokes at 1.4 width (thin-stroke look). Map to SF 
 - All colors through the theme engine roles (map: ground→windowBackground/sidebarBackground, page→contentBackground/surface, ink*→text*, line→border, accent, record→error/recording). WCAG clamp on ink-2/ink-3 per plan.
 - Fonts: bundled Newsreader/Inter/JetBrains Mono via `ATSApplicationFontsPath`; expose as `AppTypography` roles per §2 (system-font fallback if load fails).
 - Fixed lanes (64 pt time, 74 pt play chip, 16/18 pt icon slots) are load-bearing for vertical alignment — use `.frame(width:)` + `flexShrink`-equivalent, not spacing.
+
+## 8. Meeting detail page (artboard 08 — extracted)
+
+- Breadcrumb: 12 pt chevron-left + "Library" (Inter 12, ink-2), navigates back; 16 pt below-gap.
+- Title block (8 pt column gap): title **Newsreader 30/36 · 500 · -0.015em** ink; meta row (10 pt gaps): "Today, 8:02 AM" (mono 12 ink-2) · "·" (ink-3) · duration mono · "3 speakers" (Inter 12 ink-2) · spacer · Copy + Export secondary buttons (spec §6 style).
+- Player bar: §6 player row (44 pt play circle, waveform, elapsed/total, speed chip) inside a ground card with 1 pt line border (radius 12, ~16 pt padding).
+- **Summary block**: 3 pt accent bar (radius 2, full height) · 16 pt gap · column (6 pt gap): "SUMMARY" (Inter 11 · 600, +0.08em tracking, ink-3, uppercase) then body **Newsreader 15/23** ink; 4 pt vertical padding.
+- Transcript section header: §5 section-header pattern + trailing hint "click a line to jump playback" (ink-3).
+- **Transcript turn row**: 10 pt vertical padding, 14 pt lane gaps. Lanes: timestamp **44 pt fixed** (mono 11 ink-3, 3 pt top pad) · speaker **92 pt fixed** (7 pt colored dot + Inter 12 · 600 ink, 6 pt gap) · text **Newsreader 15/23** ink (flex). Speaker dot colors: stable per-speaker palette (e.g. #14708A teal seen in design); derive a small stable palette hashed by speaker id.
+- Active (playing) turn: accent-soft background pill spanning the row (radius 10), timestamp tinted accent; clicking any row seeks playback to its timestamp (existing behavior).
