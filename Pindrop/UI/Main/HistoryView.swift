@@ -260,15 +260,35 @@ struct HistoryView: View {
                 }
             }
         } label: {
-            SecondaryButton(
-                title: localized("Transcribe", locale: locale),
-                systemImage: "plus",
-                action: {}
+            // Primary split-button look: accent fill (discoverable, unlike the old
+            // quiet chrome that read as decoration), label + divider + chevron.
+            HStack(spacing: 0) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(Image(systemName: "plus"))
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(localized("Transcribe", locale: locale))
+                        .font(AppTypography.labelSemibold)
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+
+                Rectangle()
+                    .fill(AppColors.contentBackground.opacity(0.35))
+                    .frame(width: 1, height: 16)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+                    .padding(.horizontal, 8)
+            }
+            .foregroundStyle(AppColors.contentBackground)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(AppColors.accent)
             )
-            .allowsHitTesting(false)
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
+        .fixedSize()
         .fixedSize()
     }
 

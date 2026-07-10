@@ -42,12 +42,27 @@ struct MediaTranscriptionDetailView: View {
         family: .newsreader, size: 15, weight: .regular, lineHeight: 23
     )
 
-    private var segments: [DiarizedTranscriptSegment] {
-        record.diarizedSegments
+    // Decoded ONCE per record/label change and cached: `record.diarizedSegments`
+    // JSON-decodes the whole payload, and the playback clock re-evaluates this view
+    // 4×/sec — computing segments per tick made long transcripts visibly laggy.
+    @State private var cachedSegments: [DiarizedTranscriptSegment] = []
+    @State private var cachedSegmentIDs: [String] = []
+
+    private var segments: [DiarizedTranscriptSegment] { cachedSegments }
+
+    private func rebuildSegmentCache() {
+        let displayed = record.diarizedSegments.map { segment in
+            displayedSegment(segment)
+        }
+        cachedSegments = displayed
+        cachedSegmentIDs = displayed.enumerated().map { index, segment in
+            "\(segment.speakerId)-\(index)-\(segment.startTime)"
+        }
     }
 
-    private var displayedSegments: [DiarizedTranscriptSegment] {
-        segments.map { segment in
+    private func displayedSegment(
+        _ segment: DiarizedTranscriptSegment
+    ) -> DiarizedTranscriptSegment {
             guard let speakerLabel = speakerLabelsByID[segment.speakerId],
                   !speakerLabel.isEmpty,
                   speakerLabel != segment.speakerLabel else {
@@ -63,12 +78,11 @@ struct MediaTranscriptionDetailView: View {
                 confidence: segment.confidence,
                 text: segment.text
             )
-        }
     }
 
     private var participants: [(key: String, speakerID: String, label: String)] {
         var seen = Set<String>()
-        return displayedSegments.compactMap { segment in
+        return cachedSegments.compactMap { segment in
             let key = LibrarySpeakerColor.canonicalKey(
                 speakerId: segment.speakerId,
                 speakerLabel: segment.speakerLabel
@@ -93,13 +107,26 @@ struct MediaTranscriptionDetailView: View {
         )
     }
 
+    /// Binary search over chronological segments — this runs on every playback
+    /// tick, so it must not linear-scan a long transcript.
     private var activeSegmentID: String? {
-        guard let index = segments.firstIndex(where: {
-            playbackController.currentTime >= $0.startTime && playbackController.currentTime < $0.endTime
-        }) else {
-            return nil
+        let time = playbackController.currentTime
+        guard !cachedSegments.isEmpty else { return nil }
+
+        var low = 0
+        var high = cachedSegments.count - 1
+        var candidate = -1
+        while low <= high {
+            let mid = (low + high) / 2
+            if cachedSegments[mid].startTime <= time {
+                candidate = mid
+                low = mid + 1
+            } else {
+                high = mid - 1
+            }
         }
-        return segmentIdentifier(segments[index], index: index)
+        guard candidate >= 0, time < cachedSegments[candidate].endTime else { return nil }
+        return cachedSegmentIDs[candidate]
     }
 
     private var hasMedia: Bool { TranscriptionDetailAccess.shouldShowPlayback(for: record) }
@@ -113,34 +140,52 @@ struct MediaTranscriptionDetailView: View {
     }()
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
-                // Spec §8: breadcrumb → title gap is 16 pt (not the section 24 pt rhythm).
-                VStack(alignment: .leading, spacing: 16) {
-                    breadcrumb
-                    titleBlock
-                }
+        GeometryReader { geo in
+            let twoColumn = geo.size.width >= 1080
 
-                if hasMedia {
-                    if playbackController.hasVideoTrack {
-                        videoSurface
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Spec §8: breadcrumb → title gap is 16 pt (not the section 24 pt rhythm).
+                    VStack(alignment: .leading, spacing: 16) {
+                        breadcrumb
+                        titleBlock
                     }
-                    playerBarCard
+
+                    if twoColumn {
+                        // Wide windows: media/summary/speakers rail on the left,
+                        // transcript takes the remaining width.
+                        HStack(alignment: .top, spacing: 32) {
+                            VStack(alignment: .leading, spacing: 24) {
+                                mediaAndSummaryColumn
+                                if showsSpeakerLanes, !participants.isEmpty {
+                                    participantsFooter
+                                }
+                            }
+                            .frame(width: 480, alignment: .leading)
+
+                            transcriptSection
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    } else {
+                        mediaAndSummaryColumn
+                        transcriptSection
+                        if showsSpeakerLanes, !participants.isEmpty {
+                            participantsFooter
+                                .padding(.top, 16)
+                        }
+                    }
                 }
-                if record.hasSummary, let summary = record.aiSummary {
-                    summaryBlock(summary)
-                }
-                transcriptSection
+                .padding(.horizontal, 40)
+                .padding(.top, 40)
+                .padding(.bottom, 40)
+                .frame(maxWidth: twoColumn ? 1400 : 920, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 40)
-            .padding(.top, 40)
-            .padding(.bottom, 40)
-            .frame(maxWidth: 920, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(AppColors.contentBackground)
         .task(id: record.id) {
             speakerLabelsByID = currentSpeakerLabelsByID()
+            rebuildSegmentCache()
             guard let mediaURL = record.managedMediaURL else {
                 peaks = []
                 return
@@ -154,6 +199,10 @@ struct MediaTranscriptionDetailView: View {
         }
         .onChange(of: record.diarizationSegmentsJSON) { _, _ in
             speakerLabelsByID = currentSpeakerLabelsByID()
+            rebuildSegmentCache()
+        }
+        .onChange(of: speakerLabelsByID) { _, _ in
+            rebuildSegmentCache()
         }
         .alert(localized("Edit", locale: locale), isPresented: isRenameAlertPresented) {
             TextField("", text: $editedSpeakerLabel)
@@ -164,6 +213,21 @@ struct MediaTranscriptionDetailView: View {
             Button(localized("Save", locale: locale)) {
                 saveEditedSpeakerLabel()
             }
+        }
+    }
+
+    /// Video, player bar, and summary — the left rail in two-column layout,
+    /// inline sections in single-column.
+    @ViewBuilder
+    private var mediaAndSummaryColumn: some View {
+        if hasMedia {
+            if playbackController.hasVideoTrack {
+                videoSurface
+            }
+            playerBarCard
+        }
+        if record.hasSummary, let summary = record.aiSummary {
+            summaryBlock(summary)
         }
     }
 
@@ -369,7 +433,10 @@ struct MediaTranscriptionDetailView: View {
     // MARK: - Transcript
 
     private var transcriptSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        // Hoisted: one binary search per evaluation, not one per row.
+        let activeID = activeSegmentID
+
+        return VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
                 title: localized("Transcript", locale: locale),
                 trailing: hasMedia
@@ -388,9 +455,12 @@ struct MediaTranscriptionDetailView: View {
             } else {
                 ScrollViewReader { proxy in
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(displayedSegments.enumerated()), id: \.offset) { index, segment in
-                            turnRow(segment, index: index)
-                                .id(segmentIdentifier(segment, index: index))
+                        ForEach(cachedSegments.indices, id: \.self) { index in
+                            turnRow(
+                                cachedSegments[index],
+                                isActive: cachedSegmentIDs[index] == activeID
+                            )
+                            .id(cachedSegmentIDs[index])
                         }
                     }
                     .onChange(of: activeSegmentID) { _, identifier in
@@ -401,16 +471,11 @@ struct MediaTranscriptionDetailView: View {
                     }
                 }
             }
-
-            if showsSpeakerLanes, !participants.isEmpty {
-                participantsFooter
-                    .padding(.top, 16)
-            }
         }
     }
 
-    private func turnRow(_ segment: DiarizedTranscriptSegment, index: Int) -> some View {
-        let active = isActive(segment, index: index)
+    private func turnRow(_ segment: DiarizedTranscriptSegment, isActive: Bool) -> some View {
+        let active = isActive
         let speakerColor = LibrarySpeakerColor.color(
             speakerId: segment.speakerId,
             speakerLabel: segment.speakerLabel
@@ -521,7 +586,8 @@ struct MediaTranscriptionDetailView: View {
 
     private func currentSpeakerLabelsByID() -> [String: String] {
         var labelsByID: [String: String] = [:]
-        for segment in segments {
+        // Reads the record directly: this runs before the cache is (re)built.
+        for segment in record.diarizedSegments {
             guard labelsByID[segment.speakerId] == nil else { continue }
             let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !label.isEmpty else { continue }
@@ -542,13 +608,6 @@ struct MediaTranscriptionDetailView: View {
         editedSpeakerLabel = ""
     }
 
-    private func isActive(_ segment: DiarizedTranscriptSegment, index: Int) -> Bool {
-        activeSegmentID == segmentIdentifier(segment, index: index)
-    }
-
-    private func segmentIdentifier(_ segment: DiarizedTranscriptSegment, index: Int) -> String {
-        "\(segment.speakerId)-\(index)-\(segment.startTime)"
-    }
 }
 
 /// NSViewRepresentable wrapping AVPlayerView directly. We avoid
@@ -658,8 +717,16 @@ final class MediaPlaybackController {
         timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.25, preferredTimescale: 600), queue: .main) { [weak self] time in
             guard let self else { return }
             Task { @MainActor in
-                self.currentTime = time.seconds.isFinite ? time.seconds : 0
-                self.isPlaying = self.player.rate > 0
+                // @Observable fires on every assignment, equal or not — skip
+                // no-op writes so a paused player doesn't invalidate observers 4×/sec.
+                let seconds = time.seconds.isFinite ? time.seconds : 0
+                if abs(seconds - self.currentTime) >= 0.01 {
+                    self.currentTime = seconds
+                }
+                let playing = self.player.rate > 0
+                if playing != self.isPlaying {
+                    self.isPlaying = playing
+                }
             }
         }
     }
