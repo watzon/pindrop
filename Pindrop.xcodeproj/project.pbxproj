@@ -7,6 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FONTSFOLDERBUILD01A2 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = FONTSFOLDER01A2B3C4D5 /* Fonts */; };
+		ACKFOLDERBUILD01A2B3 /* Acknowledgements in Resources */ = {isa = PBXBuildFile; fileRef = ACKFOLDER01A2B3C4D5 /* Acknowledgements */; };
+		COLORCONTRASTBUILDCOLORCONTRAS /* ColorContrast.swift in Sources */ = {isa = PBXBuildFile; fileRef = COLORCONTRASTFILECOLORCONTRAS /* ColorContrast.swift */; };
+		FONTLOADERBUILDFONTLOADERSW /* FontLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FONTLOADERFILEFONTLOADERSW /* FontLoader.swift */; };
+		SCORCHSIDEBARBUILDSIDEBARITEMS /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSIDEBARFILESIDEBARITEMS /* SidebarItem.swift */; };
+		SCORCHSTATUSBUILDSTATUSCARDSW /* StatusCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSTATUSFILESTATUSCARDSW /* StatusCard.swift */; };
+		SCORCHPAGEHDRBUILDPAGEHEADERSW /* PageHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPAGEHDRFILEPAGEHEADERSW /* PageHeader.swift */; };
+		SCORCHSEARCHBUILDSEARCHFIELDC /* SearchFieldChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSEARCHFILESEARCHFIELDC /* SearchFieldChrome.swift */; };
+		SCORCHFILTERBUILDFILTERCHIPSW /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHFILTERFILEFILTERCHIPSW /* FilterChip.swift */; };
+		SCORCHSECTHDRBUILDSECTIONHEADE /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSECTHDRFILESECTIONHEADE /* SectionHeader.swift */; };
+		SCORCHLIBROWBUILDLIBRARYROWCH /* LibraryRowChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHLIBROWFILELIBRARYROWCH /* LibraryRowChrome.swift */; };
+		SCORCHPLAYCHIPBUILDPLAYCHIPSWIF /* PlayChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYCHIPFILEPLAYCHIPSWIF /* PlayChip.swift */; };
+		SCORCHKINDBADGEBUILDKINDBADGESWI /* KindBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHKINDBADGEFILEKINDBADGESWI /* KindBadge.swift */; };
+		SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */; };
+		SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */; };
+		SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */; };
+		SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */; };
+		THEMEFOUNDTESTBUILDTHEMEFOUNDAT /* ThemeFoundationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */; };
 		TRXPRTBUILD01A2B3C4D5E6 /* TranscriptExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */; };
 		TRXDTLACCESSBUILD01A2B3 /* TranscriptionDetailAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */; };
 		TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */; };
@@ -245,6 +263,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FONTSFOLDER01A2B3C4D5 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
+		ACKFOLDER01A2B3C4D5 /* Acknowledgements */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Acknowledgements; sourceTree = "<group>"; };
+		COLORCONTRASTFILECOLORCONTRAS /* ColorContrast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorContrast.swift; sourceTree = "<group>"; };
+		FONTLOADERFILEFONTLOADERSW /* FontLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontLoader.swift; sourceTree = "<group>"; };
+		SCORCHSIDEBARFILESIDEBARITEMS /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
+		SCORCHSTATUSFILESTATUSCARDSW /* StatusCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusCard.swift; sourceTree = "<group>"; };
+		SCORCHPAGEHDRFILEPAGEHEADERSW /* PageHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageHeader.swift; sourceTree = "<group>"; };
+		SCORCHSEARCHFILESEARCHFIELDC /* SearchFieldChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFieldChrome.swift; sourceTree = "<group>"; };
+		SCORCHFILTERFILEFILTERCHIPSW /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
+		SCORCHSECTHDRFILESECTIONHEADE /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
+		SCORCHLIBROWFILELIBRARYROWCH /* LibraryRowChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryRowChrome.swift; sourceTree = "<group>"; };
+		SCORCHPLAYCHIPFILEPLAYCHIPSWIF /* PlayChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayChip.swift; sourceTree = "<group>"; };
+		SCORCHKINDBADGEFILEKINDBADGESWI /* KindBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KindBadge.swift; sourceTree = "<group>"; };
+		SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerCardChrome.swift; sourceTree = "<group>"; };
+		SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
+		SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestructiveGhostButton.swift; sourceTree = "<group>"; };
+		THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeFoundationTests.swift; sourceTree = "<group>"; };
 		TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptExportService.swift; sourceTree = "<group>"; };
 		TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionDetailAccess.swift; sourceTree = "<group>"; };
 		TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptExportServiceTests.swift; sourceTree = "<group>"; };
@@ -782,6 +818,7 @@
 				MDCHECKBOXTESTFILE01A2B3 /* MarkdownCheckboxTests.swift */,
 				NOTEAPPENDTESTFILE01A2B3 /* NoteAppendTests.swift */,
 				9E45B0B1220ACF160AC2BC84 /* TestSupport.swift */,
+				THEMEFOUNDTESTFILETHEMEFOUNDAT /* ThemeFoundationTests.swift */,
 			);
 			path = PindropTests;
 			sourceTree = "<group>";
@@ -811,6 +848,26 @@
 			path = WhatsNew;
 			sourceTree = "<group>";
 		};
+		SCORCHEDGRP01A2B3C4D5E6F /* Scorched */ = {
+			isa = PBXGroup;
+			children = (
+				SCORCHSIDEBARFILESIDEBARITEMS /* SidebarItem.swift */,
+				SCORCHSTATUSFILESTATUSCARDSW /* StatusCard.swift */,
+				SCORCHPAGEHDRFILEPAGEHEADERSW /* PageHeader.swift */,
+				SCORCHSEARCHFILESEARCHFIELDC /* SearchFieldChrome.swift */,
+				SCORCHFILTERFILEFILTERCHIPSW /* FilterChip.swift */,
+				SCORCHSECTHDRFILESECTIONHEADE /* SectionHeader.swift */,
+				SCORCHLIBROWFILELIBRARYROWCH /* LibraryRowChrome.swift */,
+				SCORCHPLAYCHIPFILEPLAYCHIPSWIF /* PlayChip.swift */,
+				SCORCHKINDBADGEFILEKINDBADGESWI /* KindBadge.swift */,
+				SCORCHPLAYERCARDFILEPLAYERCARDCH /* PlayerCardChrome.swift */,
+				SCORCHWAVEFORMFILEWAVEFORMVIEW /* WaveformView.swift */,
+				SCORCHSECBTNFILESECONDARYBUT /* SecondaryButton.swift */,
+				SCORCHDESTBTNFILEDESTRUCTIVEG /* DestructiveGhostButton.swift */,
+			);
+			path = Scorched;
+			sourceTree = "<group>";
+		};
 		BFA9046303E3874827C62B25 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -819,6 +876,7 @@
 				SEARCHDROPDOWN01A2B3C4D5E6F /* SearchableDropdown.swift */,
 				NOTECARD01A2B3C4D5E6F71 /* NoteCardView.swift */,
 				MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */,
+				SCORCHEDGRP01A2B3C4D5E6F /* Scorched */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -860,6 +918,8 @@
 			children = (
 				BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */,
 				ICNS01A2B3C4D5E6F71 /* Pindrop.icns */,
+				FONTSFOLDER01A2B3C4D5 /* Fonts */,
+				ACKFOLDER01A2B3C4D5 /* Acknowledgements */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -878,6 +938,8 @@
 			children = (
 				THEMEMODELSFILE01A2B3C4D5E6F /* ThemeModels.swift */,
 				THEME001A2B3C4D5E6F71 /* Theme.swift */,
+				COLORCONTRASTFILECOLORCONTRAS /* ColorContrast.swift */,
+				FONTLOADERFILEFONTLOADERSW /* FontLoader.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -1059,6 +1121,8 @@
 				509539AC0B5D433489196E46 /* Assets.xcassets in Resources */,
 				6EA189DAD2FC954E2AA5B6B4 /* Localizable.xcstrings in Resources */,
 				ICNS01A2B3C4D5E6F70 /* Pindrop.icns in Resources */,
+				FONTSFOLDERBUILD01A2 /* Fonts in Resources */,
+				ACKFOLDERBUILD01A2B3 /* Acknowledgements in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
@@ -1101,6 +1165,7 @@
 				DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
 				SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */,
 				WORDCNTHLPTESTBUILD01 /* WordCountHelperTests.swift in Sources */,
+				THEMEFOUNDTESTBUILDTHEMEFOUNDAT /* ThemeFoundationTests.swift in Sources */,
 				REPLMATCHTESTBUILD01 /* ReplacementMatchModeTests.swift in Sources */,
 				VOCABBIASPROMPTESTBUILD01 /* VocabularyBiasPromptTests.swift in Sources */,
 				MOCKPERM01A2B3C4D5E6F /* MockPermissionProvider.swift in Sources */,
@@ -1219,6 +1284,21 @@
 				5D84F939724532CB7B75F459 /* ReadyStepView.swift in Sources */,
 				70CE9E64F744FED2830FD930 /* Icons.swift in Sources */,
 				THEMEMODELSBUILD01A2B3C4D5E6F /* ThemeModels.swift in Sources */,
+				COLORCONTRASTBUILDCOLORCONTRAS /* ColorContrast.swift in Sources */,
+				FONTLOADERBUILDFONTLOADERSW /* FontLoader.swift in Sources */,
+				SCORCHSIDEBARBUILDSIDEBARITEMS /* SidebarItem.swift in Sources */,
+				SCORCHSTATUSBUILDSTATUSCARDSW /* StatusCard.swift in Sources */,
+				SCORCHPAGEHDRBUILDPAGEHEADERSW /* PageHeader.swift in Sources */,
+				SCORCHSEARCHBUILDSEARCHFIELDC /* SearchFieldChrome.swift in Sources */,
+				SCORCHFILTERBUILDFILTERCHIPSW /* FilterChip.swift in Sources */,
+				SCORCHSECTHDRBUILDSECTIONHEADE /* SectionHeader.swift in Sources */,
+				SCORCHLIBROWBUILDLIBRARYROWCH /* LibraryRowChrome.swift in Sources */,
+				SCORCHPLAYCHIPBUILDPLAYCHIPSWIF /* PlayChip.swift in Sources */,
+				SCORCHKINDBADGEBUILDKINDBADGESWI /* KindBadge.swift in Sources */,
+				SCORCHPLAYERCARDBUILDPLAYERCARDCH /* PlayerCardChrome.swift in Sources */,
+				SCORCHWAVEFORMBUILDWAVEFORMVIEW /* WaveformView.swift in Sources */,
+				SCORCHSECBTNBUILDSECONDARYBUT /* SecondaryButton.swift in Sources */,
+				SCORCHDESTBTNBUILDDESTRUCTIVEG /* DestructiveGhostButton.swift in Sources */,
 				THEME001A2B3C4D5E6F70 /* Theme.swift in Sources */,
 				SEARCHDROPDOWNBUILD01A2B3C4D5E6F /* SearchableDropdown.swift in Sources */,
 				SPLASH01A2B3C4D5E6F70 /* SplashScreen.swift in Sources */,
