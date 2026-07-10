@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		TRXPRTBUILD01A2B3C4D5E6 /* TranscriptExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */; };
+		TRXDTLACCESSBUILD01A2B3 /* TranscriptionDetailAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */; };
+		TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */; };
+		CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */; };
+		TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */; };
 		01E366562FAA4505B9775ACB /* PindropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E366552FAA4505B9775ACB /* PindropApp.swift */; };
 		044201dbd4cc4a29bd49c2e6 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8b6f20a4a9dd4d65a428336a /* AudioRecorderTests.swift */; };
 		0588BEAA2351458CB276E230 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A66F0A9C04230977FF4F8 /* GeneralSettingsView.swift */; };
@@ -228,6 +233,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptExportService.swift; sourceTree = "<group>"; };
+		TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionDetailAccess.swift; sourceTree = "<group>"; };
+		TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptExportServiceTests.swift; sourceTree = "<group>"; };
+		CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardUndoTests.swift; sourceTree = "<group>"; };
+		TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionDetailAccessTests.swift; sourceTree = "<group>"; };
 		009AECB5A914D3A0B2BE7A1E /* TaskScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskScheduler.swift; path = TaskScheduler.swift; sourceTree = "<group>"; };
 		01E366552FAA4505B9775ACB /* PindropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PindropApp.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F708192A3B4C6 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
@@ -483,6 +493,7 @@
 			isa = PBXGroup;
 			children = (
 				ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */,
+				TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */,
 				31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */,
 				ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */,
 				MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */,
@@ -544,6 +555,7 @@
 				a2189a034cf447e08e86f24b /* PermissionManager.swift */,
 				CB05E1BC11534652810B091F /* OutputManager.swift */,
 				CDDC77E732664A859279FEC9 /* HistoryStore.swift */,
+				TRXPRTFILE01A2B3C4D5E6 /* TranscriptExportService.swift */,
 				NOTESTORE1A2B3C4D5E6F71 /* NotesStore.swift */,
 				DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */,
 				VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */,
@@ -711,6 +723,9 @@
 				bf7758dd063c42db8315390e /* TranscriptionServiceTests.swift */,
 				8AED90D301B14DA19D138987 /* OutputManagerTests.swift */,
 				E0729D0116F8418084311F4C /* HistoryStoreTests.swift */,
+				TRXPRTTESTFILE01A2B3C4 /* TranscriptExportServiceTests.swift */,
+				CLIPUNDOTESTFILE01A2B3 /* ClipboardUndoTests.swift */,
+				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
 				MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */,
 				MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */,
 				DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
@@ -1022,6 +1037,9 @@
 				845be0a71ffe4a039b34fef0 /* TranscriptionServiceTests.swift in Sources */,
 				1158ABD0BAC14CAE88EF0D16 /* OutputManagerTests.swift in Sources */,
 				6B2BB9C7EBDC41319789EF2F /* HistoryStoreTests.swift in Sources */,
+				TRXPRTTESTBUILD01A2B3C4 /* TranscriptExportServiceTests.swift in Sources */,
+				CLIPUNDOTESTBUILD01A2B3 /* ClipboardUndoTests.swift in Sources */,
+				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
 				MEDIATRANSSTATEBUILDTEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift in Sources */,
 				MEDIAINGESTTESTBUILD01A2B3C4D5E6F /* MediaIngestionServiceTests.swift in Sources */,
 				DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
@@ -1098,6 +1116,8 @@
 				PROPMODEL1A2B3C4D5E6F /* PromptPreset.swift in Sources */,
 				BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */,
 				BC44C77F1DDD43BFAD8A88BD /* HistoryStore.swift in Sources */,
+				TRXPRTBUILD01A2B3C4D5E6 /* TranscriptExportService.swift in Sources */,
+				TRXDTLACCESSBUILD01A2B3 /* TranscriptionDetailAccess.swift in Sources */,
 				DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */,
 				VOCABBIASPROMPBUILD01 /* VocabularyBiasPrompt.swift in Sources */,
 				PRESETSTORE1A2B3C4D5E6F70 /* PromptPresetStore.swift in Sources */,
