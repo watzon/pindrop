@@ -217,14 +217,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let viewMenuItem = NSMenuItem()
         viewMenuItem.submenu = viewMenu
 
-        let navItems: [(MainNavItem, String)] = [
-            (.home, "1"),
-            (.history, "2"),
-            (.transcribe, "3"),
-            (.dictionary, "4"),
-            (.models, "5")
-        ]
-        for (nav, key) in navItems {
+        // Home ⌘1, Library ⌘2, Notes ⌘3, Dictionary ⌘4, Models ⌘5
+        for nav in MainNavItem.primaryNavigationItems {
+            guard let key = MainNavItem.viewMenuShortcut(for: nav) else { continue }
             let item = NSMenuItem(
                 title: nav.title(locale: locale),
                 action: #selector(menuNavigate(_:)),
@@ -368,8 +363,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard coordinator != nil else { return false }
 
         if menuItem.action == #selector(menuFind(_:)) {
-            // History is always a primary nav destination — enable Find so ⌘F
-            // can open the main window and focus the History search field.
+            // Library is always a primary nav destination — enable Find so ⌘F
+            // can open the main window and focus the Library search field.
             return true
         }
 

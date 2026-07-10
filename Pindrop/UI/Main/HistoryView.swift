@@ -275,7 +275,7 @@ struct HistoryView: View {
             // Title row
             HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text(localized("History", locale: locale))
+                    Text(localized("Library", locale: locale))
                         .font(AppTypography.largeTitle)
                         .foregroundStyle(AppColors.textPrimary)
 
