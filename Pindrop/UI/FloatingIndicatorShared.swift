@@ -165,8 +165,19 @@ struct LiveTranscriptView: View {
     var lineLimit: Int = 3
 
     @Environment(\.locale) private var locale
+    @State private var announcedCommittedLength = 0
 
     private var lineHeight: CGFloat { fontSize + 6 }
+
+    /// The transcript text follows the dictation locale's direction; the panel
+    /// around it stays physical (screen-position driven), so direction is applied
+    /// here rather than at the panel root.
+    private var textLayoutDirection: LayoutDirection {
+        let language = locale.language.languageCode?.identifier ?? "en"
+        return Locale.characterDirection(forLanguage: language) == .rightToLeft
+            ? .rightToLeft
+            : .leftToRight
+    }
 
     /// Composed display string split back into committed/tentative runs so the two can
     /// be styled differently while joining exactly like the coordinator's display path.
@@ -242,6 +253,7 @@ struct LiveTranscriptView: View {
                 .transition(.opacity)
             }
         }
+        .environment(\.layoutDirection, textLayoutDirection)
         .allowsHitTesting(false)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(localized("Live transcript", locale: locale))
@@ -258,13 +270,20 @@ struct LiveTranscriptView: View {
     }
 
     private func announceCommittedTranscript(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        // committedText is cumulative — announce only the new suffix, or VoiceOver
+        // re-reads the whole transcript on every commit.
+        if text.count < announcedCommittedLength {
+            announcedCommittedLength = 0
+        }
+        let delta = String(text.dropFirst(announcedCommittedLength))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        announcedCommittedLength = text.count
+        guard !delta.isEmpty else { return }
         NSAccessibility.post(
             element: NSApp as Any,
             notification: .announcementRequested,
             userInfo: [
-                .announcement: trimmed,
+                .announcement: delta,
                 .priority: NSAccessibilityPriorityLevel.medium.rawValue,
             ]
         )

@@ -72,7 +72,8 @@ struct GeneralSettingsView: View {
                 } control: {
                     SettingsToggle(
                         isOn: $automaticallyCheckForUpdates,
-                        label: localized("Automatically check for updates", locale: locale)
+                        // Matches the visible row title (and its existing translations).
+                        label: localized("Automatic updates", locale: locale)
                     )
                         .accessibilityIdentifier("settings.toggle.automaticUpdates")
                         .onChange(of: automaticallyCheckForUpdates) { _, newValue in

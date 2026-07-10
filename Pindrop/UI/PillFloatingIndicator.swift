@@ -719,7 +719,9 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func makeRootView(for contentView: PillIndicatorView) -> AnyView {
         AnyView(contentView
             .environment(\.locale, settingsStore.selectedAppLocale.locale)
-            .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection))
+            // Panel geometry is physical (drag/exit edges use screen coords);
+            // RTL applies to text subtrees (LiveTranscriptView).
+            .environment(\.layoutDirection, .leftToRight))
     }
 
     private func size(for layoutState: LayoutState) -> CGSize {

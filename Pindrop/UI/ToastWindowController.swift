@@ -270,7 +270,9 @@ private struct ToastView: View {
         .frame(maxWidth: ToastMetrics.maxWidth)
         .background(
             RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous)
-                .fill(AppColors.overlaySurface)
+                // Spec §15: the toast is an OPAQUE ink chip (#201D18) regardless of app
+                // theme, so it needs no Reduce Transparency variant.
+                .fill(Color(nsColor: NSColor(pindropHex: "#201D18") ?? .black))
         )
         .clipShape(RoundedRectangle(cornerRadius: ToastMetrics.cornerRadius, style: .continuous))
         .background {

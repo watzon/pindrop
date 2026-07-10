@@ -19,7 +19,8 @@ final class PindropThemeController: ObservableObject {
     private init() {
         AccessibilityDisplayOptionsCache.current = .systemCurrent
         applyAppAppearance()
-        displayOptionsObserver = NotificationCenter.default.addObserver(
+        // This notification posts on NSWorkspace's own center, not .default.
+        displayOptionsObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
             object: nil,
             queue: .main
@@ -28,6 +29,12 @@ final class PindropThemeController: ObservableObject {
                 AccessibilityDisplayOptionsCache.current = .systemCurrent
                 self?.refresh()
             }
+        }
+    }
+
+    deinit {
+        if let displayOptionsObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(displayOptionsObserver)
         }
     }
 
@@ -593,10 +600,10 @@ struct ResolvedPalette {
         if reduceTransparency {
             return NSColor(pindropHex: strong ? "#100E0C" : "#181511") ?? .black
         }
-        if isDark {
-            return ground.darker(by: strong ? 0.22 : 0.12)
-        }
-        return ground.darker(by: strong ? 0.9 : 0.82)
+        // Spec §15: floating surfaces are constant dark glass over any wallpaper,
+        // independent of app theme (#181511EB) — not derived from the ground.
+        let base = NSColor(pindropHex: strong ? "#100E0C" : "#181511") ?? .black
+        return base.withAlphaComponent(0.92)
     }
 
     private init(

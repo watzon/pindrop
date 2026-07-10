@@ -596,7 +596,9 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         return AnyView(
             OrbIndicatorView(controller: self, state: state, transcript: liveTranscript)
                 .environment(\.locale, locale)
-                .environment(\.layoutDirection, settingsStore.selectedAppLocale.layoutDirection)
+                // Panel geometry is physical (goo shader + exit edges use absolute
+                // panel coords); RTL applies to text subtrees (LiveTranscriptView).
+                .environment(\.layoutDirection, .leftToRight)
         )
     }
 
