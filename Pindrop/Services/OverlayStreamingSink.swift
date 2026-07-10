@@ -25,6 +25,11 @@ final class OverlayStreamingSink: StreamingRefinementOutputSink {
     private let finalOutput: @MainActor (String) async throws -> OutputManager.OutputResult
     private let onClipboardFallback: (@MainActor () -> Void)?
 
+    /// Result of the most recent successful `finishStreamingInsertion` call.
+    /// Cleared at the start of each finish attempt so callers can distinguish
+    /// "no output yet" from a prior session's result.
+    private(set) var lastOutputResult: OutputManager.OutputResult?
+
     init(
         transcriptState: LiveTranscriptState,
         finalOutput: @escaping @MainActor (String) async throws -> OutputManager.OutputResult,
@@ -47,11 +52,13 @@ final class OverlayStreamingSink: StreamingRefinementOutputSink {
         // The overlay always collapses, even when the final output throws — the caller's
         // error path must not leave a stranded transcript panel on screen.
         defer { transcriptState.end() }
+        lastOutputResult = nil
         guard !finalText.isEmpty else { return }
 
         let output = appendTrailingSpace ? finalText + " " : finalText
         let result = try await finalOutput(output)
-        if result == .copiedToClipboard {
+        lastOutputResult = result
+        if result.didCopyToClipboard {
             onClipboardFallback?()
         }
     }
