@@ -187,4 +187,70 @@ struct AIEnhancementAdapterTests {
         )
         #expect(result == nil)
     }
+
+    @Test func customModeWithClearedOverrideFallsBackToDefaultPreset() throws {
+        let store = makeCleanStore()
+        defer { store.resetAllSettings() }
+
+        let openai = ProviderConfig(kind: .openai, displayName: "OpenAI")
+        store.upsertProvider(openai)
+        try store.saveProviderAPIKey("sk-test", forProviderID: openai.id)
+
+        // Custom mode: no preset pointer, true custom override.
+        store.setAssignment(
+            ModelAssignment(
+                providerID: openai.id,
+                modelID: "gpt-4o-mini",
+                promptPresetID: nil,
+                promptOverride: "You are a custom assistant."
+            ),
+            for: .transcriptionEnhancement
+        )
+        #expect(store.assignment(for: .transcriptionEnhancement)?.promptPresetID == nil)
+        #expect(store.assignment(for: .transcriptionEnhancement)?.promptOverride != nil)
+
+        // Simulate the promptOverrideBinding path when the user clears/un-edits back to a
+        // built-in English prompt (or empty): override normalizes to nil while still in
+        // Custom mode (presetID nil). Must not leave both nil.
+        store.setAssignment(
+            ModelAssignment(
+                providerID: openai.id,
+                modelID: "gpt-4o-mini",
+                promptPresetID: nil,
+                promptOverride: BuiltInPresets.cleanTranscript.prompt
+            ),
+            for: .transcriptionEnhancement
+        )
+
+        let assignment = store.assignment(for: .transcriptionEnhancement)
+        #expect(assignment?.promptOverride == nil)
+        #expect(assignment?.promptPresetID == BuiltInPresetID.cleanTranscript)
+
+        let resolved = store.resolveAssignment(for: .transcriptionEnhancement)
+        #expect(resolved?.prompt == BuiltInPresets.cleanTranscript.prompt)
+    }
+
+    @Test func enhanceTranscriptsPromptOverrideEmptyCustomFallsBackToDefaultPreset() throws {
+        let store = makeCleanStore()
+        defer { store.resetAllSettings() }
+
+        let openai = ProviderConfig(kind: .openai, displayName: "OpenAI")
+        store.upsertProvider(openai)
+        try store.saveProviderAPIKey("sk-test", forProviderID: openai.id)
+        store.enhanceTranscriptsEnabled = true
+
+        store.enhanceTranscriptsPromptOverride = "temporary custom prompt"
+        #expect(store.assignment(for: .transcriptionEnhancement)?.promptPresetID == nil)
+
+        store.enhanceTranscriptsPromptOverride = nil
+        #expect(store.assignment(for: .transcriptionEnhancement)?.promptOverride == nil)
+        #expect(
+            store.assignment(for: .transcriptionEnhancement)?.promptPresetID
+                == BuiltInPresetID.cleanTranscript
+        )
+        #expect(
+            store.enhanceTranscriptsResolvedEnglishPrompt()
+                == BuiltInPresets.cleanTranscript.prompt
+        )
+    }
 }

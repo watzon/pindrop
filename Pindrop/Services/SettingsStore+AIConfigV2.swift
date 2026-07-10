@@ -98,11 +98,32 @@ extension SettingsStore {
             assignment.promptOverride,
             presetID: assignment.promptPresetID
          )
+         // Custom mode (no preset) with a cleared/unedited override would leave both nil.
+         // Fall back to the default built-in so resolve always has a deterministic English source.
+         if assignment.promptOverride == nil,
+            assignment.promptPresetID == nil,
+            purpose.supportsUserPrompt {
+            assignment.promptPresetID = defaultPromptPresetID(for: purpose)
+         }
          map[purpose] = assignment
       } else {
          map.removeValue(forKey: purpose)
       }
       assignments = map
+   }
+
+   /// Default built-in preset for purposes that support user prompts.
+   private func defaultPromptPresetID(for purpose: EnhancementPurpose) -> String {
+      switch purpose {
+      case .transcriptionEnhancement:
+         return BuiltInPresetID.cleanTranscript
+      case .noteEnhancement:
+         return BuiltInPresetID.noteFormatting
+      case .streamingRefinement:
+         return BuiltInPresetID.liveStreamingRefinement
+      case .noteMetadata, .transcriptionMetadata:
+         return BuiltInPresetID.cleanTranscript
+      }
    }
 
    // MARK: - UUID-keyed Keychain accounts

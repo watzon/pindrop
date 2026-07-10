@@ -618,7 +618,13 @@ struct AIEnhancementSettingsView: View {
             )
             existing.promptOverride = normalized
             if normalized != nil {
+               // True custom text: leave Custom mode (no preset pointer).
                existing.promptPresetID = nil
+            } else if existing.promptPresetID == nil {
+               // Custom mode with empty/unedited text would leave both nil — fall back to
+               // the purpose default built-in so resolve always has a deterministic English source.
+               existing.promptPresetID =
+                  defaultPresetID(for: purpose) ?? BuiltInPresetID.cleanTranscript
             }
             settings.setAssignment(existing, for: purpose)
          }
