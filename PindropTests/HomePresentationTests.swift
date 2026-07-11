@@ -208,6 +208,7 @@ struct HomePresentationTests {
         #expect(HomePresentation.barDayKind(index: 3, now: now, calendar: calendar) == .today)
         #expect(HomePresentation.barDayKind(index: 4, now: now, calendar: calendar) == .future)
         #expect(HomePresentation.isTodayBarIndex(3, now: now, calendar: calendar))
+        #expect(HomePresentation.todayBarIndex(now: now, calendar: calendar) == 3)
     }
 
     @Test func barDayKindRespectsSundayFirstWeek() throws {
@@ -218,6 +219,7 @@ struct HomePresentationTests {
         let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 9, hour: 12)))
         #expect(HomePresentation.barDayKind(index: 4, now: now, calendar: calendar) == .today)
         #expect(HomePresentation.barDayKind(index: 5, now: now, calendar: calendar) == .future)
+        #expect(HomePresentation.todayBarIndex(now: now, calendar: calendar) == 4)
     }
 
     // MARK: - Accessibility

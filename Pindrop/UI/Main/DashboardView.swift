@@ -13,9 +13,13 @@ struct DashboardView: View {
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
     @ObservedObject private var indicatorState: FloatingIndicatorState
     @ObservedObject private var settingsStore: SettingsStore
+    @State private var selectedWeekdayIndex: Int?
+    @State private var hoveredWeekdayIndex: Int?
+    @State private var chartHasAppeared = false
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
@@ -356,6 +360,12 @@ struct DashboardView: View {
         let maxWords = buckets.max() ?? 0
         let labels = HomePresentation.weekdayLabels(calendar: calendar, locale: locale)
         let names = HomePresentation.weekdayNames(calendar: calendar, locale: locale)
+        let todayIndex = HomePresentation.todayBarIndex(now: now, calendar: calendar)
+        let activeIndex = hoveredWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? selectedWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? todayIndex
+        let activeWords = activeIndex < buckets.count ? buckets[activeIndex] : 0
+        let activeName = activeIndex < names.count ? names[activeIndex] : ""
 
         return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
             SectionHeader(title: localized("This week", locale: locale), isFirst: true)
@@ -367,31 +377,63 @@ struct DashboardView: View {
                         let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
                         let height: CGFloat = {
                             if kind == .future {
-                                return HomeLayoutMetrics.chartStubHeight
+                                return 0
                             }
                             return HomePresentation.barHeight(words: words, maxWords: maxWords)
                         }()
-                        let isToday = kind == .today
-                        let barColor: Color = isToday ? AppColors.accent : AppColors.border
-                        let labelColor: Color = isToday ? AppColors.accent : AppColors.textTertiary
+                        let isActive = index == activeIndex
+                        let barColor: Color = isActive ? AppColors.accent : AppColors.border
+                        let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
                         let weekdayLabel = index < labels.count ? labels[index] : ""
                         let weekdayName = index < names.count ? names[index] : weekdayLabel
 
-                        VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
-                            UnevenRoundedRectangle(
-                                topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                style: .continuous
-                            )
-                            .fill(barColor)
-                            .frame(width: HomeLayoutMetrics.chartBarWidth, height: height)
-                            .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
+                        Button {
+                            selectedWeekdayIndex = index
+                        } label: {
+                            VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
+                                UnevenRoundedRectangle(
+                                    topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    style: .continuous
+                                )
+                                .fill(barColor)
+                                .frame(
+                                    width: HomeLayoutMetrics.chartBarWidth,
+                                    height: chartHasAppeared ? height : 0
+                                )
+                                .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
+                                .animation(
+                                    reduceMotion
+                                        ? nil
+                                        : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
+                                    value: chartHasAppeared
+                                )
+                                .appAnimation(.normal, value: words)
 
-                            Text(weekdayLabel)
-                                .font(FontLoader.font(family: .inter, size: 11, weight: isToday ? .semibold : .medium))
-                                .foregroundStyle(labelColor)
+                                Text(weekdayLabel)
+                                    .font(FontLoader.font(
+                                        family: .inter,
+                                        size: 11,
+                                        weight: isActive ? .semibold : .medium
+                                    ))
+                                    .foregroundStyle(labelColor)
+                            }
+                            .frame(width: HomeLayoutMetrics.chartBarWidth)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(kind == .future)
+                        .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .appAnimation(.fast, value: isActive)
+                        .onHover { hovering in
+                            guard kind != .future else { return }
+                            if hovering {
+                                hoveredWeekdayIndex = index
+                            } else if hoveredWeekdayIndex == index {
+                                hoveredWeekdayIndex = nil
+                            }
                         }
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel(
@@ -407,16 +449,7 @@ struct DashboardView: View {
                 Spacer(minLength: 24)
 
                 VStack(alignment: .trailing, spacing: HomeLayoutMetrics.statsInnerGap) {
-                    Text(HomePresentation.formatGrouped(stats.wordsThisWeek, locale: locale))
-                        .font(FontLoader.font(
-                            family: .jetbrainsMono,
-                            size: HomeLayoutMetrics.statsNumberSize,
-                            weight: .medium
-                        ))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .monospacedDigit()
-
-                    Text(localized("Words so far", locale: locale).uppercased(with: locale))
+                    Text(activeName.uppercased(with: locale))
                         .font(FontLoader.font(
                             family: .inter,
                             size: HomeLayoutMetrics.statsLabelSize,
@@ -424,12 +457,26 @@ struct DashboardView: View {
                         ))
                         .foregroundStyle(AppColors.textTertiary)
                         .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
+
+                    Text(HomePresentation.wordMetric(count: activeWords, locale: locale))
+                        .font(FontLoader.font(
+                            family: .jetbrainsMono,
+                            size: HomeLayoutMetrics.statsNumberSize,
+                            weight: .medium
+                        ))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .monospacedDigit()
                 }
+                .frame(width: HomeLayoutMetrics.chartDetailWidth, alignment: .trailing)
                 .padding(.bottom, HomeLayoutMetrics.weekTotalBottomPadding)
+                .appAnimation(.fast, value: activeIndex)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, HomeLayoutMetrics.chartTopPadding)
+        .onAppear {
+            chartHasAppeared = true
+        }
     }
 }
 

@@ -46,6 +46,7 @@ enum HomeLayoutMetrics {
     static let chartStubHeight: CGFloat = 4
     static let chartLabelGap: CGFloat = 8
     static let weekTotalBottomPadding: CGFloat = 24
+    static let chartDetailWidth: CGFloat = 152
 }
 
 // MARK: - Presentation helpers
@@ -212,9 +213,12 @@ enum HomePresentation {
         now: Date,
         calendar: Calendar
     ) -> Bool {
+        index == todayBarIndex(now: now, calendar: calendar)
+    }
+
+    static func todayBarIndex(now: Date, calendar: Calendar) -> Int {
         let weekday = calendar.component(.weekday, from: now)
-        let todayIndex = (weekday - calendar.firstWeekday + 7) % 7
-        return index == todayIndex
+        return (weekday - calendar.firstWeekday + 7) % 7
     }
 
     /// Past / today / future relative to `now` for a bar index in the firstWeekday-ordered week.
@@ -229,8 +233,7 @@ enum HomePresentation {
         now: Date,
         calendar: Calendar
     ) -> BarDayKind {
-        let weekday = calendar.component(.weekday, from: now)
-        let todayIndex = (weekday - calendar.firstWeekday + 7) % 7
+        let todayIndex = todayBarIndex(now: now, calendar: calendar)
         if index < todayIndex { return .past }
         if index == todayIndex { return .today }
         return .future
