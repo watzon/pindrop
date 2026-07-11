@@ -19,20 +19,21 @@ struct MediaTranscriptionDetailView: View {
     let onBack: () -> Void
     let onAssignFolder: (MediaFolder) -> Void
     let onRemoveFromFolder: () -> Void
-    let onRenameSpeakers: ([String: String]) -> Void
+    let onAssignSpeakerProfile: (String, UUID) -> Void
+    let onCreateSpeakerProfile: (String, String, String?) -> Bool
     let onDelete: () -> Void
 
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Query private var knownProfiles: [ParticipantProfile]
-
     @State private var playbackController = MediaPlaybackController()
     @State private var followPlayback = true
     @State private var playbackRate: Float = 1.0
     @State private var speakerLabelsByID: [String: String] = [:]
-    @State private var editingSpeakerID: String?
-    @State private var editedSpeakerLabel = ""
+    @State private var creatingProfileForSpeakerID: String?
+    @State private var newProfileName = ""
+    @State private var newProfileNotes = ""
     @State private var peaks: [Float] = []
 
     private static let detailTitleMetrics = TypographyRoleMetrics(
@@ -66,7 +67,11 @@ struct MediaTranscriptionDetailView: View {
     private func displayedSegment(
         _ segment: DiarizedTranscriptSegment
     ) -> DiarizedTranscriptSegment {
-            guard let speakerLabel = speakerLabelsByID[segment.speakerId],
+            let assignedProfileName = segment.speakerProfileID.flatMap { profileID in
+                knownProfiles.first { $0.id == profileID }?.displayName
+            }
+            let speakerLabel = assignedProfileName ?? speakerLabelsByID[segment.speakerId]
+            guard let speakerLabel,
                   !speakerLabel.isEmpty,
                   speakerLabel != segment.speakerLabel else {
                 return segment
@@ -75,6 +80,7 @@ struct MediaTranscriptionDetailView: View {
             return DiarizedTranscriptSegment(
                 speakerId: segment.speakerId,
                 speakerLabel: speakerLabel,
+                speakerProfileID: segment.speakerProfileID,
                 speakerEmbedding: segment.speakerEmbedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
@@ -107,42 +113,24 @@ struct MediaTranscriptionDetailView: View {
         return result
     }
 
-    /// Names offered by "Assign Speaker": trained participant profiles first, then
-    /// other speakers already labeled in this transcript.
-    private func assignOptions(excludingLabel currentLabel: String) -> [String] {
-        var seen = Set<String>()
-        var names: [String] = []
-        let trimmedCurrent = currentLabel.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-
-        for profile in knownProfiles
-            .sorted(by: { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }) {
-            let name = profile.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !name.isEmpty, name.lowercased() != trimmedCurrent,
-                  seen.insert(name.lowercased()).inserted else { continue }
-            names.append(name)
+    private var sortedProfiles: [ParticipantProfile] {
+        knownProfiles.sorted {
+            $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
         }
-        for segment in cachedSegments {
-            let name = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !name.isEmpty, name.lowercased() != trimmedCurrent,
-                  seen.insert(name.lowercased()).inserted else { continue }
-            names.append(name)
-        }
-        return names
     }
 
-    private func assignSpeaker(speakerID: String, to name: String) {
+    private func assignSpeaker(speakerID: String, to profile: ParticipantProfile) {
         guard !speakerID.isEmpty else { return }
-        speakerLabelsByID[speakerID] = name
-        onRenameSpeakers(speakerLabelsByID)
+        speakerLabelsByID[speakerID] = profile.displayName
+        onAssignSpeakerProfile(speakerID, profile.id)
     }
 
-    private var isRenameAlertPresented: Binding<Bool> {
+    private var isCreateProfileSheetPresented: Binding<Bool> {
         Binding(
-            get: { editingSpeakerID != nil },
+            get: { creatingProfileForSpeakerID != nil },
             set: { isPresented in
                 if !isPresented {
-                    editingSpeakerID = nil
-                    editedSpeakerLabel = ""
+                    resetNewProfileForm()
                 }
             }
         )
@@ -189,9 +177,6 @@ struct MediaTranscriptionDetailView: View {
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(alignment: .leading, spacing: 24) {
                                 mediaAndSummaryColumn
-                                if showsSpeakerLanes, !participants.isEmpty {
-                                    participantsFooter
-                                }
                             }
                             .padding(.bottom, 40)
                         }
@@ -219,10 +204,6 @@ struct MediaTranscriptionDetailView: View {
 
                         mediaAndSummaryColumn
                         transcriptSection
-                        if showsSpeakerLanes, !participants.isEmpty {
-                            participantsFooter
-                                .padding(.top, 16)
-                        }
                     }
                     .padding(.horizontal, 40)
                     .padding(.top, 40)
@@ -254,15 +235,17 @@ struct MediaTranscriptionDetailView: View {
         .onChange(of: speakerLabelsByID) { _, _ in
             rebuildSegmentCache()
         }
-        .alert(localized("Rename Participant", locale: locale), isPresented: isRenameAlertPresented) {
-            TextField("", text: $editedSpeakerLabel)
-            Button(localized("Cancel", locale: locale), role: .cancel) {
-                editingSpeakerID = nil
-                editedSpeakerLabel = ""
-            }
-            Button(localized("Save", locale: locale)) {
-                saveEditedSpeakerLabel()
-            }
+        .onChange(of: knownProfiles.map(\.updatedAt)) { _, _ in
+            rebuildSegmentCache()
+        }
+        .sheet(isPresented: isCreateProfileSheetPresented) {
+            SpeakerProfileCreationSheet(
+                name: $newProfileName,
+                notes: $newProfileNotes,
+                locale: locale,
+                onCancel: resetNewProfileForm,
+                onCreate: createAndAssignProfile
+            )
         }
     }
 
@@ -278,6 +261,9 @@ struct MediaTranscriptionDetailView: View {
         }
         if record.hasSummary, let summary = record.aiSummary {
             summaryBlock(summary)
+        }
+        if showsSpeakerLanes, !participants.isEmpty {
+            participantsFooter
         }
     }
 
@@ -585,20 +571,7 @@ struct MediaTranscriptionDetailView: View {
         .appAnimation(.fast, value: active)
         .contextMenu {
             if !segment.speakerId.isEmpty {
-                Button(localized("Rename Speaker…", locale: locale)) {
-                    editingSpeakerID = segment.speakerId
-                    editedSpeakerLabel = segment.speakerLabel
-                }
-                let options = assignOptions(excludingLabel: segment.speakerLabel)
-                if !options.isEmpty {
-                    Menu(localized("Assign Speaker", locale: locale)) {
-                        ForEach(options, id: \.self) { name in
-                            Button(name) {
-                                assignSpeaker(speakerID: segment.speakerId, to: name)
-                            }
-                        }
-                    }
-                }
+                speakerProfileMenu(speakerID: segment.speakerId)
             }
         }
     }
@@ -623,22 +596,19 @@ struct MediaTranscriptionDetailView: View {
                         .foregroundStyle(AppColors.textPrimary)
                     Spacer()
                     Menu {
-                        Button(localized("Rename Speaker…", locale: locale)) {
-                            editingSpeakerID = speakerID
-                            editedSpeakerLabel = participant.label
-                        }
-                        let options = assignOptions(excludingLabel: participant.label)
-                        if !options.isEmpty {
-                            Menu(localized("Assign Speaker", locale: locale)) {
-                                ForEach(options, id: \.self) { name in
-                                    Button(name) {
-                                        assignSpeaker(speakerID: speakerID, to: name)
-                                    }
-                                }
+                        ForEach(sortedProfiles) { profile in
+                            Button(profile.displayName) {
+                                assignSpeaker(speakerID: speakerID, to: profile)
                             }
                         }
+                        if !sortedProfiles.isEmpty {
+                            Divider()
+                        }
+                        Button(localized("Create New Profile…", locale: locale)) {
+                            creatingProfileForSpeakerID = speakerID
+                        }
                     } label: {
-                        Text(localized("Rename Speaker…", locale: locale))
+                        Text(localized("Assign Speaker", locale: locale))
                             .font(AppTypography.caption)
                             .foregroundStyle(AppColors.accent)
                     }
@@ -646,6 +616,23 @@ struct MediaTranscriptionDetailView: View {
                     .menuIndicator(.hidden)
                     .fixedSize()
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func speakerProfileMenu(speakerID: String) -> some View {
+        Menu(localized("Assign Speaker", locale: locale)) {
+            ForEach(sortedProfiles) { profile in
+                Button(profile.displayName) {
+                    assignSpeaker(speakerID: speakerID, to: profile)
+                }
+            }
+            if !sortedProfiles.isEmpty {
+                Divider()
+            }
+            Button(localized("Create New Profile…", locale: locale)) {
+                creatingProfileForSpeakerID = speakerID
             }
         }
     }
@@ -674,18 +661,80 @@ struct MediaTranscriptionDetailView: View {
         return labelsByID
     }
 
-    private func saveEditedSpeakerLabel() {
-        guard let speakerID = editingSpeakerID else { return }
-        let trimmedLabel = editedSpeakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedLabel.isEmpty else { return }
+    private func createAndAssignProfile() {
+        guard let speakerID = creatingProfileForSpeakerID else { return }
+        let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        let trimmedNotes = newProfileNotes.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        speakerLabelsByID[speakerID] = trimmedLabel
-        onRenameSpeakers(speakerLabelsByID)
-
-        editingSpeakerID = nil
-        editedSpeakerLabel = ""
+        let didCreate = onCreateSpeakerProfile(
+            speakerID,
+            trimmedName,
+            trimmedNotes.isEmpty ? nil : trimmedNotes
+        )
+        guard didCreate else { return }
+        speakerLabelsByID[speakerID] = trimmedName
+        resetNewProfileForm()
     }
 
+    private func resetNewProfileForm() {
+        creatingProfileForSpeakerID = nil
+        newProfileName = ""
+        newProfileNotes = ""
+    }
+
+}
+
+private struct SpeakerProfileCreationSheet: View {
+    @Binding var name: String
+    @Binding var notes: String
+    let locale: Locale
+    let onCancel: () -> Void
+    let onCreate: () -> Void
+
+    private var canCreate: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Create Speaker Profile", locale: locale))
+                .font(AppTypography.title)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("Name", locale: locale))
+                    .font(AppTypography.label)
+                TextField(localized("Name", locale: locale), text: $name)
+                    .textFieldStyle(.roundedBorder)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("Notes", locale: locale))
+                    .font(AppTypography.label)
+                TextEditor(text: $notes)
+                    .font(AppTypography.body)
+                    .frame(minHeight: 90)
+                    .padding(6)
+                    .background(AppColors.contentBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(AppColors.border, lineWidth: 1)
+                    }
+            }
+
+            HStack {
+                Spacer()
+                Button(localized("Cancel", locale: locale), role: .cancel, action: onCancel)
+                    .keyboardShortcut(.cancelAction)
+                Button(localized("Create", locale: locale), action: onCreate)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(!canCreate)
+            }
+        }
+        .padding(20)
+        .frame(width: 420)
+    }
 }
 
 /// NSViewRepresentable wrapping AVPlayerView directly. We avoid

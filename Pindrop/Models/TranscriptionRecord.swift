@@ -1,10 +1,10 @@
 import Foundation
 import SwiftData
 
-typealias TranscriptionRecord = TranscriptionRecordSchemaV8.TranscriptionRecord
-typealias MediaFolder = TranscriptionRecordSchemaV8.MediaFolder
-typealias ParticipantProfile = TranscriptionRecordSchemaV8.ParticipantProfile
-typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV8.ParticipantTrainingEvidence
+typealias TranscriptionRecord = TranscriptionRecordSchemaV9.TranscriptionRecord
+typealias MediaFolder = TranscriptionRecordSchemaV9.MediaFolder
+typealias ParticipantProfile = TranscriptionRecordSchemaV9.ParticipantProfile
+typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV9.ParticipantTrainingEvidence
 
 enum TranscriptionTitleOrigin: String {
     case sourceMetadata

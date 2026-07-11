@@ -60,7 +60,10 @@ struct HistoryView: View {
     }
 
     private var historyStore: HistoryStore {
-        HistoryStore(modelContext: modelContext)
+        HistoryStore(
+            modelContext: modelContext,
+            speakerIdentityService: SpeakerIdentityService(modelContext: modelContext)
+        )
     }
 
     private var retention: DictationAudioRetention {
@@ -112,8 +115,16 @@ struct HistoryView: View {
                             removeRecordFromFolder(record)
                         }
                     },
-                    onRenameSpeakers: { labelsBySpeakerID in
-                        renameSpeakerLabels(for: record, labelsBySpeakerID: labelsBySpeakerID)
+                    onAssignSpeakerProfile: { speakerID, profileID in
+                        assignSpeakerProfile(for: record, speakerID: speakerID, profileID: profileID)
+                    },
+                    onCreateSpeakerProfile: { speakerID, name, notes in
+                        createAndAssignSpeakerProfile(
+                            for: record,
+                            speakerID: speakerID,
+                            name: name,
+                            notes: notes
+                        )
                     },
                     onDelete: { pendingDeletionRecord = record }
                 )
@@ -667,11 +678,39 @@ struct HistoryView: View {
         }
     }
 
-    private func renameSpeakerLabels(for record: TranscriptionRecord, labelsBySpeakerID: [String: String]) {
+    private func assignSpeakerProfile(
+        for record: TranscriptionRecord,
+        speakerID: String,
+        profileID: UUID
+    ) {
         do {
-            try historyStore.updateSpeakerLabels(record: record, labelsBySpeakerID: labelsBySpeakerID)
+            try historyStore.assignSpeakerProfile(
+                record: record,
+                speakerID: speakerID,
+                profileID: profileID
+            )
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func createAndAssignSpeakerProfile(
+        for record: TranscriptionRecord,
+        speakerID: String,
+        name: String,
+        notes: String?
+    ) -> Bool {
+        do {
+            try historyStore.createAndAssignSpeakerProfile(
+                record: record,
+                speakerID: speakerID,
+                displayName: name,
+                notes: notes
+            )
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
         }
     }
 

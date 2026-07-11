@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Javítsa ki a nyelvtani hibákat"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Teremt"
   new_note: "Új jegyzet létrehozása"
   new_preset: "Új előbeállítás létrehozása"
@@ -786,6 +788,8 @@ refresh:
   _self: "Frissítés"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Távolítsa el"
   and_clear_any_assignments_that_reference: "Eltávolítja a(z) \"%@\" elemet, és töröl minden olyan hozzárendelést, amely erre hivatkozik? A tárolt hitelesítő adatok törlődnek."
   from_folder: "Eltávolítás a mappából"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "spanyol"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "A hangszóró naplózása és az időbélyegek a lejátszáshoz vannak csatolva."
   diarization_is_required: "Előadói naplózás szükséges"
@@ -970,6 +975,7 @@ theme:
   mode: "Téma mód"
   mode_bb6b0b3d: "Téma mód"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Ez az előre beállított név már használatban van."
   provider_will_be_available_in_a_future_upda: |-
     Ez a szolgáltató egy jövőbeli frissítésben lesz elérhető.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Ezzel véglegesen törli a jegyzetet."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Megtakarított idő"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "diktálni, és hagyni, hogy Pindrop átírja helyetted"

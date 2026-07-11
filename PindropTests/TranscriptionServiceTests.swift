@@ -279,6 +279,39 @@ struct TranscriptionServiceTests {
         #expect(mockDiarizer.diarizeCallCount == 0)
     }
 
+    @Test func extractsSpeakerProfileSegmentsWithoutRetranscribingText() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let speaker = Speaker(id: "speaker-a", label: "", embedding: [0.2, 0.8])
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(
+                    speaker: speaker,
+                    startTime: 0,
+                    endTime: 2,
+                    confidence: 0.9
+                )
+            ],
+            speakers: [speaker],
+            audioDuration: 2
+        )
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        let segments = try await service.extractSpeakerProfileSegments(
+            audioData: makeFloatAudioData(seconds: 2)
+        )
+
+        #expect(segments.count == 1)
+        #expect(segments.first?.speakerId == "speaker-a")
+        #expect(segments.first?.speakerEmbedding == [0.2, 0.8])
+        #expect(segments.first?.text == "")
+        #expect(mockEngine.transcribeCallCount == 0)
+        #expect(mockDiarizer.diarizeCallCount == 1)
+    }
+
     @Test func transcribeForwardsLanguageOptionsToEngine() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["ni hao"]
@@ -1047,15 +1080,22 @@ private final class MockSpeakerIdentityService: SpeakerIdentityManaging {
         return matchesByEmbeddingKey[embedding.map { String(format: "%.4f", $0) }.joined(separator: ",")]
     }
 
-    func learnFromRenameFeedback(
+    func learnFromProfileAssignments(
         recordID: UUID,
         segments: [DiarizedTranscriptSegment],
-        labelsBySpeakerID: [String: String]
+        profileIDsBySpeakerID: [String: UUID]
     ) throws {
         learnCallCount += 1
     }
 
+    func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {}
+    func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
+    func removeTrainingEvidence(for recordID: UUID) throws {}
+    func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile {
+        ParticipantProfile(normalizedName: displayName.lowercased(), displayName: displayName, notes: notes)
+    }
     func fetchAllProfiles() throws -> [ParticipantProfile] { [] }
+    func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {}
     func renameProfile(_ profile: ParticipantProfile, to newName: String) throws {}
     func deleteProfile(_ profile: ParticipantProfile) throws {}
     func deleteAllProfiles() throws {}

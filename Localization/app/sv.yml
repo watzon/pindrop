@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Rätta grammatikfel"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Skapa"
   new_note: "Skapa ny anteckning"
   new_preset: "Skapa ny förinställning"
@@ -786,6 +788,8 @@ refresh:
   _self: "Uppdatera"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Ta bort"
   and_clear_any_assignments_that_reference: "Ta bort \"%@\" och rensa alla tilldelningar som refererar till det? Lagrade referenser kommer att raderas."
   from_folder: "Ta bort från mapp"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "spanska"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Högtalardiarisering och tidsstämplar är fästa vid uppspelning."
   diarization_is_required: "Högtalarens diaarisering krävs"
@@ -970,6 +975,7 @@ theme:
   mode: "Temaläge"
   mode_bb6b0b3d: "Temaläge"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Detta förinställda namn används redan."
   provider_will_be_available_in_a_future_upda: |-
     Denna leverantör kommer att finnas tillgänglig i en framtida uppdatering.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Detta tar bort anteckningen permanent."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tid sparad"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "att diktera och låta Pindrop transkribera åt dig"

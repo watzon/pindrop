@@ -24,12 +24,20 @@ struct SpeakerIdentityMatch: Equatable {
 protocol SpeakerIdentityManaging: AnyObject {
     func knownSpeakers() throws -> [Speaker]
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch?
-    func learnFromRenameFeedback(
+    func learnFromDictation(
+        recordID: UUID,
+        segments: [DiarizedTranscriptSegment]
+    ) throws
+    func learnFromProfileAssignments(
         recordID: UUID,
         segments: [DiarizedTranscriptSegment],
-        labelsBySpeakerID: [String: String]
+        profileIDsBySpeakerID: [String: UUID]
     ) throws
+    func hasTrainingEvidence(for recordID: UUID) throws -> Bool
+    func removeTrainingEvidence(for recordID: UUID) throws
+    func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile
     func fetchAllProfiles() throws -> [ParticipantProfile]
+    func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws
     func renameProfile(_ profile: ParticipantProfile, to newName: String) throws
     func deleteProfile(_ profile: ParticipantProfile) throws
     func deleteAllProfiles() throws
@@ -53,8 +61,11 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     private enum EvidenceSource: String {
+        case dictation
         case renameFeedback
     }
+
+    private static let currentUserProfileID = UUID(uuidString: "9A80C8F2-DBA4-4F80-8D06-54F6151EC212")!
 
     private static let minimumDurationForLearning: TimeInterval = 1.0
     private static let minimumConfidenceForLearning: Float = 0.45
@@ -123,80 +134,180 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         }
     }
 
-    func learnFromRenameFeedback(
+    func learnFromProfileAssignments(
         recordID: UUID,
         segments: [DiarizedTranscriptSegment],
-        labelsBySpeakerID: [String: String]
+        profileIDsBySpeakerID: [String: UUID]
     ) throws {
-        let normalizedLabelsBySpeakerID = labelsBySpeakerID.reduce(into: [String: String]()) { result, entry in
-            let trimmed = entry.value.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return }
-            result[entry.key] = trimmed
-        }
-
-        guard !normalizedLabelsBySpeakerID.isEmpty else { return }
+        guard !profileIDsBySpeakerID.isEmpty else { return }
 
         do {
-            var touchedProfiles: [PersistentIdentifier: ParticipantProfile] = [:]
-
-            for label in Set(normalizedLabelsBySpeakerID.values) {
-                let profile = try getOrCreateProfile(named: label)
-                touchedProfiles[profile.persistentModelID] = profile
+            var profilesByID: [UUID: ParticipantProfile] = [:]
+            for profileID in Set(profileIDsBySpeakerID.values) {
+                guard let profile = try fetchProfile(id: profileID) else { continue }
+                profilesByID[profileID] = profile
             }
 
-            for segment in segments {
-                guard let label = normalizedLabelsBySpeakerID[segment.speakerId] else { continue }
-                guard isEligibleForLearning(segment), let embedding = segment.speakerEmbedding else { continue }
-
-                let profile = try getOrCreateProfile(named: label)
-                touchedProfiles[profile.persistentModelID] = profile
-
-                let key = evidenceKey(for: recordID, segment: segment)
-                let existingEvidence = try fetchTrainingEvidence(withKey: key)
-                if let previousProfile = existingEvidence?.profile {
-                    touchedProfiles[previousProfile.persistentModelID] = previousProfile
-                }
-
-                let evidence = existingEvidence ?? ParticipantTrainingEvidence(
-                    evidenceKey: key,
-                    sourceTypeRawValue: EvidenceSource.renameFeedback.rawValue,
-                    recordID: recordID,
-                    sourceSpeakerID: segment.speakerId,
-                    segmentStartTime: segment.startTime,
-                    segmentEndTime: segment.endTime,
-                    segmentDuration: segment.endTime - segment.startTime,
-                    confidence: segment.confidence,
-                    embeddingData: encodeEmbedding(embedding)
-                )
-
-                evidence.sourceTypeRawValue = EvidenceSource.renameFeedback.rawValue
-                evidence.recordID = recordID
-                evidence.sourceSpeakerID = segment.speakerId
-                evidence.segmentStartTime = segment.startTime
-                evidence.segmentEndTime = segment.endTime
-                evidence.segmentDuration = segment.endTime - segment.startTime
-                evidence.confidence = segment.confidence
-                evidence.embeddingData = encodeEmbedding(embedding)
-                evidence.updatedAt = Date()
-                evidence.profile = profile
-
-                if existingEvidence == nil {
-                    modelContext.insert(evidence)
-                }
-            }
-
-            for profile in touchedProfiles.values {
-                rebuildProfile(profile)
-            }
-
-            if !touchedProfiles.isEmpty {
-                try modelContext.save()
+            try learn(
+                recordID: recordID,
+                segments: segments,
+                source: .renameFeedback
+            ) { segment in
+                guard let profileID = profileIDsBySpeakerID[segment.speakerId] else { return nil }
+                return profilesByID[profileID]
             }
         } catch let error as SpeakerIdentityError {
             throw error
         } catch {
             throw SpeakerIdentityError.saveFailed(error.localizedDescription)
         }
+    }
+
+    func learnFromDictation(
+        recordID: UUID,
+        segments: [DiarizedTranscriptSegment]
+    ) throws {
+        guard segments.contains(where: isEligibleForLearning) else { return }
+
+        do {
+            let profile = try getOrCreateCurrentUserProfile()
+            try learn(recordID: recordID, segments: segments, source: .dictation) { _ in profile }
+        } catch let error as SpeakerIdentityError {
+            throw error
+        } catch {
+            throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    func hasTrainingEvidence(for recordID: UUID) throws -> Bool {
+        var descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
+            predicate: #Predicate { $0.recordID == recordID }
+        )
+        descriptor.fetchLimit = 1
+
+        do {
+            return try !modelContext.fetch(descriptor).isEmpty
+        } catch {
+            throw SpeakerIdentityError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    func removeTrainingEvidence(for recordID: UUID) throws {
+        let descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
+            predicate: #Predicate { $0.recordID == recordID }
+        )
+
+        do {
+            let evidence = try modelContext.fetch(descriptor)
+            let touchedProfiles = evidence.reduce(into: [PersistentIdentifier: ParticipantProfile]()) {
+                result, item in
+                guard let profile = item.profile else { return }
+                result[profile.persistentModelID] = profile
+            }
+
+            for item in evidence {
+                modelContext.delete(item)
+            }
+            try modelContext.save()
+
+            for profile in touchedProfiles.values {
+                rebuildProfile(profile)
+            }
+            if !touchedProfiles.isEmpty {
+                try modelContext.save()
+            }
+        } catch {
+            throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    private func learn(
+        recordID: UUID,
+        segments: [DiarizedTranscriptSegment],
+        source: EvidenceSource,
+        profileForSegment: (DiarizedTranscriptSegment) -> ParticipantProfile?
+    ) throws {
+        var touchedProfiles: [PersistentIdentifier: ParticipantProfile] = [:]
+
+        for segment in segments {
+            guard isEligibleForLearning(segment),
+                  let embedding = segment.speakerEmbedding,
+                  let profile = profileForSegment(segment) else {
+                continue
+            }
+
+            touchedProfiles[profile.persistentModelID] = profile
+            let key = evidenceKey(for: recordID, segment: segment)
+            let existingEvidence = try fetchTrainingEvidence(withKey: key)
+            if let previousProfile = existingEvidence?.profile {
+                touchedProfiles[previousProfile.persistentModelID] = previousProfile
+            }
+
+            let evidence = existingEvidence ?? ParticipantTrainingEvidence(
+                evidenceKey: key,
+                sourceTypeRawValue: source.rawValue,
+                recordID: recordID,
+                sourceSpeakerID: segment.speakerId,
+                segmentStartTime: segment.startTime,
+                segmentEndTime: segment.endTime,
+                segmentDuration: segment.endTime - segment.startTime,
+                confidence: segment.confidence,
+                embeddingData: encodeEmbedding(embedding)
+            )
+
+            evidence.sourceTypeRawValue = source.rawValue
+            evidence.recordID = recordID
+            evidence.sourceSpeakerID = segment.speakerId
+            evidence.segmentStartTime = segment.startTime
+            evidence.segmentEndTime = segment.endTime
+            evidence.segmentDuration = segment.endTime - segment.startTime
+            evidence.confidence = segment.confidence
+            evidence.embeddingData = encodeEmbedding(embedding)
+            evidence.updatedAt = Date()
+            evidence.profile = profile
+
+            if existingEvidence == nil {
+                modelContext.insert(evidence)
+            }
+        }
+
+        for profile in touchedProfiles.values {
+            rebuildProfile(profile)
+        }
+        if !touchedProfiles.isEmpty {
+            try modelContext.save()
+        }
+    }
+
+    private func getOrCreateCurrentUserProfile() throws -> ParticipantProfile {
+        var currentUserDescriptor = FetchDescriptor<ParticipantProfile>(
+            predicate: #Predicate { $0.isCurrentUser }
+        )
+        currentUserDescriptor.fetchLimit = 1
+
+        if let profile = try modelContext.fetch(currentUserDescriptor).first {
+            return profile
+        }
+
+        let profileID = Self.currentUserProfileID
+        if let profile = try fetchProfile(id: profileID) {
+            profile.isCurrentUser = true
+            return profile
+        }
+
+        if let profile = try fetchProfile(normalizedName: "me") {
+            profile.isCurrentUser = true
+            return profile
+        }
+
+        let profile = ParticipantProfile(
+            id: profileID,
+            normalizedName: "me",
+            displayName: "Me",
+            isCurrentUser: true
+        )
+        modelContext.insert(profile)
+        return profile
     }
 
     private func getOrCreateProfile(named displayName: String) throws -> ParticipantProfile {
@@ -220,6 +331,19 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         let descriptor = FetchDescriptor<ParticipantProfile>(
             predicate: #Predicate { $0.normalizedName == normalizedName }
         )
+
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            throw SpeakerIdentityError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    private func fetchProfile(id: UUID) throws -> ParticipantProfile? {
+        var descriptor = FetchDescriptor<ParticipantProfile>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
 
         do {
             return try modelContext.fetch(descriptor).first
@@ -337,6 +461,31 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         try getOrCreateProfile(named: displayName)
     }
 
+    func createProfile(displayName: String, notes: String? = nil) throws -> ParticipantProfile {
+        let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            throw SpeakerIdentityError.saveFailed("Enter a name for the speaker profile.")
+        }
+        guard try fetchProfile(normalizedName: normalizedKey(for: trimmedName)) == nil else {
+            throw SpeakerIdentityError.saveFailed("A speaker profile with that name already exists.")
+        }
+
+        let trimmedNotes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let profile = ParticipantProfile(
+            normalizedName: normalizedKey(for: trimmedName),
+            displayName: trimmedName,
+            notes: trimmedNotes?.isEmpty == false ? trimmedNotes : nil
+        )
+        modelContext.insert(profile)
+
+        do {
+            try modelContext.save()
+            return profile
+        } catch {
+            throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
+
     func fetchAllProfiles() throws -> [ParticipantProfile] {
         do {
             let descriptor = FetchDescriptor<ParticipantProfile>(
@@ -348,19 +497,34 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         }
     }
 
-    func renameProfile(_ profile: ParticipantProfile, to newName: String) throws {
-        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+    func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {
+        let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
+        let normalizedName = normalizedKey(for: trimmed)
+        if let duplicate = try fetchProfile(normalizedName: normalizedName), duplicate.id != profile.id {
+            throw SpeakerIdentityError.saveFailed("A speaker profile with that name already exists.")
+        }
+
         profile.displayName = trimmed
-        profile.normalizedName = normalizedKey(for: trimmed)
+        profile.normalizedName = normalizedName
+        let trimmedNotes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.notes = trimmedNotes?.isEmpty == false ? trimmedNotes : nil
         profile.updatedAt = Date()
 
         do {
+            try rewriteProfileAssignments(
+                profileID: profile.id,
+                updatedDisplayName: profile.displayName
+            )
             try modelContext.save()
         } catch {
             throw SpeakerIdentityError.saveFailed(error.localizedDescription)
         }
+    }
+
+    func renameProfile(_ profile: ParticipantProfile, to newName: String) throws {
+        try updateProfile(profile, displayName: newName, notes: profile.notes)
     }
 
     func deleteProfile(_ profile: ParticipantProfile) throws {
@@ -369,6 +533,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             for item in evidence {
                 modelContext.delete(item)
             }
+            try rewriteProfileAssignments(profileID: profile.id, updatedDisplayName: nil)
             modelContext.delete(profile)
             try modelContext.save()
         } catch {
@@ -384,11 +549,40 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
                 modelContext.delete(item)
             }
             for profile in profiles {
+                try rewriteProfileAssignments(profileID: profile.id, updatedDisplayName: nil)
                 modelContext.delete(profile)
             }
             try modelContext.save()
         } catch {
             throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    private func rewriteProfileAssignments(
+        profileID: UUID,
+        updatedDisplayName: String?
+    ) throws {
+        let records = try modelContext.fetch(FetchDescriptor<TranscriptionRecord>())
+
+        for record in records {
+            let segments = record.diarizedSegments
+            guard segments.contains(where: { $0.speakerProfileID == profileID }) else { continue }
+
+            let updatedSegments = segments.map { segment in
+                guard segment.speakerProfileID == profileID else { return segment }
+                return DiarizedTranscriptSegment(
+                    speakerId: segment.speakerId,
+                    speakerLabel: updatedDisplayName ?? segment.speakerLabel,
+                    speakerProfileID: updatedDisplayName == nil ? nil : profileID,
+                    speakerEmbedding: segment.speakerEmbedding,
+                    startTime: segment.startTime,
+                    endTime: segment.endTime,
+                    confidence: segment.confidence,
+                    text: segment.text
+                )
+            }
+            let data = try JSONEncoder().encode(updatedSegments)
+            record.diarizationSegmentsJSON = String(data: data, encoding: .utf8)
         }
     }
 }
@@ -447,7 +641,8 @@ final class HistoryStore {
         folderID: UUID? = nil,
         destinationAppName: String? = nil,
         destinationAppBundleID: String? = nil,
-        wordCount: Int? = nil
+        wordCount: Int? = nil,
+        speakerTrainingSegments: [DiarizedTranscriptSegment]? = nil
     ) throws -> TranscriptionRecord {
         // Always persist a word count for the final text; callers may pass an
         // explicit value (e.g. pre-computed) but we default to String.wordCount.
@@ -481,6 +676,13 @@ final class HistoryStore {
         
         do {
             try modelContext.save()
+            let dictationTrainingSegments = speakerTrainingSegments ?? record.diarizedSegments
+            if sourceKind == .voiceRecording, !dictationTrainingSegments.isEmpty {
+                try speakerIdentityService?.learnFromDictation(
+                    recordID: record.id,
+                    segments: dictationTrainingSegments
+                )
+            }
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
             return record
         } catch {
@@ -759,32 +961,31 @@ final class HistoryStore {
         }
     }
 
-    func updateSpeakerLabels(
+    func assignSpeakerProfile(
         record: TranscriptionRecord,
-        labelsBySpeakerID: [String: String]
+        speakerID: String,
+        profileID: UUID
     ) throws {
-        let normalizedLabelsBySpeakerID = labelsBySpeakerID.reduce(into: [String: String]()) { result, entry in
-            let trimmed = entry.value.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { return }
-            result[entry.key] = trimmed
+        let diarizedSegments = record.diarizedSegments
+        guard !diarizedSegments.isEmpty, !speakerID.isEmpty else { return }
+
+        var descriptor = FetchDescriptor<ParticipantProfile>(
+            predicate: #Predicate { $0.id == profileID }
+        )
+        descriptor.fetchLimit = 1
+        guard let profile = try modelContext.fetch(descriptor).first else {
+            throw HistoryStoreError.saveFailed("The selected speaker profile no longer exists.")
         }
 
-        guard !normalizedLabelsBySpeakerID.isEmpty else { return }
-
-        let diarizedSegments = record.diarizedSegments
-        guard !diarizedSegments.isEmpty else { return }
-
-        var hasChanges = false
         let updatedSegments = diarizedSegments.map { segment in
-            guard let updatedLabel = normalizedLabelsBySpeakerID[segment.speakerId],
-                  updatedLabel != segment.speakerLabel else {
+            guard segment.speakerId == speakerID else {
                 return segment
             }
 
-            hasChanges = true
             return DiarizedTranscriptSegment(
                 speakerId: segment.speakerId,
-                speakerLabel: updatedLabel,
+                speakerLabel: profile.displayName,
+                speakerProfileID: profile.id,
                 speakerEmbedding: segment.speakerEmbedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
@@ -793,17 +994,51 @@ final class HistoryStore {
             )
         }
 
-        guard hasChanges else { return }
-
         do {
             let data = try JSONEncoder().encode(updatedSegments)
             record.diarizationSegmentsJSON = String(data: data, encoding: .utf8)
-            try speakerIdentityService?.learnFromRenameFeedback(
+            try speakerIdentityService?.learnFromProfileAssignments(
                 recordID: record.id,
                 segments: updatedSegments,
-                labelsBySpeakerID: normalizedLabelsBySpeakerID
+                profileIDsBySpeakerID: [speakerID: profileID]
             )
             try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    @discardableResult
+    func createAndAssignSpeakerProfile(
+        record: TranscriptionRecord,
+        speakerID: String,
+        displayName: String,
+        notes: String?
+    ) throws -> ParticipantProfile {
+        guard let speakerIdentityService else {
+            throw HistoryStoreError.saveFailed("Speaker profiles are unavailable.")
+        }
+
+        do {
+            let profile = try speakerIdentityService.createProfile(
+                displayName: displayName,
+                notes: notes
+            )
+            try assignSpeakerProfile(record: record, speakerID: speakerID, profileID: profile.id)
+            return profile
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    func hasSpeakerTrainingEvidence(for record: TranscriptionRecord) throws -> Bool {
+        try speakerIdentityService?.hasTrainingEvidence(for: record.id) ?? false
+    }
+
+    func removeFromSpeakerProfiles(_ record: TranscriptionRecord) throws {
+        do {
+            try speakerIdentityService?.removeTrainingEvidence(for: record.id)
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.saveFailed(error.localizedDescription)
@@ -831,6 +1066,7 @@ final class HistoryStore {
     
     func delete(_ record: TranscriptionRecord) throws {
         removeManagedMedia(for: record)
+        try speakerIdentityService?.removeTrainingEvidence(for: record.id)
         modelContext.delete(record)
         
         do {
@@ -844,6 +1080,9 @@ final class HistoryStore {
         do {
             let records = try fetchAll()
             records.forEach(removeManagedMedia)
+            for record in records {
+                try speakerIdentityService?.removeTrainingEvidence(for: record.id)
+            }
             try modelContext.delete(model: TranscriptionRecord.self)
             try modelContext.save()
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)

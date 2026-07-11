@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Διορθώστε τα γραμματικά λάθη"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Δημιουργώ"
   new_note: "Δημιουργία νέας σημείωσης"
   new_preset: "Δημιουργία νέας προεπιλογής"
@@ -786,6 +788,8 @@ refresh:
   _self: "Φρεσκάρω"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Αφαιρώ"
   and_clear_any_assignments_that_reference: "Να καταργηθεί το \"%@\" και να διαγραφούν τυχόν εργασίες που αναφέρονται σε αυτό; Τα αποθηκευμένα διαπιστευτήρια θα διαγραφούν."
   from_folder: "Κατάργηση από τον φάκελο"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "ισπανικά"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Η ένδειξη ηχείων και οι χρονικές σημάνσεις επισυνάπτονται στην αναπαραγωγή."
   diarization_is_required: "Απαιτείται διάκριση του ηχείου"
@@ -970,6 +975,7 @@ theme:
   mode: "Λειτουργία θέματος"
   mode_bb6b0b3d: "Λειτουργία θέματος"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Αυτό το προκαθορισμένο όνομα χρησιμοποιείται ήδη."
   provider_will_be_available_in_a_future_upda: |-
     Αυτός ο πάροχος θα είναι διαθέσιμος σε μελλοντική ενημέρωση.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Αυτό θα αφαιρέσει οριστικά αυτή τη σημείωση."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Εξοικονόμηση χρόνου"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "να υπαγορεύσει και να αφήσει τον Πίντροπ να μεταγράψει για εσάς"

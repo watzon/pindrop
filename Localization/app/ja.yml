@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "文法の間違いを正す"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "作成する"
   new_note: "新しいメモを作成する"
   new_preset: "新しいプリセットの作成"
@@ -786,6 +788,8 @@ refresh:
   _self: "リフレッシュ"
   the_provider_or_open_edit_to_fetch_model: "プロバイダを更新するか、編集を開いてモデルを取得してください。"
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "取り除く"
   and_clear_any_assignments_that_reference: "「%@」を削除し、それを参照する割り当てをクリアしますか?保存されている認証情報は削除されます。"
   from_folder: "フォルダーから削除"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "スペイン語"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "再生にはスピーカーのダイアライゼーションとタイムスタンプが付加されます。"
   diarization_is_required: "スピーカーのダイアライゼーションが必要です"
@@ -970,6 +975,7 @@ theme:
   mode: "テーマモード"
   mode_bb6b0b3d: "テーマモード"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "このプリセット名はすでに使用されています。"
   provider_will_be_available_in_a_future_upda: |-
     このプロバイダーは将来のアップデートで利用可能になる予定です。
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
   will_permanently_remove_this_note: "このメモは完全に削除されます。"
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "時間の節約"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "Pindrop に口述して文字起こししてもらう"

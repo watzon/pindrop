@@ -79,4 +79,55 @@ struct SchemaV8MigrationTests {
             #expect(record.wordCount == nil)
         }
     }
+
+    @Test func migrationFromV8AddsProfileMetadataDefaults() throws {
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directoryURL) }
+
+        let storeURL = directoryURL.appendingPathComponent("migration-v8-to-v9.store")
+        let configuration = ModelConfiguration(url: storeURL)
+
+        try autoreleasepool {
+            let legacyContainer = try ModelContainer(
+                for: TranscriptionRecordSchemaV8.TranscriptionRecord.self,
+                TranscriptionRecordSchemaV8.MediaFolder.self,
+                TranscriptionRecordSchemaV8.ParticipantProfile.self,
+                TranscriptionRecordSchemaV8.ParticipantTrainingEvidence.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
+            )
+            let legacyContext = ModelContext(legacyContainer)
+            legacyContext.insert(
+                TranscriptionRecordSchemaV8.ParticipantProfile(
+                    normalizedName: "alice",
+                    displayName: "Alice"
+                )
+            )
+            try legacyContext.save()
+        }
+
+        let migratedContainer = try ModelContainer(
+            for: TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            configurations: configuration
+        )
+        let profiles = try ModelContext(migratedContainer).fetch(FetchDescriptor<ParticipantProfile>())
+        let profile = try #require(profiles.first)
+
+        #expect(profiles.count == 1)
+        #expect(profile.displayName == "Alice")
+        #expect(profile.notes == nil)
+        #expect(profile.isCurrentUser == false)
+    }
 }

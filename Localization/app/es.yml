@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Corregir errores gramaticales"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Crear"
   new_note: "Crear nueva nota"
   new_preset: "Crear nuevo preajuste"
@@ -786,6 +788,8 @@ refresh:
   _self: "Actualizar"
   the_provider_or_open_edit_to_fetch_model: "Actualiza el proveedor o abre Editar para obtener modelos."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Eliminar"
   and_clear_any_assignments_that_reference: "¿Eliminar \"%@\" y borrar cualquier asignación que haga referencia a él? Se eliminarán las credenciales almacenadas."
   from_folder: "Quitar de la carpeta"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Español"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "La diarización de hablantes y las marcas de tiempo se adjuntan a la reproducción."
   diarization_is_required: "Se requiere diarización de hablantes"
@@ -970,6 +975,7 @@ theme:
   mode: "Modo de tema"
   mode_bb6b0b3d: "Modo de tema"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Este nombre de ajuste ya está en uso."
   provider_will_be_available_in_a_future_upda: |-
     Este proveedor estará disponible en una futura actualización.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "Esto borrará todos tus ajustes, incluidas las claves API, y reiniciará la configuración inicial"
   will_permanently_remove_this_note: "Esto eliminará permanentemente esta nota."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tiempo ahorrado"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "para dictar y dejar que Pindrop transcriba por ti"

@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Correggere gli errori grammaticali"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Creare"
   new_note: "Crea nuova nota"
   new_preset: "Crea nuova preimpostazione"
@@ -786,6 +788,8 @@ refresh:
   _self: "Aggiorna"
   the_provider_or_open_edit_to_fetch_model: "Aggiorna il provider o apri Modifica per recuperare i modelli."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Rimuovere"
   and_clear_any_assignments_that_reference: "Rimuovere \"%@\" e cancellare tutte le assegnazioni che fanno riferimento ad esso? Le credenziali archiviate verranno eliminate."
   from_folder: "Rimuovi dalla cartella"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "spagnolo"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "La diarizzazione degli altoparlanti e i timestamp sono allegati alla riproduzione."
   diarization_is_required: "È richiesta la diarizzazione del relatore"
@@ -970,6 +975,7 @@ theme:
   mode: "Modalità tema"
   mode_bb6b0b3d: "Modalità tema"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Questo nome preimpostato è già in uso."
   provider_will_be_available_in_a_future_upda: |-
     Questo provider sarà disponibile in un aggiornamento futuro.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "Cancellerà tutte le impostazioni, incluse le chiavi API, e riavvierà la configurazione iniziale"
   will_permanently_remove_this_note: "Questo rimuoverà permanentemente questa nota."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tempo risparmiato"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "per dettare e lasciare che Pindrop trascriva per te"

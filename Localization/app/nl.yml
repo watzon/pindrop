@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Corrigeer grammaticafouten"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Creëren"
   new_note: "Nieuwe notitie maken"
   new_preset: "Nieuwe voorinstelling maken"
@@ -786,6 +788,8 @@ refresh:
   _self: "Vernieuwen"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Verwijderen"
   and_clear_any_assignments_that_reference: "'%@' verwijderen en alle toewijzingen wissen die ernaar verwijzen? Opgeslagen inloggegevens worden verwijderd."
   from_folder: "Verwijderen uit map"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Spaans"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Sprekersdialoog en tijdstempels zijn aan het afspelen gekoppeld."
   diarization_is_required: "Sprekersdagboek is vereist"
@@ -970,6 +975,7 @@ theme:
   mode: "Thema-modus"
   mode_bb6b0b3d: "Themamodus"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Deze vooraf ingestelde naam is al in gebruik."
   provider_will_be_available_in_a_future_upda: |-
     Deze provider zal beschikbaar zijn in een toekomstige update.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Dit verwijdert deze notitie permanent."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tijd bespaard"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "om te dicteren en Pindrop voor u te laten transcriberen"

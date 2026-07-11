@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "올바른 문법 실수"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "만들다"
   new_note: "새 메모 만들기"
   new_preset: "새 사전 설정 만들기"
@@ -786,6 +788,8 @@ refresh:
   _self: "새로 고치다"
   the_provider_or_open_edit_to_fetch_model: "제공자를 새로 고치거나 편집을 열어 모델을 가져오세요."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "제거하다"
   and_clear_any_assignments_that_reference: "\"%@\"을 제거하고 이를 참조하는 모든 할당을 지우시겠습니까? 저장된 자격 증명이 삭제됩니다."
   from_folder: "폴더에서 제거"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "스페인 사람"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "화자 분할 및 타임스탬프가 재생에 첨부됩니다."
   diarization_is_required: "화자 분할이 필요합니다."
@@ -970,6 +975,7 @@ theme:
   mode: "테마 모드"
   mode_bb6b0b3d: "테마 모드"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "이 사전 설정 이름은 이미 사용 중입니다."
   provider_will_be_available_in_a_future_upda: |-
     이 공급자는 향후 업데이트에서 사용할 수 있습니다.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "API 키를 포함한 모든 설정을 지우고 온보딩을 다시 시작합니다"
   will_permanently_remove_this_note: "이 메모가 영구적으로 삭제됩니다."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "시간 절약"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "Pindrop이 당신을 위해 받아쓰기하고 받아쓰기하도록 합니다."

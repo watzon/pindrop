@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Memperbaiki kesalahan tata bahasa"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Membuat"
   new_note: "Buat Catatan Baru"
   new_preset: "Buat Prasetel Baru"
@@ -786,6 +788,8 @@ refresh:
   _self: "Menyegarkan"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Menghapus"
   and_clear_any_assignments_that_reference: "Hapus \"%@\" dan hapus semua tugas yang mereferensikannya? Kredensial yang disimpan akan dihapus."
   from_folder: "Hapus dari Folder"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Spanyol"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diarisasi speaker dan stempel waktu dilampirkan pada pemutaran."
   diarization_is_required: "Diarisasi pembicara diperlukan"
@@ -970,6 +975,7 @@ theme:
   mode: "Modus tema"
   mode_bb6b0b3d: "Mode tema"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Nama preset ini sudah digunakan."
   provider_will_be_available_in_a_future_upda: |-
     Penyedia ini akan tersedia dalam pembaruan mendatang.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Ini akan menghapus catatan ini secara permanen."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Waktu Dihemat"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "untuk mendiktekan dan membiarkan Pindrop menuliskannya untuk Anda"

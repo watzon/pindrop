@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Corectați greșelile gramaticale"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Crea"
   new_note: "Creați o notă nouă"
   new_preset: "Creați o nouă presetare"
@@ -786,6 +788,8 @@ refresh:
   _self: "Reîmprospăta"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Elimina"
   and_clear_any_assignments_that_reference: "Eliminați „%@” și ștergeți toate sarcinile care fac referire la el? Acreditările stocate vor fi șterse."
   from_folder: "Eliminați din dosar"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "spaniolă"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diarizarea difuzorului și marcajele de timp sunt atașate la redare."
   diarization_is_required: "Diarizarea vorbitorului este necesară"
@@ -970,6 +975,7 @@ theme:
   mode: "Modul temă"
   mode_bb6b0b3d: "Mod temă"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Acest nume presetat este deja utilizat."
   provider_will_be_available_in_a_future_upda: |-
     Acest furnizor va fi disponibil într-o actualizare viitoare.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Aceasta va elimina permanent această notă."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Timp economisit"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "să dicteze și să-l lase pe Pindrop să transpună pentru tine"

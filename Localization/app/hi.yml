@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "व्याकरण की गलतियाँ सुधारें"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "बनाएं"
   new_note: "नया नोट बनाएं"
   new_preset: "नया प्रीसेट बनाएं"
@@ -786,6 +788,8 @@ refresh:
   _self: "ताज़ा करना"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "निकालना"
   and_clear_any_assignments_that_reference: "\"%@\" हटाएं और इसका संदर्भ देने वाले किसी भी असाइनमेंट को साफ़ करें? संग्रहीत क्रेडेंशियल हटा दिए जाएंगे."
   from_folder: "फ़ोल्डर से हटाएँ"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "स्पैनिश"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "स्पीकर डायराइज़ेशन और टाइमस्टैम्प प्लेबैक से जुड़े हुए हैं।"
   diarization_is_required: "स्पीकर डायरीकरण आवश्यक है"
@@ -970,6 +975,7 @@ theme:
   mode: "थीम मोड"
   mode_bb6b0b3d: "थीम मोड"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "यह पूर्व निर्धारित नाम पहले से ही उपयोग में है."
   provider_will_be_available_in_a_future_upda: |-
     यह प्रदाता भविष्य के अपडेट में उपलब्ध होगा।
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "इससे यह नोट स्थायी रूप से हट जाएगा।"
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "समय की बचत हुई"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "निर्देशित करने के लिए और पिनड्रॉप को आपके लिए लिखने की अनुमति देने के लिए"

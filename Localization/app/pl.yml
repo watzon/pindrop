@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Popraw błędy gramatyczne"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Tworzyć"
   new_note: "Utwórz nową notatkę"
   new_preset: "Utwórz nowe ustawienie wstępne"
@@ -786,6 +788,8 @@ refresh:
   _self: "Odświeżać"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Usunąć"
   and_clear_any_assignments_that_reference: "Usunąć „%@” i wyczyścić wszystkie przypisania, które się do niego odwołują? Przechowywane dane uwierzytelniające zostaną usunięte."
   from_folder: "Usuń z folderu"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "hiszpański"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Diaryzacja głośników i znaczniki czasu są dołączane do odtwarzania."
   diarization_is_required: "Wymagana jest diaryzacja głośników"
@@ -970,6 +975,7 @@ theme:
   mode: "Tryb tematyczny"
   mode_bb6b0b3d: "Tryb motywu"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Ta wstępnie ustawiona nazwa jest już używana."
   provider_will_be_available_in_a_future_upda: |-
     Ten dostawca będzie dostępny w przyszłej aktualizacji.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "To trwale usunie tę notatkę."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Zaoszczędzony czas"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "dyktować i pozwolić Pindropowi na transkrypcję"

@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Исправьте грамматические ошибки"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Создавать"
   new_note: "Создать новую заметку"
   new_preset: "Создать новый пресет"
@@ -786,6 +788,8 @@ refresh:
   _self: "Обновить"
   the_provider_or_open_edit_to_fetch_model: "Обновите провайдера или откройте «Изменить», чтобы загрузить модели."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Удалять"
   and_clear_any_assignments_that_reference: "Удалить «%@» и очистить все назначения, которые ссылаются на него? Сохраненные учетные данные будут удалены."
   from_folder: "Удалить из папки"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "испанский"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "К воспроизведению прикрепляются дневники докладчиков и временные метки."
   diarization_is_required: "Требуется диаризация спикеров"
@@ -970,6 +975,7 @@ theme:
   mode: "Тематический режим"
   mode_bb6b0b3d: "Режим темы"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Это имя предустановки уже используется."
   provider_will_be_available_in_a_future_upda: |-
     Этот поставщик будет доступен в будущем обновлении.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
   will_permanently_remove_this_note: "Это навсегда удалит эту заметку."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Сэкономленное время"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "диктовать и позволить Pindrop расшифровывать для вас"

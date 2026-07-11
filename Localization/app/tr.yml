@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Dilbilgisi hatalarını düzeltin"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Yaratmak"
   new_note: "Yeni Not Oluştur"
   new_preset: "Yeni Ön Ayar Oluştur"
@@ -786,6 +788,8 @@ refresh:
   _self: "Yenile"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Kaldırmak"
   and_clear_any_assignments_that_reference: "\"%@\" kaldırılsın ve ona başvuran tüm atamalar silinsin mi? Saklanan kimlik bilgileri silinecek."
   from_folder: "Klasörden Kaldır"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "İspanyol"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Konuşmacı günlüğü ve zaman damgaları oynatmaya eklenir."
   diarization_is_required: "Konuşmacı günlüğü gerekli"
@@ -970,6 +975,7 @@ theme:
   mode: "Tema modu"
   mode_bb6b0b3d: "Tema modu"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Bu ön ayar adı zaten kullanımda."
   provider_will_be_available_in_a_future_upda: |-
     Bu sağlayıcı gelecekteki bir güncellemede mevcut olacaktır.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Bu not kalıcı olarak silinecek."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Kazanılan Zaman"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "dikte etmek ve Pindrop'un sizin için yazıya dökmesine izin vermek"

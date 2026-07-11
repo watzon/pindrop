@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Grammatikfehler korrigieren"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Erstellen"
   new_note: "Neue Notiz erstellen"
   new_preset: "Neue Voreinstellung erstellen"
@@ -786,6 +788,8 @@ refresh:
   _self: "Aktualisieren"
   the_provider_or_open_edit_to_fetch_model: "Aktualisiere den Anbieter oder öffne Bearbeiten, um Modelle zu laden."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Entfernen"
   and_clear_any_assignments_that_reference: "„%@“ entfernen und alle Zuweisungen löschen, die darauf verweisen? Gespeicherte Zugangsdaten werden gelöscht."
   from_folder: "Aus Ordner entfernen"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Spanisch"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Sprecherdiarisierung und Zeitstempel sind an die Wiedergabe angehängt."
   diarization_is_required: "Sprecherdiarisierung ist erforderlich"
@@ -970,6 +975,7 @@ theme:
   mode: "Design-Modus"
   mode_bb6b0b3d: "Designmodus"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Dieser Voreinstellungsname wird bereits verwendet."
   provider_will_be_available_in_a_future_upda: |-
     Dieser Anbieter wird in einem zukünftigen Update verfügbar sein.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "Dadurch werden alle Einstellungen inklusive API-Schlüssel gelöscht und die Einführung neu gestartet"
   will_permanently_remove_this_note: "Dies entfernt diese Notiz dauerhaft."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Gesparte Zeit"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "zu diktieren und Pindrop für Sie transkribieren zu lassen"

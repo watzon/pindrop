@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "糾正語法錯誤"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "建立"
   new_note: "建立新筆記"
   new_preset: "建立新預設"
@@ -786,6 +788,8 @@ refresh:
   _self: "重新整理"
   the_provider_or_open_edit_to_fetch_model: "請重新整理提供者或開啟「編輯」以取得模型。"
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "消除"
   and_clear_any_assignments_that_reference: "刪除“%@”並清除引用它的所有作業？儲存的憑據將被刪除。"
   from_folder: "從資料夾移除"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "西班牙語"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "說話人分離和時間戳附加到播放。"
   diarization_is_required: "需要說話人分離"
@@ -970,6 +975,7 @@ theme:
   mode: "主題模式"
   mode_bb6b0b3d: "主題模式"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "此預設名稱已被使用。"
   provider_will_be_available_in_a_future_upda: |-
     此提供商將在未來的更新中可用。
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "這會清除包含 API 金鑰在內的所有設定，並重新開始導覽"
   will_permanently_remove_this_note: "這將永久移除此筆記。"
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "節省時間"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "進行聽寫並讓 Pindrop 為您轉錄"

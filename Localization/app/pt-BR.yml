@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Corrigir erros gramaticais"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Criar"
   new_note: "Criar nova nota"
   new_preset: "Criar nova predefinição"
@@ -786,6 +788,8 @@ refresh:
   _self: "Atualizar"
   the_provider_or_open_edit_to_fetch_model: "Atualize o provedor ou abra Editar para buscar modelos."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Remover"
   and_clear_any_assignments_that_reference: "Remover \"%@\" e limpar todas as atribuições que fazem referência a ele? As credenciais armazenadas serão excluídas."
   from_folder: "Remover da pasta"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Espanhol"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "A diarização do alto-falante e os carimbos de data/hora são anexados à reprodução."
   diarization_is_required: "A diarização do orador é obrigatória"
@@ -970,6 +975,7 @@ theme:
   mode: "Modo tema"
   mode_bb6b0b3d: "Modo do tema"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Este nome predefinido já está em uso."
   provider_will_be_available_in_a_future_upda: |-
     Este provedor estará disponível em uma atualização futura.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "Isso limpará todas as configurações, incluindo chaves de API, e reiniciará a introdução"
   will_permanently_remove_this_note: "Isso removerá permanentemente esta nota."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tempo economizado"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "para ditar e deixar o Pindrop transcrever para você"

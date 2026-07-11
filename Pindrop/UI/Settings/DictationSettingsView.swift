@@ -484,6 +484,17 @@ private struct SpeakerProfilesManageSheet: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(profile.displayName)
                                     .font(AppTypography.labelStrong)
+                                if profile.isCurrentUser {
+                                    Text(localized("Current", locale: locale))
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.accent)
+                                }
+                                if let notes = profile.notes, !notes.isEmpty {
+                                    Text(notes)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.textSecondary)
+                                        .lineLimit(2)
+                                }
                                 Text(
                                     profile.evidenceCount == 0
                                         ? localized("Not enough voice data yet", locale: locale)

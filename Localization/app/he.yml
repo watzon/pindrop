@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "תקן טעויות דקדוק"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "לִיצוֹר"
   new_note: "צור הערה חדשה"
   new_preset: "צור הגדרה חדשה מראש"
@@ -786,6 +788,8 @@ refresh:
   _self: "לְרַעֲנֵן"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "לְהַסִיר"
   and_clear_any_assignments_that_reference: "האם להסיר את \"%@\" ולנקות את כל המטלות שמתייחסות אליו? אישורים מאוחסנים יימחקו."
   from_folder: "הסר מהתיקיה"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "סְפָרַדִית"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "יומן רמקול וחותמות זמן מצורפות להשמעה."
   diarization_is_required: "נדרש יומן דובר"
@@ -970,6 +975,7 @@ theme:
   mode: "מצב ערכת נושא"
   mode_bb6b0b3d: "מצב ערכת נושא"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "שם מוגדר מראש זה כבר בשימוש."
   provider_will_be_available_in_a_future_upda: |-
     ספק זה יהיה זמין בעדכון עתידי.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "פעולה זו תסיר את ההערה לצמיתות."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "זמן נשמר"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "להכתיב ולתת לפינדרופ לתמלל עבורך"

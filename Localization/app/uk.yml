@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Виправте граматичні помилки"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Створити"
   new_note: "Створити нову нотатку"
   new_preset: "Створити новий стиль"
@@ -786,6 +788,8 @@ refresh:
   _self: "Оновити"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "видалити"
   and_clear_any_assignments_that_reference: "Видалити \"%@\" та видалити всі призначення, які посилаються на нього? Збережені облікові дані буде видалено."
   from_folder: "Видалити з папки"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "Іспанська"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Щоденник доповідача та часові мітки додаються до відтворення."
   diarization_is_required: "Потрібен щоденник доповідача"
@@ -970,6 +975,7 @@ theme:
   mode: "Тематичний режим"
   mode_bb6b0b3d: "Режим теми"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Ця попередньо встановлена ​​назва вже використовується."
   provider_will_be_available_in_a_future_upda: |-
     Цей постачальник буде доступний у майбутньому оновленні.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Це назавжди видалить цю нотатку."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Економія часу"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "диктувати та дозволяти Pindrop транскрибувати для вас"

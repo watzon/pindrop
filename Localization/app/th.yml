@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "แก้ไขข้อผิดพลาดทางไวยากรณ์"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "สร้าง"
   new_note: "สร้างบันทึกใหม่"
   new_preset: "สร้างค่าที่ตั้งล่วงหน้าใหม่"
@@ -786,6 +788,8 @@ refresh:
   _self: "รีเฟรช"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "ลบ"
   and_clear_any_assignments_that_reference: "ลบ \"%@\" และล้างการมอบหมายที่อ้างถึงหรือไม่ ข้อมูลรับรองที่เก็บไว้จะถูกลบ"
   from_folder: "ลบออกจากโฟลเดอร์"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "สเปน"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "มีการแนบไดอะแกรมของลำโพงและการประทับเวลาไว้กับการเล่น"
   diarization_is_required: "จำเป็นต้องแปลงเสียงของผู้พูด"
@@ -970,6 +975,7 @@ theme:
   mode: "โหมดธีม"
   mode_bb6b0b3d: "โหมดธีม"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "ชื่อที่ตั้งไว้นี้มีการใช้งานแล้ว"
   provider_will_be_available_in_a_future_upda: |-
     ผู้ให้บริการรายนี้จะพร้อมใช้งานในการอัปเดตในอนาคต
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "การดำเนินการนี้จะลบบันทึกนี้อย่างถาวร"
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "เวลาที่บันทึกไว้"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "เพื่อกำหนดและให้ Pindrop ถอดเสียงให้คุณ"

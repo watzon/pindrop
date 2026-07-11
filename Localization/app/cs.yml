@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Opravte gramatické chyby"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Vytvořit"
   new_note: "Vytvořit novou poznámku"
   new_preset: "Vytvořit novou předvolbu"
@@ -786,6 +788,8 @@ refresh:
   _self: "Obnovit"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Odstranit"
   and_clear_any_assignments_that_reference: "Odebrat „%@“ a vymazat všechna přiřazení, která na něj odkazují? Uložené přihlašovací údaje budou smazány."
   from_folder: "Odebrat ze složky"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "španělština"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "K přehrávání jsou připojeny diarizace a časová razítka reproduktoru."
   diarization_is_required: "Je vyžadována dializace reproduktoru"
@@ -970,6 +975,7 @@ theme:
   mode: "Tématický režim"
   mode_bb6b0b3d: "Režim motivu"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Tento název předvolby se již používá."
   provider_will_be_available_in_a_future_upda: |-
     Tento poskytovatel bude k dispozici v budoucí aktualizaci.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Tímto trvale odstraníte tuto poznámku."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Čas ušetřen"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "diktovat a nechat Pindrop přepisovat za vás"

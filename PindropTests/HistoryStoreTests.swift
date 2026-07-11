@@ -246,7 +246,109 @@ struct HistoryStoreTests {
         #expect(records.first?.diarizationSegmentsJSON == nil)
     }
 
-    @Test func updateSpeakerLabelsUpdatesPersistedDiarizedSegments() throws {
+    @Test func savingDictationTrainsCurrentUserProfile() throws {
+        let fixture = try makeFixture()
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "dictation-speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.2, 0.4, 0.6],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.95,
+            text: ""
+        )
+
+        let record = try fixture.historyStore.save(
+            text: "Profile training sample",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [segment]
+        )
+
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        let profile = try #require(profiles.first)
+        #expect(profiles.count == 1)
+        #expect(profile.displayName == "Me")
+        #expect(profile.isCurrentUser)
+        #expect(profile.evidenceCount == 1)
+        #expect(evidence.first?.recordID == record.id)
+        #expect(try fixture.historyStore.hasSpeakerTrainingEvidence(for: record))
+    }
+
+    @Test func removingTranscriptionEvidenceRebuildsCurrentUserProfile() throws {
+        let fixture = try makeFixture()
+        let firstSegment = DiarizedTranscriptSegment(
+            speakerId: "speaker-1",
+            speakerLabel: "",
+            speakerEmbedding: [1, 0],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.9,
+            text: ""
+        )
+        let secondSegment = DiarizedTranscriptSegment(
+            speakerId: "speaker-2",
+            speakerLabel: "",
+            speakerEmbedding: [0, 1],
+            startTime: 0,
+            endTime: 3,
+            confidence: 0.9,
+            text: ""
+        )
+
+        let firstRecord = try fixture.historyStore.save(
+            text: "First sample",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [firstSegment]
+        )
+        let secondRecord = try fixture.historyStore.save(
+            text: "Second sample",
+            duration: 3,
+            modelUsed: "base",
+            speakerTrainingSegments: [secondSegment]
+        )
+
+        try fixture.historyStore.removeFromSpeakerProfiles(firstRecord)
+
+        let profile = try #require(try fixture.speakerIdentityService.fetchAllProfiles().first)
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        #expect(profile.evidenceCount == 1)
+        #expect(profile.totalEvidenceDuration == 3)
+        #expect(evidence.count == 1)
+        #expect(evidence.first?.recordID == secondRecord.id)
+        #expect(try !fixture.historyStore.hasSpeakerTrainingEvidence(for: firstRecord))
+    }
+
+    @Test func deletingTranscriptionAlsoDeletesItsTrainingEvidence() throws {
+        let fixture = try makeFixture()
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "dictation-speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.3, 0.7],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.9,
+            text: ""
+        )
+        let record = try fixture.historyStore.save(
+            text: "Delete me",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [segment]
+        )
+
+        try fixture.historyStore.delete(record)
+
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        let profile = try #require(try fixture.speakerIdentityService.fetchAllProfiles().first)
+        #expect(evidence.isEmpty)
+        #expect(profile.evidenceCount == 0)
+        #expect(profile.centroidEmbeddingData == nil)
+    }
+
+    @Test func assigningSpeakerProfilesUpdatesPersistedDiarizedSegments() throws {
         let fixture = try makeFixture()
         let diarizationJSON = """
         [{"speakerId":"speaker-a","speakerLabel":"Speaker 1","startTime":0,"endTime":1.0,"confidence":0.9,"text":"hello"},{"speakerId":"speaker-b","speakerLabel":"Speaker 2","startTime":1.0,"endTime":2.0,"confidence":0.8,"text":"hi"}]
@@ -259,19 +361,28 @@ struct HistoryStoreTests {
             diarizationSegmentsJSON: diarizationJSON
         )
 
-        try fixture.historyStore.updateSpeakerLabels(
-            record: record,
-            labelsBySpeakerID: [
-                "speaker-a": "Alice",
-                "speaker-b": "Bob"
-            ]
-        )
+        let alice = try fixture.speakerIdentityService.createProfile(displayName: "Alice", notes: nil)
+        let bob = try fixture.speakerIdentityService.createProfile(displayName: "Bob", notes: nil)
+        try fixture.historyStore.assignSpeakerProfile(record: record, speakerID: "speaker-a", profileID: alice.id)
+        try fixture.historyStore.assignSpeakerProfile(record: record, speakerID: "speaker-b", profileID: bob.id)
 
         let fetchedRecord = try #require(try fixture.historyStore.fetchRecord(with: record.id))
         #expect(fetchedRecord.diarizedSegments.map(\.speakerLabel) == ["Alice", "Bob"])
+        #expect(fetchedRecord.diarizedSegments.map(\.speakerProfileID) == [alice.id, bob.id])
+
+        try fixture.speakerIdentityService.updateProfile(
+            alice,
+            displayName: "Alicia",
+            notes: "Renamed profile"
+        )
+        try fixture.speakerIdentityService.deleteProfile(bob)
+
+        let rewrittenRecord = try #require(try fixture.historyStore.fetchRecord(with: record.id))
+        #expect(rewrittenRecord.diarizedSegments.map(\.speakerLabel) == ["Alicia", "Bob"])
+        #expect(rewrittenRecord.diarizedSegments.map(\.speakerProfileID) == [alice.id, nil])
     }
 
-    @Test func updateSpeakerLabelsLearnsParticipantProfilesFromRenames() throws {
+    @Test func assigningSpeakerProfileLearnsFromEmbeddedSegments() throws {
         let fixture = try makeFixture()
 
         let diarizationJSON = """
@@ -282,12 +393,15 @@ struct HistoryStoreTests {
             text: "Speaker 1: hello",
             duration: 1.4,
             modelUsed: "tiny",
-            diarizationSegmentsJSON: diarizationJSON
+            diarizationSegmentsJSON: diarizationJSON,
+            sourceKind: .manualCapture
         )
 
-        try fixture.historyStore.updateSpeakerLabels(
+        let alice = try fixture.speakerIdentityService.createProfile(displayName: "Alice", notes: "Host")
+        try fixture.historyStore.assignSpeakerProfile(
             record: record,
-            labelsBySpeakerID: ["speaker-a": "Alice"]
+            speakerID: "speaker-a",
+            profileID: alice.id
         )
 
         let profiles = try fixture.modelContext.fetch(FetchDescriptor<ParticipantProfile>())
@@ -295,6 +409,7 @@ struct HistoryStoreTests {
 
         #expect(profiles.count == 1)
         #expect(profiles.first?.displayName == "Alice")
+        #expect(profiles.first?.notes == "Host")
         #expect(profiles.first?.evidenceCount == 1)
         #expect(profiles.first?.totalEvidenceDuration == 1.4)
         #expect(evidence.count == 1)
@@ -302,7 +417,7 @@ struct HistoryStoreTests {
         #expect(evidence.first?.recordID == record.id)
     }
 
-    @Test func updateSpeakerLabelsCreatesParticipantProfileWithoutEligibleEvidence() throws {
+    @Test func assigningSpeakerUsesExistingProfileWithoutEligibleEvidence() throws {
         let fixture = try makeFixture()
 
         let diarizationJSON = """
@@ -313,12 +428,15 @@ struct HistoryStoreTests {
             text: "Speaker 1: hi",
             duration: 0.4,
             modelUsed: "tiny",
-            diarizationSegmentsJSON: diarizationJSON
+            diarizationSegmentsJSON: diarizationJSON,
+            sourceKind: .manualCapture
         )
 
-        try fixture.historyStore.updateSpeakerLabels(
+        let alice = try fixture.speakerIdentityService.createProfile(displayName: "Alice", notes: nil)
+        try fixture.historyStore.assignSpeakerProfile(
             record: record,
-            labelsBySpeakerID: ["speaker-a": "Alice"]
+            speakerID: "speaker-a",
+            profileID: alice.id
         )
 
         let profiles = try fixture.modelContext.fetch(FetchDescriptor<ParticipantProfile>())

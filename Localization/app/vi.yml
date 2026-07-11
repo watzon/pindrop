@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Sửa lỗi ngữ pháp"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Tạo nên"
   new_note: "Tạo ghi chú mới"
   new_preset: "Tạo cài đặt trước mới"
@@ -786,6 +788,8 @@ refresh:
   _self: "Làm cho khỏe lại"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Di dời"
   and_clear_any_assignments_that_reference: "Xóa \"%@\" và xóa mọi bài tập tham chiếu đến nó? Thông tin đăng nhập được lưu trữ sẽ bị xóa."
   from_folder: "Xóa khỏi thư mục"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "tiếng Tây Ban Nha"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Nhật ký loa và dấu thời gian được đính kèm để phát lại."
   diarization_is_required: "Cần phải ghi nhật ký loa"
@@ -970,6 +975,7 @@ theme:
   mode: "Chế độ chủ đề"
   mode_bb6b0b3d: "Chế độ giao diện"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Tên đặt trước này đã được sử dụng."
   provider_will_be_available_in_a_future_upda: |-
     Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Thao tác này sẽ xóa vĩnh viễn ghi chú này."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Thời gian đã lưu"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "ra lệnh và để Pindrop chép lời cho bạn"

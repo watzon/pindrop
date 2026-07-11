@@ -2802,6 +2802,24 @@ final class AppCoordinator {
         }
     }
 
+    private func speakerTrainingSegments(
+        audioData: Data,
+        existingSegments: [DiarizedTranscriptSegment]?
+    ) async -> [DiarizedTranscriptSegment] {
+        if let existingSegments, !existingSegments.isEmpty {
+            return existingSegments
+        }
+
+        do {
+            return try await transcriptionService.extractSpeakerProfileSegments(audioData: audioData)
+        } catch {
+            Log.transcription.warning(
+                "Speaker profile training skipped for this dictation: \(error.localizedDescription)"
+            )
+            return []
+        }
+    }
+
     private func shouldUseStreamingTranscriptionForCurrentSession() -> Bool {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
@@ -2997,6 +3015,10 @@ final class AppCoordinator {
         }
 
         let duration = Date().timeIntervalSince(startTime)
+        let speakerTrainingSegments = await speakerTrainingSegments(
+            audioData: recordedAudioData,
+            existingSegments: nil
+        )
         do {
             let record = try historyStore.save(
                 text: outcome.finalText,
@@ -3006,7 +3028,8 @@ final class AppCoordinator {
                 enhancedWith: outcome.enhancedWithModel,
                 diarizationSegmentsJSON: nil,
                 destinationAppName: outcome.destinationAppName,
-                destinationAppBundleID: outcome.destinationAppBundleID
+                destinationAppBundleID: outcome.destinationAppBundleID,
+                speakerTrainingSegments: speakerTrainingSegments
             )
             let nativeAudio = audioRecorder.lastNativeAudio
             dictationAudioRetentionService.schedulePersist(
@@ -3383,6 +3406,10 @@ final class AppCoordinator {
 
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
 
+        let speakerTrainingSegments = await speakerTrainingSegments(
+            audioData: audioData,
+            existingSegments: transcriptionOutput.diarizedSegments
+        )
         do {
             let record = try historyStore.save(
                 text: finalText,
@@ -3392,7 +3419,8 @@ final class AppCoordinator {
                 enhancedWith: enhancedWithModel,
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 destinationAppName: outputResult?.destinationAppName,
-                destinationAppBundleID: outputResult?.destinationAppBundleID
+                destinationAppBundleID: outputResult?.destinationAppBundleID,
+                speakerTrainingSegments: speakerTrainingSegments
             )
             let nativeAudio = audioRecorder.lastNativeAudio
             dictationAudioRetentionService.schedulePersist(

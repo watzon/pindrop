@@ -216,6 +216,8 @@ copy:
 correct:
   grammar_mistakes: "Ret grammatiske fejl"
 create:
+  new_profile: "Create New Profile…"
+  speaker_profile: "Create Speaker Profile"
   _self: "Skabe"
   new_note: "Opret ny note"
   new_preset: "Opret ny forudindstilling"
@@ -786,6 +788,8 @@ refresh:
   _self: "Opfriske"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
 remove:
+  from_speaker_profiles: "Remove from speaker profiles"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Fjerne"
   and_clear_any_assignments_that_reference: "Fjern \"%@\" og ryd alle tildelinger, der henviser til den? Gemte legitimationsoplysninger bliver slettet."
   from_folder: "Fjern fra mappe"
@@ -918,6 +922,7 @@ source:
 spanish:
   _self: "spansk"
 speaker:
+  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Højttalerdiarisering og tidsstempler er knyttet til afspilning."
   diarization_is_required: "Højttalerdiaarisering er påkrævet"
@@ -970,6 +975,7 @@ theme:
   mode: "Tematilstand"
   mode_bb6b0b3d: "Tematilstand"
 this:
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Dette forudindstillede navn er allerede i brug."
   provider_will_be_available_in_a_future_upda: |-
     Denne udbyder vil være tilgængelig i en fremtidig opdatering.
@@ -985,6 +991,7 @@ this:
   will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_this_note: "Dette fjerner permanent denne note."
 time:
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
   saved: "Tid sparet"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "at diktere og lade Pindrop transskribere for dig"

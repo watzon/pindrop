@@ -344,6 +344,37 @@ class TranscriptionService {
         }
     }
 
+    func extractSpeakerProfileSegments(audioData: Data) async throws -> [DiarizedTranscriptSegment] {
+        guard !audioData.isEmpty else {
+            throw TranscriptionError.invalidAudioData
+        }
+
+        let samples = dataToFloatArray(audioData)
+        let diarizer = try await prepareSpeakerDiarizer()
+        try await diarizer.loadModels()
+        let result = try await diarizeWithWatchdog(
+            diarizer: diarizer,
+            samples: samples,
+            sampleRate: Self.sampleRate
+        )
+        let segments = normalizedDiarizationSegments(
+            result.segments,
+            audioDuration: result.audioDuration
+        )
+
+        return segments.map { segment in
+            DiarizedTranscriptSegment(
+                speakerId: segment.speaker.id,
+                speakerLabel: "",
+                speakerEmbedding: segment.speaker.embedding,
+                startTime: segment.startTime,
+                endTime: segment.endTime,
+                confidence: segment.confidence,
+                text: ""
+            )
+        }
+    }
+
     func unloadModel() async {
         await engine?.unloadModel()
         await speakerDiarizer?.unloadModels()
