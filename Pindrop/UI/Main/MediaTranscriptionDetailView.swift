@@ -107,26 +107,18 @@ struct MediaTranscriptionDetailView: View {
         )
     }
 
-    /// Binary search over chronological segments — this runs on every playback
-    /// tick, so it must not linear-scan a long transcript.
+    /// One linear scan per playback tick (hoisted in transcriptSection — never per
+    /// row). NOT a binary search: diarized segments can be out of order and can
+    /// overlap when speakers talk over each other, so "first segment containing t"
+    /// in display order is the correct pick.
     private var activeSegmentID: String? {
         let time = playbackController.currentTime
-        guard !cachedSegments.isEmpty else { return nil }
-
-        var low = 0
-        var high = cachedSegments.count - 1
-        var candidate = -1
-        while low <= high {
-            let mid = (low + high) / 2
-            if cachedSegments[mid].startTime <= time {
-                candidate = mid
-                low = mid + 1
-            } else {
-                high = mid - 1
-            }
+        guard let index = cachedSegments.firstIndex(where: {
+            time >= $0.startTime && time < $0.endTime
+        }) else {
+            return nil
         }
-        guard candidate >= 0, time < cachedSegments[candidate].endTime else { return nil }
-        return cachedSegmentIDs[candidate]
+        return cachedSegmentIDs[index]
     }
 
     private var hasMedia: Bool { TranscriptionDetailAccess.shouldShowPlayback(for: record) }
@@ -726,7 +718,12 @@ final class MediaPlaybackController {
     }
 
     func seek(to seconds: TimeInterval) {
-        let target = CMTime(seconds: max(0, seconds), preferredTimescale: 600)
+        let clamped = max(0, seconds)
+        // Optimistic: update the published time immediately so the active-row
+        // highlight follows the click; the periodic observer only reports the
+        // post-seek time a beat later (and not reliably while paused).
+        currentTime = clamped
+        let target = CMTime(seconds: clamped, preferredTimescale: 600)
         player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero)
     }
 
