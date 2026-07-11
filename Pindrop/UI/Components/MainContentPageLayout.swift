@@ -19,6 +19,33 @@ private struct WindowDragBlocker: NSViewRepresentable {
     }
 }
 
+/// Applies AppKit's compact scroller treatment to an enclosing SwiftUI ScrollView.
+struct CompactScrollIndicatorConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        CompactScrollIndicatorView()
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        (view as? CompactScrollIndicatorView)?.configureScroller()
+    }
+
+    private final class CompactScrollIndicatorView: NSView {
+        override func viewDidMoveToSuperview() {
+            super.viewDidMoveToSuperview()
+            configureScroller()
+        }
+
+        func configureScroller() {
+            DispatchQueue.main.async { [weak self] in
+                guard let scrollView = self?.enclosingScrollView else { return }
+                scrollView.verticalScroller?.controlSize = .mini
+                scrollView.horizontalScroller?.controlSize = .mini
+                scrollView.needsLayout = true
+            }
+        }
+    }
+}
+
 struct MainContentPageLayout<Header: View, Content: View>: View {
     let scrollContent: Bool
     let showsIndicators: Bool
@@ -29,7 +56,7 @@ struct MainContentPageLayout<Header: View, Content: View>: View {
 
     init(
         scrollContent: Bool,
-        showsIndicators: Bool = false,
+        showsIndicators: Bool = true,
         headerBottomPadding: CGFloat = AppTheme.Spacing.xxl,
         contentTopPadding: CGFloat = 0,
         @ViewBuilder header: () -> Header,
@@ -73,5 +100,6 @@ struct MainContentPageLayout<Header: View, Content: View>: View {
             .padding(.horizontal, AppTheme.Spacing.xxl)
             .padding(.top, contentTopPadding)
             .padding(.bottom, AppTheme.Spacing.xxl)
+            .background(CompactScrollIndicatorConfigurator())
     }
 }

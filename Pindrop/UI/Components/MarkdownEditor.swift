@@ -46,7 +46,8 @@ struct MarkdownEditor: NSViewRepresentable {
         scrollView.documentView = textView
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
-        scrollView.autohidesScrollers = true
+        scrollView.autohidesScrollers = false
+        scrollView.verticalScroller?.controlSize = .mini
         scrollView.drawsBackground = false
 
         context.coordinator.textView = textView

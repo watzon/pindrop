@@ -210,7 +210,7 @@ struct LiveTranscriptView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollViewReader { proxy in
-                ScrollView(.vertical, showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: true) {
                     VStack(alignment: .leading, spacing: 0) {
                         if transcript.displayText.isEmpty {
                             Text(localized("Listening…", locale: locale))

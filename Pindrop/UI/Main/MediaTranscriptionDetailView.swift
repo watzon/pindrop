@@ -174,7 +174,7 @@ struct MediaTranscriptionDetailView: View {
 
                     HStack(alignment: .top, spacing: 32) {
                         // The rail scrolls only if a short window can't fit it.
-                        ScrollView(.vertical, showsIndicators: false) {
+                        ScrollView(.vertical, showsIndicators: true) {
                             VStack(alignment: .leading, spacing: 24) {
                                 mediaAndSummaryColumn
                             }
@@ -182,7 +182,7 @@ struct MediaTranscriptionDetailView: View {
                         }
                         .frame(width: 480)
 
-                        ScrollView(.vertical, showsIndicators: false) {
+                        ScrollView(.vertical, showsIndicators: true) {
                             transcriptSection
                                 .padding(.bottom, 40)
                         }
@@ -195,7 +195,7 @@ struct MediaTranscriptionDetailView: View {
                 .frame(maxWidth: 1400, alignment: .leading)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
-                ScrollView(.vertical, showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: true) {
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 16) {
                             breadcrumb

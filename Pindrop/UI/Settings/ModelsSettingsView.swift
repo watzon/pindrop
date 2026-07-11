@@ -69,7 +69,7 @@ struct ModelsSettingsView: View {
                 .padding(.bottom, 18)
                 .background(AppColors.contentBackground)
 
-            ScrollView(.vertical, showsIndicators: false) {
+            ScrollView(.vertical, showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 0) {
                     speechToTextSection
                     helpersSection

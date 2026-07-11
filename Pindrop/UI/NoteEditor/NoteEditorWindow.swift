@@ -348,7 +348,7 @@ struct NoteEditorView: View {
                 .font(.system(size: 11))
                 .foregroundStyle(AppColors.textTertiary)
 
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 6) {
                     ForEach(tags, id: \.self) { tag in
                         TagChip(tag: tag, onRemove: { removeTag(tag) })

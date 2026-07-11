@@ -197,7 +197,7 @@ struct NotesView: View {
     }
 
     private var notesList: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(groupedNotes.enumerated()), id: \.element.key) { index, group in
                     SectionHeader(

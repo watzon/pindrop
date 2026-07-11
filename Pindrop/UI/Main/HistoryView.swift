@@ -510,7 +510,7 @@ struct HistoryView: View {
     // MARK: - List
 
     private var transcriptionsList: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(groupedTranscriptions.enumerated()), id: \.element.key) { index, group in
                     SectionHeader(
