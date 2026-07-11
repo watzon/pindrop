@@ -45,6 +45,7 @@ struct HistoryView: View {
     @State private var isDropTargeted = false
     @State private var showPasteLinkSheet = false
     @State private var pasteLinkText = ""
+    @State private var transcribeMenuAnchorView: NSView?
 
     @Query private var mediaFolders: [MediaFolder]
 
@@ -234,11 +235,10 @@ struct HistoryView: View {
         }
     }
 
-    // A true split button. Deliberately NOT one Menu with a custom label:
-    // macOS's borderless menu style collapses composite labels (it rendered
-    // only the "+" in one build and only the chevron in the next). The label
-    // half is a plain Button (default action: import files); the Menu owns
-    // only the chevron segment, which that style renders reliably.
+    // A true split button. SwiftUI's Menu styles kept fighting the design
+    // (collapsed composite labels, force-tinted white arrow, menu anchored to
+    // the chevron instead of the button) — so the chevron is a plain Button
+    // that pops a real NSMenu anchored at the button's leading edge.
     private var importMenu: some View {
         HStack(spacing: 0) {
             Button {
@@ -257,48 +257,28 @@ struct HistoryView: View {
                 .fill(AppColors.contentBackground.opacity(0.35))
                 .frame(width: 1, height: 16)
 
-            Menu {
-                if onImportMediaFiles != nil {
-                    Button {
-                        importFilesViaOpenPanel()
-                    } label: {
-                        Label(localized("Import Files…", locale: locale), systemImage: "folder")
-                    }
-                }
-                if onSubmitMediaLink != nil {
-                    Button {
-                        pasteLinkText = ""
-                        showPasteLinkSheet = true
-                    } label: {
-                        Label(localized("Paste Link…", locale: locale), systemImage: "link")
-                    }
-                }
-                if onStartMeetingCapture != nil {
-                    Divider()
-                    Button {
-                        onStartMeetingCapture?()
-                    } label: {
-                        Label(localized("Record Meeting…", locale: locale), systemImage: "person.2.wave.2")
-                    }
-                }
+            Button {
+                presentTranscribeMenu()
             } label: {
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .semibold))
-                    // Explicit: the menu style does not inherit the outer tint.
-                    .foregroundStyle(AppColors.contentBackground)
                     .padding(.leading, 8)
                     .padding(.trailing, 12)
                     .padding(.vertical, 9)
                     .contentShape(Rectangle())
             }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
+            .buttonStyle(.plain)
+            .accessibilityLabel(localized("Transcribe options", locale: locale))
         }
         .foregroundStyle(AppColors.contentBackground)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(AppColors.accent)
+        )
+        .background(
+            TranscribeMenuAnchor { view in
+                transcribeMenuAnchorView = view
+            }
         )
         .fixedSize()
         .fixedSize()
@@ -747,6 +727,40 @@ struct HistoryView: View {
 
     // MARK: - Import actions
 
+    /// Pops the transcribe menu below the split button, aligned to its leading
+    /// edge (SwiftUI's Menu anchored it to the chevron and drifted right).
+    private func presentTranscribeMenu() {
+        guard let anchor = transcribeMenuAnchorView else { return }
+
+        let menu = NSMenu()
+        if onImportMediaFiles != nil {
+            menu.addItem(ClosureMenuItem(
+                title: localized("Import Files…", locale: locale),
+                systemImage: "folder"
+            ) { importFilesViaOpenPanel() })
+        }
+        if onSubmitMediaLink != nil {
+            menu.addItem(ClosureMenuItem(
+                title: localized("Paste Link…", locale: locale),
+                systemImage: "link"
+            ) {
+                pasteLinkText = ""
+                showPasteLinkSheet = true
+            })
+        }
+        if onStartMeetingCapture != nil {
+            menu.addItem(.separator())
+            menu.addItem(ClosureMenuItem(
+                title: localized("Record Meeting…", locale: locale),
+                systemImage: "person.2.wave.2"
+            ) { onStartMeetingCapture?() })
+        }
+
+        // Non-flipped view coords: (0, 0) is the bottom-left corner, and popUp
+        // places the menu's top-left at the given point → just below the button.
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: anchor)
+    }
+
     private func importFilesViaOpenPanel() {
         guard let onImportMediaFiles else { return }
         let panel = NSOpenPanel()
@@ -1070,4 +1084,44 @@ struct HistoryView: View {
     HistoryView()
         .modelContainer(PreviewContainer.withSampleData)
         .preferredColorScheme(.dark)
+}
+
+// MARK: - Transcribe split-button support
+
+/// Exposes the hosting NSView so the transcribe menu can pop anchored to the
+/// split button's own frame rather than SwiftUI Menu's chevron-relative anchor.
+private struct TranscribeMenuAnchor: NSViewRepresentable {
+    let onReady: (NSView) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { onReady(view) }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+/// NSMenuItem that owns its action closure (NSMenuItem.target is weak — the
+/// item targets itself, and the menu retains the item).
+private final class ClosureMenuItem: NSMenuItem {
+    private let handler: () -> Void
+
+    init(title: String, systemImage: String?, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(invoke), keyEquivalent: "")
+        target = self
+        if let systemImage {
+            image = NSImage(systemSymbolName: systemImage, accessibilityDescription: nil)
+        }
+    }
+
+    @available(*, unavailable)
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc private func invoke() {
+        handler()
+    }
 }
