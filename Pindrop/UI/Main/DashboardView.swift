@@ -24,6 +24,7 @@ struct DashboardView: View {
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
+    var onOpenHistoryRecord: ((UUID) -> Void)?
     var onNewTranscription: (() -> Void)?
     var onTranscribeFile: (() -> Void)?
     var onRecordMeeting: (() -> Void)?
@@ -38,6 +39,7 @@ struct DashboardView: View {
         settingsStore: SettingsStore? = nil,
         onOpenHotkeys: (() -> Void)? = nil,
         onViewAllHistory: (() -> Void)? = nil,
+        onOpenHistoryRecord: ((UUID) -> Void)? = nil,
         onNewTranscription: (() -> Void)? = nil,
         onTranscribeFile: (() -> Void)? = nil,
         onRecordMeeting: (() -> Void)? = nil,
@@ -47,6 +49,7 @@ struct DashboardView: View {
         self._settingsStore = ObservedObject(wrappedValue: settingsStore ?? SettingsStore())
         self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
+        self.onOpenHistoryRecord = onOpenHistoryRecord
         self.onNewTranscription = onNewTranscription
         self.onTranscribeFile = onTranscribeFile
         self.onRecordMeeting = onRecordMeeting
@@ -58,7 +61,7 @@ struct DashboardView: View {
     private var calendar: Calendar { Calendar.current }
 
     private var recentRecords: [TranscriptionRecord] {
-        Array(transcriptions.prefix(3))
+        Array(transcriptions.prefix(5))
     }
 
     private var isFirstRun: Bool {
@@ -341,12 +344,11 @@ struct DashboardView: View {
                 PlayChip(
                     durationText: formatDuration(record.duration),
                     isExpired: showExpiredChip,
-                    action: { onViewAllHistory?() }
+                    action: { onOpenHistoryRecord?(record.id) }
                 )
             },
             action: {
-                // Reveal-in-library isn't wired yet; navigate to Library (spec U4).
-                onViewAllHistory?()
+                onOpenHistoryRecord?(record.id)
             }
         )
         // Row chrome includes 24 pt horizontal padding; counteract outer 40 so lanes

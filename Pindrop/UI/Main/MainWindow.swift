@@ -93,6 +93,7 @@ struct MainWindow: View {
     @ObservedObject private var theme = PindropThemeController.shared
     @ObservedObject var settingsStore: SettingsStore
     @State private var selectedNav: MainNavItem = .home
+    @State private var historyRecordIDToOpen: UUID?
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
     let modelManager: ModelManager?
@@ -214,6 +215,10 @@ struct MainWindow: View {
                 settingsStore: settingsStore,
                 onOpenHotkeys: { navigateToSettings(.shortcuts) },
                 onViewAllHistory: { navigateTo(.history) },
+                onOpenHistoryRecord: { recordID in
+                    historyRecordIDToOpen = recordID
+                    navigateTo(.history)
+                },
                 onNewTranscription: onNewTranscription,
                 onTranscribeFile: { navigateTo(.history) },
                 onRecordMeeting: onStartMeetingCapture,
@@ -221,6 +226,7 @@ struct MainWindow: View {
             )
         case .history:
             HistoryView(
+                recordIDToOpen: historyRecordIDToOpen,
                 mediaTranscriptionState: mediaTranscriptionState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
@@ -232,6 +238,7 @@ struct MainWindow: View {
         case .transcribe:
             // Unreachable via primary nav; resolvedDestination maps .transcribe → .history.
             HistoryView(
+                recordIDToOpen: historyRecordIDToOpen,
                 mediaTranscriptionState: mediaTranscriptionState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,

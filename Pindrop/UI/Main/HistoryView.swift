@@ -17,6 +17,7 @@ struct HistoryView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.layoutDirection) private var layoutDirection
 
+    var recordIDToOpen: UUID? = nil
     var mediaTranscriptionState: MediaTranscriptionFeatureState?
     var settingsStore: SettingsStore?
     var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
@@ -136,6 +137,11 @@ struct HistoryView: View {
         .task(id: "\(trimmedSearchText)_\(selectedFilter.rawValue)_\(selectedSort.rawValue)") {
             await reloadTranscriptions()
         }
+        .task(id: recordIDToOpen) {
+            guard let recordIDToOpen,
+                  let record = try? historyStore.fetchRecord(with: recordIDToOpen) else { return }
+            handleRowTap(record)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
             Task { await refreshVisibleTranscriptions() }
         }
@@ -143,7 +149,7 @@ struct HistoryView: View {
             guard let idString = notification.userInfo?["recordID"] as? String,
                   let id = UUID(uuidString: idString),
                   let record = try? historyStore.fetchRecord(with: id) else { return }
-            openDetail(record)
+            handleRowTap(record)
         }
         .confirmationDialog(
             localized("Delete transcription?", locale: locale),
