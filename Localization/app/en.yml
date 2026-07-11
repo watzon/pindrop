@@ -1252,6 +1252,8 @@ preset_example:
   edits_output: "This is correctly 25"
 
 u3_library:
+  rename_speaker_ellipsis: "Rename Speaker…"
+  assign_speaker: "Assign Speaker"
   record_meeting_ellipsis: "Record Meeting…"
   dictations: "Dictations"
   meetings: "Meetings"

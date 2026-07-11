@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "話者の名前を変更…"
+  assign_speaker: "話者を割り当て"
   record_meeting_ellipsis: "会議を録音…"
   dictations: "ディクテーション"
   meetings: "ミーティング"

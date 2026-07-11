@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Konuşmacıyı yeniden adlandır…"
+  assign_speaker: "Konuşmacı ata"
   record_meeting_ellipsis: "Toplantı kaydet…"
   dictations: "Dikte"
   meetings: "Toplantılar"

@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Переименовать говорящего…"
+  assign_speaker: "Назначить говорящего"
   record_meeting_ellipsis: "Записать встречу…"
   dictations: "Диктовки"
   meetings: "Встречи"

@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Přejmenovat mluvčího…"
+  assign_speaker: "Přiřadit mluvčího"
   record_meeting_ellipsis: "Nahrát schůzku…"
   dictations: "Diktáty"
   meetings: "Schůzky"

@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Μετονομασία ομιλητή…"
+  assign_speaker: "Αντιστοίχιση ομιλητή"
   record_meeting_ellipsis: "Εγγραφή σύσκεψης…"
   dictations: "Υπαγορεύσεις"
   meetings: "Συσκέψεις"

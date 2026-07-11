@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Redenumește vorbitorul…"
+  assign_speaker: "Atribuie vorbitor"
   record_meeting_ellipsis: "Înregistrează ședința…"
   dictations: "Dictări"
   meetings: "Întâlniri"

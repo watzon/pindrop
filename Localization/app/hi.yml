@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "वक्ता का नाम बदलें…"
+  assign_speaker: "वक्ता असाइन करें"
   record_meeting_ellipsis: "मीटिंग रिकॉर्ड करें…"
   dictations: "डिक्टेशन"
   meetings: "मीटिंग"

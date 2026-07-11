@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Đổi tên người nói…"
+  assign_speaker: "Gán người nói"
   record_meeting_ellipsis: "Ghi âm cuộc họp…"
   dictations: "Chính tả nói"
   meetings: "Cuộc họp"

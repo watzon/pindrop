@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Nimeä puhuja uudelleen…"
+  assign_speaker: "Määritä puhuja"
   record_meeting_ellipsis: "Tallenna kokous…"
   dictations: "Diktoinnit"
   meetings: "Kokoukset"

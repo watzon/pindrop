@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Rinomina interlocutore…"
+  assign_speaker: "Assegna interlocutore"
   record_meeting_ellipsis: "Registra riunione…"
   dictations: "Dettature"
   meetings: "Riunioni"

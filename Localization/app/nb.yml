@@ -1259,6 +1259,8 @@ unknown:
   app: "Unknown App"
 
 u3_library:
+  rename_speaker_ellipsis: "Gi taleren nytt navn…"
+  assign_speaker: "Tilordne taler"
   record_meeting_ellipsis: "Ta opp møte…"
   dictations: "Dikteringer"
   meetings: "Møter"

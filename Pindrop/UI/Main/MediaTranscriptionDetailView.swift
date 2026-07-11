@@ -10,6 +10,7 @@ import AVKit
 import AppKit
 import Foundation
 import Observation
+import SwiftData
 import SwiftUI
 
 struct MediaTranscriptionDetailView: View {
@@ -23,6 +24,8 @@ struct MediaTranscriptionDetailView: View {
 
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @Query private var knownProfiles: [ParticipantProfile]
 
     @State private var playbackController = MediaPlaybackController()
     @State private var followPlayback = true
@@ -80,19 +83,57 @@ struct MediaTranscriptionDetailView: View {
             )
     }
 
+    /// Every distinct speaker, INCLUDING unnamed ones — fresh diarization arrives
+    /// with raw IDs and empty labels, and hiding those hid the legend exactly when
+    /// renaming matters most. Unnamed speakers get numbered fallbacks.
     private var participants: [(key: String, speakerID: String, label: String)] {
         var seen = Set<String>()
-        return cachedSegments.compactMap { segment in
+        var unnamedCount = 0
+        var result: [(key: String, speakerID: String, label: String)] = []
+        for segment in cachedSegments {
             let key = LibrarySpeakerColor.canonicalKey(
                 speakerId: segment.speakerId,
                 speakerLabel: segment.speakerLabel
             )
-            guard !seen.contains(key) else { return nil }
-            seen.insert(key)
+            guard seen.insert(key).inserted else { continue }
             let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !label.isEmpty else { return nil }
-            return (key, segment.speakerId, label)
+            if label.isEmpty {
+                unnamedCount += 1
+                result.append((key, segment.speakerId, "\(localized("Speaker", locale: locale)) \(unnamedCount)"))
+            } else {
+                result.append((key, segment.speakerId, label))
+            }
         }
+        return result
+    }
+
+    /// Names offered by "Assign Speaker": trained participant profiles first, then
+    /// other speakers already labeled in this transcript.
+    private func assignOptions(excludingLabel currentLabel: String) -> [String] {
+        var seen = Set<String>()
+        var names: [String] = []
+        let trimmedCurrent = currentLabel.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        for profile in knownProfiles
+            .sorted(by: { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }) {
+            let name = profile.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty, name.lowercased() != trimmedCurrent,
+                  seen.insert(name.lowercased()).inserted else { continue }
+            names.append(name)
+        }
+        for segment in cachedSegments {
+            let name = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty, name.lowercased() != trimmedCurrent,
+                  seen.insert(name.lowercased()).inserted else { continue }
+            names.append(name)
+        }
+        return names
+    }
+
+    private func assignSpeaker(speakerID: String, to name: String) {
+        guard !speakerID.isEmpty else { return }
+        speakerLabelsByID[speakerID] = name
+        onRenameSpeakers(speakerLabelsByID)
     }
 
     private var isRenameAlertPresented: Binding<Bool> {
@@ -213,7 +254,7 @@ struct MediaTranscriptionDetailView: View {
         .onChange(of: speakerLabelsByID) { _, _ in
             rebuildSegmentCache()
         }
-        .alert(localized("Edit", locale: locale), isPresented: isRenameAlertPresented) {
+        .alert(localized("Rename Participant", locale: locale), isPresented: isRenameAlertPresented) {
             TextField("", text: $editedSpeakerLabel)
             Button(localized("Cancel", locale: locale), role: .cancel) {
                 editingSpeakerID = nil
@@ -544,9 +585,19 @@ struct MediaTranscriptionDetailView: View {
         .appAnimation(.fast, value: active)
         .contextMenu {
             if !segment.speakerId.isEmpty {
-                Button(localized("Edit", locale: locale)) {
+                Button(localized("Rename Speaker…", locale: locale)) {
                     editingSpeakerID = segment.speakerId
                     editedSpeakerLabel = segment.speakerLabel
+                }
+                let options = assignOptions(excludingLabel: segment.speakerLabel)
+                if !options.isEmpty {
+                    Menu(localized("Assign Speaker", locale: locale)) {
+                        ForEach(options, id: \.self) { name in
+                            Button(name) {
+                                assignSpeaker(speakerID: segment.speakerId, to: name)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -560,6 +611,9 @@ struct MediaTranscriptionDetailView: View {
                 .textCase(.uppercase)
 
             ForEach(participants, id: \.key) { participant in
+                let speakerID = participant.speakerID.isEmpty
+                    ? participant.key
+                    : participant.speakerID
                 HStack(spacing: 8) {
                     Circle()
                         .fill(LibrarySpeakerColor.color(for: participant.key))
@@ -568,14 +622,29 @@ struct MediaTranscriptionDetailView: View {
                         .font(AppTypography.label)
                         .foregroundStyle(AppColors.textPrimary)
                     Spacer()
-                    Button(localized("Edit", locale: locale)) {
-                        editingSpeakerID = participant.speakerID.isEmpty
-                            ? participant.key
-                            : participant.speakerID
-                        editedSpeakerLabel = participant.label
+                    Menu {
+                        Button(localized("Rename Speaker…", locale: locale)) {
+                            editingSpeakerID = speakerID
+                            editedSpeakerLabel = participant.label
+                        }
+                        let options = assignOptions(excludingLabel: participant.label)
+                        if !options.isEmpty {
+                            Menu(localized("Assign Speaker", locale: locale)) {
+                                ForEach(options, id: \.self) { name in
+                                    Button(name) {
+                                        assignSpeaker(speakerID: speakerID, to: name)
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        Text(localized("Rename Speaker…", locale: locale))
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.accent)
                     }
-                    .buttonStyle(.borderless)
-                    .font(AppTypography.caption)
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
                 }
             }
         }
