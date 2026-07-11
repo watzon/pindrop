@@ -296,6 +296,40 @@ struct DashboardStatsServiceTests {
         #expect(sut.wordsThisWeek == 9)
     }
 
+    @Test func activityWords_coverRolling365DaysEndingToday() {
+        let calendar = makeCalendar(firstWeekday: 1)
+        let samples = [
+            sample(year: 2023, month: 6, day: 14, wordCount: 3), // first day in range
+            sample(year: 2023, month: 6, day: 15, wordCount: 4),
+            sample(year: 2024, month: 6, day: 12, wordCount: 5),
+            sample(year: 2023, month: 6, day: 13, wordCount: 99), // outside range
+        ]
+
+        let sut = DashboardStatsService.compute(samples: samples, calendar: calendar, now: fixedNow)
+
+        #expect(sut.wordsPerActivityDay.count == 365)
+        #expect(sut.wordsPerActivityDay[0] == 3)
+        #expect(sut.wordsPerActivityDay[1] == 4)
+        #expect(sut.wordsPerActivityDay[364] == 5)
+        #expect(sut.wordsPerActivityDay.reduce(0, +) == 12)
+    }
+
+    @Test func activityWords_emptySamplesProvideEmptyGrid() {
+        let calendar = makeCalendar()
+        let sut = DashboardStatsService.compute(samples: [], calendar: calendar, now: fixedNow)
+
+        #expect(sut.wordsPerActivityDay == Array(repeating: 0, count: 365))
+    }
+
+    @Test func activityIntensity_usesFourNonzeroLevels() {
+        #expect(HomePresentation.activityIntensity(words: 0, maxWords: 100) == 0)
+        #expect(HomePresentation.activityIntensity(words: 1, maxWords: 100) == 1)
+        #expect(HomePresentation.activityIntensity(words: 25, maxWords: 100) == 1)
+        #expect(HomePresentation.activityIntensity(words: 26, maxWords: 100) == 2)
+        #expect(HomePresentation.activityIntensity(words: 75, maxWords: 100) == 3)
+        #expect(HomePresentation.activityIntensity(words: 100, maxWords: 100) == 4)
+    }
+
     // MARK: - WPM safety
 
     @Test func wpmThisWeek_zeroDurationIsSafe() {

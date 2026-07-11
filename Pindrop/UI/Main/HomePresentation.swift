@@ -38,15 +38,21 @@ enum HomeLayoutMetrics {
     /// THIS WEEK chart
     static let chartTopPadding: CGFloat = 40
     static let chartSectionGap: CGFloat = 14
-    static let chartBarAreaHeight: CGFloat = 110
-    static let chartBarWidth: CGFloat = 30
-    static let chartBarGap: CGFloat = 28
+    static let chartBarAreaHeight: CGFloat = 92
+    static let chartBarWidth: CGFloat = 24
+    static let chartBarGap: CGFloat = 14
     static let chartBarTopRadius: CGFloat = 5
     static let chartBarBottomRadius: CGFloat = 2
     static let chartStubHeight: CGFloat = 4
     static let chartLabelGap: CGFloat = 8
-    static let weekTotalBottomPadding: CGFloat = 24
-    static let chartDetailWidth: CGFloat = 152
+    static let chartPanelGap: CGFloat = 24
+    static let chartMinimumWidth: CGFloat = 280
+    static let chartMaximumWidth: CGFloat = 780
+    static let chartPanelDividerHeight: CGFloat = 156
+    static let activityMinimumCellSize: CGFloat = 4
+    static let activityMaximumCellSize: CGFloat = 8
+    static let activityCellGap: CGFloat = 2
+    static let activityGridHeight: CGFloat = 92
 }
 
 // MARK: - Presentation helpers
@@ -280,5 +286,74 @@ enum HomePresentation {
             weekdayName,
             formatGrouped(words, locale: locale)
         )
+    }
+
+    // MARK: Activity chart
+
+    static func activityStartDate(now: Date, calendar: Calendar) -> Date? {
+        calendar.date(byAdding: .day, value: -364, to: calendar.startOfDay(for: now))
+    }
+
+    static func activityLeadingBlankCount(startDate: Date, calendar: Calendar) -> Int {
+        let weekday = calendar.component(.weekday, from: startDate)
+        return (weekday - calendar.firstWeekday + 7) % 7
+    }
+
+    static func activityGridStartDate(startDate: Date, calendar: Calendar) -> Date? {
+        calendar.date(
+            byAdding: .day,
+            value: -activityLeadingBlankCount(startDate: startDate, calendar: calendar),
+            to: startDate
+        )
+    }
+
+    /// Four non-zero intensity levels, with zero reserved for an empty day.
+    static func activityIntensity(words: Int, maxWords: Int) -> Int {
+        guard words > 0, maxWords > 0 else { return 0 }
+        return min(4, max(1, Int(ceil((Double(words) / Double(maxWords)) * 4))))
+    }
+
+    static func activityMonthLabel(
+        weekIndex: Int,
+        startDate: Date,
+        calendar: Calendar,
+        locale: Locale
+    ) -> String {
+        guard let weekStart = calendar.date(byAdding: .weekOfYear, value: weekIndex, to: startDate) else {
+            return ""
+        }
+        if weekIndex > 0,
+           let previousWeek = calendar.date(byAdding: .weekOfYear, value: weekIndex - 1, to: startDate),
+           calendar.component(.month, from: previousWeek) == calendar.component(.month, from: weekStart) {
+            return ""
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.calendar = calendar
+        formatter.setLocalizedDateFormatFromTemplate("MMM")
+        return formatter.string(from: weekStart)
+    }
+
+    static func activityAccessibilityLabel(
+        date: Date,
+        words: Int,
+        calendar: Calendar,
+        locale: Locale
+    ) -> String {
+        "\(activityDateLabel(date: date, calendar: calendar, locale: locale)), \(wordMetric(count: words, locale: locale))"
+    }
+
+    static func activityDateLabel(
+        date: Date,
+        calendar: Calendar,
+        locale: Locale
+    ) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.calendar = calendar
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
 }

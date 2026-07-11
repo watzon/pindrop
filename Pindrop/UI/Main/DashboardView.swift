@@ -19,6 +19,7 @@ struct DashboardView: View {
     @ObservedObject private var settingsStore: SettingsStore
     @State private var selectedWeekdayIndex: Int?
     @State private var hoveredWeekdayIndex: Int?
+    @State private var hoveredActivityIndex: Int?
     @State private var chartHasAppeared = false
 
     var onOpenHotkeys: (() -> Void)?
@@ -367,115 +368,322 @@ struct DashboardView: View {
         let activeWords = activeIndex < buckets.count ? buckets[activeIndex] : 0
         let activeName = activeIndex < names.count ? names[activeIndex] : ""
 
-        return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
-            SectionHeader(title: localized("This week", locale: locale), isFirst: true)
+        return HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
+            VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+                SectionHeader(
+                    title: localized("This week", locale: locale),
+                    trailing: HomePresentation.wordMetric(count: activeWords, locale: locale),
+                    isFirst: true
+                )
 
-            HStack(alignment: .bottom, spacing: 0) {
-                HStack(alignment: .bottom, spacing: HomeLayoutMetrics.chartBarGap) {
-                    ForEach(0..<7, id: \.self) { index in
-                        let words = index < buckets.count ? buckets[index] : 0
-                        let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
-                        let height: CGFloat = {
-                            if kind == .future {
-                                return 0
-                            }
-                            return HomePresentation.barHeight(words: words, maxWords: maxWords)
-                        }()
-                        let isActive = index == activeIndex
-                        let barColor: Color = isActive ? AppColors.accent : AppColors.border
-                        let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
-                        let weekdayLabel = index < labels.count ? labels[index] : ""
-                        let weekdayName = index < names.count ? names[index] : weekdayLabel
+                ZStack(alignment: .bottom) {
+                    Rectangle()
+                        .fill(AppColors.border)
+                        .frame(height: 1)
+                        .padding(.bottom, 19)
 
-                        Button {
-                            selectedWeekdayIndex = index
-                        } label: {
-                            VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
-                                UnevenRoundedRectangle(
-                                    topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                    bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                    bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                    topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                    style: .continuous
-                                )
-                                .fill(barColor)
-                                .frame(
-                                    width: HomeLayoutMetrics.chartBarWidth,
-                                    height: chartHasAppeared ? height : 0
-                                )
-                                .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
-                                .animation(
-                                    reduceMotion
-                                        ? nil
-                                        : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
-                                    value: chartHasAppeared
-                                )
-                                .appAnimation(.normal, value: words)
+                    HStack(alignment: .bottom, spacing: HomeLayoutMetrics.chartBarGap) {
+                        ForEach(0..<7, id: \.self) { index in
+                            let words = index < buckets.count ? buckets[index] : 0
+                            let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
+                            let height: CGFloat = {
+                                if kind == .future {
+                                    return 0
+                                }
+                                return HomePresentation.barHeight(words: words, maxWords: maxWords)
+                            }()
+                            let isActive = index == activeIndex
+                            let barColor: Color = isActive ? AppColors.accent : AppColors.border
+                            let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
+                            let weekdayLabel = index < labels.count ? labels[index] : ""
+                            let weekdayName = index < names.count ? names[index] : weekdayLabel
 
-                                Text(weekdayLabel)
-                                    .font(FontLoader.font(
-                                        family: .inter,
-                                        size: 11,
-                                        weight: isActive ? .semibold : .medium
-                                    ))
-                                    .foregroundStyle(labelColor)
+                            Button {
+                                selectedWeekdayIndex = index
+                            } label: {
+                                VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
+                                    UnevenRoundedRectangle(
+                                        topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                        bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                        bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                        topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                        style: .continuous
+                                    )
+                                    .fill(barColor)
+                                    .frame(
+                                        width: HomeLayoutMetrics.chartBarWidth,
+                                        height: chartHasAppeared ? height : 0
+                                    )
+                                    .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
+                                    .animation(
+                                        reduceMotion
+                                            ? nil
+                                            : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
+                                        value: chartHasAppeared
+                                    )
+                                    .appAnimation(.normal, value: words)
+
+                                    Text(weekdayLabel)
+                                        .font(FontLoader.font(
+                                            family: .inter,
+                                            size: 11,
+                                            weight: isActive ? .semibold : .medium
+                                        ))
+                                        .foregroundStyle(labelColor)
+                                }
+                                .frame(width: HomeLayoutMetrics.chartBarWidth)
+                                .contentShape(Rectangle())
                             }
-                            .frame(width: HomeLayoutMetrics.chartBarWidth)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(kind == .future)
-                        .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        .appAnimation(.fast, value: isActive)
-                        .onHover { hovering in
-                            guard kind != .future else { return }
-                            if hovering {
-                                hoveredWeekdayIndex = index
-                            } else if hoveredWeekdayIndex == index {
-                                hoveredWeekdayIndex = nil
+                            .buttonStyle(.plain)
+                            .disabled(kind == .future)
+                            .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                            .appAnimation(.fast, value: isActive)
+                            .onHover { hovering in
+                                guard kind != .future else { return }
+                                if hovering {
+                                    hoveredWeekdayIndex = index
+                                } else if hoveredWeekdayIndex == index {
+                                    hoveredWeekdayIndex = nil
+                                }
                             }
-                        }
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(
-                            HomePresentation.barAccessibilityLabel(
-                                weekdayName: weekdayName,
-                                words: words,
-                                locale: locale
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(
+                                HomePresentation.barAccessibilityLabel(
+                                    weekdayName: weekdayName,
+                                    words: words,
+                                    locale: locale
+                                )
                             )
-                        )
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer(minLength: 24)
-
-                VStack(alignment: .trailing, spacing: HomeLayoutMetrics.statsInnerGap) {
-                    Text(activeName.uppercased(with: locale))
-                        .font(FontLoader.font(
-                            family: .inter,
-                            size: HomeLayoutMetrics.statsLabelSize,
-                            weight: .semibold
-                        ))
-                        .foregroundStyle(AppColors.textTertiary)
-                        .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
-
-                    Text(HomePresentation.wordMetric(count: activeWords, locale: locale))
-                        .font(FontLoader.font(
-                            family: .jetbrainsMono,
-                            size: HomeLayoutMetrics.statsNumberSize,
-                            weight: .medium
-                        ))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .monospacedDigit()
-                }
-                .frame(width: HomeLayoutMetrics.chartDetailWidth, alignment: .trailing)
-                .padding(.bottom, HomeLayoutMetrics.weekTotalBottomPadding)
-                .appAnimation(.fast, value: activeIndex)
+                Text(activeName.uppercased(with: locale))
+                    .font(FontLoader.font(
+                        family: .inter,
+                        size: HomeLayoutMetrics.statsLabelSize,
+                        weight: .semibold
+                    ))
+                    .foregroundStyle(AppColors.textTertiary)
+                    .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
+                    .appAnimation(.fast, value: activeIndex)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(
+                minWidth: HomeLayoutMetrics.chartMinimumWidth,
+                maxWidth: HomeLayoutMetrics.chartMaximumWidth,
+                alignment: .leading
+            )
+
+            Rectangle()
+                .fill(AppColors.border)
+                .frame(width: 1, height: HomeLayoutMetrics.chartPanelDividerHeight)
+                .padding(.top, 6)
+
+            activityChart(now: now, stats: stats)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
         }
         .padding(.top, HomeLayoutMetrics.chartTopPadding)
         .onAppear {
             chartHasAppeared = true
+        }
+    }
+
+    private func activityChart(now: Date, stats: DashboardStats) -> some View {
+        let buckets = stats.wordsPerActivityDay
+        let maxWords = buckets.max() ?? 0
+        let startDate = HomePresentation.activityStartDate(now: now, calendar: calendar)
+        let leadingBlankCount = startDate.map {
+            HomePresentation.activityLeadingBlankCount(startDate: $0, calendar: calendar)
+        } ?? 0
+        let gridStartDate = startDate.flatMap {
+            HomePresentation.activityGridStartDate(startDate: $0, calendar: calendar)
+        }
+
+        return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+            SectionHeader(title: localized("History", locale: locale), isFirst: true)
+
+            if let startDate, let gridStartDate {
+                GeometryReader { geometry in
+                    let cellSize = activityCellSize(availableWidth: geometry.size.width)
+
+                    VStack(alignment: .leading, spacing: 7) {
+                        HStack(spacing: HomeLayoutMetrics.activityCellGap) {
+                            ForEach(0..<53, id: \.self) { weekIndex in
+                                Text(HomePresentation.activityMonthLabel(
+                                    weekIndex: weekIndex,
+                                    startDate: gridStartDate,
+                                    calendar: calendar,
+                                    locale: locale
+                                ))
+                                .font(FontLoader.font(family: .inter, size: 9, weight: .medium))
+                                .foregroundStyle(AppColors.textTertiary)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .frame(width: cellSize, alignment: .leading)
+                            }
+                        }
+
+                        HStack(spacing: HomeLayoutMetrics.activityCellGap) {
+                            ForEach(0..<53, id: \.self) { weekIndex in
+                                VStack(spacing: HomeLayoutMetrics.activityCellGap) {
+                                    ForEach(0..<7, id: \.self) { dayIndex in
+                                        let gridIndex = weekIndex * 7 + dayIndex
+                                        let bucketIndex = gridIndex - leadingBlankCount
+
+                                        if buckets.indices.contains(bucketIndex) {
+                                            let words = buckets[bucketIndex]
+                                            let date = calendar.date(
+                                                byAdding: .day,
+                                                value: bucketIndex,
+                                                to: startDate
+                                            ) ?? startDate
+                                            let isToday = calendar.isDate(date, inSameDayAs: now)
+                                            let isHovered = hoveredActivityIndex == bucketIndex
+
+                                            RoundedRectangle(cornerRadius: min(2, cellSize / 4), style: .continuous)
+                                                .fill(activityColor(intensity: HomePresentation.activityIntensity(
+                                                    words: words,
+                                                    maxWords: maxWords
+                                                )))
+                                                .frame(width: cellSize, height: cellSize)
+                                                .overlay {
+                                                    if isToday || isHovered {
+                                                        RoundedRectangle(
+                                                            cornerRadius: min(2, cellSize / 4),
+                                                            style: .continuous
+                                                        )
+                                                        .strokeBorder(
+                                                            isHovered ? AppColors.textPrimary : AppColors.accent,
+                                                            lineWidth: isHovered ? 1.5 : 1
+                                                        )
+                                                    }
+                                                }
+                                                .scaleEffect(isHovered ? 1.35 : 1)
+                                                .zIndex(isHovered ? 1 : 0)
+                                                .contentShape(Rectangle())
+                                                .onHover { hovering in
+                                                    if hovering {
+                                                        hoveredActivityIndex = bucketIndex
+                                                    } else if hoveredActivityIndex == bucketIndex {
+                                                        hoveredActivityIndex = nil
+                                                    }
+                                                }
+                                                .appAnimation(.fast, value: isHovered)
+                                                .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
+                                                    date: date,
+                                                    words: words,
+                                                    calendar: calendar,
+                                                    locale: locale
+                                                ))
+                                        } else {
+                                            Color.clear
+                                                .frame(width: cellSize, height: cellSize)
+                                                .accessibilityHidden(true)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(alignment: .topLeading) {
+                        if let hoveredActivityIndex,
+                           buckets.indices.contains(hoveredActivityIndex),
+                           let date = calendar.date(
+                               byAdding: .day,
+                               value: hoveredActivityIndex,
+                               to: startDate
+                           ) {
+                            let gridIndex = hoveredActivityIndex + leadingBlankCount
+                            let weekIndex = gridIndex / 7
+                            let dayIndex = gridIndex % 7
+                            let cellX = CGFloat(weekIndex) * (cellSize + HomeLayoutMetrics.activityCellGap)
+                            let cellY = 18 + CGFloat(dayIndex) * (cellSize + HomeLayoutMetrics.activityCellGap)
+                            let tooltipX = min(
+                                max(0, cellX - 76),
+                                max(0, geometry.size.width - 160)
+                            )
+                            let tooltipY = dayIndex < 4
+                                ? cellY + cellSize + 6
+                                : max(0, cellY - 48)
+
+                            activityTooltip(
+                                date: date,
+                                words: buckets[hoveredActivityIndex]
+                            )
+                            .offset(x: tooltipX, y: tooltipY)
+                            .zIndex(10)
+                            .allowsHitTesting(false)
+                        }
+                    }
+                }
+                .frame(height: HomeLayoutMetrics.activityGridHeight)
+
+                HStack(spacing: 4) {
+                    Text(localized("Streak", locale: locale).uppercased(with: locale))
+                    Text(HomePresentation.streakLabel(days: stats.streakDays, locale: locale))
+                        .foregroundStyle(AppColors.textSecondary)
+
+                    Spacer(minLength: 8)
+
+                    ForEach(0...4, id: \.self) { intensity in
+                        RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                            .fill(activityColor(intensity: intensity))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .font(FontLoader.font(family: .inter, size: 9, weight: .semibold))
+                .foregroundStyle(AppColors.textTertiary)
+            }
+        }
+    }
+
+    private func activityCellSize(availableWidth: CGFloat) -> CGFloat {
+        let gapsWidth = HomeLayoutMetrics.activityCellGap * 52
+        let fittedSize = (availableWidth - gapsWidth) / 53
+        return min(
+            HomeLayoutMetrics.activityMaximumCellSize,
+            max(HomeLayoutMetrics.activityMinimumCellSize, fittedSize)
+        )
+    }
+
+    private func activityTooltip(date: Date, words: Int) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(HomePresentation.activityDateLabel(
+                date: date,
+                calendar: calendar,
+                locale: locale
+            ).uppercased(with: locale))
+                .font(FontLoader.font(family: .inter, size: 9, weight: .semibold))
+                .foregroundStyle(AppColors.textTertiary)
+                .lineLimit(1)
+
+            Text(HomePresentation.wordMetric(count: words, locale: locale))
+                .font(FontLoader.font(family: .jetbrainsMono, size: 11, weight: .medium))
+                .foregroundStyle(AppColors.textPrimary)
+                .monospacedDigit()
+                .lineLimit(1)
+        }
+        .frame(width: 136, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(AppColors.elevatedSurface, in: .rect(cornerRadius: 7))
+        .overlay {
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        }
+        .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
+    }
+
+    private func activityColor(intensity: Int) -> Color {
+        switch intensity {
+        case 1: AppColors.accent.opacity(0.24)
+        case 2: AppColors.accent.opacity(0.44)
+        case 3: AppColors.accent.opacity(0.68)
+        case 4: AppColors.accent
+        default: AppColors.border.opacity(0.55)
         }
     }
 }

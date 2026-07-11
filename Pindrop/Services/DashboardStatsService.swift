@@ -47,6 +47,9 @@ struct DashboardStats: Equatable, Sendable {
     /// Seven word-count buckets for the calendar week containing `now`, ordered from
     /// `calendar.firstWeekday` through the rest of the week (locale-aware Mon–Sun or Sun–Sat).
     let wordsPerWeekday: [Int]
+    /// Daily word-count buckets for the rolling 365-day period ending today,
+    /// ordered oldest to newest.
+    let wordsPerActivityDay: [Int]
     let dictationDurationThisWeek: TimeInterval
     /// Estimated typing time at 40 WPM minus actual dictation duration for the week, floored at 0.
     let timeSavedThisWeek: TimeInterval
@@ -59,6 +62,7 @@ struct DashboardStats: Equatable, Sendable {
         wpmThisWeek: 0,
         streakDays: 0,
         wordsPerWeekday: Array(repeating: 0, count: 7),
+        wordsPerActivityDay: Array(repeating: 0, count: 365),
         dictationDurationThisWeek: 0,
         timeSavedThisWeek: 0
     )
@@ -109,11 +113,21 @@ enum DashboardStatsService {
         var sessionsThisWeek = 0
         var dictationDurationThisWeek: TimeInterval = 0
         var wordsPerWeekday = Array(repeating: 0, count: 7)
+        var wordsPerActivityDay = Array(repeating: 0, count: 365)
         var activeDayStarts = Set<Date>()
+        let activityStart = calendar.date(byAdding: .day, value: -364, to: startOfToday)
 
         for sample in samples {
             let dayStart = calendar.startOfDay(for: sample.timestamp)
             activeDayStarts.insert(dayStart)
+
+            if let activityStart,
+               dayStart >= activityStart,
+               dayStart < startOfTomorrow,
+               let dayOffset = calendar.dateComponents([.day], from: activityStart, to: dayStart).day,
+               wordsPerActivityDay.indices.contains(dayOffset) {
+                wordsPerActivityDay[dayOffset] += sample.wordCount
+            }
 
             let isToday = sample.timestamp >= startOfToday && sample.timestamp < startOfTomorrow
             if isToday {
@@ -158,6 +172,7 @@ enum DashboardStatsService {
             wpmThisWeek: wpmThisWeek,
             streakDays: streakDays,
             wordsPerWeekday: wordsPerWeekday,
+            wordsPerActivityDay: wordsPerActivityDay,
             dictationDurationThisWeek: dictationDurationThisWeek,
             timeSavedThisWeek: timeSavedThisWeek
         )
