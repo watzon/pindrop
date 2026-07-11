@@ -13,6 +13,7 @@ import AppKit
 
 enum MainNavItem: String, Identifiable {
     case home = "Home"
+    case stats = "Stats"
     case history = "History"
     case notes = "Notes"
     /// Unrouted as of U2 — kept for API compatibility; navigation redirects to Library.
@@ -21,9 +22,10 @@ enum MainNavItem: String, Identifiable {
     case dictionary = "Dictionary"
 
     /// Primary sidebar destinations after U2 restructure.
-    /// Order: Home, Library, Notes, Dictionary, Models (⌘1–5).
+    /// Order: Home, Stats, Library, Notes, Dictionary, Models (⌘1–6).
     static let primaryNavigationItems: [MainNavItem] = [
         .home,
+        .stats,
         .history,
         .notes,
         .dictionary,
@@ -58,6 +60,7 @@ enum MainNavItem: String, Identifiable {
     var icon: String {
         switch self {
         case .home: return "house"
+        case .stats: return "chart.xyaxis.line"
         case .history: return "books.vertical"
         case .notes: return "note.text"
         case .transcribe: return "waveform"
@@ -215,6 +218,7 @@ struct MainWindow: View {
                 settingsStore: settingsStore,
                 onOpenHotkeys: { navigateToSettings(.shortcuts) },
                 onViewAllHistory: { navigateTo(.history) },
+                onShowMoreStats: { navigateTo(.stats) },
                 onOpenHistoryRecord: { recordID in
                     historyRecordIDToOpen = recordID
                     navigateTo(.history)
@@ -224,6 +228,8 @@ struct MainWindow: View {
                 onRecordMeeting: onStartMeetingCapture,
                 onNewNote: onStartNoteCapture
             )
+        case .stats:
+            StatsView()
         case .history:
             HistoryView(
                 recordIDToOpen: historyRecordIDToOpen,

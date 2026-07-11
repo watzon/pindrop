@@ -24,6 +24,7 @@ struct DashboardView: View {
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
+    var onShowMoreStats: (() -> Void)?
     var onOpenHistoryRecord: ((UUID) -> Void)?
     var onNewTranscription: (() -> Void)?
     var onTranscribeFile: (() -> Void)?
@@ -39,6 +40,7 @@ struct DashboardView: View {
         settingsStore: SettingsStore? = nil,
         onOpenHotkeys: (() -> Void)? = nil,
         onViewAllHistory: (() -> Void)? = nil,
+        onShowMoreStats: (() -> Void)? = nil,
         onOpenHistoryRecord: ((UUID) -> Void)? = nil,
         onNewTranscription: (() -> Void)? = nil,
         onTranscribeFile: (() -> Void)? = nil,
@@ -49,6 +51,7 @@ struct DashboardView: View {
         self._settingsStore = ObservedObject(wrappedValue: settingsStore ?? SettingsStore())
         self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
+        self.onShowMoreStats = onShowMoreStats
         self.onOpenHistoryRecord = onOpenHistoryRecord
         self.onNewTranscription = onNewTranscription
         self.onTranscribeFile = onTranscribeFile
@@ -90,7 +93,7 @@ struct DashboardView: View {
 
     private func homeContent(now: Date) -> some View {
         let dashboardStats = stats(now: now)
-        return ScrollView(showsIndicators: false) {
+        return ScrollView(showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
                 heroBlock(now: now, stats: dashboardStats)
                 statsStrip(stats: dashboardStats)
@@ -505,7 +508,23 @@ struct DashboardView: View {
         }
 
         return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
-            SectionHeader(title: localized("History", locale: locale), isFirst: true)
+            SectionHeader(title: localized("History", locale: locale), isFirst: true) {
+                Button {
+                    onShowMoreStats?()
+                } label: {
+                    HStack(spacing: 3) {
+                        Text(localized("Show more stats", locale: locale))
+                        Image(systemName: "arrow.right")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .font(FontLoader.font(family: .inter, size: 11, weight: .semibold))
+                    .foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+                .keyboardFocusRing(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                .accessibilityIdentifier("home.button.showMoreStats")
+                .help(localized("Show more stats", locale: locale))
+            }
 
             if let startDate, let gridStartDate {
                 GeometryReader { geometry in

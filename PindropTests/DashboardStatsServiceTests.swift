@@ -408,3 +408,102 @@ struct DashboardStatsServiceTests {
         #expect(sut.wordsPerWeekday == Array(repeating: 0, count: 7))
     }
 }
+
+
+@Suite("Stats page analytics")
+struct StatsPageAnalyticsTests {
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        calendar.firstWeekday = 2
+        return calendar
+    }
+
+    private func date(_ day: Int, hour: Int = 12) -> Date {
+        calendar.date(from: DateComponents(year: 2026, month: 7, day: day, hour: hour))!
+    }
+
+    private func record(
+        day: Int,
+        hour: Int = 12,
+        words: Int,
+        duration: TimeInterval = 60,
+        source: MediaSourceKind = .voiceRecording,
+        destination: String? = nil,
+        enhanced: Bool = false
+    ) -> StatsRecord {
+        StatsRecord(
+            timestamp: date(day, hour: hour),
+            words: words,
+            duration: duration,
+            sourceKind: source,
+            destinationApp: destination,
+            isEnhanced: enhanced
+        )
+    }
+
+    @Test func computesOverviewAndVoiceEfficiency() {
+        let snapshot = StatsService.compute(
+            records: [
+                record(day: 9, words: 100, duration: 60, destination: "Notes", enhanced: true),
+                record(day: 10, words: 200, duration: 120, destination: "Mail"),
+                record(day: 11, words: 300, duration: 300, source: .importedFile)
+            ],
+            range: .sevenDays,
+            calendar: calendar,
+            now: date(11, hour: 18)
+        )
+
+        #expect(snapshot.totalWords == 600)
+        #expect(snapshot.totalSessions == 3)
+        #expect(snapshot.activeDays == 3)
+        #expect(snapshot.longestStreak == 3)
+        #expect(snapshot.enhancedSessions == 1)
+        #expect(snapshot.averageWPM == 100)
+        #expect(snapshot.activity.count == 3)
+        #expect(snapshot.sources.count == 2)
+    }
+
+    @Test func rangeAndFutureRecordsAreExcluded() {
+        let snapshot = StatsService.compute(
+            records: [
+                record(day: 1, words: 500),
+                record(day: 10, words: 100),
+                record(day: 12, words: 900)
+            ],
+            range: .sevenDays,
+            calendar: calendar,
+            now: date(11, hour: 18)
+        )
+
+        #expect(snapshot.totalWords == 100)
+        #expect(snapshot.totalSessions == 1)
+    }
+
+    @Test func groupsWeekdaysHoursAndDestinations() {
+        let snapshot = StatsService.compute(
+            records: [
+                record(day: 10, hour: 9, words: 100, destination: "Notes"),
+                record(day: 10, hour: 9, words: 50, destination: "Notes"),
+                record(day: 11, hour: 14, words: 75, destination: nil)
+            ],
+            range: .thirtyDays,
+            calendar: calendar,
+            now: date(11, hour: 18)
+        )
+
+        #expect(snapshot.weekdays.count == 7)
+        #expect(snapshot.hours.count == 24)
+        #expect(snapshot.hours.first(where: { $0.id == "9" })?.words == 150)
+        #expect(snapshot.destinations.first?.id == "Notes")
+        #expect(snapshot.destinations.last?.id == "__unknown__")
+    }
+
+    @Test func emptyInputProducesEmptySnapshot() {
+        #expect(
+            StatsService.compute(
+                records: [], range: .allTime, calendar: calendar, now: date(11)
+            ) == .empty
+        )
+    }
+}

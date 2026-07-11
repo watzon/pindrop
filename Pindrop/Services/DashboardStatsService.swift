@@ -26,7 +26,7 @@ struct StatsSample: Equatable, Sendable {
 
     init(timestamp: Date, text: String, duration: TimeInterval) {
         self.timestamp = timestamp
-        self.wordCount = text.dashboardStatsWordCount
+        self.wordCount = text.wordCount
         self.duration = duration
     }
 }
@@ -78,7 +78,7 @@ enum DashboardStatsService {
     static func sample(from record: TranscriptionRecord) -> StatsSample {
         StatsSample(
             timestamp: record.timestamp,
-            wordCount: record.text.dashboardStatsWordCount,
+            wordCount: max(0, record.effectiveWordCount),
             duration: record.duration
         )
     }
@@ -219,16 +219,5 @@ enum DashboardStatsService {
     /// Maps a Gregorian weekday (1=Sunday … 7=Saturday) to a 0…6 index ordered by `firstWeekday`.
     private static func weekdayIndex(weekday: Int, firstWeekday: Int) -> Int {
         (weekday - firstWeekday + 7) % 7
-    }
-}
-
-// MARK: - Word count
-
-// TODO(B1): replace with shared String.wordCount
-private extension String {
-    var dashboardStatsWordCount: Int {
-        split { $0.isWhitespace || $0.isNewline }
-            .filter { !$0.isEmpty }
-            .count
     }
 }

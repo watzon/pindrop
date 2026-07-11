@@ -13,14 +13,15 @@ import Testing
 struct MainShellNavigationTests {
 
     @Test func primaryNavigationOrderMatchesViewMenuShortcuts() {
-        let expected: [MainNavItem] = [.home, .history, .notes, .dictionary, .models]
+        let expected: [MainNavItem] = [.home, .stats, .history, .notes, .dictionary, .models]
         #expect(MainNavItem.primaryNavigationItems == expected)
 
         #expect(MainNavItem.viewMenuShortcut(for: .home) == "1")
-        #expect(MainNavItem.viewMenuShortcut(for: .history) == "2")
-        #expect(MainNavItem.viewMenuShortcut(for: .notes) == "3")
-        #expect(MainNavItem.viewMenuShortcut(for: .dictionary) == "4")
-        #expect(MainNavItem.viewMenuShortcut(for: .models) == "5")
+        #expect(MainNavItem.viewMenuShortcut(for: .stats) == "2")
+        #expect(MainNavItem.viewMenuShortcut(for: .history) == "3")
+        #expect(MainNavItem.viewMenuShortcut(for: .notes) == "4")
+        #expect(MainNavItem.viewMenuShortcut(for: .dictionary) == "5")
+        #expect(MainNavItem.viewMenuShortcut(for: .models) == "6")
     }
 
     @Test func transcribeIsNotInPrimaryNavigation() {
@@ -32,6 +33,7 @@ struct MainShellNavigationTests {
         #expect(MainNavItem.transcribe.resolvedDestination == .history)
         #expect(MainNavItem.history.resolvedDestination == .history)
         #expect(MainNavItem.home.resolvedDestination == .home)
+        #expect(MainNavItem.stats.resolvedDestination == .stats)
     }
 
     @Test func historyTitleKeyIsLibrary() {

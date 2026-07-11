@@ -131,6 +131,8 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		D6FEA1BD5772A0BC1316C3A9 /* ModelSelectionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562A5EF6DF5282D6085B2FC4 /* ModelSelectionStepView.swift */; };
 		D80025B628E760D11B48574D /* OnboardingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F735D73B65B7AF81A8846AEC /* OnboardingWindow.swift */; };
 		DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */; };
+		STATSVIEWBUILD01A2B3C4D5E6 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = STATSVIEWFILE01A2B3C4D5E6 /* StatsView.swift */; };
+		STATSPRESBUILD01A2B3C4D5E6 /* StatsPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = STATSPRESFILE01A2B3C4D5E6 /* StatsPresentation.swift */; };
 		DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */; };
 		DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */; };
 		DICTSTORE2A2B3C4D5E6F70 /* DictionaryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DICTSTORE2A2B3C4D5E6F71 /* DictionaryStore.swift */; };
@@ -414,6 +416,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManagerTests.swift; sourceTree = "<group>"; };
 		HKCONFLICTTESTFILE01A2B3C4D5 /* HotkeyConflictCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyConflictCheckerTests.swift; sourceTree = "<group>"; };
 		DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		STATSVIEWFILE01A2B3C4D5E6 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		STATSPRESFILE01A2B3C4D5E6 /* StatsPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPresentation.swift; sourceTree = "<group>"; };
 		DBCE211FE788482E9E1A68F5 /* HotkeysSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeysSettingsView.swift; sourceTree = "<group>"; };
 		DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryModelsTests.swift; sourceTree = "<group>"; };
 		DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
@@ -931,6 +935,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				NOTEROWFILE01A2B3C4D5E6F /* NoteHistoryRow.swift */,
 				NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */,
 				DASHBRD1A2B3C4D5E6F71 /* DashboardView.swift */,
+				STATSVIEWFILE01A2B3C4D5E6 /* StatsView.swift */,
+				STATSPRESFILE01A2B3C4D5E6 /* StatsPresentation.swift */,
 				HISTVW01A2B3C4D5E6F71 /* HistoryView.swift */,
 				LIBPRESENTFILE01A2B3C4D5 /* LibraryPresentation.swift */,
 				NOTESPRESENTFILE01A2B3C4D5 /* NotesPresentation.swift */,
@@ -1364,6 +1370,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				HISTROWBUILD01A2B3C4D5E6F /* TranscriptionHistoryRow.swift in Sources */,
 				NOTEROWBUILD01A2B3C4D5E6F /* NoteHistoryRow.swift in Sources */,
 				DASHBRD1A2B3C4D5E6F70 /* DashboardView.swift in Sources */,
+				STATSVIEWBUILD01A2B3C4D5E6 /* StatsView.swift in Sources */,
+				STATSPRESBUILD01A2B3C4D5E6 /* StatsPresentation.swift in Sources */,
 				HISTVW01A2B3C4D5E6F70 /* HistoryView.swift in Sources */,
 				LIBPRESENTBUILD01A2B3C4D5 /* LibraryPresentation.swift in Sources */,
 				HOMEPRESENTBUILD01A2B3C4D5 /* HomePresentation.swift in Sources */,
