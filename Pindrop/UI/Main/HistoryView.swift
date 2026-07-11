@@ -234,35 +234,16 @@ struct HistoryView: View {
         }
     }
 
+    // A true split button. Deliberately NOT one Menu with a custom label:
+    // macOS's borderless menu style collapses composite labels (it rendered
+    // only the "+" in one build and only the chevron in the next). The label
+    // half is a plain Button (default action: import files); the Menu owns
+    // only the chevron segment, which that style renders reliably.
     private var importMenu: some View {
-        Menu {
-            if onImportMediaFiles != nil {
-                Button {
-                    importFilesViaOpenPanel()
-                } label: {
-                    Label(localized("Import Files…", locale: locale), systemImage: "folder")
-                }
-            }
-            if onSubmitMediaLink != nil {
-                Button {
-                    pasteLinkText = ""
-                    showPasteLinkSheet = true
-                } label: {
-                    Label(localized("Paste Link…", locale: locale), systemImage: "link")
-                }
-            }
-            if onStartMeetingCapture != nil {
-                Divider()
-                Button {
-                    onStartMeetingCapture?()
-                } label: {
-                    Label(localized("Record Meeting…", locale: locale), systemImage: "person.2.wave.2")
-                }
-            }
-        } label: {
-            // Primary split-button look: accent fill (discoverable, unlike the old
-            // quiet chrome that read as decoration), label + divider + chevron.
-            HStack(spacing: 0) {
+        HStack(spacing: 0) {
+            Button {
+                importFilesViaOpenPanel()
+            } label: {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(Image(systemName: "plus"))
                         .font(.system(size: 12, weight: .semibold))
@@ -271,23 +252,55 @@ struct HistoryView: View {
                 }
                 .padding(.vertical, 6)
                 .padding(.horizontal, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(localized("Import media", locale: locale))
 
-                Rectangle()
-                    .fill(AppColors.contentBackground.opacity(0.35))
-                    .frame(width: 1, height: 16)
+            Rectangle()
+                .fill(AppColors.contentBackground.opacity(0.35))
+                .frame(width: 1, height: 16)
 
+            Menu {
+                if onImportMediaFiles != nil {
+                    Button {
+                        importFilesViaOpenPanel()
+                    } label: {
+                        Label(localized("Import Files…", locale: locale), systemImage: "folder")
+                    }
+                }
+                if onSubmitMediaLink != nil {
+                    Button {
+                        pasteLinkText = ""
+                        showPasteLinkSheet = true
+                    } label: {
+                        Label(localized("Paste Link…", locale: locale), systemImage: "link")
+                    }
+                }
+                if onStartMeetingCapture != nil {
+                    Divider()
+                    Button {
+                        onStartMeetingCapture?()
+                    } label: {
+                        Label(localized("Record Meeting…", locale: locale), systemImage: "person.2.wave.2")
+                    }
+                }
+            } label: {
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .semibold))
                     .padding(.horizontal, 8)
+                    .padding(.vertical, 9)
+                    .contentShape(Rectangle())
             }
-            .foregroundStyle(AppColors.contentBackground)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(AppColors.accent)
-            )
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
+        .foregroundStyle(AppColors.contentBackground)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(AppColors.accent)
+        )
         .fixedSize()
         .fixedSize()
     }
