@@ -52,14 +52,13 @@ DerivedDataTests/
 
 # Legacy local residue
 shared/
-.gitnexus
 .soulforge
 
 # Local agent / tooling state
 .agents/
 .claude/
 
-# Node tooling (gitnexus etc.)
+# Node tooling (agent-ci etc.)
 node_modules/
 package.json
 
