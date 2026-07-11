@@ -244,15 +244,11 @@ struct HistoryView: View {
             Button {
                 importFilesViaOpenPanel()
             } label: {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(Image(systemName: "plus"))
-                        .font(.system(size: 12, weight: .semibold))
-                    Text(localized("Transcribe", locale: locale))
-                        .font(AppTypography.labelSemibold)
-                }
-                .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .contentShape(Rectangle())
+                Text(localized("Transcribe", locale: locale))
+                    .font(AppTypography.labelSemibold)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .help(localized("Import media", locale: locale))
@@ -288,7 +284,10 @@ struct HistoryView: View {
             } label: {
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .semibold))
-                    .padding(.horizontal, 8)
+                    // Explicit: the menu style does not inherit the outer tint.
+                    .foregroundStyle(AppColors.contentBackground)
+                    .padding(.leading, 8)
+                    .padding(.trailing, 12)
                     .padding(.vertical, 9)
                     .contentShape(Rectangle())
             }
