@@ -585,6 +585,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         panel.isFloatingPanel = true; panel.isOpaque = false
         panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
         panel.backgroundColor = .clear; panel.isMovable = false; panel.hasShadow = false
+        panel.ignoresMouseEvents = false
         panel.level = .mainMenu + 1
         panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
         panel.isReleasedWhenClosed = false
@@ -995,45 +996,48 @@ struct OrbIndicatorView: View {
     }
 
     private var orbContent: some View {
-        ZStack {
-            OrbGlassFillView(
-                palette: ribbonPalette,
-                // Closure, not value: bandLevels is deliberately non-@Published, so it
-                // must be polled inside the shader timeline tick to stay live.
-                bands: { [weak state] in state?.bandLevels ?? .zero },
-                isHovered: controller.isHovered,
-                isRecording: state.isRecording,
-                isProcessing: state.isProcessing,
-                isMuted: state.isInputMuted
-            )
+        Button {
+            controller.handleOrbTapped()
+        } label: {
+            ZStack {
+                OrbGlassFillView(
+                    palette: ribbonPalette,
+                    // Closure, not value: bandLevels is deliberately non-@Published, so it
+                    // must be polled inside the shader timeline tick to stay live.
+                    bands: { [weak state] in state?.bandLevels ?? .zero },
+                    isHovered: controller.isHovered,
+                    isRecording: state.isRecording,
+                    isProcessing: state.isProcessing,
+                    isMuted: state.isInputMuted
+                )
 
-            Circle()
-                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1.5)
-                .blendMode(.plusLighter)
-
-            if state.isRecording {
                 Circle()
-                    .stroke(
-                        Color.white.opacity(0.14),
-                        style: StrokeStyle(lineWidth: 1, dash: [2.5, 2.5])
-                    )
-                    .frame(width: 44, height: 44)
-                    .allowsHitTesting(false)
+                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 1.5)
+                    .blendMode(.plusLighter)
+
+                if state.isRecording {
+                    Circle()
+                        .stroke(
+                            Color.white.opacity(0.14),
+                            style: StrokeStyle(lineWidth: 1, dash: [2.5, 2.5])
+                        )
+                        .frame(width: 44, height: 44)
+                        .allowsHitTesting(false)
+                }
             }
+            .frame(width: orbDiameter, height: orbDiameter)
+            .clipShape(Circle())
+            .shadow(
+                color: ribbonPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
+                radius: state.isRecording ? 26 : 18,
+                y: state.isRecording ? 8 : 6
+            )
+            .opacity(state.isInputMuted ? 0.4 : 1)
+            .contentShape(Circle())
         }
-        .frame(width: orbDiameter, height: orbDiameter)
-        .clipShape(Circle())
-        .shadow(
-            color: ribbonPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
-            radius: state.isRecording ? 26 : 18,
-            y: state.isRecording ? 8 : 6
-        )
-        .opacity(state.isInputMuted ? 0.4 : 1)
+        .buttonStyle(.plain)
         .contentShape(Circle())
-        .onTapGesture { controller.handleOrbTapped() }
         .onHover { controller.setPointerCursorActive($0) }
-        .accessibilityElement()
-        .accessibilityAddTraits(.isButton)
         .accessibilityLabel(localized("Pindrop Orb", locale: locale))
         .accessibilityValue(
             localized(
@@ -1043,7 +1047,6 @@ struct OrbIndicatorView: View {
                 locale: locale
             )
         )
-        .accessibilityAction { controller.handleOrbTapped() }
         // Floating indicators stay non-key by design; the global hotkey is the keyboard path.
     }
 
