@@ -538,7 +538,6 @@ final class MainWindowController {
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
-    private var sidebarObserver: Any?
     private var navObserver: Any?
     /// Last known main-window navigation destination (updated via notification).
     private(set) var currentNavigationItem: MainNavItem = .home
@@ -708,12 +707,6 @@ final class MainWindowController {
 
             self.window = window
 
-            sidebarObserver = NotificationCenter.default.addObserver(
-                forName: .sidebarStateChanged,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in self?.updateZoomButton() }
-
             navObserver = NotificationCenter.default.addObserver(
                 forName: .mainNavItemDidChange,
                 object: nil,
@@ -770,16 +763,7 @@ final class MainWindowController {
         for btn in [close, mini, zoom] {
             btn.autoresizingMask = [.minYMargin]
         }
-
-        updateZoomButton()
-    }
-
-    private func updateZoomButton() {
-        guard let zoom = window?.standardWindowButton(.zoomButton),
-              let settingsStore else { return }
-        let shouldHide = settingsStore.selectedSidebarPosition == .leading
-            && !settingsStore.sidebarExpanded
-        zoom.isHidden = shouldHide
+        zoom.isHidden = true
     }
 
     func hide() {
