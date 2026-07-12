@@ -374,6 +374,7 @@ private enum CaptureLimits {
 /// operation: if all handoff permits are in use, the backend fails the recording
 /// rather than silently dropping samples.
 final class AudioPCMFileStorage: @unchecked Sendable {
+    private static let writerQueueSpecificKey = DispatchSpecificKey<UUID>()
     private final class PCMStorageSlab: @unchecked Sendable {
         let capacity: Int
         let storage: UnsafeMutableRawPointer
@@ -414,6 +415,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var onLimitReached: ((TimeInterval) -> Void)?
     private var limitReached = false
     private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
+    private let writerQueueIdentifier = UUID()
     private let slabs: [PCMStorageSlab]
     /// Preallocated SPSC FIFO. The capture callback is its only producer and the
     /// serial writer source is its only consumer; slab permits cap occupancy.
@@ -421,6 +423,9 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var producedSequence: UInt64 = 0
     private var consumedSequence: UInt64 = 0
     private var readySource: DispatchSourceUserDataAdd!
+    /// Accessed only by `writerQueue`; set before close/reset so queued tokens
+    /// recycle their slabs without touching a retired spool.
+    private var isDiscarded = false
     private let maximumByteCount: Int?
     private let writerDelayNanoseconds: UInt64
 
@@ -437,6 +442,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         self.readySlabIndices = UnsafeMutablePointer<Int>.allocate(capacity: slabs.count)
         self.maximumByteCount = maximumByteCount
         self.writerDelayNanoseconds = writerDelayNanoseconds
+        writerQueue.setSpecific(key: Self.writerQueueSpecificKey, value: writerQueueIdentifier)
         let source = DispatchSource.makeUserDataAddSource(queue: writerQueue)
         source.setEventHandler { [weak self] in self?.drainReadySlabs() }
         source.resume()
@@ -473,8 +479,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             self.onWriteFailure = onWriteFailure
             self.onLimitReached = onLimitReached
             limitReached = false
-            producedSequence = 0
-            consumedSequence = 0
+            isDiscarded = false
         }
     }
 
@@ -497,9 +502,9 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         }
         let slot = Int(producedSequence % UInt64(slabs.count))
         readySlabIndices[slot] = index
-        // Publish the ready token after its PCM copy is complete.
-        OSMemoryBarrier()
         producedSequence &+= 1
+        // Dispatch source notification publishes this completed token to the
+        // single writer; producer/consumer counters are never cross-thread read.
         readySource.add(data: 1)
         return true
     }
@@ -511,11 +516,13 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             try writerQueue.sync {
             if let writeFailure {
                 closeAndRemoveFile()
+                isDiscarded = true
                 throw writeFailure
             }
             guard let fileURL, let sampleRate else {
                 closeAndRemoveFile()
                 byteCount = 0
+                isDiscarded = true
                 return nil
             }
             do {
@@ -529,23 +536,20 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             self.sampleRate = nil
             let result = AudioPCMFile(fileURL: fileURL, byteCount: byteCount, sampleRate: sampleRate)
             byteCount = 0
+            isDiscarded = true
             return result
             }
         }
     }
 
     func discard() {
+        if isOnWriterQueue {
+            discardOnWriterQueue()
+            return
+        }
         withDrainedSlabs {
             writerQueue.sync {
-            closeAndRemoveFile()
-            sampleRate = nil
-            byteCount = 0
-            writeFailure = nil
-            onWriteFailure = nil
-            onLimitReached = nil
-            limitReached = false
-            producedSequence = 0
-            consumedSequence = 0
+                discardOnWriterQueue()
             }
         }
     }
@@ -553,12 +557,10 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     /// Runs only on `writerQueue`. One source drains the FIFO in capture order,
     /// then recycles each slab after its file write completes.
     private func drainReadySlabs() {
-        OSMemoryBarrier()
-        let produced = producedSequence
-        while consumedSequence < produced {
+        let readyCount = Int(readySource.data)
+        for _ in 0..<readyCount {
             let slot = Int(consumedSequence % UInt64(slabs.count))
             let slabIndex = readySlabIndices[slot]
-            OSMemoryBarrier()
             consumedSequence &+= 1
             write(slabs[slabIndex])
         }
@@ -566,7 +568,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
 
     private func write(_ slab: PCMStorageSlab) {
         defer { slab.availability.signal() }
-        guard writeFailure == nil, !limitReached else { return }
+        guard !isDiscarded, writeFailure == nil, !limitReached else { return }
         if let maximumByteCount, byteCount + slab.byteCount > maximumByteCount {
             limitReached = true
             onLimitReached?(Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size))
@@ -592,6 +594,24 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         for slab in slabs { slab.availability.wait() }
         defer { for slab in slabs { slab.availability.signal() } }
         return try operation()
+    }
+
+    private var isOnWriterQueue: Bool {
+        DispatchQueue.getSpecific(key: Self.writerQueueSpecificKey) == writerQueueIdentifier
+    }
+
+    /// Must run on `writerQueue`. The guard makes direct writer-queue cleanup and
+    /// repeated teardown idempotent without synchronously re-entering that queue.
+    private func discardOnWriterQueue() {
+        guard !isDiscarded else { return }
+        isDiscarded = true
+        closeAndRemoveFile()
+        sampleRate = nil
+        byteCount = 0
+        writeFailure = nil
+        onWriteFailure = nil
+        onLimitReached = nil
+        limitReached = false
     }
 
     private func recordWriteFailure(_ error: Error) {

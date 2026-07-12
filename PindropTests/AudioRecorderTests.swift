@@ -514,6 +514,49 @@ struct AudioPCMFileStorageTests {
         }
         #expect(samples == expected)
     }
+
+    @Test func discardIsIdempotentAndStorageCanRestartAfterPendingSlabs() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let first = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 100))
+        let second = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 200))
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 2, writerDelayNanoseconds: 20_000_000)
+
+        try storage.start()
+        #expect(storage.enqueue(first))
+        #expect(storage.enqueue(second))
+        storage.discard()
+        storage.discard()
+
+        try storage.start()
+        #expect(storage.enqueue(second))
+        let finished = try storage.finish()
+        let completed = try #require(finished)
+        let data = try completed.consumeData(maximumByteCount: 1024)
+        let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(samples == (0..<4).map { second.floatChannelData![0][$0] })
+    }
+
+    @Test func repeatedFinishRestartMaintainsFIFOSequences() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 3)
+
+        for frequency: Float in [100, 200, 300, 400, 500, 600] {
+            let buffer = try #require(
+                MockAudioCaptureBackend.makeSynthesizedBuffer(
+                    format: format,
+                    frameCount: 4,
+                    frequency: frequency
+                )
+            )
+            try storage.start()
+            #expect(storage.enqueue(buffer))
+            let finished = try storage.finish()
+            let completed = try #require(finished)
+            let data = try completed.consumeData(maximumByteCount: 1024)
+            let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+            #expect(samples == (0..<4).map { buffer.floatChannelData![0][$0] })
+        }
+    }
 }
 
 @Suite
