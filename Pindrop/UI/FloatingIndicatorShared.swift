@@ -80,19 +80,209 @@ extension Timer {
     }
 }
 
+// MARK: - Pointer / screen activity (event-driven)
+
+/// Subscribes to shared AppKit mouse-move and screen-parameter notifications for
+/// floating indicators. Replaces 60 Hz hover polling: callbacks fire only on real pointer
+/// activity or display reconfiguration, already on the main run loop (no
+/// `Task { @MainActor }` hop from a timer tick).
+@MainActor
+final class FloatingIndicatorPointerMonitor {
+    private var subscriptionID: UUID?
+    private var isPointerActivityEnabled = true
+    private let onPointerActivity: @MainActor () -> Void
+    private let onScreenParametersChanged: @MainActor () -> Void
+
+    init(
+        onPointerActivity: @escaping @MainActor () -> Void,
+        onScreenParametersChanged: @escaping @MainActor () -> Void = {}
+    ) {
+        self.onPointerActivity = onPointerActivity
+        self.onScreenParametersChanged = onScreenParametersChanged
+    }
+
+    deinit {
+        guard let subscriptionID else { return }
+        Task { @MainActor in
+            FloatingIndicatorPointerMonitorHub.shared.remove(subscriptionID)
+        }
+    }
+
+    func start() {
+        guard subscriptionID == nil else { return }
+        subscriptionID = FloatingIndicatorPointerMonitorHub.shared.add(
+            pointerActivityEnabled: isPointerActivityEnabled,
+            onPointerActivity: onPointerActivity,
+            onScreenParametersChanged: onScreenParametersChanged
+        )
+    }
+
+    /// Keeps display-change delivery alive while suspending hover/mouse work for
+    /// recording and processing sessions.
+    func setPointerActivityEnabled(_ enabled: Bool) {
+        guard isPointerActivityEnabled != enabled else { return }
+        isPointerActivityEnabled = enabled
+        guard let subscriptionID else { return }
+        FloatingIndicatorPointerMonitorHub.shared.setPointerActivityEnabled(enabled, for: subscriptionID)
+    }
+
+    func stop() {
+        guard let subscriptionID else { return }
+        FloatingIndicatorPointerMonitorHub.shared.remove(subscriptionID)
+        self.subscriptionID = nil
+    }
+}
+
+/// Process-wide owner for AppKit monitors. The focus tracker and the visible
+/// presenter both consume pointer/display events, but AppKit only needs one local
+/// monitor, one global monitor, and one screen observer regardless of subscriber count.
+@MainActor
+private final class FloatingIndicatorPointerMonitorHub {
+    static let shared = FloatingIndicatorPointerMonitorHub()
+
+    private struct Subscription {
+        var pointerActivityEnabled: Bool
+        let onPointerActivity: @MainActor () -> Void
+        let onScreenParametersChanged: @MainActor () -> Void
+    }
+
+    private var subscriptions: [UUID: Subscription] = [:]
+    private var localMonitor: Any?
+    private var globalMonitor: Any?
+    private var screenObserver: NSObjectProtocol?
+
+    func add(
+        pointerActivityEnabled: Bool,
+        onPointerActivity: @escaping @MainActor () -> Void,
+        onScreenParametersChanged: @escaping @MainActor () -> Void
+    ) -> UUID {
+        let id = UUID()
+        subscriptions[id] = Subscription(
+            pointerActivityEnabled: pointerActivityEnabled,
+            onPointerActivity: onPointerActivity,
+            onScreenParametersChanged: onScreenParametersChanged
+        )
+        reconcileMonitorOwnership()
+        return id
+    }
+
+    func setPointerActivityEnabled(_ enabled: Bool, for id: UUID) {
+        guard var subscription = subscriptions[id] else { return }
+        subscription.pointerActivityEnabled = enabled
+        subscriptions[id] = subscription
+        reconcileMonitorOwnership()
+    }
+
+    func remove(_ id: UUID) {
+        subscriptions[id] = nil
+        reconcileMonitorOwnership()
+    }
+
+    private func reconcileMonitorOwnership() {
+        let needsPointerMonitors = subscriptions.values.contains(where: \.pointerActivityEnabled)
+        if needsPointerMonitors {
+            installPointerMonitorsIfNeeded()
+        } else {
+            removePointerMonitors()
+        }
+
+        if subscriptions.isEmpty {
+            removeScreenObserver()
+        } else {
+            installScreenObserverIfNeeded()
+        }
+    }
+
+    private func installPointerMonitorsIfNeeded() {
+        guard localMonitor == nil, globalMonitor == nil else { return }
+        let mask: NSEvent.EventTypeMask = [
+            .mouseMoved,
+            .leftMouseDragged,
+            .rightMouseDragged,
+            .otherMouseDragged
+        ]
+        let handler: (NSEvent) -> Void = { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.notifyPointerActivity()
+            }
+        }
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: mask) { event in
+            handler(event)
+            return event
+        }
+        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler)
+    }
+
+    private func installScreenObserverIfNeeded() {
+        guard screenObserver == nil else { return }
+        screenObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.notifyScreenParametersChanged()
+            }
+        }
+    }
+
+    private func notifyPointerActivity() {
+        for subscription in subscriptions.values where subscription.pointerActivityEnabled {
+            subscription.onPointerActivity()
+        }
+    }
+
+    private func notifyScreenParametersChanged() {
+        for subscription in subscriptions.values {
+            subscription.onScreenParametersChanged()
+        }
+    }
+
+    private func removePointerMonitors() {
+        if let localMonitor {
+            NSEvent.removeMonitor(localMonitor)
+            self.localMonitor = nil
+        }
+        if let globalMonitor {
+            NSEvent.removeMonitor(globalMonitor)
+            self.globalMonitor = nil
+        }
+    }
+
+    private func removeScreenObserver() {
+        if let screenObserver {
+            NotificationCenter.default.removeObserver(screenObserver)
+            self.screenObserver = nil
+        }
+    }
+}
+
 // MARK: - Shared indicator components
 
 /// Animated three-dot processing indicator using the theme accent color.
 /// Drop-in replacement for `ProgressView()` across all floating indicators.
+///
+/// Uses a single `TimelineView` for the whole collection so the three dots
+/// share one animation cadence (and one Reduce Motion gate) instead of each
+/// spawning an independent timeline.
 struct IndicatorProcessingView: View {
     var dotCount: Int = 3
     var dotDiameter: CGFloat = 5
     var spacing: CGFloat = 4
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: spacing) {
-            ForEach(0..<dotCount, id: \.self) { index in
-                _IndicatorProcessingDot(index: index, diameter: dotDiameter)
+        TimelineView(.animation(minimumInterval: 0.06, paused: reduceMotion)) { timeline in
+            let t = timeline.date.timeIntervalSinceReferenceDate
+            HStack(spacing: spacing) {
+                ForEach(0..<dotCount, id: \.self) { index in
+                    _IndicatorProcessingDot(
+                        index: index,
+                        diameter: dotDiameter,
+                        time: t,
+                        reduceMotion: reduceMotion
+                    )
+                }
             }
         }
     }
@@ -101,23 +291,21 @@ struct IndicatorProcessingView: View {
 private struct _IndicatorProcessingDot: View {
     let index: Int
     let diameter: CGFloat
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let time: TimeInterval
+    let reduceMotion: Bool
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.06, paused: reduceMotion)) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
-            let phase = (t * 2.2 + Double(index) * 0.45).truncatingRemainder(dividingBy: 3.0)
-            let isActive = phase < 1.0
-            let staticOpacities = [1.0, 0.55, 0.25]
-            Circle()
-                .fill(
-                    Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen)
-                        .opacity(reduceMotion ? staticOpacities[index % staticOpacities.count] : (isActive ? 1 : 0.25))
-                )
-                .frame(width: diameter, height: diameter)
-                .scaleEffect(reduceMotion ? 1 : (isActive ? 1.0 : 0.76))
-                .animation(reduceMotion ? nil : AppTheme.Animation.fast, value: isActive)
-        }
+        let phase = (time * 2.2 + Double(index) * 0.45).truncatingRemainder(dividingBy: 3.0)
+        let isActive = phase < 1.0
+        let staticOpacities = [1.0, 0.55, 0.25]
+        Circle()
+            .fill(
+                Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen)
+                    .opacity(reduceMotion ? staticOpacities[index % staticOpacities.count] : (isActive ? 1 : 0.25))
+            )
+            .frame(width: diameter, height: diameter)
+            .scaleEffect(reduceMotion ? 1 : (isActive ? 1.0 : 0.76))
+            .animation(reduceMotion ? nil : AppTheme.Animation.fast, value: isActive)
     }
 }
 
@@ -159,6 +347,11 @@ struct IndicatorCompletionOverlay: View {
 /// tentative tail is dimmed and italic. The view keeps a fixed height (`lineLimit`
 /// lines) and auto-scrolls to the tail — panels never resize with text growth, only on
 /// phase transitions.
+///
+/// Rendering is deliberately bounded to `LiveTranscriptState.displayTail` so body
+/// evaluation stays proportional to the three-line viewport rather than the full
+/// session buffer. Full `displayText` / committed values remain available for
+/// accessibility and final output.
 struct LiveTranscriptView: View {
     @ObservedObject var transcript: LiveTranscriptState
     var fontSize: CGFloat = 11
@@ -179,21 +372,39 @@ struct LiveTranscriptView: View {
             : .leftToRight
     }
 
-    /// Composed display string split back into committed/tentative runs so the two can
-    /// be styled differently while joining exactly like the coordinator's display path.
-    private var styledTranscript: AttributedString {
+    /// Style only the bounded viewport tail. Split against the full composed cache
+    /// so committed/tentative runs keep their semantics even when older committed
+    /// text has scrolled out of the three-line window.
+    private var styledTranscriptTail: AttributedString {
         let composed = transcript.displayText
+        let tail = transcript.displayTail
+        guard !tail.isEmpty else { return AttributedString() }
+
         let committedCore = transcript.committedText
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        var committedRun = AttributedString()
-        var tentativeRun = AttributedString()
+        let committedLengthInComposed: Int
         if !committedCore.isEmpty, composed.hasPrefix(committedCore) {
-            committedRun = AttributedString(committedCore)
-            tentativeRun = AttributedString(String(composed.dropFirst(committedCore.count)))
+            committedLengthInComposed = committedCore.count
         } else {
-            tentativeRun = AttributedString(composed)
+            committedLengthInComposed = 0
         }
+
+        let tailStart = composed.count - tail.count
+        let committedInTail: String
+        let tentativeInTail: String
+        if tailStart >= committedLengthInComposed {
+            committedInTail = ""
+            tentativeInTail = tail
+        } else {
+            let committedCharsInTail = min(tail.count, committedLengthInComposed - tailStart)
+            let split = tail.index(tail.startIndex, offsetBy: committedCharsInTail)
+            committedInTail = String(tail[..<split])
+            tentativeInTail = String(tail[split...])
+        }
+
+        var committedRun = AttributedString(committedInTail)
+        var tentativeRun = AttributedString(tentativeInTail)
 
         committedRun.foregroundColor = AppColors.overlayTextPrimary
         committedRun.font = FontLoader.font(family: .newsreader, size: fontSize, weight: .regular)
@@ -217,7 +428,7 @@ struct LiveTranscriptView: View {
                                 .font(FontLoader.font(family: .newsreader, size: fontSize, weight: .regular))
                                 .foregroundStyle(AppColors.overlayTextSecondary)
                         } else {
-                            Text(styledTranscript)
+                            Text(styledTranscriptTail)
                                 .lineSpacing(max(0, lineHeight - fontSize))
                                 .opacity(transcript.phase == .enhancing ? 0.7 : 1.0)
                         }
@@ -329,8 +540,14 @@ struct FloatingIndicatorWaveformStyle {
 
 }
 
+/// Waveform bars sample the latest meter level on the visual timeline only.
+/// The parent indicator root is intentionally *not* invalidated at audio-callback
+/// cadence; pass a level provider (or the non-`@Published` state sample) so only
+/// this drawing subtree re-renders at `style.animationInterval`.
 struct FloatingIndicatorWaveformView: View {
-    let audioLevel: Float
+    /// Polled once per visual frame inside `TimelineView` — must not be a snapshot
+    /// captured by a parent body that would require root invalidation to refresh.
+    let audioLevel: () -> Float
     let isRecording: Bool
     let style: FloatingIndicatorWaveformStyle
 
@@ -339,9 +556,10 @@ struct FloatingIndicatorWaveformView: View {
     var body: some View {
         switch style.layout {
         case .fixed(let count, let heightScale):
-            // Audio level remains reactive through @Published updates. Reduce Motion only
+            // Audio level remains reactive through per-tick polling. Reduce Motion only
             // freezes the decorative phase wobble driven by the timeline.
             TimelineView(.animation(minimumInterval: style.animationInterval, paused: reduceMotion)) { timeline in
+                let level = audioLevel()
                 HStack(spacing: style.barSpacing) {
                     ForEach(0..<count, id: \.self) { index in
                         RoundedRectangle(cornerRadius: style.barWidth / 2)
@@ -352,6 +570,7 @@ struct FloatingIndicatorWaveformView: View {
                                     for: index,
                                     barCount: count,
                                     date: timeline.date,
+                                    audioLevel: level,
                                     heightScale: heightScale
                                 )
                             )
@@ -362,6 +581,7 @@ struct FloatingIndicatorWaveformView: View {
         case .dynamic(let minimumCount, _):
             GeometryReader { proxy in
                 TimelineView(.animation(minimumInterval: style.animationInterval, paused: reduceMotion)) { timeline in
+                    let level = audioLevel()
                     let barCount = max(
                         minimumCount,
                         Int((proxy.size.width + style.barSpacing) / (style.barWidth + style.barSpacing))
@@ -373,7 +593,12 @@ struct FloatingIndicatorWaveformView: View {
                                 .fill(style.color.opacity(isRecording ? 1 : 0.58))
                                 .frame(
                                     width: style.barWidth,
-                                    height: barHeight(for: index, barCount: barCount, date: timeline.date)
+                                    height: barHeight(
+                                        for: index,
+                                        barCount: barCount,
+                                        date: timeline.date,
+                                        audioLevel: level
+                                    )
                                 )
                         }
                     }
@@ -383,7 +608,13 @@ struct FloatingIndicatorWaveformView: View {
         }
     }
 
-    private func barHeight(for index: Int, barCount: Int, date: Date, heightScale: [CGFloat]? = nil) -> CGFloat {
+    private func barHeight(
+        for index: Int,
+        barCount: Int,
+        date: Date,
+        audioLevel: Float,
+        heightScale: [CGFloat]? = nil
+    ) -> CGFloat {
         guard isRecording else { return style.idleHeight }
 
         let time = date.timeIntervalSinceReferenceDate
@@ -500,13 +731,14 @@ final class FloatingIndicatorState: ObservableObject {
 
     @Published var isRecording = false
     @Published var recordingDuration: TimeInterval = 0
-    @Published var audioLevel: Float = 0.0
-    /// Deliberately not `@Published`: the only reader is the Orb's blob canvas,
-    /// which polls at 40fps on its own timeline, so publishing bought nothing.
-    /// This halves (not eliminates) the per-buffer invalidation traffic —
-    /// `audioLevel` above updates at the same cadence and must stay `@Published`
-    /// for the Pill indicator's waveform.
-    var bandLevels = AudioBandLevels.zero
+    /// Latest smoothed meter sample. Deliberately not `@Published`: audio callbacks
+    /// arrive far faster than visual cadence, and publishing forced every indicator
+    /// root (pill shell, orb chrome, timers) to rebuild on each buffer. Waveform and
+    /// blob drawing subtrees poll this value from their own timelines instead.
+    private(set) var audioLevel: Float = 0.0
+    /// Deliberately not `@Published`: the only reader is the Orb's blob/shader
+    /// canvas, which polls at its own timeline cadence.
+    private(set) var bandLevels = AudioBandLevels.zero
     @Published var isProcessing = false
     /// Selected input device mute/volume state from `InputMuteMonitor`.
     /// UI (orb/pill) can render a Muted state from this without observing CoreAudio directly.
@@ -520,6 +752,10 @@ final class FloatingIndicatorState: ObservableObject {
     private var durationTimer: Timer?
     private var escapePrimedResetTask: Task<Void, Never>?
     private var completionClearTask: Task<Void, Never>?
+
+    /// Minimum absolute delta before a meter sample replaces the stored level.
+    /// Below this, the visual change is lost in bar/blob quantization.
+    private static let meterEpsilon: Float = 0.005
 
     func startRecording() {
         isRecording = true
@@ -544,6 +780,7 @@ final class FloatingIndicatorState: ObservableObject {
         isProcessing = false
         recordingDuration = 0
         audioLevel = 0
+        bandLevels = .zero
         clearEscapePrimed()
         stopDurationTimer()
         if wasRecording {
@@ -565,19 +802,30 @@ final class FloatingIndicatorState: ObservableObject {
     }
 
     func updateAudioLevel(_ level: Float) {
-        let smoothed = audioLevel * 0.3 + level * 0.7
-        audioLevel = min(1.0, max(0.0, smoothed))
+        let smoothed = min(1.0, max(0.0, audioLevel * 0.3 + level * 0.7))
+        // Keep the latest sample only when it moves the needle; silent no-ops and
+        // sub-threshold jitter never touch storage.
+        if abs(smoothed - audioLevel) < Self.meterEpsilon {
+            return
+        }
+        audioLevel = smoothed
     }
 
     func updateBandLevels(_ levels: AudioBandLevels) {
         func smooth(_ old: Float, _ new: Float) -> Float {
             min(1.0, max(0.0, old * 0.3 + new * 0.7))
         }
-        bandLevels = AudioBandLevels(
+        let next = AudioBandLevels(
             low: smooth(bandLevels.low, levels.low),
             mid: smooth(bandLevels.mid, levels.mid),
             high: smooth(bandLevels.high, levels.high)
         )
+        if abs(next.low - bandLevels.low) < Self.meterEpsilon,
+           abs(next.mid - bandLevels.mid) < Self.meterEpsilon,
+           abs(next.high - bandLevels.high) < Self.meterEpsilon {
+            return
+        }
+        bandLevels = next
     }
 
     func updateHotkeys(toggleHotkey: String, pushToTalkHotkey: String) {

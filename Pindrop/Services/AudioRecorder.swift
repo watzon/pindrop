@@ -187,58 +187,141 @@ private enum AudioCaptureUtilities {
         AVAudioFormat(standardFormatWithSampleRate: 16000.0, channels: 1) ?? AVAudioFormat()
     }
 
+    /// One-shot conversion helper for ad-hoc call sites. Hot capture paths keep a
+    /// `ReusableAudioConverter` and reuse converter/output-buffer state across buffers.
     static func convertBuffer(
         _ buffer: AVAudioPCMBuffer,
         from inputFormat: AVAudioFormat,
         to outputFormat: AVAudioFormat
     ) -> AVAudioPCMBuffer? {
-        guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat) else {
+        ReusableAudioConverter().convert(buffer, from: inputFormat, to: outputFormat)
+    }
+
+    static func formatsEquivalent(_ lhs: AVAudioFormat, _ rhs: AVAudioFormat) -> Bool {
+        lhs.sampleRate == rhs.sampleRate
+            && lhs.channelCount == rhs.channelCount
+            && lhs.commonFormat == rhs.commonFormat
+            && lhs.isInterleaved == rhs.isInterleaved
+    }
+}
+
+/// Serial conversion cache for a single capture callback context. Rebuilds the
+/// `AVAudioConverter` only when source/target formats change, reuses a single
+/// input-state flag, and keeps a small free-list of output buffers that have not
+/// been published to streaming or spool consumers.
+private final class ReusableAudioConverter {
+    private final class InputState {
+        var buffer: AVAudioPCMBuffer?
+        var consumed = false
+    }
+
+    private var converter: AVAudioConverter?
+    private var cachedInputFormat: AVAudioFormat?
+    private var cachedOutputFormat: AVAudioFormat?
+    private let inputState = InputState()
+    /// Only holds buffers still owned by this converter (failed converts / unused).
+    /// Once a buffer is returned to a caller it is never mutated or recycled here.
+    private var freeOutputBuffers: [AVAudioPCMBuffer] = []
+    private let maxPooledBuffers = 4
+
+    func convert(
+        _ buffer: AVAudioPCMBuffer,
+        from inputFormat: AVAudioFormat,
+        to outputFormat: AVAudioFormat
+    ) -> AVAudioPCMBuffer? {
+        if !matchesCachedFormats(input: inputFormat, output: outputFormat) {
+            rebuild(from: inputFormat, to: outputFormat)
+        }
+        guard let converter else {
             Log.audio.error("Failed to create audio converter")
             return nil
         }
 
         let ratio = outputFormat.sampleRate / inputFormat.sampleRate
         let capacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio) + 1
-
-        guard let convertedBuffer = AVAudioPCMBuffer(
-            pcmFormat: outputFormat,
-            frameCapacity: capacity
-        ) else {
+        guard let convertedBuffer = makeOutputBuffer(capacity: capacity, format: outputFormat) else {
             Log.audio.error("Failed to create output buffer")
             return nil
         }
 
-        var error: NSError?
-
-        final class InputState: @unchecked Sendable {
-            var consumed = false
+        inputState.buffer = buffer
+        inputState.consumed = false
+        defer {
+            inputState.buffer = nil
+            inputState.consumed = false
         }
-        let inputState = InputState()
 
-        let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+        var error: NSError?
+        let inputBlock: AVAudioConverterInputBlock = { [inputState] _, outStatus in
             if inputState.consumed {
                 outStatus.pointee = .noDataNow
                 return nil
             }
             inputState.consumed = true
             outStatus.pointee = .haveData
-            return buffer
+            return inputState.buffer
         }
 
         let status = converter.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
 
         if let error {
             Log.audio.error("Conversion error: \(error)")
+            recycle(convertedBuffer)
             return nil
         }
 
         if status == .error {
             Log.audio.error("Conversion status error")
+            recycle(convertedBuffer)
             return nil
         }
 
+        // Ownership transfers to the caller; do not recycle while consumers may retain it.
         return convertedBuffer
     }
+
+    func reset() {
+        converter = nil
+        cachedInputFormat = nil
+        cachedOutputFormat = nil
+        freeOutputBuffers.removeAll(keepingCapacity: false)
+        inputState.buffer = nil
+        inputState.consumed = false
+    }
+
+    private func rebuild(from inputFormat: AVAudioFormat, to outputFormat: AVAudioFormat) {
+        converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+        cachedInputFormat = inputFormat
+        cachedOutputFormat = outputFormat
+        // Drop pool entries that belong to the previous format pair.
+        freeOutputBuffers.removeAll(keepingCapacity: false)
+    }
+
+    private func matchesCachedFormats(input: AVAudioFormat, output: AVAudioFormat) -> Bool {
+        guard let cachedInputFormat, let cachedOutputFormat, converter != nil else { return false }
+        return AudioCaptureUtilities.formatsEquivalent(cachedInputFormat, input)
+            && AudioCaptureUtilities.formatsEquivalent(cachedOutputFormat, output)
+    }
+
+    private func makeOutputBuffer(capacity: AVAudioFrameCount, format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        if let index = freeOutputBuffers.firstIndex(where: {
+            $0.frameCapacity >= capacity && AudioCaptureUtilities.formatsEquivalent($0.format, format)
+        }) {
+            let buffer = freeOutputBuffers.remove(at: index)
+            buffer.frameLength = 0
+            return buffer
+        }
+        return AVAudioPCMBuffer(pcmFormat: format, frameCapacity: capacity)
+    }
+
+    private func recycle(_ buffer: AVAudioPCMBuffer) {
+        guard freeOutputBuffers.count < maxPooledBuffers else { return }
+        buffer.frameLength = 0
+        freeOutputBuffers.append(buffer)
+    }
+}
+
+extension AudioCaptureUtilities {
 
     static func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
         let frameLength = Int(buffer.frameLength)
@@ -634,6 +717,8 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention (tap format), kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
+    /// Reused across tap callbacks; rebuilt when the engine reinstalls a tap with a new format.
+    private let audioConverter = ReusableAudioConverter()
     var retainsNativeAudio = false
     private var preferredInputDeviceUID: String?
     private var configurationChangeObserver: NSObjectProtocol?
@@ -732,6 +817,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
+        audioConverter.reset()
         
         guard let capturedAudio = try audioStorage.finish() else {
             throw AudioRecorderError.notRecording
@@ -754,6 +840,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
+        audioConverter.reset()
         audioStorage.discard()
         nativeAudioStorage.discard()
 
@@ -778,6 +865,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
+        audioConverter.reset()
         audioStorage.discard()
         nativeAudioStorage.discard()
         Log.audio.info("Audio engine reset")
@@ -900,6 +988,8 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
 
         let audioStorage = self.audioStorage
         let targetFmt = self.targetFormat
+        let audioConverter = self.audioConverter
+        audioConverter.reset()
 
         let nativeAudioStorage = self.nativeAudioStorage
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: tapFormat) { [weak self] buffer, _ in
@@ -913,7 +1003,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
                 }
             }
 
-            if let convertedBuffer = AudioCaptureUtilities.convertBuffer(buffer, from: buffer.format, to: targetFmt) {
+            if let convertedBuffer = audioConverter.convert(buffer, from: buffer.format, to: targetFmt) {
                 if !audioStorage.enqueue(convertedBuffer) {
                     self.onErrorCallback?(AudioRecorderError.audioWriterBacklogExceeded)
                     return
@@ -1085,6 +1175,9 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention, kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
+    /// Serial capture-callback converters; rebuilt automatically when formats change.
+    private let asrConverter = ReusableAudioConverter()
+    private let nativeConverter = ReusableAudioConverter()
     var retainsNativeAudio = false
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.microphone-input")
@@ -1180,6 +1273,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
 
         tearDownActiveCapture(clearCallbacks: true)
+        asrConverter.reset()
+        nativeConverter.reset()
         guard let capturedAudio = try audioStorage.finish() else {
             throw AudioRecorderError.notRecording
         }
@@ -1190,6 +1285,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     func cancelCapture() {
         guard isCapturing else { return }
         tearDownActiveCapture(clearCallbacks: true)
+        asrConverter.reset()
+        nativeConverter.reset()
         audioStorage.discard()
         nativeAudioStorage.discard()
         Log.audio.info("Microphone capture cancelled")
@@ -1202,6 +1299,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
     func reset() {
         tearDownActiveCapture(clearCallbacks: true)
+        asrConverter.reset()
+        nativeConverter.reset()
         audioStorage.discard()
         nativeAudioStorage.discard()
     }
@@ -1235,6 +1334,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         let deviceID = try resolvedInputDeviceID()
         let sourceFormat = try inputFormat(for: deviceID)
         let generation = reserveCaptureGeneration()
+        asrConverter.reset()
+        nativeConverter.reset()
 
         var createdIOProcID: AudioDeviceIOProcID?
         let status = AudioDeviceCreateIOProcIDWithBlock(
@@ -1332,7 +1433,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
                standardFormatWithSampleRate: sourceFormat.sampleRate,
                channels: 1
            ),
-           let nativeBuffer = AudioCaptureUtilities.convertBuffer(
+           let nativeBuffer = nativeConverter.convert(
                sourceBuffer,
                from: sourceFormat,
                to: nativeFormat
@@ -1348,7 +1449,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             }
         }
 
-        guard let convertedBuffer = AudioCaptureUtilities.convertBuffer(
+        guard let convertedBuffer = asrConverter.convert(
             sourceBuffer,
             from: sourceFormat,
             to: targetFormat
@@ -1731,6 +1832,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
+    /// Serial capture-callback converter; rebuilt automatically when formats change.
+    private let audioConverter = ReusableAudioConverter()
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.system-audio-tap")
 
@@ -1774,6 +1877,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             }
         }
         destroyCaptureObjects()
+        audioConverter.reset()
 
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
         tapDescription.name = "Pindrop System Audio"
@@ -1849,6 +1953,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         }
 
         destroyCaptureObjects()
+        audioConverter.reset()
         guard let capturedAudio = try audioStorage.finish() else {
             throw AudioRecorderError.notRecording
         }
@@ -1859,12 +1964,14 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
     func cancelCapture() {
         guard isCapturing else { return }
         destroyCaptureObjects()
+        audioConverter.reset()
         audioStorage.discard()
         Log.audio.info("System audio capture cancelled")
     }
 
     func reset() {
         destroyCaptureObjects()
+        audioConverter.reset()
         audioStorage.discard()
     }
 
@@ -1896,7 +2003,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         let bytesPerFrame = max(Int(sourceFormat.streamDescription.pointee.mBytesPerFrame), 1)
         sourceBuffer.frameLength = AVAudioFrameCount(Int(firstBuffer.mDataByteSize) / bytesPerFrame)
 
-        guard let convertedBuffer = AudioCaptureUtilities.convertBuffer(
+        guard let convertedBuffer = audioConverter.convert(
             sourceBuffer,
             from: sourceFormat,
             to: targetFormat
@@ -2269,6 +2376,105 @@ final class AudioLevelNormalizer {
     }
 }
 
+// MARK: - Capture finalization handoff
+
+/// Exclusive ownership wrapper so stop-time drain/mix/materialization can leave
+/// the main actor without concurrent access to the same backend instance.
+private final class CaptureFinalizationHandoff: @unchecked Sendable {
+    let backend: any AudioCaptureBackend
+
+    init(_ backend: any AudioCaptureBackend) {
+        self.backend = backend
+    }
+}
+
+/// Owns the ASR bytes and optional native spool after off-main finalization.
+private final class CaptureFinalizationResult: @unchecked Sendable {
+    let audioData: Data
+    let nativeAudio: AudioCaptureNativeAudio?
+
+    init(audioData: Data, nativeAudio: AudioCaptureNativeAudio?) {
+        self.audioData = audioData
+        self.nativeAudio = nativeAudio
+    }
+}
+
+private enum CaptureFinalization {
+    /// Runs only after capture ownership has been detached from `AudioRecorder`.
+    /// Stops the backend (spool drain + optional mix) and materializes contiguous
+    /// ASR PCM. Temporary files are removed on every success and error path.
+    static func stopAndMaterialize(
+        backend: any AudioCaptureBackend,
+        maximumByteCount: Int
+    ) throws -> CaptureFinalizationResult {
+        let capturedAudio = try backend.stopCapture()
+        let nativeAudio = backend.collectNativeAudio()
+        do {
+            let audioData = try capturedAudio.consumeData(maximumByteCount: maximumByteCount)
+            return CaptureFinalizationResult(audioData: audioData, nativeAudio: nativeAudio)
+        } catch {
+            nativeAudio?.discard()
+            // consumeData removes the ASR spool in both success and failure paths.
+            throw error
+        }
+    }
+}
+
+/// Coalesces overall level and band-level UI updates into one main-actor delivery.
+/// Capture callbacks only ever keep the latest values and at most one pending hop.
+private final class AudioMeterDeliveryCoalescer: @unchecked Sendable {
+    private let lock = NSLock()
+    private var latestLevel: Float?
+    private var latestBands: AudioBandLevels?
+    private var isDeliveryPending = false
+
+    /// Capture-thread entry. `deliver` runs on the main actor with the latest
+    /// values present when the hop executes; at most one delivery is scheduled.
+    func note(
+        level: Float? = nil,
+        bands: AudioBandLevels? = nil,
+        deliver: @escaping @MainActor (_ level: Float?, _ bands: AudioBandLevels?) -> Void
+    ) {
+        lock.lock()
+        if let level {
+            latestLevel = level
+        }
+        if let bands {
+            latestBands = bands
+        }
+        if isDeliveryPending {
+            lock.unlock()
+            return
+        }
+        isDeliveryPending = true
+        lock.unlock()
+
+        Task { @MainActor in
+            let snapshot = self.takeSnapshot()
+            deliver(snapshot.level, snapshot.bands)
+        }
+    }
+
+    func reset() {
+        lock.lock()
+        latestLevel = nil
+        latestBands = nil
+        isDeliveryPending = false
+        lock.unlock()
+    }
+
+    private func takeSnapshot() -> (level: Float?, bands: AudioBandLevels?) {
+        lock.lock()
+        let level = latestLevel
+        let bands = latestBands
+        latestLevel = nil
+        latestBands = nil
+        isDeliveryPending = false
+        lock.unlock()
+        return (level, bands)
+    }
+}
+
 // MARK: - AudioRecorder
 
 @MainActor
@@ -2284,6 +2490,10 @@ final class AudioRecorder {
     private let microphoneCaptureBackend: AudioCaptureBackend
     private let systemAudioCaptureBackend: AudioCaptureBackend?
     private var activeCaptureBackend: AudioCaptureBackend?
+    /// Non-nil while stop finalization owns a detached backend off the main actor.
+    private var finalizingCapture: CaptureFinalizationHandoff?
+    /// Start callers parked until `finalizingCapture` releases backend ownership.
+    private var finalizationWaiters: [CheckedContinuation<Void, Never>] = []
     
     var targetFormat: AVAudioFormat {
         activeCaptureBackend?.targetFormat ?? microphoneCaptureBackend.targetFormat
@@ -2308,6 +2518,8 @@ final class AudioRecorder {
     private let bandLevelAnalyzer = ThreeBandLevelAnalyzer()
     /// Touched only from the capture backend's callbacks (serial).
     private let levelNormalizer = AudioLevelNormalizer()
+    /// Capture-thread coalescer for main-actor meter delivery.
+    private let meterDelivery = AudioMeterDeliveryCoalescer()
 
     init(
         permissionManager: some PermissionProviding,
@@ -2339,6 +2551,13 @@ final class AudioRecorder {
         isStartingRecording = true
         defer { isStartingRecording = false }
 
+        // Finalization exclusively owns the capture backend off the main actor.
+        // Wait it out before reusing any backend; never start over a live handoff.
+        await awaitCaptureFinalizationIfNeeded()
+        guard finalizingCapture == nil else {
+            return false
+        }
+
         if configuration.mode.requiresMicrophonePermission {
             guard await permissionManager.requestPermission() else {
                 throw AudioRecorderError.permissionDenied
@@ -2363,25 +2582,37 @@ final class AudioRecorder {
 
         bandLevelAnalyzer.reset()
         levelNormalizer.reset()
+        meterDelivery.reset()
         do {
             let bandLevelAnalyzer = self.bandLevelAnalyzer
             let levelNormalizer = self.levelNormalizer
+            let meterDelivery = self.meterDelivery
             try captureBackend.startCapture(
                 onBuffer: { [weak self] buffer in
                     // Bands use the gain from the previous level update — a
                     // one-buffer lag that is invisible at tap cadence.
                     let bands = levelNormalizer.scaled(bandLevelAnalyzer.process(buffer))
                     // Raw buffers go straight to the streaming pump from the capture
-                    // thread; only the UI-facing band levels hop to the main actor.
+                    // thread; only UI-facing meters hop to the main actor.
                     self?.onAudioBuffer?(buffer)
-                    Task { @MainActor [weak self] in
-                        self?.onAudioBandLevels?(bands)
+                    meterDelivery.note(bands: bands) { [weak self] level, deliveredBands in
+                        if let level {
+                            self?.onAudioLevel?(level)
+                        }
+                        if let deliveredBands {
+                            self?.onAudioBandLevels?(deliveredBands)
+                        }
                     }
                 },
                 onAudioLevel: { [weak self] level in
                     let normalized = levelNormalizer.normalize(level)
-                    Task { @MainActor [weak self] in
-                        self?.onAudioLevel?(normalized)
+                    meterDelivery.note(level: normalized) { [weak self] deliveredLevel, bands in
+                        if let deliveredLevel {
+                            self?.onAudioLevel?(deliveredLevel)
+                        }
+                        if let bands {
+                            self?.onAudioBandLevels?(bands)
+                        }
                     }
                 },
                 onError: { [weak self] error in
@@ -2407,35 +2638,45 @@ final class AudioRecorder {
             throw AudioRecorderError.notRecording
         }
 
-        let capturedAudio: AudioPCMFile
-        do {
-            capturedAudio = try activeCaptureBackend.stopCapture()
-        } catch {
-            isRecording = false
-            isLimitStopRequested = false
-            self.activeCaptureBackend = nil
-            currentConfiguration = .microphone
-            lastNativeAudio?.discard()
-            lastNativeAudio = nil
-            throw error
-        }
-        lastNativeAudio = activeCaptureBackend.collectNativeAudio()
+        // Detach capture ownership before leaving the main actor so concurrent
+        // cancel/reset paths cannot race the same backend instance.
+        let handoff = CaptureFinalizationHandoff(activeCaptureBackend)
+        finalizingCapture = handoff
         isRecording = false
         isLimitStopRequested = false
         self.activeCaptureBackend = nil
         currentConfiguration = .microphone
+        meterDelivery.reset()
 
-        let audioData: Data
+        let finalization = Task.detached(priority: .userInitiated) {
+            try CaptureFinalization.stopAndMaterialize(
+                backend: handoff.backend,
+                maximumByteCount: CaptureLimits.maximumASRByteCount
+            )
+        }
+
         do {
-            audioData = try capturedAudio.consumeData(maximumByteCount: CaptureLimits.maximumASRByteCount)
+            let result = try await finalization.value
+            endCaptureFinalization(handoff)
+            lastNativeAudio?.discard()
+            lastNativeAudio = result.nativeAudio
+            Log.audio.info("Recording stopped, \(result.audioData.count) bytes captured")
+            return result.audioData
         } catch {
+            // Drain any late success so temporary files and native spools are not
+            // orphaned when the waiting main-actor task is cancelled.
+            finalization.cancel()
+            switch await finalization.result {
+            case .success(let lateResult):
+                lateResult.nativeAudio?.discard()
+            case .failure:
+                handoff.backend.cancelCapture()
+            }
+            endCaptureFinalization(handoff)
             lastNativeAudio?.discard()
             lastNativeAudio = nil
             throw error
         }
-        Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
-
-        return audioData
     }
     
     func cancelRecording() {
@@ -2448,6 +2689,7 @@ final class AudioRecorder {
         currentConfiguration = .microphone
         isRecording = false
         isLimitStopRequested = false
+        meterDelivery.reset()
         lastNativeAudio?.discard()
         lastNativeAudio = nil
 
@@ -2455,15 +2697,19 @@ final class AudioRecorder {
     }
     
     func resetAudioEngine() {
-        activeCaptureBackend?.reset()
-        activeCaptureBackend = nil
-        microphoneCaptureBackend.reset()
-        systemAudioCaptureBackend?.reset()
+        // Never reset/reuse a backend still owned by detached finalization.
+        if finalizingCapture == nil {
+            activeCaptureBackend?.reset()
+            microphoneCaptureBackend.reset()
+            systemAudioCaptureBackend?.reset()
+            activeCaptureBackend = nil
+            lastNativeAudio?.discard()
+            lastNativeAudio = nil
+        }
         currentConfiguration = .microphone
         isRecording = false
         isLimitStopRequested = false
-        lastNativeAudio?.discard()
-        lastNativeAudio = nil
+        meterDelivery.reset()
         Log.audio.info("Audio engine reset")
     }
 
@@ -2503,11 +2749,36 @@ final class AudioRecorder {
         // rejected the session. Stop it before releasing our active reference.
         activeCaptureBackend?.cancelCapture()
         isRecording = false
+        isLimitStopRequested = false
         activeCaptureBackend = nil
         currentConfiguration = .microphone
+        meterDelivery.reset()
         Log.audio.error("Active capture failed: \(error.localizedDescription)")
         onCaptureError?(error)
     }
+
+    /// Suspends until any in-flight stop finalization releases backend ownership.
+    private func awaitCaptureFinalizationIfNeeded() async {
+        guard finalizingCapture != nil else { return }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            if finalizingCapture == nil {
+                continuation.resume()
+            } else {
+                finalizationWaiters.append(continuation)
+            }
+        }
+    }
+
+    private func endCaptureFinalization(_ handoff: CaptureFinalizationHandoff) {
+        guard finalizingCapture === handoff else { return }
+        finalizingCapture = nil
+        let waiters = finalizationWaiters
+        finalizationWaiters.removeAll()
+        for waiter in waiters {
+            waiter.resume()
+        }
+    }
+
 
     private func makeCaptureBackend(for mode: AudioRecordingMode) throws -> AudioCaptureBackend {
         switch mode {

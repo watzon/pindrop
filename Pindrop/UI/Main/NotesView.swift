@@ -19,6 +19,11 @@ struct NotesView: View {
     @Query(sort: \NoteSchema.Note.updatedAt, order: .reverse) private var allNotes: [NoteSchema.Note]
 
     @State private var searchText = ""
+    /// Applied search query driving the derived list snapshot.
+    /// Empty clears immediately; non-empty queries debounce before applying.
+    @State private var appliedSearchQuery = ""
+    @State private var searchDebounceTask: Task<Void, Never>?
+    @State private var snapshotCache = NotesListSnapshotCache()
     @FocusState private var isSearchFieldFocused: Bool
     @State private var selectedNoteID: PersistentIdentifier?
     @State private var pendingDeletionNote: NoteSchema.Note?
@@ -33,33 +38,13 @@ struct NotesView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var filteredNotes: [NoteSchema.Note] {
-        let query = trimmedSearchText
-        guard !query.isEmpty else { return allNotes }
-        return allNotes.filter { note in
-            note.title.localizedStandardContains(query)
-                || note.content.localizedStandardContains(query)
-        }
-    }
-
-    private var flatSelectableNotes: [NoteSchema.Note] {
-        groupedNotes.flatMap(\.notes)
-    }
-
-    private var groupedNotes: [(key: NotesGrouping.SectionKey, notes: [NoteSchema.Note])] {
-        let inputs = filteredNotes.map {
-            NotesGrouping.Input(id: $0.id, updatedAt: $0.updatedAt, isPinned: $0.isPinned)
-        }
-        let byID = Dictionary(uniqueKeysWithValues: filteredNotes.map { ($0.id, $0) })
-        return NotesGrouping.sections(notes: inputs).compactMap { section in
-            let notes = section.ids.compactMap { byID[$0] }
-            guard !notes.isEmpty else { return nil }
-            return (key: section.key, notes: notes)
-        }
+    /// Single derived snapshot for body + keyboard selection (one derivation per input change).
+    private var listSnapshot: NotesListSnapshot {
+        snapshotCache.snapshot(notes: allNotes, query: appliedSearchQuery)
     }
 
     private var headerMetaText: String {
-        NotesHeaderMeta.text(noteCount: filteredNotes.count, locale: locale)
+        NotesHeaderMeta.text(noteCount: listSnapshot.filteredCount, locale: locale)
     }
 
     var body: some View {
@@ -96,8 +81,18 @@ struct NotesView: View {
         } message: {
             Text(localized("This will permanently remove this note.", locale: locale))
         }
-        .onAppear { installKeyMonitorIfNeeded() }
-        .onDisappear { removeKeyMonitor() }
+        .onAppear {
+            installKeyMonitorIfNeeded()
+            applySearchQueryImmediately(trimmedSearchText)
+        }
+        .onDisappear {
+            removeKeyMonitor()
+            searchDebounceTask?.cancel()
+            searchDebounceTask = nil
+        }
+        .onChange(of: searchText) { _, _ in
+            handleSearchTextChange()
+        }
         .background {
             // ⌘N new note (hidden button for keyboard shortcut)
             Button(action: createNewNote) { EmptyView() }
@@ -137,7 +132,7 @@ struct NotesView: View {
     private var contentArea: some View {
         if let errorMessage {
             errorView(errorMessage)
-        } else if filteredNotes.isEmpty {
+        } else if listSnapshot.filteredCount == 0 {
             emptyStateView
         } else {
             notesList
@@ -197,9 +192,10 @@ struct NotesView: View {
     }
 
     private var notesList: some View {
-        ScrollView(.vertical, showsIndicators: true) {
+        let snapshot = listSnapshot
+        return ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(groupedNotes.enumerated()), id: \.element.key) { index, group in
+                ForEach(Array(snapshot.sections.enumerated()), id: \.element.key) { index, group in
                     SectionHeader(
                         title: localizedSectionTitle(group.key),
                         trailing: "\(group.notes.count)",
@@ -389,6 +385,35 @@ struct NotesView: View {
         localized(key.localizationKey, locale: locale)
     }
 
+    // MARK: - Search
+
+    private func handleSearchTextChange() {
+        let query = trimmedSearchText
+        if query.isEmpty {
+            // Empty query must clear results immediately (no debounce lag).
+            applySearchQueryImmediately("")
+            return
+        }
+        searchDebounceTask?.cancel()
+        searchDebounceTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(250))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            // Re-read current field so a superseded keystroke is ignored.
+            let latest = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            appliedSearchQuery = latest
+        }
+    }
+
+    private func applySearchQueryImmediately(_ query: String) {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = nil
+        appliedSearchQuery = query
+    }
+
     // MARK: - Actions
 
     private func createNewNote() {
@@ -469,20 +494,21 @@ struct NotesView: View {
     }
 
     private func handleListKeyEvent(_ event: NSEvent) -> NSEvent? {
+        let selectable = listSnapshot.flatSelectableNotes
         switch event.keyCode {
         case 126:
-            moveListSelection(delta: -1)
+            moveListSelection(delta: -1, notes: selectable)
             return nil
         case 125:
-            moveListSelection(delta: 1)
+            moveListSelection(delta: 1, notes: selectable)
             return nil
         case 51, 117:
-            requestDeleteForSelection()
+            requestDeleteForSelection(notes: selectable)
             return nil
         case 53:
             return clearSelection() ? nil : event
         case 36: // Return
-            if let note = flatSelectableNotes.first(where: { $0.persistentModelID == selectedNoteID }) {
+            if let note = selectable.first(where: { $0.persistentModelID == selectedNoteID }) {
                 openNote(note)
                 return nil
             }
@@ -492,8 +518,7 @@ struct NotesView: View {
         }
     }
 
-    private func moveListSelection(delta: Int) {
-        let notes = flatSelectableNotes
+    private func moveListSelection(delta: Int, notes: [NoteSchema.Note]) {
         let currentIndex = notes.firstIndex(where: { $0.persistentModelID == selectedNoteID })
         guard let nextIndex = ListSelectionNavigation.moveIndex(
             current: currentIndex,
@@ -503,8 +528,8 @@ struct NotesView: View {
         selectedNoteID = notes[nextIndex].persistentModelID
     }
 
-    private func requestDeleteForSelection() {
-        if let note = flatSelectableNotes.first(where: { $0.persistentModelID == selectedNoteID }) {
+    private func requestDeleteForSelection(notes: [NoteSchema.Note]) {
+        if let note = notes.first(where: { $0.persistentModelID == selectedNoteID }) {
             pendingDeletionNote = note
         }
     }
@@ -514,6 +539,101 @@ struct NotesView: View {
         guard selectedNoteID != nil else { return false }
         selectedNoteID = nil
         return true
+    }
+}
+
+// MARK: - Derived list snapshot
+
+/// One-shot derived Notes list: filtered count, grouped sections, flat selection order.
+private struct NotesListSnapshot {
+    struct Section {
+        let key: NotesGrouping.SectionKey
+        let notes: [NoteSchema.Note]
+    }
+
+    let filteredCount: Int
+    let sections: [Section]
+    let flatSelectableNotes: [NoteSchema.Note]
+
+    static let empty = NotesListSnapshot(
+        filteredCount: 0,
+        sections: [],
+        flatSelectableNotes: []
+    )
+}
+
+/// Identity fingerprint for note list inputs (avoids full-content re-derivation on unrelated body ticks).
+/// Searchable text is included while a query is active: edit timestamps are not
+/// unique, so two content saves can legitimately share the same `updatedAt` value.
+private struct NotesListInputFingerprint: Equatable {
+    struct NoteIdentity: Equatable {
+        let id: UUID
+        let updatedAt: Date
+        let isPinned: Bool
+        let searchableTitle: String?
+        let searchableContent: String?
+    }
+
+    let query: String
+    let notes: [NoteIdentity]
+}
+
+/// Class init stays nonisolated for `@State` default construction under Swift 5.9;
+/// mutation is method-isolated (`@MainActor` accessors only).
+private final class NotesListSnapshotCache {
+    private var fingerprint: NotesListInputFingerprint?
+    private var value: NotesListSnapshot = .empty
+
+    @MainActor
+    func snapshot(notes: [NoteSchema.Note], query: String) -> NotesListSnapshot {
+        let isSearching = !query.isEmpty
+        let nextFingerprint = NotesListInputFingerprint(
+            query: query,
+            notes: notes.map {
+                NotesListInputFingerprint.NoteIdentity(
+                    id: $0.id,
+                    updatedAt: $0.updatedAt,
+                    isPinned: $0.isPinned,
+                    searchableTitle: isSearching ? $0.title : nil,
+                    searchableContent: isSearching ? $0.content : nil
+                )
+            }
+        )
+        if fingerprint == nextFingerprint {
+            return value
+        }
+        fingerprint = nextFingerprint
+        value = Self.derive(notes: notes, query: query)
+        return value
+    }
+
+    @MainActor
+    private static func derive(notes: [NoteSchema.Note], query: String) -> NotesListSnapshot {
+        let filtered: [NoteSchema.Note]
+        if query.isEmpty {
+            filtered = notes
+        } else {
+            filtered = notes.filter { note in
+                note.title.localizedStandardContains(query)
+                    || note.content.localizedStandardContains(query)
+            }
+        }
+
+        let inputs = filtered.map {
+            NotesGrouping.Input(id: $0.id, updatedAt: $0.updatedAt, isPinned: $0.isPinned)
+        }
+        let byID = Dictionary(uniqueKeysWithValues: filtered.map { ($0.id, $0) })
+        let sections: [NotesListSnapshot.Section] = NotesGrouping.sections(notes: inputs).compactMap { section in
+            let sectionNotes = section.ids.compactMap { byID[$0] }
+            guard !sectionNotes.isEmpty else { return nil }
+            return NotesListSnapshot.Section(key: section.key, notes: sectionNotes)
+        }
+        let flat = sections.flatMap(\.notes)
+        return NotesListSnapshot(
+            filteredCount: filtered.count,
+            sections: sections,
+            flatSelectableNotes: flat
+        )
     }
 }
 

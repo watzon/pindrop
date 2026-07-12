@@ -26,7 +26,6 @@ private enum OrbMetrics {
     /// Minimum gap between the orb centre and the visible screen boundary.
     static let screenInset: CGFloat = 16
 
-    static let hoverMonitorInterval: TimeInterval = 1.0 / 60.0
     static let hoverCollapseDelay: TimeInterval = 0.18
     static let hoverActivationInset: CGFloat = 22
 
@@ -202,13 +201,13 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     private let settingsStore: SettingsStore
     private var panel: NSPanel?
     private var hostingView: OrbHostingView?
-    private var hoverTimer: Timer?
+    private var pointerMonitor: FloatingIndicatorPointerMonitor?
+    private var hoverCollapseTimer: Timer?
     private var actions = FloatingIndicatorActions()
     private var isVisible = false
     private var lastHoverContactAt: Date = .distantPast
     private var lastDragEndedAt: Date = .distantPast
     private var isPointerCursorActive = false
-    private var monitorTickCount = 0
     private var dragStartMouseLocation: CGPoint?
     private var dragStartOffset: CGSize = .zero
     private var dragOffset: CGSize = .zero
@@ -247,6 +246,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     // MARK: FloatingIndicatorPresenting
 
     func showIdleIndicator() {
+        pointerMonitor?.setPointerActivityEnabled(true)
         guard !isVisible else { panel?.orderFrontRegardless(); return }
         show()
     }
@@ -257,6 +257,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func startRecording() {
         isHovered = false
+        cancelHoverCollapseTimer()
+        pointerMonitor?.setPointerActivityEnabled(false)
         lastHoverContactAt = .distantPast
         state.startRecording()
         if !isVisible { show() }
@@ -264,6 +266,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func transitionToProcessing() {
         state.transitionToProcessing()
+        cancelHoverCollapseTimer()
+        pointerMonitor?.setPointerActivityEnabled(false)
         isHovered = false
         lastHoverContactAt = .distantPast
     }
@@ -531,6 +535,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     func menuDidClose(_ menu: NSMenu) {
         guard menu === contextMenu else { return }
         isContextMenuOpen = false; lastHoverContactAt = Date()
+        evaluateHover()
     }
 
     @objc private func handleHideForOneHourMenuItem()      { actions.onHideForOneHour?() }
@@ -618,37 +623,91 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     // MARK: Private — hover monitoring
 
     private func startHoverMonitoring() {
-        hoverTimer?.invalidate()
-        hoverTimer = Timer.pindrop_scheduleRepeating(interval: OrbMetrics.hoverMonitorInterval) { [weak self] _ in
-            Task { @MainActor in self?.monitorTick() }
+        if pointerMonitor == nil {
+            pointerMonitor = FloatingIndicatorPointerMonitor(
+                onPointerActivity: { [weak self] in
+                    self?.monitorTick()
+                },
+                onScreenParametersChanged: { [weak self] in
+                    self?.checkScreenPosition(force: true)
+                }
+            )
         }
+        pointerMonitor?.setPointerActivityEnabled(!(state.isRecording || state.isProcessing))
+        pointerMonitor?.start()
+        // Catch current pointer position immediately (no wait for first move).
+        monitorTick()
     }
 
     private func stopHoverMonitoring() {
-        hoverTimer?.invalidate(); hoverTimer = nil; lastHoverContactAt = .distantPast
+        pointerMonitor?.stop()
+        pointerMonitor = nil
+        cancelHoverCollapseTimer()
+        lastHoverContactAt = .distantPast
     }
 
+    /// Screen follow + hover on real pointer activity (and screen reconfiguration).
+    /// Replaces the previous 60 Hz timer that allocated a MainActor Task every tick.
     private func monitorTick() {
         guard isVisible else { return }
-        // Hover proximity wants the full tick rate; the screen/exit-edge check
-        // walks NSScreen.screens and doesn't — keep it off the animation frames.
-        monitorTickCount &+= 1
-        if monitorTickCount % 8 == 0 { checkScreenPosition() }
+        checkScreenPosition()
         evaluateHover()
     }
 
     private func evaluateHover() {
-        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else {
+            cancelHoverCollapseTimer()
+            return
+        }
         guard let panel else { return }
-        let mouse = NSEvent.mouseLocation; let now = Date()
+        let mouse = NSEvent.mouseLocation
+        let now = Date()
         let orbRect = orbScreenRect(for: panel.frame)
         let activationRect = orbRect.insetBy(dx: -OrbMetrics.hoverActivationInset, dy: -OrbMetrics.hoverActivationInset)
         if isHovered {
-            if isContextMenuOpen || activationRect.contains(mouse) { lastHoverContactAt = now; return }
-            if now.timeIntervalSince(lastHoverContactAt) >= OrbMetrics.hoverCollapseDelay { setHoverState(false) }
+            if isContextMenuOpen || activationRect.contains(mouse) {
+                lastHoverContactAt = now
+                cancelHoverCollapseTimer()
+                return
+            }
+            let timeOutside = now.timeIntervalSince(lastHoverContactAt)
+            if timeOutside >= OrbMetrics.hoverCollapseDelay {
+                cancelHoverCollapseTimer()
+                setHoverState(false)
+            } else {
+                scheduleHoverCollapseIfNeeded(
+                    after: OrbMetrics.hoverCollapseDelay - timeOutside
+                )
+            }
             return
         }
-        if activationRect.contains(mouse) { lastHoverContactAt = now; setHoverState(true) }
+        cancelHoverCollapseTimer()
+        if activationRect.contains(mouse) {
+            lastHoverContactAt = now
+            setHoverState(true)
+        }
+    }
+
+    private func scheduleHoverCollapseIfNeeded(after delay: TimeInterval) {
+        guard hoverCollapseTimer == nil else { return }
+        let timer = Timer(timeInterval: max(0, delay), repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.handleHoverCollapseTimerFired()
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        hoverCollapseTimer = timer
+    }
+
+    private func cancelHoverCollapseTimer() {
+        hoverCollapseTimer?.invalidate()
+        hoverCollapseTimer = nil
+    }
+
+    private func handleHoverCollapseTimerFired() {
+        hoverCollapseTimer = nil
+        guard isVisible, isHovered else { return }
+        evaluateHover()
     }
 
     private func orbScreenRect(for panelFrame: NSRect) -> NSRect {
@@ -672,10 +731,10 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         return NSRect(x: x, y: y, width: d, height: d)
     }
 
-    private func checkScreenPosition() {
+    private func checkScreenPosition(force: Bool = false) {
         guard isVisible, let panel else { return }
         let currentScreen = preferredScreen()
-        if lastScreen?.pindrop_isSameDisplay(as: currentScreen) == false {
+        if force || lastScreen?.pindrop_isSameDisplay(as: currentScreen) == false {
             lastScreen = currentScreen
             let newFrame = panelFrame(for: currentScreen)
             NSAnimationContext.runAnimationGroup { context in
@@ -785,15 +844,20 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 struct OrbIndicatorView: View {
     @ObservedObject var controller: OrbFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
-    @ObservedObject var transcript: LiveTranscriptState
+    /// Not `@ObservedObject`: text partials only need to re-render `LiveTranscriptView`.
+    /// Phase is mirrored into local state so layout transitions still track session
+    /// begin/enhance/end without rebuilding the whole orb+pill shell on every token.
+    let transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var transcriptPhase: LiveTranscriptState.Phase = .inactive
 
     private var sz: OrbFloatingIndicatorSize { controller.orbIndicatorSize }
+    private var exit: OrbPillExitEdge { controller.pillExitEdge }
 
     private var isActive: Bool { state.isRecording || state.isProcessing }
-    private var showsTranscript: Bool { transcript.isActive && isActive }
+    private var showsTranscript: Bool { transcriptPhase != .inactive && isActive }
     private var showsPill: Bool { isActive }
 
     private var orbDiameter: CGFloat {
@@ -803,17 +867,19 @@ struct OrbIndicatorView: View {
         return controller.isHovered ? sz.orbHoverDiameter : sz.orbIdleDiameter
     }
 
-    private var exit: OrbPillExitEdge { controller.pillExitEdge }
-
     private var ribbonPalette: OrbRibbonPalette {
+        // `theme.revision` invalidates only on real theme/appearance changes.
+        // Audio/transcript/duration ticks must reuse the resolved palette.
+        let _ = theme.revision
         let appearance = NSApp.effectiveAppearance
         let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let key = isDark
             ? PindropThemeStorageKeys.darkThemePresetID
             : PindropThemeStorageKeys.lightThemePresetID
-        return OrbRibbonPalette.forPresetID(
-            UserDefaults.standard.string(forKey: key),
-            variant: isDark ? .dark : .light
+        return OrbRibbonPalette.cached(
+            presetID: UserDefaults.standard.string(forKey: key),
+            variant: isDark ? .dark : .light,
+            themeRevision: theme.revision
         )
     }
 
@@ -881,6 +947,8 @@ struct OrbIndicatorView: View {
             .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.84), value: isActive)
             .animation(reduceMotion ? nil : .spring(response: 0.30, dampingFraction: 0.85), value: orbDiameter)
             .animation(reduceMotion ? nil : .spring(response: 0.38, dampingFraction: 0.82), value: exit)
+            .onAppear { transcriptPhase = transcript.phase }
+            .onReceive(transcript.$phase) { transcriptPhase = $0 }
             .simultaneousGesture(
                 DragGesture(minimumDistance: 4)
                     .onChanged { _ in
@@ -1274,6 +1342,53 @@ struct OrbRibbonPalette: Equatable {
         self.glowColor = Self.color(glowHex).opacity(glowOpacity)
     }
 
+    private struct CacheKey: Hashable {
+        let presetID: String
+        let variant: PindropThemeVariant
+        let themeRevision: Int
+    }
+
+    private static let cacheLock = NSLock()
+    nonisolated(unsafe) private static var cachedThemeRevision: Int?
+    // A revision change invalidates all prior palettes. Keeping only the current
+    // revision prevents accessibility/theme refreshes from growing this cache forever.
+    nonisolated(unsafe) private static var cache: [CacheKey: OrbRibbonPalette] = [:]
+
+    /// Cached by preset ID, appearance variant, and theme revision so root
+    /// audio/transcript/duration invalidations reuse the resolved palette.
+    static func cached(
+        presetID: String?,
+        variant: PindropThemeVariant,
+        themeRevision: Int
+    ) -> OrbRibbonPalette {
+        let resolvedPresetID = presetID ?? PindropThemePresetCatalog.defaultPresetID
+        let key = CacheKey(
+            presetID: resolvedPresetID,
+            variant: variant,
+            themeRevision: themeRevision
+        )
+
+        cacheLock.lock()
+        if cachedThemeRevision != themeRevision {
+            cache.removeAll(keepingCapacity: true)
+            cachedThemeRevision = themeRevision
+        }
+        if let cached = cache[key] {
+            cacheLock.unlock()
+            return cached
+        }
+        cacheLock.unlock()
+
+        let palette = forPresetID(resolvedPresetID, variant: variant)
+
+        cacheLock.lock()
+        if cachedThemeRevision == themeRevision {
+            cache[key] = palette
+        }
+        cacheLock.unlock()
+        return palette
+    }
+
     static func forPresetID(
         _ presetID: String?,
         variant: PindropThemeVariant = .light
@@ -1426,10 +1541,11 @@ final class OrbBlobModel {
 /// drifting and churning with the voice under additive blending, plus a hot core
 /// highlight — the flowy, organic look rather than a spiky trace.
 struct OrbBlobsView: View {
-    /// Deliberately NOT observed: the Canvas below polls band/level values on its
-    /// own 40fps timeline, so per-audio-buffer `objectWillChange` invalidations
-    /// would only add SwiftUI churn during recording.
-    let state: FloatingIndicatorState
+    /// Meter sample polled once per visual frame inside `TimelineView`.
+    /// Production passes a non-publishing state read; the What's New demo can
+    /// synthesize levels from the same tick without a second clock or
+    /// `ObservableObject` root invalidation.
+    let sample: (Date) -> (bands: AudioBandLevels, overall: Float)
     let isLive: Bool
     let isExcited: Bool
 
@@ -1439,13 +1555,35 @@ struct OrbBlobsView: View {
     private static let blobColors = [OrbPalette.bandLow, OrbPalette.bandMid, OrbPalette.bandHigh]
     private static let baseRadiusFractions: [CGFloat] = [0.40, 0.34, 0.27]
 
+    /// Convenience for live meter state that is deliberately not `@Published`.
+    /// Samples are read on the blob timeline only — never mirrored into a second
+    /// Combine/timer cadence at the call site.
+    init(state: FloatingIndicatorState, isLive: Bool, isExcited: Bool) {
+        self.sample = { _ in (state.bandLevels, state.audioLevel) }
+        self.isLive = isLive
+        self.isExcited = isExcited
+    }
+
+    init(
+        sample: @escaping (Date) -> (bands: AudioBandLevels, overall: Float),
+        isLive: Bool,
+        isExcited: Bool
+    ) {
+        self.sample = sample
+        self.isLive = isLive
+        self.isExcited = isExcited
+    }
+
     var body: some View {
+        // Single 40 Hz cadence for blob integration + meter sampling. Callers must
+        // not stack a second timer/timeline that publishes levels into the root.
         TimelineView(.animation(minimumInterval: 1.0 / 40.0, paused: reduceMotion)) { timeline in
+            let meter = sample(timeline.date)
             Canvas { context, size in
                 model.advance(
                     to: timeline.date.timeIntervalSinceReferenceDate,
-                    bands: state.bandLevels,
-                    overall: state.audioLevel,
+                    bands: meter.bands,
+                    overall: meter.overall,
                     isLive: isLive,
                     isExcited: isExcited
                 )
@@ -1523,12 +1661,12 @@ struct OrbBlobsView: View {
 
 #Preview("Orb – Idle")       { orbPreview { _ in } }
 #Preview("Orb – Hover")      { orbPreview { $0.isHovered = true } }
-#Preview("Orb – Recording")  { orbPreview { $0.state.isRecording = true; $0.state.audioLevel = 0.65 } }
+#Preview("Orb – Recording")  { orbPreview { $0.state.isRecording = true; $0.state.updateAudioLevel(1.0) } }
 #Preview("Orb – Processing") { orbPreview { $0.state.isProcessing = true } }
 #Preview("Orb – Streaming")  {
     orbPreview {
         $0.state.isRecording = true
-        $0.state.audioLevel = 0.6
+        $0.state.updateAudioLevel(1.0)
         $0.liveTranscript.begin()
         $0.liveTranscript.update(
             committed: "Remind me to review the release notes",

@@ -27,25 +27,33 @@ final class MediaPauseService {
 
    private var sendCommandFunction: SendCommandFunction?
    private var getNowPlayingIsPlayingFunction: GetNowPlayingIsPlayingFunction?
+   /// Once true, MediaRemote resolution has been attempted and must not repeat,
+   /// including when symbols were unavailable.
+   private var didResolveMediaRemoteSymbols = false
    private var didPauseMediaForSession = false
    private var systemAudioState: SystemAudioState?
    private var sessionActive = false
 
-   init() {
-      loadMediaRemoteFramework()
-   }
+   init() {}
 
    func beginRecordingSession(pauseMedia: Bool, muteSystemAudio: Bool) {
       guard !sessionActive else { return }
 
       sessionActive = true
 
-      if pauseMedia {
-         didPauseMediaForSession = pauseMediaIfNeeded()
-      }
-
+      // Mute is a fast CoreAudio property write; do it synchronously.
       if muteSystemAudio {
          systemAudioState = muteSystemOutputIfNeeded()
+      }
+
+      // MediaRemote Now Playing queries are callback-based. Kick them off
+      // without parking MainActor on a semaphore so recording start stays responsive.
+      // Resolve private-framework symbols only for pause-enabled sessions.
+      if pauseMedia {
+         ensureMediaRemoteSymbolsLoaded()
+         Task { @MainActor [weak self] in
+            await self?.pauseMediaForActiveSessionIfNeeded()
+         }
       }
    }
 
@@ -62,13 +70,31 @@ final class MediaPauseService {
       sessionActive = false
    }
 
-   private func pauseMediaIfNeeded() -> Bool {
+   private func pauseMediaForActiveSessionIfNeeded() async {
+      guard sessionActive else { return }
+
+      let didPause = await pauseMediaIfNeeded()
+
+      // The session may have ended while the Now Playing query was outstanding.
+      // If we still paused media after teardown, resume it immediately.
+      guard sessionActive else {
+         if didPause, let sendCommandFunction {
+            _ = sendCommandFunction(Self.playCommand, nil)
+            Log.app.debug("Resumed media playback after late pause during session teardown")
+         }
+         return
+      }
+
+      didPauseMediaForSession = didPause
+   }
+
+   private func pauseMediaIfNeeded() async -> Bool {
       guard let sendCommandFunction else {
          Log.app.debug("Media pause unavailable: MediaRemote command function missing")
          return false
       }
 
-      guard isNowPlayingActive() else {
+      guard await isNowPlayingActive() else {
          Log.app.debug("Media pause skipped: no active Now Playing session")
          return false
       }
@@ -125,7 +151,12 @@ final class MediaPauseService {
       systemAudioState = nil
    }
 
-   private func loadMediaRemoteFramework() {
+   /// Lazily resolves MediaRemote function pointers on first pause-enabled use.
+   /// Subsequent calls reuse the cached success or failure state.
+   private func ensureMediaRemoteSymbolsLoaded() {
+      guard !didResolveMediaRemoteSymbols else { return }
+      didResolveMediaRemoteSymbols = true
+
       let bundleURL = URL(fileURLWithPath: Self.mediaRemoteFrameworkPath)
 
       guard let bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL as CFURL) else {
@@ -154,25 +185,25 @@ final class MediaPauseService {
       }
    }
 
-   private func isNowPlayingActive() -> Bool {
+   private func isNowPlayingActive() async -> Bool {
       guard let getNowPlayingIsPlayingFunction else {
          return false
       }
 
-      let semaphore = DispatchSemaphore(value: 0)
-      var isPlaying = false
+      return await withCheckedContinuation { continuation in
+         let bridge = NowPlayingQueryBridge(continuation: continuation)
 
-      getNowPlayingIsPlayingFunction(DispatchQueue.global(qos: .userInitiated)) { playing in
-         isPlaying = playing
-         semaphore.signal()
+         getNowPlayingIsPlayingFunction(DispatchQueue.global(qos: .userInitiated)) { playing in
+            bridge.resume(playing)
+         }
+
+         Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            if bridge.resume(false) {
+               Log.app.debug("MediaRemote Now Playing query timed out")
+            }
+         }
       }
-
-      if semaphore.wait(timeout: .now() + 0.5) == .timedOut {
-         Log.app.debug("MediaRemote Now Playing query timed out")
-         return false
-      }
-
-      return isPlaying
    }
 
    private func defaultOutputDeviceID() -> AudioDeviceID? {
@@ -293,5 +324,29 @@ final class MediaPauseService {
       )
 
       return status == noErr
+   }
+}
+
+/// Resumes a now-playing query continuation exactly once across the MediaRemote
+/// callback and the async timeout path.
+private final class NowPlayingQueryBridge: @unchecked Sendable {
+   private let lock = NSLock()
+   private var continuation: CheckedContinuation<Bool, Never>?
+
+   init(continuation: CheckedContinuation<Bool, Never>) {
+      self.continuation = continuation
+   }
+
+   /// Returns `true` when this call performed the resume.
+   @discardableResult
+   func resume(_ value: Bool) -> Bool {
+      lock.lock()
+      let pending = continuation
+      continuation = nil
+      lock.unlock()
+
+      guard let pending else { return false }
+      pending.resume(returning: value)
+      return true
    }
 }

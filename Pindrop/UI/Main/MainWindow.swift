@@ -286,6 +286,7 @@ struct MainWindow: View {
 private struct MainSidebar: View {
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.modelContext) private var modelContext
     @Binding var isExpanded: Bool
     let position: SidebarPosition
     let selectedNav: MainNavItem
@@ -296,7 +297,9 @@ private struct MainSidebar: View {
     let onSelect: (MainNavItem) -> Void
     let onOpenSettings: () -> Void
 
-    @Query private var transcriptionRecords: [TranscriptionRecord]
+    /// Aggregate library size only — never materialize TranscriptionRecord rows here.
+    @State private var libraryCount = 0
+    @State private var libraryCountRefreshGeneration: UInt = 0
     @State private var isCollapseHovered = false
     @State private var isSettingsHovered = false
 
@@ -328,8 +331,9 @@ private struct MainSidebar: View {
         StatusCardPhase(state: indicatorState)
     }
 
-    private var libraryCount: Int {
-        transcriptionRecords.count
+    /// Stable identity for the active SwiftData container so count reloads when it changes.
+    private var modelContainerIdentity: ObjectIdentifier {
+        ObjectIdentifier(modelContext.container)
     }
 
     var body: some View {
@@ -379,6 +383,34 @@ private struct MainSidebar: View {
             .allowsHitTesting(false)
         }
         .appAnimation(.smooth, value: isExpanded)
+        .task(id: modelContainerIdentity) {
+            scheduleLibraryCountRefresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
+            scheduleLibraryCountRefresh()
+        }
+    }
+
+    /// Coalesces bursty history notifications to a single latest-value count fetch.
+    private func scheduleLibraryCountRefresh() {
+        libraryCountRefreshGeneration &+= 1
+        let generation = libraryCountRefreshGeneration
+        Task { @MainActor in
+            await Task.yield()
+            guard generation == libraryCountRefreshGeneration else { return }
+            refreshLibraryCount()
+        }
+    }
+
+    private func refreshLibraryCount() {
+        do {
+            let count = try modelContext.fetchCount(FetchDescriptor<TranscriptionRecord>())
+            if libraryCount != count {
+                libraryCount = count
+            }
+        } catch {
+            Log.ui.error("Failed to fetch library count: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - App Header

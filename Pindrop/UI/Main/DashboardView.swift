@@ -13,14 +13,11 @@ struct DashboardView: View {
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
-    @ObservedObject private var indicatorState: FloatingIndicatorState
     @ObservedObject private var settingsStore: SettingsStore
-    @State private var selectedWeekdayIndex: Int?
-    @State private var hoveredWeekdayIndex: Int?
-    @State private var hoveredActivityIndex: Int?
-    @State private var chartHasAppeared = false
+    /// Aggregation cache keyed by record projection + calendar day. Hover/selection
+    /// live in chart children so pointer movement cannot invalidate this work.
+    @State private var statsCache = DashboardStatsCache()
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
@@ -47,7 +44,8 @@ struct DashboardView: View {
         onRecordMeeting: (() -> Void)? = nil,
         onNewNote: (() -> Void)? = nil
     ) {
-        self._indicatorState = ObservedObject(wrappedValue: floatingIndicatorState ?? FloatingIndicatorState())
+        // Indicator state is owned by the shell chrome; Home must not observe it.
+        _ = floatingIndicatorState
         self._settingsStore = ObservedObject(wrappedValue: settingsStore ?? SettingsStore())
         self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
@@ -71,9 +69,19 @@ struct DashboardView: View {
         transcriptions.isEmpty
     }
 
+    /// Sendable value projection for cache invalidation (data changes, not object identity).
+    private var recordProjection: [StatsSample] {
+        transcriptions.map(DashboardStatsService.sample(from:))
+    }
+
     private func stats(now: Date) -> DashboardStats {
-        DashboardStatsService.compute(
-            records: transcriptions,
+        statsCache.stats(
+            for: DashboardStatsCache.Key(
+                samples: recordProjection,
+                dayStart: calendar.startOfDay(for: now),
+                firstWeekday: calendar.firstWeekday,
+                timeZoneIdentifier: calendar.timeZone.identifier
+            ),
             calendar: calendar,
             now: now
         )
@@ -362,118 +370,13 @@ struct DashboardView: View {
     // MARK: - THIS WEEK chart
 
     private func thisWeekChart(now: Date, stats: DashboardStats) -> some View {
-        let buckets = stats.wordsPerWeekday
-        let maxWords = buckets.max() ?? 0
-        let labels = HomePresentation.weekdayLabels(calendar: calendar, locale: locale)
-        let names = HomePresentation.weekdayNames(calendar: calendar, locale: locale)
-        let todayIndex = HomePresentation.todayBarIndex(now: now, calendar: calendar)
-        let activeIndex = hoveredWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
-            ?? selectedWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
-            ?? todayIndex
-        let activeWords = activeIndex < buckets.count ? buckets[activeIndex] : 0
-        let activeName = activeIndex < names.count ? names[activeIndex] : ""
-
-        return HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
-            VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
-                SectionHeader(
-                    title: localized("This week", locale: locale),
-                    trailing: HomePresentation.wordMetric(count: activeWords, locale: locale),
-                    isFirst: true
-                )
-
-                ZStack(alignment: .bottom) {
-                    Rectangle()
-                        .fill(AppColors.border)
-                        .frame(height: 1)
-                        .padding(.bottom, 19)
-
-                    HStack(alignment: .bottom, spacing: HomeLayoutMetrics.chartBarGap) {
-                        ForEach(0..<7, id: \.self) { index in
-                            let words = index < buckets.count ? buckets[index] : 0
-                            let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
-                            let height: CGFloat = {
-                                if kind == .future {
-                                    return 0
-                                }
-                                return HomePresentation.barHeight(words: words, maxWords: maxWords)
-                            }()
-                            let isActive = index == activeIndex
-                            let barColor: Color = isActive ? AppColors.accent : AppColors.border
-                            let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
-                            let weekdayLabel = index < labels.count ? labels[index] : ""
-                            let weekdayName = index < names.count ? names[index] : weekdayLabel
-
-                            Button {
-                                selectedWeekdayIndex = index
-                            } label: {
-                                VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
-                                    UnevenRoundedRectangle(
-                                        topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                        bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                        bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
-                                        topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
-                                        style: .continuous
-                                    )
-                                    .fill(barColor)
-                                    .frame(
-                                        width: HomeLayoutMetrics.chartBarWidth,
-                                        height: chartHasAppeared ? height : 0
-                                    )
-                                    .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
-                                    .animation(
-                                        reduceMotion
-                                            ? nil
-                                            : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
-                                        value: chartHasAppeared
-                                    )
-                                    .appAnimation(.normal, value: words)
-
-                                    Text(weekdayLabel)
-                                        .font(FontLoader.font(
-                                            family: .inter,
-                                            size: 11,
-                                            weight: isActive ? .semibold : .medium
-                                        ))
-                                        .foregroundStyle(labelColor)
-                                }
-                                .frame(width: HomeLayoutMetrics.chartBarWidth)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(kind == .future)
-                            .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                            .appAnimation(.fast, value: isActive)
-                            .onHover { hovering in
-                                guard kind != .future else { return }
-                                if hovering {
-                                    hoveredWeekdayIndex = index
-                                } else if hoveredWeekdayIndex == index {
-                                    hoveredWeekdayIndex = nil
-                                }
-                            }
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel(
-                                HomePresentation.barAccessibilityLabel(
-                                    weekdayName: weekdayName,
-                                    words: words,
-                                    locale: locale
-                                )
-                            )
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text(activeName.uppercased(with: locale))
-                    .font(FontLoader.font(
-                        family: .inter,
-                        size: HomeLayoutMetrics.statsLabelSize,
-                        weight: .semibold
-                    ))
-                    .foregroundStyle(AppColors.textTertiary)
-                    .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
-                    .appAnimation(.fast, value: activeIndex)
-            }
+        HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
+            DashboardWeeklyBarsChart(
+                buckets: stats.wordsPerWeekday,
+                now: now,
+                locale: locale,
+                calendar: calendar
+            )
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(
                 minWidth: HomeLayoutMetrics.chartMinimumWidth,
@@ -486,18 +389,167 @@ struct DashboardView: View {
                 .frame(width: 1, height: HomeLayoutMetrics.chartPanelDividerHeight)
                 .padding(.top, 6)
 
-            activityChart(now: now, stats: stats)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(1)
+            DashboardActivityHeatmap(
+                buckets: stats.wordsPerActivityDay,
+                streakDays: stats.streakDays,
+                now: now,
+                locale: locale,
+                calendar: calendar,
+                onShowMoreStats: onShowMoreStats
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
         }
         .padding(.top, HomeLayoutMetrics.chartTopPadding)
+    }
+}
+
+// MARK: - Weekly bars (hover/selection isolated)
+
+/// Owns weekly-bar selection and hover so pointer movement invalidates only this subtree.
+private struct DashboardWeeklyBarsChart: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let buckets: [Int]
+    let now: Date
+    let locale: Locale
+    let calendar: Calendar
+
+    @State private var selectedWeekdayIndex: Int?
+    @State private var hoveredWeekdayIndex: Int?
+    @State private var chartHasAppeared = false
+
+    var body: some View {
+        let maxWords = buckets.max() ?? 0
+        let labels = HomePresentation.weekdayLabels(calendar: calendar, locale: locale)
+        let names = HomePresentation.weekdayNames(calendar: calendar, locale: locale)
+        let todayIndex = HomePresentation.todayBarIndex(now: now, calendar: calendar)
+        let activeIndex = hoveredWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? selectedWeekdayIndex.flatMap { $0 <= todayIndex ? $0 : nil }
+            ?? todayIndex
+        let activeWords = activeIndex < buckets.count ? buckets[activeIndex] : 0
+        let activeName = activeIndex < names.count ? names[activeIndex] : ""
+
+        VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+            SectionHeader(
+                title: localized("This week", locale: locale),
+                trailing: HomePresentation.wordMetric(count: activeWords, locale: locale),
+                isFirst: true
+            )
+
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .fill(AppColors.border)
+                    .frame(height: 1)
+                    .padding(.bottom, 19)
+
+                HStack(alignment: .bottom, spacing: HomeLayoutMetrics.chartBarGap) {
+                    ForEach(0..<7, id: \.self) { index in
+                        let words = index < buckets.count ? buckets[index] : 0
+                        let kind = HomePresentation.barDayKind(index: index, now: now, calendar: calendar)
+                        let height: CGFloat = {
+                            if kind == .future {
+                                return 0
+                            }
+                            return HomePresentation.barHeight(words: words, maxWords: maxWords)
+                        }()
+                        let isActive = index == activeIndex
+                        let barColor: Color = isActive ? AppColors.accent : AppColors.border
+                        let labelColor: Color = isActive ? AppColors.accent : AppColors.textTertiary
+                        let weekdayLabel = index < labels.count ? labels[index] : ""
+                        let weekdayName = index < names.count ? names[index] : weekdayLabel
+
+                        Button {
+                            selectedWeekdayIndex = index
+                        } label: {
+                            VStack(spacing: HomeLayoutMetrics.chartLabelGap) {
+                                UnevenRoundedRectangle(
+                                    topLeadingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    bottomLeadingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    bottomTrailingRadius: HomeLayoutMetrics.chartBarBottomRadius,
+                                    topTrailingRadius: HomeLayoutMetrics.chartBarTopRadius,
+                                    style: .continuous
+                                )
+                                .fill(barColor)
+                                .frame(
+                                    width: HomeLayoutMetrics.chartBarWidth,
+                                    height: chartHasAppeared ? height : 0
+                                )
+                                .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
+                                .animation(
+                                    reduceMotion
+                                        ? nil
+                                        : .easeOut(duration: 0.42).delay(Double(index) * 0.035),
+                                    value: chartHasAppeared
+                                )
+                                .appAnimation(.normal, value: words)
+
+                                Text(weekdayLabel)
+                                    .font(FontLoader.font(
+                                        family: .inter,
+                                        size: 11,
+                                        weight: isActive ? .semibold : .medium
+                                    ))
+                                    .foregroundStyle(labelColor)
+                            }
+                            .frame(width: HomeLayoutMetrics.chartBarWidth)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(kind == .future)
+                        .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .appAnimation(.fast, value: isActive)
+                        .onHover { hovering in
+                            guard kind != .future else { return }
+                            if hovering {
+                                hoveredWeekdayIndex = index
+                            } else if hoveredWeekdayIndex == index {
+                                hoveredWeekdayIndex = nil
+                            }
+                        }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(
+                            HomePresentation.barAccessibilityLabel(
+                                weekdayName: weekdayName,
+                                words: words,
+                                locale: locale
+                            )
+                        )
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(activeName.uppercased(with: locale))
+                .font(FontLoader.font(
+                    family: .inter,
+                    size: HomeLayoutMetrics.statsLabelSize,
+                    weight: .semibold
+                ))
+                .foregroundStyle(AppColors.textTertiary)
+                .tracking(HomeLayoutMetrics.statsLabelTrackingEm * HomeLayoutMetrics.statsLabelSize)
+                .appAnimation(.fast, value: activeIndex)
+        }
         .onAppear {
             chartHasAppeared = true
         }
     }
+}
 
-    private func activityChart(now: Date, stats: DashboardStats) -> some View {
-        let buckets = stats.wordsPerActivityDay
+// MARK: - Activity heatmap (hover isolated)
+
+/// Owns 53×7 heatmap hover so pointer movement invalidates only this subtree.
+private struct DashboardActivityHeatmap: View {
+    let buckets: [Int]
+    let streakDays: Int
+    let now: Date
+    let locale: Locale
+    let calendar: Calendar
+    var onShowMoreStats: (() -> Void)?
+
+    @State private var hoveredActivityIndex: Int?
+
+    var body: some View {
         let maxWords = buckets.max() ?? 0
         let startDate = HomePresentation.activityStartDate(now: now, calendar: calendar)
         let leadingBlankCount = startDate.map {
@@ -507,7 +559,7 @@ struct DashboardView: View {
             HomePresentation.activityGridStartDate(startDate: $0, calendar: calendar)
         }
 
-        return VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
+        VStack(alignment: .leading, spacing: HomeLayoutMetrics.chartSectionGap) {
             SectionHeader(title: localized("History", locale: locale), isFirst: true) {
                 Button {
                     onShowMoreStats?()
@@ -644,7 +696,7 @@ struct DashboardView: View {
 
                 HStack(spacing: 4) {
                     Text(localized("Streak", locale: locale).uppercased(with: locale))
-                    Text(HomePresentation.streakLabel(days: stats.streakDays, locale: locale))
+                    Text(HomePresentation.streakLabel(days: streakDays, locale: locale))
                         .foregroundStyle(AppColors.textSecondary)
 
                     Spacer(minLength: 8)
@@ -706,6 +758,37 @@ struct DashboardView: View {
         case 4: AppColors.accent
         default: AppColors.border.opacity(0.55)
         }
+    }
+}
+
+// MARK: - Dashboard stats cache
+
+/// Recomputes dashboard aggregates only when the record projection or calendar day changes.
+/// Class init stays nonisolated for `@State` default construction under Swift 5.9;
+/// mutation is method-isolated (`@MainActor` accessors only).
+private final class DashboardStatsCache {
+    struct Key: Equatable {
+        let samples: [StatsSample]
+        let dayStart: Date
+        let firstWeekday: Int
+        let timeZoneIdentifier: String
+    }
+
+    private var key: Key?
+    private var value: DashboardStats = .empty
+
+    @MainActor
+    func stats(for key: Key, calendar: Calendar, now: Date) -> DashboardStats {
+        if self.key == key {
+            return value
+        }
+        self.key = key
+        value = DashboardStatsService.compute(
+            samples: key.samples,
+            calendar: calendar,
+            now: now
+        )
+        return value
     }
 }
 

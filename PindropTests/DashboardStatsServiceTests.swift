@@ -407,6 +407,48 @@ struct DashboardStatsServiceTests {
         #expect(sut.dictationDurationThisWeek == 0)
         #expect(sut.wordsPerWeekday == Array(repeating: 0, count: 7))
     }
+
+    // MARK: - Records overload parity
+
+    @Test func computeRecordsMatchesSamplesOverload() {
+        let calendar = makeCalendar(firstWeekday: 1)
+        let samples = [
+            sample(year: 2024, month: 6, day: 11, hour: 23, minute: 59, wordCount: 5, duration: 30),
+            sample(year: 2024, month: 6, day: 12, hour: 0, minute: 1, wordCount: 7, duration: 40),
+            sample(year: 2024, month: 6, day: 12, hour: 15, minute: 0, wordCount: 40, duration: 20),
+            sample(year: 2024, month: 6, day: 10, wordCount: 12, duration: 15),
+            sample(year: 2023, month: 6, day: 14, wordCount: 3, duration: 10),
+        ]
+
+        let records = samples.map { sample in
+            TranscriptionRecord(
+                text: "sample",
+                timestamp: sample.timestamp,
+                duration: sample.duration,
+                modelUsed: "base",
+                wordCount: sample.wordCount
+            )
+        }
+
+        let fromSamples = DashboardStatsService.compute(
+            samples: samples,
+            calendar: calendar,
+            now: fixedNow
+        )
+        let fromRecords = DashboardStatsService.compute(
+            records: records,
+            calendar: calendar,
+            now: fixedNow
+        )
+
+        #expect(fromRecords == fromSamples)
+        #expect(fromRecords.wordsToday == 47)
+        #expect(fromRecords.sessionsToday == 2)
+        #expect(fromRecords.wordsThisWeek == 64)
+        #expect(fromRecords.sessionsThisWeek == 4)
+        #expect(fromRecords.streakDays == 3)
+        #expect(fromRecords.wordsPerActivityDay.count == 365)
+    }
 }
 
 

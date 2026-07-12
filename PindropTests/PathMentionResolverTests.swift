@@ -25,6 +25,125 @@ struct MockFileSystemProvider: FileSystemProvider {
     }
 }
 
+/// Slows enumeration so concurrent identical builds can share one in-flight task,
+/// and counts how many times the filesystem is walked.
+final class DelayedCountingFileSystemProvider: FileSystemProvider, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _enumerateCount = 0
+
+    var directories: Set<String>
+    var filesByRoot: [String: [String]]
+    var delayNanoseconds: UInt64
+
+    var enumerateCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return _enumerateCount
+    }
+
+    init(
+        directories: Set<String>,
+        filesByRoot: [String: [String]],
+        delayNanoseconds: UInt64
+    ) {
+        self.directories = directories
+        self.filesByRoot = filesByRoot
+        self.delayNanoseconds = delayNanoseconds
+    }
+
+    func enumerateFiles(under root: String) throws -> [String] {
+        lock.lock()
+        _enumerateCount += 1
+        lock.unlock()
+
+        // Cooperative delay: keep checking cancellation so cancelled builds abort.
+        let steps = max(1, Int(delayNanoseconds / 5_000_000))
+        for _ in 0..<steps {
+            try Task.checkCancellation()
+            Thread.sleep(forTimeInterval: 0.005)
+        }
+        try Task.checkCancellation()
+        return filesByRoot[root] ?? []
+    }
+
+    func directoryExists(at path: String) -> Bool {
+        directories.contains(path)
+    }
+}
+
+/// Blocks enumeration until `releaseEnumeration` for a root is called, enabling
+/// deterministic slower-old / faster-new build ordering without real timing races.
+final class GatedFileSystemProvider: FileSystemProvider, @unchecked Sendable {
+    private let lock = NSLock()
+    private var gates: [String: DispatchSemaphore] = [:]
+    private var enteredRoots: Set<String> = []
+    private var _enumerateCount = 0
+
+    var directories: Set<String>
+    var filesByRoot: [String: [String]]
+
+    var enumerateCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return _enumerateCount
+    }
+
+    init(
+        directories: Set<String>,
+        filesByRoot: [String: [String]]
+    ) {
+        self.directories = directories
+        self.filesByRoot = filesByRoot
+    }
+
+    /// Hold the next enumeration of `root` until `releaseEnumeration` is called.
+    func holdEnumeration(for root: String) {
+        lock.lock()
+        gates[root] = DispatchSemaphore(value: 0)
+        enteredRoots.remove(root)
+        lock.unlock()
+    }
+
+    /// Async-friendly wait until enumeration for `root` has entered its hold gate.
+    /// Polls so `@MainActor` tests do not deadlock waiting for a detached enumerator.
+    func waitUntilEnumerationStarted(for root: String, timeoutSeconds: TimeInterval = 2) async -> Bool {
+        let deadline = ContinuousClock.now + .seconds(Int64(timeoutSeconds))
+        while ContinuousClock.now < deadline {
+            lock.lock()
+            let entered = enteredRoots.contains(root)
+            lock.unlock()
+            if entered { return true }
+            try? await Task.sleep(nanoseconds: 5_000_000)
+        }
+        return false
+    }
+
+    func releaseEnumeration(for root: String) {
+        lock.lock()
+        let gate = gates.removeValue(forKey: root)
+        lock.unlock()
+        gate?.signal()
+    }
+
+    func enumerateFiles(under root: String) throws -> [String] {
+        lock.lock()
+        _enumerateCount += 1
+        let gate = gates[root]
+        enteredRoots.insert(root)
+        lock.unlock()
+
+        if let gate {
+            gate.wait()
+            try Task.checkCancellation()
+        }
+        try Task.checkCancellation()
+        return filesByRoot[root] ?? []
+    }
+
+    func directoryExists(at path: String) -> Bool {
+        directories.contains(path)
+    }
+}
 @MainActor
 @Suite
 struct PathMentionResolverTests {
@@ -311,6 +430,202 @@ struct PathMentionResolverTests {
         let fixture = try await makeSUT()
         #expect(fixture.sut.normalizeMention("AppCoordinator") == "appcoordinator")
     }
+
+    // MARK: - Compact index lookup + build coalescing
+
+    @Test func compactIndexLookupMatchesAllFilesScan() async throws {
+        var mockFS = MockFileSystemProvider()
+        mockFS.directories = ["/workspace"]
+        mockFS.filesByRoot = [
+            "/workspace": [
+                "/workspace/src/components/Button.swift",
+                "/workspace/src/views/Button.swift",
+                "/workspace/lib/Helper.swift",
+                "/workspace/docs/README.md",
+            ]
+        ]
+
+        let index = WorkspaceFileIndexService(fileSystem: mockFS)
+        let count = try await index.buildIndex(roots: ["/workspace"])
+        #expect(count == 4)
+
+        let byFilename = index.filesMatching(filename: "Button.swift")
+        let expectedFilename = index.allFiles.filter { $0.lowercasedFilename == "button.swift" }
+        #expect(Set(byFilename.map(\.absolutePath)) == Set(expectedFilename.map(\.absolutePath)))
+        #expect(byFilename.count == 2)
+
+        let byStem = index.filesMatching(stem: "Helper")
+        let expectedStem = index.allFiles.filter { $0.lowercasedStem == "helper" }
+        #expect(Set(byStem.map(\.absolutePath)) == Set(expectedStem.map(\.absolutePath)))
+        #expect(byStem.count == 1)
+        #expect(byStem.first?.relativePath == "lib/Helper.swift")
+
+        // Compatibility projection stays aligned with compact lookup maps.
+        #expect(index.filesByName["button.swift"]?.count == 2)
+        #expect(index.filesByStem["helper"]?.count == 1)
+        #expect(index.filesMatching(filename: "missing.swift").isEmpty)
+    }
+
+    @Test func identicalConcurrentBuildsCoalesceEnumeration() async throws {
+        let mockFS = DelayedCountingFileSystemProvider(
+            directories: ["/workspace"],
+            filesByRoot: [
+                "/workspace": [
+                    "/workspace/A.swift",
+                    "/workspace/B.swift",
+                    "/workspace/nested/C.swift",
+                ]
+            ],
+            delayNanoseconds: 80_000_000
+        )
+        let index = WorkspaceFileIndexService(fileSystem: mockFS, buildTimeout: .seconds(5))
+
+        async let first = index.buildIndex(roots: ["/workspace"])
+        async let second = index.buildIndex(roots: ["/workspace"])
+        let counts = try await [first, second]
+
+        #expect(counts == [3, 3])
+        #expect(mockFS.enumerateCount == 1)
+        #expect(index.fileCount == 3)
+        #expect(index.filesMatching(filename: "C.swift").count == 1)
+    }
+
+    @Test func cancelledBuildDoesNotPoisonLaterRebuild() async throws {
+        let mockFS = DelayedCountingFileSystemProvider(
+            directories: ["/workspace"],
+            filesByRoot: [
+                "/workspace": [
+                    "/workspace/Keep.swift",
+                    "/workspace/Other.swift",
+                ]
+            ],
+            delayNanoseconds: 120_000_000
+        )
+        let index = WorkspaceFileIndexService(fileSystem: mockFS, buildTimeout: .seconds(5))
+
+        let cancelled = Task { @MainActor in
+            try await index.buildIndex(roots: ["/workspace"])
+        }
+        // Let the delayed enumeration start, then cancel the caller task.
+        try await Task.sleep(nanoseconds: 20_000_000)
+        cancelled.cancel()
+        do {
+            _ = try await cancelled.value
+            // Completing before cancellation is observed is acceptable; the rebuild
+            // below still has to produce a coherent index.
+        } catch is CancellationError {
+            // Expected when cancellation wins the race.
+        } catch {
+            Issue.record("Unexpected error from cancelled build: \(error)")
+        }
+
+        let count = try await index.buildIndex(roots: ["/workspace"])
+        #expect(count == 2)
+        #expect(index.filesMatching(filename: "Keep.swift").map(\.relativePath) == ["Keep.swift"])
+        #expect(index.filesMatching(stem: "Other").count == 1)
+        #expect(mockFS.enumerateCount >= 1)
+    }
+
+    @Test func slowerOldBuildCannotOverwriteFasterNewBuild() async throws {
+        let mockFS = GatedFileSystemProvider(
+            directories: ["/workspace-old", "/workspace-new"],
+            filesByRoot: [
+                "/workspace-old": [
+                    "/workspace-old/OldOnly.swift",
+                    "/workspace-old/Shared.swift",
+                ],
+                "/workspace-new": [
+                    "/workspace-new/NewOnly.swift",
+                    "/workspace-new/Shared.swift",
+                ],
+            ]
+        )
+        // Hold the older root so the newer root can finish first.
+        mockFS.holdEnumeration(for: "/workspace-old")
+        defer { mockFS.releaseEnumeration(for: "/workspace-old") }
+
+        let index = WorkspaceFileIndexService(fileSystem: mockFS, buildTimeout: .seconds(5))
+
+        let oldBuild = Task { @MainActor in
+            try await index.buildIndex(roots: ["/workspace-old"])
+        }
+
+        #expect(await mockFS.waitUntilEnumerationStarted(for: "/workspace-old"))
+
+        let newCount = try await index.buildIndex(roots: ["/workspace-new"])
+        #expect(newCount == 2)
+        #expect(index.filesMatching(filename: "NewOnly.swift").count == 1)
+        #expect(index.filesMatching(filename: "OldOnly.swift").isEmpty)
+        #expect(Set(index.workspaceRoots) == ["/workspace-new"])
+
+        // Completing the slower old build must not clobber the newer published state.
+        mockFS.releaseEnumeration(for: "/workspace-old")
+        do {
+            _ = try await oldBuild.value
+            Issue.record("Superseded older build should not publish successfully")
+        } catch is CancellationError {
+            // Expected: generation ownership rejected the stale output.
+        } catch {
+            Issue.record("Unexpected error from superseded build: \(error)")
+        }
+
+        #expect(index.fileCount == 2)
+        #expect(index.filesMatching(filename: "NewOnly.swift").map(\.relativePath) == ["NewOnly.swift"])
+        #expect(index.filesMatching(filename: "OldOnly.swift").isEmpty)
+        #expect(Set(index.workspaceRoots) == ["/workspace-new"])
+    }
+
+    @Test func identicalRootsStillCoalesceWhileDifferentRootsSupersede() async throws {
+        let mockFS = GatedFileSystemProvider(
+            directories: ["/workspace", "/other"],
+            filesByRoot: [
+                "/workspace": [
+                    "/workspace/A.swift",
+                    "/workspace/B.swift",
+                ],
+                "/other": [
+                    "/other/Other.swift",
+                ],
+            ]
+        )
+        mockFS.holdEnumeration(for: "/workspace")
+        defer { mockFS.releaseEnumeration(for: "/workspace") }
+
+        let index = WorkspaceFileIndexService(fileSystem: mockFS, buildTimeout: .seconds(5))
+
+        async let first = index.buildIndex(roots: ["/workspace"])
+        #expect(await mockFS.waitUntilEnumerationStarted(for: "/workspace"))
+
+        // Identical roots share the in-flight build (still gated).
+        async let second = index.buildIndex(roots: ["/workspace"])
+
+        // Different roots supersede the older in-flight work.
+        let otherCount = try await index.buildIndex(roots: ["/other"])
+        #expect(otherCount == 1)
+        #expect(index.filesMatching(filename: "Other.swift").count == 1)
+
+        mockFS.releaseEnumeration(for: "/workspace")
+
+        do {
+            _ = try await first
+            Issue.record("Superseded coalesced build should not publish")
+        } catch is CancellationError {
+        } catch {
+            Issue.record("Unexpected error from superseded first build: \(error)")
+        }
+
+        do {
+            _ = try await second
+            Issue.record("Superseded coalesced build should not publish")
+        } catch is CancellationError {
+        } catch {
+            Issue.record("Unexpected error from superseded second build: \(error)")
+        }
+
+        #expect(index.fileCount == 1)
+        #expect(index.filesMatching(filename: "Other.swift").map(\.relativePath) == ["Other.swift"])
+        #expect(index.filesMatching(filename: "A.swift").isEmpty)
+    }
 }
 
 @MainActor
@@ -390,5 +705,46 @@ struct WorkspaceFileIndexRealFileSystemTests {
                 NSLocalizedDescriptionKey: message,
             ])
         }
+    }
+
+    @Test(.enabled(if: FileManager.default.isExecutableFile(atPath: "/usr/bin/git"), "git executable is unavailable"))
+    func processCancelledBetweenLaunchAndRegistrationDoesNotEscape() async throws {
+        let tempRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-workspace-launch-race-\(UUID().uuidString)", isDirectory: true)
+
+        try FileManager.default.createDirectory(at: tempRoot, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempRoot) }
+
+        try runGit(["init"], in: tempRoot.path)
+        try createFile(
+            at: tempRoot.appendingPathComponent("Tracked.swift"),
+            contents: "struct Tracked {}\n"
+        )
+
+        let provider = RealFileSystemProvider()
+        let generation = provider.beginGeneration()
+
+        // Deterministic seam: cancel the generation after process.run and before register.
+        provider.processLaunchHandler = { launchedGeneration in
+            #expect(launchedGeneration == generation)
+            provider.cancelGeneration(launchedGeneration)
+        }
+
+        do {
+            _ = try RealFileSystemProvider.$activeGeneration.withValue(generation) {
+                try provider.enumerateFiles(under: tempRoot.path)
+            }
+            Issue.record("Expected cancellation when generation ends between launch and registration")
+        } catch is CancellationError {
+            // Expected: registration rejects the ended generation and terminates the process.
+        } catch {
+            Issue.record("Unexpected error from cancelled launch/registration race: \(error)")
+        }
+
+        #expect(provider.registeredProcessCount == 0)
+
+        // Ending an already-cancelled generation must remain idempotent and leave no stragglers.
+        provider.endGeneration(generation)
+        #expect(provider.registeredProcessCount == 0)
     }
 }

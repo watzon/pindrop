@@ -188,12 +188,15 @@ private struct AnnouncementCreditView: View {
     }
 }
 
+/// Compact Orb preview for What's New. Synthetic meter levels and blob rendering
+/// share `OrbBlobsView`'s single 40 Hz `TimelineView` — no Combine timer and no
+/// published-state root invalidation.
 @MainActor
 private struct AnnouncementOrbDemoView: View {
-    @StateObject private var state = FloatingIndicatorState()
+    /// Non-publishing sample holder so EMA smoothing survives across timeline
+    /// ticks without an `ObservableObject` invalidating the demo chrome.
+    @State private var sampler = AnnouncementOrbDemoSampler()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let timer = Timer.publish(every: 1.0 / 24.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -214,38 +217,83 @@ private struct AnnouncementOrbDemoView: View {
             Circle()
                 .strokeBorder(OrbPalette.rimSoft, lineWidth: 1)
 
-            OrbBlobsView(state: state, isLive: true, isExcited: true)
+            OrbBlobsView(
+                sample: { date in
+                    // Match prior demo behavior: Reduce Motion freezes at idle (zero)
+                    // energy rather than a mid-phrase pose from a one-shot sample.
+                    if reduceMotion {
+                        return (.zero, 0)
+                    }
+                    return sampler.sample(at: date)
+                },
+                isLive: true,
+                isExcited: true
+            )
                 .padding(5)
                 .clipShape(Circle())
         }
         .shadow(color: OrbPalette.bandMid.opacity(0.30), radius: 12, x: 0, y: 4)
-        .onReceive(timer) { date in
-            if !reduceMotion {
-                updateSyntheticLevels(at: date)
-            }
-        }
         .onDisappear {
-            state.updateAudioLevel(0)
-            state.updateBandLevels(.zero)
+            sampler.reset()
         }
         .allowsHitTesting(false)
     }
+}
 
-    private func updateSyntheticLevels(at date: Date) {
+/// Generates the demo's speech-like meter curve and applies the same light EMA
+/// ballistics production meters use, polled only from the blob timeline.
+@MainActor
+private final class AnnouncementOrbDemoSampler {
+    private var audioLevel: Float = 0
+    private var bandLevels = AudioBandLevels.zero
+    private static let meterEpsilon: Float = 0.005
+
+    func sample(at date: Date) -> (bands: AudioBandLevels, overall: Float) {
         let t = date.timeIntervalSinceReferenceDate
         let phrase = max(0.0, sin(t * 1.85))
         let syllable = 0.5 + 0.5 * sin(t * 9.2 + sin(t * 1.7))
         let shimmer = 0.5 + 0.5 * sin(t * 14.5)
         let level = clamped(0.24 + phrase * 0.38 + syllable * 0.26)
 
-        state.updateAudioLevel(Float(level))
-        state.updateBandLevels(
+        updateAudioLevel(Float(level))
+        updateBandLevels(
             AudioBandLevels(
                 low: Float(clamped(level * (0.78 + 0.18 * sin(t * 2.4)))),
                 mid: Float(clamped(0.20 + syllable * 0.58)),
                 high: Float(clamped(0.14 + shimmer * 0.44))
             )
         )
+        return (bandLevels, audioLevel)
+    }
+
+    func reset() {
+        audioLevel = 0
+        bandLevels = .zero
+    }
+
+    private func updateAudioLevel(_ level: Float) {
+        let smoothed = min(1.0, max(0.0, audioLevel * 0.3 + level * 0.7))
+        if abs(smoothed - audioLevel) < Self.meterEpsilon {
+            return
+        }
+        audioLevel = smoothed
+    }
+
+    private func updateBandLevels(_ levels: AudioBandLevels) {
+        func smooth(_ old: Float, _ new: Float) -> Float {
+            min(1.0, max(0.0, old * 0.3 + new * 0.7))
+        }
+        let next = AudioBandLevels(
+            low: smooth(bandLevels.low, levels.low),
+            mid: smooth(bandLevels.mid, levels.mid),
+            high: smooth(bandLevels.high, levels.high)
+        )
+        if abs(next.low - bandLevels.low) < Self.meterEpsilon,
+           abs(next.mid - bandLevels.mid) < Self.meterEpsilon,
+           abs(next.high - bandLevels.high) < Self.meterEpsilon {
+            return
+        }
+        bandLevels = next
     }
 
     private func clamped(_ value: Double) -> Double {

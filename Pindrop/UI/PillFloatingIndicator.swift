@@ -60,7 +60,6 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         static let hoverRetentionInsetX: CGFloat = 10
         static let hoverRetentionInsetY: CGFloat = 8
         static let hoverCollapseDelay: TimeInterval = 0.14
-        static let hoverMonitorInterval: TimeInterval = 1.0 / 60.0
         static let hoverTooltipDelay: TimeInterval = 0.08
     }
 
@@ -75,7 +74,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     @Published var isHovered: Bool = false
     @Published var isHoverTooltipVisible: Bool = false
     @Published private(set) var isDragging = false
-    private var hoverIntentTimer: Timer?
+    private var pointerMonitor: FloatingIndicatorPointerMonitor?
+    private var hoverCollapseTimer: Timer?
     private var hoverTooltipTimer: Timer?
     private var lastScreen: NSScreen?
     private var lastHoverContactAt: Date = .distantPast
@@ -134,6 +134,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     func showIdleIndicator() {
+        pointerMonitor?.setPointerActivityEnabled(true)
         guard !isVisible else {
             refreshLayout(animated: false)
             panel?.orderFrontRegardless()
@@ -181,16 +182,24 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func startHoverIntentMonitoring() {
-        hoverIntentTimer?.invalidate()
-        hoverIntentTimer = Timer.pindrop_scheduleRepeating(interval: LayoutMetrics.hoverMonitorInterval) { [weak self] _ in
-            Task { @MainActor in
-                self?.pillMonitorTick()
-            }
+        if pointerMonitor == nil {
+            pointerMonitor = FloatingIndicatorPointerMonitor(
+                onPointerActivity: { [weak self] in
+                    self?.pillMonitorTick()
+                },
+                onScreenParametersChanged: { [weak self] in
+                    self?.checkAndUpdateScreenPosition(force: true)
+                }
+            )
         }
+        pointerMonitor?.setPointerActivityEnabled(!(state.isRecording || state.isProcessing))
+        pointerMonitor?.start()
+        // Catch current pointer position immediately (no wait for first move).
+        pillMonitorTick()
     }
 
-    /// Screen follow + hover: runs on the main run loop in `.common` modes (same cadence as hover),
-    /// so the pill tracks the cursor across displays while idle, recording, or processing.
+    /// Screen follow + hover on real pointer activity (and screen reconfiguration).
+    /// Replaces the previous 60 Hz timer that allocated a MainActor Task every tick.
     private func pillMonitorTick() {
         guard isVisible else { return }
         checkAndUpdateScreenPosition()
@@ -198,20 +207,46 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func stopHoverIntentMonitoring() {
-        hoverIntentTimer?.invalidate()
-        hoverIntentTimer = nil
+        pointerMonitor?.stop()
+        pointerMonitor = nil
+        cancelHoverCollapseTimer()
         lastHoverContactAt = .distantPast
+    }
+
+    private func scheduleHoverCollapseIfNeeded(after delay: TimeInterval) {
+        guard hoverCollapseTimer == nil else { return }
+        let timer = Timer(timeInterval: max(0, delay), repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.handleHoverCollapseTimerFired()
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        hoverCollapseTimer = timer
+    }
+
+    private func cancelHoverCollapseTimer() {
+        hoverCollapseTimer?.invalidate()
+        hoverCollapseTimer = nil
+    }
+
+    private func handleHoverCollapseTimerFired() {
+        hoverCollapseTimer = nil
+        guard isVisible, isHovered else { return }
+        // Re-evaluate with the current pointer — may re-enter and cancel collapse.
+        evaluateHoverIntent()
     }
 
     private func scheduleHoverTooltipReveal() {
         hoverTooltipTimer?.invalidate()
-        hoverTooltipTimer = Timer.scheduledTimer(withTimeInterval: LayoutMetrics.hoverTooltipDelay, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
+        let timer = Timer(timeInterval: LayoutMetrics.hoverTooltipDelay, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
                 guard self.isHovered, !self.state.isRecording, !self.state.isProcessing, !self.isContextMenuOpen else { return }
                 self.isHoverTooltipVisible = true
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        hoverTooltipTimer = timer
     }
 
     private func hideHoverTooltip() {
@@ -422,7 +457,10 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     private func evaluateHoverIntent() {
-        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
+        guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else {
+            cancelHoverCollapseTimer()
+            return
+        }
         guard let panel = panel else { return }
 
         let mouseLocation = NSEvent.mouseLocation
@@ -430,6 +468,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         if isContextMenuOpen {
             lastHoverContactAt = now
+            cancelHoverCollapseTimer()
             return
         }
 
@@ -445,16 +484,24 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         if isHovered {
             if retentionRect.contains(mouseLocation) {
                 lastHoverContactAt = now
+                cancelHoverCollapseTimer()
                 return
             }
 
             let timeOutside = now.timeIntervalSince(lastHoverContactAt)
             if timeOutside >= LayoutMetrics.hoverCollapseDelay {
+                cancelHoverCollapseTimer()
                 setHoverState(false)
+            } else {
+                // Pointer stopped outside the retention zone — finish the delay with a one-shot.
+                scheduleHoverCollapseIfNeeded(
+                    after: LayoutMetrics.hoverCollapseDelay - timeOutside
+                )
             }
             return
         }
 
+        cancelHoverCollapseTimer()
         if activationRect.contains(mouseLocation) {
             lastHoverContactAt = now
             setHoverState(true)
@@ -516,13 +563,14 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         guard menu == contextMenu else { return }
         isContextMenuOpen = false
         lastHoverContactAt = Date()
+        evaluateHoverIntent()
     }
 
-    private func checkAndUpdateScreenPosition() {
+    private func checkAndUpdateScreenPosition(force: Bool = false) {
         guard isVisible, let panel else { return }
 
         let currentScreen = preferredScreen()
-        if let last = lastScreen, currentScreen.pindrop_isSameDisplay(as: last) {
+        if !force, let last = lastScreen, currentScreen.pindrop_isSameDisplay(as: last) {
             return
         }
 
@@ -557,6 +605,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     func startRecording() {
         isHovered = false
+        cancelHoverCollapseTimer()
+        pointerMonitor?.setPointerActivityEnabled(false)
         hideHoverTooltip()
         lastHoverContactAt = .distantPast
         state.startRecording()
@@ -571,6 +621,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
     func transitionToProcessing() {
         state.transitionToProcessing()
+        cancelHoverCollapseTimer()
+        pointerMonitor?.setPointerActivityEnabled(false)
         hideHoverTooltip()
         lastHoverContactAt = .distantPast
         refreshLayout(animated: true, duration: 0.2)
@@ -809,12 +861,16 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 struct PillIndicatorView: View {
     @ObservedObject var controller: PillFloatingIndicatorController
     @ObservedObject var state: FloatingIndicatorState
-    @ObservedObject var transcript: LiveTranscriptState
+    /// Not `@ObservedObject`: text updates only need to re-render `LiveTranscriptView`.
+    /// The root observes phase alone so streaming layout transitions still fire without
+    /// rebuilding the entire pill shell on every partial.
+    let transcript: LiveTranscriptState
     let isCompact: Bool
     @Namespace private var pillShellNamespace
     @ObservedObject private var theme = PindropThemeController.shared
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var transcriptPhase: LiveTranscriptState.Phase = .inactive
 
     private var showsExpandedState: Bool {
         state.isRecording || state.isProcessing || !isCompact
@@ -823,7 +879,7 @@ struct PillIndicatorView: View {
     /// Live transcript card replaces the small recording/processing pill while a
     /// streaming session is active.
     private var showsTranscript: Bool {
-        transcript.isActive && (state.isRecording || state.isProcessing)
+        transcriptPhase != .inactive && (state.isRecording || state.isProcessing)
     }
 
     var body: some View {
@@ -837,6 +893,8 @@ struct PillIndicatorView: View {
         .animation(reduceMotion ? nil : AppTheme.Animation.smooth, value: showsExpandedState)
         .opacity(state.isInputMuted ? 0.4 : 1)
         .themeRefresh()
+        .onAppear { transcriptPhase = transcript.phase }
+        .onReceive(transcript.$phase) { transcriptPhase = $0 }
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { _ in
@@ -943,7 +1001,7 @@ struct PillIndicatorView: View {
                         .foregroundStyle(AppColors.overlayTextSecondary)
                 } else {
                     FloatingIndicatorWaveformView(
-                        audioLevel: state.audioLevel,
+                        audioLevel: { state.audioLevel },
                         isRecording: state.isRecording,
                         style: .pill
                     )
@@ -1193,7 +1251,7 @@ private var pillRecordingPreview: some View {
     let state = FloatingIndicatorState()
     let controller = PillFloatingIndicatorController(state: state, settingsStore: SettingsStore(), liveTranscript: LiveTranscriptState())
     state.isRecording = true
-    state.audioLevel = 0.7
+    state.updateAudioLevel(1.0)
 
     return PillIndicatorView(controller: controller, state: state, transcript: controller.liveTranscript, isCompact: false)
         .frame(width: 124, height: 30)

@@ -58,11 +58,9 @@ private func floatingIndicatorDefaultMouseDisplayNumber() -> UInt32? {
 private func floatingIndicatorDefaultMousePollingScheduler(
     handler: @escaping @MainActor () -> Void
 ) -> any FloatingIndicatorMousePollingSession {
-    Timer.pindrop_scheduleRepeating(interval: 0.05) { _ in
-        Task { @MainActor in
-            handler()
-        }
-    }
+    // Event-driven: mouse-move monitors + screen reconfiguration notifications.
+    // Replaces the previous 20 Hz timer that allocated a MainActor Task every tick.
+    FloatingIndicatorEventDrivenMouseSession(handler: handler)
 }
 
 private func floatingIndicatorDefaultScreen(for displayNumber: UInt32) -> NSScreen? {
@@ -102,12 +100,14 @@ final class FloatingIndicatorFocusTracker {
     private let mouseDisplayNumberProvider: () -> UInt32?
     private let displayNumberForRect: (CGRect) -> UInt32?
     private let screenResolver: (UInt32) -> NSScreen?
-    private let mousePollingScheduler: (@escaping @MainActor () -> Void) -> any FloatingIndicatorMousePollingSession
+    private let mousePollingScheduler: @MainActor (@escaping @MainActor () -> Void) -> any FloatingIndicatorMousePollingSession
+    /// Nonisolated resource ownership so `deinit` can remove the workspace
+    /// observer without touching MainActor-isolated stored properties.
+    private let resources: FloatingIndicatorFocusTrackerResources
 
     private var trackingMode: FloatingIndicatorTrackingMode?
     private var placementContextValue: FloatingIndicatorPlacementContext?
     private var mousePollingSession: (any FloatingIndicatorMousePollingSession)?
-    private var workspaceObserverToken: NSObjectProtocol?
     private var axObservationSession: (any FloatingIndicatorAXObservationSession)?
     private var lastObservedMouseDisplayNumber: UInt32?
 
@@ -120,7 +120,7 @@ final class FloatingIndicatorFocusTracker {
         mouseDisplayNumberProvider: @escaping () -> UInt32? = floatingIndicatorDefaultMouseDisplayNumber,
         displayNumberForRect: @escaping (CGRect) -> UInt32? = floatingIndicatorDefaultDisplayNumber(for:),
         screenResolver: @escaping (UInt32) -> NSScreen? = floatingIndicatorDefaultScreen(for:),
-        mousePollingScheduler: @escaping (@escaping @MainActor () -> Void) -> any FloatingIndicatorMousePollingSession = floatingIndicatorDefaultMousePollingScheduler(handler:)
+        mousePollingScheduler: @escaping @MainActor (@escaping @MainActor () -> Void) -> any FloatingIndicatorMousePollingSession = floatingIndicatorDefaultMousePollingScheduler(handler:)
     ) {
         self.contextEngineService = contextEngineService
         self.workspaceNotificationCenter = workspaceNotificationCenter
@@ -130,6 +130,16 @@ final class FloatingIndicatorFocusTracker {
         self.displayNumberForRect = displayNumberForRect
         self.screenResolver = screenResolver
         self.mousePollingScheduler = mousePollingScheduler
+        self.resources = FloatingIndicatorFocusTrackerResources(
+            workspaceNotificationCenter: workspaceNotificationCenter
+        )
+    }
+
+    deinit {
+        // Nonisolated fallback: only the resource holder is touched.
+        // Mouse/AX sessions release via ARC; their own deinit cleans framework resources.
+        // Explicit `stop()` remains the primary MainActor teardown path.
+        resources.tearDown()
     }
 
     var placementContext: FloatingIndicatorPlacementContext? {
@@ -140,8 +150,8 @@ final class FloatingIndicatorFocusTracker {
         let isRestartingInNewMode = trackingMode != nil && trackingMode != mode
         trackingMode = mode
 
-        if workspaceObserverToken == nil {
-            workspaceObserverToken = workspaceNotificationCenter.addObserver(
+        if !resources.hasWorkspaceObserver {
+            let token = workspaceNotificationCenter.addObserver(
                 forName: NSWorkspace.didActivateApplicationNotification,
                 object: nil,
                 queue: nil
@@ -150,12 +160,22 @@ final class FloatingIndicatorFocusTracker {
                     self?.handleFrontmostApplicationActivated()
                 }
             }
+            resources.installWorkspaceObserver(token)
         }
 
-        if mousePollingSession == nil {
-            mousePollingSession = mousePollingScheduler { [weak self] in
-                self?.handleMouseTick()
+        // Mouse display tracking is only needed for idle placement. During an
+        // active session, AX/focus notifications own placement — stop the
+        // pointer session so idle mouse work is fully paused.
+        switch mode {
+        case .idlePill:
+            if mousePollingSession == nil {
+                mousePollingSession = mousePollingScheduler { [weak self] in
+                    self?.handleMouseTick()
+                }
             }
+        case .activeSession:
+            mousePollingSession?.invalidate()
+            mousePollingSession = nil
         }
 
         if axObservationSession == nil || isRestartingInNewMode {
@@ -185,10 +205,9 @@ final class FloatingIndicatorFocusTracker {
         axObservationSession?.invalidate()
         axObservationSession = nil
 
-        if let workspaceObserverToken {
-            workspaceNotificationCenter.removeObserver(workspaceObserverToken)
-            self.workspaceObserverToken = nil
-        }
+        // Primary MainActor teardown. Resource-holder tearDown is also invoked by
+        // deinit; calling both is safe and keeps deinit a no-op afterward.
+        resources.tearDown()
     }
 
     func preferredScreen() -> NSScreen? {
@@ -352,6 +371,36 @@ final class FloatingIndicatorFocusTracker {
 
 extension Timer: FloatingIndicatorMousePollingSession {}
 
+/// Event-driven replacement for 20 Hz mouse-display polling.
+/// Fires the handler on real pointer motion or screen reconfiguration, already
+/// on the main thread — no `Task { @MainActor }` hop per tick.
+@MainActor
+private final class FloatingIndicatorEventDrivenMouseSession: FloatingIndicatorMousePollingSession {
+    private var pointerMonitor: FloatingIndicatorPointerMonitor?
+    private let handler: @MainActor () -> Void
+
+    init(handler: @escaping @MainActor () -> Void) {
+        self.handler = handler
+        let monitor = FloatingIndicatorPointerMonitor(
+            onPointerActivity: { [weak self] in
+                self?.handler()
+            },
+            onScreenParametersChanged: { [weak self] in
+                self?.handler()
+            }
+        )
+        self.pointerMonitor = monitor
+        monitor.start()
+        // Seed once so a display change that already occurred is observed.
+        handler()
+    }
+
+    func invalidate() {
+        pointerMonitor?.stop()
+        pointerMonitor = nil
+    }
+}
+
 @MainActor
 private final class FloatingIndicatorAXObservationService: FloatingIndicatorAXObserving {
     private let axProvider: AXProviderProtocol
@@ -367,13 +416,114 @@ private final class FloatingIndicatorAXObservationService: FloatingIndicatorAXOb
     }
 }
 
-private final class FloatingIndicatorAXObserverSession: FloatingIndicatorAXObservationSession {
-    private let appElement: AXUIElement
-    private let handler: @MainActor (FloatingIndicatorAXObservationEvent) -> Void
+// MARK: - Focus tracker resources (nonisolated for deinit)
 
+/// Owns the workspace observer token so teardown can run from nonisolated
+/// `deinit` without reading MainActor-isolated stored properties on
+/// `FloatingIndicatorFocusTracker`.
+private final class FloatingIndicatorFocusTrackerResources: @unchecked Sendable {
+    private let lock = NSLock()
+    private let workspaceNotificationCenter: NotificationCenter
+    private var workspaceObserverToken: NSObjectProtocol?
+
+    init(workspaceNotificationCenter: NotificationCenter) {
+        self.workspaceNotificationCenter = workspaceNotificationCenter
+    }
+
+    var hasWorkspaceObserver: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return workspaceObserverToken != nil
+    }
+
+    /// Installs a new observer token, removing any previous one.
+    func installWorkspaceObserver(_ token: NSObjectProtocol) {
+        lock.lock()
+        let previous = workspaceObserverToken
+        workspaceObserverToken = token
+        lock.unlock()
+        if let previous {
+            workspaceNotificationCenter.removeObserver(previous)
+        }
+    }
+
+    /// Idempotent: removes the observer and clears the stored token.
+    func tearDown() {
+        lock.lock()
+        let token = workspaceObserverToken
+        workspaceObserverToken = nil
+        lock.unlock()
+        if let token {
+            workspaceNotificationCenter.removeObserver(token)
+        }
+    }
+}
+
+// MARK: - AX observer resources (nonisolated for deinit)
+
+/// Owns the AXObserver, registered notifications, and run-loop source so
+/// teardown can run from nonisolated `deinit` without calling MainActor-isolated
+/// `invalidate()`.
+private final class FloatingIndicatorAXObserverResources: @unchecked Sendable {
+    private let lock = NSLock()
+    private let appElement: AXUIElement
     private var observer: AXObserver?
     private var registeredNotifications: [String] = []
     private var isInvalidated = false
+
+    /// Immutable AX application element used for notification registration/removal.
+    var appElementForRegistration: AXUIElement { appElement }
+
+    init(appElement: AXUIElement, observer: AXObserver) {
+        self.appElement = appElement
+        self.observer = observer
+    }
+
+    var isActive: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return !isInvalidated
+    }
+
+    func currentObserver() -> AXObserver? {
+        lock.lock()
+        defer { lock.unlock() }
+        return observer
+    }
+
+    func addRegisteredNotification(_ notification: String) {
+        lock.lock()
+        registeredNotifications.append(notification)
+        lock.unlock()
+    }
+
+    /// Idempotent: remove notifications, detach the run-loop source, clear observer.
+    func tearDown() {
+        lock.lock()
+        let observer = self.observer
+        let notifications = registeredNotifications
+        let wasInvalidated = isInvalidated
+        isInvalidated = true
+        self.observer = nil
+        registeredNotifications = []
+        lock.unlock()
+
+        guard !wasInvalidated, let observer else { return }
+
+        for notification in notifications {
+            AXObserverRemoveNotification(observer, appElement, notification as CFString)
+        }
+        CFRunLoopRemoveSource(
+            CFRunLoopGetMain(),
+            AXObserverGetRunLoopSource(observer),
+            .defaultMode
+        )
+    }
+}
+
+private final class FloatingIndicatorAXObserverSession: FloatingIndicatorAXObservationSession {
+    private let resources: FloatingIndicatorAXObserverResources
+    private let handler: @MainActor (FloatingIndicatorAXObservationEvent) -> Void
 
     init?(
         axProvider: AXProviderProtocol,
@@ -384,7 +534,6 @@ private final class FloatingIndicatorAXObserverSession: FloatingIndicatorAXObser
             return nil
         }
 
-        self.appElement = appElement
         self.handler = handler
 
         var createdObserver: AXObserver?
@@ -399,7 +548,10 @@ private final class FloatingIndicatorAXObserverSession: FloatingIndicatorAXObser
             return nil
         }
 
-        self.observer = observer
+        self.resources = FloatingIndicatorAXObserverResources(
+            appElement: appElement,
+            observer: observer
+        )
 
         CFRunLoopAddSource(
             CFRunLoopGetMain(),
@@ -411,41 +563,32 @@ private final class FloatingIndicatorAXObserverSession: FloatingIndicatorAXObser
         register(notification: kAXFocusedUIElementChangedNotification as String)
     }
 
+    deinit {
+        // Nonisolated fallback: only the resource holder is touched.
+        // Explicit `invalidate()` remains the primary MainActor teardown path.
+        resources.tearDown()
+    }
+
     func invalidate() {
-        guard !isInvalidated else { return }
-        isInvalidated = true
-
-        if let observer {
-            for notification in registeredNotifications {
-                AXObserverRemoveNotification(observer, appElement, notification as CFString)
-            }
-            CFRunLoopRemoveSource(
-                CFRunLoopGetMain(),
-                AXObserverGetRunLoopSource(observer),
-                .defaultMode
-            )
-        }
-
-        registeredNotifications.removeAll()
-        observer = nil
+        resources.tearDown()
     }
 
     private func register(notification: String) {
-        guard let observer else { return }
+        guard let observer = resources.currentObserver() else { return }
 
         let result = AXObserverAddNotification(
             observer,
-            appElement,
+            resources.appElementForRegistration,
             notification as CFString,
             UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
         )
 
         guard result == .success else { return }
-        registeredNotifications.append(notification)
+        resources.addRegisteredNotification(notification)
     }
 
     private func handleAXNotification(_ notification: String) {
-        guard !isInvalidated else { return }
+        guard resources.isActive else { return }
 
         let event: FloatingIndicatorAXObservationEvent
         switch notification {

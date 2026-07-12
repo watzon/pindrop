@@ -174,6 +174,7 @@ struct SettingsObservationSnapshot: Equatable {
     let hotkeys: HotkeySettingsSnapshot
     let mcpServerEnabled: Bool
     let mcpServerPort: Int
+    let dictationAudioRetention: DictationAudioRetention
 }
 
 enum RecordingStopRoute: Equatable {
@@ -375,6 +376,12 @@ final class AppCoordinator {
     private var contextSessionPollTimer: Timer?
     private var contextSessionAppActivationObserver: NSObjectProtocol?
     private var lastFocusOrWindowUpdateAt: Date?
+    /// Single owner for live-context refresh work. New triggers coalesce while a
+    /// refresh is suspended; only the generation that owns the active task may
+    /// apply results, and stop/reset cancels the pending task.
+    private var contextSessionRefreshTask: Task<Void, Never>?
+    private var contextSessionRefreshGeneration: UInt64 = 0
+    private var contextSessionPendingRefresh: (trigger: ContextSessionUpdateTrigger, snapshotOverride: ContextSnapshot?)?
     private let contextSessionPollInterval: TimeInterval = 1.25
     private let contextSessionFocusUpdateThrottle: TimeInterval = 0.75
     private var recordingStartAttemptCounter: UInt64 = 0
@@ -1614,7 +1621,8 @@ final class AppCoordinator {
                 )
             ),
             mcpServerEnabled: settingsStore.mcpServerEnabled,
-            mcpServerPort: settingsStore.mcpServerPort
+            mcpServerPort: settingsStore.mcpServerPort,
+            dictationAudioRetention: settingsStore.dictationAudioRetention
         )
     }
     private func observeSettings() {
@@ -1684,6 +1692,10 @@ final class AppCoordinator {
                     if previousSnapshot.mcpServerEnabled != snapshot.mcpServerEnabled
                         || previousSnapshot.mcpServerPort != snapshot.mcpServerPort {
                         self.applyMCPServerSettings()
+                    }
+
+                    if previousSnapshot.dictationAudioRetention != snapshot.dictationAudioRetention {
+                        self.dictationAudioRetentionService.applyRetentionPolicyChange()
                     }
 
                     self.statusBarController.updateDynamicItems()
@@ -1990,10 +2002,10 @@ final class AppCoordinator {
 
         if contextSessionPollTimer == nil {
             let timer = Timer.scheduledTimer(withTimeInterval: contextSessionPollInterval, repeats: true) { [weak self] _ in
-                Task { @MainActor in
-                    guard let self else { return }
+                guard let self else { return }
+                MainActor.assumeIsolated {
                     guard self.isRecording, self.shouldRunLiveContextSession() else { return }
-                    await self.updateContextSession(trigger: .poll)
+                    self.requestContextSessionRefresh(trigger: .poll)
                 }
             }
             timer.tolerance = 0.2
@@ -2002,9 +2014,7 @@ final class AppCoordinator {
         }
 
         if contextSessionState == nil {
-            Task { @MainActor in
-                await self.updateContextSession(trigger: .recordingStart, snapshotOverride: initialSnapshot)
-            }
+            requestContextSessionRefresh(trigger: .recordingStart, snapshotOverride: initialSnapshot)
         }
     }
 
@@ -2012,13 +2022,16 @@ final class AppCoordinator {
         contextSessionPollTimer?.invalidate()
         contextSessionPollTimer = nil
         removeContextSessionObserversIfNeeded()
+        cancelPendingContextSessionRefresh()
         contextSessionState = nil
         lastFocusOrWindowUpdateAt = nil
     }
+
     private func suspendLiveContextSessionUpdates() {
         contextSessionPollTimer?.invalidate()
         contextSessionPollTimer = nil
         removeContextSessionObserversIfNeeded()
+        cancelPendingContextSessionRefresh()
     }
 
     private func installContextSessionObserversIfNeeded() {
@@ -2029,10 +2042,10 @@ final class AppCoordinator {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
+            guard let self else { return }
+            MainActor.assumeIsolated {
                 guard self.isRecording, self.shouldRunLiveContextSession() else { return }
-                await self.updateContextSession(trigger: .frontmostAppChange)
+                self.requestContextSessionRefresh(trigger: .frontmostAppChange)
             }
         }
     }
@@ -2054,28 +2067,92 @@ final class AppCoordinator {
         }
 
         lastFocusOrWindowUpdateAt = now
-        Task { @MainActor in
-            await self.updateContextSession(trigger: .focusOrWindowChange)
+        requestContextSessionRefresh(trigger: .focusOrWindowChange)
+    }
+
+    private func cancelPendingContextSessionRefresh() {
+        contextSessionRefreshGeneration &+= 1
+        contextSessionPendingRefresh = nil
+        contextSessionRefreshTask?.cancel()
+        contextSessionRefreshTask = nil
+    }
+
+    /// Coalesces concurrent live-context triggers into one owner task. While a
+    /// refresh is suspended, later triggers replace the pending request so only
+    /// the latest work runs after the active refresh finishes.
+    private func requestContextSessionRefresh(
+        trigger: ContextSessionUpdateTrigger,
+        snapshotOverride: ContextSnapshot? = nil
+    ) {
+        guard isRecording, shouldRunLiveContextSession() else { return }
+
+        if contextSessionRefreshTask != nil {
+            contextSessionPendingRefresh = (trigger, snapshotOverride)
+            return
+        }
+
+        contextSessionRefreshGeneration &+= 1
+        let generation = contextSessionRefreshGeneration
+        contextSessionPendingRefresh = nil
+        contextSessionRefreshTask = Task { @MainActor [weak self] in
+            await self?.runContextSessionRefreshOwner(
+                initialTrigger: trigger,
+                initialSnapshotOverride: snapshotOverride,
+                generation: generation
+            )
+        }
+    }
+
+    private func runContextSessionRefreshOwner(
+        initialTrigger: ContextSessionUpdateTrigger,
+        initialSnapshotOverride: ContextSnapshot?,
+        generation: UInt64
+    ) async {
+        defer {
+            if contextSessionRefreshGeneration == generation {
+                contextSessionRefreshTask = nil
+            }
+        }
+
+        var nextTrigger = initialTrigger
+        var nextSnapshotOverride = initialSnapshotOverride
+
+        while !Task.isCancelled {
+            guard contextSessionRefreshGeneration == generation else { return }
+            guard isRecording, shouldRunLiveContextSession() else { return }
+
+            await updateContextSession(
+                trigger: nextTrigger,
+                snapshotOverride: nextSnapshotOverride,
+                generation: generation
+            )
+
+            guard contextSessionRefreshGeneration == generation else { return }
+            guard !Task.isCancelled else { return }
+
+            guard let pending = contextSessionPendingRefresh else { return }
+            contextSessionPendingRefresh = nil
+            nextTrigger = pending.trigger
+            nextSnapshotOverride = pending.snapshotOverride
         }
     }
 
     private func updateContextSession(
         trigger: ContextSessionUpdateTrigger,
-        snapshotOverride: ContextSnapshot? = nil
+        snapshotOverride: ContextSnapshot? = nil,
+        generation: UInt64
     ) async {
         guard isRecording else { return }
         guard settingsStore.enableUIContext else { return }
+        guard contextSessionRefreshGeneration == generation else { return }
 
         let clipboardText = settingsStore.enableClipboardContext ? capturedContext?.clipboardText : nil
         let snapshot = snapshotOverride ?? contextEngineService.captureSnapshot(clipboardText: clipboardText)
-        capturedSnapshot = snapshot
 
         let routingSignal = PromptRoutingSignal.from(
             snapshot: snapshot,
             adapterRegistry: appContextAdapterRegistry
         )
-        capturedRoutingSignal = routingSignal
-        _ = promptRoutingResolver.resolve(signal: routingSignal)
 
         var adapterCapabilities: AppAdapterCapabilities?
         var adapterEnrichment: AppRuntimeEnrichment?
@@ -2086,13 +2163,21 @@ final class AppCoordinator {
             adapterEnrichment = appContextAdapterRegistry.enrichment(for: snapshot, routingSignal: routingSignal)
         }
 
-        capturedAdapterCapabilities = adapterCapabilities
-
         let workspaceRoots = deriveWorkspaceRoots(routingSignal: routingSignal, snapshot: snapshot)
         let workspaceInsights = await mentionRewriteService.deriveWorkspaceInsights(
             workspaceRoots: workspaceRoots,
             activeDocumentPath: snapshot.appContext?.documentPath
         )
+
+        // Drop any intermediate work that finished after stop/reset or a newer
+        // owner generation took over. Nothing above mutates session state.
+        guard contextSessionRefreshGeneration == generation, !Task.isCancelled else { return }
+        guard isRecording, settingsStore.enableUIContext else { return }
+
+        capturedSnapshot = snapshot
+        capturedRoutingSignal = routingSignal
+        _ = promptRoutingResolver.resolve(signal: routingSignal)
+        capturedAdapterCapabilities = adapterCapabilities
 
         let activeFilePath = workspaceInsights.activeDocumentRelativePath
             ?? adapterEnrichment?.activeFilePath
@@ -2704,6 +2789,7 @@ final class AppCoordinator {
         recordingStartTime = Date()
         capturedAdapterCapabilities = nil
         capturedRoutingSignal = nil
+        cancelPendingContextSessionRefresh()
         contextSessionState = nil
         lastFocusOrWindowUpdateAt = nil
 

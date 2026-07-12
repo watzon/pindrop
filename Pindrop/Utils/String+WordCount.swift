@@ -9,9 +9,19 @@ import Foundation
 
 extension String {
     /// Number of whitespace/newline-delimited tokens, ignoring empty segments.
+    ///
+    /// Single linear scan — no intermediate `split`/`filter` arrays.
     var wordCount: Int {
-        split(whereSeparator: { $0.isWhitespace || $0.isNewline })
-            .filter { !$0.isEmpty }
-            .count
+        var count = 0
+        var inWord = false
+        for character in self {
+            if character.isWhitespace || character.isNewline {
+                inWord = false
+            } else if !inWord {
+                count += 1
+                inWord = true
+            }
+        }
+        return count
     }
 }

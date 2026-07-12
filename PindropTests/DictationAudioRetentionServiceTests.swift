@@ -328,6 +328,157 @@ struct DictationAudioRetentionServiceTests {
         #expect(try fixture.sut.diskUsage().snippetCount == 0)
     }
 
+    // MARK: - Finite / off / forever scheduling
+
+    @Test func testFiniteRetentionDays30SweepsOnlyPastWindow() throws {
+        let fixedNow = Date(timeIntervalSince1970: 1_700_000_000)
+        let fixture = try makeFixture(retention: .days30, now: fixedNow)
+        defer { cleanup(fixture) }
+
+        let expiredID = UUID()
+        let freshID = UUID()
+        let expiredURL = try writeFixtureAudio(for: expiredID, in: fixture.directoryURL)
+        let freshURL = try writeFixtureAudio(for: freshID, in: fixture.directoryURL)
+
+        let expiredRecord = try fixture.historyStore.save(
+            text: "older than 30 days",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording,
+            managedMediaPath: expiredURL.path
+        )
+        expiredRecord.timestamp = fixedNow.addingTimeInterval(-31 * 24 * 60 * 60)
+
+        let freshRecord = try fixture.historyStore.save(
+            text: "inside 30 day window",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording,
+            managedMediaPath: freshURL.path
+        )
+        freshRecord.timestamp = fixedNow.addingTimeInterval(-10 * 24 * 60 * 60)
+        try fixture.historyStore.saveContext()
+
+        let result = try fixture.sut.sweepExpired()
+
+        #expect(result.deletedCount == 1)
+        #expect(!FileManager.default.fileExists(atPath: expiredURL.path))
+        #expect(FileManager.default.fileExists(atPath: freshURL.path))
+        #expect(try fixture.historyStore.fetchRecord(with: expiredRecord.id)?.managedMediaPath == nil)
+        #expect(try fixture.historyStore.fetchRecord(with: freshRecord.id)?.managedMediaPath == freshURL.path)
+        #expect(try fixture.historyStore.fetchRecord(with: expiredRecord.id)?.text == "older than 30 days")
+    }
+
+    @Test func testSweepWithOffDeletesNothingExistingFiles() throws {
+        let fixedNow = Date(timeIntervalSince1970: 1_700_000_000)
+        let fixture = try makeFixture(retention: .off, now: fixedNow)
+        defer { cleanup(fixture) }
+
+        let mediaURL = try writeFixtureAudio(for: UUID(), in: fixture.directoryURL)
+        let record = try fixture.historyStore.save(
+            text: "already on disk before policy off",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording,
+            managedMediaPath: mediaURL.path
+        )
+        record.timestamp = fixedNow.addingTimeInterval(-90 * 24 * 60 * 60)
+        try fixture.historyStore.saveContext()
+
+        let result = try fixture.sut.sweepExpired()
+        #expect(result.deletedCount == 0)
+        #expect(FileManager.default.fileExists(atPath: mediaURL.path))
+        #expect(try fixture.historyStore.fetchRecord(with: record.id)?.managedMediaPath == mediaURL.path)
+    }
+
+    @Test func testSchedulePersistAttachesPathWhenRetentionIsForever() async throws {
+        let fixture = try makeFixture(retention: .forever)
+        defer { cleanup(fixture) }
+
+        let record = try fixture.historyStore.save(
+            text: "forever audio",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording
+        )
+
+        fixture.sut.schedulePersist(pcmFloatData: makeSinePCM(), recordID: record.id)
+
+        var attachedPath: String?
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            if let path = try fixture.historyStore.fetchRecord(with: record.id)?.managedMediaPath {
+                attachedPath = path
+                break
+            }
+        }
+
+        let path = try #require(attachedPath)
+        #expect(FileManager.default.fileExists(atPath: path))
+        #expect(path.hasSuffix(".m4a"))
+    }
+
+    // MARK: - Superseded persist cancellation
+
+    @Test func testSupersededPersistKeepsOnlyWinnerAttachment() async throws {
+        let fixture = try makeFixture(retention: .days7)
+        defer { cleanup(fixture) }
+
+        let record = try fixture.historyStore.save(
+            text: "supersede encode",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording
+        )
+        let recordID = record.id
+        let expectedMediaURL = fixture.directoryURL
+            .appendingPathComponent(recordID.uuidString)
+            .appendingPathExtension("m4a")
+
+        // Longer first encode is more likely still in flight when superseded.
+        fixture.sut.schedulePersist(
+            pcmFloatData: makeSinePCM(seconds: 1.0, frequency: 220),
+            recordID: recordID
+        )
+        fixture.sut.schedulePersist(
+            pcmFloatData: makeSinePCM(seconds: 0.2, frequency: 880),
+            recordID: recordID
+        )
+
+        var attachedPath: String?
+        for _ in 0..<80 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            if let path = try fixture.historyStore.fetchRecord(with: recordID)?.managedMediaPath {
+                attachedPath = path
+                break
+            }
+        }
+
+        let path = try #require(attachedPath)
+        #expect(path == expectedMediaURL.path)
+        #expect(FileManager.default.fileExists(atPath: path))
+
+        // Winner-only: one linked m4a, one peaks sidecar, no leftover temp encode files.
+        let usage = try fixture.sut.diskUsage()
+        #expect(usage.snippetCount == 1)
+
+        let items = try FileManager.default.contentsOfDirectory(
+            at: fixture.directoryURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        let m4aNames = items
+            .filter { $0.pathExtension.lowercased() == "m4a" }
+            .map(\.lastPathComponent)
+        #expect(m4aNames == ["\(recordID.uuidString).m4a"])
+        #expect(FileManager.default.fileExists(atPath: WaveformPeaks.sidecarURL(for: expectedMediaURL).path))
+
+        // Settle briefly and re-check: a cancelled loser must not re-attach or reintroduce orphans.
+        try await Task.sleep(nanoseconds: 150_000_000)
+        #expect(try fixture.historyStore.fetchRecord(with: recordID)?.managedMediaPath == path)
+        #expect(try fixture.sut.diskUsage().snippetCount == 1)
+    }
+
     // MARK: - Disk usage
 
     @Test func testDiskUsageAggregation() throws {
@@ -490,6 +641,94 @@ struct WaveformPeaksTests {
         #expect(peaks.count == 200)
         #expect((peaks.max() ?? 0) > 0.5)
         #expect(peaks.allSatisfy { $0 >= 0 && $0 <= 1.0 + 0.001 })
+    }
+
+    @Test func testChunkedExtractProducesExpectedBucketsForLongAudio() throws {
+        // Duration long enough that extraction walks multiple 16_384-frame chunks.
+        let wavURL = try writeSineWaveWAV(duration: 3.0)
+        defer { try? FileManager.default.removeItem(at: wavURL) }
+
+        let peaks = try WaveformPeaks.extract(from: wavURL, bucketCount: 200)
+        #expect(peaks.count == 200)
+        #expect((peaks.max() ?? 0) > 0.5)
+        #expect(peaks.allSatisfy { $0 >= 0 && $0 <= 1.0 + 0.001 })
+
+        // Non-zero energy should appear in more than a single bucket for a continuous tone.
+        let energeticBuckets = peaks.filter { $0 > 0.1 }.count
+        #expect(energeticBuckets > 10)
+    }
+
+    @Test func testChunkedExtractThrowsWhenTaskCancelled() async throws {
+        let wavURL = try writeSineWaveWAV(duration: 4.0)
+        defer { try? FileManager.default.removeItem(at: wavURL) }
+
+        let gate = ExtractionCancellationGate()
+        let task = Task.detached {
+            await gate.waitForRelease()
+            return try WaveformPeaks.extract(from: wavURL, bucketCount: 400)
+        }
+        task.cancel()
+        await gate.release()
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+    }
+
+    @Test func testPCMFileExtractMatchesBucketCountAndCancels() async throws {
+        let sampleRate = 16_000.0
+        let frameCount = Int(2.0 * sampleRate)
+        var samples = [Float](repeating: 0, count: frameCount)
+        for i in 0..<frameCount {
+            samples[i] = sin(2 * Float.pi * 440 * Float(i) / Float(sampleRate)) * 0.55
+        }
+        let pcmURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-pcm-\(UUID().uuidString)")
+            .appendingPathExtension("pcm")
+        defer { try? FileManager.default.removeItem(at: pcmURL) }
+        try samples.withUnsafeBufferPointer { Data(buffer: $0) }.write(to: pcmURL)
+
+        let peaks = try WaveformPeaks.extract(
+            fromPCMFloatFile: pcmURL,
+            sampleRate: sampleRate,
+            bucketCount: 200
+        )
+        #expect(peaks.count == 200)
+        #expect((peaks.max() ?? 0) > 0.5)
+
+        let gate = ExtractionCancellationGate()
+        let cancelled = Task.detached {
+            await gate.waitForRelease()
+            return try WaveformPeaks.extract(
+                fromPCMFloatFile: pcmURL,
+                sampleRate: sampleRate,
+                bucketCount: 200
+            )
+        }
+        cancelled.cancel()
+        await gate.release()
+        await #expect(throws: CancellationError.self) {
+            _ = try await cancelled.value
+        }
+    }
+}
+
+private actor ExtractionCancellationGate {
+    private var isReleased = false
+    private var releaseContinuation: CheckedContinuation<Void, Never>?
+
+    func waitForRelease() async {
+        guard !isReleased else { return }
+        await withCheckedContinuation { continuation in
+            releaseContinuation = continuation
+        }
+    }
+
+    func release() {
+        guard !isReleased else { return }
+        isReleased = true
+        releaseContinuation?.resume()
+        releaseContinuation = nil
     }
 }
 

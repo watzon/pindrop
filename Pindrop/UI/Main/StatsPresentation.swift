@@ -108,6 +108,12 @@ struct StatsSnapshot: Equatable, Sendable {
 }
 
 enum StatsService {
+    /// Lightweight Sendable projection of SwiftData models for aggregation.
+    /// Keeps managed models off any background isolation boundary.
+    static func project(_ records: [TranscriptionRecord]) -> [StatsRecord] {
+        records.map(record(from:))
+    }
+
     static func record(from record: TranscriptionRecord) -> StatsRecord {
         StatsRecord(
             timestamp: record.timestamp,

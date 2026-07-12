@@ -44,31 +44,14 @@ struct LibraryExpandedPlayerCard: View {
         ) {
             metaRow
         } player: {
-            PlayerRow(
+            // Clock-dependent UI only — static chrome/meta/actions stay outside
+            // the 0.25s playback observation graph.
+            LibraryExpandedPlaybackControls(
+                controller: playbackController,
                 peaks: peaks,
-                progress: playbackProgress,
-                isPlaying: playbackController.isPlaying,
-                elapsedTotalLabel: elapsedTotalLabel,
-                rateLabel: LibraryPlaybackRate.label(for: playbackRate),
-                onTogglePlay: {
-                    playbackController.togglePlayback()
-                    if playbackController.isPlaying {
-                        playbackController.setRate(playbackRate)
-                    }
-                },
-                onSeek: { fraction in
-                    let duration = effectiveDuration
-                    guard duration > 0 else { return }
-                    playbackController.seek(to: fraction * duration)
-                },
-                onCycleRate: {
-                    let next = LibraryPlaybackRate.next(after: playbackRate)
-                    playbackRate = next
-                    if playbackController.isPlaying {
-                        playbackController.setRate(next)
-                    }
-                },
-                rateHelp: localized("Playback speed", locale: locale)
+                fallbackDuration: record.duration,
+                playbackRate: $playbackRate,
+                locale: locale
             )
         } actions: {
             actionsRow
@@ -76,19 +59,18 @@ struct LibraryExpandedPlayerCard: View {
         .task(id: record.id) {
             guard let mediaURL = record.managedMediaURL else {
                 peaks = []
+                playbackController.teardownPlayback()
                 return
             }
             playbackController.load(url: mediaURL)
-            // Peak extraction can decode the whole file — never on the main actor.
+            // Peak extraction can decode large files — never on the main actor.
             let loaded = await Task.detached(priority: .userInitiated) {
                 (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
             }.value
             peaks = loaded
         }
         .onDisappear {
-            if playbackController.isPlaying {
-                playbackController.togglePlayback()
-            }
+            playbackController.teardownPlayback()
         }
     }
 
@@ -134,25 +116,6 @@ struct LibraryExpandedPlayerCard: View {
         .frame(minHeight: 20)
     }
 
-    /// The loaded asset's duration is authoritative — the record's metadata duration
-    /// can exceed the file's (trimmed trailing silence), which left the playhead
-    /// stranded short of the end at playback finish. Metadata is only a placeholder
-    /// until the player loads.
-    private var effectiveDuration: Double {
-        playbackController.duration > 0 ? playbackController.duration : record.duration
-    }
-
-    private var playbackProgress: Double {
-        let duration = effectiveDuration
-        guard duration > 0 else { return 0 }
-        return min(1, max(0, playbackController.currentTime / duration))
-    }
-
-    private var elapsedTotalLabel: String {
-        let elapsed = playbackController.currentTime
-        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: effectiveDuration))"
-    }
-
     // MARK: - Actions
 
     private var actionsRow: some View {
@@ -181,5 +144,62 @@ struct LibraryExpandedPlayerCard: View {
                 action: onDelete
             )
         }
+    }
+}
+
+/// Narrow observer: only this subtree re-evaluates on playback clock ticks.
+private struct LibraryExpandedPlaybackControls: View {
+    let controller: MediaPlaybackController
+    let peaks: [Float]
+    let fallbackDuration: TimeInterval
+    @Binding var playbackRate: Float
+    let locale: Locale
+
+    /// The loaded asset's duration is authoritative — the record's metadata duration
+    /// can exceed the file's (trimmed trailing silence), which left the playhead
+    /// stranded short of the end at playback finish. Metadata is only a placeholder
+    /// until the player loads.
+    private var effectiveDuration: Double {
+        controller.duration > 0 ? controller.duration : fallbackDuration
+    }
+
+    private var playbackProgress: Double {
+        let duration = effectiveDuration
+        guard duration > 0 else { return 0 }
+        return min(1, max(0, controller.currentTime / duration))
+    }
+
+    private var elapsedTotalLabel: String {
+        let elapsed = controller.currentTime
+        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: effectiveDuration))"
+    }
+
+    var body: some View {
+        PlayerRow(
+            peaks: peaks,
+            progress: playbackProgress,
+            isPlaying: controller.isPlaying,
+            elapsedTotalLabel: elapsedTotalLabel,
+            rateLabel: LibraryPlaybackRate.label(for: playbackRate),
+            onTogglePlay: {
+                controller.togglePlayback()
+                if controller.isPlaying {
+                    controller.setRate(playbackRate)
+                }
+            },
+            onSeek: { fraction in
+                let duration = effectiveDuration
+                guard duration > 0 else { return }
+                controller.seek(to: fraction * duration)
+            },
+            onCycleRate: {
+                let next = LibraryPlaybackRate.next(after: playbackRate)
+                playbackRate = next
+                if controller.isPlaying {
+                    controller.setRate(next)
+                }
+            },
+            rateHelp: localized("Playback speed", locale: locale)
+        )
     }
 }

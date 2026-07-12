@@ -69,6 +69,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let storeRepairService = SwiftDataStoreRepairService()
     private var lastSettingsPresentationSnapshot: SettingsPresentationSnapshot?
     private var pendingSettingsPresentationUpdate: Task<Void, Never>?
+    /// Temporary menu-bar surface shown while store probing / ModelContainer setup
+    /// blocks the main thread. Owned only by AppDelegate; removed before the real
+    /// `StatusBarController` item is ensured so ownership never overlaps.
+    private var earlyLaunchStatusItem: NSStatusItem?
 
     private var currentLocale: Locale {
         settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
@@ -91,7 +95,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             Log.boot.info("Boot aborted: XCTest environment")
             return
         }
-        
+
+        installEarlyLaunchStatusItem()
+
         Log.boot.info("Preparing SwiftData store location")
         do {
             try storeRepairService.prepareStoreLocation()
@@ -108,6 +114,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard repairOutcome.repaired else {
                     Log.boot.error("SwiftData repair not applied; terminating")
                     showModelContainerErrorAlert(error: initialError)
+                    removeEarlyLaunchStatusItem()
                     NSApplication.shared.terminate(nil)
                     return
                 }
@@ -120,6 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 Log.app.error("Failed to repair ModelContainer store: \(describe(error: error))")
                 Log.boot.error("ModelContainer repair retry failed: \(describe(error: error))")
                 showModelContainerErrorAlert(error: initialError)
+                removeEarlyLaunchStatusItem()
                 NSApplication.shared.terminate(nil)
                 return
             }
@@ -127,11 +135,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         guard let container = modelContainer else {
             Log.boot.error("ModelContainer nil after setup; terminating")
+            removeEarlyLaunchStatusItem()
             NSApplication.shared.terminate(nil)
             return
         }
         
         let context = container.mainContext
+        // Atomic handoff: drop the launch placeholder immediately before constructing
+        // AppCoordinator / StatusBarController, which allocates the real item in init.
+        // There must never be two live Pindrop status items at any handoff point.
+        removeEarlyLaunchStatusItem()
         Log.boot.info("Constructing AppCoordinator")
         coordinator = AppCoordinator(modelContext: context, modelContainer: container)
         settingsStore = coordinator?.settingsStore
@@ -157,7 +170,102 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             Log.boot.info("coordinator.start() returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         }
     }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard !Self.isPreview, !Self.isRunningTests, !Self.isRunningUITests else {
+            return .terminateNow
+        }
+        // Enqueue tracked mid-debounce drafts, close every live editor window,
+        // re-enqueue tracked drafts, then await each note's latest save task.
+        Task { @MainActor in
+            await NoteEditorPersistenceController.shared.prepareForTermination()
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
+    }
     
+
+    // MARK: - Early Launch Status Item
+
+    private func installEarlyLaunchStatusItem() {
+        guard earlyLaunchStatusItem == nil else { return }
+
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        earlyLaunchStatusItem = statusItem
+
+        if let button = statusItem.button {
+            button.imagePosition = .imageOnly
+            button.appearsDisabled = false
+            button.image = earlyLaunchStatusIcon()
+            button.image?.isTemplate = true
+            button.toolTip = "Pindrop"
+        }
+
+        let locale = currentLocale
+        let menu = NSMenu()
+
+        let startingItem = NSMenuItem(
+            title: localized("Starting…", locale: locale),
+            action: nil,
+            keyEquivalent: ""
+        )
+        startingItem.isEnabled = false
+        menu.addItem(startingItem)
+
+        // Keep the surface usable if store probing hangs — never trap the user.
+        menu.addItem(NSMenuItem.separator())
+        let quitItem = NSMenuItem(
+            title: localized("Quit Pindrop", locale: locale),
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        menu.addItem(quitItem)
+
+        statusItem.menu = menu
+        Log.boot.info("Early launch status item installed")
+    }
+
+    private func removeEarlyLaunchStatusItem() {
+        guard let statusItem = earlyLaunchStatusItem else { return }
+
+        if let menu = statusItem.menu {
+            for item in menu.items {
+                item.target = nil
+                item.action = nil
+            }
+            statusItem.menu = nil
+        }
+
+        if let button = statusItem.button {
+            button.target = nil
+            button.action = nil
+            button.menu = nil
+        }
+
+        NSStatusBar.system.removeStatusItem(statusItem)
+        earlyLaunchStatusItem = nil
+        Log.boot.info("Early launch status item removed")
+    }
+
+    private func earlyLaunchStatusIcon() -> NSImage? {
+        if let customIcon = NSImage(named: "PindropIcon") {
+            let targetSize: CGFloat = 18
+            let resizedIcon = NSImage(size: NSSize(width: targetSize, height: targetSize))
+            resizedIcon.lockFocus()
+            NSGraphicsContext.current?.imageInterpolation = .high
+            customIcon.draw(
+                in: NSRect(x: 0, y: 0, width: targetSize, height: targetSize),
+                from: NSRect(origin: .zero, size: customIcon.size),
+                operation: .copy,
+                fraction: 1.0
+            )
+            resizedIcon.unlockFocus()
+            resizedIcon.isTemplate = true
+            return resizedIcon
+        }
+        return NSImage(systemSymbolName: "mic.fill", accessibilityDescription: "Pindrop")
+    }
+
     private func setupMainMenu() {
         Log.app.infoVisible("Rebuilding main menu for locale=\(currentLocale.identifier)")
         let locale = currentLocale

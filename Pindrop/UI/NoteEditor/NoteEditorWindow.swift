@@ -17,6 +17,10 @@ import Foundation
 @MainActor
 final class NoteEditorWindowController: NSObject, NSWindowDelegate {
 
+    /// Process-wide weak set of editors that still own a live window/hosting controller.
+    /// Used at quit so unscheduled drafts can be force-closed and enqueued before flush.
+    private static let liveEditors = NSHashTable<NoteEditorWindowController>.weakObjects()
+
     private var window: NSWindow?
     private var hostingController: NSHostingController<AnyView>?
     private var modelContainer: ModelContainer?
@@ -27,6 +31,10 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
 
     private var note: NoteSchema.Note?
     private var isNewNote: Bool = false
+    /// Note currently hosted by this window (for replacement flush ordering).
+    private var openNoteModelID: PersistentIdentifier?
+    /// Bumps on every `show` so a superseded replacement presentation aborts.
+    private var presentationGeneration: UInt = 0
 
     override init() {
         super.init()
@@ -40,19 +48,35 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
         self.note = note
         self.isNewNote = isNewNote
 
+        presentationGeneration &+= 1
+        let generation = presentationGeneration
+        let previousModelID = openNoteModelID
+
         // Always rebuild so ⌘N / open-from-history can replace an already-open editor.
+        // Close first so the view can enqueue its newest draft, then await durability
+        // before presenting the replacement — preventing stale close writes from racing.
         if window != nil {
-            window?.delegate = nil
-            window?.close()
-            window = nil
-            hostingController = nil
-            themeCancellable = nil
+            Task { @MainActor in
+                self.tearDownWindow(notifyClose: false)
+                if let previousModelID {
+                    await NoteEditorPersistenceController.shared.flush(modelID: previousModelID)
+                }
+                guard generation == self.presentationGeneration else { return }
+                self.presentEditor(note: note, isNewNote: isNewNote)
+            }
+            return
         }
 
+        presentEditor(note: note, isNewNote: isNewNote)
+    }
+
+    private func presentEditor(note: NoteSchema.Note?, isNewNote: Bool) {
         guard let container = modelContainer else {
             Log.ui.error("ModelContainer not set - cannot show NoteEditorWindow")
             return
         }
+
+        openNoteModelID = note?.persistentModelID
 
         let appLocale = AppLocale.currentSelection()
         let contentView = NoteEditorView(
@@ -96,6 +120,7 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
 
         self.hostingController = hostingController
         self.window = window
+        registerAsLive()
         themeCancellable = PindropThemeController.shared.$revision.sink { [weak self] _ in
             guard let self else { return }
             PindropThemeController.shared.apply(to: self.window)
@@ -103,6 +128,23 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
 
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func tearDownWindow(notifyClose: Bool) {
+        unregisterAsLive()
+        if notifyClose {
+            onClose?()
+        }
+        // Keep openNoteModelID for the caller that is about to flush; clear after.
+        // Always close — including hidden/orderOut windows — so termination does
+        // not skip drafts merely because the window is not visible/miniaturized.
+        // Hosting controller stays attached until after close so onDisappear can
+        // still act as a redundant normal-close enqueue path.
+        window?.close()
+        window = nil
+        hostingController = nil
+        themeCancellable = nil
+        openNoteModelID = nil
     }
 
     private func updateWindowLevel(isPinned: Bool) {
@@ -114,10 +156,42 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
-        onClose?()
+        unregisterAsLive()
+        let modelID = openNoteModelID
+        openNoteModelID = nil
         window = nil
+        // Drop the hosting controller so SwiftUI onDisappear enqueues the final draft
+        // onto the shared owner before we await durability.
         hostingController = nil
         themeCancellable = nil
+
+        Task { @MainActor in
+            // Flush any close-enqueued draft; tracked-draft termination does not
+            // depend on this path or Task.yield ordering.
+            if let modelID {
+                await NoteEditorPersistenceController.shared.flush(modelID: modelID)
+            }
+            self.onClose?()
+        }
+    }
+
+    /// Force-close every live editor while the hosting controller is still attached.
+    /// onDisappear remains a redundant normal-close path; tracked drafts are the source of truth.
+    fileprivate static func closeAllLiveEditorsForTermination() {
+        let controllers = liveEditors.allObjects
+        for controller in controllers {
+            // notifyClose: false — app is quitting; no UI bookkeeping needed.
+            controller.tearDownWindow(notifyClose: false)
+        }
+        liveEditors.removeAllObjects()
+    }
+
+    private func registerAsLive() {
+        Self.liveEditors.add(self)
+    }
+
+    private func unregisterAsLive() {
+        Self.liveEditors.remove(self)
     }
 }
 
@@ -141,8 +215,12 @@ struct NoteEditorView: View {
     @State private var lastSavedSnapshot: NoteSnapshot?
     @State private var editorID = UUID()
     @State private var lastEditedAt = Date()
+    /// Displayed word count — updated independently of Markdown editor rendering.
+    @State private var displayedWordCount = 0
+    @State private var wordCountTask: Task<Void, Never>?
 
-    @ObservedObject private var appendListeningState = NoteAppendListeningCoordinator.shared.state
+    /// Ownership + processing only — does NOT observe 4Hz `elapsed` ticks.
+    @ObservedObject private var appendSessionState = NoteAppendListeningCoordinator.shared.sessionState
 
     @Environment(\.locale) private var locale
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -166,12 +244,12 @@ struct NoteEditorView: View {
     }
 
     private var isThisEditorListening: Bool {
-        appendListeningState.activeEditorID == editorID
-            && (appendListeningState.isListening || appendListeningState.isProcessing)
+        appendSessionState.activeEditorID == editorID
+            && (appendSessionState.isListening || appendSessionState.isProcessing)
     }
 
     private var wordCountLabel: String {
-        let count = content.wordCount
+        let count = displayedWordCount
         if count == 1 {
             return localized("1 word", locale: locale)
         }
@@ -187,13 +265,6 @@ struct NoteEditorView: View {
         return "\(wordCountLabel) · \(localized("edited", locale: locale)) \(relative)"
     }
 
-    private var listeningElapsedLabel: String {
-        let total = Int(appendListeningState.elapsed)
-        let minutes = total / 60
-        let seconds = total % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             titlebarAccessory
@@ -202,9 +273,11 @@ struct NoteEditorView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if isThisEditorListening {
-                listeningChip
-                    .padding(.horizontal, 24)
-                    .padding(.top, 6)
+                NoteAppendListeningChip(
+                    isProcessing: appendSessionState.isProcessing
+                )
+                .padding(.horizontal, 24)
+                .padding(.top, 6)
             }
 
             footerView
@@ -212,26 +285,61 @@ struct NoteEditorView: View {
         .background(AppColors.contentBackground)
         .themeRefresh()
         .onAppear {
-            loadNoteData()
-            if isNewNote {
-                createNoteIfNeeded()
-                titleFieldFocused = true
+            // Await any in-flight close write for this note before loading so a
+            // reopened editor never starts from a pre-close snapshot.
+            if let existing = note {
+                let modelID = existing.persistentModelID
+                Task { @MainActor in
+                    await NoteEditorPersistenceController.shared.flush(modelID: modelID)
+                    if let refreshed = modelContext.model(for: modelID) as? NoteSchema.Note {
+                        title = refreshed.title
+                        content = refreshed.content
+                        isPinned = refreshed.isPinned
+                        tags = refreshed.tags
+                        lastEditedAt = refreshed.updatedAt
+                        if !isNewNote {
+                            currentNote = refreshed
+                        }
+                        lastSavedSnapshot = NoteSnapshot(note: refreshed)
+                        displayedWordCount = refreshed.content.wordCount
+                    } else {
+                        loadNoteData()
+                        refreshWordCountImmediately()
+                    }
+                    if isNewNote {
+                        createNoteIfNeeded()
+                        titleFieldFocused = true
+                    } else {
+                        contentFieldFocused = true
+                    }
+                }
             } else {
-                contentFieldFocused = true
+                loadNoteData()
+                refreshWordCountImmediately()
+                if isNewNote {
+                    createNoteIfNeeded()
+                    titleFieldFocused = true
+                } else {
+                    contentFieldFocused = true
+                }
             }
         }
         .onDisappear {
             savedConfirmationTask?.cancel()
             autosaveTask?.cancel()
-            saveNote()
-            if appendListeningState.activeEditorID == editorID {
+            wordCountTask?.cancel()
+            // Synchronously enqueue the newest draft on the shared owner, then
+            // retain a flush task so close/quit can await durability.
+            enqueueCloseSaveIfNeeded()
+            if appendSessionState.activeEditorID == editorID {
                 NoteAppendListeningCoordinator.shared.requestStop(editorID: editorID)
             }
         }
         .onChange(of: title) { _, _ in
             noteDidChange()
         }
-        .onChange(of: content) { _, _ in
+        .onChange(of: content) { _, newValue in
+            scheduleWordCountUpdate(for: newValue)
             noteDidChange()
         }
         .onChange(of: isPinned) { _, newValue in
@@ -312,7 +420,7 @@ struct NoteEditorView: View {
                 ? localized("Stop listening", locale: locale)
                 : localized("Speak to append", locale: locale)
         )
-        .disabled(appendListeningState.isProcessing && isThisEditorListening)
+        .disabled(appendSessionState.isProcessing && isThisEditorListening)
     }
 
     // MARK: - Editor content
@@ -366,39 +474,6 @@ struct NoteEditorView: View {
 
             Spacer(minLength: 0)
         }
-    }
-
-    // MARK: - Listening chip (spec §10)
-
-    private var listeningChip: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(AppColors.recording)
-                .frame(width: 7, height: 7)
-
-            if appendListeningState.isProcessing {
-                Text(localized("Processing…", locale: locale))
-                    .font(AppTypography.label)
-                    .foregroundStyle(AppColors.textPrimary)
-            } else {
-                Text(localized("Listening — speak to append…", locale: locale))
-                    .font(AppTypography.label)
-                    .foregroundStyle(AppColors.textPrimary)
-            }
-
-            Spacer(minLength: 8)
-
-            Text(listeningElapsedLabel)
-                .font(AppTypography.monoSmall)
-                .foregroundStyle(AppColors.textSecondary)
-                .monospacedDigit()
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(AppColors.accentBackground)
-        )
     }
 
     // MARK: - Footer (spec §10)
@@ -464,6 +539,9 @@ struct NoteEditorView: View {
                 currentNote = note
             }
             lastSavedSnapshot = NoteSnapshot(note: note)
+            displayedWordCount = note.content.wordCount
+        } else {
+            displayedWordCount = 0
         }
     }
 
@@ -487,40 +565,143 @@ struct NoteEditorView: View {
         }
     }
 
-    private func saveNote() {
+    /// Persist the current draft. When `immediate` is false this is called after the 500ms debounce.
+    private func saveNote(immediate: Bool = false) {
         guard let noteToSave = currentNote else { return }
 
-        let snapshot = NoteSnapshot(
+        let snapshot = currentSnapshot()
+        guard snapshot != lastSavedSnapshot else {
+            if immediate {
+                // Still await any in-flight write for Cmd-S / close bookkeeping.
+                let modelID = noteToSave.persistentModelID
+                Task { @MainActor in
+                    await NoteEditorPersistenceController.shared.flush(modelID: modelID)
+                }
+            }
+            return
+        }
+
+        let modelID = noteToSave.persistentModelID
+        let editedAt = lastEditedAt
+        let container = modelContext.container
+
+        // Optimistic local bookkeeping so subsequent keystrokes compare against the pending draft.
+        lastSavedSnapshot = snapshot
+
+        if immediate {
+            // Close / Cmd-S: await the shared owner so the newest snapshot is durable
+            // before teardown or feedback completes.
+            Task { @MainActor in
+                let result = await NoteEditorPersistenceController.shared.saveAndWait(
+                    container: container,
+                    modelID: modelID,
+                    snapshot: snapshot,
+                    editedAt: editedAt
+                )
+                await handlePersistenceResult(
+                    result,
+                    modelID: modelID,
+                    noteToSave: noteToSave,
+                    snapshot: snapshot,
+                    editedAt: editedAt
+                )
+            }
+        } else {
+            // Nonblocking 500ms autosave path — generation arbitration lives on the shared owner.
+            let task = NoteEditorPersistenceController.shared.scheduleSave(
+                container: container,
+                modelID: modelID,
+                snapshot: snapshot,
+                editedAt: editedAt
+            )
+            Task { @MainActor in
+                let result = await task.value
+                await handlePersistenceResult(
+                    result,
+                    modelID: modelID,
+                    noteToSave: noteToSave,
+                    snapshot: snapshot,
+                    editedAt: editedAt
+                )
+            }
+        }
+    }
+
+    /// Enqueue the latest draft during disappear so a subsequent flush can await it.
+    private func enqueueCloseSaveIfNeeded() {
+        guard let noteToSave = currentNote else { return }
+        let snapshot = currentSnapshot()
+        guard snapshot != lastSavedSnapshot else { return }
+
+        lastSavedSnapshot = snapshot
+        _ = NoteEditorPersistenceController.shared.scheduleSave(
+            container: modelContext.container,
+            modelID: noteToSave.persistentModelID,
+            snapshot: snapshot,
+            editedAt: lastEditedAt
+        )
+    }
+
+    private func currentSnapshot() -> NoteSnapshot {
+        NoteSnapshot(
             title: title.isEmpty ? "Untitled Note" : title,
             content: content,
             isPinned: isPinned,
             tags: tags
         )
-        guard snapshot != lastSavedSnapshot else { return }
+    }
 
-        noteToSave.title = snapshot.title
-        noteToSave.content = snapshot.content
-        noteToSave.isPinned = snapshot.isPinned
-        noteToSave.tags = snapshot.tags
-        noteToSave.updatedAt = Date()
+    private func handlePersistenceResult(
+        _ result: NotePersistenceResult?,
+        modelID: PersistentIdentifier,
+        noteToSave: NoteSchema.Note,
+        snapshot: NoteSnapshot,
+        editedAt: Date
+    ) async {
+        guard let result else {
+            // Roll back optimistic snapshot so the next save attempt retries.
+            if lastSavedSnapshot == snapshot {
+                lastSavedSnapshot = nil
+            }
+            return
+        }
 
-        do {
-            try modelContext.save()
-            lastSavedSnapshot = snapshot
+        // Drop stale completions — a newer edit already supersedes this save.
+        guard result.applied,
+              result.generation == NoteEditorPersistenceController.shared.currentGeneration(for: modelID)
+        else { return }
+
+        // Refresh the managed model from the main context for the onSave callback.
+        if let refreshed = modelContext.model(for: modelID) as? NoteSchema.Note {
+            onSave(refreshed)
+        } else {
+            noteToSave.title = snapshot.title
+            noteToSave.content = snapshot.content
+            noteToSave.isPinned = snapshot.isPinned
+            noteToSave.tags = snapshot.tags
+            noteToSave.updatedAt = result.updatedAt ?? editedAt
             onSave(noteToSave)
-        } catch {
-            Log.app.error("Failed to save note: \(error)")
         }
     }
 
     private func saveNow() {
         autosaveTask?.cancel()
-        saveNote()
+        saveNote(immediate: true)
         showSavedFlash()
     }
 
     private func noteDidChange() {
         lastEditedAt = Date()
+        // Capture the latest draft synchronously before the 500ms debounce so quit
+        // can persist mid-debounce edits without relying on onDisappear timing.
+        if let noteToSave = currentNote {
+            NoteEditorPersistenceController.shared.trackDraft(
+                container: modelContext.container,
+                modelID: noteToSave.persistentModelID,
+                snapshot: currentSnapshot(),
+                editedAt: lastEditedAt
+            )
+        }
         autosaveTask?.cancel()
         autosaveTask = Task {
             do {
@@ -529,8 +710,30 @@ struct NoteEditorView: View {
                 return
             }
             guard !Task.isCancelled else { return }
-            saveNote()
+            saveNote(immediate: false)
         }
+    }
+
+    private func scheduleWordCountUpdate(for text: String) {
+        wordCountTask?.cancel()
+        // Short debounce so footer updates lag typing slightly without rescanning every keystroke.
+        wordCountTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(120))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            let count = text.wordCount
+            if displayedWordCount != count {
+                displayedWordCount = count
+            }
+        }
+    }
+
+    private func refreshWordCountImmediately() {
+        wordCountTask?.cancel()
+        displayedWordCount = content.wordCount
     }
 
     private func showSavedFlash() {
@@ -562,7 +765,65 @@ struct NoteEditorView: View {
     }
 }
 
-private struct NoteSnapshot: Equatable {
+// MARK: - Listening chip (isolated elapsed observation)
+
+/// Small child that alone observes 4Hz `elapsed` ticks from `NoteAppendListeningState`.
+/// Keeps Markdown editor / root from invalidating on every duration update.
+private struct NoteAppendListeningChip: View {
+    let isProcessing: Bool
+
+    @ObservedObject private var listeningState = NoteAppendListeningCoordinator.shared.state
+    @Environment(\.locale) private var locale
+
+    private var elapsedLabel: String {
+        let total = Int(listeningState.elapsed)
+        let minutes = total / 60
+        let seconds = total % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(AppColors.recording)
+                .frame(width: 7, height: 7)
+
+            if isProcessing {
+                Text(localized("Processing…", locale: locale))
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textPrimary)
+            } else {
+                Text(localized("Listening — speak to append…", locale: locale))
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textPrimary)
+            }
+
+            Spacer(minLength: 8)
+
+            Text(elapsedLabel)
+                .font(AppTypography.monoSmall)
+                .foregroundStyle(AppColors.textSecondary)
+                .monospacedDigit()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppColors.accentBackground)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            isProcessing
+                ? localized("Processing…", locale: locale)
+                : localized("Listening — speak to append…", locale: locale)
+        )
+        .accessibilityValue(elapsedLabel)
+    }
+}
+
+// MARK: - Snapshots & shared background persistence
+
+struct NoteSnapshot: Equatable, Sendable {
     let title: String
     let content: String
     let isPinned: Bool
@@ -585,15 +846,340 @@ private struct NoteSnapshot: Equatable {
     }
 }
 
+struct NotePersistenceResult: Sendable {
+    let applied: Bool
+    let generation: UInt
+    let updatedAt: Date?
+}
+
+enum NoteEditorPersistenceError: Error {
+    case noteMissing
+}
+
+/// Shared per-process note-editor persistence owner.
+///
+/// Serializes generation / edited-at arbitration across editor instances for the
+/// same note so a close write from a destroyed view cannot overwrite a newer
+/// reopened edit. Pending tasks are retained here (not on the SwiftUI view) so
+/// close/quit can await durability after the editor is torn down.
+///
+/// Tracked drafts hold the latest value snapshot independently of debounce and
+/// `onDisappear`, so termination can enqueue mid-edit state even when SwiftUI
+/// lifecycle callbacks are delayed or skipped.
+@MainActor
+final class NoteEditorPersistenceController {
+    static let shared = NoteEditorPersistenceController()
+
+    private struct TrackedDraft {
+        let container: ModelContainer
+        var snapshot: NoteSnapshot
+        var editedAt: Date
+    }
+
+    private var actors: [ObjectIdentifier: NoteEditorPersistenceActor] = [:]
+    private var generations: [PersistentIdentifier: UInt] = [:]
+    /// Newest edit timestamp accepted at the scheduling boundary for each note.
+    /// Rejects later-enqueued but earlier-edited snapshots regardless of generation.
+    private var newestAcceptedEditedAt: [PersistentIdentifier: Date] = [:]
+    private var pendingSaves: [PersistentIdentifier: Task<NotePersistenceResult?, Never>] = [:]
+    /// Latest unsaved (or not-yet-confirmed) draft per note, updated synchronously
+    /// on every editor change. Tracking performs no I/O.
+    private var trackedDrafts: [PersistentIdentifier: TrackedDraft] = [:]
+
+    private init() {}
+
+    /// Highest generation scheduled for `modelID` (0 if none).
+    func currentGeneration(for modelID: PersistentIdentifier) -> UInt {
+        generations[modelID] ?? 0
+    }
+
+    /// Synchronously record the latest draft values for termination durability.
+    /// Keeps the newer `editedAt` when a stale track races a fresher one. No I/O.
+    func trackDraft(
+        container: ModelContainer,
+        modelID: PersistentIdentifier,
+        snapshot: NoteSnapshot,
+        editedAt: Date
+    ) {
+        if let existing = trackedDrafts[modelID], editedAt < existing.editedAt {
+            return
+        }
+        trackedDrafts[modelID] = TrackedDraft(
+            container: container,
+            snapshot: snapshot,
+            editedAt: editedAt
+        )
+    }
+
+    /// Nonblocking enqueue used by the 500ms autosave path and close disappear.
+    @discardableResult
+    func scheduleSave(
+        container: ModelContainer,
+        modelID: PersistentIdentifier,
+        snapshot: NoteSnapshot,
+        editedAt: Date
+    ) -> Task<NotePersistenceResult?, Never> {
+        // Edit-time ordering at the scheduling boundary: a later-scheduled but
+        // earlier-edited snapshot must not bump generation or replace pending work.
+        if let newest = newestAcceptedEditedAt[modelID], editedAt < newest {
+            let generation = generations[modelID] ?? 0
+            return Task { @MainActor in
+                NotePersistenceResult(applied: false, generation: generation, updatedAt: nil)
+            }
+        }
+        if let newest = newestAcceptedEditedAt[modelID] {
+            if editedAt > newest {
+                newestAcceptedEditedAt[modelID] = editedAt
+            }
+        } else {
+            newestAcceptedEditedAt[modelID] = editedAt
+        }
+
+        generations[modelID, default: 0] &+= 1
+        let generation = generations[modelID] ?? 0
+        let actor = persistenceActor(for: container)
+
+        let task = Task<NotePersistenceResult?, Never> { @MainActor in
+            do {
+                let result = try await actor.save(
+                    modelID: modelID,
+                    snapshot: snapshot,
+                    editedAt: editedAt,
+                    generation: generation
+                )
+                if result.applied {
+                    self.clearTrackedDraftIfApplied(
+                        modelID: modelID,
+                        snapshot: snapshot,
+                        editedAt: editedAt
+                    )
+                }
+                return result
+            } catch {
+                Log.app.error("Failed to save note: \(error)")
+                return nil
+            }
+        }
+        pendingSaves[modelID] = task
+        return task
+    }
+
+    /// Schedule the newest snapshot and await its completion (Cmd-S / explicit flush).
+    @discardableResult
+    func saveAndWait(
+        container: ModelContainer,
+        modelID: PersistentIdentifier,
+        snapshot: NoteSnapshot,
+        editedAt: Date
+    ) async -> NotePersistenceResult? {
+        let task = scheduleSave(
+            container: container,
+            modelID: modelID,
+            snapshot: snapshot,
+            editedAt: editedAt
+        )
+        return await task.value
+    }
+
+    /// Await the newest in-flight save for a note (close / reopen / quit).
+    func flush(modelID: PersistentIdentifier) async {
+        await pendingSaves[modelID]?.value
+    }
+
+    /// Await every in-flight note save — used after termination enqueue.
+    func flushAll() async {
+        let tasks = Array(pendingSaves.values)
+        for task in tasks {
+            _ = await task.value
+        }
+    }
+
+    /// Application termination: enqueue every tracked latest draft independently of
+    /// SwiftUI `onDisappear`, close every registered window (any visibility),
+    /// re-enqueue tracked drafts to absorb synchronous final updates, then await
+    /// the resulting latest save task for each tracked note.
+    func prepareForTermination() async {
+        enqueueAllTrackedDrafts()
+        NoteEditorWindowController.closeAllLiveEditorsForTermination()
+        // Post-close re-enqueue absorbs any synchronous final track/update from
+        // close handlers without relying on Task.yield or onDisappear ordering.
+        enqueueAllTrackedDrafts()
+
+        // Await the latest save task for every note still tracked after the
+        // post-close enqueue — not a one-time snapshot of pre-close pendings.
+        let modelIDs = Array(trackedDrafts.keys)
+        for modelID in modelIDs {
+            await pendingSaves[modelID]?.value
+        }
+    }
+
+    /// Test seam: drop retained bookkeeping between deterministic cases.
+    func resetForTesting() {
+        actors.removeAll(keepingCapacity: false)
+        generations.removeAll(keepingCapacity: false)
+        newestAcceptedEditedAt.removeAll(keepingCapacity: false)
+        pendingSaves.removeAll(keepingCapacity: false)
+        trackedDrafts.removeAll(keepingCapacity: false)
+    }
+
+    /// Schedule every currently tracked draft. Pure scheduling — no await.
+    private func enqueueAllTrackedDrafts() {
+        let drafts = trackedDrafts
+        for (modelID, draft) in drafts {
+            _ = scheduleSave(
+                container: draft.container,
+                modelID: modelID,
+                snapshot: draft.snapshot,
+                editedAt: draft.editedAt
+            )
+        }
+    }
+
+    /// Drop a tracked draft only when the exact applied snapshot+timestamp is durable.
+    private func clearTrackedDraftIfApplied(
+        modelID: PersistentIdentifier,
+        snapshot: NoteSnapshot,
+        editedAt: Date
+    ) {
+        guard let tracked = trackedDrafts[modelID] else { return }
+        // Keep any draft that is not exactly the save that just applied:
+        // newer timestamps (still unsaved) and same-time different snapshots.
+        guard tracked.editedAt == editedAt, tracked.snapshot == snapshot else {
+            return
+        }
+        trackedDrafts.removeValue(forKey: modelID)
+    }
+
+    private func persistenceActor(for container: ModelContainer) -> NoteEditorPersistenceActor {
+        let key = ObjectIdentifier(container)
+        if let existing = actors[key] {
+            return existing
+        }
+        let created = NoteEditorPersistenceActor(modelContainer: container)
+        actors[key] = created
+        return created
+    }
+}
+
+/// Dedicated SwiftData model actor for note autosave.
+/// Accepts only persistent model IDs and value snapshots — never managed models.
+/// Generation arbitration is shared via `NoteEditorPersistenceController`.
+@ModelActor
+actor NoteEditorPersistenceActor {
+    /// Highest generation observed per model ID (rejects in-flight stale drafts).
+    private var latestGeneration: [PersistentIdentifier: UInt] = [:]
+    private var lastAppliedEditedAt: [PersistentIdentifier: Date] = [:]
+
+    func save(
+        modelID: PersistentIdentifier,
+        snapshot: NoteSnapshot,
+        editedAt: Date,
+        generation: UInt
+    ) throws -> NotePersistenceResult {
+        // Reject stale drafts before touching the store so an older in-flight
+        // save cannot overwrite a newer edit that has already been scheduled.
+        if let previous = latestGeneration[modelID], generation < previous {
+            return NotePersistenceResult(applied: false, generation: generation, updatedAt: nil)
+        }
+        // Edit-time ordering is independent of generation: a higher generation
+        // with an older editedAt still loses to the last applied edit.
+        if let previousEdit = lastAppliedEditedAt[modelID], editedAt < previousEdit {
+            return NotePersistenceResult(applied: false, generation: generation, updatedAt: nil)
+        }
+        latestGeneration[modelID] = generation
+
+        guard let note = modelContext.model(for: modelID) as? NoteSchema.Note else {
+            throw NoteEditorPersistenceError.noteMissing
+        }
+
+        // Re-check after model fetch: a newer generation may have arrived while we waited.
+        if latestGeneration[modelID] != generation {
+            return NotePersistenceResult(applied: false, generation: generation, updatedAt: nil)
+        }
+
+        // Skip no-op writes when store already matches the snapshot (except updatedAt).
+        let alreadyCurrent =
+            note.title == snapshot.title
+            && note.content == snapshot.content
+            && note.isPinned == snapshot.isPinned
+            && note.tags == snapshot.tags
+        let tagsChanged = note.tags != snapshot.tags
+
+        let updatedAt: Date
+        if alreadyCurrent {
+            updatedAt = note.updatedAt
+        } else {
+            note.title = snapshot.title
+            note.content = snapshot.content
+            note.isPinned = snapshot.isPinned
+            note.tags = snapshot.tags
+            // Prefer the edit timestamp captured on the main actor for last-edit semantics.
+            updatedAt = editedAt
+            note.updatedAt = updatedAt
+            // Final generation gate immediately before commit.
+            if latestGeneration[modelID] != generation {
+                // Discard local mutations; a newer save owns the store.
+                modelContext.rollback()
+                return NotePersistenceResult(applied: false, generation: generation, updatedAt: nil)
+            }
+            try modelContext.save()
+            if tagsChanged {
+                NotificationCenter.default.post(name: .pindropNoteTagsDidChange, object: nil)
+            }
+        }
+
+        lastAppliedEditedAt[modelID] = editedAt
+        return NotePersistenceResult(applied: true, generation: generation, updatedAt: updatedAt)
+    }
+}
+
 /// Bridges note-editor speak-to-append UI requests to AppCoordinator via notifications.
 @MainActor
 enum NoteAppendListeningCoordinator {
     static let shared = NoteAppendListeningCoordinatorBox()
 }
 
+/// Session ownership / processing flags without publishing 4Hz elapsed ticks.
+@MainActor
+final class NoteAppendSessionState: ObservableObject {
+    @Published private(set) var isListening = false
+    @Published private(set) var isProcessing = false
+    @Published private(set) var activeEditorID: UUID?
+
+    fileprivate func apply(isListening: Bool, isProcessing: Bool, activeEditorID: UUID?) {
+        if self.isListening != isListening { self.isListening = isListening }
+        if self.isProcessing != isProcessing { self.isProcessing = isProcessing }
+        if self.activeEditorID != activeEditorID { self.activeEditorID = activeEditorID }
+    }
+}
+
 @MainActor
 final class NoteAppendListeningCoordinatorBox {
     let state = NoteAppendListeningState()
+    /// Lightweight mirror of ownership/processing for the editor root (no elapsed).
+    let sessionState = NoteAppendSessionState()
+
+    private var sessionStateCancellable: AnyCancellable?
+
+    init() {
+        // All source mutations are main-actor isolated, so mirror synchronously.
+        // Scheduling onto RunLoop.main introduced a stale-state window between a
+        // session transition and the editor deciding whether Start or Stop applies.
+        sessionStateCancellable = state.$isListening
+            .combineLatest(state.$isProcessing, state.$activeEditorID)
+            .sink { [weak self] isListening, isProcessing, activeEditorID in
+                guard let self else { return }
+                self.sessionState.apply(
+                    isListening: isListening,
+                    isProcessing: isProcessing,
+                    activeEditorID: activeEditorID
+                )
+            }
+    }
+
+    deinit {
+        sessionStateCancellable?.cancel()
+    }
 
     func requestStart(editorID: UUID) {
         NotificationCenter.default.post(

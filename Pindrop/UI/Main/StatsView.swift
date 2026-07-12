@@ -16,14 +16,23 @@ struct StatsView: View {
     @State private var selectedRange: StatsRange = .thirtyDays
     @State private var selectedMetric: StatsMetric = .words
     @State private var hasAppeared = false
+    /// Aggregation cache keyed by history projection + range + calendar day.
+    /// Metric/animation state must not re-run `StatsService.compute`.
+    @State private var snapshotCache = StatsSnapshotCache()
 
     private var calendar: Calendar { Calendar.current }
 
     var body: some View {
         let now = Date()
-        let snapshot = StatsService.compute(
-            records: transcriptions.map(StatsService.record(from:)),
-            range: selectedRange,
+        let historyProjection = StatsService.project(transcriptions)
+        let snapshot = snapshotCache.snapshot(
+            for: StatsSnapshotCache.Key(
+                records: historyProjection,
+                range: selectedRange,
+                dayStart: calendar.startOfDay(for: now),
+                firstWeekday: calendar.firstWeekday,
+                timeZoneIdentifier: calendar.timeZone.identifier
+            ),
             calendar: calendar,
             now: now
         )
@@ -468,6 +477,41 @@ private struct HorizontalStatsBars: View {
             }
         }
         .onChange(of: metric) { _, _ in selectedID = nil }
+    }
+}
+
+// MARK: - Snapshot cache
+
+/// Recomputes `StatsSnapshot` only when the history projection, selected range,
+/// or calendar-day boundary changes. Stored in `@State` so metric picker and
+/// appear-animation flips reuse the same aggregate without re-aggregation.
+/// Class init stays nonisolated for `@State` default construction under Swift 5.9;
+/// mutation is method-isolated (`@MainActor` accessors only).
+private final class StatsSnapshotCache {
+    struct Key: Equatable {
+        let records: [StatsRecord]
+        let range: StatsRange
+        let dayStart: Date
+        let firstWeekday: Int
+        let timeZoneIdentifier: String
+    }
+
+    private var key: Key?
+    private var value: StatsSnapshot = .empty
+
+    @MainActor
+    func snapshot(for key: Key, calendar: Calendar, now: Date) -> StatsSnapshot {
+        if self.key == key {
+            return value
+        }
+        self.key = key
+        value = StatsService.compute(
+            records: key.records,
+            range: key.range,
+            calendar: calendar,
+            now: now
+        )
+        return value
     }
 }
 

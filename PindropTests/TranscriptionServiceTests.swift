@@ -279,6 +279,35 @@ struct TranscriptionServiceTests {
         #expect(mockDiarizer.diarizeCallCount == 0)
     }
 
+    @Test func nonDiarizedTranscriptionUsesEnginePathWithoutSampleConversion() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["tiny clip"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        // One float sample is enough for the no-diarization path; sample conversion
+        // and diarizer loading are reserved for the diarized branch.
+        var sample: Float = 0.25
+        let oneSample = Data(bytes: &sample, count: MemoryLayout<Float>.size)
+
+        let output = try await service.transcribe(
+            audioData: oneSample,
+            diarizationEnabled: false
+        )
+
+        #expect(output.text == "tiny clip")
+        #expect(output.diarizedSegments == nil)
+        #expect(mockEngine.transcribeCallCount == 1)
+        #expect(mockEngine.detectLanguageCallCount == 0)
+        #expect(mockDiarizer.loadModelsCallCount == 0)
+        #expect(mockDiarizer.diarizeCallCount == 0)
+    }
+
+
     @Test func extractsSpeakerProfileSegmentsWithoutRetranscribingText() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         let speaker = Speaker(id: "speaker-a", label: "", embedding: [0.2, 0.8])
@@ -905,31 +934,149 @@ struct TranscriptionServiceTests {
 
         service.setStreamingCallbacks(
             onPartial: { text in
-                Task {
-                    await collector.recordPartial(text)
-                }
+                await collector.recordPartial(text)
             },
             onFinalUtterance: { text in
-                Task {
-                    await collector.recordFinal(text)
-                }
+                await collector.recordFinal(text)
             }
         )
         try await service.prepareStreamingEngine()
+        try await mockStreamingEngine.waitUntilCallbacksInstalled()
 
         mockStreamingEngine.emitPartial("hello wor")
-        mockStreamingEngine.emitFinalUtterance("hello world")
+        try await collector.waitFor(
+            partials: ["hello wor"],
+            finals: []
+        )
 
-        var snapshot = await collector.snapshot()
-        for _ in 0..<20 where snapshot.partials != ["hello wor"] || snapshot.finals != ["hello world"] {
-            await Task.yield()
-            try? await Task.sleep(nanoseconds: 10_000_000)
-            snapshot = await collector.snapshot()
-        }
+        mockStreamingEngine.emitFinalUtterance("hello world")
+        try await collector.waitForFinals(["hello world"])
+        let snapshot = await collector.snapshot()
 
         #expect(snapshot.partials == ["hello wor"])
         #expect(snapshot.finals == ["hello world"])
     }
+
+    @Test func streamingPartialsCoalesceWhileAllFinalsDeliverInOrder() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        let collector = StreamingCallbackCollector()
+
+        service.setStreamingCallbacks(
+            onPartial: { text in
+                await collector.recordPartial(text)
+            },
+            onFinalUtterance: { text in
+                await collector.recordFinal(text)
+            }
+        )
+        try await service.prepareStreamingEngine()
+        try await mockStreamingEngine.waitUntilCallbacksInstalled()
+
+        // Burst partials, then a final, more partials, then more finals — the bridge
+        // must collapse consecutive partials and keep every final in arrival order.
+        mockStreamingEngine.emitPartial("h")
+        mockStreamingEngine.emitPartial("he")
+        mockStreamingEngine.emitPartial("hel")
+        mockStreamingEngine.emitPartial("hell")
+        mockStreamingEngine.emitPartial("hello")
+        mockStreamingEngine.emitFinalUtterance("hello")
+        mockStreamingEngine.emitPartial("w")
+        mockStreamingEngine.emitPartial("wo")
+        mockStreamingEngine.emitPartial("wor")
+        mockStreamingEngine.emitPartial("world")
+        mockStreamingEngine.emitFinalUtterance("world")
+        mockStreamingEngine.emitFinalUtterance("again")
+
+        let expectedFinals = ["hello", "world", "again"]
+        try await collector.waitForFinals(expectedFinals)
+        let snapshot = await collector.snapshot()
+
+        #expect(snapshot.finals == expectedFinals)
+        // Consecutive partials coalesce; at most one partial is retained between finals.
+        #expect(snapshot.partials.count <= 2)
+        #expect(Set(snapshot.partials).isSubset(of: ["hello", "world"]))
+        if snapshot.partials.count == 2 {
+            #expect(snapshot.partials == ["hello", "world"])
+        }
+    }
+
+    @Test func streamingResetWhileCallbackSuspendedKeepsSingleDrainAndSuppressesOldGeneration() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        let oldCollector = StreamingCallbackCollector()
+        let newCollector = StreamingCallbackCollector()
+        let gate = StreamingCallbackSuspendGate()
+
+        service.setStreamingCallbacks(
+            onPartial: { text in
+                await oldCollector.recordPartial(text)
+            },
+            onFinalUtterance: { text in
+                // First final suspends the sole drain task so reset can race it.
+                await gate.enterAndWait()
+                await oldCollector.recordFinal(text)
+            }
+        )
+        try await service.prepareStreamingEngine()
+        try await mockStreamingEngine.waitUntilCallbacksInstalled()
+
+        mockStreamingEngine.emitFinalUtterance("old-session")
+        await gate.waitUntilEntered()
+
+        // Reset invalidates the old generation without marking the suspended drain idle.
+        service.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+        service.setStreamingCallbacks(
+            onPartial: { text in
+                await newCollector.recordPartial(text)
+            },
+            onFinalUtterance: { text in
+                await newCollector.recordFinal(text)
+            }
+        )
+        try await mockStreamingEngine.waitUntilCallbacksInstalled()
+
+        // These must not schedule a second concurrent drain; the suspended owner
+        // adopts the new generation after the old callback resumes.
+        mockStreamingEngine.emitPartial("n")
+        mockStreamingEngine.emitPartial("ne")
+        mockStreamingEngine.emitPartial("new")
+        mockStreamingEngine.emitFinalUtterance("new-one")
+        mockStreamingEngine.emitFinalUtterance("new-two")
+
+        // Old generation is still suspended — new session must not have delivered yet
+        // through a racing second drain.
+        let midOld = await oldCollector.snapshot()
+        let midNew = await newCollector.snapshot()
+        #expect(midOld.finals.isEmpty)
+        #expect(midNew.finals.isEmpty)
+        #expect(midNew.partials.isEmpty)
+
+        await gate.open()
+
+        try await oldCollector.waitForFinals(["old-session"])
+        try await newCollector.waitForFinals(["new-one", "new-two"])
+
+        let oldSnapshot = await oldCollector.snapshot()
+        let newSnapshot = await newCollector.snapshot()
+
+        #expect(oldSnapshot.finals == ["old-session"])
+        #expect(oldSnapshot.partials.isEmpty)
+        #expect(
+            newSnapshot.finals == ["new-one", "new-two"],
+            "finals must stay ordered under a single drain across reset"
+        )
+        #expect(
+            newSnapshot.partials == ["new"] || newSnapshot.partials.isEmpty,
+            "latest-partial coalescing must survive generation handoff"
+        )
+        #expect(
+            !newSnapshot.finals.contains("old-session"),
+            "old-generation finals must not mutate the new session"
+        )
+    }
+
+
 
     @Test func prepareStreamingEngineThrowsModelNotAvailableWhenLoadFails() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
@@ -1313,9 +1460,16 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     private(set) var processedBufferCount = 0
     private(set) var unloadCallCount = 0
     private(set) var resetCallCount = 0
+    private(set) var transcriptionCallbackInstallCount = 0
+    private(set) var endOfUtteranceCallbackInstallCount = 0
+
+    var hasInstalledCallbacks: Bool {
+        transcriptionCallbackInstallCount > 0 && endOfUtteranceCallbackInstallCount > 0
+    }
 
     private var transcriptionCallback: StreamingTranscriptionCallback?
     private var endOfUtteranceCallback: EndOfUtteranceCallback?
+    private var callbackInstallationWaiters: [UUID: CheckedContinuation<Void, Error>] = [:]
 
     func loadModel(name: String) async throws {
         if let loadError {
@@ -1360,11 +1514,53 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 
     func setTranscriptionCallback(_ callback: @escaping StreamingTranscriptionCallback) {
+        transcriptionCallbackInstallCount += 1
         transcriptionCallback = callback
+        resumeCallbackInstallationWaitersIfReady()
     }
 
     func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback) {
+        endOfUtteranceCallbackInstallCount += 1
         endOfUtteranceCallback = callback
+        resumeCallbackInstallationWaitersIfReady()
+    }
+
+    func waitUntilCallbacksInstalled(timeout: TimeInterval = 1.0) async throws {
+        guard !hasInstalledCallbacks else { return }
+        let waiterID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                callbackInstallationWaiters[waiterID] = continuation
+                DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                    Task { @MainActor [weak self] in
+                        self?.failCallbackInstallationWaiter(waiterID)
+                    }
+                }
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                self?.cancelCallbackInstallationWaiter(waiterID)
+            }
+        }
+    }
+
+    private func resumeCallbackInstallationWaitersIfReady() {
+        guard hasInstalledCallbacks else { return }
+        let waiters = callbackInstallationWaiters.values
+        callbackInstallationWaiters.removeAll()
+        for waiter in waiters {
+            waiter.resume(returning: ())
+        }
+    }
+
+    private func failCallbackInstallationWaiter(_ waiterID: UUID) {
+        callbackInstallationWaiters.removeValue(forKey: waiterID)?.resume(
+            throwing: AsyncTestWaitError.timedOut("streaming callbacks to be installed")
+        )
+    }
+
+    private func cancelCallbackInstallationWaiter(_ waiterID: UUID) {
+        callbackInstallationWaiters.removeValue(forKey: waiterID)?.resume(throwing: CancellationError())
     }
 
     func reset() async {
@@ -1382,19 +1578,165 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 }
 
+/// Parks the first awaiter so a streaming drain can be held across reset.
+private actor StreamingCallbackSuspendGate {
+    private var isOpen = false
+    private var hasEntered = false
+    private var enteredWaiters: [CheckedContinuation<Void, Never>] = []
+    private var openWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func enterAndWait() async {
+        if !hasEntered {
+            hasEntered = true
+            let waiters = enteredWaiters
+            enteredWaiters.removeAll()
+            for waiter in waiters {
+                waiter.resume()
+            }
+        }
+        guard !isOpen else { return }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            if isOpen {
+                continuation.resume()
+            } else {
+                openWaiters.append(continuation)
+            }
+        }
+    }
+
+    func waitUntilEntered() async {
+        if hasEntered { return }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            if hasEntered {
+                continuation.resume()
+            } else {
+                enteredWaiters.append(continuation)
+            }
+        }
+    }
+
+    func open() {
+        isOpen = true
+        let waiters = openWaiters
+        openWaiters.removeAll()
+        for waiter in waiters {
+            waiter.resume()
+        }
+    }
+}
+
 private actor StreamingCallbackCollector {
+    private struct Waiter {
+        let id: UUID
+        let expectedPartials: [String]?
+        let expectedFinals: [String]
+        let continuation: CheckedContinuation<Void, Error>
+    }
+
     private var partialsStore: [String] = []
     private var finalsStore: [String] = []
+    private var waiters: [Waiter] = []
 
     func recordPartial(_ text: String) {
         partialsStore.append(text)
+        resumeSatisfiedWaiters()
     }
 
     func recordFinal(_ text: String) {
         finalsStore.append(text)
+        resumeSatisfiedWaiters()
+    }
+
+    func waitFor(
+        partials: [String],
+        finals: [String],
+        timeout: TimeInterval = 1.0
+    ) async throws {
+        guard partialsStore != partials || finalsStore != finals else { return }
+        try await waitUntil(partials: partials, finals: finals, timeout: timeout)
+    }
+
+    func waitForFinals(_ finals: [String], timeout: TimeInterval = 1.0) async throws {
+        guard finalsStore != finals else { return }
+        try await waitUntil(partials: nil, finals: finals, timeout: timeout)
     }
 
     func snapshot() -> (partials: [String], finals: [String]) {
         (partialsStore, finalsStore)
+    }
+
+    private func resumeSatisfiedWaiters() {
+        var pending: [Waiter] = []
+        for waiter in waiters {
+            let partialsMatch = waiter.expectedPartials.map { $0 == partialsStore } ?? true
+            if partialsMatch && waiter.expectedFinals == finalsStore {
+                waiter.continuation.resume(returning: ())
+            } else {
+                pending.append(waiter)
+            }
+        }
+        waiters = pending
+    }
+
+    private func waitUntil(
+        partials: [String]?,
+        finals: [String],
+        timeout: TimeInterval
+    ) async throws {
+        let waiterID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                waiters.append(
+                    Waiter(
+                        id: waiterID,
+                        expectedPartials: partials,
+                        expectedFinals: finals,
+                        continuation: continuation
+                    )
+                )
+                DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                    Task { [weak self] in
+                        await self?.failWaiter(
+                            waiterID,
+                            expectedPartials: partials,
+                            expectedFinals: finals
+                        )
+                    }
+                }
+            }
+        } onCancel: {
+            Task { [weak self] in
+                await self?.cancelWaiter(waiterID)
+            }
+        }
+    }
+
+    private func failWaiter(
+        _ waiterID: UUID,
+        expectedPartials: [String]?,
+        expectedFinals: [String]
+    ) {
+        guard let index = waiters.firstIndex(where: { $0.id == waiterID }) else { return }
+        let waiter = waiters.remove(at: index)
+        let expectation = expectedPartials.map {
+            "partials \($0) and finals \(expectedFinals)"
+        } ?? "finals \(expectedFinals)"
+        waiter.continuation.resume(throwing: AsyncTestWaitError.timedOut(expectation))
+    }
+
+    private func cancelWaiter(_ waiterID: UUID) {
+        guard let index = waiters.firstIndex(where: { $0.id == waiterID }) else { return }
+        waiters.remove(at: index).continuation.resume(throwing: CancellationError())
+    }
+}
+
+private enum AsyncTestWaitError: Error, CustomStringConvertible {
+    case timedOut(String)
+
+    var description: String {
+        switch self {
+        case .timedOut(let expectation):
+            "Timed out waiting for \(expectation)"
+        }
     }
 }

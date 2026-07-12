@@ -51,6 +51,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
 
+    /// Shared CoreAudio-backed snapshot; status-row reads never re-enumerate devices.
+    private let inputDeviceCache = AudioInputDeviceCache.shared
+    /// Nonisolated lifecycle handle so `@MainActor` deinit can tear down listeners.
+    private var inputDeviceCacheObservation: AudioInputDeviceCache.Observation?
+
+    /// Locale-scoped formatter for recent-transcript timestamps (reused across rows).
+    private var recentTranscriptTimeFormatter: DateFormatter?
+    private var recentTranscriptTimeFormatterLocaleIdentifier: String?
+
     // MARK: - State
 
     private var currentState: RecordingState = .idle {
@@ -64,8 +73,14 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         self.audioRecorder = audioRecorder
         self.settingsStore = settingsStore
         super.init()
+        startInputDeviceCacheObservation()
         setupStatusItem()
         setupMenu()
+    }
+
+    deinit {
+        // Explicit, idempotent listener teardown (safe from nonisolated deinit).
+        inputDeviceCacheObservation?.tearDown()
     }
 
     func showSettings(tab: SettingsTab = .general) {
@@ -79,9 +94,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func reloadLocalizedStrings() {
         Log.ui.infoVisible("Rebuilding status bar menu for locale=\(locale.identifier)")
+        // setupMenu → updateMenuState resolves the status row once; avoid a second pass.
         setupMenu()
         updateRecentTranscriptsMenu()
-        updateDynamicItems()
     }
 
     func updateRecentTranscripts(_ transcripts: [(id: UUID, text: String, timestamp: Date)]) {
@@ -261,8 +276,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         quitItem.image = NSImage(systemSymbolName: "xmark.circle", accessibilityDescription: nil)
         menu.addItem(quitItem)
 
+        // updateMenuState resolves the status row once (state + cached device label).
         updateMenuState()
-        updateDynamicItems()
         applyInterfaceLayoutDirection(to: menu, locale: locale)
     }
 
@@ -305,11 +320,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         itemsToRemove.forEach { transcriptsMenu.removeItem($0) }
 
         // Insert the current recents at the top of the submenu, most recent first.
+        let timeFormatter = recentTranscriptFormatter()
         for (index, transcript) in recentTranscripts.enumerated() {
             let truncatedText = String(transcript.text.prefix(40))
             let displayText = truncatedText.isEmpty ? localized("(Empty)", locale: locale) : truncatedText
-            let timeFormatter = DateFormatter()
-            timeFormatter.timeStyle = .short
 
             let item = NSMenuItem(
                 title: "\(displayText)... (\(timeFormatter.string(from: transcript.timestamp)))",
@@ -322,20 +336,49 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    /// Cached short-time formatter for the active app locale.
+    private func recentTranscriptFormatter() -> DateFormatter {
+        let currentLocale = locale
+        if let recentTranscriptTimeFormatter,
+           recentTranscriptTimeFormatterLocaleIdentifier == currentLocale.identifier {
+            return recentTranscriptTimeFormatter
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = currentLocale
+        formatter.timeStyle = .short
+        recentTranscriptTimeFormatter = formatter
+        recentTranscriptTimeFormatterLocaleIdentifier = currentLocale.identifier
+        return formatter
+    }
+
     func updateDynamicItems() {
         updateStatusRow()
+    }
+
+    private func startInputDeviceCacheObservation() {
+        inputDeviceCacheObservation?.tearDown()
+        inputDeviceCacheObservation = inputDeviceCache.makeObservation { [weak self] in
+            // Cache already notifies on the main queue; hop keeps MainActor isolation.
+            Task { @MainActor in
+                self?.updateStatusRow()
+            }
+        }
     }
 
     /// Resolves the display name for the currently selected input device, falling back
     /// to the localized "System Default" label when no device is selected or the
     /// previously selected device is no longer available.
+    ///
+    /// Uses the listener-maintained snapshot — never performs a full CoreAudio
+    /// enumeration on the status-row render path.
     private func currentInputDeviceDisplayName() -> String {
         let selectedUID = settingsStore.selectedInputDeviceUID
         guard !selectedUID.isEmpty else {
             return localized("System Default", locale: locale)
         }
 
-        guard let device = AudioDeviceManager.inputDevices().first(where: { $0.uid == selectedUID }) else {
+        guard let device = inputDeviceCache.device(uid: selectedUID) else {
             return localized("System Default", locale: locale)
         }
 

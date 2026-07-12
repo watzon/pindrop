@@ -999,6 +999,9 @@ struct HistoryView: View {
                 hasMorePages = records.count < snapshot.count
                 isLoading = false
             }
+        } catch is CancellationError {
+            // A newer generation cancelled this load; leave UI state alone.
+            return
         } catch {
             guard isCurrent(request, generation: generation) else { return }
             if case .reload = mode {
@@ -1070,6 +1073,8 @@ struct HistoryView: View {
                 currentOffset += records.count
                 hasMorePages = currentOffset < snapshot.count
                 isLoading = false
+            } catch is CancellationError {
+                return
             } catch {
                 guard isCurrent(request, generation: generation) else { return }
                 errorMessage = error.localizedDescription

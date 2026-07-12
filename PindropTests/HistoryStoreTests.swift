@@ -893,6 +893,78 @@ struct HistoryStoreTests {
         #expect(records.count == 0)
     }
 
+    @Test func deleteAllClearsEvidenceAndRebuildsSpeakerProfilesWithSingleNotification() throws {
+        let fixture = try makeFixture()
+
+        let firstSegment = DiarizedTranscriptSegment(
+            speakerId: "speaker-1",
+            speakerLabel: "",
+            speakerEmbedding: [1, 0],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.9,
+            text: ""
+        )
+        let secondSegment = DiarizedTranscriptSegment(
+            speakerId: "speaker-2",
+            speakerLabel: "",
+            speakerEmbedding: [0, 1],
+            startTime: 0,
+            endTime: 3,
+            confidence: 0.9,
+            text: ""
+        )
+
+        _ = try fixture.historyStore.save(
+            text: "First learned sample",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [firstSegment]
+        )
+        _ = try fixture.historyStore.save(
+            text: "Second learned sample",
+            duration: 3,
+            modelUsed: "base",
+            speakerTrainingSegments: [secondSegment]
+        )
+
+        let profileBefore = try #require(try fixture.speakerIdentityService.fetchAllProfiles().first)
+        #expect(profileBefore.isCurrentUser)
+        #expect(profileBefore.evidenceCount == 2)
+        #expect(profileBefore.totalEvidenceDuration == 5)
+        #expect(profileBefore.centroidEmbeddingData != nil)
+        #expect(try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>()).count == 2)
+        #expect(try fixture.historyStore.fetchAll().count == 2)
+
+        var notificationCount = 0
+        let observer = NotificationCenter.default.addObserver(
+            forName: .historyStoreDidChange,
+            object: nil,
+            queue: nil
+        ) { _ in
+            notificationCount += 1
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        try fixture.historyStore.deleteAll()
+
+        let records = try fixture.historyStore.fetchAll()
+        let evidence = try fixture.modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        let profiles = try fixture.speakerIdentityService.fetchAllProfiles()
+        let profileAfter = try #require(profiles.first)
+
+        #expect(records.isEmpty)
+        #expect(evidence.isEmpty)
+        #expect(profiles.count == 1)
+        #expect(profileAfter.isCurrentUser)
+        #expect(profileAfter.id == profileBefore.id)
+        #expect(profileAfter.evidenceCount == 0)
+        #expect(profileAfter.totalEvidenceDuration == 0)
+        #expect(profileAfter.centroidEmbeddingData == nil)
+        #expect(notificationCount == 1)
+    }
+
+
     @Test func deleteRemovesManagedMediaAssets() throws {
         let fixture = try makeFixture()
         let tempDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -1213,6 +1285,66 @@ struct HistoryStoreTests {
         #expect(snapshot.page(limit: 1, offset: 1)?.count == 1)
         #expect(snapshot.page(limit: 1, offset: 2)?.isEmpty == true)
     }
+
+    @Test func cancellableHistorySearchDoesNotApplyStaleResults() async throws {
+        let fixture = try makeFixture()
+
+        // More than one search batch (64) so a cancelled search can be superseded
+        // between cooperative yields without relying on wall-clock sleeps.
+        for index in 0..<140 {
+            fixture.modelContext.insert(
+                TranscriptionRecord(
+                    text: index < 70 ? "needle alpha \(index)" : "unrelated beta \(index)",
+                    duration: 1,
+                    modelUsed: "tiny",
+                    generatedTitle: index < 70 ? "Needle Title \(index)" : "Other Title \(index)"
+                )
+            )
+        }
+        try fixture.modelContext.save()
+
+        let staleTask = Task {
+            try await fixture.historyStore.transcriptionSnapshot(query: "needle")
+        }
+
+        // Give the background worker a chance to start, then cancel before apply.
+        await Task.yield()
+        await Task.yield()
+        staleTask.cancel()
+
+        let freshSnapshot = try await fixture.historyStore.transcriptionSnapshot(query: "unrelated")
+
+        var staleThrewCancellation = false
+        var staleSnapshot: HistoryStore.TranscriptionSnapshot?
+        do {
+            staleSnapshot = try await staleTask.value
+        } catch is CancellationError {
+            staleThrewCancellation = true
+        } catch {
+            Issue.record("Unexpected stale search error: \(error)")
+        }
+
+        #expect(freshSnapshot.count == 70)
+        #expect(freshSnapshot.spokenDuration == 70)
+        let freshPage = try #require(freshSnapshot.page(limit: freshSnapshot.count, offset: 0))
+        #expect(freshPage.count == 70)
+        #expect(freshPage.allSatisfy { $0.text.contains("unrelated") })
+        #expect(freshPage.contains(where: { $0.text.contains("needle") }) == false)
+
+        if let staleSnapshot {
+            // If the cancelled task already finished, its payload must still be the
+            // needle set — never the superseding "unrelated" query.
+            #expect(staleSnapshot.count == 70)
+            #expect(staleSnapshot.spokenDuration == 70)
+            let stalePage = try #require(staleSnapshot.page(limit: staleSnapshot.count, offset: 0))
+            #expect(stalePage.count == 70)
+            #expect(stalePage.allSatisfy { $0.text.contains("needle") })
+            #expect(stalePage.contains(where: { $0.text.contains("unrelated") }) == false)
+        } else {
+            #expect(staleThrewCancellation)
+        }
+    }
+
 
     @Test func transcriptionAggregateUsesFilterAndDurationProjection() async throws {
         let fixture = try makeFixture()

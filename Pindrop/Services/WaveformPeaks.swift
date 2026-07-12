@@ -15,24 +15,65 @@ enum WaveformPeaks {
     static let defaultBucketCount = 200
     static let sidecarExtension = "peaks"
 
+    /// Frames per chunked AVAudioFile read. Keeps peak extraction off the full-file
+    /// PCM allocation path for long recordings.
+    static let extractionChunkFrames: AVAudioFrameCount = 16_384
+
     static func sidecarURL(for audioURL: URL) -> URL {
         audioURL.deletingPathExtension().appendingPathExtension(sidecarExtension)
     }
 
     /// Extract normalized peak buckets from a readable audio file (WAV, m4a, CAF, …).
+    ///
+    /// Reads the file in fixed-size chunks rather than allocating one full-length
+    /// PCM buffer. Checks task cancellation between chunks so UI/loaders can abort.
     static func extract(from audioURL: URL, bucketCount: Int = defaultBucketCount) throws -> [Float] {
         let file = try AVAudioFile(forReading: audioURL)
         let format = file.processingFormat
-        let frameCount = AVAudioFrameCount(file.length)
-        guard frameCount > 0 else {
-            return Array(repeating: 0, count: max(bucketCount, 1))
+        let totalFrames = file.length
+        let buckets = max(bucketCount, 1)
+        guard totalFrames > 0 else {
+            return Array(repeating: 0, count: buckets)
         }
 
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else {
+        let framesPerBucket = max(1, (Int(totalFrames) + buckets - 1) / buckets)
+        // Always stream fixed-size chunks so long files never allocate a full-file buffer,
+        // even when buckets are few and frames-per-bucket is huge.
+        let chunkCapacity = extractionChunkFrames
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: chunkCapacity) else {
             throw WaveformPeaksError.bufferAllocationFailed
         }
-        try file.read(into: buffer)
-        return peaks(from: buffer, bucketCount: bucketCount)
+
+        var rawPeaks = [Float](repeating: 0, count: buckets)
+        var frameOffset = 0
+
+        while frameOffset < Int(totalFrames) {
+            try Task.checkCancellation()
+
+            let remaining = Int(totalFrames) - frameOffset
+            let toRead = AVAudioFrameCount(min(remaining, Int(chunkCapacity)))
+            buffer.frameLength = 0
+            try file.read(into: buffer, frameCount: toRead)
+
+            let readCount = Int(buffer.frameLength)
+            guard readCount > 0 else { break }
+
+            if let channelData = buffer.floatChannelData {
+                let samples = UnsafeBufferPointer(start: channelData[0], count: readCount)
+                accumulatePeaks(
+                    samples: samples,
+                    frameOffset: frameOffset,
+                    framesPerBucket: framesPerBucket,
+                    buckets: buckets,
+                    rawPeaks: &rawPeaks
+                )
+            }
+
+            frameOffset += readCount
+            if readCount < Int(toRead) { break }
+        }
+
+        return normalizePeaks(rawPeaks)
     }
 
     /// Extract normalized peak buckets from mono interleaved/non-interleaved Float32 PCM data
@@ -92,6 +133,7 @@ enum WaveformPeaks {
 
         var sampleOffset = 0
         while true {
+            try Task.checkCancellation()
             let chunk = handle.readData(ofLength: 64 * 1024)
             guard !chunk.isEmpty else { break }
             chunk.withUnsafeBytes { bytes in
@@ -104,8 +146,7 @@ enum WaveformPeaks {
             }
         }
 
-        guard let globalPeak = rawPeaks.max(), globalPeak > 0 else { return rawPeaks }
-        return rawPeaks.map { $0 / globalPeak }
+        return normalizePeaks(rawPeaks)
     }
 
     static func writeSidecar(_ peaks: [Float], for audioURL: URL) throws {
@@ -153,11 +194,49 @@ enum WaveformPeaks {
             rawPeaks[bucket] = maxAbs
         }
 
+        return normalizePeaks(rawPeaks)
+    }
+
+    /// Fold a chunk of samples into absolute-peak buckets using global frame offsets.
+    private static func accumulatePeaks(
+        samples: UnsafeBufferPointer<Float>,
+        frameOffset: Int,
+        framesPerBucket: Int,
+        buckets: Int,
+        rawPeaks: inout [Float]
+    ) {
+        let count = samples.count
+        guard count > 0, let base = samples.baseAddress else { return }
+
+        var index = 0
+        while index < count {
+            let globalFrame = frameOffset + index
+            let bucket = min(globalFrame / framesPerBucket, buckets - 1)
+            let bucketStartFrame = bucket * framesPerBucket
+            let bucketEndFrame = min(bucketStartFrame + framesPerBucket, frameOffset + count)
+            let localStart = index
+            let localEnd = min(localStart + (bucketEndFrame - globalFrame), count)
+            let span = localEnd - localStart
+            guard span > 0 else { break }
+
+            var maxAbs: Float = 0
+            base.advanced(by: localStart).withMemoryRebound(to: Float.self, capacity: span) { ptr in
+                vDSP_maxmgv(ptr, 1, &maxAbs, vDSP_Length(span))
+            }
+            if maxAbs > rawPeaks[bucket] {
+                rawPeaks[bucket] = maxAbs
+            }
+            index = localEnd
+        }
+    }
+
+    private static func normalizePeaks(_ rawPeaks: [Float]) -> [Float] {
+        let buckets = rawPeaks.count
+        guard buckets > 0 else { return rawPeaks }
+
         var globalMax: Float = 0
         vDSP_maxv(rawPeaks, 1, &globalMax, vDSP_Length(buckets))
-        guard globalMax > 0 else {
-            return rawPeaks
-        }
+        guard globalMax > 0 else { return rawPeaks }
 
         var normalized = [Float](repeating: 0, count: buckets)
         var divisor = globalMax
@@ -167,21 +246,96 @@ enum WaveformPeaks {
 }
 
 /// Loads waveform peaks from a sidecar if present; otherwise extracts on demand and caches.
+/// Concurrent callers for the same URL + bucket count share one in-flight extraction.
 enum WaveformPeaksLoader {
+    private static let coalescer = WaveformPeaksLoadCoalescer()
+
     static func load(
         for audioURL: URL,
         bucketCount: Int = WaveformPeaks.defaultBucketCount
     ) throws -> [Float] {
-        if let cached = try WaveformPeaks.readSidecar(for: audioURL),
-           !cached.isEmpty {
+        try coalescer.load(for: audioURL, bucketCount: bucketCount)
+    }
+}
+
+/// Process-wide in-flight extraction table. Keyed by standardized path + bucket count
+/// so concurrent UI opens of the same media share one decode.
+private final class WaveformPeaksLoadCoalescer: @unchecked Sendable {
+    private struct Key: Hashable {
+        let path: String
+        let bucketCount: Int
+    }
+
+    private final class Entry {
+        let condition = NSCondition()
+        var result: Result<[Float], Error>?
+    }
+
+    private let lock = NSLock()
+    private var inFlight: [Key: Entry] = [:]
+
+    func load(for audioURL: URL, bucketCount: Int) throws -> [Float] {
+        if let cached = try readCached(audioURL) {
             return cached
         }
 
+        let key = Key(path: audioURL.standardizedFileURL.path, bucketCount: bucketCount)
+
+        lock.lock()
+        if let existing = inFlight[key] {
+            lock.unlock()
+            existing.condition.lock()
+            while existing.result == nil {
+                existing.condition.wait()
+            }
+            let result = existing.result!
+            existing.condition.unlock()
+            return try result.get()
+        }
+
+        let entry = Entry()
+        inFlight[key] = entry
+        lock.unlock()
+
+        let result: Result<[Float], Error>
+        do {
+            result = .success(try extractAndCache(audioURL: audioURL, bucketCount: bucketCount))
+        } catch {
+            result = .failure(error)
+        }
+
+        entry.condition.lock()
+        entry.result = result
+        entry.condition.broadcast()
+        entry.condition.unlock()
+
+        lock.lock()
+        if inFlight[key] === entry {
+            inFlight[key] = nil
+        }
+        lock.unlock()
+
+        return try result.get()
+    }
+
+    private func readCached(_ audioURL: URL) throws -> [Float]? {
+        if let cached = try WaveformPeaks.readSidecar(for: audioURL), !cached.isEmpty {
+            return cached
+        }
+        return nil
+    }
+
+    private func extractAndCache(audioURL: URL, bucketCount: Int) throws -> [Float] {
+        if let cached = try readCached(audioURL) {
+            return cached
+        }
         let peaks = try WaveformPeaks.extract(from: audioURL, bucketCount: bucketCount)
         do {
             try WaveformPeaks.writeSidecar(peaks, for: audioURL)
         } catch {
-            Log.audio.warning("Failed to cache waveform peaks for \(audioURL.lastPathComponent): \(error.localizedDescription)")
+            Log.audio.warning(
+                "Failed to cache waveform peaks for \(audioURL.lastPathComponent): \(error.localizedDescription)"
+            )
         }
         return peaks
     }

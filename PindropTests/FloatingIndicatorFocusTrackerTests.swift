@@ -54,6 +54,22 @@ private final class MockFloatingIndicatorMousePollingSession: FloatingIndicatorM
     }
 }
 
+/// Counts injected pointer-session creations while reusing a single mock session
+/// so invalidate bookkeeping stays deterministic across mode transitions.
+@MainActor
+private final class MockFloatingIndicatorMouseSessionFactory {
+    private(set) var createCallCount = 0
+    let session = MockFloatingIndicatorMousePollingSession()
+
+    func makeSession(
+        handler: @escaping @MainActor () -> Void
+    ) -> MockFloatingIndicatorMousePollingSession {
+        _ = handler
+        createCallCount += 1
+        return session
+    }
+}
+
 @MainActor
 private final class FloatingIndicatorTrackerTestClock {
     var current = Date(timeIntervalSinceReferenceDate: 10_000)
@@ -112,6 +128,7 @@ struct FloatingIndicatorFocusTrackerTests {
         let fakeFocusedWindow: AXUIElement
         let fakeFocusedElement: AXUIElement
         let axObserver: MockFloatingIndicatorAXObserver
+        let mouseSessionFactory: MockFloatingIndicatorMouseSessionFactory
         let mousePollingSession: MockFloatingIndicatorMousePollingSession
         let workspaceNotificationCenter: NotificationCenter
         let clock: FloatingIndicatorTrackerTestClock
@@ -125,7 +142,7 @@ struct FloatingIndicatorFocusTrackerTests {
         let fakeFocusedWindow = AXUIElementCreateApplication(77771)
         let fakeFocusedElement = AXUIElementCreateApplication(77772)
         let axObserver = MockFloatingIndicatorAXObserver()
-        let mousePollingSession = MockFloatingIndicatorMousePollingSession()
+        let mouseSessionFactory = MockFloatingIndicatorMouseSessionFactory()
         let workspaceNotificationCenter = NotificationCenter()
         let clock = FloatingIndicatorTrackerTestClock()
         let rectDisplayResolver = MockRectDisplayResolver()
@@ -145,8 +162,8 @@ struct FloatingIndicatorFocusTrackerTests {
             mouseDisplayNumberProvider: { mouseDisplayState.displayNumber },
             displayNumberForRect: rectDisplayResolver.displayNumber(for:),
             screenResolver: { _ in nil },
-            mousePollingScheduler: { _ in
-                mousePollingSession
+            mousePollingScheduler: { handler in
+                mouseSessionFactory.makeSession(handler: handler)
             }
         )
 
@@ -158,7 +175,8 @@ struct FloatingIndicatorFocusTrackerTests {
             fakeFocusedWindow: fakeFocusedWindow,
             fakeFocusedElement: fakeFocusedElement,
             axObserver: axObserver,
-            mousePollingSession: mousePollingSession,
+            mouseSessionFactory: mouseSessionFactory,
+            mousePollingSession: mouseSessionFactory.session,
             workspaceNotificationCenter: workspaceNotificationCenter,
             clock: clock,
             rectDisplayResolver: rectDisplayResolver,
@@ -377,4 +395,87 @@ struct FloatingIndicatorFocusTrackerTests {
         #expect(placement.displayNumber == 15)
         #expect(placement.source == .mouse)
     }
+
+    // MARK: - Pointer session lifecycle (performance regressions)
+
+    @Test func idlePillStartsExactlyOneInjectedPointerSession() {
+        let fixture = makeFixture()
+
+        fixture.tracker.start(mode: .idlePill)
+        defer { fixture.tracker.stop() }
+
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+        #expect(fixture.mousePollingSession.invalidateCallCount == 0)
+
+        // Re-entering the same mode must not spawn another pointer session.
+        fixture.tracker.start(mode: .idlePill)
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+        #expect(fixture.mousePollingSession.invalidateCallCount == 0)
+    }
+
+    @Test func activeSessionPausesPointerSessionWithoutCreatingOne() {
+        let fixture = makeFixture()
+
+        fixture.tracker.start(mode: .activeSession)
+        defer { fixture.tracker.stop() }
+
+        #expect(fixture.mouseSessionFactory.createCallCount == 0)
+        #expect(fixture.mousePollingSession.invalidateCallCount == 0)
+    }
+
+    @Test func transitioningToActiveSessionInvalidatesPointerSession() {
+        let fixture = makeFixture()
+
+        fixture.tracker.start(mode: .idlePill)
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+
+        fixture.tracker.start(mode: .activeSession)
+        #expect(fixture.mousePollingSession.invalidateCallCount == 1)
+
+        // Active mode must not create a replacement pointer session.
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+
+        // Returning to idle installs a fresh session after the pause.
+        fixture.tracker.start(mode: .idlePill)
+        defer { fixture.tracker.stop() }
+        #expect(fixture.mouseSessionFactory.createCallCount == 2)
+    }
+
+    @Test func stopInvalidatesPointerAndAXSessionsIdempotently() {
+        let fixture = makeFixture()
+
+        fixture.tracker.start(mode: .idlePill)
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+        #expect(fixture.axObserver.beginObservationCallCount == 1)
+
+        let axSession = fixture.axObserver.lastSession
+        #expect(axSession != nil)
+
+        fixture.tracker.stop()
+        #expect(fixture.mousePollingSession.invalidateCallCount == 1)
+        #expect(axSession?.invalidateCallCount == 1)
+        #expect(fixture.tracker.placementContext == nil)
+
+        // Second stop must not re-invalidate already-released sessions.
+        fixture.tracker.stop()
+        #expect(fixture.mousePollingSession.invalidateCallCount == 1)
+        #expect(axSession?.invalidateCallCount == 1)
+        #expect(fixture.tracker.placementContext == nil)
+    }
+
+    @Test func stopThenRestartCreatesFreshPointerSession() {
+        let fixture = makeFixture()
+
+        fixture.tracker.start(mode: .idlePill)
+        fixture.tracker.stop()
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
+        #expect(fixture.mousePollingSession.invalidateCallCount == 1)
+
+        fixture.tracker.start(mode: .idlePill)
+        defer { fixture.tracker.stop() }
+
+        #expect(fixture.mouseSessionFactory.createCallCount == 2)
+        #expect(fixture.axObserver.beginObservationCallCount == 2)
+    }
+
 }

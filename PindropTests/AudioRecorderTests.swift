@@ -372,7 +372,379 @@ struct AudioRecorderTests {
         #expect(fixture.sut.isRecording)
         #expect(fixture.mockBackend.cancelCaptureCallCount == 0)
     }
+
+    @Test func stopRecordingYieldsMainActorWhileBackendFinalizes() async throws {
+        let mockPermission = MockPermissionProvider()
+        mockPermission.grantPermission = true
+        let mockBackend = DelayedMockAudioCaptureBackend()
+        let mockSystemBackend = MockAudioCaptureBackend(identifier: "system")
+        let sut = try AudioRecorder(
+            permissionManager: mockPermission,
+            captureBackend: mockBackend,
+            systemAudioCaptureBackend: mockSystemBackend
+        )
+
+        let buffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat),
+            "Expected synthesized audio buffer"
+        )
+        mockBackend.simulatedBuffers = [buffer]
+
+        try await sut.startRecording()
+        #expect(sut.isRecording)
+
+        let stopTask = Task { try await sut.stopRecording() }
+
+        // Stop clears isRecording before the detached backend finalization returns.
+        // Wait for the backend's explicit start signal rather than inferring it from elapsed time.
+        await mockBackend.waitUntilStopCaptureStarts()
+        defer { mockBackend.allowStopCaptureToFinish() }
+        #expect(mockBackend.hasStartedStopCapture)
+        #expect(sut.isRecording == false)
+
+        var concurrentMainActorTicks = 0
+        for _ in 0..<20 {
+            await Task { @MainActor in
+                concurrentMainActorTicks += 1
+            }.value
+        }
+        #expect(concurrentMainActorTicks == 20)
+
+        mockBackend.allowStopCaptureToFinish()
+        let data = try await stopTask.value
+
+        #expect(data.count > 0)
+        #expect(sut.isRecording == false)
+        #expect(mockBackend.stopCaptureCallCount == 1)
+    }
+
+    @Test func startRecordingWaitsForFinalizationBeforeReusingBackend() async throws {
+        let mockPermission = MockPermissionProvider()
+        mockPermission.grantPermission = true
+        let mockBackend = DelayedMockAudioCaptureBackend()
+        let mockSystemBackend = MockAudioCaptureBackend(identifier: "system")
+        let sut = try AudioRecorder(
+            permissionManager: mockPermission,
+            captureBackend: mockBackend,
+            systemAudioCaptureBackend: mockSystemBackend
+        )
+
+        let buffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(format: mockBackend.targetFormat),
+            "Expected synthesized audio buffer"
+        )
+        mockBackend.simulatedBuffers = [buffer]
+
+        try await sut.startRecording()
+        #expect(mockBackend.startCaptureCallCount == 1)
+
+        let stopTask = Task { try await sut.stopRecording() }
+        await mockBackend.waitUntilStopCaptureStarts()
+        defer { mockBackend.allowStopCaptureToFinish() }
+
+        // Finalization owns the backend off the main actor. A concurrent start must
+        // not call startCapture/reset on that same instance until ownership returns.
+        let startTask = Task { try await sut.startRecording() }
+
+        for _ in 0..<30 {
+            await Task.yield()
+        }
+
+        #expect(mockBackend.startCaptureCallCount == 1)
+        #expect(mockBackend.stopCaptureCallCount == 1)
+
+        sut.resetAudioEngine()
+        #expect(
+            mockBackend.resetCallCount == 0,
+            "reset must not touch a backend still owned by detached finalization"
+        )
+
+        mockBackend.allowStopCaptureToFinish()
+        let data = try await stopTask.value
+        #expect(data.count > 0)
+
+        let started = try await startTask.value
+        #expect(started)
+        #expect(
+            mockBackend.startCaptureCallCount == 2,
+            "start may reuse the backend only after finalization releases ownership"
+        )
+    }
+
+
+    @Test(.timeLimit(.minutes(1)))
+    func meterDeliveryCoalescesLatestOverallAndBandsPreservingCallbackOrder() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+
+        var deliveredLevels: [Float] = []
+        var deliveredBands: [AudioBandLevels] = []
+        var deliveryOrder: [String] = []
+
+        try await fixture.sut.startRecording()
+
+        let buffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(
+                format: fixture.mockBackend.targetFormat,
+                frameCount: 320,
+                frequency: 440
+            ),
+            "Expected synthesized sample buffer"
+        )
+
+        let emissionCount = 48
+        let latestSourceLevel: Float = 0
+        let burst = AudioCaptureCallbackBurst(
+            buffer: buffer,
+            emissionCount: emissionCount,
+            onBuffer: fixture.mockBackend.capturedOnBuffer,
+            onAudioLevel: fixture.mockBackend.capturedOnAudioLevel
+        )
+        let (latestPairDelivered, latestPairContinuation) = AsyncStream.makeStream(
+            of: Void.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        await confirmation(
+            "A current level and bands snapshot is delivered in level-before-bands order"
+        ) { confirm in
+            var didConfirmLatestPair = false
+
+            func confirmLatestDeliveredPairIfReady() {
+                guard !didConfirmLatestPair, deliveredLevels.last == latestSourceLevel else {
+                    return
+                }
+
+                let latestSnapshotIsOrderedPair =
+                    deliveryOrder.suffix(2).elementsEqual(["level", "bands"])
+                guard latestSnapshotIsOrderedPair else { return }
+
+                didConfirmLatestPair = true
+                confirm()
+                latestPairContinuation.yield()
+            }
+
+            fixture.sut.onAudioLevel = { level in
+                deliveredLevels.append(level)
+                deliveryOrder.append("level")
+                confirmLatestDeliveredPairIfReady()
+            }
+            fixture.sut.onAudioBandLevels = { bands in
+                deliveredBands.append(bands)
+                deliveryOrder.append("bands")
+                confirmLatestDeliveredPairIfReady()
+            }
+
+            await Task.detached(priority: .userInitiated) {
+                burst.run()
+                // A distinct final value makes the coalescer's contractually retained
+                // latest level observable even when every stale burst value is dropped.
+                burst.onBuffer?(burst.buffer)
+                burst.onAudioLevel?(latestSourceLevel)
+            }.value
+            let receivedLatestPair = await withTaskGroup(of: Bool.self) { group in
+                group.addTask {
+                    for await _ in latestPairDelivered {
+                        return true
+                    }
+                    return false
+                }
+                group.addTask {
+                    do {
+                        try await Task.sleep(for: .seconds(1))
+                        return false
+                    } catch {
+                        return false
+                    }
+                }
+
+                let firstResult = await group.next() ?? false
+                group.cancelAll()
+                return firstResult
+            }
+
+            fixture.sut.onAudioLevel = nil
+            fixture.sut.onAudioBandLevels = nil
+            latestPairContinuation.finish()
+            #expect(
+                receivedLatestPair,
+                "Timed out waiting for the coalescer's latest level and a delivered level/bands pair"
+            )
+        }
+
+        let lastLevel = try #require(deliveredLevels.last)
+        _ = try #require(deliveredBands.last)
+
+        // The coalescer may supersede any stale source sample, but it must retain
+        // and eventually deliver the distinct latest overall level.
+        #expect(lastLevel == latestSourceLevel)
+        #expect(deliveredLevels.count <= emissionCount + 1)
+        #expect(deliveredBands.count <= emissionCount + 1)
+        // Only the delivered snapshot containing the current values is ordered;
+        // stale source samples may have been superseded before any callback.
+        #expect(deliveryOrder.suffix(2).elementsEqual(["level", "bands"]))
+    }
+
 }
+
+/// Backend that blocks inside `stopCapture` so stop finalization can be observed
+/// yielding the main actor. Lives only in this test file (production mocks stay lean).
+private final class DelayedMockAudioCaptureBackend: AudioCaptureBackend, @unchecked Sendable {
+    let identifier: String
+    private let stateLock = NSLock()
+    private var isCapturingStorage = false
+    var isCapturing: Bool {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return isCapturingStorage
+    }
+    let targetFormat: AVAudioFormat
+
+    var simulatedBuffers: [AVAudioPCMBuffer] = []
+    private let stopMayFinish = DispatchSemaphore(value: 0)
+    private var stopStartedStorage = false
+    private var stopStartWaiters: [CheckedContinuation<Void, Never>] = []
+
+    private(set) var startCaptureCallCount = 0
+    private(set) var stopCaptureCallCount = 0
+    private(set) var cancelCaptureCallCount = 0
+    private(set) var resetCallCount = 0
+
+    var capturedOnBuffer: ((AVAudioPCMBuffer) -> Void)?
+    var capturedOnAudioLevel: ((Float) -> Void)?
+    var capturedOnError: ((Error) -> Void)?
+
+    var hasStartedStopCapture: Bool {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return stopStartedStorage
+    }
+
+    init(identifier: String = "delayed-microphone") {
+        self.identifier = identifier
+        var streamDescription = AudioStreamBasicDescription(
+            mSampleRate: 16000.0,
+            mFormatID: kAudioFormatLinearPCM,
+            mFormatFlags: kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked,
+            mBytesPerPacket: 4,
+            mFramesPerPacket: 1,
+            mBytesPerFrame: 4,
+            mChannelsPerFrame: 1,
+            mBitsPerChannel: 32,
+            mReserved: 0
+        )
+        self.targetFormat = AVAudioFormat(streamDescription: &streamDescription)!
+    }
+
+    func startCapture(
+        onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
+        onAudioLevel: @escaping (Float) -> Void,
+        onError: @escaping (Error) -> Void
+    ) throws {
+        startCaptureCallCount += 1
+        capturedOnBuffer = onBuffer
+        capturedOnAudioLevel = onAudioLevel
+        capturedOnError = onError
+        stateLock.lock()
+        isCapturingStorage = true
+        stateLock.unlock()
+    }
+
+    func stopCapture() throws -> AudioPCMFile {
+        stateLock.lock()
+        stopCaptureCallCount += 1
+        stopStartedStorage = true
+        let waiters = stopStartWaiters
+        stopStartWaiters.removeAll()
+        stateLock.unlock()
+        for waiter in waiters {
+            waiter.resume()
+        }
+        stopMayFinish.wait()
+        stateLock.lock()
+        isCapturingStorage = false
+        stateLock.unlock()
+        let data = simulatedBuffers.reduce(into: Data()) { data, buffer in
+            guard let channelData = buffer.floatChannelData else { return }
+            data.append(contentsOf:
+                UnsafeRawBufferPointer(
+                    start: channelData[0],
+                    count: Int(buffer.frameLength) * MemoryLayout<Float>.size
+                )
+            )
+        }
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-test-delayed-audio-\(UUID().uuidString).pcm")
+        try data.write(to: fileURL)
+        return AudioPCMFile(
+            fileURL: fileURL,
+            byteCount: data.count,
+            sampleRate: targetFormat.sampleRate
+        )
+    }
+
+    func cancelCapture() {
+        stateLock.lock()
+        cancelCaptureCallCount += 1
+        isCapturingStorage = false
+        stateLock.unlock()
+    }
+
+    func reset() {
+        stateLock.lock()
+        resetCallCount += 1
+        isCapturingStorage = false
+        stateLock.unlock()
+    }
+
+    func waitUntilStopCaptureStarts() async {
+        await withCheckedContinuation { continuation in
+            stateLock.lock()
+            if stopStartedStorage {
+                stateLock.unlock()
+                continuation.resume()
+            } else {
+                stopStartWaiters.append(continuation)
+                stateLock.unlock()
+            }
+        }
+    }
+
+    func allowStopCaptureToFinish() {
+        stopMayFinish.signal()
+    }
+
+    func setPreferredInputDeviceUID(_ uid: String) throws {}
+}
+
+/// Immutable capture-thread work item. The callbacks are supplied by AudioRecorder and are
+/// specifically required to accept backend-thread delivery; the audio buffer is read-only here.
+private final class AudioCaptureCallbackBurst: @unchecked Sendable {
+    let buffer: AVAudioPCMBuffer
+    let emissionCount: Int
+    let onBuffer: ((AVAudioPCMBuffer) -> Void)?
+    let onAudioLevel: ((Float) -> Void)?
+
+    init(
+        buffer: AVAudioPCMBuffer,
+        emissionCount: Int,
+        onBuffer: ((AVAudioPCMBuffer) -> Void)?,
+        onAudioLevel: ((Float) -> Void)?
+    ) {
+        self.buffer = buffer
+        self.emissionCount = emissionCount
+        self.onBuffer = onBuffer
+        self.onAudioLevel = onAudioLevel
+    }
+
+    func run() {
+        for index in 0..<emissionCount {
+            onBuffer?(buffer)
+            onAudioLevel?(Float(index + 1) / Float(emissionCount))
+        }
+    }
+}
+
 
 @Suite
 struct AudioPCMFileStorageTests {

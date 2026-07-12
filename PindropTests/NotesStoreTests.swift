@@ -367,4 +367,78 @@ struct NotesStoreTests {
         let results = try notesStore.search(query: "")
         #expect(results.count >= 0)
     }
+
+    // MARK: - Unique tags cache invalidation
+
+    @Test func uniqueTagsCacheInvalidatesAfterCreateUpdateDelete() async throws {
+        let notesStore = makeStore()
+
+        #expect(try notesStore.getAllUniqueTags() == [])
+
+        try await notesStore.create(
+            title: "Tagged",
+            content: "Content",
+            tags: ["swift", "testing"]
+        )
+        #expect(try notesStore.getAllUniqueTags() == ["swift", "testing"])
+
+        // Warm the cache, then mutate tags through update.
+        _ = try notesStore.getAllUniqueTags()
+        let notes = try notesStore.fetchAll()
+        let note = try #require(notes.first)
+        note.tags = ["swift", "cache"]
+        try notesStore.update(note)
+
+        #expect(try notesStore.getAllUniqueTags() == ["cache", "swift"])
+        #expect(try await notesStore.getAllUniqueTagsAsync() == ["cache", "swift"])
+
+        try notesStore.delete(note)
+        #expect(try notesStore.getAllUniqueTags() == [])
+        #expect(try await notesStore.getAllUniqueTagsAsync() == [])
+    }
+
+    @Test func uniqueTagsCacheInvalidatesOnBackgroundEditorNotification() async throws {
+        let modelContainer = PreviewContainer.empty
+        let notesStore = NotesStore(modelContext: ModelContext(modelContainer))
+
+        try await notesStore.create(
+            title: "Editor Note",
+            content: "Body",
+            tags: ["stale"]
+        )
+        #expect(try notesStore.getAllUniqueTags() == ["stale"])
+
+        // Background / editor-window style mutation on a separate context.
+        let backgroundContext = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<NoteSchema.Note>()
+        let backgroundNotes = try backgroundContext.fetch(descriptor)
+        let backgroundNote = try #require(backgroundNotes.first)
+        backgroundNote.tags = ["editor", "fresh"]
+        try backgroundContext.save()
+
+        // Note editor posts this after a tags-changing save so other store
+        // instances drop their in-memory projection.
+        NotificationCenter.default.post(name: .pindropNoteTagsDidChange, object: nil)
+        await Task.yield()
+
+        #expect(try notesStore.getAllUniqueTags() == ["editor", "fresh"])
+        #expect(try await notesStore.getAllUniqueTagsAsync() == ["editor", "fresh"])
+    }
+
+    @Test func pinDoesNotInvalidateUniqueTagsCache() async throws {
+        let notesStore = makeStore()
+        try await notesStore.create(
+            title: "Pinned",
+            content: "Body",
+            tags: ["keep"]
+        )
+        #expect(try notesStore.getAllUniqueTags() == ["keep"])
+
+        let note = try #require(try notesStore.fetchAll().first)
+        try notesStore.togglePin(note)
+
+        // Pin path must not clear tags; cache remains coherent with stored tags.
+        #expect(try notesStore.getAllUniqueTags() == ["keep"])
+        #expect(try #require(try notesStore.fetchAll().first).isPinned)
+    }
 }

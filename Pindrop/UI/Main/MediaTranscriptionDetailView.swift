@@ -46,71 +46,15 @@ struct MediaTranscriptionDetailView: View {
         family: .newsreader, size: 15, weight: .regular, lineHeight: 23
     )
 
-    // Decoded ONCE per record/label change and cached: `record.diarizedSegments`
-    // JSON-decodes the whole payload, and the playback clock re-evaluates this view
-    // 4×/sec — computing segments per tick made long transcripts visibly laggy.
-    @State private var cachedSegments: [DiarizedTranscriptSegment] = []
-    @State private var cachedSegmentIDs: [String] = []
+    /// One logical refresh rebuilds labels, displayed segments, IDs, and participants
+    /// from a single `diarizedSegments` decode. The playback clock must never force
+    /// another JSON decode or full rebuild.
+    @State private var diarizationCache = DiarizationDisplayCache.empty
 
-    private var segments: [DiarizedTranscriptSegment] { cachedSegments }
+    private var segments: [DiarizedTranscriptSegment] { diarizationCache.segments }
 
-    private func rebuildSegmentCache() {
-        let displayed = record.diarizedSegments.map { segment in
-            displayedSegment(segment)
-        }
-        cachedSegments = displayed
-        cachedSegmentIDs = displayed.enumerated().map { index, segment in
-            "\(segment.speakerId)-\(index)-\(segment.startTime)"
-        }
-    }
-
-    private func displayedSegment(
-        _ segment: DiarizedTranscriptSegment
-    ) -> DiarizedTranscriptSegment {
-            let assignedProfileName = segment.speakerProfileID.flatMap { profileID in
-                knownProfiles.first { $0.id == profileID }?.displayName
-            }
-            let speakerLabel = assignedProfileName ?? speakerLabelsByID[segment.speakerId]
-            guard let speakerLabel,
-                  !speakerLabel.isEmpty,
-                  speakerLabel != segment.speakerLabel else {
-                return segment
-            }
-
-            return DiarizedTranscriptSegment(
-                speakerId: segment.speakerId,
-                speakerLabel: speakerLabel,
-                speakerProfileID: segment.speakerProfileID,
-                speakerEmbedding: segment.speakerEmbedding,
-                startTime: segment.startTime,
-                endTime: segment.endTime,
-                confidence: segment.confidence,
-                text: segment.text
-            )
-    }
-
-    /// Every distinct speaker, INCLUDING unnamed ones — fresh diarization arrives
-    /// with raw IDs and empty labels, and hiding those hid the legend exactly when
-    /// renaming matters most. Unnamed speakers get numbered fallbacks.
     private var participants: [(key: String, speakerID: String, label: String)] {
-        var seen = Set<String>()
-        var unnamedCount = 0
-        var result: [(key: String, speakerID: String, label: String)] = []
-        for segment in cachedSegments {
-            let key = LibrarySpeakerColor.canonicalKey(
-                speakerId: segment.speakerId,
-                speakerLabel: segment.speakerLabel
-            )
-            guard seen.insert(key).inserted else { continue }
-            let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-            if label.isEmpty {
-                unnamedCount += 1
-                result.append((key, segment.speakerId, "\(localized("Speaker", locale: locale)) \(unnamedCount)"))
-            } else {
-                result.append((key, segment.speakerId, label))
-            }
-        }
-        return result
+        diarizationCache.participants
     }
 
     private var sortedProfiles: [ParticipantProfile] {
@@ -134,20 +78,6 @@ struct MediaTranscriptionDetailView: View {
                 }
             }
         )
-    }
-
-    /// One linear scan per playback tick (hoisted in transcriptSection — never per
-    /// row). NOT a binary search: diarized segments can be out of order and can
-    /// overlap when speakers talk over each other, so "first segment containing t"
-    /// in display order is the correct pick.
-    private var activeSegmentID: String? {
-        let time = playbackController.currentTime
-        guard let index = cachedSegments.firstIndex(where: {
-            time >= $0.startTime && time < $0.endTime
-        }) else {
-            return nil
-        }
-        return cachedSegmentIDs[index]
     }
 
     private var hasMedia: Bool { TranscriptionDetailAccess.shouldShowPlayback(for: record) }
@@ -215,28 +145,32 @@ struct MediaTranscriptionDetailView: View {
         }
         .background(AppColors.contentBackground)
         .task(id: record.id) {
-            speakerLabelsByID = currentSpeakerLabelsByID()
-            rebuildSegmentCache()
+            // Drop overrides from the previous record; payload labels live on segments.
+            speakerLabelsByID = [:]
+            refreshDiarizationCache()
             guard let mediaURL = record.managedMediaURL else {
                 peaks = []
+                playbackController.teardownPlayback()
                 return
             }
             playbackController.load(url: mediaURL)
-            // Peak extraction can decode the whole file — never on the main actor.
+            // Peak extraction can decode large files — never on the main actor.
             let loaded = await Task.detached(priority: .userInitiated) {
                 (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
             }.value
             peaks = loaded
         }
         .onChange(of: record.diarizationSegmentsJSON) { _, _ in
-            speakerLabelsByID = currentSpeakerLabelsByID()
-            rebuildSegmentCache()
+            refreshDiarizationCache()
         }
         .onChange(of: speakerLabelsByID) { _, _ in
-            rebuildSegmentCache()
+            refreshDiarizationCache()
         }
         .onChange(of: knownProfiles.map(\.updatedAt)) { _, _ in
-            rebuildSegmentCache()
+            refreshDiarizationCache()
+        }
+        .onDisappear {
+            playbackController.teardownPlayback()
         }
         .sheet(isPresented: isCreateProfileSheetPresented) {
             SpeakerProfileCreationSheet(
@@ -254,10 +188,14 @@ struct MediaTranscriptionDetailView: View {
     @ViewBuilder
     private var mediaAndSummaryColumn: some View {
         if hasMedia {
-            if playbackController.hasVideoTrack {
-                videoSurface
-            }
-            playerBarCard
+            MediaDetailVideoSurface(controller: playbackController)
+            MediaDetailPlayerBar(
+                controller: playbackController,
+                peaks: peaks,
+                fallbackDuration: record.duration,
+                playbackRate: $playbackRate,
+                locale: locale
+            )
         }
         if record.hasSummary, let summary = record.aiSummary {
             summaryBlock(summary)
@@ -372,72 +310,6 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
-    // MARK: - Video surface (imported video)
-
-    private var videoSurface: some View {
-        AVPlayerViewRepresentable(player: playbackController.player)
-            .frame(height: 280)
-            .frame(maxWidth: .infinity)
-            .background(Color.black)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(AppColors.border, lineWidth: 1)
-            )
-    }
-
-    // MARK: - Player bar
-
-    private var playerBarCard: some View {
-        PlayerRow(
-            peaks: peaks,
-            progress: playbackProgress,
-            isPlaying: playbackController.isPlaying,
-            elapsedTotalLabel: elapsedTotalLabel,
-            rateLabel: LibraryPlaybackRate.label(for: playbackRate),
-            onTogglePlay: {
-                playbackController.togglePlayback()
-                if playbackController.isPlaying {
-                    playbackController.setRate(playbackRate)
-                }
-            },
-            onSeek: { fraction in
-                let duration = max(playbackController.duration, record.duration)
-                guard duration > 0 else { return }
-                playbackController.seek(to: fraction * duration)
-            },
-            onCycleRate: {
-                let next = LibraryPlaybackRate.next(after: playbackRate)
-                playbackRate = next
-                if playbackController.isPlaying {
-                    playbackController.setRate(next)
-                }
-            },
-            rateHelp: localized("Playback speed", locale: locale)
-        )
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(AppColors.windowBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(AppColors.border, lineWidth: 1)
-        )
-    }
-
-    private var playbackProgress: Double {
-        let duration = max(playbackController.duration, record.duration)
-        guard duration > 0 else { return 0 }
-        return min(1, max(0, playbackController.currentTime / duration))
-    }
-
-    private var elapsedTotalLabel: String {
-        let elapsed = playbackController.currentTime
-        let total = max(playbackController.duration, record.duration)
-        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: total))"
-    }
-
     // MARK: - Summary
 
     private func summaryBlock(_ summary: String) -> some View {
@@ -469,10 +341,7 @@ struct MediaTranscriptionDetailView: View {
     // MARK: - Transcript
 
     private var transcriptSection: some View {
-        // Hoisted: one binary search per evaluation, not one per row.
-        let activeID = activeSegmentID
-
-        return VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
                 title: localized("Transcript", locale: locale),
                 trailing: hasMedia
@@ -489,89 +358,23 @@ struct MediaTranscriptionDetailView: View {
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                ScrollViewReader { proxy in
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(cachedSegments.indices, id: \.self) { index in
-                            turnRow(
-                                cachedSegments[index],
-                                isActive: cachedSegmentIDs[index] == activeID
-                            )
-                            .id(cachedSegmentIDs[index])
-                        }
+                // Active-segment highlight + auto-scroll live in a child so the
+                // transcript list shell does not re-evaluate on every clock tick.
+                MediaDetailTranscriptTurns(
+                    controller: playbackController,
+                    segments: diarizationCache.segments,
+                    segmentIDs: diarizationCache.segmentIDs,
+                    showsSpeakerLanes: showsSpeakerLanes,
+                    hasMedia: hasMedia,
+                    followPlayback: followPlayback,
+                    reduceMotion: reduceMotion,
+                    turnBodyMetrics: Self.turnBodyMetrics,
+                    locale: locale,
+                    onSeek: { playbackController.seek(to: $0) },
+                    speakerProfileMenu: { speakerID in
+                        AnyView(speakerProfileMenu(speakerID: speakerID))
                     }
-                    .onChange(of: activeSegmentID) { _, identifier in
-                        guard followPlayback, let identifier else { return }
-                        withAnimation(reduceMotion ? nil : AppTheme.Animation.normal) {
-                            proxy.scrollTo(identifier, anchor: .center)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func turnRow(_ segment: DiarizedTranscriptSegment, isActive: Bool) -> some View {
-        let active = isActive
-        let speakerColor = LibrarySpeakerColor.color(
-            speakerId: segment.speakerId,
-            speakerLabel: segment.speakerLabel
-        )
-
-        return Button {
-            if hasMedia {
-                playbackController.seek(to: segment.startTime)
-            }
-        } label: {
-            HStack(alignment: .top, spacing: 14) {
-                Text(timestampLabel(for: segment.startTime))
-                    .font(AppTypography.monoSmall)
-                    .foregroundStyle(active ? AppColors.accent : AppColors.textTertiary)
-                    .frame(width: 44, alignment: .leading)
-                    .padding(.top, 3)
-                    .monospacedDigit()
-
-                if showsSpeakerLanes {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(speakerColor)
-                            .frame(width: 7, height: 7)
-                        Text(segment.speakerLabel.isEmpty
-                             ? localized("Speaker", locale: locale)
-                             : segment.speakerLabel)
-                            .font(AppTypography.labelSemibold)
-                            .foregroundStyle(AppColors.textPrimary)
-                            .lineLimit(1)
-                    }
-                    .frame(width: 92, alignment: .leading)
-                    .padding(.top, 2)
-                }
-
-                Text(segment.text)
-                    .font(Self.turnBodyMetrics.font)
-                    .lineSpacing(Self.turnBodyMetrics.lineSpacing)
-                    .foregroundStyle(AppColors.textPrimary)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
-            }
-            // Spec §8: no horizontal content padding (timestamp stays on the left rule).
-            // Active pill gets breathing room via background inset only.
-            .padding(.vertical, 10)
-            .background {
-                if active {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(AppColors.accentBackground)
-                        .padding(.horizontal, -8)
-                        .padding(.vertical, -2)
-                }
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .appAnimation(.fast, value: active)
-        .contextMenu {
-            if !segment.speakerId.isEmpty {
-                speakerProfileMenu(speakerID: segment.speakerId)
+                )
             }
         }
     }
@@ -649,16 +452,76 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
-    private func currentSpeakerLabelsByID() -> [String: String] {
-        var labelsByID: [String: String] = [:]
-        // Reads the record directly: this runs before the cache is (re)built.
-        for segment in record.diarizedSegments {
-            guard labelsByID[segment.speakerId] == nil else { continue }
-            let label = segment.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !label.isEmpty else { continue }
-            labelsByID[segment.speakerId] = label
+    /// Decode diarization once and derive every display projection in a single pass.
+    private func refreshDiarizationCache() {
+        // Pre-index known profiles so segment label resolution is O(1) per segment.
+        var profilesByID: [UUID: String] = [:]
+        profilesByID.reserveCapacity(knownProfiles.count)
+        for profile in knownProfiles {
+            profilesByID[profile.id] = profile.displayName
         }
-        return labelsByID
+
+        let decoded = record.diarizedSegments
+
+        var displayed: [DiarizedTranscriptSegment] = []
+        displayed.reserveCapacity(decoded.count)
+        var segmentIDs: [String] = []
+        segmentIDs.reserveCapacity(decoded.count)
+
+        var seenParticipants = Set<String>()
+        var unnamedCount = 0
+        var participants: [(key: String, speakerID: String, label: String)] = []
+
+        for (index, segment) in decoded.enumerated() {
+            let assignedProfileName = segment.speakerProfileID.flatMap { profilesByID[$0] }
+            // User renames / optimistic assignments live in speakerLabelsByID;
+            // payload labels stay on the segment when neither is present.
+            let speakerLabel = assignedProfileName ?? speakerLabelsByID[segment.speakerId]
+            let resolved: DiarizedTranscriptSegment
+            if let speakerLabel,
+               !speakerLabel.isEmpty,
+               speakerLabel != segment.speakerLabel {
+                resolved = DiarizedTranscriptSegment(
+                    speakerId: segment.speakerId,
+                    speakerLabel: speakerLabel,
+                    speakerProfileID: segment.speakerProfileID,
+                    speakerEmbedding: segment.speakerEmbedding,
+                    startTime: segment.startTime,
+                    endTime: segment.endTime,
+                    confidence: segment.confidence,
+                    text: segment.text
+                )
+            } else {
+                resolved = segment
+            }
+
+            displayed.append(resolved)
+            segmentIDs.append("\(resolved.speakerId)-\(index)-\(resolved.startTime)")
+
+            let key = LibrarySpeakerColor.canonicalKey(
+                speakerId: resolved.speakerId,
+                speakerLabel: resolved.speakerLabel
+            )
+            if seenParticipants.insert(key).inserted {
+                let label = resolved.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+                if label.isEmpty {
+                    unnamedCount += 1
+                    participants.append((
+                        key,
+                        resolved.speakerId,
+                        "\(localized("Speaker", locale: locale)) \(unnamedCount)"
+                    ))
+                } else {
+                    participants.append((key, resolved.speakerId, label))
+                }
+            }
+        }
+
+        diarizationCache = DiarizationDisplayCache(
+            segments: displayed,
+            segmentIDs: segmentIDs,
+            participants: participants
+        )
     }
 
     private func createAndAssignProfile() {
@@ -682,7 +545,217 @@ struct MediaTranscriptionDetailView: View {
         newProfileName = ""
         newProfileNotes = ""
     }
+}
 
+// MARK: - Diarization cache
+
+private struct DiarizationDisplayCache {
+    let segments: [DiarizedTranscriptSegment]
+    let segmentIDs: [String]
+    let participants: [(key: String, speakerID: String, label: String)]
+
+    static let empty = DiarizationDisplayCache(segments: [], segmentIDs: [], participants: [])
+}
+
+// MARK: - Narrow playback observers
+
+/// Video surface only. Observes `hasVideoTrack` without pulling the parent into
+/// the playback clock graph.
+private struct MediaDetailVideoSurface: View {
+    let controller: MediaPlaybackController
+
+    var body: some View {
+        if controller.hasVideoTrack {
+            AVPlayerViewRepresentable(player: controller.player)
+                .frame(height: 280)
+                .frame(maxWidth: .infinity)
+                .background(Color.black)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(AppColors.border, lineWidth: 1)
+                )
+        }
+    }
+}
+
+/// Player bar only — progress / elapsed / playing state tick here.
+private struct MediaDetailPlayerBar: View {
+    let controller: MediaPlaybackController
+    let peaks: [Float]
+    let fallbackDuration: TimeInterval
+    @Binding var playbackRate: Float
+    let locale: Locale
+
+    private var effectiveDuration: Double {
+        max(controller.duration, fallbackDuration)
+    }
+
+    private var playbackProgress: Double {
+        let duration = effectiveDuration
+        guard duration > 0 else { return 0 }
+        return min(1, max(0, controller.currentTime / duration))
+    }
+
+    private var elapsedTotalLabel: String {
+        let elapsed = controller.currentTime
+        return "\(timestampLabel(for: elapsed)) / \(timestampLabel(for: effectiveDuration))"
+    }
+
+    var body: some View {
+        PlayerRow(
+            peaks: peaks,
+            progress: playbackProgress,
+            isPlaying: controller.isPlaying,
+            elapsedTotalLabel: elapsedTotalLabel,
+            rateLabel: LibraryPlaybackRate.label(for: playbackRate),
+            onTogglePlay: {
+                controller.togglePlayback()
+                if controller.isPlaying {
+                    controller.setRate(playbackRate)
+                }
+            },
+            onSeek: { fraction in
+                let duration = effectiveDuration
+                guard duration > 0 else { return }
+                controller.seek(to: fraction * duration)
+            },
+            onCycleRate: {
+                let next = LibraryPlaybackRate.next(after: playbackRate)
+                playbackRate = next
+                if controller.isPlaying {
+                    controller.setRate(next)
+                }
+            },
+            rateHelp: localized("Playback speed", locale: locale)
+        )
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppColors.windowBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
+    }
+}
+
+/// Active-segment highlight + auto-scroll. Static segment content is passed in as
+/// values so only the active-ID derivation observes `currentTime`.
+private struct MediaDetailTranscriptTurns: View {
+    let controller: MediaPlaybackController
+    let segments: [DiarizedTranscriptSegment]
+    let segmentIDs: [String]
+    let showsSpeakerLanes: Bool
+    let hasMedia: Bool
+    let followPlayback: Bool
+    let reduceMotion: Bool
+    let turnBodyMetrics: TypographyRoleMetrics
+    let locale: Locale
+    let onSeek: (TimeInterval) -> Void
+    let speakerProfileMenu: (String) -> AnyView
+
+    /// One linear scan per playback tick. NOT a binary search: diarized segments
+    /// can be out of order and can overlap when speakers talk over each other, so
+    /// "first segment containing t" in display order is the correct pick.
+    private var activeSegmentID: String? {
+        let time = controller.currentTime
+        guard let index = segments.firstIndex(where: {
+            time >= $0.startTime && time < $0.endTime
+        }) else {
+            return nil
+        }
+        return segmentIDs[index]
+    }
+
+    var body: some View {
+        let activeID = activeSegmentID
+
+        ScrollViewReader { proxy in
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(segments.indices, id: \.self) { index in
+                    turnRow(
+                        segments[index],
+                        isActive: segmentIDs[index] == activeID
+                    )
+                    .id(segmentIDs[index])
+                }
+            }
+            .onChange(of: activeSegmentID) { _, identifier in
+                guard followPlayback, let identifier else { return }
+                withAnimation(reduceMotion ? nil : AppTheme.Animation.normal) {
+                    proxy.scrollTo(identifier, anchor: .center)
+                }
+            }
+        }
+    }
+
+    private func turnRow(_ segment: DiarizedTranscriptSegment, isActive: Bool) -> some View {
+        let active = isActive
+        let speakerColor = LibrarySpeakerColor.color(
+            speakerId: segment.speakerId,
+            speakerLabel: segment.speakerLabel
+        )
+
+        return Button {
+            if hasMedia {
+                onSeek(segment.startTime)
+            }
+        } label: {
+            HStack(alignment: .top, spacing: 14) {
+                Text(timestampLabel(for: segment.startTime))
+                    .font(AppTypography.monoSmall)
+                    .foregroundStyle(active ? AppColors.accent : AppColors.textTertiary)
+                    .frame(width: 44, alignment: .leading)
+                    .padding(.top, 3)
+                    .monospacedDigit()
+
+                if showsSpeakerLanes {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(speakerColor)
+                            .frame(width: 7, height: 7)
+                        Text(segment.speakerLabel.isEmpty
+                             ? localized("Speaker", locale: locale)
+                             : segment.speakerLabel)
+                            .font(AppTypography.labelSemibold)
+                            .foregroundStyle(AppColors.textPrimary)
+                            .lineLimit(1)
+                    }
+                    .frame(width: 92, alignment: .leading)
+                    .padding(.top, 2)
+                }
+
+                Text(segment.text)
+                    .font(turnBodyMetrics.font)
+                    .lineSpacing(turnBodyMetrics.lineSpacing)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+            }
+            // Spec §8: no horizontal content padding (timestamp stays on the left rule).
+            // Active pill gets breathing room via background inset only.
+            .padding(.vertical, 10)
+            .background {
+                if active {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(AppColors.accentBackground)
+                        .padding(.horizontal, -8)
+                        .padding(.vertical, -2)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .appAnimation(.fast, value: active)
+        .contextMenu {
+            if !segment.speakerId.isEmpty {
+                speakerProfileMenu(segment.speakerId)
+            }
+        }
+    }
 }
 
 private struct SpeakerProfileCreationSheet: View {
@@ -787,37 +860,98 @@ struct TranscriptionThumbnailView: View {
     }
 }
 
+// MARK: - Playback resources (nonisolated for deinit)
+
+/// Owns the AVPlayer, periodic time observer, and metadata task so teardown can
+/// run from nonisolated `deinit` without reading MainActor-isolated stored
+/// properties on `MediaPlaybackController`.
+private final class MediaPlaybackResources: @unchecked Sendable {
+    private let lock = NSLock()
+    let player = AVPlayer()
+    private var timeObserver: Any?
+    private var metadataTask: Task<Void, Never>?
+
+    func installTimeObserver(_ observer: Any) {
+        lock.lock()
+        defer { lock.unlock() }
+        timeObserver = observer
+    }
+
+    func installMetadataTask(_ task: Task<Void, Never>) {
+        lock.lock()
+        defer { lock.unlock() }
+        metadataTask = task
+    }
+
+    /// Idempotent: remove observer, cancel metadata task, pause, clear current item.
+    func release() {
+        lock.lock()
+        let observer = timeObserver
+        let task = metadataTask
+        timeObserver = nil
+        metadataTask = nil
+        lock.unlock()
+
+        if let observer {
+            player.removeTimeObserver(observer)
+        }
+        task?.cancel()
+        player.pause()
+        player.replaceCurrentItem(with: nil)
+    }
+}
+
 @MainActor
 @Observable
 final class MediaPlaybackController {
-    let player = AVPlayer()
+    /// Nonisolated resource ownership so `deinit` can release player resources.
+    private let resources = MediaPlaybackResources()
+
+    var player: AVPlayer { resources.player }
 
     var currentTime: TimeInterval = 0
     var duration: TimeInterval = 0
     var isPlaying = false
     var hasVideoTrack = false
 
-    private var timeObserver: Any?
+    /// Guards re-entrant / repeated teardown so pause/observer/item cleanup is idempotent.
+    private var isTornDown = true
 
     func load(url: URL) {
-        if let timeObserver {
-            player.removeTimeObserver(timeObserver)
-            self.timeObserver = nil
-        }
+        teardownPlayback()
 
+        isTornDown = false
         let item = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: item)
         observeTime()
 
-        Task {
+        resources.installMetadataTask(Task { [weak self] in
             let asset = AVURLAsset(url: url)
             let tracks = try? await asset.loadTracks(withMediaType: .video)
             let duration = try? await asset.load(.duration)
+            guard !Task.isCancelled else { return }
             await MainActor.run {
+                guard let self, !self.isTornDown else { return }
                 self.hasVideoTrack = !(tracks?.isEmpty ?? true)
                 self.duration = duration?.seconds ?? 0
             }
-        }
+        })
+    }
+
+    /// Idempotent playback teardown: pause, remove observer, cancel metadata loading,
+    /// clear current item, and reset observable state. Safe from `onDisappear` and
+    /// `load` replacement. `deinit` releases the same player resources via
+    /// `MediaPlaybackResources` without touching MainActor-isolated state.
+    func teardownPlayback() {
+        guard !isTornDown else { return }
+        isTornDown = true
+
+        resources.release()
+
+        isPlaying = false
+        if currentTime != 0 { currentTime = 0 }
+        if duration != 0 { duration = 0 }
+        if hasVideoTrack { hasVideoTrack = false }
     }
 
     func togglePlayback() {
@@ -846,9 +980,13 @@ final class MediaPlaybackController {
     }
 
     private func observeTime() {
-        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.25, preferredTimescale: 600), queue: .main) { [weak self] time in
+        let observer = player.addPeriodicTimeObserver(
+            forInterval: CMTime(seconds: 0.25, preferredTimescale: 600),
+            queue: .main
+        ) { [weak self] time in
             guard let self else { return }
             Task { @MainActor in
+                guard !self.isTornDown else { return }
                 // @Observable fires on every assignment, equal or not — skip
                 // no-op writes so a paused player doesn't invalidate observers 4×/sec.
                 let seconds = time.seconds.isFinite ? time.seconds : 0
@@ -861,6 +999,13 @@ final class MediaPlaybackController {
                 }
             }
         }
+        resources.installTimeObserver(observer)
+    }
+
+    deinit {
+        // Nonisolated fallback: only the resource holder is touched.
+        // Observable MainActor state dies with the instance; do not hop to MainActor.
+        resources.release()
     }
 }
 

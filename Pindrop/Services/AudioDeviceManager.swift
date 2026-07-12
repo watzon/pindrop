@@ -211,6 +211,186 @@ enum AudioDeviceManager {
     }
 }
 
+// MARK: - Cached input-device snapshot
+
+/// Maintains a cached snapshot of input devices, refreshed only when CoreAudio
+/// reports device-list or default-input-device changes. UI hot paths (status menu
+/// row render) should read this cache instead of calling `inputDevices()`.
+///
+/// Reuses `AudioDeviceListMonitor` for device-list observation and adds a single
+/// default-input listener. Registration is refcounted via `start()` / `stop()` so
+/// teardown is explicit and idempotent.
+final class AudioInputDeviceCache {
+    static let shared = AudioInputDeviceCache()
+
+    /// Fired on the main queue after the snapshot is refreshed to a new value.
+    var onChange: (() -> Void)?
+
+    private let lock = NSLock()
+    private var cachedDevices: [AudioInputDevice] = []
+    private var startCount = 0
+    private let deviceListMonitor = AudioDeviceListMonitor()
+    private var defaultInputListener: AudioObjectPropertyListenerBlock?
+    private var defaultInputAddress = AudioObjectPropertyAddress(
+        mSelector: AudioObjectPropertySelector(kAudioHardwarePropertyDefaultInputDevice),
+        mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
+        mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+    )
+
+    /// Latest input-device snapshot. Empty until `start()` has refreshed once.
+    var devices: [AudioInputDevice] {
+        lock.lock()
+        defer { lock.unlock() }
+        return cachedDevices
+    }
+
+    deinit {
+        // Force full teardown regardless of startCount so listeners never leak.
+        tearDownListeners()
+    }
+
+    /// Begins observing CoreAudio (refcounted). Safe to call multiple times.
+    func start() {
+        lock.lock()
+        startCount += 1
+        let shouldInstall = startCount == 1
+        lock.unlock()
+
+        guard shouldInstall else { return }
+        installListeners()
+        refreshSnapshot(notify: false)
+    }
+
+    /// Drops one start reference and tears down listeners when the count hits zero.
+    /// Idempotent when already stopped.
+    func stop() {
+        lock.lock()
+        guard startCount > 0 else {
+            lock.unlock()
+            return
+        }
+        startCount -= 1
+        let shouldTearDown = startCount == 0
+        lock.unlock()
+
+        guard shouldTearDown else { return }
+        tearDownListeners()
+    }
+
+    /// Forces a re-enumeration into the cache. Prefer listener-driven refresh.
+    func refreshNow() {
+        refreshSnapshot(notify: true)
+    }
+
+    func device(uid: String) -> AudioInputDevice? {
+        devices.first { $0.uid == uid }
+    }
+
+    /// MainActor-safe observation token. `tearDown()` is nonisolated and idempotent so
+    /// `@MainActor` owners can call it from `deinit`.
+    func makeObservation(onChange: @escaping () -> Void) -> Observation {
+        Observation(cache: self, onChange: onChange)
+    }
+
+    private func installListeners() {
+        deviceListMonitor.onChange = { [weak self] in
+            self?.refreshSnapshot(notify: true)
+        }
+        deviceListMonitor.start()
+
+        if defaultInputListener == nil {
+            let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+                // Default-input flips are single events — refresh on the main queue.
+                if Thread.isMainThread {
+                    self?.refreshSnapshot(notify: true)
+                } else {
+                    DispatchQueue.main.async {
+                        self?.refreshSnapshot(notify: true)
+                    }
+                }
+            }
+            let status = AudioObjectAddPropertyListenerBlock(
+                AudioObjectID(kAudioObjectSystemObject),
+                &defaultInputAddress,
+                DispatchQueue.main,
+                block
+            )
+            if status == noErr {
+                defaultInputListener = block
+            } else {
+                Log.audio.error("Failed to observe default input device for cache: status=\(status)")
+            }
+        }
+    }
+
+    /// Removes listeners and pending work. Safe to call repeatedly.
+    private func tearDownListeners() {
+        deviceListMonitor.onChange = nil
+        deviceListMonitor.stop()
+
+        if let block = defaultInputListener {
+            AudioObjectRemovePropertyListenerBlock(
+                AudioObjectID(kAudioObjectSystemObject),
+                &defaultInputAddress,
+                DispatchQueue.main,
+                block
+            )
+            defaultInputListener = nil
+        }
+
+        lock.lock()
+        startCount = 0
+        lock.unlock()
+    }
+
+    private func refreshSnapshot(notify: Bool) {
+        let snapshot = AudioDeviceManager.inputDevices()
+        lock.lock()
+        let previous = cachedDevices
+        cachedDevices = snapshot
+        lock.unlock()
+
+        guard notify else { return }
+        // Drop no-op refreshes so status-row consumers resolve once per real change.
+        if previous == snapshot { return }
+        if Thread.isMainThread {
+            onChange?()
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.onChange?()
+            }
+        }
+    }
+
+    /// Nonisolated lifecycle handle for one consumer of the shared cache.
+    final class Observation: @unchecked Sendable {
+        private let cache: AudioInputDeviceCache
+        private let lock = NSLock()
+        private var isActive = true
+
+        fileprivate init(cache: AudioInputDeviceCache, onChange: @escaping () -> Void) {
+            self.cache = cache
+            cache.onChange = onChange
+            cache.start()
+        }
+
+        /// Idempotent: clears the callback and drops one start reference.
+        func tearDown() {
+            lock.lock()
+            let wasActive = isActive
+            isActive = false
+            lock.unlock()
+            guard wasActive else { return }
+            cache.onChange = nil
+            cache.stop()
+        }
+
+        deinit {
+            tearDown()
+        }
+    }
+}
+
 /// Watches the system audio device list and fires `onChange` on the main queue when
 /// devices are added or removed. Changes are debounced because a single unplug can
 /// re-enumerate the device list several times in quick succession.

@@ -109,8 +109,11 @@ class TranscriptionService {
     /// while this service drops that instance before allowing a newly loaded one.
     private var activeTranscriptionGeneration: UInt64?
     private var nextTranscriptionGeneration: UInt64 = 1
-    private var streamingPartialCallback: (@Sendable (String) -> Void)?
-    private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
+    private var streamingPartialCallback: (@MainActor @Sendable (String) async -> Void)?
+    private var streamingFinalUtteranceCallback: (@MainActor @Sendable (String) async -> Void)?
+    /// Engine emissions hop once onto the main actor through this bridge. Partials
+    /// coalesce to the latest value; finals stay ordered and lossless.
+    private let streamingCallbackDelivery = StreamingCallbackDelivery()
 
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer
@@ -386,12 +389,10 @@ class TranscriptionService {
             Log.transcription.info("Transcribing \(floatCount) samples (\(String(format: "%.2f", duration))s) using \(providerName)")
 
             let startTime = Date()
-            let samples = dataToFloatArray(audioData)
 
             let output = try await transcribeWithOptionalDiarization(
                 engine: engine,
                 audioData: audioData,
-                samples: samples,
                 sampleRate: Self.sampleRate,
                 diarizationEnabled: diarizationEnabled,
                 options: options
@@ -446,7 +447,7 @@ class TranscriptionService {
             throw TranscriptionError.invalidAudioData
         }
 
-        let samples = dataToFloatArray(audioData)
+        let samples = await Self.floatSamples(from: audioData)
         let diarizer = try await prepareSpeakerDiarizer()
         try await diarizer.loadModels()
         let result = try await diarizeWithWatchdog(
@@ -486,11 +487,14 @@ class TranscriptionService {
     }
 
     func setStreamingCallbacks(
-        onPartial: (@Sendable (String) -> Void)? = nil,
-        onFinalUtterance: (@Sendable (String) -> Void)? = nil
+        onPartial: (@MainActor @Sendable (String) async -> Void)? = nil,
+        onFinalUtterance: (@MainActor @Sendable (String) async -> Void)? = nil
     ) {
         streamingPartialCallback = onPartial
         streamingFinalUtteranceCallback = onFinalUtterance
+        if onPartial == nil && onFinalUtterance == nil {
+            streamingCallbackDelivery.reset()
+        }
         applyStreamingCallbacks()
     }
 
@@ -705,7 +709,6 @@ class TranscriptionService {
     private func transcribeWithOptionalDiarization(
         engine: any TranscriptionEngine,
         audioData: Data,
-        samples: [Float],
         sampleRate: Int,
         diarizationEnabled: Bool,
         options: TranscriptionOptions
@@ -717,6 +720,9 @@ class TranscriptionService {
         Log.transcription.info("Speaker diarization enabled for current transcription")
 
         do {
+            try Task.checkCancellation()
+            // Sample conversion is only needed for diarization / per-segment slicing.
+            let samples = await Self.floatSamples(from: audioData)
             try Task.checkCancellation()
             let diarizer = try await prepareSpeakerDiarizer()
             try Task.checkCancellation()
@@ -1245,34 +1251,199 @@ class TranscriptionService {
         // Engine setters are actor-isolated; hop from this sync context. Session
         // start always awaits prepare/start after this, so the setters land before
         // the first buffer is processed.
+        //
+        // Each engine emission claims at most one generation-scoped drain via
+        // `streamingCallbackDelivery`. That single drain serializes coalesced
+        // partials and ordered finals — callers must not re-wrap those callbacks
+        // in another MainActor Task.
+        let delivery = streamingCallbackDelivery
         Task {
-            await streamingEngine.setTranscriptionCallback { [weak self] result in
+            await streamingEngine.setTranscriptionCallback { result in
                 guard !result.isFinal else { return }
+                guard let generation = delivery.enqueuePartial(result.text) else { return }
                 Task { @MainActor [weak self] in
-                    self?.streamingPartialCallback?(result.text)
+                    await self?.drainStreamingCallbackDelivery(generation: generation)
                 }
             }
 
-            await streamingEngine.setEndOfUtteranceCallback { [weak self] text in
+            await streamingEngine.setEndOfUtteranceCallback { text in
+                guard let generation = delivery.enqueueFinal(text) else { return }
                 Task { @MainActor [weak self] in
-                    self?.streamingFinalUtteranceCallback?(text)
+                    await self?.drainStreamingCallbackDelivery(generation: generation)
                 }
             }
         }
     }
 
-    private func dataToFloatArray(_ data: Data) -> [Float] {
-        let floatCount = data.count / MemoryLayout<Float>.size
-        var floatArray = [Float](repeating: 0, count: floatCount)
+    private func drainStreamingCallbackDelivery(generation: UInt64) async {
+        var generation = generation
+        while true {
+            let events = streamingCallbackDelivery.snapshotAndClear(forGeneration: generation)
+            eventLoop: for event in events {
+                // Capture sinks only while this generation is still current so a
+                // concurrent reset cannot redirect already-snapshotted events into
+                // the next session. In-flight awaits keep the captured (old) sink.
+                guard streamingCallbackDelivery.isCurrentGeneration(generation) else {
+                    break eventLoop
+                }
+                switch event {
+                case .partial(let text):
+                    let callback = streamingPartialCallback
+                    guard streamingCallbackDelivery.isCurrentGeneration(generation) else {
+                        break eventLoop
+                    }
+                    await callback?(text)
+                case .final(let text):
+                    let callback = streamingFinalUtteranceCallback
+                    guard streamingCallbackDelivery.isCurrentGeneration(generation) else {
+                        break eventLoop
+                    }
+                    await callback?(text)
+                }
+            }
 
-        data.withUnsafeBytes { rawBuffer in
-            let floatBuffer = rawBuffer.bindMemory(to: Float.self)
-            for index in 0..<floatCount {
-                floatArray[index] = floatBuffer[index]
+            switch streamingCallbackDelivery.completeDrain(forGeneration: generation) {
+            case .continueDrain:
+                continue
+            case .finished:
+                return
+            case .adoptGeneration(let newGeneration):
+                // Same task keeps exclusive ownership across reset handoff.
+                generation = newGeneration
+                continue
             }
         }
+    }
 
-        return floatArray
+    /// Converts PCM float32 `Data` into a sample array using a bulk copy.
+    /// Runs off the main actor so large captures do not stall UI work.
+    nonisolated private static func floatSamples(from data: Data) async -> [Float] {
+        await Task.detached(priority: .userInitiated) {
+            Self.dataToFloatArray(data)
+        }.value
+    }
+
+    nonisolated private static func dataToFloatArray(_ data: Data) -> [Float] {
+        let floatCount = data.count / MemoryLayout<Float>.size
+        guard floatCount > 0 else { return [] }
+
+        return data.withUnsafeBytes { rawBuffer -> [Float] in
+            guard let baseAddress = rawBuffer.baseAddress else { return [] }
+            let floatPointer = baseAddress.assumingMemoryBound(to: Float.self)
+            // Bulk-initialize from the source buffer; avoid zero-fill then overwrite.
+            return Array(UnsafeBufferPointer(start: floatPointer, count: floatCount))
+        }
+    }
+}
+
+/// Bridges nonisolated streaming-engine callbacks onto the main actor with a
+/// single isolation hop. Consecutive partials collapse to the latest value;
+/// final utterances are queued in arrival order and never dropped.
+///
+/// Ownership model: at most one drain task is live. `reset()` advances the
+/// session generation and drops queued events without marking a still-running
+/// drain as idle, so a concurrent second drain cannot be scheduled. The live
+/// drain either finishes or adopts the new generation itself.
+private final class StreamingCallbackDelivery: @unchecked Sendable {
+    enum Event: Sendable {
+        case partial(String)
+        case final(String)
+    }
+
+    enum DrainPoll: Sendable {
+        /// Same generation still has queued work.
+        case continueDrain
+        /// This drain released ownership; caller must exit.
+        case finished
+        /// Reset superseded this drain; caller keeps ownership under the new generation.
+        case adoptGeneration(UInt64)
+    }
+
+    private let lock = NSLock()
+    private var generation: UInt64 = 1
+    private var queue: [Event] = []
+    /// Generation that currently owns the single drain task, if any.
+    private var drainOwnerGeneration: UInt64?
+
+    /// Enqueue a partial. Returns a generation when the caller must start the drain.
+    func enqueuePartial(_ text: String) -> UInt64? {
+        lock.lock()
+        defer { lock.unlock() }
+        if let lastIndex = queue.indices.last, case .partial = queue[lastIndex] {
+            queue[lastIndex] = .partial(text)
+        } else {
+            queue.append(.partial(text))
+        }
+        return claimDrainIfIdle()
+    }
+
+    /// Enqueue a final utterance. Returns a generation when the caller must start the drain.
+    func enqueueFinal(_ text: String) -> UInt64? {
+        lock.lock()
+        defer { lock.unlock() }
+        queue.append(.final(text))
+        return claimDrainIfIdle()
+    }
+
+    func isCurrentGeneration(_ expected: UInt64) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return expected == generation
+    }
+
+    func snapshotAndClear(forGeneration expected: UInt64) -> [Event] {
+        lock.lock()
+        defer { lock.unlock() }
+        guard expected == generation else { return [] }
+        let events = queue
+        queue.removeAll(keepingCapacity: true)
+        return events
+    }
+
+    /// Called by the sole drain task after each batch. Never clears ownership for a
+    /// still-current drain that has more work, and never pretends a live drain is idle.
+    func completeDrain(forGeneration expected: UInt64) -> DrainPoll {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if expected != generation {
+            // Superseded by reset. Transfer ownership only when the new session
+            // already has events waiting; otherwise become idle.
+            guard drainOwnerGeneration == expected else {
+                return .finished
+            }
+            if !queue.isEmpty {
+                drainOwnerGeneration = generation
+                return .adoptGeneration(generation)
+            }
+            drainOwnerGeneration = nil
+            return .finished
+        }
+
+        if !queue.isEmpty {
+            return .continueDrain
+        }
+        if drainOwnerGeneration == expected {
+            drainOwnerGeneration = nil
+        }
+        return .finished
+    }
+
+    func reset() {
+        lock.lock()
+        generation &+= 1
+        queue.removeAll(keepingCapacity: false)
+        // Leave `drainOwnerGeneration` intact while a drain is running. Clearing it
+        // here would let a new emission schedule a concurrent second drain.
+        lock.unlock()
+    }
+
+    private func claimDrainIfIdle() -> UInt64? {
+        if drainOwnerGeneration != nil {
+            return nil
+        }
+        drainOwnerGeneration = generation
+        return generation
     }
 }
 

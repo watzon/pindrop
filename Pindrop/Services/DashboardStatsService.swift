@@ -83,20 +83,43 @@ enum DashboardStatsService {
         )
     }
 
-    /// Convenience entry point that maps records then computes stats.
+    /// Convenience entry point that maps records during aggregation without
+    /// allocating an intermediate `[StatsSample]` array.
     static func compute(
         records: [TranscriptionRecord],
         calendar: Calendar,
         now: Date
     ) -> DashboardStats {
-        compute(samples: records.map(sample(from:)), calendar: calendar, now: now)
+        aggregate(calendar: calendar, now: now) { visit in
+            for record in records {
+                visit(
+                    record.timestamp,
+                    max(0, record.effectiveWordCount),
+                    record.duration
+                )
+            }
+        }
     }
 
     /// Stateless computation over pre-built samples. Uses only the injected calendar and `now`.
+    /// Preserved for unit tests and any caller that already holds `StatsSample` values.
     static func compute(
         samples: [StatsSample],
         calendar: Calendar,
         now: Date
+    ) -> DashboardStats {
+        aggregate(calendar: calendar, now: now) { visit in
+            for sample in samples {
+                visit(sample.timestamp, sample.wordCount, sample.duration)
+            }
+        }
+    }
+
+    /// Shared aggregation loop for both record and sample inputs.
+    private static func aggregate(
+        calendar: Calendar,
+        now: Date,
+        enumerate: (_ visit: (_ timestamp: Date, _ wordCount: Int, _ duration: TimeInterval) -> Void) -> Void
     ) -> DashboardStats {
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
             return .empty
@@ -117,8 +140,8 @@ enum DashboardStatsService {
         var activeDayStarts = Set<Date>()
         let activityStart = calendar.date(byAdding: .day, value: -364, to: startOfToday)
 
-        for sample in samples {
-            let dayStart = calendar.startOfDay(for: sample.timestamp)
+        enumerate { timestamp, wordCount, duration in
+            let dayStart = calendar.startOfDay(for: timestamp)
             activeDayStarts.insert(dayStart)
 
             if let activityStart,
@@ -126,24 +149,24 @@ enum DashboardStatsService {
                dayStart < startOfTomorrow,
                let dayOffset = calendar.dateComponents([.day], from: activityStart, to: dayStart).day,
                wordsPerActivityDay.indices.contains(dayOffset) {
-                wordsPerActivityDay[dayOffset] += sample.wordCount
+                wordsPerActivityDay[dayOffset] += wordCount
             }
 
-            let isToday = sample.timestamp >= startOfToday && sample.timestamp < startOfTomorrow
+            let isToday = timestamp >= startOfToday && timestamp < startOfTomorrow
             if isToday {
-                wordsToday += sample.wordCount
+                wordsToday += wordCount
                 sessionsToday += 1
             }
 
-            let isThisWeek = sample.timestamp >= weekInterval.start && sample.timestamp < weekInterval.end
+            let isThisWeek = timestamp >= weekInterval.start && timestamp < weekInterval.end
             if isThisWeek {
-                wordsThisWeek += sample.wordCount
+                wordsThisWeek += wordCount
                 sessionsThisWeek += 1
-                dictationDurationThisWeek += sample.duration
+                dictationDurationThisWeek += duration
 
-                let weekday = calendar.component(.weekday, from: sample.timestamp)
+                let weekday = calendar.component(.weekday, from: timestamp)
                 let index = weekdayIndex(weekday: weekday, firstWeekday: calendar.firstWeekday)
-                wordsPerWeekday[index] += sample.wordCount
+                wordsPerWeekday[index] += wordCount
             }
         }
 

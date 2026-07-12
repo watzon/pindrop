@@ -193,12 +193,30 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func removeTrainingEvidence(for recordID: UUID) throws {
+        try removeTrainingEvidence(for: [recordID])
+    }
+
+    /// Removes training evidence for many records in one transaction: one evidence
+    /// fetch, unique profile collection, evidence deletion, one rebuild per touched
+    /// profile from the post-delete evidence set, and a single save.
+    func removeTrainingEvidence(for recordIDs: [UUID]) throws {
+        let uniqueIDs = Array(Set(recordIDs))
+        guard !uniqueIDs.isEmpty else { return }
+
         let descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
-            predicate: #Predicate { $0.recordID == recordID }
+            predicate: #Predicate<ParticipantTrainingEvidence> { evidence in
+                if let recordID = evidence.recordID {
+                    return uniqueIDs.contains(recordID)
+                } else {
+                    return false
+                }
+            }
         )
 
         do {
             let evidence = try modelContext.fetch(descriptor)
+            guard !evidence.isEmpty else { return }
+
             let touchedProfiles = evidence.reduce(into: [PersistentIdentifier: ParticipantProfile]()) {
                 result, item in
                 guard let profile = item.profile else { return }
@@ -208,18 +226,16 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             for item in evidence {
                 modelContext.delete(item)
             }
-            try modelContext.save()
 
             for profile in touchedProfiles.values {
                 rebuildProfile(profile)
             }
-            if !touchedProfiles.isEmpty {
-                try modelContext.save()
-            }
+            try modelContext.save()
         } catch {
             throw SpeakerIdentityError.saveFailed(error.localizedDescription)
         }
     }
+
 
     private func learn(
         recordID: UUID,
@@ -875,7 +891,7 @@ final class HistoryStore {
     }
 
     /// Produces one reload-scoped result. Empty searches use store-level count and
-    /// duration projections; non-empty searches materialize matching records once so
+    /// duration projections; non-empty searches match off the main actor once so
     /// count, duration, and every page share the same result set.
     func transcriptionSnapshot(
         query: String = "",
@@ -892,12 +908,45 @@ final class HistoryStore {
             )
         }
 
-        let records = try fetchAllTranscriptions(query: trimmedQuery, filter: filter, sort: sort)
+        let searchResult: HistorySearchResult
+        do {
+            searchResult = try await aggregationWorker.search(
+                query: trimmedQuery,
+                filter: filter,
+                sort: sort
+            )
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw HistoryStoreError.searchFailed(error.localizedDescription)
+        }
+
+        try Task.checkCancellation()
+        let records = try fetchTranscriptions(ids: searchResult.matchingIDs)
         return TranscriptionSnapshot(
-            count: records.count,
-            spokenDuration: records.reduce(0) { $0 + max(0, $1.duration) },
+            count: searchResult.matchingIDs.count,
+            spokenDuration: searchResult.spokenDuration,
             searchedRecords: records
         )
+    }
+
+    /// Hydrates main-context records for an ordered ID list produced by a background search.
+    func fetchTranscriptions(ids: [UUID]) throws -> [TranscriptionRecord] {
+        guard !ids.isEmpty else { return [] }
+
+        let uniqueIDs = Array(Set(ids))
+        let predicate = #Predicate<TranscriptionRecord> { record in
+            uniqueIDs.contains(record.id)
+        }
+        let descriptor = FetchDescriptor<TranscriptionRecord>(predicate: predicate)
+
+        do {
+            let fetched = try modelContext.fetch(descriptor)
+            let byID = Dictionary(uniqueKeysWithValues: fetched.map { ($0.id, $0) })
+            return ids.compactMap { byID[$0] }
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
     }
 
     func fetchRecord(with id: UUID) throws -> TranscriptionRecord? {
@@ -927,6 +976,83 @@ final class HistoryStore {
             try modelContext.save()
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
             return true
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    /// Lightweight projection used by dictation-audio retention maintenance.
+    /// Avoids loading full transcript bodies for expiry sweeps.
+    struct ExpiredDictationMediaCandidate: Sendable, Equatable {
+        let recordID: UUID
+        let mediaPath: String
+    }
+
+    /// Fetches a bounded page of voice-recording rows whose managed media is older than `cutoff`.
+    /// Only `id` / path / timestamp fields are needed for deletion; transcript bodies stay unloaded.
+    func fetchExpiredDictationMediaCandidates(
+        olderThan cutoff: Date,
+        limit: Int
+    ) throws -> [ExpiredDictationMediaCandidate] {
+        let pageLimit = max(limit, 0)
+        guard pageLimit > 0 else { return [] }
+
+        let voiceRawValue = MediaSourceKind.voiceRecording.rawValue
+        let predicate = #Predicate<TranscriptionRecord> { record in
+            (record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue)
+                && record.timestamp < cutoff
+                && record.managedMediaPath != nil
+        }
+
+        var descriptor = FetchDescriptor<TranscriptionRecord>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+        )
+        descriptor.fetchLimit = pageLimit
+        descriptor.propertiesToFetch = [\.id, \.managedMediaPath, \.timestamp, \.sourceKindRawValue]
+
+        do {
+            let records = try modelContext.fetch(descriptor)
+            var candidates: [ExpiredDictationMediaCandidate] = []
+            candidates.reserveCapacity(min(records.count, pageLimit))
+            for record in records {
+                // Preserve empty/whitespace paths so the sweep can still clear the field
+                // and the page advances; only non-empty paths need filesystem deletion.
+                let path = record.managedMediaPath?
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                candidates.append(
+                    ExpiredDictationMediaCandidate(recordID: record.id, mediaPath: path)
+                )
+            }
+            return candidates
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    /// Clears `managedMediaPath` for the given record IDs in one save.
+    /// Missing IDs are ignored. Returns the number of rows updated.
+    @discardableResult
+    func clearManagedMediaPaths(for recordIDs: [UUID]) throws -> Int {
+        guard !recordIDs.isEmpty else { return 0 }
+
+        let uniqueIDs = Array(Set(recordIDs))
+        let predicate = #Predicate<TranscriptionRecord> { record in
+            uniqueIDs.contains(record.id)
+        }
+        let descriptor = FetchDescriptor<TranscriptionRecord>(predicate: predicate)
+
+        do {
+            let records = try modelContext.fetch(descriptor)
+            var updated = 0
+            for record in records where record.managedMediaPath != nil {
+                record.managedMediaPath = nil
+                updated += 1
+            }
+            guard updated > 0 else { return 0 }
+            try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+            return updated
         } catch {
             throw HistoryStoreError.saveFailed(error.localizedDescription)
         }
@@ -1144,6 +1270,7 @@ final class HistoryStore {
         
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.deleteFailed(error.localizedDescription)
         }
@@ -1152,17 +1279,33 @@ final class HistoryStore {
     func deleteAll() throws {
         do {
             let records = try fetchAll()
-            records.forEach(removeManagedMedia)
-            for record in records {
-                try speakerIdentityService?.removeTrainingEvidence(for: record.id)
+            // Snapshot filesystem paths before mutating the store so media cleanup
+            // can run off-main after a successful DB commit without rereading models.
+            let managedMediaPaths = records.flatMap(managedMediaPaths(for:))
+            let recordIDs = records.map(\.id)
+
+            if let speakerIdentityService = speakerIdentityService as? SpeakerIdentityService {
+                try speakerIdentityService.removeTrainingEvidence(for: recordIDs)
+            } else {
+                // Protocol seam (tests / alternate services): preserve per-ID API.
+                for recordID in recordIDs {
+                    try speakerIdentityService?.removeTrainingEvidence(for: recordID)
+                }
             }
+
             try modelContext.delete(model: TranscriptionRecord.self)
             try modelContext.save()
+
+            // DB is durable first; filesystem cleanup is best-effort off-main so a
+            // mid-delete crash cannot leave records pointing at already-removed files.
+            Self.scheduleManagedMediaRemoval(paths: managedMediaPaths)
+
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.deleteFailed(error.localizedDescription)
         }
     }
+
     
     func search(query: String) throws -> [TranscriptionRecord] {
         let predicate = #Predicate<TranscriptionRecord> { record in
@@ -1346,14 +1489,30 @@ final class HistoryStore {
         }
     }
 
-    private func removeManagedMedia(for record: TranscriptionRecord) {
-        let fileManager = FileManager.default
-        let candidatePaths = [record.managedMediaPath, record.thumbnailPath]
+    private func managedMediaPaths(for record: TranscriptionRecord) -> [String] {
+        [record.managedMediaPath, record.thumbnailPath]
             .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+    }
 
+    private func removeManagedMedia(for record: TranscriptionRecord) {
+        Self.removeManagedMediaAssets(at: managedMediaPaths(for: record))
+    }
+
+    /// Fire-and-forget filesystem cleanup after the store transaction commits.
+    private static func scheduleManagedMediaRemoval(paths: [String]) {
+        guard !paths.isEmpty else { return }
+        Task.detached(priority: .utility) {
+            Self.removeManagedMediaAssets(at: paths)
+        }
+    }
+
+    /// Shared path-based managed-media + peaks + empty-parent cleanup.
+    /// `nonisolated` so delete-all can run it off the main actor after DB commit.
+    nonisolated private static func removeManagedMediaAssets(at paths: [String]) {
+        let fileManager = FileManager.default
         var parentDirectories = Set<String>()
-        for path in candidatePaths {
+        for path in paths {
             do {
                 if fileManager.fileExists(atPath: path) {
                     try fileManager.removeItem(atPath: path)
@@ -1381,6 +1540,7 @@ final class HistoryStore {
             }
         }
     }
+
 
     private func learnFromDictationBestEffort(
         recordID: UUID,
@@ -1552,11 +1712,13 @@ final class HistoryStore {
     }
 }
 
-/// A dedicated SwiftData executor for history header aggregates. It keeps the
-/// O(N) duration projection off the main context and avoids fetching transcript
-/// text for unsearched library reloads.
+/// A dedicated SwiftData executor for history header aggregates and non-empty
+/// library search. Keeps O(N) duration projection and text matching off the
+/// main context/actor while empty-query SQL pagination stays on the store.
 @ModelActor
 private actor HistoryAggregationWorker {
+    private static let searchBatchSize = 64
+
     func aggregate(
         filter: HistoryStore.HistoryFilter
     ) throws -> HistoryStore.TranscriptionAggregate {
@@ -1569,6 +1731,42 @@ private actor HistoryAggregationWorker {
 
         return HistoryStore.TranscriptionAggregate(
             count: count,
+            spokenDuration: spokenDuration
+        )
+    }
+
+    /// Filter-scoped fetch + broadened text match + duration reduce, with
+    /// cooperative cancellation between batches.
+    func search(
+        query: String,
+        filter: HistoryStore.HistoryFilter,
+        sort: MediaLibrarySortMode
+    ) async throws -> HistorySearchResult {
+        try Task.checkCancellation()
+
+        let descriptor = searchDescriptor(filter: filter, sort: sort)
+        let candidates = try modelContext.fetch(descriptor)
+        var matchingIDs: [UUID] = []
+        matchingIDs.reserveCapacity(min(candidates.count, 256))
+        var spokenDuration: TimeInterval = 0
+
+        var index = 0
+        while index < candidates.count {
+            try Task.checkCancellation()
+            let end = min(index + Self.searchBatchSize, candidates.count)
+            for record in candidates[index..<end] {
+                if Self.matchesMediaLibrarySearch(record, query: query) {
+                    matchingIDs.append(record.id)
+                    spokenDuration += max(0, record.duration)
+                }
+            }
+            index = end
+            // Yield so a superseded search generation can cancel between batches.
+            await Task.yield()
+        }
+
+        return HistorySearchResult(
+            matchingIDs: matchingIDs,
             spokenDuration: spokenDuration
         )
     }
@@ -1602,4 +1800,85 @@ private actor HistoryAggregationWorker {
             return FetchDescriptor(predicate: predicate)
         }
     }
+
+    private func searchDescriptor(
+        filter: HistoryStore.HistoryFilter,
+        sort: MediaLibrarySortMode
+    ) -> FetchDescriptor<TranscriptionRecord> {
+        // Mirror HistoryStore SQL filter + sort; broadened text match stays in memory.
+        let sortDescriptors: [SortDescriptor<TranscriptionRecord>]
+        switch sort {
+        case .oldest:
+            sortDescriptors = [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .forward)]
+        case .newest, .nameAscending, .nameDescending:
+            sortDescriptors = [SortDescriptor<TranscriptionRecord>(\.timestamp, order: .reverse)]
+        }
+
+        var descriptor = aggregateDescriptor(for: filter)
+        descriptor.sortBy = sortDescriptors
+        // Prefer the fields used by matching/duration; SwiftData may still fault others.
+        descriptor.propertiesToFetch = [
+            \.id,
+            \.duration,
+            \.timestamp,
+            \.text,
+            \.originalText,
+            \.sourceDisplayName,
+            \.generatedTitle,
+            \.aiSummary,
+            \.originalSourceURL,
+            \.sourceTitleOriginRawValue
+        ]
+        return descriptor
+    }
+
+    /// Parity with `TranscriptionRecord.matchesMediaLibrarySearch` / preferredTitle.
+    private static func matchesMediaLibrarySearch(
+        _ record: TranscriptionRecord,
+        query: String
+    ) -> Bool {
+        let searchableFields = [
+            preferredTitle(for: record),
+            record.text,
+            record.originalText,
+            record.sourceDisplayName,
+            record.generatedTitle,
+            record.aiSummary,
+            record.originalSourceURL
+        ]
+
+        return searchableFields.contains { value in
+            guard let value, !value.isEmpty else { return false }
+            return value.localizedStandardContains(query)
+        }
+    }
+
+    private static func preferredTitle(for record: TranscriptionRecord) -> String? {
+        let trimmedSourceDisplayName = record.sourceDisplayName?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedGeneratedTitle = record.generatedTitle?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasSourceMetadataTitle = record.sourceTitleOriginRawValue
+            == TranscriptionTitleOrigin.sourceMetadata.rawValue
+
+        if hasSourceMetadataTitle,
+           let trimmedSourceDisplayName,
+           !trimmedSourceDisplayName.isEmpty {
+            return trimmedSourceDisplayName
+        }
+        if let trimmedGeneratedTitle, !trimmedGeneratedTitle.isEmpty {
+            return trimmedGeneratedTitle
+        }
+        if let trimmedSourceDisplayName, !trimmedSourceDisplayName.isEmpty {
+            return trimmedSourceDisplayName
+        }
+
+        let trimmedText = record.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedText.isEmpty ? nil : trimmedText
+    }
+}
+
+private struct HistorySearchResult: Sendable {
+    let matchingIDs: [UUID]
+    let spokenDuration: TimeInterval
 }

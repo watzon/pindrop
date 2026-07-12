@@ -32,6 +32,8 @@ enum DictationAudioEncoder {
         inputSampleRate: Double = inputSampleRate,
         channelCount: AVAudioChannelCount = channelCount
     ) throws {
+        try Task.checkCancellation()
+
         let sampleCount = audioData.count / MemoryLayout<Float>.size
         guard sampleCount > 0 else {
             throw DictationAudioError.emptyAudio
@@ -63,34 +65,16 @@ enum DictationAudioEncoder {
         if abs(inputSampleRate - encodeRate) < 0.5 {
             encodeBuffer = inputBuffer
         } else {
+            try Task.checkCancellation()
             encodeBuffer = try resample(inputBuffer, toSampleRate: encodeRate)
         }
 
-        let parent = destinationURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
-
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.removeItem(at: destinationURL)
-        }
-
-        let settings: [String: Any] = [
-            AVFormatIDKey: kAudioFormatMPEG4AAC,
-            AVSampleRateKey: encodeBuffer.format.sampleRate,
-            AVNumberOfChannelsKey: Int(channelCount),
-            AVEncoderBitRateKey: bitRate
-        ]
-
-        do {
-            let outputFile = try AVAudioFile(
-                forWriting: destinationURL,
-                settings: settings,
-                commonFormat: .pcmFormatFloat32,
-                interleaved: false
-            )
-            try outputFile.write(from: encodeBuffer)
-        } catch {
-            throw DictationAudioError.encodingFailed(error.localizedDescription)
-        }
+        try Task.checkCancellation()
+        try writeEncodeBuffer(
+            encodeBuffer,
+            to: destinationURL,
+            channelCount: channelCount
+        )
     }
 
     /// Streams a raw Float32 PCM spool into the AAC writer in small buffers so
@@ -101,6 +85,8 @@ enum DictationAudioEncoder {
         inputSampleRate: Double,
         channelCount: AVAudioChannelCount = channelCount
     ) throws {
+        try Task.checkCancellation()
+
         guard let inputFormat = AVAudioFormat(
             commonFormat: .pcmFormatFloat32,
             sampleRate: inputSampleRate,
@@ -112,11 +98,25 @@ enum DictationAudioEncoder {
         let encodeRate = encodeSampleRate(forInputRate: inputSampleRate)
         let parent = destinationURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.removeItem(at: destinationURL)
+
+        // Stage into a unique temp file so cancellation / superseding work cannot
+        // leave a half-written destination visible under the final media path.
+        let stagingURL = destinationURL
+            .deletingLastPathComponent()
+            .appendingPathComponent(".\(destinationURL.deletingPathExtension().lastPathComponent).\(UUID().uuidString).tmp")
+            .appendingPathExtension(destinationURL.pathExtension)
+        defer {
+            if FileManager.default.fileExists(atPath: stagingURL.path) {
+                try? FileManager.default.removeItem(at: stagingURL)
+            }
         }
+
+        if FileManager.default.fileExists(atPath: stagingURL.path) {
+            try FileManager.default.removeItem(at: stagingURL)
+        }
+
         let outputFile = try AVAudioFile(
-            forWriting: destinationURL,
+            forWriting: stagingURL,
             settings: [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVSampleRateKey: encodeRate,
@@ -146,6 +146,7 @@ enum DictationAudioEncoder {
         let framesPerChunk = 16_384
         var wroteFrames = false
         while true {
+            try Task.checkCancellation()
             let data = sourceHandle.readData(ofLength: framesPerChunk * MemoryLayout<Float>.size)
             guard !data.isEmpty else { break }
             let frameCount = data.count / MemoryLayout<Float>.size
@@ -192,6 +193,60 @@ enum DictationAudioEncoder {
             wroteFrames = true
         }
         guard wroteFrames else { throw DictationAudioError.emptyAudio }
+
+        try Task.checkCancellation()
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+        try FileManager.default.moveItem(at: stagingURL, to: destinationURL)
+    }
+
+    private static func writeEncodeBuffer(
+        _ encodeBuffer: AVAudioPCMBuffer,
+        to destinationURL: URL,
+        channelCount: AVAudioChannelCount
+    ) throws {
+        let parent = destinationURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+
+        let stagingURL = destinationURL
+            .deletingLastPathComponent()
+            .appendingPathComponent(".\(destinationURL.deletingPathExtension().lastPathComponent).\(UUID().uuidString).tmp")
+            .appendingPathExtension(destinationURL.pathExtension)
+        defer {
+            if FileManager.default.fileExists(atPath: stagingURL.path) {
+                try? FileManager.default.removeItem(at: stagingURL)
+            }
+        }
+
+        if FileManager.default.fileExists(atPath: stagingURL.path) {
+            try FileManager.default.removeItem(at: stagingURL)
+        }
+
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatMPEG4AAC,
+            AVSampleRateKey: encodeBuffer.format.sampleRate,
+            AVNumberOfChannelsKey: Int(channelCount),
+            AVEncoderBitRateKey: bitRate
+        ]
+
+        do {
+            let outputFile = try AVAudioFile(
+                forWriting: stagingURL,
+                settings: settings,
+                commonFormat: .pcmFormatFloat32,
+                interleaved: false
+            )
+            try outputFile.write(from: encodeBuffer)
+        } catch {
+            throw DictationAudioError.encodingFailed(error.localizedDescription)
+        }
+
+        try Task.checkCancellation()
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+        try FileManager.default.moveItem(at: stagingURL, to: destinationURL)
     }
 
     private static func resample(
@@ -268,19 +323,81 @@ struct DictationAudioSweepResult: Equatable, Sendable {
     let freedBytes: Int64
 }
 
+/// Owns the daily sweep `Timer` and in-flight maintenance `Task` so `deinit` can
+/// tear them down without reading MainActor-isolated stored properties.
+private final class DictationAudioRetentionResources: @unchecked Sendable {
+    private let lock = NSLock()
+    private var sweepTimer: Timer?
+    private var maintenanceTask: Task<Void, Never>?
+
+    /// Installs a new timer, invalidating any previous one. Idempotent if called
+    /// repeatedly with successive timers.
+    func installTimer(_ timer: Timer) {
+        lock.lock()
+        let previous = sweepTimer
+        sweepTimer = timer
+        lock.unlock()
+        previous?.invalidate()
+    }
+
+    /// Invalidates and clears the sweep timer only.
+    func clearTimer() {
+        lock.lock()
+        let previous = sweepTimer
+        sweepTimer = nil
+        lock.unlock()
+        previous?.invalidate()
+    }
+
+    /// Replaces the in-flight maintenance task, cancelling any previous one.
+    func replaceMaintenanceTask(_ task: Task<Void, Never>) {
+        lock.lock()
+        let previous = maintenanceTask
+        maintenanceTask = task
+        lock.unlock()
+        previous?.cancel()
+    }
+
+    /// Idempotent: invalidate timer and cancel maintenance task.
+    func tearDown() {
+        lock.lock()
+        let timer = sweepTimer
+        let task = maintenanceTask
+        sweepTimer = nil
+        maintenanceTask = nil
+        lock.unlock()
+        timer?.invalidate()
+        task?.cancel()
+    }
+}
+
 /// Persists dictation audio off the insertion hot path, sweeps expired files, and
 /// reports disk usage for the DictationAudio area. Applies only to `voiceRecording`.
 @MainActor
 final class DictationAudioRetentionService {
     static let sweepInterval: TimeInterval = 24 * 60 * 60
+    /// Allow the daily timer to slip substantially so macOS can coalesce wake-ups.
+    static let sweepTimerTolerance: TimeInterval = 60 * 60
+    /// Main-context mutation batch size for async maintenance.
+    static let maintenanceBatchSize = 32
+
+    private struct PendingMediaDeletion: Sendable {
+        let recordID: UUID
+        let mediaPath: String
+        let freedBytes: Int64
+    }
 
     private let historyStore: HistoryStore
     private let settingsStore: SettingsStore
     private let fileManager: FileManager
     private let now: () -> Date
     private let directoryURL: URL
-    private var sweepTimer: Timer?
-    private var pendingPersistTasks: [UUID: Task<Void, Never>] = [:]
+    /// Nonisolated resource ownership so `deinit` can release timer/task without
+    /// touching MainActor-isolated stored properties.
+    private let resources = DictationAudioRetentionResources()
+    /// Generation counters let superseded persist tasks avoid clearing a newer slot.
+    private var pendingPersistTasks: [UUID: (generation: UInt64, task: Task<Void, Never>)] = [:]
+    private var persistGenerations: [UUID: UInt64] = [:]
 
     init(
         historyStore: HistoryStore,
@@ -297,7 +414,7 @@ final class DictationAudioRetentionService {
     }
 
     deinit {
-        sweepTimer?.invalidate()
+        resources.tearDown()
     }
 
     // MARK: - Persistence (async, off hot path)
@@ -319,21 +436,43 @@ final class DictationAudioRetentionService {
             return
         }
 
-        pendingPersistTasks[recordID]?.cancel()
+        let previous = pendingPersistTasks[recordID]
+        previous?.task.cancel()
+
+        let generation = (persistGenerations[recordID] ?? 0) &+ 1
+        persistGenerations[recordID] = generation
+
         let destinationDirectory = directoryURL
         let audioData = pcmFloatData
 
-        let task = Task { [weak self] in
+        let ownedTask = Task { [weak self] in
+            // Serialize superseding work: cancel then await the prior job so two
+            // encodes cannot race on the same destination path.
+            if let previous {
+                await previous.task.value
+            }
+            guard !Task.isCancelled else {
+                self?.clearPendingPersistTask(for: recordID, generation: generation)
+                return
+            }
             guard let self else { return }
+            defer { self.clearPendingPersistTask(for: recordID, generation: generation) }
+
             do {
-                let mediaURL = try await Task.detached(priority: .utility) {
-                    try Self.encodeAndWritePeaks(
+                let encodeTask = Task.detached(priority: .utility) {
+                    try Task.checkCancellation()
+                    return try Self.encodeAndWritePeaks(
                         pcmFloatData: audioData,
                         sampleRate: sampleRate,
                         recordID: recordID,
                         directoryURL: destinationDirectory
                     )
-                }.value
+                }
+                let mediaURL = try await withTaskCancellationHandler {
+                    try await encodeTask.value
+                } onCancel: {
+                    encodeTask.cancel()
+                }
 
                 guard !Task.isCancelled else {
                     Self.removeUnlinkedMedia(at: mediaURL)
@@ -355,16 +494,16 @@ final class DictationAudioRetentionService {
                         "Discarded dictation audio for missing record \(recordID.uuidString)"
                     )
                 }
+            } catch is CancellationError {
+                // Superseded or cancelled — nothing to report.
             } catch {
                 Log.audio.error(
                     "Failed to persist dictation audio for \(recordID.uuidString): \(error.localizedDescription)"
                 )
             }
-
-            self.pendingPersistTasks[recordID] = nil
         }
 
-        pendingPersistTasks[recordID] = task
+        pendingPersistTasks[recordID] = (generation: generation, task: ownedTask)
     }
 
     /// Ownership of `pcmFloatFileURL` transfers to this service. It is always
@@ -379,20 +518,42 @@ final class DictationAudioRetentionService {
             try? FileManager.default.removeItem(at: pcmFloatFileURL)
             return
         }
-        pendingPersistTasks[recordID]?.cancel()
+
+        let previous = pendingPersistTasks[recordID]
+        previous?.task.cancel()
+
+        let generation = (persistGenerations[recordID] ?? 0) &+ 1
+        persistGenerations[recordID] = generation
+
         let destinationDirectory = directoryURL
-        let task = Task { [weak self] in
+
+        let ownedTask = Task { [weak self] in
+            if let previous {
+                await previous.task.value
+            }
             defer { try? FileManager.default.removeItem(at: pcmFloatFileURL) }
+            guard !Task.isCancelled else {
+                self?.clearPendingPersistTask(for: recordID, generation: generation)
+                return
+            }
             guard let self else { return }
+            defer { self.clearPendingPersistTask(for: recordID, generation: generation) }
+
             do {
-                let mediaURL = try await Task.detached(priority: .utility) {
-                    try Self.encodeFileAndWritePeaks(
+                let encodeTask = Task.detached(priority: .utility) {
+                    try Task.checkCancellation()
+                    return try Self.encodeFileAndWritePeaks(
                         pcmFloatFileURL: pcmFloatFileURL,
                         sampleRate: sampleRate,
                         recordID: recordID,
                         directoryURL: destinationDirectory
                     )
-                }.value
+                }
+                let mediaURL = try await withTaskCancellationHandler {
+                    try await encodeTask.value
+                } onCancel: {
+                    encodeTask.cancel()
+                }
                 guard !Task.isCancelled else {
                     Self.removeUnlinkedMedia(at: mediaURL)
                     return
@@ -402,12 +563,13 @@ final class DictationAudioRetentionService {
                 } else {
                     Self.removeUnlinkedMedia(at: mediaURL)
                 }
+            } catch is CancellationError {
+                // Superseded or cancelled.
             } catch {
                 Log.audio.error("Failed to persist dictation audio for \(recordID.uuidString): \(error.localizedDescription)")
             }
-            self.pendingPersistTasks[recordID] = nil
         }
-        pendingPersistTasks[recordID] = task
+        pendingPersistTasks[recordID] = (generation: generation, task: ownedTask)
     }
 
     /// Synchronous encode used by tests and the detached persistence path.
@@ -417,6 +579,7 @@ final class DictationAudioRetentionService {
         recordID: UUID,
         directoryURL: URL
     ) throws -> URL {
+        try Task.checkCancellation()
         let fileManager = FileManager.default
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
 
@@ -424,25 +587,35 @@ final class DictationAudioRetentionService {
             .appendingPathComponent(recordID.uuidString)
             .appendingPathExtension("m4a")
 
-        try DictationAudioEncoder.encodePCMFloatData(
-            pcmFloatData,
-            to: mediaURL,
-            inputSampleRate: sampleRate
-        )
-
         do {
-            let peaks = try WaveformPeaks.extract(
-                fromPCMFloatData: pcmFloatData,
-                sampleRate: sampleRate
+            try DictationAudioEncoder.encodePCMFloatData(
+                pcmFloatData,
+                to: mediaURL,
+                inputSampleRate: sampleRate
             )
-            try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
-        } catch {
-            Log.audio.warning(
-                "Waveform peaks extraction failed for \(recordID.uuidString): \(error.localizedDescription)"
-            )
-        }
 
-        return mediaURL
+            try Task.checkCancellation()
+            do {
+                let peaks = try WaveformPeaks.extract(
+                    fromPCMFloatData: pcmFloatData,
+                    sampleRate: sampleRate
+                )
+                try Task.checkCancellation()
+                try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                Log.audio.warning(
+                    "Waveform peaks extraction failed for \(recordID.uuidString): \(error.localizedDescription)"
+                )
+            }
+
+            try Task.checkCancellation()
+            return mediaURL
+        } catch is CancellationError {
+            removeUnlinkedMedia(at: mediaURL)
+            throw CancellationError()
+        }
     }
 
     nonisolated static func encodeFileAndWritePeaks(
@@ -451,26 +624,37 @@ final class DictationAudioRetentionService {
         recordID: UUID,
         directoryURL: URL
     ) throws -> URL {
+        try Task.checkCancellation()
         let mediaURL = directoryURL
             .appendingPathComponent(recordID.uuidString)
             .appendingPathExtension("m4a")
-        try DictationAudioEncoder.encodePCMFloatFile(
-            pcmFloatFileURL,
-            to: mediaURL,
-            inputSampleRate: sampleRate
-        )
         do {
-            let peaks = try WaveformPeaks.extract(
-                fromPCMFloatFile: pcmFloatFileURL,
-                sampleRate: sampleRate
+            try DictationAudioEncoder.encodePCMFloatFile(
+                pcmFloatFileURL,
+                to: mediaURL,
+                inputSampleRate: sampleRate
             )
-            try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
-        } catch {
-            Log.audio.warning(
-                "Waveform peaks extraction failed for \(recordID.uuidString): \(error.localizedDescription)"
-            )
+            try Task.checkCancellation()
+            do {
+                let peaks = try WaveformPeaks.extract(
+                    fromPCMFloatFile: pcmFloatFileURL,
+                    sampleRate: sampleRate
+                )
+                try Task.checkCancellation()
+                try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                Log.audio.warning(
+                    "Waveform peaks extraction failed for \(recordID.uuidString): \(error.localizedDescription)"
+                )
+            }
+            try Task.checkCancellation()
+            return mediaURL
+        } catch is CancellationError {
+            removeUnlinkedMedia(at: mediaURL)
+            throw CancellationError()
         }
-        return mediaURL
     }
 
     /// Removes a just-written media file and its peaks sidecar when they will never be linked.
@@ -483,6 +667,9 @@ final class DictationAudioRetentionService {
 
     /// Deletes expired dictation audio + peaks sidecars and clears `managedMediaPath`.
     /// Transcript text is preserved. Imported / media-backed records are never touched.
+    ///
+    /// Synchronous API retained for tests and explicit callers. Launch / timer paths use
+    /// `performMaintenanceAsync()` so startup never blocks on filesystem deletion.
     @discardableResult
     func sweepExpired() throws -> DictationAudioSweepResult {
         let retention = settingsStore.dictationAudioRetention
@@ -497,29 +684,36 @@ final class DictationAudioRetentionService {
         }
 
         let cutoff = now().addingTimeInterval(-interval)
-        let voiceRaw = MediaSourceKind.voiceRecording.rawValue
-        let records = try historyStore.fetchAll()
-
         var deletedCount = 0
         var freedBytes: Int64 = 0
+        var clearedRecordIDs: [UUID] = []
+        clearedRecordIDs.reserveCapacity(Self.maintenanceBatchSize)
 
-        for record in records {
-            let kind = record.sourceKindRawValue ?? voiceRaw
-            guard kind == voiceRaw else { continue }
-            guard let path = record.managedMediaPath,
-                  !path.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                continue
+        while true {
+            let candidates = try historyStore.fetchExpiredDictationMediaCandidates(
+                olderThan: cutoff,
+                limit: Self.maintenanceBatchSize
+            )
+            if candidates.isEmpty { break }
+
+            var batchIDs: [UUID] = []
+            batchIDs.reserveCapacity(candidates.count)
+
+            for candidate in candidates {
+                batchIDs.append(candidate.recordID)
+                guard !candidate.mediaPath.isEmpty else { continue }
+                let mediaURL = URL(fileURLWithPath: candidate.mediaPath)
+                freedBytes += removeAudioAndSidecar(at: mediaURL)
+                deletedCount += 1
             }
-            guard record.timestamp < cutoff else { continue }
 
-            let mediaURL = URL(fileURLWithPath: path)
-            freedBytes += removeAudioAndSidecar(at: mediaURL)
-            record.managedMediaPath = nil
-            deletedCount += 1
-        }
+            _ = try historyStore.clearManagedMediaPaths(for: batchIDs)
+            clearedRecordIDs.append(contentsOf: batchIDs)
 
-        if deletedCount > 0 {
-            try historyStore.saveContext()
+            // Defensive: if the store returned a full page of rows that could not be
+            // cleared, stop rather than loop forever.
+            if candidates.count < Self.maintenanceBatchSize { break }
+            if batchIDs.isEmpty { break }
         }
 
         Log.audio.info(
@@ -528,33 +722,96 @@ final class DictationAudioRetentionService {
         return DictationAudioSweepResult(deletedCount: deletedCount, freedBytes: freedBytes)
     }
 
-    /// Launch-time sweep + 24h repeating timer.
-    func startPeriodicSweep() {
-        sweepTimer?.invalidate()
+    /// Non-blocking maintenance used at launch and by the daily timer.
+    /// Queries only expired eligible records, deletes files off-main, then applies
+    /// model path clears in bounded main-context batches.
+    @discardableResult
+    func performMaintenanceAsync() async -> DictationAudioSweepResult {
+        let retention = settingsStore.dictationAudioRetention
+        guard let interval = retention.retentionInterval, interval > 0 else {
+            if retention == .forever || retention == .off {
+                Log.audio.debug("Dictation audio maintenance skipped (retention=\(retention.rawValue))")
+            }
+            return DictationAudioSweepResult(deletedCount: 0, freedBytes: 0)
+        }
+
+        let cutoff = now().addingTimeInterval(-interval)
+        var deletedCount = 0
+        var freedBytes: Int64 = 0
 
         do {
-            _ = try sweepExpired()
+            while !Task.isCancelled {
+                let candidates = try historyStore.fetchExpiredDictationMediaCandidates(
+                    olderThan: cutoff,
+                    limit: Self.maintenanceBatchSize
+                )
+                if candidates.isEmpty { break }
+
+                // Detached deletes do not inherit cancellation. Await them fully,
+                // clear model paths for every completed deletion, then decide
+                // whether to continue the maintenance loop.
+                let deleteTask = Task.detached(priority: .utility) { () -> [PendingMediaDeletion] in
+                    var results: [PendingMediaDeletion] = []
+                    results.reserveCapacity(candidates.count)
+                    for candidate in candidates {
+                        // Always clear the model path, even when the filesystem path is empty.
+                        var freed: Int64 = 0
+                        if !candidate.mediaPath.isEmpty {
+                            let mediaURL = URL(fileURLWithPath: candidate.mediaPath)
+                            freed = Self.removeAudioAndSidecarStatic(at: mediaURL)
+                        }
+                        results.append(
+                            PendingMediaDeletion(
+                                recordID: candidate.recordID,
+                                mediaPath: candidate.mediaPath,
+                                freedBytes: freed
+                            )
+                        )
+                    }
+                    return results
+                }
+                let deletions = await deleteTask.value
+
+                if !deletions.isEmpty {
+                    let recordIDs = deletions.map(\.recordID)
+                    _ = try historyStore.clearManagedMediaPaths(for: recordIDs)
+                    deletedCount += deletions.reduce(into: 0) { count, deletion in
+                        if !deletion.mediaPath.isEmpty { count += 1 }
+                    }
+                    freedBytes += deletions.reduce(into: Int64(0)) { $0 += $1.freedBytes }
+                }
+
+                if Task.isCancelled { break }
+                if candidates.count < Self.maintenanceBatchSize { break }
+            }
+        } catch is CancellationError {
+            // Expected when a newer maintenance pass supersedes this one.
         } catch {
-            Log.audio.error("Dictation audio launch sweep failed: \(error.localizedDescription)")
+            Log.audio.error("Dictation audio maintenance failed: \(error.localizedDescription)")
         }
 
-        let timer = Timer.scheduledTimer(withTimeInterval: Self.sweepInterval, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                do {
-                    _ = try self?.sweepExpired()
-                } catch {
-                    Log.audio.error("Dictation audio periodic sweep failed: \(error.localizedDescription)")
-                }
-            }
+        if deletedCount > 0 {
+            Log.audio.info(
+                "Dictation audio retention maintenance: deleted \(deletedCount) file(s), freed \(freedBytes) bytes (retention=\(retention.rawValue))"
+            )
         }
-        // Allow the timer to fire while tracking is in common modes (menus, etc.).
-        RunLoop.main.add(timer, forMode: .common)
-        sweepTimer = timer
+        return DictationAudioSweepResult(deletedCount: deletedCount, freedBytes: freedBytes)
+    }
+
+    /// Launch-time non-blocking sweep + optional 24h repeating timer for finite policies.
+    /// Startup never waits for the sweep. Disabled/forever policies install no timer.
+    func startPeriodicSweep() {
+        scheduleMaintenance(runImmediately: true)
+    }
+
+    /// Install or tear down the daily timer and optionally kick an immediate async sweep
+    /// when the retention policy changes.
+    func applyRetentionPolicyChange() {
+        scheduleMaintenance(runImmediately: true)
     }
 
     func stopPeriodicSweep() {
-        sweepTimer?.invalidate()
-        sweepTimer = nil
+        resources.tearDown()
     }
 
     // MARK: - Disk usage
@@ -623,8 +880,60 @@ final class DictationAudioRetentionService {
 
     // MARK: - Helpers
 
+    private func scheduleMaintenance(runImmediately: Bool) {
+        let retention = settingsStore.dictationAudioRetention
+        let hasFiniteWindow = (retention.retentionInterval ?? 0) > 0
+
+        resources.clearTimer()
+
+        if hasFiniteWindow {
+            let timer = Timer(
+                timeInterval: Self.sweepInterval,
+                repeats: true
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.kickMaintenancePass()
+                }
+            }
+            timer.tolerance = Self.sweepTimerTolerance
+            RunLoop.main.add(timer, forMode: .common)
+            resources.installTimer(timer)
+        }
+
+        if runImmediately {
+            if hasFiniteWindow {
+                kickMaintenancePass()
+            } else if retention == .forever || retention == .off {
+                Log.audio.debug("Dictation audio periodic timer not installed (retention=\(retention.rawValue))")
+            }
+        }
+    }
+
+    private func kickMaintenancePass() {
+        let task = Task { [weak self] in
+            guard let self else { return }
+            _ = await self.performMaintenanceAsync()
+        }
+        resources.replaceMaintenanceTask(task)
+    }
+
+    private func clearPendingPersistTask(for recordID: UUID, generation: UInt64) {
+        guard pendingPersistTasks[recordID]?.generation == generation else { return }
+        pendingPersistTasks[recordID] = nil
+        if persistGenerations[recordID] == generation {
+            persistGenerations[recordID] = nil
+        }
+    }
+
     @discardableResult
     private func removeAudioAndSidecar(at mediaURL: URL) -> Int64 {
+        Self.removeAudioAndSidecarStatic(at: mediaURL, fileManager: fileManager)
+    }
+
+    nonisolated private static func removeAudioAndSidecarStatic(
+        at mediaURL: URL,
+        fileManager: FileManager = .default
+    ) -> Int64 {
         var freed: Int64 = 0
 
         if fileManager.fileExists(atPath: mediaURL.path) {

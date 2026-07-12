@@ -429,16 +429,15 @@ final class StreamingSessionController {
     // MARK: - Private — engine plumbing
 
     private func setEngineCallbacks() {
+        // Callbacks already arrive on the main actor via TranscriptionService's
+        // single isolation hop. Invoke refinement directly so finals stay ordered
+        // and partials are not re-queued behind a second Task.
         transcriptionService.setStreamingCallbacks(
             onPartial: { [weak self] text in
-                Task { @MainActor in
-                    await self?.refinementCoordinator?.ingestPartial(text)
-                }
+                await self?.refinementCoordinator?.ingestPartial(text)
             },
             onFinalUtterance: { [weak self] text in
-                Task { @MainActor in
-                    await self?.refinementCoordinator?.ingestFinal(text)
-                }
+                await self?.refinementCoordinator?.ingestFinal(text)
             }
         )
     }
