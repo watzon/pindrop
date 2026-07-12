@@ -14,6 +14,69 @@ import Testing
 struct MediaIngestionServiceTests {
     private let fakeYTDLPPath = "/tmp/pindrop-test-yt-dlp"
     private let fakeFFmpegPath = "/tmp/pindrop-test-ffmpeg"
+
+    @Test func testDirectDownloadDelegateRetainsImmediateSuccess() async throws {
+        let sourceURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mp3")
+        try Data("audio-data".utf8).write(to: sourceURL)
+
+        let delegate = DirectDownloadDelegate(onProgress: { _, _ in })
+        let session = URLSession(configuration: .ephemeral)
+        let task = session.downloadTask(with: URL(string: "https://example.com/audio.mp3")!)
+        defer { session.invalidateAndCancel() }
+
+        delegate.urlSession(session, downloadTask: task, didFinishDownloadingTo: sourceURL)
+
+        var didStart = false
+        let downloadedURL = try await delegate.waitForCompletion {
+            didStart = true
+        }
+
+        #expect(!didStart)
+        #expect(try Data(contentsOf: downloadedURL) == Data("audio-data".utf8))
+        try? FileManager.default.removeItem(at: downloadedURL)
+    }
+
+    @Test func testDirectDownloadDelegateRetainsImmediateFailure() async {
+        let delegate = DirectDownloadDelegate(onProgress: { _, _ in })
+        let session = URLSession(configuration: .ephemeral)
+        let task = session.downloadTask(with: URL(string: "https://example.com/audio.mp3")!)
+        defer { session.invalidateAndCancel() }
+
+        delegate.urlSession(session, task: task, didCompleteWithError: URLError(.cannotConnectToHost))
+
+        var didStart = false
+        do {
+            _ = try await delegate.waitForCompletion {
+                didStart = true
+            }
+            Issue.record("Expected immediate download failure")
+        } catch let error as URLError {
+            #expect(error.code == .cannotConnectToHost)
+        } catch {
+            Issue.record("Expected URLError, got \(error)")
+        }
+        #expect(!didStart)
+    }
+
+    @Test func testDirectDownloadDelegateRetainsCancellation() async {
+        let delegate = DirectDownloadDelegate(onProgress: { _, _ in })
+        delegate.cancel()
+
+        var didStart = false
+        do {
+            _ = try await delegate.waitForCompletion {
+                didStart = true
+            }
+            Issue.record("Expected cancellation")
+        } catch is CancellationError {
+            #expect(!didStart)
+        } catch {
+            Issue.record("Expected CancellationError, got \(error)")
+        }
+    }
+
     @Test func testImportLocalFileCopiesIntoManagedLibrary() async throws {
         let sourceURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("mp3")
         try Data("audio-data".utf8).write(to: sourceURL)

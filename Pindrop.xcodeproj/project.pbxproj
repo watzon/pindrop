@@ -179,6 +179,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
 		MEDIAINGESTBUILD01A2B3C4D5E6F /* MediaIngestionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAINGESTFILE01A2B3C4D5E6F /* MediaIngestionService.swift */; };
 		MEDIAINGESTTESTBUILD01A2B3C4D5E6F /* MediaIngestionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */; };
+		MEDIAPREPTESTBUILD01A2B3C4D5E6F /* MediaPreparationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPREPTESTFILE01A2B3C4D5E6F /* MediaPreparationServiceTests.swift */; };
 		MEDIAPAUSEBUILD01A2B3C4D5E6F /* MediaPauseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */; };
 		MEDIAPREPBUILD01A2B3C4D5E6F /* MediaPreparationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */; };
 		MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */; };
@@ -453,6 +454,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditor.swift; sourceTree = "<group>"; };
 		MEDIAINGESTFILE01A2B3C4D5E6F /* MediaIngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaIngestionService.swift; sourceTree = "<group>"; };
 		MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaIngestionServiceTests.swift; sourceTree = "<group>"; };
+		MEDIAPREPTESTFILE01A2B3C4D5E6F /* MediaPreparationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreparationServiceTests.swift; sourceTree = "<group>"; };
 		MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPauseService.swift; sourceTree = "<group>"; };
 		MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreparationService.swift; sourceTree = "<group>"; };
 		MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSourceKind.swift; sourceTree = "<group>"; };
@@ -834,6 +836,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRXDTLTESTFILE01A2B3C4 /* TranscriptionDetailAccessTests.swift */,
 				MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */,
 				MEDIAINGESTTESTFILE01A2B3C4D5E6F /* MediaIngestionServiceTests.swift */,
+				MEDIAPREPTESTFILE01A2B3C4D5E6F /* MediaPreparationServiceTests.swift */,
 				DICTSTORE1A2B3C4D5E6F71 /* DictionaryStoreTests.swift */,
 				PRESETSTORETEST1A2B3C4D5E6F71 /* PromptPresetStoreTests.swift */,
 				NOTESTEST1A2B3C4D5E6F71 /* NotesStoreTests.swift */,
@@ -1200,6 +1203,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRXDTLTESTBUILD01A2B3C4 /* TranscriptionDetailAccessTests.swift in Sources */,
 				MEDIATRANSSTATEBUILDTEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift in Sources */,
 				MEDIAINGESTTESTBUILD01A2B3C4D5E6F /* MediaIngestionServiceTests.swift in Sources */,
+				MEDIAPREPTESTBUILD01A2B3C4D5E6F /* MediaPreparationServiceTests.swift in Sources */,
 				DICTSTORE1A2B3C4D5E6F70 /* DictionaryStoreTests.swift in Sources */,
 				PRESETSTORETEST1A2B3C4D5E6F70 /* PromptPresetStoreTests.swift in Sources */,
 				NOTESTEST1A2B3C4D5E6F70 /* NotesStoreTests.swift in Sources */,

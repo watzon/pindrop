@@ -45,6 +45,26 @@ enum MediaPreparationError: Error, LocalizedError {
 
 @MainActor
 final class MediaPreparationService: MediaAudioPreparing {
+    private let worker: MediaAudioPreparationWorker
+
+    init(fileManager: FileManager = .default) {
+        worker = MediaAudioPreparationWorker(fileManager: fileManager)
+    }
+
+    func prepareAudio(from mediaURL: URL, ffmpegPath: String? = nil) async throws -> PreparedMediaAudio {
+        try await worker.prepare(
+            MediaPreparationInput(mediaURL: mediaURL, ffmpegPath: ffmpegPath)
+        )
+    }
+}
+
+private struct MediaPreparationInput: Sendable {
+    let mediaURL: URL
+    let ffmpegPath: String?
+}
+
+/// Keeps synchronous AVFoundation decode and conversion work off the main actor.
+private actor MediaAudioPreparationWorker {
     private let fileManager: FileManager
     private static let targetSampleRate: Double = 16_000
     // Target buffer size per read — small enough to tolerate malformed packet
@@ -55,7 +75,10 @@ final class MediaPreparationService: MediaAudioPreparing {
         self.fileManager = fileManager
     }
 
-    func prepareAudio(from mediaURL: URL, ffmpegPath: String? = nil) async throws -> PreparedMediaAudio {
+    func prepare(_ input: MediaPreparationInput) async throws -> PreparedMediaAudio {
+        try Task.checkCancellation()
+        let mediaURL = input.mediaURL
+        let ffmpegPath = input.ffmpegPath
         let fileSize = (try? fileManager.attributesOfItem(atPath: mediaURL.path)[.size] as? NSNumber)?.int64Value ?? -1
         let uti = (try? mediaURL.resourceValues(forKeys: [.contentTypeKey]).contentType?.identifier) ?? "unknown"
         Log.app.info(
@@ -68,6 +91,7 @@ final class MediaPreparationService: MediaAudioPreparing {
         if let prepared = try await tryPrepareWithAVAudioFile(url: mediaURL, label: "direct") {
             return prepared
         }
+        try Task.checkCancellation()
 
         // 2. Try ffmpeg transcode to a clean WAV if available. This is the most
         //    robust path for files with malformed packet tables, HLS-fetched
@@ -82,14 +106,19 @@ final class MediaPreparationService: MediaAudioPreparing {
                 }
                 Log.app.warning("MediaPreparation: ffmpeg WAV still not readable by AVAudioFile, falling back to AVAssetExportSession")
             } catch {
+                if error is CancellationError {
+                    throw error
+                }
                 Log.app.warning("MediaPreparation: ffmpeg transcode failed — \(error.localizedDescription). Falling back to AVAssetExportSession")
             }
         }
+        try Task.checkCancellation()
 
         // 3. Last resort: AVAssetExportSession → m4a. Kept for parity with
         //    the previous behavior when ffmpeg is not on PATH.
         let exportedURL = try await exportAudioTrack(from: mediaURL)
         defer { try? fileManager.removeItem(at: exportedURL) }
+        try Task.checkCancellation()
         if let prepared = try await tryPrepareWithAVAudioFile(url: exportedURL, label: "export") {
             return prepared
         }
@@ -143,7 +172,7 @@ final class MediaPreparationService: MediaAudioPreparing {
         accumulated.reserveCapacity(max(0, expectedOutputFrames) * MemoryLayout<Float>.size)
 
         do {
-            try readAndConvert(
+            try await readAndConvert(
                 audioFile: audioFile,
                 inputFormat: inputFormat,
                 outputFormat: outputFormat,
@@ -154,7 +183,7 @@ final class MediaPreparationService: MediaAudioPreparing {
             Log.app.error("MediaPreparation[\(label)]: chunked read failed — \(error.localizedDescription)")
             // Signal the caller to try another decode path rather than surfacing here —
             // except for .conversionFailed which is definitive.
-            if error is MediaPreparationError {
+            if error is CancellationError || error is MediaPreparationError {
                 throw error
             }
             return nil
@@ -171,7 +200,7 @@ final class MediaPreparationService: MediaAudioPreparing {
         outputFormat: AVAudioFormat,
         converter: AVAudioConverter,
         into accumulated: inout Data
-    ) throws {
+    ) async throws {
         guard let inputBuffer = AVAudioPCMBuffer(pcmFormat: inputFormat, frameCapacity: Self.readChunkFrames) else {
             throw MediaPreparationError.readFailed("Unable to allocate input buffer.")
         }
@@ -189,6 +218,7 @@ final class MediaPreparationService: MediaAudioPreparing {
         let state = ChunkState()
 
         while true {
+            try Task.checkCancellation()
             inputBuffer.frameLength = 0
             do {
                 try audioFile.read(into: inputBuffer)
@@ -235,6 +265,8 @@ final class MediaPreparationService: MediaAudioPreparing {
                     accumulated.append(ptr, count: byteCount)
                 }
             }
+
+            try Task.checkCancellation()
 
             if status == .endOfStream || state.reachedEnd {
                 break

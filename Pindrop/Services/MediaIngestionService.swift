@@ -464,16 +464,38 @@ private struct YTDLPMetadata: Decodable {
 
 // MARK: - URLSession delegate for direct downloads
 
-private final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {
+final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {
+    private let lock = NSLock()
     private var continuation: CheckedContinuation<URL, Error>?
+    private var result: Result<URL, Error>?
     private let onProgress: (Int64, Int64) -> Void
 
     init(onProgress: @escaping (Int64, Int64) -> Void) {
         self.onProgress = onProgress
     }
 
-    func waitForCompletion() async throws -> URL {
-        try await withCheckedThrowingContinuation { self.continuation = $0 }
+    /// Installs the continuation before starting the task so an immediately
+    /// completing URLSession task cannot lose its result.
+    func waitForCompletion(start: () -> Void) async throws -> URL {
+        try await withCheckedThrowingContinuation { continuation in
+            let pendingResult = lock.withLock { () -> Result<URL, Error>? in
+                if let result {
+                    return result
+                }
+                self.continuation = continuation
+                return nil
+            }
+
+            if let pendingResult {
+                continuation.resume(with: pendingResult)
+            } else {
+                start()
+            }
+        }
+    }
+
+    func cancel() {
+        complete(.failure(CancellationError()))
     }
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
@@ -481,15 +503,17 @@ private final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate
         let safeURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(location.pathExtension)
-        try? FileManager.default.moveItem(at: location, to: safeURL)
-        continuation?.resume(returning: safeURL)
-        continuation = nil
+        do {
+            try FileManager.default.moveItem(at: location, to: safeURL)
+            complete(.success(safeURL))
+        } catch {
+            complete(.failure(error))
+        }
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard let error else { return }
-        continuation?.resume(throwing: error)
-        continuation = nil
+        complete(.failure(error))
     }
 
     func urlSession(
@@ -500,6 +524,16 @@ private final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate
         totalBytesExpectedToWrite: Int64
     ) {
         onProgress(totalBytesWritten, totalBytesExpectedToWrite)
+    }
+
+    private func complete(_ result: Result<URL, Error>) {
+        let continuation = lock.withLock { () -> CheckedContinuation<URL, Error>? in
+            guard self.result == nil else { return nil }
+            self.result = result
+            defer { self.continuation = nil }
+            return self.continuation
+        }
+        continuation?.resume(with: result)
     }
 }
 
@@ -662,15 +696,17 @@ final class MediaIngestionService {
         }
         let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
         let downloadTask = session.downloadTask(with: url)
-        downloadTask.resume()
+        defer { session.invalidateAndCancel() }
 
         let tempURL = try await withTaskCancellationHandler {
-            try await delegate.waitForCompletion()
+            try await delegate.waitForCompletion {
+                downloadTask.resume()
+            }
         } onCancel: {
             downloadTask.cancel()
+            delegate.cancel()
         }
-
-        session.finishTasksAndInvalidate()
+        try Task.checkCancellation()
 
         guard let httpResponse = downloadTask.response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
