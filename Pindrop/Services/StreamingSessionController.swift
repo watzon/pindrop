@@ -66,7 +66,7 @@ final class StreamingSessionController {
     /// discard the oldest pending buffers and retain the newest 32 (~8 seconds at
     /// a 4,096-frame 16 kHz tap), while the file-backed recorder still retains the
     /// complete waveform for offline finalization.
-    static let maximumBufferedAudioBuffers = 32
+    nonisolated static let maximumBufferedAudioBuffers = 32
 
     private struct FinalizeStepTimedOut: Error {}
 

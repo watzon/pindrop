@@ -693,7 +693,7 @@ final class MediaIngestionService {
         to directoryURL: URL,
         progressHandler: @escaping @MainActor (Double?, String) -> Void
     ) async throws -> ManagedMediaAsset {
-        await progressHandler(nil, "Connecting…")
+        progressHandler(nil, "Connecting…")
 
         let ext = url.pathExtension.lowercased()
         let destURL = directoryURL.appendingPathComponent("media.\(ext)")

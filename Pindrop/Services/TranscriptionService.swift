@@ -65,8 +65,8 @@ class TranscriptionService {
     private static let maximumTranscriptChunkDurationSeconds: TimeInterval = 12.0
     private static let maximumTranscriptChunkWordCount = 28
     private static let targetTranscriptChunkWordCount = 20
-    private static let defaultDiarizationTimeoutSeconds: TimeInterval = 300
-    private static let defaultModelLoadTimeoutSeconds: TimeInterval = 120
+    nonisolated private static let defaultDiarizationTimeoutSeconds: TimeInterval = 300
+    nonisolated private static let defaultModelLoadTimeoutSeconds: TimeInterval = 120
 
     private(set) var state: State = .unloaded
     private(set) var error: Error?

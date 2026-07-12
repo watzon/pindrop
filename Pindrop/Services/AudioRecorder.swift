@@ -1919,9 +1919,14 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             mElement: kAudioObjectPropertyElementMain
         )
         var size = UInt32(MemoryLayout<CFString?>.size)
-        var tapUID: CFString?
-        let status = AudioObjectGetPropertyData(tapID, &address, 0, nil, &size, &tapUID)
-        guard status == noErr, let tapUID else {
+        let tapUIDPointer = UnsafeMutablePointer<CFString?>.allocate(capacity: 1)
+        tapUIDPointer.initialize(to: nil)
+        defer {
+            tapUIDPointer.deinitialize(count: 1)
+            tapUIDPointer.deallocate()
+        }
+        let status = AudioObjectGetPropertyData(tapID, &address, 0, nil, &size, tapUIDPointer)
+        guard status == noErr, let tapUID = tapUIDPointer.pointee else {
             throw AudioRecorderError.systemAudioCaptureFailed("Unable to read tap UID (\(status))")
         }
         return tapUID as String
@@ -1953,9 +1958,14 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             mElement: kAudioObjectPropertyElementMain
         )
         size = UInt32(MemoryLayout<CFString?>.size)
-        var outputUID: CFString?
-        status = AudioObjectGetPropertyData(outputDeviceID, &address, 0, nil, &size, &outputUID)
-        guard status == noErr, let outputUID else {
+        let outputUIDPointer = UnsafeMutablePointer<CFString?>.allocate(capacity: 1)
+        outputUIDPointer.initialize(to: nil)
+        defer {
+            outputUIDPointer.deinitialize(count: 1)
+            outputUIDPointer.deallocate()
+        }
+        status = AudioObjectGetPropertyData(outputDeviceID, &address, 0, nil, &size, outputUIDPointer)
+        guard status == noErr, let outputUID = outputUIDPointer.pointee else {
             throw AudioRecorderError.systemAudioCaptureFailed("Unable to read output device UID (\(status))")
         }
 
