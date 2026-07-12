@@ -6,6 +6,7 @@
 //
 
 @preconcurrency import AVFoundation
+import Darwin
 import Foundation
 
 struct PreparedMediaAudio: Equatable, Sendable {
@@ -84,19 +85,66 @@ private final class ProcessStandardErrorCollector: @unchecked Sendable {
     }
 }
 
+private final class DeferredProcessOutputCleanup: @unchecked Sendable {
+    private let lock = NSLock()
+    private let fileManager: FileManager
+    private let outputURL: URL
+    private var processExited = false
+    private var cleanupScheduled = false
+    private var ownsOutput = true
+
+    init(fileManager: FileManager, outputURL: URL) {
+        self.fileManager = fileManager
+        self.outputURL = outputURL
+    }
+
+    func scheduleCleanup() {
+        let shouldRemove = lock.withLock { () -> Bool in
+            cleanupScheduled = true
+            return processExited && ownsOutput
+        }
+        if shouldRemove {
+            try? fileManager.removeItem(at: outputURL)
+        }
+    }
+
+    func processDidExit() {
+        let shouldRemove = lock.withLock { () -> Bool in
+            processExited = true
+            return cleanupScheduled && ownsOutput
+        }
+        if shouldRemove {
+            try? fileManager.removeItem(at: outputURL)
+        }
+    }
+
+    func relinquishOwnership() {
+        lock.withLock {
+            ownsOutput = false
+        }
+    }
+}
+
 private final class ProcessCompletionState: @unchecked Sendable {
     typealias Result = Swift.Result<(Int32, String), Error>
+    private static let terminationGraceNanoseconds: UInt64 = 1_000_000_000
 
     private let lock = NSLock()
+    private let didExit: @Sendable () -> Void
     private var continuation: CheckedContinuation<(Int32, String), Error>?
     private var result: Result?
     private var process: Process?
     private var cancellationRequested = false
 
+    init(didExit: @escaping @Sendable () -> Void) {
+        self.didExit = didExit
+    }
+
     func launch(_ process: Process, continuation: CheckedContinuation<(Int32, String), Error>) {
         lock.lock()
         if let result {
             lock.unlock()
+            didExit()
             continuation.resume(with: result)
             return
         }
@@ -106,6 +154,8 @@ private final class ProcessCompletionState: @unchecked Sendable {
         guard !cancellationRequested else {
             lock.unlock()
             complete(.failure(CancellationError()))
+            didExit()
+            clearProcess()
             return
         }
 
@@ -115,6 +165,7 @@ private final class ProcessCompletionState: @unchecked Sendable {
         } catch {
             lock.unlock()
             complete(.failure(error))
+            didExit()
             clearProcess()
         }
     }
@@ -126,8 +177,15 @@ private final class ProcessCompletionState: @unchecked Sendable {
         }
         if process?.isRunning == true {
             process?.terminate()
+            scheduleForcedTermination()
         }
         complete(.failure(CancellationError()))
+    }
+
+    func processDidExit(with result: Result) {
+        complete(result)
+        didExit()
+        clearProcess()
     }
 
     func complete(_ result: Result) {
@@ -144,6 +202,22 @@ private final class ProcessCompletionState: @unchecked Sendable {
         lock.withLock {
             process = nil
         }
+    }
+
+    private func scheduleForcedTermination() {
+        Task.detached { [weak self] in
+            try? await Task.sleep(nanoseconds: Self.terminationGraceNanoseconds)
+            self?.forceTerminateIfNecessary()
+        }
+    }
+
+    private func forceTerminateIfNecessary() {
+        let processIdentifier = lock.withLock { () -> pid_t? in
+            guard let process, process.isRunning else { return nil }
+            return process.processIdentifier
+        }
+        guard let processIdentifier, processIdentifier > 0 else { return }
+        Darwin.kill(processIdentifier, SIGKILL)
     }
 }
 
@@ -366,12 +440,7 @@ private actor MediaAudioPreparationWorker {
         let outputURL = temporaryDirectory
             .appendingPathComponent("pindrop-prep-\(UUID().uuidString)")
             .appendingPathExtension("wav")
-        var shouldKeepOutput = false
-        defer {
-            if !shouldKeepOutput {
-                try? fileManager.removeItem(at: outputURL)
-            }
-        }
+        let outputCleanup = DeferredProcessOutputCleanup(fileManager: fileManager, outputURL: outputURL)
         if fileManager.fileExists(atPath: outputURL.path) {
             try? fileManager.removeItem(at: outputURL)
         }
@@ -394,19 +463,32 @@ private actor MediaAudioPreparationWorker {
 
         Log.app.info("MediaPreparation: launching ffmpeg for \(mediaURL.lastPathComponent) → \(outputURL.lastPathComponent)")
 
-        let (status, stderr) = try await runProcess(executablePath: ffmpegPath, arguments: arguments)
-        if status != 0 {
-            throw MediaPreparationError.exportFailed("ffmpeg exited \(status): \(stderr.prefix(500))")
+        do {
+            let (status, stderr) = try await runProcess(
+                executablePath: ffmpegPath,
+                arguments: arguments,
+                onExit: { @Sendable in outputCleanup.processDidExit() }
+            )
+            if status != 0 {
+                throw MediaPreparationError.exportFailed("ffmpeg exited \(status): \(stderr.prefix(500))")
+            }
+            guard fileManager.fileExists(atPath: outputURL.path) else {
+                throw MediaPreparationError.exportFailed("ffmpeg reported success but produced no output file.")
+            }
+            outputCleanup.relinquishOwnership()
+            return outputURL
+        } catch {
+            outputCleanup.scheduleCleanup()
+            throw error
         }
-        guard fileManager.fileExists(atPath: outputURL.path) else {
-            throw MediaPreparationError.exportFailed("ffmpeg reported success but produced no output file.")
-        }
-        shouldKeepOutput = true
-        return outputURL
     }
 
-    private func runProcess(executablePath: String, arguments: [String]) async throws -> (Int32, String) {
-        let state = ProcessCompletionState()
+    private func runProcess(
+        executablePath: String,
+        arguments: [String],
+        onExit: @escaping @Sendable () -> Void
+    ) async throws -> (Int32, String) {
+        let state = ProcessCompletionState(didExit: onExit)
         return try await withTaskCancellationHandler(operation: {
             let result = try await withCheckedThrowingContinuation { continuation in
                 let process = Process()
@@ -423,8 +505,7 @@ private actor MediaAudioPreparationWorker {
                 process.terminationHandler = { proc in
                     stderrPipe.fileHandleForReading.readabilityHandler = nil
                     stderrCollector.append(stderrPipe.fileHandleForReading.readDataToEndOfFile())
-                    state.complete(.success((proc.terminationStatus, stderrCollector.string)))
-                    state.clearProcess()
+                    state.processDidExit(with: .success((proc.terminationStatus, stderrCollector.string)))
                 }
 
                 state.launch(process, continuation: continuation)

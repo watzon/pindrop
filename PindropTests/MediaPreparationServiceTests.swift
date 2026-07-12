@@ -40,7 +40,7 @@ struct MediaPreparationServiceTests {
         }
     }
 
-    @Test func testPrepareAudioCancelsFFmpegAndRemovesPartialOutput() async throws {
+    @Test func testPrepareAudioReapsTermIgnoringFFmpegBeforeRemovingPartialOutput() async throws {
         let temporaryDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
@@ -70,9 +70,11 @@ struct MediaPreparationServiceTests {
             Issue.record("Expected CancellationError, got \(error)")
         }
 
-        let remainingFiles = try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
-            .filter { $0.hasPrefix("pindrop-prep-") }
-        #expect(remainingFiles.isEmpty)
+        let outputURL = try #require(firstPartialOutput(in: temporaryDirectory))
+        let wroteAfterCancellation = await fileContains("after-cancellation", at: outputURL)
+        #expect(wroteAfterCancellation)
+        let outputWasRemoved = await outputIsRemoved(from: temporaryDirectory)
+        #expect(outputWasRemoved)
     }
 
     private func makeAudioFile() throws -> URL {
@@ -100,12 +102,41 @@ struct MediaPreparationServiceTests {
         return false
     }
 
+    private func firstPartialOutput(in directory: URL) -> URL? {
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        return names.first(where: { $0.hasPrefix("pindrop-prep-") })
+            .map { directory.appendingPathComponent($0) }
+    }
+
+    private func fileContains(_ text: String, at url: URL) async -> Bool {
+        for _ in 0..<50 {
+            if let data = try? Data(contentsOf: url), String(data: data, encoding: .utf8)?.contains(text) == true {
+                return true
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        return false
+    }
+
+    private func outputIsRemoved(from directory: URL) async -> Bool {
+        for _ in 0..<200 {
+            if firstPartialOutput(in: directory) == nil {
+                return true
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        return false
+    }
+
     private var fakeFFmpegScript: String {
         """
         #!/bin/sh
+        trap '' TERM
         for argument in "$@"; do output="$argument"; done
         printf partial > "$output"
         dd if=/dev/zero bs=1024 count=128 2>/dev/null | tr '\\0' x >&2
+        sleep 0.1
+        printf after-cancellation >> "$output"
         while true; do sleep 1; done
         """
     }
