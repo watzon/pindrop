@@ -88,13 +88,22 @@ class TranscriptionService {
     }
     private var streamingPrepareHandle: StreamingPrepareHandle?
     private var currentProvider: ModelManager.ModelProvider?
-    private enum BatchModelIdentity {
+    private enum BatchModelIdentity: Equatable {
         case named(modelName: String, provider: ModelManager.ModelProvider)
         case path(String)
     }
     /// Last successfully loaded batch model. This survives hard-timeout
     /// invalidation so the next batch request can create a fresh engine.
     private var batchModelIdentity: BatchModelIdentity?
+    private final class BatchLoadHandle {
+        let identity: BatchModelIdentity
+        let task: Task<Void, Error>
+        init(identity: BatchModelIdentity, task: Task<Void, Error>) {
+            self.identity = identity
+            self.task = task
+        }
+    }
+    private var batchLoadHandle: BatchLoadHandle?
     /// Identifies the only operation permitted to update batch-transcription
     /// state. A timed-out noncooperative engine keeps its own captured instance,
     /// while this service drops that instance before allowing a newly loaded one.
@@ -173,6 +182,10 @@ class TranscriptionService {
     }
 
     func loadModel(modelName: String = "tiny", provider: ModelManager.ModelProvider = .whisperKit) async throws {
+        try await loadBatchModel(.named(modelName: modelName, provider: provider))
+    }
+
+    private func performLoadModel(modelName: String, provider: ModelManager.ModelProvider) async throws {
         if state == .transcribing {
             throw TranscriptionError.engineSwitchDuringTranscription
         }
@@ -226,6 +239,10 @@ class TranscriptionService {
     }
 
     func loadModel(modelPath: String) async throws {
+        try await loadBatchModel(.path(modelPath))
+    }
+
+    private func performLoadModel(modelPath: String) async throws {
         if state == .transcribing {
             throw TranscriptionError.engineSwitchDuringTranscription
         }
@@ -274,6 +291,52 @@ class TranscriptionService {
             self.error = loadError
             state = .error
             throw loadError
+        }
+    }
+
+    /// Serializes named/path model loading across actor reentrancy. A caller that
+    /// arrives while another load is suspended awaits that identity's result and
+    /// then re-evaluates state before starting a different load.
+    private func loadBatchModel(_ identity: BatchModelIdentity) async throws {
+        while true {
+            guard state != .transcribing else {
+                throw TranscriptionError.engineSwitchDuringTranscription
+            }
+            if engine != nil, batchModelIdentity == identity, state == .ready {
+                return
+            }
+            if let handle = batchLoadHandle {
+                let inFlightIdentity = handle.identity
+                _ = try await handle.task.value
+                if batchLoadHandle === handle { batchLoadHandle = nil }
+                if inFlightIdentity == identity,
+                   engine != nil,
+                   batchModelIdentity == identity,
+                   state == .ready {
+                    return
+                }
+                continue
+            }
+
+            let task = Task { @MainActor [weak self] in
+                guard let self else { throw CancellationError() }
+                switch identity {
+                case .named(let modelName, let provider):
+                    try await self.performLoadModel(modelName: modelName, provider: provider)
+                case .path(let modelPath):
+                    try await self.performLoadModel(modelPath: modelPath)
+                }
+            }
+            let handle = BatchLoadHandle(identity: identity, task: task)
+            batchLoadHandle = handle
+            do {
+                try await task.value
+            } catch {
+                if batchLoadHandle === handle { batchLoadHandle = nil }
+                throw error
+            }
+            if batchLoadHandle === handle { batchLoadHandle = nil }
+            return
         }
     }
 

@@ -374,6 +374,37 @@ private enum CaptureLimits {
 /// operation: if all handoff permits are in use, the backend fails the recording
 /// rather than silently dropping samples.
 final class AudioPCMFileStorage: @unchecked Sendable {
+    private final class PCMStorageSlab: @unchecked Sendable {
+        let capacity: Int
+        let storage: UnsafeMutableRawPointer
+        let availability = DispatchSemaphore(value: 1)
+        var byteCount = 0
+        var sampleRate: Double = 0
+
+        init(capacity: Int) {
+            self.capacity = capacity
+            self.storage = UnsafeMutableRawPointer.allocate(byteCount: capacity, alignment: MemoryLayout<Float>.alignment)
+        }
+
+        deinit { storage.deallocate() }
+
+        /// Called by the capture callback after nonblocking acquisition. It only
+        /// copies samples into memory allocated when the storage was created.
+        func copy(from buffer: AVAudioPCMBuffer) -> Bool {
+            guard buffer.format.commonFormat == .pcmFormatFloat32,
+                  buffer.format.channelCount == 1,
+                  let channelData = buffer.floatChannelData else {
+                return false
+            }
+            let bytes = Int(buffer.frameLength) * MemoryLayout<Float>.size
+            guard bytes > 0, bytes <= capacity else { return false }
+            storage.copyMemory(from: channelData[0], byteCount: bytes)
+            byteCount = bytes
+            sampleRate = buffer.format.sampleRate
+            return true
+        }
+    }
+
     private var fileURL: URL?
     private var fileHandle: FileHandle?
     private var sampleRate: Double?
@@ -383,18 +414,29 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var onLimitReached: ((TimeInterval) -> Void)?
     private var limitReached = false
     private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
-    private let pendingWritePermits: DispatchSemaphore
+    private let slabs: [PCMStorageSlab]
+    private var slabReadySources: [DispatchSourceUserDataAdd] = []
     private let maximumByteCount: Int?
     private let writerDelayNanoseconds: UInt64
 
     init(
         pendingWriteLimit: Int = 32,
         maximumByteCount: Int? = nil,
-        writerDelayNanoseconds: UInt64 = 0
+        writerDelayNanoseconds: UInt64 = 0,
+        slabByteCapacity: Int = 64 * 1024
     ) {
-        self.pendingWritePermits = DispatchSemaphore(value: max(1, pendingWriteLimit))
+        let slabs = (0..<max(1, pendingWriteLimit)).map { _ in
+            PCMStorageSlab(capacity: max(MemoryLayout<Float>.size, slabByteCapacity))
+        }
+        self.slabs = slabs
         self.maximumByteCount = maximumByteCount
         self.writerDelayNanoseconds = writerDelayNanoseconds
+        self.slabReadySources = slabs.map { slab in
+            let source = DispatchSource.makeUserDataAddSource(queue: writerQueue)
+            source.setEventHandler { [weak self, slab] in self?.write(slab) }
+            source.resume()
+            return source
+        }
     }
 
     deinit {
@@ -428,46 +470,32 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         }
     }
 
-    /// Takes a stable PCM snapshot before returning from the callback. The bounded
-    /// handoff keeps at most `pendingWriteLimit` snapshots awaiting the writer;
-    /// the serial writer is the only code that touches the spool file.
+    /// Acquires one of the preallocated slabs without blocking, copies samples,
+    /// and hands its token to the serial writer. No callback-time heap allocation
+    /// or filesystem operation occurs; full/oversized pools report overflow.
     func enqueue(_ buffer: AVAudioPCMBuffer) -> Bool {
-        guard pendingWritePermits.wait(timeout: .now()) == .success else { return false }
-        guard let data = AudioCaptureUtilities.data(from: buffer), !data.isEmpty else {
-            pendingWritePermits.signal()
-            return true
+        var acquiredIndex: Int?
+        for index in slabs.indices where slabs[index].availability.wait(timeout: .now()) == .success {
+            acquiredIndex = index
+            break
         }
-        let sampleRate = buffer.format.sampleRate
-        writerQueue.async { [weak self] in
-            guard let self else { return }
-            defer { self.pendingWritePermits.signal() }
-            guard self.writeFailure == nil, !self.limitReached else { return }
-            if let maximumByteCount, self.byteCount + data.count > maximumByteCount {
-                self.limitReached = true
-                self.onLimitReached?(Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size))
-                return
-            }
-            do {
-                if self.writerDelayNanoseconds > 0 {
-                    Thread.sleep(forTimeInterval: Double(self.writerDelayNanoseconds) / 1_000_000_000)
-                }
-                guard let fileHandle = self.fileHandle else {
-                    throw AudioRecorderError.engineStartFailed("Audio spool is not available")
-                }
-                try fileHandle.write(contentsOf: data)
-                self.byteCount += data.count
-                if self.sampleRate == nil { self.sampleRate = sampleRate }
-            } catch {
-                self.recordWriteFailure(error)
-            }
+        guard let index = acquiredIndex else {
+            return false
         }
+        let slab = slabs[index]
+        guard slab.copy(from: buffer) else {
+            slab.availability.signal()
+            return false
+        }
+        slabReadySources[index].add(data: 1)
         return true
     }
 
     /// Waits for the serial writer after the hardware callback has stopped, then
     /// transfers ownership of the completed temporary file to the caller.
     func finish() throws -> AudioPCMFile? {
-        try writerQueue.sync {
+        try withDrainedSlabs {
+            try writerQueue.sync {
             if let writeFailure {
                 closeAndRemoveFile()
                 throw writeFailure
@@ -489,11 +517,13 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             let result = AudioPCMFile(fileURL: fileURL, byteCount: byteCount, sampleRate: sampleRate)
             byteCount = 0
             return result
+            }
         }
     }
 
     func discard() {
-        writerQueue.sync {
+        withDrainedSlabs {
+            writerQueue.sync {
             closeAndRemoveFile()
             sampleRate = nil
             byteCount = 0
@@ -501,7 +531,38 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             onWriteFailure = nil
             onLimitReached = nil
             limitReached = false
+            }
         }
+    }
+
+    private func write(_ slab: PCMStorageSlab) {
+        defer { slab.availability.signal() }
+        guard writeFailure == nil, !limitReached else { return }
+        if let maximumByteCount, byteCount + slab.byteCount > maximumByteCount {
+            limitReached = true
+            onLimitReached?(Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size))
+            return
+        }
+        do {
+            if writerDelayNanoseconds > 0 {
+                Thread.sleep(forTimeInterval: Double(writerDelayNanoseconds) / 1_000_000_000)
+            }
+            guard let fileHandle else {
+                throw AudioRecorderError.engineStartFailed("Audio spool is not available")
+            }
+            let data = Data(bytesNoCopy: slab.storage, count: slab.byteCount, deallocator: .none)
+            try fileHandle.write(contentsOf: data)
+            byteCount += slab.byteCount
+            if sampleRate == nil { sampleRate = slab.sampleRate }
+        } catch {
+            recordWriteFailure(error)
+        }
+    }
+
+    private func withDrainedSlabs<T>(_ operation: () throws -> T) rethrows -> T {
+        for slab in slabs { slab.availability.wait() }
+        defer { for slab in slabs { slab.availability.signal() } }
+        return try operation()
     }
 
     private func recordWriteFailure(_ error: Error) {

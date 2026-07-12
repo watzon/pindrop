@@ -176,6 +176,45 @@ struct SettingsObservationSnapshot: Equatable {
     let mcpServerPort: Int
 }
 
+enum RecordingStopRoute: Equatable {
+    case dictation
+    case quickCapture
+    case noteAppend(UUID)
+    case manualTranscription
+
+    static func resolve(
+        isQuickCapture: Bool,
+        noteAppendEditorID: UUID?,
+        isManualTranscription: Bool
+    ) -> RecordingStopRoute {
+        if let noteAppendEditorID { return .noteAppend(noteAppendEditorID) }
+        if isQuickCapture { return .quickCapture }
+        if isManualTranscription { return .manualTranscription }
+        return .dictation
+    }
+}
+
+/// A synchronous, coordinator-owned admission gate shared by every stop source.
+/// It lets only the first user/limit event own a recording's finalization route.
+final class RecordingStopAdmission {
+    private let lock = NSLock()
+    private var isClaimed = false
+
+    func claim(_ route: RecordingStopRoute) -> RecordingStopRoute? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isClaimed else { return nil }
+        isClaimed = true
+        return route
+    }
+
+    func release() {
+        lock.lock()
+        isClaimed = false
+        lock.unlock()
+    }
+}
+
 @MainActor
 @Observable
 final class AppCoordinator {
@@ -312,6 +351,7 @@ final class AppCoordinator {
     
     private var isQuickCaptureMode = false
     private var isNoteAppendMode = false
+    private let recordingStopAdmission = RecordingStopAdmission()
     private var isRecordingFeatureCaptureActive = false
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
@@ -2140,6 +2180,44 @@ final class AppCoordinator {
 
     
     // MARK: - Recording Flow
+
+    /// Single mode-aware stop entry for user actions and controlled capture-limit
+    /// finalization. Claiming occurs synchronously before the first suspension so
+    /// simultaneous events cannot stop or transcribe the same recording twice.
+    private func dispatchRecordingStop() async throws {
+        guard isRecording else { return }
+        let route = RecordingStopRoute.resolve(
+            isQuickCapture: isQuickCaptureMode,
+            noteAppendEditorID: isNoteAppendMode ? noteAppendEditorID : nil,
+            isManualTranscription: isRecordingFeatureCaptureActive
+        )
+        guard let claimedRoute = recordingStopAdmission.claim(route) else {
+            Log.app.debug("Ignoring duplicate recording stop request")
+            return
+        }
+        defer { recordingStopAdmission.release() }
+
+        switch claimedRoute {
+        case .dictation:
+            try await stopRecordingAndTranscribe()
+        case .quickCapture:
+            if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
+                openNoteEditorWithEnhancedNote(enhancedNote)
+            }
+            isQuickCaptureMode = false
+        case .noteAppend(let editorID):
+            if let text = try await stopRecordingAndTranscribeForNoteAppend() {
+                NotificationCenter.default.post(
+                    name: .noteSpeakToAppendTranscript,
+                    object: nil,
+                    userInfo: ["editorID": editorID, "text": text]
+                )
+            }
+            clearNoteAppendMode()
+        case .manualTranscription:
+            try await stopManualTranscriptionRecording()
+        }
+    }
     
     private func handlePushToTalkStart() async {
         guard !isRecording && !isProcessing else { return }
@@ -2168,7 +2246,7 @@ final class AppCoordinator {
         guard isRecording else { return }
 
         do {
-            try await stopRecordingAndTranscribe()
+            try await dispatchRecordingStop()
         } catch {
             self.error = error
             audioRecorder.resetAudioEngine()
@@ -2203,9 +2281,7 @@ final class AppCoordinator {
         guard isRecording && isQuickCaptureMode else { return }
 
         do {
-            if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
-                openNoteEditorWithEnhancedNote(enhancedNote)
-            }
+            try await dispatchRecordingStop()
         } catch {
             self.error = error
             audioRecorder.resetAudioEngine()
@@ -2220,9 +2296,7 @@ final class AppCoordinator {
     private func handleQuickCaptureToggle() async {
         if isRecording && isQuickCaptureMode {
             do {
-                if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
-                    openNoteEditorWithEnhancedNote(enhancedNote)
-                }
+                try await dispatchRecordingStop()
             } catch {
                 self.error = error
                 audioRecorder.resetAudioEngine()
@@ -2275,7 +2349,7 @@ final class AppCoordinator {
     private func handleNoteAppendStop(editorID: UUID) async {
         guard isRecording && isNoteAppendMode else {
             // Allow stop when only processing state is stuck, or ignore stale stop.
-            if noteAppendEditorID == editorID {
+            if noteAppendEditorID == editorID, !isProcessing {
                 clearNoteAppendMode()
             }
             return
@@ -2286,20 +2360,14 @@ final class AppCoordinator {
         }
 
         do {
-            if let text = try await stopRecordingAndTranscribeForNoteAppend() {
-                NotificationCenter.default.post(
-                    name: .noteSpeakToAppendTranscript,
-                    object: nil,
-                    userInfo: ["editorID": editorID, "text": text]
-                )
-            }
+            try await dispatchRecordingStop()
         } catch {
             self.error = error
             audioRecorder.resetAudioEngine()
             Log.app.error("Failed to stop note-append recording: \(error)")
         }
 
-        clearNoteAppendMode()
+        if !isRecording { clearNoteAppendMode() }
     }
 
     private func clearNoteAppendMode() {
@@ -2566,18 +2634,10 @@ final class AppCoordinator {
         if isRecording {
             do {
                 if isNoteAppendMode {
-                    if let editorID = noteAppendEditorID {
-                        await handleNoteAppendStop(editorID: editorID)
-                    }
-                } else if isQuickCaptureMode {
-                    if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
-                        openNoteEditorWithEnhancedNote(enhancedNote)
-                    }
-                    isQuickCaptureMode = false
-                } else if isRecordingFeatureCaptureActive {
-                    try await stopManualTranscriptionRecording()
+                    guard noteAppendEditorID != nil else { return }
+                    try await dispatchRecordingStop()
                 } else {
-                    try await stopRecordingAndTranscribe()
+                    try await dispatchRecordingStop()
                 }
             } catch {
                 self.error = error
@@ -3976,7 +4036,7 @@ final class AppCoordinator {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                try await self.stopRecordingAndTranscribe()
+                try await self.dispatchRecordingStop()
             } catch {
                 self.handleAudioCaptureFailure(error)
             }

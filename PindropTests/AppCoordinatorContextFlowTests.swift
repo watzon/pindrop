@@ -14,6 +14,23 @@ import Testing
 @MainActor
 @Suite
 struct AppCoordinatorContextFlowTests {
+    @Test func recordingStopRoutePreservesEveryRecordingMode() {
+        let editorID = UUID()
+        #expect(RecordingStopRoute.resolve(isQuickCapture: false, noteAppendEditorID: nil, isManualTranscription: false) == .dictation)
+        #expect(RecordingStopRoute.resolve(isQuickCapture: true, noteAppendEditorID: nil, isManualTranscription: false) == .quickCapture)
+        #expect(RecordingStopRoute.resolve(isQuickCapture: false, noteAppendEditorID: editorID, isManualTranscription: false) == .noteAppend(editorID))
+        #expect(RecordingStopRoute.resolve(isQuickCapture: false, noteAppendEditorID: nil, isManualTranscription: true) == .manualTranscription)
+    }
+
+    @Test func recordingStopAdmissionLetsOnlyFirstUserOrLimitEventClaimStop() {
+        let admission = RecordingStopAdmission()
+
+        #expect(admission.claim(.dictation) == .dictation)
+        #expect(admission.claim(.quickCapture) == nil)
+        admission.release()
+        #expect(admission.claim(.quickCapture) == .quickCapture)
+    }
+
     private func makeContextEngine() -> (
         contextEngine: ContextEngineService,
         mockAXProvider: MockAXProvider,

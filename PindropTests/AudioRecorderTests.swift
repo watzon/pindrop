@@ -463,6 +463,28 @@ struct AudioPCMFileStorageTests {
         let actual = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
         #expect(actual == expected)
     }
+
+    @Test func exhaustedSlabPoolRejectsThenRecyclesInWriteOrder() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let first = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 100))
+        let second = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 200))
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 1, writerDelayNanoseconds: 30_000_000)
+
+        try storage.start()
+        #expect(storage.enqueue(first))
+        #expect(storage.enqueue(second) == false)
+        Thread.sleep(forTimeInterval: 0.06) // Writer returns the sole slab off callback.
+        #expect(storage.enqueue(second))
+
+        let finished = try storage.finish()
+        let completed = try #require(finished)
+        let data = try completed.consumeData(maximumByteCount: 1024)
+        let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(samples == [
+            first.floatChannelData![0][0], first.floatChannelData![0][1], first.floatChannelData![0][2], first.floatChannelData![0][3],
+            second.floatChannelData![0][0], second.floatChannelData![0][1], second.floatChannelData![0][2], second.floatChannelData![0][3],
+        ])
+    }
 }
 
 @Suite

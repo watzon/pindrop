@@ -707,6 +707,47 @@ struct TranscriptionServiceTests {
         #expect(service.state == .ready)
     }
 
+    @Test func concurrentCallersAfterTimeoutShareReplacementLoadAndAdmitOneTranscription() async throws {
+        let stalledEngine = MockDiarizationTranscriptionEngine()
+        stalledEngine.nonCooperativeTranscribeDelayNanoseconds = 250_000_000
+        let replacementEngine = MockDiarizationTranscriptionEngine()
+        replacementEngine.loadDelayNanoseconds = 30_000_000
+        replacementEngine.nonCooperativeTranscribeDelayNanoseconds = 80_000_000
+        replacementEngine.transcribeResponses = ["replacement"]
+        var factoryCalls = 0
+        let service = TranscriptionService(engineFactory: { _ in
+            defer { factoryCalls += 1 }
+            return factoryCalls == 0 ? stalledEngine : replacementEngine
+        })
+        let audioData = makeFloatAudioData(seconds: 1.0)
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        do {
+            _ = try await StreamingSessionController.withFinalizeTimeout(nanoseconds: 20_000_000) {
+                try await service.transcribe(audioData: audioData)
+            }
+            Issue.record("Expected hard timeout")
+        } catch {
+            service.invalidateTimedOutTranscription()
+        }
+
+        let first = Task { try await service.transcribe(audioData: audioData) }
+        try await Task.sleep(nanoseconds: 5_000_000)
+        let second = Task { try await service.transcribe(audioData: audioData) }
+
+        let firstResult: Result<String, Error>
+        do { firstResult = .success(try await first.value) }
+        catch { firstResult = .failure(error) }
+        let secondResult: Result<String, Error>
+        do { secondResult = .success(try await second.value) }
+        catch { secondResult = .failure(error) }
+        let outcomes = [firstResult, secondResult]
+        #expect(outcomes.compactMap { try? $0.get() } == ["replacement"])
+        #expect(factoryCalls == 2)
+        #expect(replacementEngine.transcribeCallCount == 1)
+        #expect(service.state == .ready)
+    }
+
     @Test func transcribeWithDiarizationCancellationPropagates() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["should not transcribe"]
@@ -1095,6 +1136,7 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     var transcribeResponses: [String] = []
     var transcribeError: Error?
     var nonCooperativeTranscribeDelayNanoseconds: UInt64?
+    var loadDelayNanoseconds: UInt64?
     var detectedLanguage: AppLanguage?
     var detectLanguageError: Error?
     private(set) var transcribeCallCount = 0
@@ -1103,10 +1145,12 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     private(set) var receivedOptions: [TranscriptionOptions] = []
 
     func loadModel(path: String) async throws {
+        if let loadDelayNanoseconds { try await Task.sleep(nanoseconds: loadDelayNanoseconds) }
         state = .ready
     }
 
     func loadModel(name: String, downloadBase: URL?) async throws {
+        if let loadDelayNanoseconds { try await Task.sleep(nanoseconds: loadDelayNanoseconds) }
         state = .ready
     }
 
