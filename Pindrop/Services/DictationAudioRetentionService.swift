@@ -459,6 +459,17 @@ final class DictationAudioRetentionService {
             to: mediaURL,
             inputSampleRate: sampleRate
         )
+        do {
+            let peaks = try WaveformPeaks.extract(
+                fromPCMFloatFile: pcmFloatFileURL,
+                sampleRate: sampleRate
+            )
+            try WaveformPeaks.writeSidecar(peaks, for: mediaURL)
+        } catch {
+            Log.audio.warning(
+                "Waveform peaks extraction failed for \(recordID.uuidString): \(error.localizedDescription)"
+            )
+        }
         return mediaURL
     }
 

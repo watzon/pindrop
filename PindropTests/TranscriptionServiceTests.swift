@@ -698,7 +698,8 @@ struct TranscriptionServiceTests {
             service.invalidateTimedOutTranscription()
         }
 
-        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        // Ordinary batch entry automatically restores the selected model with a
+        // fresh engine; callers do not need a timeout-specific reload step.
         let replacementResult = try await service.transcribe(audioData: audioData)
         #expect(replacementResult == "replacement transcript")
 

@@ -50,6 +50,8 @@ enum AudioRecorderError: Error, LocalizedError {
     case unsupportedCaptureMode(String)
     case audioFormatCreationFailed
     case recordingTooLong(maximumDuration: TimeInterval)
+    /// A controlled signal: the valid ASR spool is full and must be finalized.
+    case recordingLimitReached(maximumDuration: TimeInterval)
     case audioWriterBacklogExceeded
     
     var errorDescription: String? {
@@ -70,6 +72,8 @@ enum AudioRecorderError: Error, LocalizedError {
             return "Failed to create audio format"
         case .recordingTooLong(let maximumDuration):
             return "Recording exceeded the maximum duration of \(Int(maximumDuration / 60)) minutes"
+        case .recordingLimitReached(let maximumDuration):
+            return "Recording reached the maximum duration of \(Int(maximumDuration / 60)) minutes and is being finalized"
         case .audioWriterBacklogExceeded:
             return "Audio capture could not keep up with disk writing"
         }
@@ -376,6 +380,8 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var byteCount = 0
     private var writeFailure: Error?
     private var onWriteFailure: ((Error) -> Void)?
+    private var onLimitReached: ((TimeInterval) -> Void)?
+    private var limitReached = false
     private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
     private let pendingWritePermits: DispatchSemaphore
     private let maximumByteCount: Int?
@@ -395,7 +401,10 @@ final class AudioPCMFileStorage: @unchecked Sendable {
         discard()
     }
 
-    func start(onWriteFailure: @escaping (Error) -> Void = { _ in }) throws {
+    func start(
+        onWriteFailure: @escaping (Error) -> Void = { _ in },
+        onLimitReached: @escaping (TimeInterval) -> Void = { _ in }
+    ) throws {
         try writerQueue.sync {
             closeAndRemoveFile()
             let url = FileManager.default.temporaryDirectory
@@ -414,25 +423,28 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             byteCount = 0
             writeFailure = nil
             self.onWriteFailure = onWriteFailure
+            self.onLimitReached = onLimitReached
+            limitReached = false
         }
     }
 
-    /// Safe for the capture callback: this is a non-blocking permit acquisition
-    /// followed by a serial handoff. PCM conversion, allocation, and file I/O run
-    /// only on `writerQueue`.
+    /// Takes a stable PCM snapshot before returning from the callback. The bounded
+    /// handoff keeps at most `pendingWriteLimit` snapshots awaiting the writer;
+    /// the serial writer is the only code that touches the spool file.
     func enqueue(_ buffer: AVAudioPCMBuffer) -> Bool {
         guard pendingWritePermits.wait(timeout: .now()) == .success else { return false }
+        guard let data = AudioCaptureUtilities.data(from: buffer), !data.isEmpty else {
+            pendingWritePermits.signal()
+            return true
+        }
+        let sampleRate = buffer.format.sampleRate
         writerQueue.async { [weak self] in
             guard let self else { return }
             defer { self.pendingWritePermits.signal() }
-            guard self.writeFailure == nil else { return }
-            guard let data = AudioCaptureUtilities.data(from: buffer), !data.isEmpty else { return }
+            guard self.writeFailure == nil, !self.limitReached else { return }
             if let maximumByteCount, self.byteCount + data.count > maximumByteCount {
-                self.recordWriteFailure(
-                    AudioRecorderError.recordingTooLong(
-                        maximumDuration: Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size)
-                    )
-                )
+                self.limitReached = true
+                self.onLimitReached?(Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size))
                 return
             }
             do {
@@ -444,7 +456,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
                 }
                 try fileHandle.write(contentsOf: data)
                 self.byteCount += data.count
-                if self.sampleRate == nil { self.sampleRate = buffer.format.sampleRate }
+                if self.sampleRate == nil { self.sampleRate = sampleRate }
             } catch {
                 self.recordWriteFailure(error)
             }
@@ -487,6 +499,8 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             byteCount = 0
             writeFailure = nil
             onWriteFailure = nil
+            onLimitReached = nil
+            limitReached = false
         }
     }
 
@@ -549,7 +563,10 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.onAudioLevelCallback = onAudioLevel
         self.onErrorCallback = onError
         do {
-            try audioStorage.start(onWriteFailure: onError)
+            try audioStorage.start(
+                onWriteFailure: onError,
+                onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
+            )
             if retainsNativeAudio {
                 try nativeAudioStorage.start(onWriteFailure: onError)
             } else {
@@ -1006,7 +1023,10 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     ) throws {
         guard !isCapturing else { return }
         do {
-            try audioStorage.start(onWriteFailure: onError)
+            try audioStorage.start(
+                onWriteFailure: onError,
+                onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
+            )
             if retainsNativeAudio {
                 try nativeAudioStorage.start(onWriteFailure: onError)
             } else {
@@ -1210,7 +1230,10 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             // Downmix to mono at the device's native rate; the no-copy source
             // buffer cannot be stored directly.
             if !nativeAudioStorage.enqueue(nativeBuffer) {
-                failActiveCapture(AudioRecorderError.audioWriterBacklogExceeded)
+                requestActiveCaptureFailureFromIOCallback(
+                    AudioRecorderError.audioWriterBacklogExceeded,
+                    generation: generation
+                )
                 return
             }
         }
@@ -1225,7 +1248,10 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
         guard isActiveCaptureGeneration(generation) else { return }
         if !audioStorage.enqueue(convertedBuffer) {
-            failActiveCapture(AudioRecorderError.audioWriterBacklogExceeded)
+            requestActiveCaptureFailureFromIOCallback(
+                AudioRecorderError.audioWriterBacklogExceeded,
+                generation: generation
+            )
             return
         }
         onBuffer(convertedBuffer)
@@ -1449,6 +1475,27 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         onError?(error)
     }
 
+    /// The IO proc may not synchronously stop or destroy Core Audio devices. Mark
+    /// its generation inactive under the state lock, then perform teardown and
+    /// user notification on the main control queue.
+    private func requestActiveCaptureFailureFromIOCallback(_ error: Error, generation: UInt64) {
+        stateLock.lock()
+        let shouldSchedule = isCapturing && activeCaptureGeneration == generation
+        if shouldSchedule {
+            isCapturing = false
+            activeCaptureGeneration = 0
+        }
+        stateLock.unlock()
+        guard shouldSchedule else { return }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let onError = self.activeOnError
+            self.tearDownActiveCapture(clearCallbacks: true)
+            onError?(error)
+        }
+    }
+
     private func registerDeviceChangeObservers(for deviceID: AudioDeviceID) {
         registerSystemDeviceListeners()
         registerActiveDeviceListeners(for: deviceID)
@@ -1606,7 +1653,10 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         onError: @escaping (Error) -> Void
     ) throws {
         guard !isCapturing else { return }
-        try audioStorage.start(onWriteFailure: onError)
+        try audioStorage.start(
+            onWriteFailure: onError,
+            onLimitReached: { onError(AudioRecorderError.recordingLimitReached(maximumDuration: $0)) }
+        )
         var didStartCapture = false
         defer {
             if !didStartCapture {
@@ -2106,6 +2156,7 @@ final class AudioRecorder {
     
     private(set) var isRecording = false
     private var isStartingRecording = false
+    private var isLimitStopRequested = false
     private var currentConfiguration: AudioRecordingConfiguration = .microphone
     private var preferredInputDeviceUID: String?
     
@@ -2188,6 +2239,7 @@ final class AudioRecorder {
         lastNativeAudio?.discard()
         lastNativeAudio = nil
         captureBackend.retainsNativeAudio = retainNativeAudioForSession
+        isLimitStopRequested = false
 
         bandLevelAnalyzer.reset()
         levelNormalizer.reset()
@@ -2240,6 +2292,7 @@ final class AudioRecorder {
             capturedAudio = try activeCaptureBackend.stopCapture()
         } catch {
             isRecording = false
+            isLimitStopRequested = false
             self.activeCaptureBackend = nil
             currentConfiguration = .microphone
             lastNativeAudio?.discard()
@@ -2248,6 +2301,7 @@ final class AudioRecorder {
         }
         lastNativeAudio = activeCaptureBackend.collectNativeAudio()
         isRecording = false
+        isLimitStopRequested = false
         self.activeCaptureBackend = nil
         currentConfiguration = .microphone
 
@@ -2273,6 +2327,7 @@ final class AudioRecorder {
         activeCaptureBackend = nil
         currentConfiguration = .microphone
         isRecording = false
+        isLimitStopRequested = false
         lastNativeAudio?.discard()
         lastNativeAudio = nil
 
@@ -2286,6 +2341,7 @@ final class AudioRecorder {
         systemAudioCaptureBackend?.reset()
         currentConfiguration = .microphone
         isRecording = false
+        isLimitStopRequested = false
         lastNativeAudio?.discard()
         lastNativeAudio = nil
         Log.audio.info("Audio engine reset")
@@ -2314,6 +2370,14 @@ final class AudioRecorder {
 
     private func handleCaptureFailure(_ error: Error) {
         guard isRecording else { return }
+        if case .recordingLimitReached = error as? AudioRecorderError {
+            guard !isLimitStopRequested else { return }
+            isLimitStopRequested = true
+            // Keep the backend and spool alive. The coordinator routes this
+            // controlled signal through normal stop/transcription finalization.
+            onCaptureError?(error)
+            return
+        }
         // A full writer handoff is terminal: leaving the backend active would
         // continue invoking its real-time callback after the recorder has
         // rejected the session. Stop it before releasing our active reference.

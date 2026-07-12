@@ -351,6 +351,27 @@ struct AudioRecorderTests {
         #expect(fixture.mockBackend.cancelCaptureCallCount == 1)
         #expect(reportedError != nil)
     }
+
+    @Test func captureLimitKeepsRecorderActiveForControlledFinalization() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        var receivedLimitSignal = false
+        fixture.sut.onCaptureError = { error in
+            if case .recordingLimitReached = error as? AudioRecorderError {
+                receivedLimitSignal = true
+            }
+        }
+
+        try await fixture.sut.startRecording()
+        fixture.mockBackend.capturedOnError?(
+            AudioRecorderError.recordingLimitReached(maximumDuration: 600)
+        )
+        await Task.yield()
+
+        #expect(receivedLimitSignal)
+        #expect(fixture.sut.isRecording)
+        #expect(fixture.mockBackend.cancelCaptureCallCount == 0)
+    }
 }
 
 @Suite
@@ -404,6 +425,43 @@ struct AudioPCMFileStorageTests {
         #expect(throws: AudioRecorderError.self) {
             _ = try result.consumeData(maximumByteCount: 4)
         }
+    }
+
+    @Test func limitPreservesAlreadyWrittenPCMForControlledFinalization() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let first = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 100))
+        let second = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 200))
+        let overLimit = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 300))
+        var reachedLimit = false
+        let storage = AudioPCMFileStorage(maximumByteCount: 8 * MemoryLayout<Float>.size)
+
+        try storage.start(onLimitReached: { _ in reachedLimit = true })
+        #expect(storage.enqueue(first))
+        #expect(storage.enqueue(second))
+        #expect(storage.enqueue(overLimit))
+
+        let finished = try storage.finish()
+        let completed = try #require(finished)
+        let data = try completed.consumeData(maximumByteCount: 1024)
+        #expect(reachedLimit)
+        #expect(data.count == 8 * MemoryLayout<Float>.size)
+    }
+
+    @Test func enqueueSnapshotsSamplesBeforeBorrowedSourceCanMutate() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let source = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4))
+        let expected = Array(UnsafeBufferPointer(start: source.floatChannelData![0], count: 4))
+        let storage = AudioPCMFileStorage(writerDelayNanoseconds: 100_000_000)
+
+        try storage.start()
+        #expect(storage.enqueue(source))
+        for index in 0..<4 { source.floatChannelData![0][index] = -1 }
+
+        let finished = try storage.finish()
+        let completed = try #require(finished)
+        let data = try completed.consumeData(maximumByteCount: 1024)
+        let actual = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(actual == expected)
     }
 }
 

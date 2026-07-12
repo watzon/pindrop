@@ -271,6 +271,9 @@ struct DictationAudioRetentionServiceTests {
         let path = try #require(attachedPath)
         #expect(FileManager.default.fileExists(atPath: path))
         #expect(!FileManager.default.fileExists(atPath: sourceURL.path))
+        let sidecar = try WaveformPeaks.readSidecar(for: URL(fileURLWithPath: path))
+        let peaks = try #require(sidecar)
+        #expect(peaks.count == WaveformPeaks.defaultBucketCount)
     }
 
     @Test func testUpdateManagedMediaPathReturnsFalseWhenRecordMissing() throws {

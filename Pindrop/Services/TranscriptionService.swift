@@ -88,6 +88,13 @@ class TranscriptionService {
     }
     private var streamingPrepareHandle: StreamingPrepareHandle?
     private var currentProvider: ModelManager.ModelProvider?
+    private enum BatchModelIdentity {
+        case named(modelName: String, provider: ModelManager.ModelProvider)
+        case path(String)
+    }
+    /// Last successfully loaded batch model. This survives hard-timeout
+    /// invalidation so the next batch request can create a fresh engine.
+    private var batchModelIdentity: BatchModelIdentity?
     /// Identifies the only operation permitted to update batch-transcription
     /// state. A timed-out noncooperative engine keeps its own captured instance,
     /// while this service drops that instance before allowing a newly loaded one.
@@ -198,6 +205,7 @@ class TranscriptionService {
 
             engine = newEngine
             currentProvider = provider
+            batchModelIdentity = .named(modelName: modelName, provider: provider)
             Log.transcription.info("Model loaded successfully with \(provider.rawValue) engine")
             Log.boot.info("TranscriptionService.loadModel success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
             state = .ready
@@ -249,6 +257,7 @@ class TranscriptionService {
 
             engine = newEngine
             currentProvider = .whisperKit
+            batchModelIdentity = .path(modelPath)
             Log.transcription.info("Model loaded and prewarmed successfully")
             Log.boot.info("TranscriptionService.loadModel(path) success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
             state = .ready
@@ -291,9 +300,8 @@ class TranscriptionService {
     ) async throws -> TranscriptionOutput {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
 
-        guard let engine else {
-            throw TranscriptionError.modelNotLoaded
-        }
+        try await ensureBatchEngineLoaded()
+        guard let engine else { throw TranscriptionError.modelNotLoaded }
 
         guard !audioData.isEmpty else {
             throw TranscriptionError.invalidAudioData
@@ -355,6 +363,21 @@ class TranscriptionService {
         state = .unloaded
     }
 
+    /// Restores a fresh engine after a hard deadline without touching the stale
+    /// engine that may still be ignoring cancellation on another task.
+    private func ensureBatchEngineLoaded() async throws {
+        guard engine == nil else { return }
+        guard let batchModelIdentity else {
+            throw TranscriptionError.modelNotLoaded
+        }
+        switch batchModelIdentity {
+        case .named(let modelName, let provider):
+            try await loadModel(modelName: modelName, provider: provider)
+        case .path(let modelPath):
+            try await loadModel(modelPath: modelPath)
+        }
+    }
+
     func extractSpeakerProfileSegments(audioData: Data) async throws -> [DiarizedTranscriptSegment] {
         guard !audioData.isEmpty else {
             throw TranscriptionError.invalidAudioData
@@ -394,6 +417,7 @@ class TranscriptionService {
         speakerDiarizer = nil
         streamingEngine = nil
         currentProvider = nil
+        batchModelIdentity = nil
         state = .unloaded
         error = nil
     }

@@ -3926,6 +3926,10 @@ final class AppCoordinator {
     }
 
     private func handleAudioCaptureFailure(_ failure: Error) {
+        if case .recordingLimitReached = failure as? AudioRecorderError {
+            handleRecordingLimitReached(failure)
+            return
+        }
         error = failure
         Log.app.error("Audio capture failed: \(failure.localizedDescription)")
 
@@ -3958,6 +3962,25 @@ final class AppCoordinator {
         toastService.show(
             ToastPayload(message: "Recording stopped: \(failure.localizedDescription)", style: .error)
         )
+    }
+
+    /// The recorder has stopped accepting new PCM, but its valid spool remains
+    /// intact. Route this through the normal stop path so captured speech is
+    /// transcribed instead of treating the limit as a cancellation.
+    private func handleRecordingLimitReached(_ signal: Error) {
+        guard isRecording, recordingStartTime != nil else { return }
+        Log.app.info("Recording duration limit reached; finalizing captured audio")
+        toastService.show(
+            ToastPayload(message: signal.localizedDescription, style: .standard)
+        )
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.stopRecordingAndTranscribe()
+            } catch {
+                self.handleAudioCaptureFailure(error)
+            }
+        }
     }
 
     private func resetProcessingState() {

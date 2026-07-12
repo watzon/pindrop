@@ -71,6 +71,43 @@ enum WaveformPeaks {
         return peaks(from: buffer, bucketCount: bucketCount)
     }
 
+    /// Streams a raw mono Float32 PCM spool into peak buckets. Unlike
+    /// `extract(from:)`, this never loads the complete recording into an audio
+    /// buffer and is used for native-rate retention spools.
+    static func extract(
+        fromPCMFloatFile fileURL: URL,
+        sampleRate: Double,
+        bucketCount: Int = defaultBucketCount
+    ) throws -> [Float] {
+        guard sampleRate > 0 else { throw WaveformPeaksError.invalidFormat }
+        let buckets = max(bucketCount, 1)
+        let byteCount = try fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        let sampleCount = byteCount / MemoryLayout<Float>.size
+        guard sampleCount > 0 else { return Array(repeating: 0, count: buckets) }
+
+        let samplesPerBucket = max(1, (sampleCount + buckets - 1) / buckets)
+        var rawPeaks = [Float](repeating: 0, count: buckets)
+        let handle = try FileHandle(forReadingFrom: fileURL)
+        defer { try? handle.close() }
+
+        var sampleOffset = 0
+        while true {
+            let chunk = handle.readData(ofLength: 64 * 1024)
+            guard !chunk.isEmpty else { break }
+            chunk.withUnsafeBytes { bytes in
+                let samples = bytes.bindMemory(to: Float.self)
+                for (index, sample) in samples.enumerated() {
+                    let bucket = min((sampleOffset + index) / samplesPerBucket, buckets - 1)
+                    rawPeaks[bucket] = max(rawPeaks[bucket], abs(sample))
+                }
+                sampleOffset += samples.count
+            }
+        }
+
+        guard let globalPeak = rawPeaks.max(), globalPeak > 0 else { return rawPeaks }
+        return rawPeaks.map { $0 / globalPeak }
+    }
+
     static func writeSidecar(_ peaks: [Float], for audioURL: URL) throws {
         let sidecar = sidecarURL(for: audioURL)
         let data = try JSONEncoder().encode(peaks)
