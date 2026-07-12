@@ -93,6 +93,107 @@ enum DictationAudioEncoder {
         }
     }
 
+    /// Streams a raw Float32 PCM spool into the AAC writer in small buffers so
+    /// native capture never has to coexist with a second full-size Data value.
+    static func encodePCMFloatFile(
+        _ sourceURL: URL,
+        to destinationURL: URL,
+        inputSampleRate: Double,
+        channelCount: AVAudioChannelCount = channelCount
+    ) throws {
+        guard let inputFormat = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: inputSampleRate,
+            channels: channelCount,
+            interleaved: false
+        ) else {
+            throw DictationAudioError.encodingFailed("Unable to prepare PCM format for AAC encode.")
+        }
+        let encodeRate = encodeSampleRate(forInputRate: inputSampleRate)
+        let parent = destinationURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+        let outputFile = try AVAudioFile(
+            forWriting: destinationURL,
+            settings: [
+                AVFormatIDKey: kAudioFormatMPEG4AAC,
+                AVSampleRateKey: encodeRate,
+                AVNumberOfChannelsKey: Int(channelCount),
+                AVEncoderBitRateKey: bitRate
+            ],
+            commonFormat: .pcmFormatFloat32,
+            interleaved: false
+        )
+        let converter: AVAudioConverter?
+        if abs(inputSampleRate - encodeRate) < 0.5 {
+            converter = nil
+        } else {
+            guard let outputFormat = AVAudioFormat(
+                commonFormat: .pcmFormatFloat32,
+                sampleRate: encodeRate,
+                channels: channelCount,
+                interleaved: false
+            ) else {
+                throw DictationAudioError.encodingFailed("Unable to create AAC resample format.")
+            }
+            converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+        }
+
+        let sourceHandle = try FileHandle(forReadingFrom: sourceURL)
+        defer { try? sourceHandle.close() }
+        let framesPerChunk = 16_384
+        var wroteFrames = false
+        while true {
+            let data = sourceHandle.readData(ofLength: framesPerChunk * MemoryLayout<Float>.size)
+            guard !data.isEmpty else { break }
+            let frameCount = data.count / MemoryLayout<Float>.size
+            guard let inputBuffer = AVAudioPCMBuffer(
+                pcmFormat: inputFormat,
+                frameCapacity: AVAudioFrameCount(frameCount)
+            ), let channelData = inputBuffer.floatChannelData else {
+                throw DictationAudioError.encodingFailed("Unable to prepare PCM chunk for AAC encode.")
+            }
+            inputBuffer.frameLength = AVAudioFrameCount(frameCount)
+            data.withUnsafeBytes { rawBuffer in
+                channelData[0].update(
+                    from: rawBuffer.bindMemory(to: Float.self).baseAddress!,
+                    count: frameCount
+                )
+            }
+            if let converter {
+                let outputCapacity = AVAudioFrameCount(Double(frameCount) * encodeRate / inputSampleRate) + 32
+                guard let outputBuffer = AVAudioPCMBuffer(
+                    pcmFormat: converter.outputFormat,
+                    frameCapacity: outputCapacity
+                ) else {
+                    throw DictationAudioError.encodingFailed("Unable to prepare resample chunk for AAC encode.")
+                }
+                var consumed = false
+                var conversionError: NSError?
+                let status = converter.convert(to: outputBuffer, error: &conversionError) { _, outStatus in
+                    if consumed {
+                        outStatus.pointee = .noDataNow
+                        return nil
+                    }
+                    consumed = true
+                    outStatus.pointee = .haveData
+                    return inputBuffer
+                }
+                if let conversionError { throw DictationAudioError.encodingFailed(conversionError.localizedDescription) }
+                guard status != .error else {
+                    throw DictationAudioError.encodingFailed("Audio resampler failed.")
+                }
+                if outputBuffer.frameLength > 0 { try outputFile.write(from: outputBuffer) }
+            } else {
+                try outputFile.write(from: inputBuffer)
+            }
+            wroteFrames = true
+        }
+        guard wroteFrames else { throw DictationAudioError.emptyAudio }
+    }
+
     private static func resample(
         _ inputBuffer: AVAudioPCMBuffer,
         toSampleRate outputSampleRate: Double
@@ -266,6 +367,49 @@ final class DictationAudioRetentionService {
         pendingPersistTasks[recordID] = task
     }
 
+    /// Ownership of `pcmFloatFileURL` transfers to this service. It is always
+    /// removed after the background encoder finishes (or immediately when
+    /// retention is disabled).
+    func schedulePersist(
+        pcmFloatFileURL: URL,
+        sampleRate: Double,
+        recordID: UUID
+    ) {
+        guard settingsStore.dictationAudioRetention != .off else {
+            try? FileManager.default.removeItem(at: pcmFloatFileURL)
+            return
+        }
+        pendingPersistTasks[recordID]?.cancel()
+        let destinationDirectory = directoryURL
+        let task = Task { [weak self] in
+            defer { try? FileManager.default.removeItem(at: pcmFloatFileURL) }
+            guard let self else { return }
+            do {
+                let mediaURL = try await Task.detached(priority: .utility) {
+                    try Self.encodeFileAndWritePeaks(
+                        pcmFloatFileURL: pcmFloatFileURL,
+                        sampleRate: sampleRate,
+                        recordID: recordID,
+                        directoryURL: destinationDirectory
+                    )
+                }.value
+                guard !Task.isCancelled else {
+                    Self.removeUnlinkedMedia(at: mediaURL)
+                    return
+                }
+                if try self.historyStore.updateManagedMediaPath(for: recordID, path: mediaURL.path) {
+                    Log.audio.info("Persisted dictation audio for \(recordID.uuidString) → \(mediaURL.lastPathComponent)")
+                } else {
+                    Self.removeUnlinkedMedia(at: mediaURL)
+                }
+            } catch {
+                Log.audio.error("Failed to persist dictation audio for \(recordID.uuidString): \(error.localizedDescription)")
+            }
+            self.pendingPersistTasks[recordID] = nil
+        }
+        pendingPersistTasks[recordID] = task
+    }
+
     /// Synchronous encode used by tests and the detached persistence path.
     nonisolated static func encodeAndWritePeaks(
         pcmFloatData: Data,
@@ -298,6 +442,23 @@ final class DictationAudioRetentionService {
             )
         }
 
+        return mediaURL
+    }
+
+    nonisolated static func encodeFileAndWritePeaks(
+        pcmFloatFileURL: URL,
+        sampleRate: Double,
+        recordID: UUID,
+        directoryURL: URL
+    ) throws -> URL {
+        let mediaURL = directoryURL
+            .appendingPathComponent(recordID.uuidString)
+            .appendingPathExtension("m4a")
+        try DictationAudioEncoder.encodePCMFloatFile(
+            pcmFloatFileURL,
+            to: mediaURL,
+            inputSampleRate: sampleRate
+        )
         return mediaURL
     }
 

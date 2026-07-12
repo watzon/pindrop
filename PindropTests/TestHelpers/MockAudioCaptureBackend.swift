@@ -61,11 +61,11 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
         isCapturing = true
     }
 
-    func stopCapture() throws -> Data {
+    func stopCapture() throws -> AudioPCMFile {
         stopCaptureCallCount += 1
         if let error = shouldThrowOnStop { throw error }
         isCapturing = false
-        return simulatedBuffers.reduce(into: Data()) { data, buffer in
+        let data = simulatedBuffers.reduce(into: Data()) { data, buffer in
             guard let channelData = buffer.floatChannelData else { return }
             data.append(contentsOf:
                 UnsafeRawBufferPointer(
@@ -74,6 +74,14 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
                 )
             )
         }
+        let fileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-test-audio-\(UUID().uuidString).pcm")
+        try data.write(to: fileURL)
+        return AudioPCMFile(
+            fileURL: fileURL,
+            byteCount: data.count,
+            sampleRate: targetFormat.sampleRate
+        )
     }
 
     func cancelCapture() {

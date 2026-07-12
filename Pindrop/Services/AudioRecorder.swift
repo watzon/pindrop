@@ -49,6 +49,8 @@ enum AudioRecorderError: Error, LocalizedError {
     case systemAudioCaptureFailed(String)
     case unsupportedCaptureMode(String)
     case audioFormatCreationFailed
+    case recordingTooLong(maximumDuration: TimeInterval)
+    case audioWriterBacklogExceeded
     
     var errorDescription: String? {
         switch self {
@@ -66,6 +68,10 @@ enum AudioRecorderError: Error, LocalizedError {
             return message
         case .audioFormatCreationFailed:
             return "Failed to create audio format"
+        case .recordingTooLong(let maximumDuration):
+            return "Recording exceeded the maximum duration of \(Int(maximumDuration / 60)) minutes"
+        case .audioWriterBacklogExceeded:
+            return "Audio capture could not keep up with disk writing"
         }
     }
 }
@@ -75,9 +81,48 @@ enum AudioRecorderError: Error, LocalizedError {
 /// Native-rate mono PCM collected alongside the 16 kHz ASR feed. Retention encodes
 /// this so kept audio isn't telephone-bandwidth (the target format exists for the
 /// recognizer, not for listening).
-struct AudioCaptureNativeAudio {
-    let data: Data
+final class AudioCaptureNativeAudio {
+    private var fileURL: URL?
     let sampleRate: Double
+
+    init(fileURL: URL, sampleRate: Double) {
+        self.fileURL = fileURL
+        self.sampleRate = sampleRate
+    }
+
+    /// Transfers the temporary PCM file to the retention encoder. The caller owns
+    /// deletion after this returns a URL.
+    func takeFileURL() -> URL? {
+        defer { fileURL = nil }
+        return fileURL
+    }
+
+    func discard() {
+        if let fileURL { try? FileManager.default.removeItem(at: fileURL) }
+        fileURL = nil
+    }
+
+    deinit { discard() }
+}
+
+struct AudioPCMFile {
+    let fileURL: URL
+    let byteCount: Int
+    let sampleRate: Double
+
+    func consumeData(maximumByteCount: Int) throws -> Data {
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        guard byteCount <= maximumByteCount else {
+            throw AudioRecorderError.recordingTooLong(
+                maximumDuration: Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size)
+            )
+        }
+        return try Data(contentsOf: fileURL)
+    }
+
+    func discard() {
+        try? FileManager.default.removeItem(at: fileURL)
+    }
 }
 
 /// Abstracts audio capture hardware, enabling mock-based testing.
@@ -93,10 +138,8 @@ protocol AudioCaptureBackend: AnyObject {
         onAudioLevel: @escaping (Float) -> Void,
         onError: @escaping (Error) -> Void
     ) throws
-    /// Stops capture and returns 16 kHz mono Float32 PCM. Capture backends spool
-    /// buffers to a temporary file while recording so long recordings do not retain
-    /// an unbounded collection of AVAudioPCMBuffer instances in memory.
-    func stopCapture() throws -> Data
+    /// Stops capture and returns the file-backed 16 kHz mono Float32 PCM spool.
+    func stopCapture() throws -> AudioPCMFile
     /// Drains the native-rate copy collected during the last capture, if enabled.
     func collectNativeAudio() -> AudioCaptureNativeAudio?
     func cancelCapture()
@@ -250,106 +293,207 @@ private enum AudioCaptureUtilities {
         return Data(bytes: channelData[0], count: Int(buffer.frameLength) * MemoryLayout<Float>.size)
     }
 
-    /// Mixes capture streams directly into the final byte representation. The
-    /// returned Data is required by batch transcription, but no second full
-    /// `[Float]` staging array is allocated at stop.
-    static func mixPCMData(_ microphoneData: Data, _ systemData: Data) -> Data {
-        let microphoneSampleCount = microphoneData.count / MemoryLayout<Float>.size
-        let systemSampleCount = systemData.count / MemoryLayout<Float>.size
-        let mixedSampleCount = max(microphoneSampleCount, systemSampleCount)
-        guard mixedSampleCount > 0 else { return Data() }
+    /// Mixes source spools in fixed 64 KiB chunks. Stop never holds both source
+    /// recordings and the mixed output in memory at the same time.
+    static func mixPCMFiles(_ microphone: AudioPCMFile, _ system: AudioPCMFile) throws -> AudioPCMFile {
+        defer {
+            microphone.discard()
+            system.discard()
+        }
 
-        var mixedData = Data(count: mixedSampleCount * MemoryLayout<Float>.size)
-        mixedData.withUnsafeMutableBytes { destination in
-            let destinationSamples = destination.bindMemory(to: Float.self)
-            microphoneData.withUnsafeBytes { microphoneBytes in
-                let microphoneSamples = microphoneBytes.bindMemory(to: Float.self)
-                systemData.withUnsafeBytes { systemBytes in
-                    let systemSamples = systemBytes.bindMemory(to: Float.self)
-                    for index in 0..<mixedSampleCount {
-                        let microphone = index < microphoneSamples.count ? microphoneSamples[index] : 0
-                        let system = index < systemSamples.count ? systemSamples[index] : 0
-                        destinationSamples[index] = max(-1, min(1, (microphone + system) * 0.5))
+        let outputURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-mixed-audio-\(UUID().uuidString).pcm")
+        guard FileManager.default.createFile(atPath: outputURL.path, contents: nil) else {
+            throw AudioRecorderError.engineStartFailed("Unable to create mixed audio spool")
+        }
+        do {
+            let microphoneHandle = try FileHandle(forReadingFrom: microphone.fileURL)
+            let systemHandle = try FileHandle(forReadingFrom: system.fileURL)
+            let outputHandle = try FileHandle(forWritingTo: outputURL)
+            defer {
+                try? microphoneHandle.close()
+                try? systemHandle.close()
+                try? outputHandle.close()
+            }
+
+            let chunkByteCount = 64 * 1024
+            var outputByteCount = 0
+            while true {
+                let microphoneChunk = microphoneHandle.readData(ofLength: chunkByteCount)
+                let systemChunk = systemHandle.readData(ofLength: chunkByteCount)
+                guard !microphoneChunk.isEmpty || !systemChunk.isEmpty else { break }
+
+                let microphoneSampleCount = microphoneChunk.count / MemoryLayout<Float>.size
+                let systemSampleCount = systemChunk.count / MemoryLayout<Float>.size
+                let mixedSampleCount = max(microphoneSampleCount, systemSampleCount)
+                var mixedChunk = Data(count: mixedSampleCount * MemoryLayout<Float>.size)
+                mixedChunk.withUnsafeMutableBytes { destination in
+                    let destinationSamples = destination.bindMemory(to: Float.self)
+                    microphoneChunk.withUnsafeBytes { microphoneBytes in
+                        let microphoneSamples = microphoneBytes.bindMemory(to: Float.self)
+                        systemChunk.withUnsafeBytes { systemBytes in
+                            let systemSamples = systemBytes.bindMemory(to: Float.self)
+                            for index in 0..<mixedSampleCount {
+                                let microphoneSample = index < microphoneSamples.count ? microphoneSamples[index] : 0
+                                let systemSample = index < systemSamples.count ? systemSamples[index] : 0
+                                destinationSamples[index] = max(-1, min(1, (microphoneSample + systemSample) * 0.5))
+                            }
+                        }
                     }
                 }
+                try outputHandle.write(contentsOf: mixedChunk)
+                outputByteCount += mixedChunk.count
             }
+            return AudioPCMFile(
+                fileURL: outputURL,
+                byteCount: outputByteCount,
+                sampleRate: microphone.sampleRate
+            )
+        } catch {
+            try? FileManager.default.removeItem(at: outputURL)
+            throw error
         }
-        return mixedData
     }
+}
+
+private enum CaptureLimits {
+    /// Batch inference currently accepts one contiguous Data value. Keep that
+    /// materialization below 40 MB (ten minutes of 16 kHz mono Float32 PCM).
+    static let maximumASRDuration: TimeInterval = 10 * 60
+    static let maximumASRByteCount = Int(maximumASRDuration * 16_000 * Double(MemoryLayout<Float>.size))
 }
 
 // MARK: - AVAudioEngineCaptureBackend
 
-/// Thread-safe temporary PCM spool. The capture callback writes each converted
-/// buffer immediately; only the final contiguous Data required by batch
-/// transcription is materialized at stop.
+/// File-backed PCM spool with a bounded, non-blocking handoff from the capture
+/// callback to one serial writer. Capture never waits for a lock or filesystem
+/// operation: if all handoff permits are in use, the backend fails the recording
+/// rather than silently dropping samples.
 final class AudioPCMFileStorage: @unchecked Sendable {
     private var fileURL: URL?
     private var fileHandle: FileHandle?
     private var sampleRate: Double?
-    private let lock = NSLock()
+    private var byteCount = 0
+    private var writeFailure: Error?
+    private var onWriteFailure: ((Error) -> Void)?
+    private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
+    private let pendingWritePermits: DispatchSemaphore
+    private let maximumByteCount: Int?
+    private let writerDelayNanoseconds: UInt64
+
+    init(
+        pendingWriteLimit: Int = 32,
+        maximumByteCount: Int? = nil,
+        writerDelayNanoseconds: UInt64 = 0
+    ) {
+        self.pendingWritePermits = DispatchSemaphore(value: max(1, pendingWriteLimit))
+        self.maximumByteCount = maximumByteCount
+        self.writerDelayNanoseconds = writerDelayNanoseconds
+    }
 
     deinit {
         discard()
     }
 
-    func start() throws {
-        lock.lock()
-        defer { lock.unlock() }
-
-        closeAndRemoveFile()
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
-        guard FileManager.default.createFile(atPath: url.path, contents: nil) else {
-            throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
-        }
-        let handle: FileHandle
-        do {
-            handle = try FileHandle(forWritingTo: url)
-        } catch {
-            try? FileManager.default.removeItem(at: url)
-            throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
-        }
-        fileURL = url
-        fileHandle = handle
-        sampleRate = nil
-    }
-
-    func append(_ buffer: AVAudioPCMBuffer) throws {
-        guard let data = AudioCaptureUtilities.data(from: buffer) else { return }
-        lock.lock()
-        defer { lock.unlock() }
-
-        guard let fileHandle else {
-            throw AudioRecorderError.engineStartFailed("Audio spool is not available")
-        }
-        do {
-            try fileHandle.write(contentsOf: data)
-            if sampleRate == nil { sampleRate = buffer.format.sampleRate }
-        } catch {
-            throw AudioRecorderError.engineStartFailed("Unable to write temporary audio spool: \(error.localizedDescription)")
+    func start(onWriteFailure: @escaping (Error) -> Void = { _ in }) throws {
+        try writerQueue.sync {
+            closeAndRemoveFile()
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
+            guard FileManager.default.createFile(atPath: url.path, contents: nil) else {
+                throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
+            }
+            do {
+                fileHandle = try FileHandle(forWritingTo: url)
+            } catch {
+                try? FileManager.default.removeItem(at: url)
+                throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
+            }
+            fileURL = url
+            sampleRate = nil
+            byteCount = 0
+            writeFailure = nil
+            self.onWriteFailure = onWriteFailure
         }
     }
 
-    func drain() throws -> (data: Data, sampleRate: Double?) {
-        lock.lock()
-        defer { lock.unlock() }
+    /// Safe for the capture callback: this is a non-blocking permit acquisition
+    /// followed by a serial handoff. PCM conversion, allocation, and file I/O run
+    /// only on `writerQueue`.
+    func enqueue(_ buffer: AVAudioPCMBuffer) -> Bool {
+        guard pendingWritePermits.wait(timeout: .now()) == .success else { return false }
+        writerQueue.async { [weak self] in
+            guard let self else { return }
+            defer { self.pendingWritePermits.signal() }
+            guard self.writeFailure == nil else { return }
+            guard let data = AudioCaptureUtilities.data(from: buffer), !data.isEmpty else { return }
+            if let maximumByteCount, self.byteCount + data.count > maximumByteCount {
+                self.recordWriteFailure(
+                    AudioRecorderError.recordingTooLong(
+                        maximumDuration: Double(maximumByteCount) / Double(16_000 * MemoryLayout<Float>.size)
+                    )
+                )
+                return
+            }
+            do {
+                if self.writerDelayNanoseconds > 0 {
+                    Thread.sleep(forTimeInterval: Double(self.writerDelayNanoseconds) / 1_000_000_000)
+                }
+                guard let fileHandle = self.fileHandle else {
+                    throw AudioRecorderError.engineStartFailed("Audio spool is not available")
+                }
+                try fileHandle.write(contentsOf: data)
+                self.byteCount += data.count
+                if self.sampleRate == nil { self.sampleRate = buffer.format.sampleRate }
+            } catch {
+                self.recordWriteFailure(error)
+            }
+        }
+        return true
+    }
 
-        guard let fileURL else { return (Data(), nil) }
-        try fileHandle?.close()
-        fileHandle = nil
-        self.fileURL = nil
-        let capturedSampleRate = sampleRate
-        sampleRate = nil
-        defer { try? FileManager.default.removeItem(at: fileURL) }
-        return (try Data(contentsOf: fileURL), capturedSampleRate)
+    /// Waits for the serial writer after the hardware callback has stopped, then
+    /// transfers ownership of the completed temporary file to the caller.
+    func finish() throws -> AudioPCMFile? {
+        try writerQueue.sync {
+            if let writeFailure {
+                closeAndRemoveFile()
+                throw writeFailure
+            }
+            guard let fileURL, let sampleRate else {
+                closeAndRemoveFile()
+                byteCount = 0
+                return nil
+            }
+            do {
+                try fileHandle?.close()
+            } catch {
+                closeAndRemoveFile()
+                throw error
+            }
+            fileHandle = nil
+            self.fileURL = nil
+            self.sampleRate = nil
+            let result = AudioPCMFile(fileURL: fileURL, byteCount: byteCount, sampleRate: sampleRate)
+            byteCount = 0
+            return result
+        }
     }
 
     func discard() {
-        lock.lock()
-        defer { lock.unlock() }
-        closeAndRemoveFile()
-        sampleRate = nil
+        writerQueue.sync {
+            closeAndRemoveFile()
+            sampleRate = nil
+            byteCount = 0
+            writeFailure = nil
+            onWriteFailure = nil
+        }
+    }
+
+    private func recordWriteFailure(_ error: Error) {
+        guard writeFailure == nil else { return }
+        writeFailure = error
+        onWriteFailure?(error)
     }
 
     private func closeAndRemoveFile() {
@@ -363,7 +507,7 @@ final class AudioPCMFileStorage: @unchecked Sendable {
 final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
     private var audioEngine: AVAudioEngine?
-    private let audioStorage = AudioPCMFileStorage()
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention (tap format), kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
     var retainsNativeAudio = false
@@ -405,9 +549,9 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.onAudioLevelCallback = onAudioLevel
         self.onErrorCallback = onError
         do {
-            try audioStorage.start()
+            try audioStorage.start(onWriteFailure: onError)
             if retainsNativeAudio {
-                try nativeAudioStorage.start()
+                try nativeAudioStorage.start(onWriteFailure: onError)
             } else {
                 nativeAudioStorage.discard()
             }
@@ -447,7 +591,7 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         }
     }
     
-    func stopCapture() throws -> Data {
+    func stopCapture() throws -> AudioPCMFile {
         guard isCapturing, let engine = audioEngine else {
             throw AudioRecorderError.notRecording
         }
@@ -462,8 +606,10 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
         
-        let capturedAudio = try audioStorage.drain().data
-        Log.audio.debug("Stopped capturing, collected \(capturedAudio.count) bytes")
+        guard let capturedAudio = try audioStorage.finish() else {
+            throw AudioRecorderError.notRecording
+        }
+        Log.audio.debug("Stopped capturing, collected \(capturedAudio.byteCount) bytes")
         return capturedAudio
     }
     
@@ -488,11 +634,8 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     }
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? {
-        let capturedAudio = try? nativeAudioStorage.drain()
-        guard let capturedAudio, let sampleRate = capturedAudio.sampleRate else { return nil }
-        let data = capturedAudio.data
-        guard !data.isEmpty else { return nil }
-        return AudioCaptureNativeAudio(data: data, sampleRate: sampleRate)
+        guard let capturedAudio = try? nativeAudioStorage.finish(), capturedAudio.byteCount > 0 else { return nil }
+        return AudioCaptureNativeAudio(fileURL: capturedAudio.fileURL, sampleRate: capturedAudio.sampleRate)
     }
 
     func reset() {
@@ -637,21 +780,15 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
 
             if self.retainsNativeAudio {
                 // The tap format is already native-rate mono float32.
-                do {
-                    try nativeAudioStorage.append(buffer)
-                } catch {
-                    Log.audio.error("Failed to spool native retention audio: \(error.localizedDescription)")
-                    self.onErrorCallback?(error)
+                if !nativeAudioStorage.enqueue(buffer) {
+                    self.onErrorCallback?(AudioRecorderError.audioWriterBacklogExceeded)
                     return
                 }
             }
 
             if let convertedBuffer = AudioCaptureUtilities.convertBuffer(buffer, from: buffer.format, to: targetFmt) {
-                do {
-                    try audioStorage.append(convertedBuffer)
-                } catch {
-                    Log.audio.error("Failed to spool captured audio: \(error.localizedDescription)")
-                    self.onErrorCallback?(error)
+                if !audioStorage.enqueue(convertedBuffer) {
+                    self.onErrorCallback?(AudioRecorderError.audioWriterBacklogExceeded)
                     return
                 }
                 self.onBufferCallback?(convertedBuffer)
@@ -818,7 +955,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         let generation: UInt64
     }
 
-    private let audioStorage = AudioPCMFileStorage()
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
     /// Native-rate mono copy for retention, kept only when enabled.
     private let nativeAudioStorage = AudioPCMFileStorage()
     var retainsNativeAudio = false
@@ -869,9 +1006,9 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     ) throws {
         guard !isCapturing else { return }
         do {
-            try audioStorage.start()
+            try audioStorage.start(onWriteFailure: onError)
             if retainsNativeAudio {
-                try nativeAudioStorage.start()
+                try nativeAudioStorage.start(onWriteFailure: onError)
             } else {
                 nativeAudioStorage.discard()
             }
@@ -907,14 +1044,16 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
     }
 
-    func stopCapture() throws -> Data {
+    func stopCapture() throws -> AudioPCMFile {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
         tearDownActiveCapture(clearCallbacks: true)
-        let capturedAudio = try audioStorage.drain().data
-        Log.audio.debug("Stopped microphone capture, collected \(capturedAudio.count) bytes")
+        guard let capturedAudio = try audioStorage.finish() else {
+            throw AudioRecorderError.notRecording
+        }
+        Log.audio.debug("Stopped microphone capture, collected \(capturedAudio.byteCount) bytes")
         return capturedAudio
     }
 
@@ -927,11 +1066,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     }
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? {
-        let capturedAudio = try? nativeAudioStorage.drain()
-        guard let capturedAudio, let sampleRate = capturedAudio.sampleRate else { return nil }
-        let data = capturedAudio.data
-        guard !data.isEmpty else { return nil }
-        return AudioCaptureNativeAudio(data: data, sampleRate: sampleRate)
+        guard let capturedAudio = try? nativeAudioStorage.finish(), capturedAudio.byteCount > 0 else { return nil }
+        return AudioCaptureNativeAudio(fileURL: capturedAudio.fileURL, sampleRate: capturedAudio.sampleRate)
     }
 
     func reset() {
@@ -1073,11 +1209,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
            ) {
             // Downmix to mono at the device's native rate; the no-copy source
             // buffer cannot be stored directly.
-            do {
-                try nativeAudioStorage.append(nativeBuffer)
-            } catch {
-                Log.audio.error("Failed to spool native retention audio: \(error.localizedDescription)")
-                failActiveCapture(error)
+            if !nativeAudioStorage.enqueue(nativeBuffer) {
+                failActiveCapture(AudioRecorderError.audioWriterBacklogExceeded)
                 return
             }
         }
@@ -1091,11 +1224,8 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
 
         guard isActiveCaptureGeneration(generation) else { return }
-        do {
-            try audioStorage.append(convertedBuffer)
-        } catch {
-            let error = AudioRecorderError.engineStartFailed("Failed to spool captured audio: \(error.localizedDescription)")
-            failActiveCapture(error)
+        if !audioStorage.enqueue(convertedBuffer) {
+            failActiveCapture(AudioRecorderError.audioWriterBacklogExceeded)
             return
         }
         onBuffer(convertedBuffer)
@@ -1443,7 +1573,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
-    private let audioStorage = AudioPCMFileStorage()
+    private let audioStorage = AudioPCMFileStorage(maximumByteCount: CaptureLimits.maximumASRByteCount)
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.system-audio-tap")
 
@@ -1476,7 +1606,7 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         onError: @escaping (Error) -> Void
     ) throws {
         guard !isCapturing else { return }
-        try audioStorage.start()
+        try audioStorage.start(onWriteFailure: onError)
         var didStartCapture = false
         defer {
             if !didStartCapture {
@@ -1553,14 +1683,16 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         Log.audio.info("System audio tap capture started")
     }
 
-    func stopCapture() throws -> Data {
+    func stopCapture() throws -> AudioPCMFile {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
         destroyCaptureObjects()
-        let capturedAudio = try audioStorage.drain().data
-        Log.audio.debug("Stopped system audio capture, collected \(capturedAudio.count) bytes")
+        guard let capturedAudio = try audioStorage.finish() else {
+            throw AudioRecorderError.notRecording
+        }
+        Log.audio.debug("Stopped system audio capture, collected \(capturedAudio.byteCount) bytes")
         return capturedAudio
     }
 
@@ -1612,11 +1744,8 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             return
         }
 
-        do {
-            try audioStorage.append(convertedBuffer)
-        } catch {
-            Log.audio.error("Failed to spool system audio: \(error.localizedDescription)")
-            onError(error)
+        if !audioStorage.enqueue(convertedBuffer) {
+            onError(AudioRecorderError.audioWriterBacklogExceeded)
             return
         }
         onBuffer(convertedBuffer)
@@ -1791,16 +1920,31 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         _ = onBuffer
     }
 
-    func stopCapture() throws -> Data {
+    func stopCapture() throws -> AudioPCMFile {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
-        let microphoneData = try microphoneBackend.stopCapture()
-        let systemData = try systemAudioBackend.stopCapture()
+        let microphoneAudio: AudioPCMFile
+        do {
+            microphoneAudio = try microphoneBackend.stopCapture()
+        } catch {
+            systemAudioBackend.cancelCapture()
+            isCapturing = false
+            throw error
+        }
+        let systemAudio: AudioPCMFile
+        do {
+            systemAudio = try systemAudioBackend.stopCapture()
+        } catch {
+            microphoneAudio.discard()
+            systemAudioBackend.cancelCapture()
+            isCapturing = false
+            throw error
+        }
         isCapturing = false
 
-        return AudioCaptureUtilities.mixPCMData(microphoneData, systemData)
+        return try AudioCaptureUtilities.mixPCMFiles(microphoneAudio, systemAudio)
     }
 
     func cancelCapture() {
@@ -1984,8 +2128,8 @@ final class AudioRecorder {
     /// When true, microphone sessions also keep a native-rate mono copy for
     /// retention-quality encoding. Set per session by the coordinator (retention on).
     var retainNativeAudioForSession = false
-    /// Native-rate copy from the most recent stopped recording, if kept.
-    private(set) var lastNativeAudio: AudioCaptureNativeAudio?
+    /// Native-rate spool from the most recent stopped recording, if kept.
+    private var lastNativeAudio: AudioCaptureNativeAudio?
     var onAudioBandLevels: ((AudioBandLevels) -> Void)?
     var onCaptureError: ((Error) -> Void)?
 
@@ -2041,6 +2185,7 @@ final class AudioRecorder {
             try captureBackend.setPreferredInputDeviceUID(preferredInputDeviceUID)
         }
 
+        lastNativeAudio?.discard()
         lastNativeAudio = nil
         captureBackend.retainsNativeAudio = retainNativeAudioForSession
 
@@ -2090,12 +2235,30 @@ final class AudioRecorder {
             throw AudioRecorderError.notRecording
         }
 
-        let audioData = try activeCaptureBackend.stopCapture()
+        let capturedAudio: AudioPCMFile
+        do {
+            capturedAudio = try activeCaptureBackend.stopCapture()
+        } catch {
+            isRecording = false
+            self.activeCaptureBackend = nil
+            currentConfiguration = .microphone
+            lastNativeAudio?.discard()
+            lastNativeAudio = nil
+            throw error
+        }
         lastNativeAudio = activeCaptureBackend.collectNativeAudio()
         isRecording = false
         self.activeCaptureBackend = nil
         currentConfiguration = .microphone
 
+        let audioData: Data
+        do {
+            audioData = try capturedAudio.consumeData(maximumByteCount: CaptureLimits.maximumASRByteCount)
+        } catch {
+            lastNativeAudio?.discard()
+            lastNativeAudio = nil
+            throw error
+        }
         Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
 
         return audioData
@@ -2110,6 +2273,7 @@ final class AudioRecorder {
         activeCaptureBackend = nil
         currentConfiguration = .microphone
         isRecording = false
+        lastNativeAudio?.discard()
         lastNativeAudio = nil
 
         Log.audio.info("Recording cancelled, audio discarded")
@@ -2122,7 +2286,16 @@ final class AudioRecorder {
         systemAudioCaptureBackend?.reset()
         currentConfiguration = .microphone
         isRecording = false
+        lastNativeAudio?.discard()
+        lastNativeAudio = nil
         Log.audio.info("Audio engine reset")
+    }
+
+    /// Transfers the native spool to the retention service. It must be consumed or
+    /// discarded by that service; this recorder will not materialize it as Data.
+    func takeLastNativeAudio() -> AudioCaptureNativeAudio? {
+        defer { lastNativeAudio = nil }
+        return lastNativeAudio
     }
 
     func setPreferredInputDeviceUID(_ uid: String) throws {
@@ -2141,6 +2314,10 @@ final class AudioRecorder {
 
     private func handleCaptureFailure(_ error: Error) {
         guard isRecording else { return }
+        // A full writer handoff is terminal: leaving the backend active would
+        // continue invoking its real-time callback after the recorder has
+        // rejected the session. Stop it before releasing our active reference.
+        activeCaptureBackend?.cancelCapture()
         isRecording = false
         activeCaptureBackend = nil
         currentConfiguration = .microphone

@@ -88,6 +88,11 @@ class TranscriptionService {
     }
     private var streamingPrepareHandle: StreamingPrepareHandle?
     private var currentProvider: ModelManager.ModelProvider?
+    /// Identifies the only operation permitted to update batch-transcription
+    /// state. A timed-out noncooperative engine keeps its own captured instance,
+    /// while this service drops that instance before allowing a newly loaded one.
+    private var activeTranscriptionGeneration: UInt64?
+    private var nextTranscriptionGeneration: UInt64 = 1
     private var streamingPartialCallback: (@Sendable (String) -> Void)?
     private var streamingFinalUtteranceCallback: (@Sendable (String) -> Void)?
 
@@ -298,6 +303,9 @@ class TranscriptionService {
             throw TranscriptionError.transcriptionFailed("Transcription already in progress")
         }
 
+        let generation = nextTranscriptionGeneration
+        nextTranscriptionGeneration &+= 1
+        activeTranscriptionGeneration = generation
         state = .transcribing
 
         do {
@@ -321,19 +329,30 @@ class TranscriptionService {
             let elapsed = Date().timeIntervalSince(startTime)
             Log.transcription.info("Transcription completed in \(String(format: "%.2f", elapsed))s")
 
-            state = .ready
+            finishTranscription(generation)
             Log.transcription.debug("Result redacted (chars=\(output.text.count), diarizedSegments=\(output.diarizedSegments?.count ?? 0))")
             return output
         } catch let error as TranscriptionError {
-            state = .ready
+            finishTranscription(generation)
             throw error
         } catch is CancellationError {
-            state = .ready
+            finishTranscription(generation)
             throw CancellationError()
         } catch {
-            state = .ready
+            finishTranscription(generation)
             throw TranscriptionError.transcriptionFailed(error.localizedDescription)
         }
+    }
+
+    /// Called by a hard deadline after it has cancelled a batch operation. The
+    /// previous engine may still be executing and is never touched concurrently;
+    /// dropping it forces the next batch operation to load a distinct engine.
+    func invalidateTimedOutTranscription() {
+        guard activeTranscriptionGeneration != nil else { return }
+        activeTranscriptionGeneration = nil
+        engine = nil
+        currentProvider = nil
+        state = .unloaded
     }
 
     func extractSpeakerProfileSegments(audioData: Data) async throws -> [DiarizedTranscriptSegment] {
@@ -654,6 +673,12 @@ class TranscriptionService {
             Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(error.localizedDescription)")
             return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
         }
+    }
+
+    private func finishTranscription(_ generation: UInt64) {
+        guard activeTranscriptionGeneration == generation else { return }
+        activeTranscriptionGeneration = nil
+        state = .ready
     }
 
     private func diarizeWithWatchdog(

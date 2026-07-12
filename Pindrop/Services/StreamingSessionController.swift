@@ -320,6 +320,14 @@ final class StreamingSessionController {
                         "Streaming finalize: offline re-transcription was empty; keeping streamed text"
                     )
                 }
+            } catch is FinalizeStepTimedOut {
+                // The detached batch operation may ignore cancellation. Drop its
+                // engine generation before fallback so it cannot leave the shared
+                // service stuck in `.transcribing` or mutate a later session.
+                transcriptionService.invalidateTimedOutTranscription()
+                Log.transcription.warning(
+                    "Streaming finalize: offline re-transcription timed out, keeping streamed text"
+                )
             } catch {
                 Log.transcription.warning(
                     "Streaming finalize: offline re-transcription failed, keeping streamed text: \(error.localizedDescription)"

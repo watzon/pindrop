@@ -3031,12 +3031,19 @@ final class AppCoordinator {
                 destinationAppBundleID: outcome.destinationAppBundleID,
                 speakerTrainingSegments: speakerTrainingSegments
             )
-            let nativeAudio = audioRecorder.lastNativeAudio
-            dictationAudioRetentionService.schedulePersist(
-                pcmFloatData: nativeAudio?.data ?? recordedAudioData,
-                sampleRate: nativeAudio?.sampleRate ?? DictationAudioEncoder.inputSampleRate,
-                recordID: record.id
-            )
+            if let nativeAudio = audioRecorder.takeLastNativeAudio(),
+               let nativePCMURL = nativeAudio.takeFileURL() {
+                dictationAudioRetentionService.schedulePersist(
+                    pcmFloatFileURL: nativePCMURL,
+                    sampleRate: nativeAudio.sampleRate,
+                    recordID: record.id
+                )
+            } else {
+                dictationAudioRetentionService.schedulePersist(
+                    pcmFloatData: recordedAudioData,
+                    recordID: record.id
+                )
+            }
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
             if outcome.didPaste {
@@ -3422,12 +3429,19 @@ final class AppCoordinator {
                 destinationAppBundleID: outputResult?.destinationAppBundleID,
                 speakerTrainingSegments: speakerTrainingSegments
             )
-            let nativeAudio = audioRecorder.lastNativeAudio
-            dictationAudioRetentionService.schedulePersist(
-                pcmFloatData: nativeAudio?.data ?? audioData,
-                sampleRate: nativeAudio?.sampleRate ?? DictationAudioEncoder.inputSampleRate,
-                recordID: record.id
-            )
+            if let nativeAudio = audioRecorder.takeLastNativeAudio(),
+               let nativePCMURL = nativeAudio.takeFileURL() {
+                dictationAudioRetentionService.schedulePersist(
+                    pcmFloatFileURL: nativePCMURL,
+                    sampleRate: nativeAudio.sampleRate,
+                    recordID: record.id
+                )
+            } else {
+                dictationAudioRetentionService.schedulePersist(
+                    pcmFloatData: audioData,
+                    recordID: record.id
+                )
+            }
             updateRecentTranscriptsMenu()
             pendingIndicatorCompletion = .transcription
             if outputResult?.didPaste == true {

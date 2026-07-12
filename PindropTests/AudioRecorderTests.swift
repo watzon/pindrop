@@ -348,6 +348,7 @@ struct AudioRecorderTests {
         await Task.yield()
 
         #expect(fixture.sut.isRecording == false)
+        #expect(fixture.mockBackend.cancelCaptureCallCount == 1)
         #expect(reportedError != nil)
     }
 }
@@ -361,17 +362,48 @@ struct AudioPCMFileStorageTests {
         let storage = AudioPCMFileStorage()
 
         try storage.start()
-        try storage.append(first)
-        try storage.append(second)
-        let result = try storage.drain()
+        #expect(storage.enqueue(first))
+        #expect(storage.enqueue(second))
+        let completed = try storage.finish()
+        let result = try #require(completed)
+        let data = try result.consumeData(maximumByteCount: 1024)
 
         #expect(result.sampleRate == 16_000)
-        #expect(result.data.count == 8 * MemoryLayout<Float>.size)
-        let samples = result.data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(data.count == 8 * MemoryLayout<Float>.size)
+        let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
         #expect(samples == [
             first.floatChannelData![0][0], first.floatChannelData![0][1], first.floatChannelData![0][2], first.floatChannelData![0][3],
             second.floatChannelData![0][0], second.floatChannelData![0][1], second.floatChannelData![0][2], second.floatChannelData![0][3],
         ])
+    }
+
+    @Test func slowWriterUsesBoundedHandoffAndRejectsOverflow() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let buffer = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4))
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 1, writerDelayNanoseconds: 100_000_000)
+
+        try storage.start()
+        #expect(storage.enqueue(buffer))
+        #expect(storage.enqueue(buffer) == false)
+        let completed = try storage.finish()
+        let result = try #require(completed)
+        result.discard()
+    }
+
+    @Test func materializationRejectsDataOverConfiguredLimit() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let buffer = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 8))
+        let storage = AudioPCMFileStorage()
+
+        try storage.start()
+        #expect(storage.enqueue(buffer))
+        let completed = try storage.finish()
+        let result = try #require(completed)
+        defer { result.discard() }
+
+        #expect(throws: AudioRecorderError.self) {
+            _ = try result.consumeData(maximumByteCount: 4)
+        }
     }
 }
 

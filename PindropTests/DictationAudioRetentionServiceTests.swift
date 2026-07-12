@@ -238,6 +238,41 @@ struct DictationAudioRetentionServiceTests {
         #expect(FileManager.default.fileExists(atPath: WaveformPeaks.sidecarURL(for: URL(fileURLWithPath: path)).path))
     }
 
+    @Test func testSchedulePersistStreamsNativePCMFileAndRemovesSource() async throws {
+        let fixture = try makeFixture(retention: .days7)
+        defer { cleanup(fixture) }
+
+        let record = try fixture.historyStore.save(
+            text: "native-rate audio",
+            duration: 1.0,
+            modelUsed: "base",
+            sourceKind: .voiceRecording
+        )
+        let sourceURL = fixture.directoryURL
+            .appendingPathComponent("native-\(UUID().uuidString)")
+            .appendingPathExtension("pcm")
+        try makeSinePCM(sampleRate: 44_100).write(to: sourceURL)
+
+        fixture.sut.schedulePersist(
+            pcmFloatFileURL: sourceURL,
+            sampleRate: 44_100,
+            recordID: record.id
+        )
+
+        var attachedPath: String?
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            if let path = try fixture.historyStore.fetchRecord(with: record.id)?.managedMediaPath {
+                attachedPath = path
+                break
+            }
+        }
+
+        let path = try #require(attachedPath)
+        #expect(FileManager.default.fileExists(atPath: path))
+        #expect(!FileManager.default.fileExists(atPath: sourceURL.path))
+    }
+
     @Test func testUpdateManagedMediaPathReturnsFalseWhenRecordMissing() throws {
         let fixture = try makeFixture()
         defer { cleanup(fixture) }

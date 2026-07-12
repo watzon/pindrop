@@ -673,6 +673,39 @@ struct TranscriptionServiceTests {
         #expect(elapsed < .milliseconds(250))
     }
 
+    @Test func timedOutTranscriptionCannotCorruptReplacementEngineState() async throws {
+        let stalledEngine = MockDiarizationTranscriptionEngine()
+        stalledEngine.transcribeResponses = ["late transcript"]
+        stalledEngine.nonCooperativeTranscribeDelayNanoseconds = 300_000_000
+        let replacementEngine = MockDiarizationTranscriptionEngine()
+        replacementEngine.transcribeResponses = ["replacement transcript"]
+        var factoryCalls = 0
+        let service = TranscriptionService(
+            engineFactory: { _ in
+                defer { factoryCalls += 1 }
+                return factoryCalls == 0 ? stalledEngine : replacementEngine
+            }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let audioData = makeFloatAudioData(seconds: 1.0)
+        do {
+            _ = try await StreamingSessionController.withFinalizeTimeout(nanoseconds: 20_000_000) {
+                try await service.transcribe(audioData: audioData)
+            }
+            Issue.record("Expected hard timeout")
+        } catch {
+            service.invalidateTimedOutTranscription()
+        }
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let replacementResult = try await service.transcribe(audioData: audioData)
+        #expect(replacementResult == "replacement transcript")
+
+        try await Task.sleep(nanoseconds: 350_000_000)
+        #expect(service.state == .ready)
+    }
+
     @Test func transcribeWithDiarizationCancellationPropagates() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["should not transcribe"]
@@ -1060,6 +1093,7 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     private(set) var state: TranscriptionEngineState = .unloaded
     var transcribeResponses: [String] = []
     var transcribeError: Error?
+    var nonCooperativeTranscribeDelayNanoseconds: UInt64?
     var detectedLanguage: AppLanguage?
     var detectLanguageError: Error?
     private(set) var transcribeCallCount = 0
@@ -1076,6 +1110,15 @@ private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     }
 
     func transcribe(audioData: Data, options: TranscriptionOptions) async throws -> String {
+        if let nonCooperativeTranscribeDelayNanoseconds {
+            await withCheckedContinuation { continuation in
+                DispatchQueue.global().asyncAfter(
+                    deadline: .now() + .nanoseconds(Int(nonCooperativeTranscribeDelayNanoseconds))
+                ) {
+                    continuation.resume()
+                }
+            }
+        }
         if let transcribeError {
             throw transcribeError
         }
