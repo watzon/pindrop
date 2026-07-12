@@ -39,6 +39,35 @@ struct HistoryStoreTests {
         func deleteAllProfiles() throws {}
     }
 
+    private final class MutatingFailingSpeakerIdentityService: SpeakerIdentityManaging {
+        private let profile: ParticipantProfile
+
+        init(profile: ParticipantProfile) {
+            self.profile = profile
+        }
+
+        func knownSpeakers() throws -> [Speaker] { [] }
+        func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? { nil }
+        func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {
+            profile.displayName = "Mutated after persistence"
+            profile.notes = "This mutation must roll back"
+            throw SpeakerLearningTestError.failed
+        }
+        func learnFromProfileAssignments(
+            recordID: UUID,
+            segments: [DiarizedTranscriptSegment],
+            profileIDsBySpeakerID: [String: UUID]
+        ) throws {}
+        func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
+        func removeTrainingEvidence(for recordID: UUID) throws {}
+        func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile { fatalError() }
+        func fetchAllProfiles() throws -> [ParticipantProfile] { [] }
+        func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {}
+        func renameProfile(_ profile: ParticipantProfile, to newName: String) throws {}
+        func deleteProfile(_ profile: ParticipantProfile) throws {}
+        func deleteAllProfiles() throws {}
+    }
+
     private struct Fixture {
         let modelContainer: ModelContainer
         let modelContext: ModelContext
@@ -335,6 +364,40 @@ struct HistoryStoreTests {
 
         #expect(try historyStore.fetchRecord(with: record.id)?.text == "Persist despite learning failure")
         #expect(notificationCount == 1)
+    }
+
+    @Test func saveRollsBackSharedLearningMutationsWhenFallbackServiceFails() throws {
+        let fixture = try makeFixture()
+        let profile = ParticipantProfile(normalizedName: "original", displayName: "Original")
+        fixture.modelContext.insert(profile)
+        try fixture.modelContext.save()
+        let historyStore = HistoryStore(
+            modelContext: fixture.modelContext,
+            speakerIdentityService: MutatingFailingSpeakerIdentityService(profile: profile)
+        )
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.2, 0.4],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.9,
+            text: ""
+        )
+
+        let record = try historyStore.save(
+            text: "Persist despite a mutating learning failure",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [segment]
+        )
+
+        let persistedProfile = try #require(
+            fixture.modelContext.fetch(FetchDescriptor<ParticipantProfile>()).first
+        )
+        #expect(persistedProfile.displayName == "Original")
+        #expect(persistedProfile.notes == nil)
+        #expect(try historyStore.fetchRecord(with: record.id) != nil)
     }
 
     @Test func removingTranscriptionEvidenceRebuildsCurrentUserProfile() throws {
@@ -1126,7 +1189,7 @@ struct HistoryStoreTests {
         #expect(secondPage.map(\.text) == ["Item 2", "Item 3"])
     }
 
-    @Test func transcriptionSnapshotReusesBroadenedSearchResultsForSummaryAndPages() throws {
+    @Test func transcriptionSnapshotReusesBroadenedSearchResultsForSummaryAndPages() async throws {
         let fixture = try makeFixture()
         try fixture.historyStore.save(
             text: "First matching body",
@@ -1142,7 +1205,7 @@ struct HistoryStoreTests {
         )
         try fixture.historyStore.save(text: "Unrelated", duration: 7, modelUsed: "tiny")
 
-        let snapshot = try fixture.historyStore.transcriptionSnapshot(query: "Zephyr")
+        let snapshot = try await fixture.historyStore.transcriptionSnapshot(query: "Zephyr")
 
         #expect(snapshot.count == 2)
         #expect(snapshot.spokenDuration == 5)
@@ -1151,7 +1214,7 @@ struct HistoryStoreTests {
         #expect(snapshot.page(limit: 1, offset: 2)?.isEmpty == true)
     }
 
-    @Test func transcriptionAggregateUsesFilterAndDurationProjection() throws {
+    @Test func transcriptionAggregateUsesFilterAndDurationProjection() async throws {
         let fixture = try makeFixture()
         try fixture.historyStore.save(text: "Voice", duration: 2, modelUsed: "tiny")
         try fixture.historyStore.save(
@@ -1161,10 +1224,30 @@ struct HistoryStoreTests {
             sourceKind: .manualCapture
         )
 
-        let aggregate = try fixture.historyStore.transcriptionAggregate(filter: .voice)
+        let aggregate = try await fixture.historyStore.transcriptionAggregate(filter: .voice)
 
         #expect(aggregate.count == 1)
         #expect(aggregate.spokenDuration == 2)
+    }
+
+    @Test func transcriptionAggregateHandlesLargeHistoryWithoutLoadingTranscriptFields() async throws {
+        let fixture = try makeFixture()
+        for index in 0..<200 {
+            fixture.modelContext.insert(
+                TranscriptionRecord(
+                    text: String(repeating: "transcript \(index) ", count: 100),
+                    duration: TimeInterval(index % 5),
+                    modelUsed: "tiny",
+                    sourceKind: index.isMultiple(of: 2) ? .voiceRecording : .manualCapture
+                )
+            )
+        }
+        try fixture.modelContext.save()
+
+        let aggregate = try await fixture.historyStore.transcriptionAggregate(filter: .voice)
+
+        #expect(aggregate.count == 100)
+        #expect(aggregate.spokenDuration == 200)
     }
     
     // MARK: - Export Tests

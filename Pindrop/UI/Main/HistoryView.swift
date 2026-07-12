@@ -883,7 +883,7 @@ struct HistoryView: View {
 
             do {
                 let filter = selectedFilter.historyFilter
-                let snapshot = try historyStore.transcriptionSnapshot(
+                let snapshot = try await historyStore.transcriptionSnapshot(
                     query: trimmedSearchText,
                     filter: filter,
                     sort: selectedSort
@@ -956,7 +956,7 @@ struct HistoryView: View {
     private func refreshVisibleTranscriptions() async {
         do {
             let filter = selectedFilter.historyFilter
-            let snapshot = try historyStore.transcriptionSnapshot(
+            let snapshot = try await historyStore.transcriptionSnapshot(
                 query: trimmedSearchText,
                 filter: filter,
                 sort: selectedSort

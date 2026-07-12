@@ -613,6 +613,11 @@ final class HistoryStore {
             return Array(searchedRecords[offset..<end])
         }
     }
+
+    struct TranscriptionAggregate: Sendable {
+        let count: Int
+        let spokenDuration: TimeInterval
+    }
     
     enum HistoryStoreError: Error, LocalizedError {
         case saveFailed(String)
@@ -639,10 +644,12 @@ final class HistoryStore {
     
     private let modelContext: ModelContext
     private let speakerIdentityService: SpeakerIdentityManaging?
+    private let aggregationWorker: HistoryAggregationWorker
     
     init(modelContext: ModelContext, speakerIdentityService: SpeakerIdentityManaging? = nil) {
         self.modelContext = modelContext
         self.speakerIdentityService = speakerIdentityService
+        self.aggregationWorker = HistoryAggregationWorker(modelContainer: modelContext.container)
     }
     
     @discardableResult
@@ -710,16 +717,10 @@ final class HistoryStore {
 
         let dictationTrainingSegments = speakerTrainingSegments ?? record.diarizedSegments
         if sourceKind == .voiceRecording, !dictationTrainingSegments.isEmpty {
-            do {
-                try speakerIdentityService?.learnFromDictation(
-                    recordID: record.id,
-                    segments: dictationTrainingSegments
-                )
-            } catch {
-                Log.app.warning(
-                    "Saved transcription \(record.id) but speaker learning failed: \(error.localizedDescription)"
-                )
-            }
+            learnFromDictationBestEffort(
+                recordID: record.id,
+                segments: dictationTrainingSegments
+            )
         }
 
         return record
@@ -865,16 +866,9 @@ final class HistoryStore {
     /// Returns the count and total duration for a filter without loading transcript
     /// bodies. Searches intentionally use `transcriptionSnapshot` so their in-memory
     /// matching work is performed once and reused for pagination.
-    func transcriptionAggregate(filter: HistoryFilter = .all) throws -> (count: Int, spokenDuration: TimeInterval) {
-        let descriptor = transcriptionsDescriptor(query: "", filter: filter)
-
+    func transcriptionAggregate(filter: HistoryFilter = .all) async throws -> TranscriptionAggregate {
         do {
-            let count = try modelContext.fetchCount(descriptor)
-            var durationDescriptor = descriptor
-            durationDescriptor.propertiesToFetch = [\.duration]
-            let spokenDuration = try modelContext.fetch(durationDescriptor)
-                .reduce(0) { $0 + max(0, $1.duration) }
-            return (count, spokenDuration)
+            return try await aggregationWorker.aggregate(filter: filter)
         } catch {
             throw HistoryStoreError.fetchFailed(error.localizedDescription)
         }
@@ -887,10 +881,10 @@ final class HistoryStore {
         query: String = "",
         filter: HistoryFilter = .all,
         sort: MediaLibrarySortMode = .newest
-    ) throws -> TranscriptionSnapshot {
+    ) async throws -> TranscriptionSnapshot {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
-            let aggregate = try transcriptionAggregate(filter: filter)
+            let aggregate = try await transcriptionAggregate(filter: filter)
             return TranscriptionSnapshot(
                 count: aggregate.count,
                 spokenDuration: aggregate.spokenDuration,
@@ -1388,6 +1382,34 @@ final class HistoryStore {
         }
     }
 
+    private func learnFromDictationBestEffort(
+        recordID: UUID,
+        segments: [DiarizedTranscriptSegment]
+    ) {
+        // Production learning gets a dedicated context so failed learning changes
+        // are discarded with that context rather than remaining pending alongside
+        // the saved transcription. Custom test/alternate services keep their
+        // injected seam, with an explicit rollback of the shared context on error.
+        let usesIsolatedContext = speakerIdentityService is SpeakerIdentityService
+
+        do {
+            if usesIsolatedContext {
+                let learningContext = ModelContext(modelContext.container)
+                let learningService = SpeakerIdentityService(modelContext: learningContext)
+                try learningService.learnFromDictation(recordID: recordID, segments: segments)
+            } else {
+                try speakerIdentityService?.learnFromDictation(recordID: recordID, segments: segments)
+            }
+        } catch {
+            if !usesIsolatedContext {
+                modelContext.rollback()
+            }
+            Log.app.warning(
+                "Saved transcription \(recordID) but speaker learning failed: \(error.localizedDescription)"
+            )
+        }
+    }
+
     private func fetchFolder(id: UUID) throws -> MediaFolder? {
         let folders = try fetchFolders()
         return folders.first { $0.id == id }
@@ -1526,6 +1548,58 @@ final class HistoryStore {
             return records.sorted {
                 $0.mediaLibrarySortName.localizedStandardCompare($1.mediaLibrarySortName) == .orderedDescending
             }
+        }
+    }
+}
+
+/// A dedicated SwiftData executor for history header aggregates. It keeps the
+/// O(N) duration projection off the main context and avoids fetching transcript
+/// text for unsearched library reloads.
+@ModelActor
+private actor HistoryAggregationWorker {
+    func aggregate(
+        filter: HistoryStore.HistoryFilter
+    ) throws -> HistoryStore.TranscriptionAggregate {
+        let descriptor = aggregateDescriptor(for: filter)
+        let count = try modelContext.fetchCount(descriptor)
+        var durationDescriptor = descriptor
+        durationDescriptor.propertiesToFetch = [\.duration]
+        let spokenDuration = try modelContext.fetch(durationDescriptor)
+            .reduce(0) { $0 + max(0, $1.duration) }
+
+        return HistoryStore.TranscriptionAggregate(
+            count: count,
+            spokenDuration: spokenDuration
+        )
+    }
+
+    private func aggregateDescriptor(
+        for filter: HistoryStore.HistoryFilter
+    ) -> FetchDescriptor<TranscriptionRecord> {
+        let voiceRawValue = MediaSourceKind.voiceRecording.rawValue
+        let manualCaptureRawValue = MediaSourceKind.manualCapture.rawValue
+        let importedFileRawValue = MediaSourceKind.importedFile.rawValue
+        let webLinkRawValue = MediaSourceKind.webLink.rawValue
+
+        switch filter {
+        case .all:
+            return FetchDescriptor<TranscriptionRecord>()
+        case .voice:
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == nil || record.sourceKindRawValue == voiceRawValue
+            }
+            return FetchDescriptor(predicate: predicate)
+        case .meetings:
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == manualCaptureRawValue
+            }
+            return FetchDescriptor(predicate: predicate)
+        case .media:
+            let predicate = #Predicate<TranscriptionRecord> { record in
+                record.sourceKindRawValue == importedFileRawValue
+                    || record.sourceKindRawValue == webLinkRawValue
+            }
+            return FetchDescriptor(predicate: predicate)
         }
     }
 }
