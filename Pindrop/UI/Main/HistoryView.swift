@@ -11,6 +11,21 @@ import Foundation
 import AppKit
 import UniformTypeIdentifiers
 
+struct HistoryLoadRequest: Equatable {
+    let query: String
+    let filter: HistoryStore.HistoryFilter
+    let sort: MediaLibrarySortMode
+
+    static func isCurrent(
+        _ request: HistoryLoadRequest,
+        generation: UInt,
+        activeRequest: HistoryLoadRequest?,
+        activeGeneration: UInt
+    ) -> Bool {
+        request == activeRequest && generation == activeGeneration
+    }
+}
+
 struct HistoryView: View {
     @Environment(\.locale) private var locale
     @Environment(\.modelContext) private var modelContext
@@ -40,9 +55,15 @@ struct HistoryView: View {
     @State private var totalCount: Int = 0
     @State private var totalSpokenDuration: TimeInterval = 0
     @State private var transcriptionSnapshot: HistoryStore.TranscriptionSnapshot?
+    @State private var snapshotRequest: HistoryLoadRequest?
+    @State private var snapshotGeneration: UInt?
     @State private var hasMorePages = true
     @State private var currentOffset = 0
-    @State private var reloadDebounceTask: Task<Void, Never>?
+    @State private var loadTask: Task<Void, Never>?
+    @State private var paginationTask: Task<Void, Never>?
+    @State private var requestGeneration: UInt = 0
+    @State private var activeRequest: HistoryLoadRequest?
+    @State private var paginationGeneration: UInt = 0
     @State private var keyMonitor: Any?
     @State private var isDropTargeted = false
     @State private var showPasteLinkSheet = false
@@ -136,7 +157,7 @@ struct HistoryView: View {
             }
         }
         .task(id: "\(trimmedSearchText)_\(selectedFilter.rawValue)_\(selectedSort.rawValue)") {
-            await reloadTranscriptions()
+            reloadTranscriptions()
         }
         .task(id: recordIDToOpen) {
             guard let recordIDToOpen,
@@ -144,7 +165,7 @@ struct HistoryView: View {
             handleRowTap(record)
         }
         .onReceive(NotificationCenter.default.publisher(for: .historyStoreDidChange)) { _ in
-            Task { await refreshVisibleTranscriptions() }
+            refreshVisibleTranscriptions()
         }
         .onReceive(NotificationCenter.default.publisher(for: .openHistoryRecord)) { notification in
             guard let idString = notification.userInfo?["recordID"] as? String,
@@ -180,7 +201,10 @@ struct HistoryView: View {
             installKeyMonitorIfNeeded()
             consumePendingSearchFocusIfNeeded()
         }
-        .onDisappear { removeKeyMonitor() }
+        .onDisappear {
+            removeKeyMonitor()
+            cancelManagedLoads()
+        }
         .onChange(of: detailRecord?.persistentModelID) { _, _ in
             if detailRecord == nil {
                 installKeyMonitorIfNeeded()
@@ -874,72 +898,180 @@ struct HistoryView: View {
 
     // MARK: - Data Loading
 
-    private func reloadTranscriptions() async {
-        reloadDebounceTask?.cancel()
-        reloadDebounceTask = Task {
-            do {
-                try await Task.sleep(nanoseconds: 250_000_000)
-            } catch { return }
-
-            do {
-                let filter = selectedFilter.historyFilter
-                let snapshot = try await historyStore.transcriptionSnapshot(
-                    query: trimmedSearchText,
-                    filter: filter,
-                    sort: selectedSort
-                )
-
-                await MainActor.run {
-                    transcriptionSnapshot = snapshot
-                    totalCount = snapshot.count
-                    totalSpokenDuration = snapshot.spokenDuration
-                    visibleTranscriptions = []
-                    currentOffset = 0
-                    hasMorePages = true
-                    isLoading = snapshot.count > 0
-                }
-
-                if snapshot.count > 0 {
-                    await loadNextPage(using: snapshot)
-                } else {
-                    await MainActor.run { isLoading = false }
-                }
-            } catch {
-                await MainActor.run {
-                    errorMessage = error.localizedDescription
-                    isLoading = false
-                }
-            }
-        }
-        await reloadDebounceTask?.value
+    private enum LoadMode {
+        case reload
+        case refresh(visibleLimit: Int)
     }
 
-    private func loadNextPage(using snapshot: HistoryStore.TranscriptionSnapshot? = nil) async {
-        guard hasMorePages else { return }
+    private var currentLoadRequest: HistoryLoadRequest {
+        HistoryLoadRequest(
+            query: trimmedSearchText,
+            filter: selectedFilter.historyFilter,
+            sort: selectedSort
+        )
+    }
+
+    private func reloadTranscriptions() {
+        scheduleLoad(mode: .reload, debounce: true)
+    }
+
+    private func refreshVisibleTranscriptions() {
+        scheduleLoad(
+            mode: .refresh(visibleLimit: max(currentOffset, pageSize)),
+            debounce: false
+        )
+    }
+
+    private func scheduleLoad(mode: LoadMode, debounce: Bool) {
+        let request = currentLoadRequest
+        requestGeneration &+= 1
+        let generation = requestGeneration
+        activeRequest = request
+        loadTask?.cancel()
+        paginationTask?.cancel()
+        paginationTask = nil
+        paginationGeneration &+= 1
+
+        loadTask = Task {
+            if debounce {
+                do {
+                    try await Task.sleep(for: .milliseconds(250))
+                } catch {
+                    return
+                }
+            }
+            await performLoad(mode: mode, request: request, generation: generation)
+        }
+    }
+
+    private func performLoad(
+        mode: LoadMode,
+        request: HistoryLoadRequest,
+        generation: UInt
+    ) async {
+        guard isCurrent(request, generation: generation) else { return }
 
         do {
-            let activeSnapshot = snapshot ?? transcriptionSnapshot
-            let records: [TranscriptionRecord]
-            if let searchedPage = activeSnapshot?.page(limit: pageSize, offset: currentOffset) {
-                records = searchedPage
-            } else {
-                records = try historyStore.fetchTranscriptions(
-                    limit: pageSize,
-                    offset: currentOffset,
-                    query: trimmedSearchText,
-                    filter: selectedFilter.historyFilter,
-                    sort: selectedSort
-                )
-            }
+            let snapshot = try await historyStore.transcriptionSnapshot(
+                query: request.query,
+                filter: request.filter,
+                sort: request.sort
+            )
+            guard isCurrent(request, generation: generation) else { return }
 
-            await MainActor.run {
-                visibleTranscriptions.append(contentsOf: records)
-                currentOffset += records.count
-                hasMorePages = records.count == pageSize
+            switch mode {
+            case .reload:
+                transcriptionSnapshot = snapshot
+                snapshotRequest = request
+                snapshotGeneration = generation
+                totalCount = snapshot.count
+                totalSpokenDuration = snapshot.spokenDuration
+                visibleTranscriptions = []
+                currentOffset = 0
+                hasMorePages = snapshot.count > 0
+                isLoading = snapshot.count > 0
+
+                guard snapshot.count > 0 else { return }
+                let records = try records(
+                    for: request,
+                    snapshot: snapshot,
+                    limit: pageSize,
+                    offset: 0
+                )
+                guard isCurrent(request, generation: generation) else { return }
+                applyInitialPage(records, snapshot: snapshot)
+
+            case .refresh(let visibleLimit):
+                let records = try records(
+                    for: request,
+                    snapshot: snapshot,
+                    limit: visibleLimit,
+                    offset: 0
+                )
+                guard isCurrent(request, generation: generation) else { return }
+                transcriptionSnapshot = snapshot
+                snapshotRequest = request
+                snapshotGeneration = generation
+                totalCount = snapshot.count
+                totalSpokenDuration = snapshot.spokenDuration
+                visibleTranscriptions = records
+                currentOffset = records.count
+                hasMorePages = records.count < snapshot.count
                 isLoading = false
             }
         } catch {
-            await MainActor.run {
+            guard isCurrent(request, generation: generation) else { return }
+            if case .reload = mode {
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
+        }
+    }
+
+    private func records(
+        for request: HistoryLoadRequest,
+        snapshot: HistoryStore.TranscriptionSnapshot,
+        limit: Int,
+        offset: Int
+    ) throws -> [TranscriptionRecord] {
+        if let searchedPage = snapshot.page(limit: limit, offset: offset) {
+            return searchedPage
+        }
+        return try historyStore.fetchTranscriptions(
+            limit: limit,
+            offset: offset,
+            query: request.query,
+            filter: request.filter,
+            sort: request.sort
+        )
+    }
+
+    private func applyInitialPage(
+        _ records: [TranscriptionRecord],
+        snapshot: HistoryStore.TranscriptionSnapshot
+    ) {
+        visibleTranscriptions = records
+        currentOffset = records.count
+        hasMorePages = records.count < snapshot.count
+        isLoading = false
+    }
+
+    private func loadNextPage() {
+        guard hasMorePages,
+              let snapshot = transcriptionSnapshot,
+              snapshotRequest == currentLoadRequest,
+              snapshotGeneration == requestGeneration else { return }
+
+        let request = currentLoadRequest
+        let generation = requestGeneration
+        let offset = currentOffset
+        paginationTask?.cancel()
+        paginationGeneration &+= 1
+        let pageGeneration = paginationGeneration
+
+        paginationTask = Task {
+            defer {
+                if pageGeneration == paginationGeneration {
+                    paginationTask = nil
+                }
+            }
+
+            guard isCurrent(request, generation: generation) else { return }
+            do {
+                let records = try records(
+                    for: request,
+                    snapshot: snapshot,
+                    limit: pageSize,
+                    offset: offset
+                )
+                guard isCurrent(request, generation: generation),
+                      currentOffset == offset else { return }
+                visibleTranscriptions.append(contentsOf: records)
+                currentOffset += records.count
+                hasMorePages = currentOffset < snapshot.count
+                isLoading = false
+            } catch {
+                guard isCurrent(request, generation: generation) else { return }
                 errorMessage = error.localizedDescription
                 isLoading = false
             }
@@ -950,42 +1082,26 @@ struct HistoryView: View {
         guard let lastRecord = visibleTranscriptions.last,
               lastRecord.id == currentRecord.id,
               hasMorePages else { return }
-        Task { await loadNextPage() }
+        loadNextPage()
     }
 
-    private func refreshVisibleTranscriptions() async {
-        do {
-            let filter = selectedFilter.historyFilter
-            let snapshot = try await historyStore.transcriptionSnapshot(
-                query: trimmedSearchText,
-                filter: filter,
-                sort: selectedSort
-            )
-            let visibleLimit = max(currentOffset, pageSize)
-            let records: [TranscriptionRecord]
-            if let searchedPage = snapshot.page(limit: visibleLimit, offset: 0) {
-                records = searchedPage
-            } else {
-                records = try historyStore.fetchTranscriptions(
-                    limit: visibleLimit,
-                    offset: 0,
-                    query: trimmedSearchText,
-                    filter: filter,
-                    sort: selectedSort
-                )
-            }
+    private func isCurrent(_ request: HistoryLoadRequest, generation: UInt) -> Bool {
+        !Task.isCancelled && HistoryLoadRequest.isCurrent(
+            request,
+            generation: generation,
+            activeRequest: activeRequest,
+            activeGeneration: requestGeneration
+        )
+    }
 
-            await MainActor.run {
-                transcriptionSnapshot = snapshot
-                totalCount = snapshot.count
-                totalSpokenDuration = snapshot.spokenDuration
-                visibleTranscriptions = records
-                currentOffset = records.count
-                hasMorePages = records.count < snapshot.count
-            }
-        } catch {
-            // Silently refresh; errors here are non-critical
-        }
+    private func cancelManagedLoads() {
+        requestGeneration &+= 1
+        activeRequest = nil
+        loadTask?.cancel()
+        paginationTask?.cancel()
+        loadTask = nil
+        paginationTask = nil
+        paginationGeneration &+= 1
     }
 
     // MARK: - Keyboard Selection

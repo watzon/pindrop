@@ -175,3 +175,43 @@ struct SettingsPresentationSnapshotTests {
         #expect(localeChanges == (false, true))
     }
 }
+
+@Suite
+struct HistoryLoadRequestTests {
+    @Test func rejectsDelayedResultsForSupersededQueryOrFilter() {
+        let initial = HistoryLoadRequest(
+            query: "first",
+            filter: .all,
+            sort: .newest
+        )
+        let changedQuery = HistoryLoadRequest(
+            query: "second",
+            filter: .all,
+            sort: .newest
+        )
+        let changedFilter = HistoryLoadRequest(
+            query: "second",
+            filter: .media,
+            sort: .newest
+        )
+
+        #expect(!HistoryLoadRequest.isCurrent(
+            initial,
+            generation: 1,
+            activeRequest: changedQuery,
+            activeGeneration: 2
+        ))
+        #expect(!HistoryLoadRequest.isCurrent(
+            changedQuery,
+            generation: 2,
+            activeRequest: changedFilter,
+            activeGeneration: 3
+        ))
+        #expect(HistoryLoadRequest.isCurrent(
+            changedFilter,
+            generation: 3,
+            activeRequest: changedFilter,
+            activeGeneration: 3
+        ))
+    }
+}
