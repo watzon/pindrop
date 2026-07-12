@@ -485,6 +485,35 @@ struct AudioPCMFileStorageTests {
             second.floatChannelData![0][0], second.floatChannelData![0][1], second.floatChannelData![0][2], second.floatChannelData![0][3],
         ])
     }
+
+    @Test func multiSlabFIFOPreservesCaptureOrderAcrossOneWriterWakeup() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        var buffers: [AVAudioPCMBuffer] = []
+        for frequency: Float in [100, 200, 300, 400] {
+            let buffer = try #require(
+                MockAudioCaptureBackend.makeSynthesizedBuffer(
+                    format: format,
+                    frameCount: 4,
+                    frequency: frequency
+                )
+            )
+            buffers.append(buffer)
+        }
+        let storage = AudioPCMFileStorage(pendingWriteLimit: 4, writerDelayNanoseconds: 20_000_000)
+
+        try storage.start()
+        for buffer in buffers { #expect(storage.enqueue(buffer)) }
+
+        let finished = try storage.finish()
+        let completed = try #require(finished)
+        let data = try completed.consumeData(maximumByteCount: 1024)
+        let samples = data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        var expected: [Float] = []
+        for buffer in buffers {
+            expected.append(contentsOf: (0..<4).map { buffer.floatChannelData![0][$0] })
+        }
+        #expect(samples == expected)
+    }
 }
 
 @Suite

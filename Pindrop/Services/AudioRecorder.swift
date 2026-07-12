@@ -415,7 +415,12 @@ final class AudioPCMFileStorage: @unchecked Sendable {
     private var limitReached = false
     private let writerQueue = DispatchQueue(label: "tech.watzon.pindrop.audio-pcm-writer")
     private let slabs: [PCMStorageSlab]
-    private var slabReadySources: [DispatchSourceUserDataAdd] = []
+    /// Preallocated SPSC FIFO. The capture callback is its only producer and the
+    /// serial writer source is its only consumer; slab permits cap occupancy.
+    private let readySlabIndices: UnsafeMutablePointer<Int>
+    private var producedSequence: UInt64 = 0
+    private var consumedSequence: UInt64 = 0
+    private var readySource: DispatchSourceUserDataAdd!
     private let maximumByteCount: Int?
     private let writerDelayNanoseconds: UInt64
 
@@ -429,18 +434,19 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             PCMStorageSlab(capacity: max(MemoryLayout<Float>.size, slabByteCapacity))
         }
         self.slabs = slabs
+        self.readySlabIndices = UnsafeMutablePointer<Int>.allocate(capacity: slabs.count)
         self.maximumByteCount = maximumByteCount
         self.writerDelayNanoseconds = writerDelayNanoseconds
-        self.slabReadySources = slabs.map { slab in
-            let source = DispatchSource.makeUserDataAddSource(queue: writerQueue)
-            source.setEventHandler { [weak self, slab] in self?.write(slab) }
-            source.resume()
-            return source
-        }
+        let source = DispatchSource.makeUserDataAddSource(queue: writerQueue)
+        source.setEventHandler { [weak self] in self?.drainReadySlabs() }
+        source.resume()
+        self.readySource = source
     }
 
     deinit {
         discard()
+        readySource.cancel()
+        readySlabIndices.deallocate()
     }
 
     func start(
@@ -467,6 +473,8 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             self.onWriteFailure = onWriteFailure
             self.onLimitReached = onLimitReached
             limitReached = false
+            producedSequence = 0
+            consumedSequence = 0
         }
     }
 
@@ -487,7 +495,12 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             slab.availability.signal()
             return false
         }
-        slabReadySources[index].add(data: 1)
+        let slot = Int(producedSequence % UInt64(slabs.count))
+        readySlabIndices[slot] = index
+        // Publish the ready token after its PCM copy is complete.
+        OSMemoryBarrier()
+        producedSequence &+= 1
+        readySource.add(data: 1)
         return true
     }
 
@@ -531,7 +544,23 @@ final class AudioPCMFileStorage: @unchecked Sendable {
             onWriteFailure = nil
             onLimitReached = nil
             limitReached = false
+            producedSequence = 0
+            consumedSequence = 0
             }
+        }
+    }
+
+    /// Runs only on `writerQueue`. One source drains the FIFO in capture order,
+    /// then recycles each slab after its file write completes.
+    private func drainReadySlabs() {
+        OSMemoryBarrier()
+        let produced = producedSequence
+        while consumedSequence < produced {
+            let slot = Int(consumedSequence % UInt64(slabs.count))
+            let slabIndex = readySlabIndices[slot]
+            OSMemoryBarrier()
+            consumedSequence &+= 1
+            write(slabs[slabIndex])
         }
     }
 
