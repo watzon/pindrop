@@ -39,6 +39,7 @@ struct HistoryView: View {
     @State private var visibleTranscriptions: [TranscriptionRecord] = []
     @State private var totalCount: Int = 0
     @State private var totalSpokenDuration: TimeInterval = 0
+    @State private var transcriptionSnapshot: HistoryStore.TranscriptionSnapshot?
     @State private var hasMorePages = true
     @State private var currentOffset = 0
     @State private var reloadDebounceTask: Task<Void, Never>?
@@ -882,28 +883,24 @@ struct HistoryView: View {
 
             do {
                 let filter = selectedFilter.historyFilter
-                let count = try historyStore.countTranscriptions(
-                    query: trimmedSearchText,
-                    filter: filter,
-                    sort: selectedSort
-                )
-                let spoken = try totalSpokenDuration(
+                let snapshot = try historyStore.transcriptionSnapshot(
                     query: trimmedSearchText,
                     filter: filter,
                     sort: selectedSort
                 )
 
                 await MainActor.run {
-                    totalCount = count
-                    totalSpokenDuration = spoken
+                    transcriptionSnapshot = snapshot
+                    totalCount = snapshot.count
+                    totalSpokenDuration = snapshot.spokenDuration
                     visibleTranscriptions = []
                     currentOffset = 0
                     hasMorePages = true
-                    isLoading = count > 0
+                    isLoading = snapshot.count > 0
                 }
 
-                if count > 0 {
-                    await loadNextPage()
+                if snapshot.count > 0 {
+                    await loadNextPage(using: snapshot)
                 } else {
                     await MainActor.run { isLoading = false }
                 }
@@ -917,17 +914,23 @@ struct HistoryView: View {
         await reloadDebounceTask?.value
     }
 
-    private func loadNextPage() async {
+    private func loadNextPage(using snapshot: HistoryStore.TranscriptionSnapshot? = nil) async {
         guard hasMorePages else { return }
 
         do {
-            let records = try historyStore.fetchTranscriptions(
-                limit: pageSize,
-                offset: currentOffset,
-                query: trimmedSearchText,
-                filter: selectedFilter.historyFilter,
-                sort: selectedSort
-            )
+            let activeSnapshot = snapshot ?? transcriptionSnapshot
+            let records: [TranscriptionRecord]
+            if let searchedPage = activeSnapshot?.page(limit: pageSize, offset: currentOffset) {
+                records = searchedPage
+            } else {
+                records = try historyStore.fetchTranscriptions(
+                    limit: pageSize,
+                    offset: currentOffset,
+                    query: trimmedSearchText,
+                    filter: selectedFilter.historyFilter,
+                    sort: selectedSort
+                )
+            }
 
             await MainActor.run {
                 visibleTranscriptions.append(contentsOf: records)
@@ -953,48 +956,36 @@ struct HistoryView: View {
     private func refreshVisibleTranscriptions() async {
         do {
             let filter = selectedFilter.historyFilter
-            let count = try historyStore.countTranscriptions(
+            let snapshot = try historyStore.transcriptionSnapshot(
                 query: trimmedSearchText,
                 filter: filter,
                 sort: selectedSort
             )
-            let spoken = try totalSpokenDuration(
-                query: trimmedSearchText,
-                filter: filter,
-                sort: selectedSort
-            )
-
-            let records = try historyStore.fetchTranscriptions(
-                limit: max(currentOffset, pageSize),
-                offset: 0,
-                query: trimmedSearchText,
-                filter: filter,
-                sort: selectedSort
-            )
+            let visibleLimit = max(currentOffset, pageSize)
+            let records: [TranscriptionRecord]
+            if let searchedPage = snapshot.page(limit: visibleLimit, offset: 0) {
+                records = searchedPage
+            } else {
+                records = try historyStore.fetchTranscriptions(
+                    limit: visibleLimit,
+                    offset: 0,
+                    query: trimmedSearchText,
+                    filter: filter,
+                    sort: selectedSort
+                )
+            }
 
             await MainActor.run {
-                totalCount = count
-                totalSpokenDuration = spoken
+                transcriptionSnapshot = snapshot
+                totalCount = snapshot.count
+                totalSpokenDuration = snapshot.spokenDuration
                 visibleTranscriptions = records
                 currentOffset = records.count
-                hasMorePages = records.count < count
+                hasMorePages = records.count < snapshot.count
             }
         } catch {
             // Silently refresh; errors here are non-critical
         }
-    }
-
-    private func totalSpokenDuration(
-        query: String,
-        filter: HistoryStore.HistoryFilter,
-        sort: MediaLibrarySortMode
-    ) throws -> TimeInterval {
-        let records = try historyStore.fetchAllTranscriptions(
-            query: query,
-            filter: filter,
-            sort: sort
-        )
-        return records.reduce(0) { $0 + max(0, $1.duration) }
     }
 
     // MARK: - Keyboard Selection

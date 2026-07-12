@@ -392,16 +392,24 @@ struct NotesView: View {
     // MARK: - Actions
 
     private func createNewNote() {
-        let editorController = NoteEditorWindowController()
-        editorController.setModelContainer(modelContext.container)
-        editorController.show(note: nil, isNewNote: true)
+        presentNoteEditor(note: nil, isNewNote: true)
     }
 
     private func openNote(_ note: NoteSchema.Note) {
         selectedNoteID = note.persistentModelID
+        presentNoteEditor(note: note, isNewNote: false)
+    }
+
+    private func presentNoteEditor(note: NoteSchema.Note?, isNewNote: Bool) {
         let editorController = NoteEditorWindowController()
+        let registry = NoteEditorWindowControllerRegistry.shared
         editorController.setModelContainer(modelContext.container)
-        editorController.show(note: note, isNewNote: false)
+        registry.retain(editorController)
+        editorController.onClose = { [weak registry, weak editorController] in
+            guard let editorController else { return }
+            registry?.release(editorController)
+        }
+        editorController.show(note: note, isNewNote: isNewNote)
     }
 
     private func togglePin(_ note: NoteSchema.Note) {
@@ -506,6 +514,23 @@ struct NotesView: View {
         guard selectedNoteID != nil else { return false }
         selectedNoteID = nil
         return true
+    }
+}
+
+@MainActor
+final class NoteEditorWindowControllerRegistry {
+    static let shared = NoteEditorWindowControllerRegistry()
+
+    private var controllers: [NoteEditorWindowController] = []
+
+    var count: Int { controllers.count }
+
+    func retain(_ controller: NoteEditorWindowController) {
+        controllers.append(controller)
+    }
+
+    func release(_ controller: NoteEditorWindowController) {
+        controllers.removeAll { $0 === controller }
     }
 }
 

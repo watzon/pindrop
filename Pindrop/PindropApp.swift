@@ -46,6 +46,19 @@ extension AppDelegate {
     }
 }
 
+struct SettingsPresentationSnapshot: Equatable {
+    let showInDock: Bool
+    let appLocale: AppLocale
+
+    func changes(from previous: SettingsPresentationSnapshot?) -> (dockVisibility: Bool, mainMenu: Bool) {
+        guard let previous else { return (true, true) }
+        return (
+            dockVisibility: showInDock != previous.showInDock,
+            mainMenu: appLocale != previous.appLocale
+        )
+    }
+}
+
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     
@@ -54,6 +67,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private var modelContainer: ModelContainer?
     private let storeRepairService = SwiftDataStoreRepairService()
+    private var lastSettingsPresentationSnapshot: SettingsPresentationSnapshot?
+    private var pendingSettingsPresentationUpdate: Task<Void, Never>?
 
     private var currentLocale: Locale {
         settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
@@ -124,9 +139,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Log.boot.info("AppCoordinator ready hasCompletedOnboarding=\(onboardingDone) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         PindropThemeController.shared.refresh()
 
-        updateDockVisibility()
+        applySettingsPresentationChanges()
         coordinator?.statusBarController.ensureStatusItem()
-        setupMainMenu()
         
         NotificationCenter.default.addObserver(
             self,
@@ -310,14 +324,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// all AppKit work hops to the main actor explicitly.
     @objc nonisolated private func settingsDidChange() {
         Task { @MainActor [weak self] in
-            self?.updateDockVisibility()
-            self?.setupMainMenu()
+            guard let self else { return }
+            self.pendingSettingsPresentationUpdate?.cancel()
+            self.pendingSettingsPresentationUpdate = Task { @MainActor [weak self] in
+                await Task.yield()
+                guard !Task.isCancelled else { return }
+                self?.applySettingsPresentationChanges()
+            }
         }
     }
-    
-    private func updateDockVisibility() {
+
+    private func applySettingsPresentationChanges() {
+        let snapshot = SettingsPresentationSnapshot(
+            showInDock: settingsStore?.showInDock ?? false,
+            appLocale: settingsStore?.selectedAppLocale ?? .automatic
+        )
+        let changes = snapshot.changes(from: lastSettingsPresentationSnapshot)
+        guard changes.dockVisibility || changes.mainMenu else { return }
+
+        if changes.dockVisibility {
+            updateDockVisibility(showInDock: snapshot.showInDock)
+        }
+        if changes.mainMenu {
+            setupMainMenu()
+        }
+        lastSettingsPresentationSnapshot = snapshot
+    }
+
+    private func updateDockVisibility(showInDock: Bool) {
         guard !Self.isPreview else { return }
-        let showInDock = UserDefaults.standard.bool(forKey: "showInDock")
         let policy: NSApplication.ActivationPolicy = showInDock ? .regular : .accessory
         NSApplication.shared.setActivationPolicy(policy)
     }

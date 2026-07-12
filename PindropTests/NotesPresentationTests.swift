@@ -144,3 +144,34 @@ struct NotesPresentationTests {
         return calendar.date(from: components)!
     }
 }
+
+@MainActor
+@Suite
+struct NoteEditorWindowControllerRegistryTests {
+    @Test func retainsControllersUntilTheirWindowLifecycleReleasesThem() {
+        let registry = NoteEditorWindowControllerRegistry()
+        let controller = NoteEditorWindowController()
+
+        registry.retain(controller)
+        #expect(registry.count == 1)
+
+        registry.release(controller)
+        #expect(registry.count == 0)
+    }
+}
+
+@Suite
+struct SettingsPresentationSnapshotTests {
+    @Test func presentationChangesAreLimitedToDockAndLocaleValues() {
+        let previous = SettingsPresentationSnapshot(showInDock: false, appLocale: .automatic)
+        #expect(previous.changes(from: previous) == (false, false))
+
+        let dockChanges = SettingsPresentationSnapshot(showInDock: true, appLocale: .automatic)
+            .changes(from: previous)
+        #expect(dockChanges == (true, false))
+
+        let localeChanges = SettingsPresentationSnapshot(showInDock: false, appLocale: .german)
+            .changes(from: previous)
+        #expect(localeChanges == (false, true))
+    }
+}

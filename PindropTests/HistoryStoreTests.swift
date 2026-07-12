@@ -14,6 +14,31 @@ import Testing
 @MainActor
 @Suite(.serialized, .enabled(if: sqlite3_libversion_number() > 0, "SQLite is unavailable in this environment"))
 struct HistoryStoreTests {
+    private enum SpeakerLearningTestError: Error {
+        case failed
+    }
+
+    private final class FailingSpeakerIdentityService: SpeakerIdentityManaging {
+        func knownSpeakers() throws -> [Speaker] { [] }
+        func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? { nil }
+        func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {
+            throw SpeakerLearningTestError.failed
+        }
+        func learnFromProfileAssignments(
+            recordID: UUID,
+            segments: [DiarizedTranscriptSegment],
+            profileIDsBySpeakerID: [String: UUID]
+        ) throws {}
+        func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
+        func removeTrainingEvidence(for recordID: UUID) throws {}
+        func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile { fatalError() }
+        func fetchAllProfiles() throws -> [ParticipantProfile] { [] }
+        func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {}
+        func renameProfile(_ profile: ParticipantProfile, to newName: String) throws {}
+        func deleteProfile(_ profile: ParticipantProfile) throws {}
+        func deleteAllProfiles() throws {}
+    }
+
     private struct Fixture {
         let modelContainer: ModelContainer
         let modelContext: ModelContext
@@ -274,6 +299,42 @@ struct HistoryStoreTests {
         #expect(profile.evidenceCount == 1)
         #expect(evidence.first?.recordID == record.id)
         #expect(try fixture.historyStore.hasSpeakerTrainingEvidence(for: record))
+    }
+
+    @Test func saveSucceedsAndNotifiesWhenSpeakerLearningFailsAfterPersistence() throws {
+        let fixture = try makeFixture()
+        let historyStore = HistoryStore(
+            modelContext: fixture.modelContext,
+            speakerIdentityService: FailingSpeakerIdentityService()
+        )
+        let segment = DiarizedTranscriptSegment(
+            speakerId: "speaker",
+            speakerLabel: "",
+            speakerEmbedding: [0.2, 0.4],
+            startTime: 0,
+            endTime: 2,
+            confidence: 0.9,
+            text: ""
+        )
+        var notificationCount = 0
+        let observer = NotificationCenter.default.addObserver(
+            forName: .historyStoreDidChange,
+            object: nil,
+            queue: nil
+        ) { _ in
+            notificationCount += 1
+        }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        let record = try historyStore.save(
+            text: "Persist despite learning failure",
+            duration: 2,
+            modelUsed: "base",
+            speakerTrainingSegments: [segment]
+        )
+
+        #expect(try historyStore.fetchRecord(with: record.id)?.text == "Persist despite learning failure")
+        #expect(notificationCount == 1)
     }
 
     @Test func removingTranscriptionEvidenceRebuildsCurrentUserProfile() throws {
@@ -1063,6 +1124,47 @@ struct HistoryStoreTests {
 
         #expect(firstPage.map(\.text) == ["Item 0", "Item 1"])
         #expect(secondPage.map(\.text) == ["Item 2", "Item 3"])
+    }
+
+    @Test func transcriptionSnapshotReusesBroadenedSearchResultsForSummaryAndPages() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(
+            text: "First matching body",
+            duration: 2,
+            modelUsed: "tiny",
+            generatedTitle: "Project Zephyr"
+        )
+        try fixture.historyStore.save(
+            text: "Second matching body",
+            duration: 3,
+            modelUsed: "tiny",
+            aiSummary: "Zephyr follow-up"
+        )
+        try fixture.historyStore.save(text: "Unrelated", duration: 7, modelUsed: "tiny")
+
+        let snapshot = try fixture.historyStore.transcriptionSnapshot(query: "Zephyr")
+
+        #expect(snapshot.count == 2)
+        #expect(snapshot.spokenDuration == 5)
+        #expect(snapshot.page(limit: 1, offset: 0)?.count == 1)
+        #expect(snapshot.page(limit: 1, offset: 1)?.count == 1)
+        #expect(snapshot.page(limit: 1, offset: 2)?.isEmpty == true)
+    }
+
+    @Test func transcriptionAggregateUsesFilterAndDurationProjection() throws {
+        let fixture = try makeFixture()
+        try fixture.historyStore.save(text: "Voice", duration: 2, modelUsed: "tiny")
+        try fixture.historyStore.save(
+            text: "Meeting",
+            duration: 5,
+            modelUsed: "tiny",
+            sourceKind: .manualCapture
+        )
+
+        let aggregate = try fixture.historyStore.transcriptionAggregate(filter: .voice)
+
+        #expect(aggregate.count == 1)
+        #expect(aggregate.spokenDuration == 2)
     }
     
     // MARK: - Export Tests

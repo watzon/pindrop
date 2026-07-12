@@ -590,6 +590,29 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
 @MainActor
 @Observable
 final class HistoryStore {
+
+    struct TranscriptionSnapshot {
+        let count: Int
+        let spokenDuration: TimeInterval
+        private let searchedRecords: [TranscriptionRecord]?
+
+        fileprivate init(
+            count: Int,
+            spokenDuration: TimeInterval,
+            searchedRecords: [TranscriptionRecord]?
+        ) {
+            self.count = count
+            self.spokenDuration = spokenDuration
+            self.searchedRecords = searchedRecords
+        }
+
+        func page(limit: Int, offset: Int) -> [TranscriptionRecord]? {
+            guard let searchedRecords else { return nil }
+            guard offset < searchedRecords.count else { return [] }
+            let end = min(offset + limit, searchedRecords.count)
+            return Array(searchedRecords[offset..<end])
+        }
+    }
     
     enum HistoryStoreError: Error, LocalizedError {
         case saveFailed(String)
@@ -673,21 +696,33 @@ final class HistoryStore {
         }
         
         modelContext.insert(record)
-        
+
         do {
             try modelContext.save()
-            let dictationTrainingSegments = speakerTrainingSegments ?? record.diarizedSegments
-            if sourceKind == .voiceRecording, !dictationTrainingSegments.isEmpty {
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+
+        // The record is durable at this point. Notify consumers before attempting
+        // optional speaker learning so a learning failure cannot report the save as
+        // failed or leave history views stale.
+        NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
+
+        let dictationTrainingSegments = speakerTrainingSegments ?? record.diarizedSegments
+        if sourceKind == .voiceRecording, !dictationTrainingSegments.isEmpty {
+            do {
                 try speakerIdentityService?.learnFromDictation(
                     recordID: record.id,
                     segments: dictationTrainingSegments
                 )
+            } catch {
+                Log.app.warning(
+                    "Saved transcription \(record.id) but speaker learning failed: \(error.localizedDescription)"
+                )
             }
-            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
-            return record
-        } catch {
-            throw HistoryStoreError.saveFailed(error.localizedDescription)
         }
+
+        return record
     }
     
     func fetchAll() throws -> [TranscriptionRecord] {
@@ -825,6 +860,50 @@ final class HistoryStore {
             }
         }
         return try fetchAllTranscriptions(query: trimmedQuery, filter: filter, sort: sort).count
+    }
+
+    /// Returns the count and total duration for a filter without loading transcript
+    /// bodies. Searches intentionally use `transcriptionSnapshot` so their in-memory
+    /// matching work is performed once and reused for pagination.
+    func transcriptionAggregate(filter: HistoryFilter = .all) throws -> (count: Int, spokenDuration: TimeInterval) {
+        let descriptor = transcriptionsDescriptor(query: "", filter: filter)
+
+        do {
+            let count = try modelContext.fetchCount(descriptor)
+            var durationDescriptor = descriptor
+            durationDescriptor.propertiesToFetch = [\.duration]
+            let spokenDuration = try modelContext.fetch(durationDescriptor)
+                .reduce(0) { $0 + max(0, $1.duration) }
+            return (count, spokenDuration)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
+    /// Produces one reload-scoped result. Empty searches use store-level count and
+    /// duration projections; non-empty searches materialize matching records once so
+    /// count, duration, and every page share the same result set.
+    func transcriptionSnapshot(
+        query: String = "",
+        filter: HistoryFilter = .all,
+        sort: MediaLibrarySortMode = .newest
+    ) throws -> TranscriptionSnapshot {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else {
+            let aggregate = try transcriptionAggregate(filter: filter)
+            return TranscriptionSnapshot(
+                count: aggregate.count,
+                spokenDuration: aggregate.spokenDuration,
+                searchedRecords: nil
+            )
+        }
+
+        let records = try fetchAllTranscriptions(query: trimmedQuery, filter: filter, sort: sort)
+        return TranscriptionSnapshot(
+            count: records.count,
+            spokenDuration: records.reduce(0) { $0 + max(0, $1.duration) },
+            searchedRecords: records
+        )
     }
 
     func fetchRecord(with id: UUID) throws -> TranscriptionRecord? {

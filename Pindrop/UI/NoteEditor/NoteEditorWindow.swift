@@ -111,7 +111,6 @@ final class NoteEditorWindowController: NSObject, NSWindowDelegate {
 
     func close() {
         window?.close()
-        onClose?()
     }
 
     func windowWillClose(_ notification: Notification) {
@@ -138,6 +137,8 @@ struct NoteEditorView: View {
     @State private var currentNote: NoteSchema.Note?
     @State private var showSavedConfirmation = false
     @State private var savedConfirmationTask: Task<Void, Never>?
+    @State private var autosaveTask: Task<Void, Never>?
+    @State private var lastSavedSnapshot: NoteSnapshot?
     @State private var editorID = UUID()
     @State private var lastEditedAt = Date()
 
@@ -221,26 +222,24 @@ struct NoteEditorView: View {
         }
         .onDisappear {
             savedConfirmationTask?.cancel()
+            autosaveTask?.cancel()
+            saveNote()
             if appendListeningState.activeEditorID == editorID {
                 NoteAppendListeningCoordinator.shared.requestStop(editorID: editorID)
             }
         }
         .onChange(of: title) { _, _ in
-            lastEditedAt = Date()
-            saveNote()
+            noteDidChange()
         }
         .onChange(of: content) { _, _ in
-            lastEditedAt = Date()
-            saveNote()
+            noteDidChange()
         }
         .onChange(of: isPinned) { _, newValue in
             onPinChange(newValue)
-            lastEditedAt = Date()
-            saveNote()
+            noteDidChange()
         }
         .onChange(of: tags) { _, _ in
-            lastEditedAt = Date()
-            saveNote()
+            noteDidChange()
         }
         .onReceive(NotificationCenter.default.publisher(for: .noteSpeakToAppendTranscript)) { notification in
             guard let targetID = notification.userInfo?["editorID"] as? UUID,
@@ -464,6 +463,7 @@ struct NoteEditorView: View {
             if !isNewNote {
                 currentNote = note
             }
+            lastSavedSnapshot = NoteSnapshot(note: note)
         }
     }
 
@@ -481,6 +481,7 @@ struct NoteEditorView: View {
 
         do {
             try modelContext.save()
+            lastSavedSnapshot = NoteSnapshot(note: newNote)
         } catch {
             Log.app.error("Failed to create note: \(error)")
         }
@@ -489,14 +490,23 @@ struct NoteEditorView: View {
     private func saveNote() {
         guard let noteToSave = currentNote else { return }
 
-        noteToSave.title = title.isEmpty ? "Untitled Note" : title
-        noteToSave.content = content
-        noteToSave.isPinned = isPinned
-        noteToSave.tags = tags
+        let snapshot = NoteSnapshot(
+            title: title.isEmpty ? "Untitled Note" : title,
+            content: content,
+            isPinned: isPinned,
+            tags: tags
+        )
+        guard snapshot != lastSavedSnapshot else { return }
+
+        noteToSave.title = snapshot.title
+        noteToSave.content = snapshot.content
+        noteToSave.isPinned = snapshot.isPinned
+        noteToSave.tags = snapshot.tags
         noteToSave.updatedAt = Date()
 
         do {
             try modelContext.save()
+            lastSavedSnapshot = snapshot
             onSave(noteToSave)
         } catch {
             Log.app.error("Failed to save note: \(error)")
@@ -504,8 +514,23 @@ struct NoteEditorView: View {
     }
 
     private func saveNow() {
+        autosaveTask?.cancel()
         saveNote()
         showSavedFlash()
+    }
+
+    private func noteDidChange() {
+        lastEditedAt = Date()
+        autosaveTask?.cancel()
+        autosaveTask = Task {
+            do {
+                try await Task.sleep(for: .milliseconds(500))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            saveNote()
+        }
     }
 
     private func showSavedFlash() {
@@ -534,6 +559,29 @@ struct NoteEditorView: View {
 
     private func removeTag(_ tag: String) {
         tags.removeAll { $0 == tag }
+    }
+}
+
+private struct NoteSnapshot: Equatable {
+    let title: String
+    let content: String
+    let isPinned: Bool
+    let tags: [String]
+
+    init(note: NoteSchema.Note) {
+        self.init(
+            title: note.title,
+            content: note.content,
+            isPinned: note.isPinned,
+            tags: note.tags
+        )
+    }
+
+    init(title: String, content: String, isPinned: Bool, tags: [String]) {
+        self.title = title
+        self.content = content
+        self.isPinned = isPinned
+        self.tags = tags
     }
 }
 
