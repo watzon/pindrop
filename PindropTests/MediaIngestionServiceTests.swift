@@ -77,6 +77,25 @@ struct MediaIngestionServiceTests {
         }
     }
 
+    @Test func testDirectDownloadDelegateRemovesTempFileWhenCancellationWins() throws {
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temporaryDirectory) }
+        let sourceURL = temporaryDirectory.appendingPathComponent("download.mp3")
+        try Data("audio-data".utf8).write(to: sourceURL)
+
+        let delegate = DirectDownloadDelegate(temporaryDirectory: temporaryDirectory, onProgress: { _, _ in })
+        let session = URLSession(configuration: .ephemeral)
+        let task = session.downloadTask(with: URL(string: "https://example.com/audio.mp3")!)
+        defer { session.invalidateAndCancel() }
+
+        delegate.cancel()
+        delegate.urlSession(session, downloadTask: task, didFinishDownloadingTo: sourceURL)
+
+        #expect(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
+    }
+
     @Test func testImportLocalFileCopiesIntoManagedLibrary() async throws {
         let sourceURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("mp3")
         try Data("audio-data".utf8).write(to: sourceURL)

@@ -469,8 +469,13 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
     private var continuation: CheckedContinuation<URL, Error>?
     private var result: Result<URL, Error>?
     private let onProgress: (Int64, Int64) -> Void
+    private let temporaryDirectory: URL
 
-    init(onProgress: @escaping (Int64, Int64) -> Void) {
+    init(
+        temporaryDirectory: URL = FileManager.default.temporaryDirectory,
+        onProgress: @escaping (Int64, Int64) -> Void
+    ) {
+        self.temporaryDirectory = temporaryDirectory
         self.onProgress = onProgress
     }
 
@@ -500,12 +505,14 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         // URLSession deletes the temp file when this method returns, so move it first.
-        let safeURL = FileManager.default.temporaryDirectory
+        let safeURL = temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(location.pathExtension)
         do {
             try FileManager.default.moveItem(at: location, to: safeURL)
-            complete(.success(safeURL))
+            if !complete(.success(safeURL)) {
+                try? FileManager.default.removeItem(at: safeURL)
+            }
         } catch {
             complete(.failure(error))
         }
@@ -526,14 +533,16 @@ final class DirectDownloadDelegate: NSObject, URLSessionDownloadDelegate, @unche
         onProgress(totalBytesWritten, totalBytesExpectedToWrite)
     }
 
-    private func complete(_ result: Result<URL, Error>) {
-        let continuation = lock.withLock { () -> CheckedContinuation<URL, Error>? in
-            guard self.result == nil else { return nil }
+    @discardableResult
+    private func complete(_ result: Result<URL, Error>) -> Bool {
+        let (continuation, didComplete) = lock.withLock { () -> (CheckedContinuation<URL, Error>?, Bool) in
+            guard self.result == nil else { return (nil, false) }
             self.result = result
             defer { self.continuation = nil }
-            return self.continuation
+            return (self.continuation, true)
         }
         continuation?.resume(with: result)
+        return didComplete
     }
 }
 
@@ -706,6 +715,12 @@ final class MediaIngestionService {
             downloadTask.cancel()
             delegate.cancel()
         }
+        var ownsTempURL = true
+        defer {
+            if ownsTempURL {
+                try? FileManager.default.removeItem(at: tempURL)
+            }
+        }
         try Task.checkCancellation()
 
         guard let httpResponse = downloadTask.response as? HTTPURLResponse,
@@ -715,6 +730,7 @@ final class MediaIngestionService {
         }
 
         try FileManager.default.moveItem(at: tempURL, to: destURL)
+        ownsTempURL = false
 
         // Reuse the library's finalization path, which generates a thumbnail
         // and builds the ManagedMediaAsset from whatever is in the directory.

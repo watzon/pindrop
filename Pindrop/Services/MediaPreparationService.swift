@@ -47,8 +47,11 @@ enum MediaPreparationError: Error, LocalizedError {
 final class MediaPreparationService: MediaAudioPreparing {
     private let worker: MediaAudioPreparationWorker
 
-    init(fileManager: FileManager = .default) {
-        worker = MediaAudioPreparationWorker(fileManager: fileManager)
+    init(fileManager: FileManager = .default, temporaryDirectory: URL? = nil) {
+        worker = MediaAudioPreparationWorker(
+            fileManager: fileManager,
+            temporaryDirectory: temporaryDirectory ?? fileManager.temporaryDirectory
+        )
     }
 
     func prepareAudio(from mediaURL: URL, ffmpegPath: String? = nil) async throws -> PreparedMediaAudio {
@@ -63,16 +66,99 @@ private struct MediaPreparationInput: Sendable {
     let ffmpegPath: String?
 }
 
+private final class ProcessStandardErrorCollector: @unchecked Sendable {
+    private let lock = NSLock()
+    private var data = Data()
+
+    func append(_ newData: Data) {
+        guard !newData.isEmpty else { return }
+        lock.withLock {
+            data.append(newData)
+        }
+    }
+
+    var string: String {
+        lock.withLock {
+            String(data: data, encoding: .utf8) ?? ""
+        }
+    }
+}
+
+private final class ProcessCompletionState: @unchecked Sendable {
+    typealias Result = Swift.Result<(Int32, String), Error>
+
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<(Int32, String), Error>?
+    private var result: Result?
+    private var process: Process?
+    private var cancellationRequested = false
+
+    func launch(_ process: Process, continuation: CheckedContinuation<(Int32, String), Error>) {
+        lock.lock()
+        if let result {
+            lock.unlock()
+            continuation.resume(with: result)
+            return
+        }
+        self.process = process
+        self.continuation = continuation
+
+        guard !cancellationRequested else {
+            lock.unlock()
+            complete(.failure(CancellationError()))
+            return
+        }
+
+        do {
+            try process.run()
+            lock.unlock()
+        } catch {
+            lock.unlock()
+            complete(.failure(error))
+            clearProcess()
+        }
+    }
+
+    func cancel() {
+        let process = lock.withLock { () -> Process? in
+            cancellationRequested = true
+            return self.process
+        }
+        if process?.isRunning == true {
+            process?.terminate()
+        }
+        complete(.failure(CancellationError()))
+    }
+
+    func complete(_ result: Result) {
+        let continuation = lock.withLock { () -> CheckedContinuation<(Int32, String), Error>? in
+            guard self.result == nil else { return nil }
+            self.result = result
+            defer { self.continuation = nil }
+            return self.continuation
+        }
+        continuation?.resume(with: result)
+    }
+
+    func clearProcess() {
+        lock.withLock {
+            process = nil
+        }
+    }
+}
+
 /// Keeps synchronous AVFoundation decode and conversion work off the main actor.
 private actor MediaAudioPreparationWorker {
     private let fileManager: FileManager
+    private let temporaryDirectory: URL
     private static let targetSampleRate: Double = 16_000
     // Target buffer size per read — small enough to tolerate malformed packet
     // tables on ~MB boundaries instead of blowing up on a single multi-GB read.
     private static let readChunkFrames: AVAudioFrameCount = 1 << 17  // 131 072 frames ≈ 2.7s @ 48 kHz
 
-    init(fileManager: FileManager = .default) {
+    init(fileManager: FileManager = .default, temporaryDirectory: URL) {
         self.fileManager = fileManager
+        self.temporaryDirectory = temporaryDirectory
     }
 
     func prepare(_ input: MediaPreparationInput) async throws -> PreparedMediaAudio {
@@ -277,9 +363,15 @@ private actor MediaAudioPreparationWorker {
     // MARK: - ffmpeg path
 
     private func ffmpegTranscode(mediaURL: URL, ffmpegPath: String) async throws -> URL {
-        let outputURL = fileManager.temporaryDirectory
+        let outputURL = temporaryDirectory
             .appendingPathComponent("pindrop-prep-\(UUID().uuidString)")
             .appendingPathExtension("wav")
+        var shouldKeepOutput = false
+        defer {
+            if !shouldKeepOutput {
+                try? fileManager.removeItem(at: outputURL)
+            }
+        }
         if fileManager.fileExists(atPath: outputURL.path) {
             try? fileManager.removeItem(at: outputURL)
         }
@@ -309,28 +401,39 @@ private actor MediaAudioPreparationWorker {
         guard fileManager.fileExists(atPath: outputURL.path) else {
             throw MediaPreparationError.exportFailed("ffmpeg reported success but produced no output file.")
         }
+        shouldKeepOutput = true
         return outputURL
     }
 
     private func runProcess(executablePath: String, arguments: [String]) async throws -> (Int32, String) {
-        try await withCheckedThrowingContinuation { continuation in
-            let process = Process()
-            let stderrPipe = Pipe()
-            process.executableURL = URL(fileURLWithPath: executablePath)
-            process.arguments = arguments
-            process.standardOutput = FileHandle.nullDevice
-            process.standardError = stderrPipe
-            process.terminationHandler = { proc in
-                let data = ((try? stderrPipe.fileHandleForReading.readToEnd()) ?? nil) ?? Data()
-                let stderr = String(data: data, encoding: .utf8) ?? ""
-                continuation.resume(returning: (proc.terminationStatus, stderr))
+        let state = ProcessCompletionState()
+        return try await withTaskCancellationHandler(operation: {
+            let result = try await withCheckedThrowingContinuation { continuation in
+                let process = Process()
+                let stderrPipe = Pipe()
+                let stderrCollector = ProcessStandardErrorCollector()
+
+                process.executableURL = URL(fileURLWithPath: executablePath)
+                process.arguments = arguments
+                process.standardOutput = FileHandle.nullDevice
+                process.standardError = stderrPipe
+                stderrPipe.fileHandleForReading.readabilityHandler = { handle in
+                    stderrCollector.append(handle.availableData)
+                }
+                process.terminationHandler = { proc in
+                    stderrPipe.fileHandleForReading.readabilityHandler = nil
+                    stderrCollector.append(stderrPipe.fileHandleForReading.readDataToEndOfFile())
+                    state.complete(.success((proc.terminationStatus, stderrCollector.string)))
+                    state.clearProcess()
+                }
+
+                state.launch(process, continuation: continuation)
             }
-            do {
-                try process.run()
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
+            try Task.checkCancellation()
+            return result
+        }, onCancel: {
+            state.cancel()
+        })
     }
 
     // MARK: - AVAssetExportSession path (fallback)
@@ -346,7 +449,7 @@ private actor MediaAudioPreparationWorker {
             throw MediaPreparationError.exportFailed("Unable to create export session.")
         }
 
-        let outputURL = fileManager.temporaryDirectory
+        let outputURL = temporaryDirectory
             .appendingPathComponent("pindrop-export-\(UUID().uuidString)")
             .appendingPathExtension("m4a")
 
