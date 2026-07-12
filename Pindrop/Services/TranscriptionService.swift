@@ -66,6 +66,7 @@ class TranscriptionService {
     private static let maximumTranscriptChunkWordCount = 28
     private static let targetTranscriptChunkWordCount = 20
     private static let defaultDiarizationTimeoutSeconds: TimeInterval = 300
+    private static let defaultModelLoadTimeoutSeconds: TimeInterval = 120
 
     private(set) var state: State = .unloaded
     private(set) var error: Error?
@@ -98,6 +99,7 @@ class TranscriptionService {
     private var streamingBackendProvider: @MainActor () -> TranscriptionBackend
     private let speakerIdentityService: SpeakerIdentityManaging?
     private let diarizationTimeoutSeconds: TimeInterval?
+    private let modelLoadTimeoutSeconds: TimeInterval
 
     /// True once this service substituted Parakeet for a user-requested Apple backend
     /// that couldn't be provisioned this run. AppCoordinator reads it to surface a
@@ -123,7 +125,8 @@ class TranscriptionService {
         streamingChunkProfileProvider: @escaping @MainActor () -> StreamingChunkProfile = { .standard },
         streamingBackendProvider: @escaping @MainActor () -> TranscriptionBackend = { .parakeet },
         speakerIdentityService: SpeakerIdentityManaging? = nil,
-        diarizationTimeoutSeconds: TimeInterval? = TranscriptionService.defaultDiarizationTimeoutSeconds
+        diarizationTimeoutSeconds: TimeInterval? = TranscriptionService.defaultDiarizationTimeoutSeconds,
+        modelLoadTimeoutSeconds: TimeInterval = TranscriptionService.defaultModelLoadTimeoutSeconds
     ) {
         self.engineFactory = engineFactory
         self.speakerDiarizerFactory = diarizerFactory
@@ -133,6 +136,7 @@ class TranscriptionService {
         self.streamingBackendProvider = streamingBackendProvider
         self.speakerIdentityService = speakerIdentityService
         self.diarizationTimeoutSeconds = diarizationTimeoutSeconds
+        self.modelLoadTimeoutSeconds = modelLoadTimeoutSeconds
     }
 
     /// Replace the provider that resolves which streaming chunk profile to use. Safe to
@@ -174,23 +178,17 @@ class TranscriptionService {
 
         do {
             let newEngine = try engineFactory(provider)
+            let modelLoadTimeoutSeconds = self.modelLoadTimeoutSeconds
             Log.boot.info("TranscriptionService.loadModel engine instance created provider=\(provider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
-            try await withThrowingTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    Log.boot.info("TranscriptionService.loadModel engine.loadModel task started name=\(modelName)")
-                    let engineLoadStart = CFAbsoluteTimeGetCurrent()
-                    try await newEngine.loadModel(name: modelName, downloadBase: self.getDownloadBase())
-                    Log.boot.info("TranscriptionService.loadModel engine.loadModel task finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - engineLoadStart))")
-                }
-
-                group.addTask {
-                    try await Task.sleep(for: .seconds(120))
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
-                }
-
-                try await group.next()
-                group.cancelAll()
+            try await withAsyncWatchdog(
+                timeoutSeconds: modelLoadTimeoutSeconds,
+                timeoutError: { Self.modelLoadTimeoutError(after: modelLoadTimeoutSeconds) }
+            ) {
+                Log.boot.info("TranscriptionService.loadModel engine.loadModel task started name=\(modelName)")
+                let engineLoadStart = CFAbsoluteTimeGetCurrent()
+                try await newEngine.loadModel(name: modelName, downloadBase: self.getDownloadBase())
+                Log.boot.info("TranscriptionService.loadModel engine.loadModel task finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - engineLoadStart))")
             }
 
             engine = newEngine
@@ -232,22 +230,16 @@ class TranscriptionService {
 
         do {
             let newEngine = WhisperKitEngine()
+            let modelLoadTimeoutSeconds = self.modelLoadTimeoutSeconds
             Log.boot.info("TranscriptionService.loadModel(path) WhisperKitEngine created elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 
-            try await withThrowingTaskGroup(of: Void.self) { group in
-                group.addTask {
-                    Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task started")
-                    try await newEngine.loadModel(path: modelPath)
-                    Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task finished")
-                }
-
-                group.addTask {
-                    try await Task.sleep(for: .seconds(120))
-                    throw TranscriptionError.modelLoadFailed("Model loading timed out after 120s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings.")
-                }
-
-                try await group.next()
-                group.cancelAll()
+            try await withAsyncWatchdog(
+                timeoutSeconds: modelLoadTimeoutSeconds,
+                timeoutError: { Self.modelLoadTimeoutError(after: modelLoadTimeoutSeconds) }
+            ) {
+                Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task started")
+                try await newEngine.loadModel(path: modelPath)
+                Log.boot.info("TranscriptionService.loadModel(path) engine.loadModel(path) task finished")
             }
 
             engine = newEngine
@@ -673,7 +665,10 @@ class TranscriptionService {
             return try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
         }
 
-        return try await withAsyncWatchdog(timeoutSeconds: timeoutSeconds) {
+        return try await withAsyncWatchdog(
+            timeoutSeconds: timeoutSeconds,
+            timeoutError: { DiarizationTimeoutError(timeoutSeconds: timeoutSeconds) }
+        ) {
             try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
         }
     }
@@ -795,6 +790,7 @@ class TranscriptionService {
         var fallbackSpeakerIndex = 1
 
         for segment in segments {
+            try Task.checkCancellation()
             let speakerID = segment.speaker.id
             guard labelsByID[speakerID] == nil else { continue }
 
@@ -820,11 +816,13 @@ class TranscriptionService {
 
         var segmentsBySpeakerID: [String: [SpeakerSegment]] = [:]
         for segment in segments {
+            try Task.checkCancellation()
             segmentsBySpeakerID[segment.speaker.id, default: []].append(segment)
         }
 
         var labelsByID: [String: String] = [:]
         for (speakerID, speakerSegments) in segmentsBySpeakerID {
+            try Task.checkCancellation()
             guard let representativeEmbedding = representativeEmbedding(from: speakerSegments),
                   let match = try speakerIdentityService.bestMatch(for: representativeEmbedding) else {
                 continue
@@ -1080,6 +1078,7 @@ class TranscriptionService {
         }
 
         for speaker in try speakerIdentityService.knownSpeakers() {
+            try Task.checkCancellation()
             try await diarizer.registerKnownSpeaker(speaker)
         }
 
@@ -1114,6 +1113,12 @@ class TranscriptionService {
     private func getDownloadBase() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("Pindrop", isDirectory: true)
+    }
+
+    private nonisolated static func modelLoadTimeoutError(after timeoutSeconds: TimeInterval) -> TranscriptionError {
+        .modelLoadFailed(
+            "Model loading timed out after \(Int(timeoutSeconds))s. This can happen on first launch after an update. Try restarting the app, or delete and re-download the model from Settings."
+        )
     }
 
     private func getStreamingModelBase() -> URL {
@@ -1250,6 +1255,7 @@ private final class AsyncWatchdogState<Output>: @unchecked Sendable {
 @MainActor
 private func withAsyncWatchdog<Output>(
     timeoutSeconds: TimeInterval,
+    timeoutError: @escaping @Sendable () -> Error,
     operation: @escaping @MainActor () async throws -> Output
 ) async throws -> Output {
     let state = AsyncWatchdogState<Output>()
@@ -1263,7 +1269,7 @@ private func withAsyncWatchdog<Output>(
                 return
             }
 
-            let operationTask = Task { @MainActor in
+            let operationTask = Task.detached { @MainActor in
                 do {
                     state.resolve(.success(try await operation()))
                 } catch {
@@ -1272,12 +1278,12 @@ private func withAsyncWatchdog<Output>(
             }
             state.setOperationTask(operationTask)
 
-            let timeoutTask = Task {
+            let timeoutTask = Task.detached {
                 let clampedTimeout = max(timeoutSeconds, 0)
                 let nanoseconds = UInt64(clampedTimeout * 1_000_000_000)
                 try? await Task.sleep(nanoseconds: nanoseconds)
                 guard !Task.isCancelled else { return }
-                state.resolve(.failure(DiarizationTimeoutError(timeoutSeconds: timeoutSeconds)))
+                state.resolve(.failure(timeoutError()))
             }
             state.setTimeoutTask(timeoutTask)
         }

@@ -93,7 +93,10 @@ protocol AudioCaptureBackend: AnyObject {
         onAudioLevel: @escaping (Float) -> Void,
         onError: @escaping (Error) -> Void
     ) throws
-    func stopCapture() throws -> [AVAudioPCMBuffer]
+    /// Stops capture and returns 16 kHz mono Float32 PCM. Capture backends spool
+    /// buffers to a temporary file while recording so long recordings do not retain
+    /// an unbounded collection of AVAudioPCMBuffer instances in memory.
+    func stopCapture() throws -> Data
     /// Drains the native-rate copy collected during the last capture, if enabled.
     func collectNativeAudio() -> AudioCaptureNativeAudio?
     func cancelCapture()
@@ -238,79 +241,137 @@ private enum AudioCaptureUtilities {
         return min(1.0 as Float, rms * 15)
     }
 
-    static func flattenSamples(from buffers: [AVAudioPCMBuffer]) -> [Float] {
-        var samples: [Float] = []
-        for buffer in buffers {
-            guard let channelData = buffer.floatChannelData else { continue }
-            let frameLength = Int(buffer.frameLength)
-            samples.append(contentsOf: UnsafeBufferPointer(start: channelData[0], count: frameLength))
-        }
-        return samples
-    }
-
-    static func makeBuffer(from samples: [Float], format: AVAudioFormat) -> AVAudioPCMBuffer? {
-        guard !samples.isEmpty else { return nil }
-        guard let buffer = AVAudioPCMBuffer(
-            pcmFormat: format,
-            frameCapacity: AVAudioFrameCount(samples.count)
-        ) else {
+    static func data(from buffer: AVAudioPCMBuffer) -> Data? {
+        guard buffer.format.commonFormat == .pcmFormatFloat32,
+              buffer.format.channelCount == 1,
+              let channelData = buffer.floatChannelData else {
             return nil
         }
-
-        buffer.frameLength = AVAudioFrameCount(samples.count)
-        guard let channelData = buffer.floatChannelData else { return nil }
-        channelData[0].initialize(from: samples, count: samples.count)
-        return buffer
+        return Data(bytes: channelData[0], count: Int(buffer.frameLength) * MemoryLayout<Float>.size)
     }
 
-    static func combineBuffersToData(_ buffers: [AVAudioPCMBuffer]) -> Data {
-        let allSamples = flattenSamples(from: buffers)
-        return allSamples.withUnsafeBufferPointer { bufferPointer in
-            Data(buffer: bufferPointer)
+    /// Mixes capture streams directly into the final byte representation. The
+    /// returned Data is required by batch transcription, but no second full
+    /// `[Float]` staging array is allocated at stop.
+    static func mixPCMData(_ microphoneData: Data, _ systemData: Data) -> Data {
+        let microphoneSampleCount = microphoneData.count / MemoryLayout<Float>.size
+        let systemSampleCount = systemData.count / MemoryLayout<Float>.size
+        let mixedSampleCount = max(microphoneSampleCount, systemSampleCount)
+        guard mixedSampleCount > 0 else { return Data() }
+
+        var mixedData = Data(count: mixedSampleCount * MemoryLayout<Float>.size)
+        mixedData.withUnsafeMutableBytes { destination in
+            let destinationSamples = destination.bindMemory(to: Float.self)
+            microphoneData.withUnsafeBytes { microphoneBytes in
+                let microphoneSamples = microphoneBytes.bindMemory(to: Float.self)
+                systemData.withUnsafeBytes { systemBytes in
+                    let systemSamples = systemBytes.bindMemory(to: Float.self)
+                    for index in 0..<mixedSampleCount {
+                        let microphone = index < microphoneSamples.count ? microphoneSamples[index] : 0
+                        let system = index < systemSamples.count ? systemSamples[index] : 0
+                        destinationSamples[index] = max(-1, min(1, (microphone + system) * 0.5))
+                    }
+                }
+            }
         }
+        return mixedData
     }
 }
 
 // MARK: - AVAudioEngineCaptureBackend
 
-/// Thread-safe buffer storage for audio recording.
-/// Uses a lock to allow immediate buffer appending from the audio render thread.
-private final class AudioBufferStorage: @unchecked Sendable {
-    private var buffers: [AVAudioPCMBuffer] = []
+/// Thread-safe temporary PCM spool. The capture callback writes each converted
+/// buffer immediately; only the final contiguous Data required by batch
+/// transcription is materialized at stop.
+final class AudioPCMFileStorage: @unchecked Sendable {
+    private var fileURL: URL?
+    private var fileHandle: FileHandle?
+    private var sampleRate: Double?
     private let lock = NSLock()
-    
-    func append(_ buffer: AVAudioPCMBuffer) {
-        lock.lock()
-        defer { lock.unlock() }
-        buffers.append(buffer)
+
+    deinit {
+        discard()
     }
-    
-    func removeAll() -> [AVAudioPCMBuffer] {
+
+    func start() throws {
         lock.lock()
         defer { lock.unlock() }
-        let result = buffers
-        buffers.removeAll()
-        return result
+
+        closeAndRemoveFile()
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-audio-\(UUID().uuidString).pcm")
+        guard FileManager.default.createFile(atPath: url.path, contents: nil) else {
+            throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
+        }
+        let handle: FileHandle
+        do {
+            handle = try FileHandle(forWritingTo: url)
+        } catch {
+            try? FileManager.default.removeItem(at: url)
+            throw AudioRecorderError.engineStartFailed("Unable to create temporary audio spool")
+        }
+        fileURL = url
+        fileHandle = handle
+        sampleRate = nil
     }
-    
-    var count: Int {
+
+    func append(_ buffer: AVAudioPCMBuffer) throws {
+        guard let data = AudioCaptureUtilities.data(from: buffer) else { return }
         lock.lock()
         defer { lock.unlock() }
-        return buffers.count
+
+        guard let fileHandle else {
+            throw AudioRecorderError.engineStartFailed("Audio spool is not available")
+        }
+        do {
+            try fileHandle.write(contentsOf: data)
+            if sampleRate == nil { sampleRate = buffer.format.sampleRate }
+        } catch {
+            throw AudioRecorderError.engineStartFailed("Unable to write temporary audio spool: \(error.localizedDescription)")
+        }
+    }
+
+    func drain() throws -> (data: Data, sampleRate: Double?) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard let fileURL else { return (Data(), nil) }
+        try fileHandle?.close()
+        fileHandle = nil
+        self.fileURL = nil
+        let capturedSampleRate = sampleRate
+        sampleRate = nil
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        return (try Data(contentsOf: fileURL), capturedSampleRate)
+    }
+
+    func discard() {
+        lock.lock()
+        defer { lock.unlock() }
+        closeAndRemoveFile()
+        sampleRate = nil
+    }
+
+    private func closeAndRemoveFile() {
+        try? fileHandle?.close()
+        fileHandle = nil
+        if let fileURL { try? FileManager.default.removeItem(at: fileURL) }
+        fileURL = nil
     }
 }
 
 final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
     private var audioEngine: AVAudioEngine?
-    private let audioBuffers = AudioBufferStorage()
+    private let audioStorage = AudioPCMFileStorage()
     /// Native-rate mono copy for retention (tap format), kept only when enabled.
-    private let nativeAudioBuffers = AudioBufferStorage()
+    private let nativeAudioStorage = AudioPCMFileStorage()
     var retainsNativeAudio = false
     private var preferredInputDeviceUID: String?
     private var configurationChangeObserver: NSObjectProtocol?
     private var onBufferCallback: ((AVAudioPCMBuffer) -> Void)?
     private var onAudioLevelCallback: ((Float) -> Void)?
+    private var onErrorCallback: ((Error) -> Void)?
     private var isRestartingCapture = false
     private var pendingConfigurationRestartWorkItem: DispatchWorkItem?
     private var suppressConfigurationChangesUntil: Date?
@@ -340,11 +401,21 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         onAudioLevel: @escaping (Float) -> Void,
         onError: @escaping (Error) -> Void
     ) throws {
-        _ = onError
         self.onBufferCallback = onBuffer
         self.onAudioLevelCallback = onAudioLevel
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        self.onErrorCallback = onError
+        do {
+            try audioStorage.start()
+            if retainsNativeAudio {
+                try nativeAudioStorage.start()
+            } else {
+                nativeAudioStorage.discard()
+            }
+        } catch {
+            audioStorage.discard()
+            nativeAudioStorage.discard()
+            throw error
+        }
         removeConfigurationChangeObserver()
         
         do {
@@ -369,11 +440,14 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             }
             onBufferCallback = nil
             onAudioLevelCallback = nil
+            onErrorCallback = nil
+            audioStorage.discard()
+            nativeAudioStorage.discard()
             throw AudioRecorderError.engineStartFailed(error.localizedDescription)
         }
     }
     
-    func stopCapture() throws -> [AVAudioPCMBuffer] {
+    func stopCapture() throws -> Data {
         guard isCapturing, let engine = audioEngine else {
             throw AudioRecorderError.notRecording
         }
@@ -383,14 +457,14 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.audioEngine = nil
         onBufferCallback = nil
         onAudioLevelCallback = nil
+        onErrorCallback = nil
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
         
-        let collectedBuffers = audioBuffers.removeAll()
-        Log.audio.debug("Stopped capturing, collected \(collectedBuffers.count) buffers")
-        
-        return collectedBuffers
+        let capturedAudio = try audioStorage.drain().data
+        Log.audio.debug("Stopped capturing, collected \(capturedAudio.count) bytes")
+        return capturedAudio
     }
     
     func cancelCapture() {
@@ -403,21 +477,22 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         self.audioEngine = nil
         onBufferCallback = nil
         onAudioLevelCallback = nil
+        onErrorCallback = nil
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        audioStorage.discard()
+        nativeAudioStorage.discard()
 
         Log.audio.info("Capture cancelled, audio discarded")
     }
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? {
-        let buffers = nativeAudioBuffers.removeAll()
-        guard let first = buffers.first else { return nil }
-        let data = AudioCaptureUtilities.combineBuffersToData(buffers)
+        let capturedAudio = try? nativeAudioStorage.drain()
+        guard let capturedAudio, let sampleRate = capturedAudio.sampleRate else { return nil }
+        let data = capturedAudio.data
         guard !data.isEmpty else { return nil }
-        return AudioCaptureNativeAudio(data: data, sampleRate: first.format.sampleRate)
+        return AudioCaptureNativeAudio(data: data, sampleRate: sampleRate)
     }
 
     func reset() {
@@ -429,11 +504,12 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         isCapturing = false
         onBufferCallback = nil
         onAudioLevelCallback = nil
+        onErrorCallback = nil
         isRestartingCapture = false
         cancelPendingConfigurationRestart()
         suppressConfigurationChangesUntil = nil
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        audioStorage.discard()
+        nativeAudioStorage.discard()
         Log.audio.info("Audio engine reset")
     }
     
@@ -552,20 +628,32 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
         Log.audio.debug("Input format: \(nodeFormat)")
         Log.audio.debug("Tap format: \(tapFormat)")
 
-        let bufferStorage = self.audioBuffers
+        let audioStorage = self.audioStorage
         let targetFmt = self.targetFormat
 
-        let nativeStorage = self.nativeAudioBuffers
+        let nativeAudioStorage = self.nativeAudioStorage
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: tapFormat) { [weak self] buffer, _ in
             guard let self else { return }
 
             if self.retainsNativeAudio {
                 // The tap format is already native-rate mono float32.
-                nativeStorage.append(buffer)
+                do {
+                    try nativeAudioStorage.append(buffer)
+                } catch {
+                    Log.audio.error("Failed to spool native retention audio: \(error.localizedDescription)")
+                    self.onErrorCallback?(error)
+                    return
+                }
             }
 
             if let convertedBuffer = AudioCaptureUtilities.convertBuffer(buffer, from: buffer.format, to: targetFmt) {
-                bufferStorage.append(convertedBuffer)
+                do {
+                    try audioStorage.append(convertedBuffer)
+                } catch {
+                    Log.audio.error("Failed to spool captured audio: \(error.localizedDescription)")
+                    self.onErrorCallback?(error)
+                    return
+                }
                 self.onBufferCallback?(convertedBuffer)
             }
 
@@ -730,9 +818,9 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         let generation: UInt64
     }
 
-    private let audioBuffers = AudioBufferStorage()
+    private let audioStorage = AudioPCMFileStorage()
     /// Native-rate mono copy for retention, kept only when enabled.
-    private let nativeAudioBuffers = AudioBufferStorage()
+    private let nativeAudioStorage = AudioPCMFileStorage()
     var retainsNativeAudio = false
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.microphone-input")
@@ -780,8 +868,18 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         onError: @escaping (Error) -> Void
     ) throws {
         guard !isCapturing else { return }
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        do {
+            try audioStorage.start()
+            if retainsNativeAudio {
+                try nativeAudioStorage.start()
+            } else {
+                nativeAudioStorage.discard()
+            }
+        } catch {
+            audioStorage.discard()
+            nativeAudioStorage.discard()
+            throw error
+        }
         cancelPendingConfigurationRestart()
         removeSystemDeviceListeners()
         removeActiveDeviceListeners()
@@ -803,41 +901,43 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             suppressConfigurationChanges()
         } catch {
             tearDownActiveCapture(clearCallbacks: true)
+            audioStorage.discard()
+            nativeAudioStorage.discard()
             throw error
         }
     }
 
-    func stopCapture() throws -> [AVAudioPCMBuffer] {
+    func stopCapture() throws -> Data {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
         tearDownActiveCapture(clearCallbacks: true)
-        let collectedBuffers = audioBuffers.removeAll()
-        Log.audio.debug("Stopped microphone capture, collected \(collectedBuffers.count) buffers")
-        return collectedBuffers
+        let capturedAudio = try audioStorage.drain().data
+        Log.audio.debug("Stopped microphone capture, collected \(capturedAudio.count) bytes")
+        return capturedAudio
     }
 
     func cancelCapture() {
         guard isCapturing else { return }
         tearDownActiveCapture(clearCallbacks: true)
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        audioStorage.discard()
+        nativeAudioStorage.discard()
         Log.audio.info("Microphone capture cancelled")
     }
 
     func collectNativeAudio() -> AudioCaptureNativeAudio? {
-        let buffers = nativeAudioBuffers.removeAll()
-        guard let first = buffers.first else { return nil }
-        let data = AudioCaptureUtilities.combineBuffersToData(buffers)
+        let capturedAudio = try? nativeAudioStorage.drain()
+        guard let capturedAudio, let sampleRate = capturedAudio.sampleRate else { return nil }
+        let data = capturedAudio.data
         guard !data.isEmpty else { return nil }
-        return AudioCaptureNativeAudio(data: data, sampleRate: first.format.sampleRate)
+        return AudioCaptureNativeAudio(data: data, sampleRate: sampleRate)
     }
 
     func reset() {
         tearDownActiveCapture(clearCallbacks: true)
-        _ = audioBuffers.removeAll()
-        _ = nativeAudioBuffers.removeAll()
+        audioStorage.discard()
+        nativeAudioStorage.discard()
     }
 
     func setPreferredInputDeviceUID(_ uid: String) throws {
@@ -973,7 +1073,13 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
            ) {
             // Downmix to mono at the device's native rate; the no-copy source
             // buffer cannot be stored directly.
-            nativeAudioBuffers.append(nativeBuffer)
+            do {
+                try nativeAudioStorage.append(nativeBuffer)
+            } catch {
+                Log.audio.error("Failed to spool native retention audio: \(error.localizedDescription)")
+                failActiveCapture(error)
+                return
+            }
         }
 
         guard let convertedBuffer = AudioCaptureUtilities.convertBuffer(
@@ -985,7 +1091,13 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
 
         guard isActiveCaptureGeneration(generation) else { return }
-        audioBuffers.append(convertedBuffer)
+        do {
+            try audioStorage.append(convertedBuffer)
+        } catch {
+            let error = AudioRecorderError.engineStartFailed("Failed to spool captured audio: \(error.localizedDescription)")
+            failActiveCapture(error)
+            return
+        }
         onBuffer(convertedBuffer)
         if isActiveCaptureGeneration(generation) {
             onAudioLevel(AudioCaptureUtilities.calculateAudioLevel(convertedBuffer))
@@ -1331,7 +1443,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
 @available(macOS 14.2, *)
 final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
-    private let audioBuffers = AudioBufferStorage()
+    private let audioStorage = AudioPCMFileStorage()
     private let targetFormatStorage: AVAudioFormat
     private let callbackQueue = DispatchQueue(label: "tech.watzon.pindrop.system-audio-tap")
 
@@ -1363,9 +1475,14 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         onAudioLevel: @escaping (Float) -> Void,
         onError: @escaping (Error) -> Void
     ) throws {
-        _ = onError
         guard !isCapturing else { return }
-        _ = audioBuffers.removeAll()
+        try audioStorage.start()
+        var didStartCapture = false
+        defer {
+            if !didStartCapture {
+                audioStorage.discard()
+            }
+        }
         destroyCaptureObjects()
 
         let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
@@ -1410,7 +1527,8 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
                 inputData,
                 sourceFormat: sourceFormat,
                 onBuffer: onBuffer,
-                onAudioLevel: onAudioLevel
+                onAudioLevel: onAudioLevel,
+                onError: onError
             )
         }
         guard status == noErr, let createdIOProcID else {
@@ -1431,30 +1549,31 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         aggregateDeviceID = createdAggregateDeviceID
         ioProcID = createdIOProcID
         isCapturing = true
+        didStartCapture = true
         Log.audio.info("System audio tap capture started")
     }
 
-    func stopCapture() throws -> [AVAudioPCMBuffer] {
+    func stopCapture() throws -> Data {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
         destroyCaptureObjects()
-        let collectedBuffers = audioBuffers.removeAll()
-        Log.audio.debug("Stopped system audio capture, collected \(collectedBuffers.count) buffers")
-        return collectedBuffers
+        let capturedAudio = try audioStorage.drain().data
+        Log.audio.debug("Stopped system audio capture, collected \(capturedAudio.count) bytes")
+        return capturedAudio
     }
 
     func cancelCapture() {
         guard isCapturing else { return }
         destroyCaptureObjects()
-        _ = audioBuffers.removeAll()
+        audioStorage.discard()
         Log.audio.info("System audio capture cancelled")
     }
 
     func reset() {
         destroyCaptureObjects()
-        _ = audioBuffers.removeAll()
+        audioStorage.discard()
     }
 
     func setPreferredInputDeviceUID(_ uid: String) throws {
@@ -1465,7 +1584,8 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
         _ inputData: UnsafePointer<AudioBufferList>,
         sourceFormat: AVAudioFormat,
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
-        onAudioLevel: @escaping (Float) -> Void
+        onAudioLevel: @escaping (Float) -> Void,
+        onError: @escaping (Error) -> Void
     ) {
         let mutableBufferList = UnsafeMutablePointer(mutating: inputData)
         let audioBuffersPointer = UnsafeMutableAudioBufferListPointer(mutableBufferList)
@@ -1492,7 +1612,13 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             return
         }
 
-        audioBuffers.append(convertedBuffer)
+        do {
+            try audioStorage.append(convertedBuffer)
+        } catch {
+            Log.audio.error("Failed to spool system audio: \(error.localizedDescription)")
+            onError(error)
+            return
+        }
         onBuffer(convertedBuffer)
         onAudioLevel(AudioCaptureUtilities.calculateAudioLevel(convertedBuffer))
     }
@@ -1504,9 +1630,9 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             mElement: kAudioObjectPropertyElementMain
         )
         var size = UInt32(MemoryLayout<CFString?>.size)
-        var tapUID: CFString = "" as CFString
+        var tapUID: CFString?
         let status = AudioObjectGetPropertyData(tapID, &address, 0, nil, &size, &tapUID)
-        guard status == noErr else {
+        guard status == noErr, let tapUID else {
             throw AudioRecorderError.systemAudioCaptureFailed("Unable to read tap UID (\(status))")
         }
         return tapUID as String
@@ -1538,9 +1664,9 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
             mElement: kAudioObjectPropertyElementMain
         )
         size = UInt32(MemoryLayout<CFString?>.size)
-        var outputUID: CFString = "" as CFString
+        var outputUID: CFString?
         status = AudioObjectGetPropertyData(outputDeviceID, &address, 0, nil, &size, &outputUID)
-        guard status == noErr else {
+        guard status == noErr, let outputUID else {
             throw AudioRecorderError.systemAudioCaptureFailed("Unable to read output device UID (\(status))")
         }
 
@@ -1624,6 +1750,11 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         microphoneBackend.targetFormat
     }
 
+    var retainsNativeAudio: Bool {
+        get { microphoneBackend.retainsNativeAudio }
+        set { microphoneBackend.retainsNativeAudio = newValue }
+    }
+
     init(microphoneBackend: AudioCaptureBackend, systemAudioBackend: AudioCaptureBackend) {
         self.microphoneBackend = microphoneBackend
         self.systemAudioBackend = systemAudioBackend
@@ -1660,22 +1791,16 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         _ = onBuffer
     }
 
-    func stopCapture() throws -> [AVAudioPCMBuffer] {
+    func stopCapture() throws -> Data {
         guard isCapturing else {
             throw AudioRecorderError.notRecording
         }
 
-        let microphoneBuffers = try microphoneBackend.stopCapture()
-        let systemBuffers = try systemAudioBackend.stopCapture()
+        let microphoneData = try microphoneBackend.stopCapture()
+        let systemData = try systemAudioBackend.stopCapture()
         isCapturing = false
 
-        let mixedBuffer = Self.mix(
-            microphoneSamples: AudioCaptureUtilities.flattenSamples(from: microphoneBuffers),
-            systemSamples: AudioCaptureUtilities.flattenSamples(from: systemBuffers),
-            format: targetFormat
-        )
-
-        return mixedBuffer.map { [$0] } ?? []
+        return AudioCaptureUtilities.mixPCMData(microphoneData, systemData)
     }
 
     func cancelCapture() {
@@ -1694,22 +1819,8 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
         try microphoneBackend.setPreferredInputDeviceUID(uid)
     }
 
-    private static func mix(
-        microphoneSamples: [Float],
-        systemSamples: [Float],
-        format: AVAudioFormat
-    ) -> AVAudioPCMBuffer? {
-        let mixedCount = max(microphoneSamples.count, systemSamples.count)
-        guard mixedCount > 0 else { return nil }
-
-        var mixedSamples = Array(repeating: Float.zero, count: mixedCount)
-        for index in 0..<mixedCount {
-            let microphoneSample = index < microphoneSamples.count ? microphoneSamples[index] : 0
-            let systemSample = index < systemSamples.count ? systemSamples[index] : 0
-            mixedSamples[index] = max(-1, min(1, (microphoneSample + systemSample) * 0.5))
-        }
-
-        return AudioCaptureUtilities.makeBuffer(from: mixedSamples, format: format)
+    func collectNativeAudio() -> AudioCaptureNativeAudio? {
+        microphoneBackend.collectNativeAudio()
     }
 }
 
@@ -1979,13 +2090,11 @@ final class AudioRecorder {
             throw AudioRecorderError.notRecording
         }
 
-        let collectedBuffers = try activeCaptureBackend.stopCapture()
+        let audioData = try activeCaptureBackend.stopCapture()
         lastNativeAudio = activeCaptureBackend.collectNativeAudio()
         isRecording = false
         self.activeCaptureBackend = nil
         currentConfiguration = .microphone
-
-        let audioData = AudioCaptureUtilities.combineBuffersToData(collectedBuffers)
 
         Log.audio.info("Recording stopped, \(audioData.count) bytes captured")
 

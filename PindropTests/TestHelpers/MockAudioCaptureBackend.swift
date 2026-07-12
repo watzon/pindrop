@@ -61,11 +61,19 @@ final class MockAudioCaptureBackend: AudioCaptureBackend {
         isCapturing = true
     }
 
-    func stopCapture() throws -> [AVAudioPCMBuffer] {
+    func stopCapture() throws -> Data {
         stopCaptureCallCount += 1
         if let error = shouldThrowOnStop { throw error }
         isCapturing = false
-        return simulatedBuffers
+        return simulatedBuffers.reduce(into: Data()) { data, buffer in
+            guard let channelData = buffer.floatChannelData else { return }
+            data.append(contentsOf:
+                UnsafeRawBufferPointer(
+                    start: channelData[0],
+                    count: Int(buffer.frameLength) * MemoryLayout<Float>.size
+                )
+            )
+        }
     }
 
     func cancelCapture() {

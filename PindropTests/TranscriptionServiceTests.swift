@@ -650,6 +650,29 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.transcribeCallCount == 1)
     }
 
+    @Test func diarizationWatchdogReturnsAtDeadlineWhenOperationIgnoresCancellation() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["fallback after noncooperative timeout"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nonCooperativeDiarizeDelayNanoseconds = 500_000_000
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer },
+            diarizationTimeoutSeconds: 0.02
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let started = ContinuousClock.now
+        let output = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 2.0),
+            diarizationEnabled: true
+        )
+        let elapsed = started.duration(to: .now)
+
+        #expect(output.text == "fallback after noncooperative timeout")
+        #expect(elapsed < .milliseconds(250))
+    }
+
     @Test func transcribeWithDiarizationCancellationPropagates() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["should not transcribe"]
@@ -958,6 +981,81 @@ struct TranscriptionServiceTests {
 }
 
 @MainActor
+@Suite
+private struct WorkspaceFileIndexTimeoutTests {
+    @Test func buildIndexReturnsAtDeadlineWhenEnumerationIgnoresCancellation() async throws {
+        let fileSystem = NonCooperativeFileSystemProvider()
+        let index = WorkspaceFileIndexService(
+            fileSystem: fileSystem,
+            buildTimeout: .milliseconds(20)
+        )
+        let started = ContinuousClock.now
+
+        do {
+            _ = try await index.buildIndex(roots: ["/workspace"])
+            Issue.record("Expected workspace indexing to time out")
+        } catch WorkspaceFileIndexError.enumerationFailed {
+            let elapsed = started.duration(to: .now)
+            #expect(elapsed < .milliseconds(250))
+            #expect(index.fileCount == 0)
+        }
+    }
+}
+
+private final class NonCooperativeFileSystemProvider: FileSystemProvider, @unchecked Sendable {
+    func enumerateFiles(under root: String) throws -> [String] {
+        Thread.sleep(forTimeInterval: 0.5)
+        return ["\(root)/late.swift"]
+    }
+
+    func directoryExists(at path: String) -> Bool { true }
+}
+
+@Suite
+private struct StreamingFinalizeTimeoutTests {
+    @Test func finalizeTimeoutReturnsAtDeadlineWhenOperationIgnoresCancellation() async {
+        let started = ContinuousClock.now
+        do {
+            _ = try await StreamingSessionController.withFinalizeTimeout(nanoseconds: 20_000_000) {
+                await withCheckedContinuation { continuation in
+                    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+                        continuation.resume()
+                    }
+                }
+                return "late result"
+            }
+            Issue.record("Expected finalize step to time out")
+        } catch {
+            let elapsed = started.duration(to: .now)
+            #expect(elapsed < .milliseconds(250))
+        }
+    }
+}
+
+@Suite
+private struct StreamingAudioBackpressureTests {
+    @Test func bufferingNewestRetainsOnlyMostRecentAudioWindow() async {
+        let limit = StreamingSessionController.maximumBufferedAudioBuffers
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: Int.self,
+            bufferingPolicy: .bufferingNewest(limit)
+        )
+
+        for value in 0...limit {
+            continuation.yield(value)
+        }
+        continuation.finish()
+
+        var received: [Int] = []
+        for await value in stream {
+            received.append(value)
+        }
+
+        #expect(received == Array(1...limit))
+    }
+}
+
+@MainActor
 private final class MockDiarizationTranscriptionEngine: TranscriptionEngine {
     private(set) var state: TranscriptionEngineState = .unloaded
     var transcribeResponses: [String] = []
@@ -1016,6 +1114,7 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
     var nextResult: DiarizationResult = DiarizationResult(segments: [], speakers: [], audioDuration: 0)
     var diarizeError: Error?
     var diarizeDelayNanoseconds: UInt64?
+    var nonCooperativeDiarizeDelayNanoseconds: UInt64?
     private(set) var loadModelsCallCount = 0
     private(set) var unloadModelsCallCount = 0
     private(set) var diarizeCallCount = 0
@@ -1034,6 +1133,15 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
 
     func diarize(samples: [Float], sampleRate: Int) async throws -> DiarizationResult {
         diarizeCallCount += 1
+        if let nonCooperativeDiarizeDelayNanoseconds {
+            await withCheckedContinuation { continuation in
+                DispatchQueue.global().asyncAfter(
+                    deadline: .now() + .nanoseconds(Int(nonCooperativeDiarizeDelayNanoseconds))
+                ) {
+                    continuation.resume()
+                }
+            }
+        }
         if let diarizeDelayNanoseconds {
             try await Task.sleep(nanoseconds: diarizeDelayNanoseconds)
         }

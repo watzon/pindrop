@@ -134,6 +134,39 @@ struct AudioRecorderTests {
         #expect(fixture.mockBackend.stopCaptureCallCount == 1)
     }
 
+    @Test func stopRecordingPreservesAllPCMBytesAcrossBuffers() async throws {
+        let fixture = try makeFixture()
+        fixture.mockPermission.grantPermission = true
+        let firstBuffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(
+                format: fixture.mockBackend.targetFormat,
+                frameCount: 8,
+                frequency: 100
+            )
+        )
+        let secondBuffer = try #require(
+            MockAudioCaptureBackend.makeSynthesizedBuffer(
+                format: fixture.mockBackend.targetFormat,
+                frameCount: 8,
+                frequency: 200
+            )
+        )
+        fixture.mockBackend.simulatedBuffers = [firstBuffer, secondBuffer]
+
+        try await fixture.sut.startRecording()
+        let data = try await fixture.sut.stopRecording()
+
+        let expected = [firstBuffer, secondBuffer].reduce(into: Data()) { data, buffer in
+            data.append(contentsOf:
+                UnsafeRawBufferPointer(
+                    start: buffer.floatChannelData![0],
+                    count: Int(buffer.frameLength) * MemoryLayout<Float>.size
+                )
+            )
+        }
+        #expect(data == expected)
+    }
+
     @Test func stopRecordingWithoutStartingThrowsError() async throws {
         let fixture = try makeFixture()
 
@@ -316,6 +349,29 @@ struct AudioRecorderTests {
 
         #expect(fixture.sut.isRecording == false)
         #expect(reportedError != nil)
+    }
+}
+
+@Suite
+struct AudioPCMFileStorageTests {
+    @Test func spoolsPCMBuffersAndReturnsFinalDataInOrder() throws {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
+        let first = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 100))
+        let second = try #require(MockAudioCaptureBackend.makeSynthesizedBuffer(format: format, frameCount: 4, frequency: 200))
+        let storage = AudioPCMFileStorage()
+
+        try storage.start()
+        try storage.append(first)
+        try storage.append(second)
+        let result = try storage.drain()
+
+        #expect(result.sampleRate == 16_000)
+        #expect(result.data.count == 8 * MemoryLayout<Float>.size)
+        let samples = result.data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        #expect(samples == [
+            first.floatChannelData![0][0], first.floatChannelData![0][1], first.floatChannelData![0][2], first.floatChannelData![0][3],
+            second.floatChannelData![0][0], second.floatChannelData![0][1], second.floatChannelData![0][2], second.floatChannelData![0][3],
+        ])
     }
 }
 

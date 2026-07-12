@@ -19,18 +19,30 @@ protocol FileSystemProvider: Sendable {
 
     /// Whether a directory exists at the given path.
     func directoryExists(at path: String) -> Bool
+
+    /// Cancels any subprocess-backed enumeration currently in progress. Providers
+    /// without subprocesses can use the default no-op implementation.
+    func cancelEnumeration()
+}
+
+extension FileSystemProvider {
+    func cancelEnumeration() {}
 }
 
 /// Production implementation using `FileManager`.
-struct RealFileSystemProvider: FileSystemProvider {
+final class RealFileSystemProvider: FileSystemProvider, @unchecked Sendable {
     private static let maxFilesPerRoot = 12000
     private static let gitExecutablePath = "/usr/bin/git"
+    private let processLock = NSLock()
+    private var activeGitProcesses: [Process] = []
 
     func enumerateFiles(under root: String) throws -> [String] {
         do {
             if let gitFilteredPaths = try enumerateFilesUsingGit(under: root) {
                 return gitFilteredPaths
             }
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             Log.context.warning("Git-aware workspace indexing failed for root \(root), falling back to filesystem scan: \(error.localizedDescription)")
         }
@@ -52,6 +64,7 @@ struct RealFileSystemProvider: FileSystemProvider {
 
         var results: [String] = []
         for case let url as URL in enumerator {
+            try Task.checkCancellation()
             guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey]),
                   values.isRegularFile == true else { continue }
             results.append(url.path)
@@ -68,6 +81,15 @@ struct RealFileSystemProvider: FileSystemProvider {
     func directoryExists(at path: String) -> Bool {
         var isDir: ObjCBool = false
         return FileManager.default.fileExists(atPath: path, isDirectory: &isDir) && isDir.boolValue
+    }
+
+    func cancelEnumeration() {
+        processLock.lock()
+        let processes = activeGitProcesses
+        processLock.unlock()
+        for process in processes where process.isRunning {
+            process.terminate()
+        }
     }
 
     private func enumerateFilesUsingGit(under root: String) throws -> [String]? {
@@ -105,6 +127,7 @@ struct RealFileSystemProvider: FileSystemProvider {
         var results: [String] = []
 
         for rawPath in rawPaths {
+            try Task.checkCancellation()
             guard let relativePath = String(data: Data(rawPath), encoding: .utf8),
                   !shouldSkipRelativePath(relativePath) else {
                 continue
@@ -141,11 +164,27 @@ struct RealFileSystemProvider: FileSystemProvider {
             throw WorkspaceFileIndexError.enumerationFailed("Unable to launch git: \(error.localizedDescription)")
         }
 
+        register(process)
+        defer { unregister(process) }
+
         let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
         let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
+        try Task.checkCancellation()
 
         return (status: process.terminationStatus, stdout: stdoutData, stderr: stderrData)
+    }
+
+    private func register(_ process: Process) {
+        processLock.lock()
+        activeGitProcesses.append(process)
+        processLock.unlock()
+    }
+
+    private func unregister(_ process: Process) {
+        processLock.lock()
+        activeGitProcesses.removeAll { $0 === process }
+        processLock.unlock()
     }
 
     private func shouldSkipRelativePath(_ relativePath: String) -> Bool {
@@ -240,12 +279,16 @@ final class WorkspaceFileIndexService {
 
     private let fileSystem: FileSystemProvider
 
-    private static let buildTimeout: Duration = .seconds(2)
+    private let buildTimeout: Duration
 
     // MARK: - Init
 
-    init(fileSystem: FileSystemProvider = RealFileSystemProvider()) {
+    init(
+        fileSystem: FileSystemProvider = RealFileSystemProvider(),
+        buildTimeout: Duration = .seconds(2)
+    ) {
         self.fileSystem = fileSystem
+        self.buildTimeout = buildTimeout
     }
 
     // MARK: - Index Building
@@ -273,83 +316,74 @@ final class WorkspaceFileIndexService {
     private func buildIndexData(roots: [String]) async throws -> BuildOutput {
         let fileSystem = self.fileSystem
 
-        return try await withThrowingTaskGroup(of: BuildOutput.self) { group in
-            group.addTask(priority: .utility) {
-                let validRoots = roots.filter { root in
-                    let exists = fileSystem.directoryExists(at: root)
-                    if !exists {
-                        Log.context.warning("Workspace root not found, skipping: \(root)")
+        return try await withWorkspaceTimeout(timeout: buildTimeout, fileSystem: fileSystem) {
+            var validRoots: [String] = []
+            for root in roots {
+                try Task.checkCancellation()
+                if fileSystem.directoryExists(at: root) {
+                    validRoots.append(root)
+                } else {
+                    Log.context.warning("Workspace root not found, skipping: \(root)")
+                }
+            }
+
+            guard !validRoots.isEmpty else {
+                throw WorkspaceFileIndexError.rootNotFound(roots.joined(separator: ", "))
+            }
+
+            var indexed: [IndexedFile] = []
+
+            for root in validRoots {
+                try Task.checkCancellation()
+                do {
+                    let paths = try fileSystem.enumerateFiles(under: root)
+
+                    for absolutePath in paths {
+                        try Task.checkCancellation()
+                        let fileURL = URL(fileURLWithPath: absolutePath)
+                        let relativePath = absolutePath.hasPrefix(root)
+                            ? String(absolutePath.dropFirst(root.count))
+                                .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                            : fileURL.lastPathComponent
+
+                        let filename = fileURL.lastPathComponent
+                        let stem = fileURL.deletingPathExtension().lastPathComponent
+                        let ext = fileURL.pathExtension
+                        let segments = relativePath.split(separator: "/").map(String.init)
+
+                        indexed.append(IndexedFile(
+                            absolutePath: absolutePath,
+                            relativePath: relativePath,
+                            workspaceRoot: root,
+                            stem: stem,
+                            filename: filename,
+                            fileExtension: ext,
+                            pathSegments: segments,
+                            lowercasedFilename: filename.lowercased(),
+                            lowercasedStem: stem.lowercased()
+                        ))
                     }
-                    return exists
+                } catch is CancellationError {
+                    throw CancellationError()
+                } catch {
+                    Log.context.error("Failed to enumerate files under \(root): \(error.localizedDescription)")
                 }
-
-                guard !validRoots.isEmpty else {
-                    throw WorkspaceFileIndexError.rootNotFound(roots.joined(separator: ", "))
-                }
-
-                var indexed: [IndexedFile] = []
-
-                for root in validRoots {
-                    do {
-                        let paths = try fileSystem.enumerateFiles(under: root)
-
-                        for absolutePath in paths {
-                            let fileURL = URL(fileURLWithPath: absolutePath)
-                            let relativePath = absolutePath.hasPrefix(root)
-                                ? String(absolutePath.dropFirst(root.count))
-                                    .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-                                : fileURL.lastPathComponent
-
-                            let filename = fileURL.lastPathComponent
-                            let stem = fileURL.deletingPathExtension().lastPathComponent
-                            let ext = fileURL.pathExtension
-                            let segments = relativePath.split(separator: "/").map(String.init)
-
-                            indexed.append(IndexedFile(
-                                absolutePath: absolutePath,
-                                relativePath: relativePath,
-                                workspaceRoot: root,
-                                stem: stem,
-                                filename: filename,
-                                fileExtension: ext,
-                                pathSegments: segments,
-                                lowercasedFilename: filename.lowercased(),
-                                lowercasedStem: stem.lowercased()
-                            ))
-                        }
-                    } catch {
-                        Log.context.error("Failed to enumerate files under \(root): \(error.localizedDescription)")
-                    }
-                }
-
-                var byName: [String: [IndexedFile]] = [:]
-                var byStem: [String: [IndexedFile]] = [:]
-                for file in indexed {
-                    byName[file.lowercasedFilename, default: []].append(file)
-                    byStem[file.lowercasedStem, default: []].append(file)
-                }
-
-                return BuildOutput(
-                    workspaceRoots: validRoots,
-                    allFiles: indexed,
-                    filesByName: byName,
-                    filesByStem: byStem
-                )
             }
 
-            group.addTask {
-                try await Task.sleep(for: Self.buildTimeout)
-                throw WorkspaceFileIndexError.enumerationFailed(
-                    "Indexing exceeded \(Int(Self.buildTimeout.components.seconds)) seconds"
-                )
+            var byName: [String: [IndexedFile]] = [:]
+            var byStem: [String: [IndexedFile]] = [:]
+            for file in indexed {
+                try Task.checkCancellation()
+                byName[file.lowercasedFilename, default: []].append(file)
+                byStem[file.lowercasedStem, default: []].append(file)
             }
 
-            guard let firstResult = try await group.next() else {
-                throw WorkspaceFileIndexError.enumerationFailed("Indexing returned no result")
-            }
-
-            group.cancelAll()
-            return firstResult
+            return BuildOutput(
+                workspaceRoots: validRoots,
+                allFiles: indexed,
+                filesByName: byName,
+                filesByStem: byStem
+            )
         }
     }
 
@@ -378,5 +412,105 @@ final class WorkspaceFileIndexService {
         return allFiles.filter { file in
             file.pathSegments.contains { $0.lowercased().contains(query) }
         }
+    }
+}
+
+/// A detached watchdog is deliberate: a synchronous file-system provider can
+/// ignore cancellation, but callers must regain the main actor at the deadline.
+/// Its late result is discarded, and cancellation terminates registered git jobs.
+private func withWorkspaceTimeout<Output: Sendable>(
+    timeout: Duration,
+    fileSystem: FileSystemProvider,
+    operation: @escaping @Sendable () throws -> Output
+) async throws -> Output {
+    let state = WorkspaceTimeoutState<Output>()
+    return try await withTaskCancellationHandler {
+        try await withCheckedThrowingContinuation { continuation in
+            guard state.activate(continuation) else { return }
+
+            let operationTask = Task.detached(priority: .utility) {
+                do {
+                    let output = try await withTaskCancellationHandler {
+                        try operation()
+                    } onCancel: {
+                        fileSystem.cancelEnumeration()
+                    }
+                    state.resolve(.success(output))
+                } catch {
+                    state.resolve(.failure(error))
+                }
+            }
+            state.setOperationTask(operationTask)
+
+            let timeoutTask = Task.detached {
+                try? await Task.sleep(for: timeout)
+                guard !Task.isCancelled else { return }
+                state.resolve(.failure(
+                    WorkspaceFileIndexError.enumerationFailed(
+                        "Indexing exceeded \(Int(timeout.components.seconds)) seconds"
+                    )
+                ))
+            }
+            state.setTimeoutTask(timeoutTask)
+        }
+    } onCancel: {
+        fileSystem.cancelEnumeration()
+        state.resolve(.failure(CancellationError()))
+    }
+}
+
+private final class WorkspaceTimeoutState<Output>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Output, Error>?
+    private var operationTask: Task<Void, Never>?
+    private var timeoutTask: Task<Void, Never>?
+    private var pendingResult: Result<Output, Error>?
+    private var isResolved = false
+
+    func activate(_ continuation: CheckedContinuation<Output, Error>) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        if let pendingResult {
+            self.pendingResult = nil
+            continuation.resume(with: pendingResult)
+            return false
+        }
+        guard !isResolved else {
+            continuation.resume(throwing: CancellationError())
+            return false
+        }
+        self.continuation = continuation
+        return true
+    }
+
+    func setOperationTask(_ task: Task<Void, Never>) { set(task, asOperation: true) }
+    func setTimeoutTask(_ task: Task<Void, Never>) { set(task, asOperation: false) }
+
+    private func set(_ task: Task<Void, Never>, asOperation: Bool) {
+        lock.lock()
+        let shouldCancel = isResolved
+        if !shouldCancel {
+            if asOperation { operationTask = task } else { timeoutTask = task }
+        }
+        lock.unlock()
+        if shouldCancel { task.cancel() }
+    }
+
+    func resolve(_ result: Result<Output, Error>) {
+        lock.lock()
+        guard !isResolved else { lock.unlock(); return }
+        isResolved = true
+        let continuation = self.continuation
+        self.continuation = nil
+        let operationTask = self.operationTask
+        self.operationTask = nil
+        let timeoutTask = self.timeoutTask
+        self.timeoutTask = nil
+        if continuation == nil { pendingResult = result }
+        lock.unlock()
+
+        operationTask?.cancel()
+        timeoutTask?.cancel()
+        continuation?.resume(with: result)
     }
 }

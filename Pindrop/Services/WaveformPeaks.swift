@@ -36,7 +36,7 @@ enum WaveformPeaks {
     }
 
     /// Extract normalized peak buckets from mono interleaved/non-interleaved Float32 PCM data
-    /// (the format produced by `AudioRecorder` / `AudioCaptureUtilities.combineBuffersToData`).
+    /// (the PCM format returned by `AudioRecorder`).
     static func extract(
         fromPCMFloatData data: Data,
         sampleRate: Double = 16_000,

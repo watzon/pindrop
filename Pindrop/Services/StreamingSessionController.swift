@@ -62,6 +62,11 @@ final class StreamingSessionController {
 
     /// Upper bound on the post-stop LLM enhancement call (network + inference).
     static let postStopEnhanceTimeoutNanoseconds: UInt64 = 20_000_000_000
+    /// Keep the live path close to real time under a slow decoder. On overflow,
+    /// discard the oldest pending buffers and retain the newest 32 (~8 seconds at
+    /// a 4,096-frame 16 kHz tap), while the file-backed recorder still retains the
+    /// complete waveform for offline finalization.
+    static let maximumBufferedAudioBuffers = 32
 
     private struct FinalizeStepTimedOut: Error {}
 
@@ -439,7 +444,7 @@ final class StreamingSessionController {
 
         let (stream, continuation) = AsyncStream.makeStream(
             of: AVAudioPCMBuffer.self,
-            bufferingPolicy: .unbounded
+            bufferingPolicy: .bufferingNewest(Self.maximumBufferedAudioBuffers)
         )
         audioStreamContinuation = continuation
         audioConsumerTask = Task.detached(priority: .userInitiated) {
@@ -455,7 +460,9 @@ final class StreamingSessionController {
         // The continuation is captured directly (it is Sendable); going through
         // self would re-enter the main actor from the capture thread.
         audioRecorder.onAudioBuffer = { buffer in
-            continuation.yield(buffer)
+            if case .dropped = continuation.yield(buffer) {
+                Log.transcription.warning("Streaming audio buffer backlog exceeded \(Self.maximumBufferedAudioBuffers); dropped oldest buffer")
+            }
         }
     }
 
@@ -510,21 +517,92 @@ final class StreamingSessionController {
     /// Bounds a finalize-path step: whichever of `operation` or the deadline finishes
     /// first wins, and the loser is cancelled. Callers catch the timeout and fall back
     /// to the text they already have — the paste must never wait indefinitely.
-    private nonisolated static func withFinalizeTimeout<T: Sendable>(
+    nonisolated static func withFinalizeTimeout<T: Sendable>(
         nanoseconds: UInt64,
         operation: @escaping @Sendable () async throws -> T
     ) async throws -> T {
-        try await withThrowingTaskGroup(of: T.self) { group in
-            group.addTask { try await operation() }
-            group.addTask {
-                try await Task.sleep(nanoseconds: nanoseconds)
-                throw FinalizeStepTimedOut()
+        let state = FinalizeTimeoutState<T>()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                guard state.activate(continuation) else { return }
+
+                let operationTask = Task.detached {
+                    do {
+                        state.resolve(.success(try await operation()))
+                    } catch {
+                        state.resolve(.failure(error))
+                    }
+                }
+                state.setOperationTask(operationTask)
+
+                let timeoutTask = Task.detached {
+                    try? await Task.sleep(nanoseconds: nanoseconds)
+                    guard !Task.isCancelled else { return }
+                    state.resolve(.failure(FinalizeStepTimedOut()))
+                }
+                state.setTimeoutTask(timeoutTask)
             }
-            defer { group.cancelAll() }
-            guard let value = try await group.next() else {
-                throw FinalizeStepTimedOut()
-            }
-            return value
+        } onCancel: {
+            state.resolve(.failure(CancellationError()))
         }
+    }
+}
+
+/// Coordinates independently owned operation/deadline tasks so a deadline can
+/// resume its caller even when the operation ignores cooperative cancellation.
+/// The first result wins; late operation results are intentionally suppressed.
+private final class FinalizeTimeoutState<Output>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Output, Error>?
+    private var operationTask: Task<Void, Never>?
+    private var timeoutTask: Task<Void, Never>?
+    private var pendingResult: Result<Output, Error>?
+    private var isResolved = false
+
+    func activate(_ continuation: CheckedContinuation<Output, Error>) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        if let pendingResult {
+            self.pendingResult = nil
+            continuation.resume(with: pendingResult)
+            return false
+        }
+        guard !isResolved else {
+            continuation.resume(throwing: CancellationError())
+            return false
+        }
+        self.continuation = continuation
+        return true
+    }
+
+    func setOperationTask(_ task: Task<Void, Never>) { set(task, asOperation: true) }
+    func setTimeoutTask(_ task: Task<Void, Never>) { set(task, asOperation: false) }
+
+    private func set(_ task: Task<Void, Never>, asOperation: Bool) {
+        lock.lock()
+        let shouldCancel = isResolved
+        if !shouldCancel {
+            if asOperation { operationTask = task } else { timeoutTask = task }
+        }
+        lock.unlock()
+        if shouldCancel { task.cancel() }
+    }
+
+    func resolve(_ result: Result<Output, Error>) {
+        lock.lock()
+        guard !isResolved else { lock.unlock(); return }
+        isResolved = true
+        let continuation = self.continuation
+        self.continuation = nil
+        let operationTask = self.operationTask
+        self.operationTask = nil
+        let timeoutTask = self.timeoutTask
+        self.timeoutTask = nil
+        if continuation == nil { pendingResult = result }
+        lock.unlock()
+
+        operationTask?.cancel()
+        timeoutTask?.cancel()
+        continuation?.resume(with: result)
     }
 }
