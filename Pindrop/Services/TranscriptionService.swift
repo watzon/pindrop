@@ -807,8 +807,8 @@ class TranscriptionService {
         segments: [SpeakerSegment],
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
-        let speakerLabelsByID = try speakerLabelsByID(from: segments)
-        let shouldShowSpeakerLabels = speakerLabelsByID.count > 1
+        var speakerLabelsByID = try matchedSpeakerLabelsByID(from: segments)
+        var fallbackSpeakerIndex = 1
         let segmentOptions = await transcriptionOptionsForDiarizedSegments(
             engine: engine,
             samples: samples,
@@ -816,8 +816,8 @@ class TranscriptionService {
             options: options
         )
         var transcriptSegments: [DiarizedTranscriptSegment] = []
+        var transcribedSpeakerIDs = Set<String>()
         var textLines: [String] = []
-
         for segment in segments {
             try Task.checkCancellation()
             guard let segmentData = extractAudioData(
@@ -834,12 +834,19 @@ class TranscriptionService {
             guard !trimmed.isEmpty else { continue }
 
             let speakerID = segment.speaker.id
-            let resolvedSpeakerLabel = speakerLabelsByID[speakerID] ?? "Speaker 1"
-            let visibleSpeakerLabel = shouldShowSpeakerLabels ? resolvedSpeakerLabel : ""
+            let resolvedSpeakerLabel: String
+            if let existingLabel = speakerLabelsByID[speakerID] {
+                resolvedSpeakerLabel = existingLabel
+            } else {
+                resolvedSpeakerLabel = "Speaker \(fallbackSpeakerIndex)"
+                speakerLabelsByID[speakerID] = resolvedSpeakerLabel
+                fallbackSpeakerIndex += 1
+            }
+            transcribedSpeakerIDs.insert(speakerID)
 
             let diarizedSegment = DiarizedTranscriptSegment(
                 speakerId: speakerID,
-                speakerLabel: visibleSpeakerLabel,
+                speakerLabel: resolvedSpeakerLabel,
                 speakerEmbedding: segment.speaker.embedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
@@ -849,26 +856,39 @@ class TranscriptionService {
 
             let splitSegments = splitTranscriptSegmentIfNeeded(diarizedSegment)
             transcriptSegments.append(contentsOf: splitSegments)
-            if shouldShowSpeakerLabels {
-                textLines.append(contentsOf: splitSegments.map { "\(resolvedSpeakerLabel): \($0.text)" })
-            }
+            textLines.append(contentsOf: splitSegments.map { "\(resolvedSpeakerLabel): \($0.text)" })
         }
 
+        let shouldShowSpeakerLabels = transcribedSpeakerIDs.count > 1
+        let visibleSegments: [DiarizedTranscriptSegment]
         let mergedText: String
-        if !shouldShowSpeakerLabels {
+        if shouldShowSpeakerLabels {
+            visibleSegments = transcriptSegments
+            mergedText = textLines.joined(separator: "\n")
+        } else {
             if !transcriptSegments.isEmpty {
                 Log.transcription.info("Speaker diarization detected a single speaker; omitting labels from transcript output")
             }
-            mergedText = transcriptSegments
+            visibleSegments = transcriptSegments.map { segment in
+                DiarizedTranscriptSegment(
+                    speakerId: segment.speakerId,
+                    speakerLabel: "",
+                    speakerProfileID: segment.speakerProfileID,
+                    speakerEmbedding: segment.speakerEmbedding,
+                    startTime: segment.startTime,
+                    endTime: segment.endTime,
+                    confidence: segment.confidence,
+                    text: segment.text
+                )
+            }
+            mergedText = visibleSegments
                 .map(\.text)
                 .joined(separator: " ")
-        } else {
-            mergedText = textLines.joined(separator: "\n")
         }
 
         return TranscriptionOutput(
             text: mergedText,
-            diarizedSegments: transcriptSegments.isEmpty ? nil : transcriptSegments
+            diarizedSegments: visibleSegments.isEmpty ? nil : visibleSegments
         )
     }
 
@@ -901,33 +921,6 @@ class TranscriptionService {
         }
     }
 
-    private func speakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
-        let knownSpeakerIDs = Set((try speakerIdentityService?.knownSpeakers() ?? []).map(\.id))
-        let matchedLabelsByID = try matchedSpeakerLabelsByID(from: segments)
-        var labelsByID: [String: String] = [:]
-        var fallbackSpeakerIndex = 1
-
-        for segment in segments {
-            try Task.checkCancellation()
-            let speakerID = segment.speaker.id
-            guard labelsByID[speakerID] == nil else { continue }
-
-            if let matchedLabel = matchedLabelsByID[speakerID] {
-                labelsByID[speakerID] = matchedLabel
-                continue
-            }
-
-            let providedLabel = segment.speaker.label.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !providedLabel.isEmpty && !knownSpeakerIDs.contains(speakerID) {
-                labelsByID[speakerID] = providedLabel
-            } else {
-                labelsByID[speakerID] = "Speaker \(fallbackSpeakerIndex)"
-                fallbackSpeakerIndex += 1
-            }
-        }
-
-        return labelsByID
-    }
 
     private func matchedSpeakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
         guard let speakerIdentityService else { return [:] }

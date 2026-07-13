@@ -45,6 +45,16 @@ struct MediaTranscriptionDetailView: View {
     private static let summaryBodyMetrics = TypographyRoleMetrics(
         family: .newsreader, size: 15, weight: .regular, lineHeight: 23
     )
+    private static let pageHorizontalPadding: CGFloat = 40
+    private static let wideColumnSpacing: CGFloat = 32
+
+    static func wideMediaColumnWidth(for containerWidth: CGFloat) -> CGFloat {
+        let columnsWidth = max(
+            0,
+            containerWidth - (pageHorizontalPadding * 2) - wideColumnSpacing
+        )
+        return columnsWidth / 3
+    }
 
     /// One logical refresh rebuilds labels, displayed segments, IDs, and participants
     /// from a single `diarizedSegments` decode. The playback clock must never force
@@ -101,8 +111,9 @@ struct MediaTranscriptionDetailView: View {
                         breadcrumb
                         titleBlock
                     }
+                    .padding(.horizontal, Self.pageHorizontalPadding)
 
-                    HStack(alignment: .top, spacing: 32) {
+                    HStack(alignment: .top, spacing: Self.wideColumnSpacing) {
                         // The rail scrolls only if a short window can't fit it.
                         ScrollView(.vertical, showsIndicators: true) {
                             VStack(alignment: .leading, spacing: 24) {
@@ -110,19 +121,20 @@ struct MediaTranscriptionDetailView: View {
                             }
                             .padding(.bottom, 40)
                         }
-                        .frame(width: 480)
+                        .frame(width: Self.wideMediaColumnWidth(for: geo.size.width))
 
                         ScrollView(.vertical, showsIndicators: true) {
                             transcriptSection
+                                .padding(.leading, 8)
+                                .padding(.trailing, Self.pageHorizontalPadding)
                                 .padding(.bottom, 40)
                         }
                         .frame(maxWidth: .infinity)
                     }
                     .frame(maxHeight: .infinity, alignment: .top)
+                    .padding(.leading, Self.pageHorizontalPadding)
                 }
-                .padding(.horizontal, 40)
-                .padding(.top, 40)
-                .frame(maxWidth: 1400, alignment: .leading)
+                .padding(.top, Self.pageHorizontalPadding)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
                 ScrollView(.vertical, showsIndicators: true) {
@@ -452,6 +464,25 @@ struct MediaTranscriptionDetailView: View {
         }
     }
 
+    static func unassignedSpeakerLabels(
+        for segments: [DiarizedTranscriptSegment],
+        locale: Locale
+    ) -> [String: String] {
+        var labelsByKey: [String: String] = [:]
+        let speakerTitle = localized("Speaker", locale: locale)
+
+        for segment in segments {
+            let key = LibrarySpeakerColor.canonicalKey(
+                speakerId: segment.speakerId,
+                speakerLabel: segment.speakerLabel
+            )
+            guard labelsByKey[key] == nil else { continue }
+            labelsByKey[key] = "\(speakerTitle) \(labelsByKey.count + 1)"
+        }
+
+        return labelsByKey
+    }
+
     /// Decode diarization once and derive every display projection in a single pass.
     private func refreshDiarizationCache() {
         // Pre-index known profiles so segment label resolution is O(1) per segment.
@@ -462,6 +493,10 @@ struct MediaTranscriptionDetailView: View {
         }
 
         let decoded = record.diarizedSegments
+        let unassignedLabelsByKey = Self.unassignedSpeakerLabels(
+            for: decoded,
+            locale: locale
+        )
 
         var displayed: [DiarizedTranscriptSegment] = []
         displayed.reserveCapacity(decoded.count)
@@ -469,21 +504,25 @@ struct MediaTranscriptionDetailView: View {
         segmentIDs.reserveCapacity(decoded.count)
 
         var seenParticipants = Set<String>()
-        var unnamedCount = 0
         var participants: [(key: String, speakerID: String, label: String)] = []
 
         for (index, segment) in decoded.enumerated() {
+            let key = LibrarySpeakerColor.canonicalKey(
+                speakerId: segment.speakerId,
+                speakerLabel: segment.speakerLabel
+            )
             let assignedProfileName = segment.speakerProfileID.flatMap { profilesByID[$0] }
-            // User renames / optimistic assignments live in speakerLabelsByID;
-            // payload labels stay on the segment when neither is present.
-            let speakerLabel = assignedProfileName ?? speakerLabelsByID[segment.speakerId]
+            // Only a profile assignment (persisted or optimistic) may replace the
+            // deterministic generic label for this speaker.
+            let resolvedSpeakerLabel = assignedProfileName
+                ?? speakerLabelsByID[segment.speakerId]
+                ?? unassignedLabelsByKey[key]
+                ?? localized("Speaker", locale: locale)
             let resolved: DiarizedTranscriptSegment
-            if let speakerLabel,
-               !speakerLabel.isEmpty,
-               speakerLabel != segment.speakerLabel {
+            if resolvedSpeakerLabel != segment.speakerLabel {
                 resolved = DiarizedTranscriptSegment(
                     speakerId: segment.speakerId,
-                    speakerLabel: speakerLabel,
+                    speakerLabel: resolvedSpeakerLabel,
                     speakerProfileID: segment.speakerProfileID,
                     speakerEmbedding: segment.speakerEmbedding,
                     startTime: segment.startTime,
@@ -498,22 +537,12 @@ struct MediaTranscriptionDetailView: View {
             displayed.append(resolved)
             segmentIDs.append("\(resolved.speakerId)-\(index)-\(resolved.startTime)")
 
-            let key = LibrarySpeakerColor.canonicalKey(
-                speakerId: resolved.speakerId,
-                speakerLabel: resolved.speakerLabel
-            )
             if seenParticipants.insert(key).inserted {
-                let label = resolved.speakerLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-                if label.isEmpty {
-                    unnamedCount += 1
-                    participants.append((
-                        key,
-                        resolved.speakerId,
-                        "\(localized("Speaker", locale: locale)) \(unnamedCount)"
-                    ))
-                } else {
-                    participants.append((key, resolved.speakerId, label))
-                }
+                let displayKey = LibrarySpeakerColor.canonicalKey(
+                    speakerId: resolved.speakerId,
+                    speakerLabel: resolved.speakerLabel
+                )
+                participants.append((displayKey, resolved.speakerId, resolved.speakerLabel))
             }
         }
 

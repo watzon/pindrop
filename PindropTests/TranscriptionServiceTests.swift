@@ -420,7 +420,7 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.receivedOptions == [TranscriptionOptions(language: .automatic)])
     }
 
-    @Test func transcribeWithDiarizationEnabledPreservesDiarizerSpeakerLabels() async throws {
+    @Test func transcribeWithDiarizationUsesGenericLabelsForUnassignedSpeakers() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team", "We should ship this today"]
 
@@ -448,9 +448,9 @@ struct TranscriptionServiceTests {
             diarizationEnabled: true
         )
 
-        #expect(output.text == "A: Hello team\nB: We should ship this today")
+        #expect(output.text == "Speaker 1: Hello team\nSpeaker 2: We should ship this today")
         #expect(output.diarizedSegments?.count == 2)
-        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["A", "B"])
+        #expect(output.diarizedSegments?.map(\.speakerLabel) == ["Speaker 1", "Speaker 2"])
         #expect(output.diarizedSegments?.map(\.speakerId) == ["speaker-a", "speaker-b"])
         #expect(output.diarizedSegments?.first?.speakerEmbedding == [0.1, 0.2, 0.3])
         #expect(mockDiarizer.loadModelsCallCount == 1)
@@ -489,7 +489,7 @@ struct TranscriptionServiceTests {
             diarizationEnabled: true
         )
 
-        #expect(identityService.knownSpeakersCallCount == 2)
+        #expect(identityService.knownSpeakersCallCount == 1)
         #expect(mockDiarizer.clearKnownSpeakersCallCount == 1)
         #expect(mockDiarizer.registeredKnownSpeakers == [knownSpeaker])
     }
@@ -845,7 +845,7 @@ struct TranscriptionServiceTests {
             diarizationEnabled: true
         )
 
-        #expect(output.text == "A: Merged speaker text\nC: Second speaker text")
+        #expect(output.text == "Speaker 1: Merged speaker text\nSpeaker 2: Second speaker text")
         #expect(mockEngine.transcribeCallCount == 2)
 
         let diarizedSegments = try #require(output.diarizedSegments, "Expected diarized segments")
@@ -855,7 +855,7 @@ struct TranscriptionServiceTests {
         #expect(abs(diarizedSegments[0].startTime - 0.0) < 0.0001)
         #expect(abs(diarizedSegments[0].endTime - 2.4) < 0.0001)
         #expect(diarizedSegments[1].speakerId == "speaker-c")
-        #expect(diarizedSegments.map(\.speakerLabel) == ["A", "C"])
+        #expect(diarizedSegments.map(\.speakerLabel) == ["Speaker 1", "Speaker 2"])
     }
 
     @Test func transcribeWithDiarizationSplitsLongSegmentsIntoSmallerTimedChunks() async throws {

@@ -197,4 +197,59 @@ struct LibraryPresentationTests {
         #expect(LibraryPlaybackRate.label(for: 1.5) == "1.5×")
         #expect(LibraryPlaybackRate.label(for: 2.0) == "2×")
     }
+
+    // MARK: - Detail layout
+
+    @Test func detailNormalizesLegacyMachineLabelsToNumberedSpeakers() {
+        func segment(id: String, label: String) -> DiarizedTranscriptSegment {
+            DiarizedTranscriptSegment(
+                speakerId: id,
+                speakerLabel: label,
+                startTime: 0,
+                endTime: 1,
+                confidence: 1,
+                text: "Test"
+            )
+        }
+
+        let labels = MediaTranscriptionDetailView.unassignedSpeakerLabels(
+            for: [
+                segment(id: "1", label: "1"),
+                segment(id: "2", label: "2"),
+                segment(id: "1", label: "1"),
+                segment(id: "speaker-7", label: "Speaker 1")
+            ],
+            locale: Locale(identifier: "en")
+        )
+
+        #expect(labels == [
+            "1": "Speaker 1",
+            "2": "Speaker 2",
+            "speaker-7": "Speaker 3"
+        ])
+    }
+
+    @Test func detailMediaColumnKeepsOneThirdOfAvailableWidthAsWindowExpands() {
+        for containerWidth in [960.0, 1_400.0, 2_000.0] {
+            let availableWidth = containerWidth - 80 - 32
+            let mediaWidth = MediaTranscriptionDetailView.wideMediaColumnWidth(
+                for: containerWidth
+            )
+            let transcriptWidth = availableWidth - mediaWidth
+
+            #expect(abs((mediaWidth * 2) - transcriptWidth) < 0.001)
+        }
+    }
+
+    @Test func detailMediaColumnContinuesGrowingBeyondPreviousPageCap() {
+        let widthAtPreviousCap = MediaTranscriptionDetailView.wideMediaColumnWidth(
+            for: 1_400
+        )
+        let widthInLargerWindow = MediaTranscriptionDetailView.wideMediaColumnWidth(
+            for: 2_000
+        )
+
+        #expect(widthInLargerWindow > widthAtPreviousCap)
+    }
+
 }
