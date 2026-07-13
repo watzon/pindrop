@@ -1165,9 +1165,52 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
     
 }
 
+struct CoreAudioInputStreamFormat {
+    let streamID: AudioStreamID
+    let bufferIndex: Int
+    let format: AVAudioFormat
+}
+
+enum CoreAudioInputFormatResolver {
+    static func resolve(
+        streamIDs: [AudioStreamID],
+        descriptionForStream: (AudioStreamID) throws -> AudioStreamBasicDescription
+    ) throws -> CoreAudioInputStreamFormat {
+        guard !streamIDs.isEmpty else {
+            throw AudioRecorderError.engineStartFailed("No microphone input stream is available")
+        }
+
+        var lastError: Error?
+        for (bufferIndex, streamID) in streamIDs.enumerated() {
+            do {
+                var streamDescription = try descriptionForStream(streamID)
+                guard let format = AVAudioFormat(streamDescription: &streamDescription),
+                      format.sampleRate > 0,
+                      format.channelCount > 0 else {
+                    continue
+                }
+                return CoreAudioInputStreamFormat(
+                    streamID: streamID,
+                    bufferIndex: bufferIndex,
+                    format: format
+                )
+            } catch {
+                lastError = error
+            }
+        }
+
+        if let lastError {
+            throw lastError
+        }
+        throw AudioRecorderError.engineStartFailed("Unable to construct microphone input format")
+    }
+}
+
+
 final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     private struct CaptureDevice {
         let deviceID: AudioDeviceID
+        let streamID: AudioStreamID
         let ioProcID: AudioDeviceIOProcID
         let generation: UInt64
     }
@@ -1196,7 +1239,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
     private var suppressConfigurationChangesUntil: Date?
     private var systemDeviceListener: AudioObjectPropertyListenerBlock?
     private var activeDeviceListeners: [
-        (deviceID: AudioDeviceID, address: AudioObjectPropertyAddress, listener: AudioObjectPropertyListenerBlock)
+        (objectID: AudioObjectID, address: AudioObjectPropertyAddress, listener: AudioObjectPropertyListenerBlock)
     ] = []
 
     private(set) var isCapturing = false
@@ -1257,7 +1300,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             }
 
             activateCapture(capture)
-            registerDeviceChangeObservers(for: capture.deviceID)
+            registerDeviceChangeObservers(for: capture)
             suppressConfigurationChanges()
         } catch {
             tearDownActiveCapture(clearCallbacks: true)
@@ -1332,7 +1375,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         onAudioLevel: @escaping (Float) -> Void
     ) throws -> CaptureDevice {
         let deviceID = try resolvedInputDeviceID()
-        let sourceFormat = try inputFormat(for: deviceID)
+        let sourceStream = try inputStream(for: deviceID)
         let generation = reserveCaptureGeneration()
         asrConverter.reset()
         nativeConverter.reset()
@@ -1346,7 +1389,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             self?.handleInput(
                 inputData,
                 generation: generation,
-                sourceFormat: sourceFormat,
+                sourceStream: sourceStream,
                 onBuffer: onBuffer,
                 onAudioLevel: onAudioLevel
             )
@@ -1363,8 +1406,13 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
 
         Log.audio.info("Microphone capture started on input device: \(deviceID)")
-        logStartedCaptureState(deviceID: deviceID, sourceFormat: sourceFormat)
-        return CaptureDevice(deviceID: deviceID, ioProcID: createdIOProcID, generation: generation)
+        logStartedCaptureState(deviceID: deviceID, sourceFormat: sourceStream.format)
+        return CaptureDevice(
+            deviceID: deviceID,
+            streamID: sourceStream.streamID,
+            ioProcID: createdIOProcID,
+            generation: generation
+        )
     }
 
     private func resolvedInputDeviceID() throws -> AudioDeviceID {
@@ -1381,31 +1429,81 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         return deviceID
     }
 
-    private func inputFormat(for deviceID: AudioDeviceID) throws -> AVAudioFormat {
-        var address = AudioObjectPropertyAddress(
-            mSelector: AudioObjectPropertySelector(kAudioDevicePropertyStreamFormat),
-            mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
-            mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
-        )
+    private func inputStream(for deviceID: AudioDeviceID) throws -> CoreAudioInputStreamFormat {
+        let streamIDs = try inputStreamIDs(for: deviceID)
+        return try CoreAudioInputFormatResolver.resolve(streamIDs: streamIDs) { streamID in
+            try virtualFormatDescription(for: streamID)
+        }
+    }
 
+    private func inputStreamIDs(for deviceID: AudioDeviceID) throws -> [AudioStreamID] {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreams,
+            mScope: kAudioDevicePropertyScopeInput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var size: UInt32 = 0
+        var status = AudioObjectGetPropertyDataSize(deviceID, &address, 0, nil, &size)
+        guard status == noErr else {
+            throw AudioRecorderError.engineStartFailed(
+                "Unable to read microphone input streams (\(status))"
+            )
+        }
+
+        let streamCount = Int(size) / MemoryLayout<AudioStreamID>.stride
+        guard streamCount > 0 else {
+            throw AudioRecorderError.engineStartFailed("No microphone input stream is available")
+        }
+
+        var streamIDs = [AudioStreamID](repeating: 0, count: streamCount)
+        status = streamIDs.withUnsafeMutableBytes { buffer in
+            guard let baseAddress = buffer.baseAddress else { return kAudioHardwareUnspecifiedError }
+            return AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, baseAddress)
+        }
+        guard status == noErr else {
+            throw AudioRecorderError.engineStartFailed(
+                "Unable to read microphone input streams (\(status))"
+            )
+        }
+
+        let returnedStreamCount = min(
+            streamIDs.count,
+            Int(size) / MemoryLayout<AudioStreamID>.stride
+        )
+        return Array(streamIDs.prefix(returnedStreamCount))
+    }
+
+    private func virtualFormatDescription(
+        for streamID: AudioStreamID
+    ) throws -> AudioStreamBasicDescription {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioStreamPropertyVirtualFormat,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
         var streamDescription = AudioStreamBasicDescription()
         var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
-        let status = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, &streamDescription)
+        let status = AudioObjectGetPropertyData(
+            streamID,
+            &address,
+            0,
+            nil,
+            &size,
+            &streamDescription
+        )
         guard status == noErr else {
-            throw AudioRecorderError.engineStartFailed("Unable to read microphone input format (\(status))")
+            throw AudioRecorderError.engineStartFailed(
+                "Unable to read microphone input stream format (\(status))"
+            )
         }
-
-        var mutableDescription = streamDescription
-        guard let format = AVAudioFormat(streamDescription: &mutableDescription) else {
-            throw AudioRecorderError.engineStartFailed("Unable to construct microphone input format")
-        }
-        return format
+        return streamDescription
     }
+
 
     private func handleInput(
         _ inputData: UnsafePointer<AudioBufferList>,
         generation: UInt64,
-        sourceFormat: AVAudioFormat,
+        sourceStream: CoreAudioInputStreamFormat,
         onBuffer: @escaping (AVAudioPCMBuffer) -> Void,
         onAudioLevel: @escaping (Float) -> Void
     ) {
@@ -1413,20 +1511,46 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
 
         let mutableBufferList = UnsafeMutablePointer(mutating: inputData)
         let audioBuffersPointer = UnsafeMutableAudioBufferListPointer(mutableBufferList)
-        guard let firstBuffer = audioBuffersPointer.first, firstBuffer.mDataByteSize > 0 else {
+        guard sourceStream.bufferIndex < audioBuffersPointer.count else {
+            requestActiveCaptureFailureFromIOCallback(
+                AudioRecorderError.engineStartFailed("Microphone input stream buffer is unavailable"),
+                generation: generation
+            )
             return
         }
 
-        guard let sourceBuffer = AVAudioPCMBuffer(
-            pcmFormat: sourceFormat,
-            bufferListNoCopy: mutableBufferList,
-            deallocator: nil
-        ) else {
+        let sourceFormat = sourceStream.format
+        let selectedBuffer = audioBuffersPointer[sourceStream.bufferIndex]
+        guard selectedBuffer.mDataByteSize > 0, selectedBuffer.mData != nil else { return }
+        guard selectedBuffer.mNumberChannels == sourceFormat.channelCount else {
+            requestActiveCaptureFailureFromIOCallback(
+                AudioRecorderError.engineStartFailed("Microphone input buffer does not match stream format"),
+                generation: generation
+            )
+            return
+        }
+
+        var selectedBufferList = AudioBufferList(
+            mNumberBuffers: 1,
+            mBuffers: selectedBuffer
+        )
+        let sourceBuffer = withUnsafeMutablePointer(to: &selectedBufferList) { bufferList in
+            AVAudioPCMBuffer(
+                pcmFormat: sourceFormat,
+                bufferListNoCopy: bufferList,
+                deallocator: nil
+            )
+        }
+        guard let sourceBuffer else {
+            requestActiveCaptureFailureFromIOCallback(
+                AudioRecorderError.engineStartFailed("Unable to wrap microphone input buffer"),
+                generation: generation
+            )
             return
         }
 
         let bytesPerFrame = max(Int(sourceFormat.streamDescription.pointee.mBytesPerFrame), 1)
-        sourceBuffer.frameLength = AVAudioFrameCount(Int(firstBuffer.mDataByteSize) / bytesPerFrame)
+        sourceBuffer.frameLength = AVAudioFrameCount(Int(selectedBuffer.mDataByteSize) / bytesPerFrame)
 
         if retainsNativeAudio,
            let nativeFormat = AVAudioFormat(
@@ -1568,7 +1692,7 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             let previous = activeCaptureSnapshot()
             removeActiveDeviceListeners()
             activateCapture(replacement)
-            registerDeviceChangeObservers(for: replacement.deviceID)
+            registerDeviceChangeObservers(for: replacement)
             suppressConfigurationChanges()
 
             if let previous, previous.generation != replacement.generation {
@@ -1707,9 +1831,9 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         }
     }
 
-    private func registerDeviceChangeObservers(for deviceID: AudioDeviceID) {
+    private func registerDeviceChangeObservers(for capture: CaptureDevice) {
         registerSystemDeviceListeners()
-        registerActiveDeviceListeners(for: deviceID)
+        registerActiveDeviceListeners(for: capture)
     }
 
     private func registerSystemDeviceListeners() {
@@ -1781,44 +1905,83 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
         self.systemDeviceListener = nil
     }
 
-    private func registerActiveDeviceListeners(for deviceID: AudioDeviceID) {
+    private func registerActiveDeviceListeners(for capture: CaptureDevice) {
         removeActiveDeviceListeners()
 
         let listener: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
             self?.handleDeviceConfigurationChange(reason: "active input device changed")
         }
 
-        let addresses = [
-            AudioObjectPropertyAddress(
-                mSelector: AudioObjectPropertySelector(kAudioDevicePropertyDeviceIsAlive),
-                mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
-                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+        let properties: [(objectID: AudioObjectID, address: AudioObjectPropertyAddress)] = [
+            (
+                capture.deviceID,
+                AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyDeviceIsAlive,
+                    mScope: kAudioObjectPropertyScopeGlobal,
+                    mElement: kAudioObjectPropertyElementMain
+                )
             ),
-            AudioObjectPropertyAddress(
-                mSelector: AudioObjectPropertySelector(kAudioDevicePropertyStreamFormat),
-                mScope: AudioObjectPropertyScope(kAudioDevicePropertyScopeInput),
-                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+            (
+                capture.deviceID,
+                AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyStreams,
+                    mScope: kAudioDevicePropertyScopeInput,
+                    mElement: kAudioObjectPropertyElementMain
+                )
             ),
-            AudioObjectPropertyAddress(
-                mSelector: AudioObjectPropertySelector(kAudioDevicePropertyNominalSampleRate),
-                mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
-                mElement: AudioObjectPropertyElement(kAudioObjectPropertyElementMain)
+            (
+                capture.deviceID,
+                AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyStreamConfiguration,
+                    mScope: kAudioDevicePropertyScopeInput,
+                    mElement: kAudioObjectPropertyElementMain
+                )
+            ),
+            (
+                capture.deviceID,
+                AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyNominalSampleRate,
+                    mScope: kAudioObjectPropertyScopeGlobal,
+                    mElement: kAudioObjectPropertyElementMain
+                )
+            ),
+            (
+                capture.streamID,
+                AudioObjectPropertyAddress(
+                    mSelector: kAudioStreamPropertyVirtualFormat,
+                    mScope: kAudioObjectPropertyScopeGlobal,
+                    mElement: kAudioObjectPropertyElementMain
+                )
             )
         ]
 
-        for var address in addresses {
-            AudioObjectAddPropertyListenerBlock(deviceID, &address, DispatchQueue.main, listener)
-            activeDeviceListeners.append((deviceID: deviceID, address: address, listener: listener))
+        for property in properties {
+            var address = property.address
+            AudioObjectAddPropertyListenerBlock(
+                property.objectID,
+                &address,
+                DispatchQueue.main,
+                listener
+            )
+            activeDeviceListeners.append(
+                (objectID: property.objectID, address: address, listener: listener)
+            )
         }
     }
 
     private func removeActiveDeviceListeners() {
         for entry in activeDeviceListeners {
             var address = entry.address
-            AudioObjectRemovePropertyListenerBlock(entry.deviceID, &address, DispatchQueue.main, entry.listener)
+            AudioObjectRemovePropertyListenerBlock(
+                entry.objectID,
+                &address,
+                DispatchQueue.main,
+                entry.listener
+            )
         }
         activeDeviceListeners.removeAll()
     }
+
 
     private func logStartedCaptureState(deviceID: AudioDeviceID, sourceFormat: AVAudioFormat) {
         let nominalSampleRate = AudioDeviceManager.nominalSampleRate(deviceID)

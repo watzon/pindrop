@@ -585,6 +585,68 @@ struct AudioRecorderTests {
         #expect(deliveryOrder.suffix(2).elementsEqual(["level", "bands"]))
     }
 
+    @Test func coreAudioInputFormatUsesInputStreamVirtualFormat() throws {
+        let expectedStreamID = AudioStreamID(42)
+        var requestedStreamID: AudioStreamID?
+
+        let sourceStream = try CoreAudioInputFormatResolver.resolve(
+            streamIDs: [expectedStreamID]
+        ) { streamID in
+            requestedStreamID = streamID
+            return Self.makeFloatStreamDescription(sampleRate: 48_000)
+        }
+
+        #expect(requestedStreamID == expectedStreamID)
+        #expect(sourceStream.streamID == expectedStreamID)
+        #expect(sourceStream.bufferIndex == 0)
+        #expect(sourceStream.format.sampleRate == 48_000)
+        #expect(sourceStream.format.channelCount == 1)
+    }
+
+    @Test func coreAudioInputFormatTracksSelectedStreamBufferIndex() throws {
+        let sourceStream = try CoreAudioInputFormatResolver.resolve(
+            streamIDs: [AudioStreamID(10), AudioStreamID(20)]
+        ) { streamID in
+            if streamID == 10 {
+                return AudioStreamBasicDescription()
+            }
+            return Self.makeFloatStreamDescription(sampleRate: 44_100)
+        }
+
+        #expect(sourceStream.streamID == 20)
+        #expect(sourceStream.bufferIndex == 1)
+        #expect(sourceStream.format.sampleRate == 44_100)
+    }
+
+    @Test func coreAudioInputFormatRejectsMissingInputStreams() {
+        do {
+            _ = try CoreAudioInputFormatResolver.resolve(streamIDs: []) { _ in
+                AudioStreamBasicDescription()
+            }
+            Issue.record("Expected missing input streams to fail")
+        } catch AudioRecorderError.engineStartFailed(let message) {
+            #expect(message == "No microphone input stream is available")
+        } catch {
+            Issue.record("Unexpected error: \(error.localizedDescription)")
+        }
+    }
+
+    private static func makeFloatStreamDescription(
+        sampleRate: Double
+    ) -> AudioStreamBasicDescription {
+        AudioStreamBasicDescription(
+            mSampleRate: sampleRate,
+            mFormatID: kAudioFormatLinearPCM,
+            mFormatFlags: kLinearPCMFormatFlagIsFloat | kAudioFormatFlagIsPacked,
+            mBytesPerPacket: 4,
+            mFramesPerPacket: 1,
+            mBytesPerFrame: 4,
+            mChannelsPerFrame: 1,
+            mBitsPerChannel: 32,
+            mReserved: 0
+        )
+    }
+
 }
 
 /// Backend that blocks inside `stopCapture` so stop finalization can be observed
