@@ -12,6 +12,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         case processing
     }
 
+    struct PromptPresetOption {
+        let id: String
+        let assignmentID: String
+        let name: String
+    }
+
     private var statusItem: NSStatusItem?
     private let menu = NSMenu()
 
@@ -33,6 +39,10 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private var openHistoryItem: NSMenuItem?
 
+    private var promptPresetMenuItem: NSMenuItem?
+    private var promptPresetMenu: NSMenu?
+    private var promptPresetOptions: [PromptPresetOption] = []
+
     private var welcomePopover: NSPopover?
 
     // MARK: - Callbacks
@@ -46,7 +56,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     var onCancelOperation: (() async -> Void)?
     var onOpenHistory: (() -> Void)?
     var onOpenSettings: ((SettingsTab) -> Void)?
-    var onMenuWillOpen: (() async -> Void)?
+    var onSelectPromptPreset: ((PromptPresetOption) -> Void)?
+    var onMenuWillOpen: (() -> Void)?
 
     // Recent transcripts for submenu
     private(set) var recentTranscripts: [(id: UUID, text: String, timestamp: Date)] = []
@@ -237,6 +248,23 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
+        // === PROMPT PRESET ===
+        promptPresetMenu = NSMenu()
+        promptPresetMenuItem = NSMenuItem(
+            title: localized("Prompt Preset", locale: locale),
+            action: nil,
+            keyEquivalent: ""
+        )
+        promptPresetMenuItem?.submenu = promptPresetMenu
+        promptPresetMenuItem?.image = NSImage(
+            systemSymbolName: "text.bubble",
+            accessibilityDescription: nil
+        )
+        menu.addItem(promptPresetMenuItem!)
+        rebuildPromptPresetMenu()
+
+        menu.addItem(NSMenuItem.separator())
+
         // === OPEN HISTORY / SHOW APP ===
         openHistoryItem = NSMenuItem(
             title: localized("Open Library", locale: locale),
@@ -336,6 +364,55 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    func updatePromptPresets(_ presets: [PromptPresetOption]) {
+        promptPresetOptions = presets
+        rebuildPromptPresetMenu()
+    }
+
+    private func rebuildPromptPresetMenu() {
+        guard let promptPresetMenu else { return }
+
+        promptPresetMenu.removeAllItems()
+
+        for option in promptPresetOptions {
+            let item = NSMenuItem(
+                title: option.name,
+                action: #selector(selectPromptPreset(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.identifier = NSUserInterfaceItemIdentifier("preset_\(option.id)")
+            item.representedObject = option
+            promptPresetMenu.addItem(item)
+        }
+
+        updatePromptPresetItems()
+        applyInterfaceLayoutDirection(to: promptPresetMenu, locale: locale)
+    }
+
+    private func updatePromptPresetItems() {
+        let assignment = settingsStore.assignment(for: .transcriptionEnhancement)
+        let activePresetID = assignment?.promptOverride == nil
+            ? assignment?.promptPresetID
+            : nil
+
+        promptPresetMenuItem?.isEnabled = assignment != nil && !promptPresetOptions.isEmpty
+
+        for item in promptPresetMenu?.items ?? [] {
+            guard let option = item.representedObject as? PromptPresetOption else { continue }
+            item.isEnabled = assignment != nil
+            item.state = option.assignmentID == activePresetID ? .on : .off
+        }
+    }
+
+    func promptPresetMenuForTesting() -> NSMenu? {
+        promptPresetMenu
+    }
+
+    func promptPresetMenuItemForTesting() -> NSMenuItem? {
+        promptPresetMenuItem
+    }
+
     /// Cached short-time formatter for the active app locale.
     private func recentTranscriptFormatter() -> DateFormatter {
         let currentLocale = locale
@@ -354,6 +431,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     func updateDynamicItems() {
         updateStatusRow()
+        updatePromptPresetItems()
     }
 
     private func startInputDeviceCacheObservation() {
@@ -485,6 +563,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    @objc private func selectPromptPreset(_ sender: NSMenuItem) {
+        guard let option = sender.representedObject as? PromptPresetOption else { return }
+        onSelectPromptPreset?(option)
+        updatePromptPresetItems()
+    }
+
     @objc private func openHistory() {
         onOpenHistory?()
     }
@@ -504,10 +588,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         guard menu === self.menu else { return }
 
-        Task { @MainActor in
-            await onMenuWillOpen?()
-            updateDynamicItems()
-        }
+        onMenuWillOpen?()
+        updateDynamicItems()
     }
 
     private var cachedBaseIcon: NSImage?

@@ -87,6 +87,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */; };
 		AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */; };
 		AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */; };
+		STATUSMENUTESTBUILD01A2B3 /* StatusBarControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STATUSMENUTESTFILE01A2B3 /* StatusBarControllerTests.swift */; };
 		MUTEMONTESTBUILD01A2B3C4D5 /* InputMuteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */; };
 		PERFREGTESTBUILD01A2B3C4D5 /* PerformanceRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PERFREGTESTFILE01A2B3C4D5 /* PerformanceRegressionTests.swift */; };
 		MEETMETABUILDTEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */; };
@@ -369,6 +370,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitor.swift; sourceTree = "<group>"; };
 		AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIEnhancementAdapter.swift"; sourceTree = "<group>"; };
 		AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementAdapterTests.swift; sourceTree = "<group>"; };
+		STATUSMENUTESTFILE01A2B3 /* StatusBarControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarControllerTests.swift; sourceTree = "<group>"; };
 		MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitorTests.swift; sourceTree = "<group>"; };
 		PERFREGTESTFILE01A2B3C4D5 /* PerformanceRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceRegressionTests.swift; sourceTree = "<group>"; };
 		MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionRecordMetadataTests.swift; sourceTree = "<group>"; };
@@ -894,6 +896,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
 				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
 				AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */,
+				STATUSMENUTESTFILE01A2B3 /* StatusBarControllerTests.swift */,
 				MUTEMONTESTFILE01A2B3C4D5 /* InputMuteMonitorTests.swift */,
 				PERFREGTESTFILE01A2B3C4D5 /* PerformanceRegressionTests.swift */,
 				MEETMETAFILETEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift */,
@@ -1293,6 +1296,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
 				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
 				AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */,
+				STATUSMENUTESTBUILD01A2B3 /* StatusBarControllerTests.swift in Sources */,
 				MUTEMONTESTBUILD01A2B3C4D5 /* InputMuteMonitorTests.swift in Sources */,
 				PERFREGTESTBUILD01A2B3C4D5 /* PerformanceRegressionTests.swift in Sources */,
 				MEETMETABUILDTEST01A2B3C4 /* TranscriptionRecordMetadataTests.swift in Sources */,

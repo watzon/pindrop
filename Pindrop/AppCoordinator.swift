@@ -688,6 +688,10 @@ final class AppCoordinator {
             await self?.handleCancelOperation()
         }
 
+        self.statusBarController.onSelectPromptPreset = { [weak self] option in
+            self?.handleSelectPromptPreset(option)
+        }
+
         self.statusBarController.onOpenHistory = { [weak self] in
             self?.handleOpenHistory()
         }
@@ -696,10 +700,9 @@ final class AppCoordinator {
             self?.handleShowApp()
         }
 
-        // No-op: the pruned status menu has no dynamic content left that needs a
-        // refresh hook when the menu opens (StatusBarController.updateDynamicItems()
-        // already runs unconditionally on menuWillOpen).
-        self.statusBarController.onMenuWillOpen = {}
+        self.statusBarController.onMenuWillOpen = { [weak self] in
+            self?.refreshStatusBarPresets()
+        }
 
         self.statusBarController.onOpenSettings = { [weak self] tab in
             self?.settingsWindowController.show(tab: tab)
@@ -891,6 +894,7 @@ final class AppCoordinator {
 
         Log.boot.info("Taking normal startup path: seed presets, splash, startNormalOperation")
         seedBuiltInPresetsIfNeeded()
+        refreshStatusBarPresets()
 
         let shouldOrderMainWindowFront = StartupWindowPresentationPolicy.shouldOrderMainWindowFront(
             for: .init(
@@ -972,6 +976,7 @@ final class AppCoordinator {
     private func finishPostOnboardingSetup() async {
         Log.boot.info("finishPostOnboardingSetup begin")
         seedBuiltInPresetsIfNeeded()
+        refreshStatusBarPresets()
         registerHotkeysFromSettings()
 
         ensureAccessibilityPermissionForDirectInsert(trigger: "post-onboarding", showFallbackAlert: false)
@@ -988,6 +993,23 @@ final class AppCoordinator {
         }
 
         applyDefaultPromptPresetIfNeeded()
+    }
+
+    private func refreshStatusBarPresets() {
+        do {
+            let presets = try promptPresetStore.fetchAll()
+            let options = presets.map {
+                StatusBarController.PromptPresetOption(
+                    id: $0.id.uuidString,
+                    assignmentID: $0.builtInIdentifier ?? $0.id.uuidString,
+                    name: $0.name
+                )
+            }
+            statusBarController.updatePromptPresets(options)
+        } catch {
+            statusBarController.updatePromptPresets([])
+            Log.app.error("Failed to refresh status bar presets: \(error)")
+        }
     }
 
     /// One-shot migration: select the "Clean Transcript" built-in preset as the
@@ -5329,28 +5351,28 @@ final class AppCoordinator {
 
     // MARK: - Select Prompt Preset
 
-    private func handleSelectPromptPreset(_ presetId: String?) {
-        settingsStore.selectedPresetId = presetId
-
-        if let presetId = presetId,
-           let presetUUID = UUID(uuidString: presetId),
-           let allPresets = try? promptPresetStore.fetchAll(),
-           let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-            // Update the transcriptionEnhancement assignment's prompt metadata so the
-            // v2 resolver returns the newly-selected preset on the next call. We store
-            // the built-in identifier as the preset ID (when available) and clear any
-            // override so the preset text is used verbatim.
-            if var assignment = settingsStore.assignment(for: .transcriptionEnhancement) {
-                assignment.promptPresetID =
-                    selectedPreset.builtInIdentifier ?? presetUUID.uuidString
-                assignment.promptOverride = nil
-                settingsStore.setAssignment(assignment, for: .transcriptionEnhancement)
-            }
-            Log.app.info("Prompt preset changed to: \(selectedPreset.name)")
-        } else {
-            Log.app.info("Prompt preset changed to: Custom")
+    static func applyPromptPresetSelection(
+        _ option: StatusBarController.PromptPresetOption,
+        to settingsStore: SettingsStore
+    ) -> Bool {
+        guard settingsStore.assignment(for: .transcriptionEnhancement) != nil else {
+            return false
         }
 
+        // The legacy pointer stores the SwiftData row UUID, while v2 assignments use
+        // stable built-in identifiers when available.
+        settingsStore.enhanceTranscriptsPresetID = option.assignmentID
+        settingsStore.selectedPresetId = option.id
+        return true
+    }
+
+    private func handleSelectPromptPreset(_ option: StatusBarController.PromptPresetOption) {
+        guard Self.applyPromptPresetSelection(option, to: settingsStore) else {
+            Log.app.warning("Ignored prompt preset selection while AI enhancement is disabled")
+            return
+        }
+
+        Log.app.info("Prompt preset changed to: \(option.name)")
         statusBarController.updateDynamicItems()
     }
 
