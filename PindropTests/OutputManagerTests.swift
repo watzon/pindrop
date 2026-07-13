@@ -59,10 +59,14 @@ final class MockClipboard: ClipboardProtocol {
 final class MockKeySimulation: KeySimulationProtocol {
     var pasteSimulated = false
     var simulatePasteCallCount = 0
-    /// When set, `simulatePaste()` throws — exercises the copy-only fallback paths.
+    var lastAllowSystemEventsFallback: Bool?
+    var allowSystemEventsFallbackHistory: [Bool] = []
+    /// When set, `simulatePaste` throws — exercises the copy-only fallback paths.
     var pasteError: Error?
 
-    func simulatePaste() async throws {
+    func simulatePaste(allowSystemEventsFallback: Bool) async throws {
+        lastAllowSystemEventsFallback = allowSystemEventsFallback
+        allowSystemEventsFallbackHistory.append(allowSystemEventsFallback)
         if let pasteError {
             throw pasteError
         }
@@ -77,7 +81,8 @@ struct OutputManagerTests {
     private func makeSUT(
         outputMode: OutputMode = .clipboard,
         accessibilityPermissionChecker: @escaping () -> Bool = { true },
-        frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { nil }
+        frontmostApplicationProvider: @escaping () -> NSRunningApplication? = { nil },
+        virtualMachineHostChecker: @escaping (String?) -> Bool = { VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: $0) }
     ) -> (outputManager: OutputManager, mockClipboard: MockClipboard, mockKeySimulation: MockKeySimulation) {
         let mockClipboard = MockClipboard()
         let mockKeySimulation = MockKeySimulation()
@@ -86,7 +91,8 @@ struct OutputManagerTests {
             clipboard: mockClipboard,
             keySimulation: mockKeySimulation,
             accessibilityPermissionChecker: accessibilityPermissionChecker,
-            frontmostApplicationProvider: frontmostApplicationProvider
+            frontmostApplicationProvider: frontmostApplicationProvider,
+            virtualMachineHostChecker: virtualMachineHostChecker
         )
         return (outputManager, mockClipboard, mockKeySimulation)
     }
@@ -292,6 +298,7 @@ struct OutputManagerTests {
 
         #expect(mockKeySimulation.pasteSimulated)
         #expect(mockKeySimulation.simulatePasteCallCount == 1)
+        #expect(mockKeySimulation.lastAllowSystemEventsFallback == true)
     }
 
     @Test func systemKeySimulationPostsPhysicalCommandAroundPasteShortcut() async throws {
@@ -341,9 +348,140 @@ struct OutputManagerTests {
 
         try await sut.simulatePaste()
 
+        // Command-down fails → no stuck-modifier cleanup needed; System Events fallback runs.
         #expect(postedEvents == [
             KeySimulationEvent(virtualKey: 0x37, keyDown: true, flags: .maskCommand),
         ])
         #expect(systemEventsFallbackCalled)
+    }
+
+    @Test func systemKeySimulationReleasesCommandWhenLaterEventCreationFails() async throws {
+        var postedEvents: [KeySimulationEvent] = []
+        var systemEventsFallbackCalled = false
+        let sut = SystemKeySimulation(
+            pasteScriptRunner: {
+                systemEventsFallbackCalled = true
+                return false
+            },
+            keyEventPoster: { _, event in
+                postedEvents.append(event)
+                // Succeed Command-down, fail V-down so defer must emit Command-up.
+                if event.virtualKey == 0x09 && event.keyDown {
+                    return false
+                }
+                return true
+            },
+            sleeper: { _ in }
+        )
+
+        await #expect(throws: OutputManagerError.textInsertionFailed) {
+            try await sut.simulatePaste(allowSystemEventsFallback: false)
+        }
+
+        #expect(postedEvents == [
+            KeySimulationEvent(virtualKey: 0x37, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: 0x09, keyDown: true, flags: .maskCommand),
+            KeySimulationEvent(virtualKey: 0x37, keyDown: false, flags: []),
+        ])
+        #expect(systemEventsFallbackCalled == false)
+    }
+
+    @Test func systemKeySimulationSkipsSystemEventsFallbackWhenDisabled() async throws {
+        var systemEventsFallbackCalled = false
+        let sut = SystemKeySimulation(
+            pasteScriptRunner: {
+                systemEventsFallbackCalled = true
+                return true
+            },
+            keyEventPoster: { _, _ in false },
+            sleeper: { _ in }
+        )
+
+        await #expect(throws: OutputManagerError.textInsertionFailed) {
+            try await sut.simulatePaste(allowSystemEventsFallback: false)
+        }
+        #expect(systemEventsFallbackCalled == false)
+    }
+
+    @Test func nativeDirectInsertAllowsSystemEventsFallback() async throws {
+        let fixture = makeSUT(
+            outputMode: .directInsert,
+            virtualMachineHostChecker: { _ in false }
+        )
+
+        let result = try await fixture.outputManager.output("Native app text")
+
+        #expect(result.kind == .pasted)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockKeySimulation.lastAllowSystemEventsFallback == true)
+    }
+
+    @Test func knownVMDirectInsertUsesClipboardPasteWithoutSystemEventsFallback() async throws {
+        let fixture = makeSUT(
+            outputMode: .directInsert,
+            virtualMachineHostChecker: { _ in true }
+        )
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        let result = try await fixture.outputManager.output("Hello from VM")
+
+        #expect(result.kind == .pasted)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockKeySimulation.lastAllowSystemEventsFallback == false)
+        #expect(fixture.mockClipboard.restoreCount == 1)
+        #expect(fixture.mockClipboard.clipboardContent == "previous")
+    }
+
+    @Test func knownVMClipboardModeDisablesSystemEventsFallback() async throws {
+        let fixture = makeSUT(
+            outputMode: .clipboard,
+            virtualMachineHostChecker: { _ in true }
+        )
+
+        let result = try await fixture.outputManager.output("Clipboard into VM")
+
+        #expect(result.kind == .pasted)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockKeySimulation.lastAllowSystemEventsFallback == false)
+    }
+
+    @Test func virtualMachineHostDetectorRecognizesKnownHosts() {
+        let known = [
+            "com.vmware.fusion",
+            "com.vmware.vmware-vmx",
+            "com.parallels.desktop.console",
+            "org.virtualbox.app.VirtualBox",
+            "org.virtualbox.app.VirtualBoxVM",
+            "codes.rambo.VirtualBuddy",
+            // Case / whitespace normalization
+            " COM.VMWARE.FUSION ",
+            // Vendor helper prefix
+            "com.vmware.fusion.helper",
+        ]
+
+        for bundleID in known {
+            #expect(
+                VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: bundleID),
+                "Expected VM host for \(bundleID)"
+            )
+        }
+    }
+
+    @Test func virtualMachineHostDetectorRejectsNativeApps() {
+        let native = [
+            "com.apple.TextEdit",
+            "com.microsoft.VSCode",
+            "com.todesktop.230313mzl4w4u92",
+            "",
+            "   ",
+        ]
+
+        for bundleID in native {
+            #expect(
+                VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: bundleID) == false,
+                "Expected non-VM for \(bundleID)"
+            )
+        }
+        #expect(VirtualMachineHostDetector.isVirtualMachineHost(bundleIdentifier: nil) == false)
     }
 }
