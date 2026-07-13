@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "將其加入專案根目錄的 opencode.json，以取得專案級存取。"
   to_existing: "新增到現有"
   trailing_space: "新增尾隨空格"
+  blank_lines_between_sentence_groups_in_longe: "在較長聽寫中於句組之間加入空行。完全本地處理，不使用 AI。"
   word_replacements_to_automatically_correct_c: "新增詞彙替換以自動糾正常見的轉錄錯誤。"
   words_to_help_pindrop_recognize_them_properl: "新增詞彙以幫助 Pindrop 正確識別它們"
   words_you_manually_correct_into_your_vocabul: "將您手動更正的詞彙新增到詞彙表中，以供將來的轉錄使用。"
@@ -520,6 +521,8 @@ input:
   device: "輸入裝置"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "插入段落分隔"
 interface:
   _self: "介面"
   language: "介面語言"

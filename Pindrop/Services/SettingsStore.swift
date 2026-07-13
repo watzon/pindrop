@@ -281,6 +281,8 @@ final class SettingsStore: ObservableObject {
       static let sidebarPosition = SidebarPosition.trailing.rawValue
       static let dictationAudioRetention = DictationAudioRetention.days7.rawValue
       static let automaticDictionaryLearningEnabled = true
+      static let programmaticFormattingEnabled = false
+
       static let selectedInputDeviceUID = ""
       static let aiModel = "openai/gpt-4o-mini"
       static let aiEnhancementPrompt =
@@ -434,6 +436,10 @@ final class SettingsStore: ObservableObject {
       false
    @AppStorage("addTrailingSpace", store: SettingsStoreRuntime.appStorageStore)
    var addTrailingSpace: Bool = true
+   /// When enabled, long dictation gets blank-line paragraph breaks via a local
+   /// deterministic formatter before paste/persist. Default OFF preserves prior behavior.
+   @AppStorage("programmaticFormattingEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var programmaticFormattingEnabled: Bool = Defaults.programmaticFormattingEnabled
    @AppStorage("pauseMediaOnRecording", store: SettingsStoreRuntime.appStorageStore)
    var pauseMediaOnRecording: Bool = false
    @AppStorage("muteAudioDuringRecording", store: SettingsStoreRuntime.appStorageStore)
@@ -1056,6 +1062,7 @@ final class SettingsStore: ObservableObject {
       openLibraryHotkeyCode = Defaults.Hotkeys.openLibraryHotkeyCode
       openLibraryHotkeyModifiers = Defaults.Hotkeys.openLibraryHotkeyModifiers
       outputMode = Defaults.outputMode
+      programmaticFormattingEnabled = Defaults.programmaticFormattingEnabled
       selectedAppLocaleRawValue = Defaults.selectedAppLocale
       selectedLanguage = Defaults.selectedLanguage
       selectedInputDeviceUID = Defaults.selectedInputDeviceUID

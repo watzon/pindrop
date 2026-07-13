@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Dodaj to do opencode.json w katalogu głównym projektu, aby uzyskać dostęp w tym projekcie."
   to_existing: "Dodaj do istniejących"
   trailing_space: "Dodaj spację końcową"
+  blank_lines_between_sentence_groups_in_longe: "Dodaje puste linie między grupami zdań w dłuższych dyktandach. W pełni lokalnie, bez AI."
   word_replacements_to_automatically_correct_c: "Dodaj zamienniki słów, aby automatycznie poprawiać typowe błędy w transkrypcji."
   words_to_help_pindrop_recognize_them_properl: "Dodaj słowa, aby Pindrop mógł je poprawnie rozpoznać"
   words_you_manually_correct_into_your_vocabul: "Dodaj słowa, które ręcznie poprawiłeś, do swojego słownictwa na potrzeby przyszłych transkrypcji."
@@ -529,6 +530,8 @@ input:
   device: "Urządzenie wejściowe"
 inserted:
   into_d_words: "Wstawiono do %@ · liczba słów: %d"
+insert:
+  paragraph_breaks: "Wstaw podziały akapitów"
 interface:
   _self: "Interfejs"
   language: "Język interfejsu"

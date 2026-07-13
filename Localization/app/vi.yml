@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Thêm vào hiện có"
   trailing_space: "Thêm dấu cách"
+  blank_lines_between_sentence_groups_in_longe: "Thêm dòng trống giữa các nhóm câu trong đoạn chính tả dài. Hoàn toàn cục bộ, không dùng AI."
   word_replacements_to_automatically_correct_c: "Thêm từ thay thế để tự động sửa các lỗi phiên âm phổ biến."
   words_to_help_pindrop_recognize_them_properl: "Thêm từ để giúp Pindrop nhận biết chúng đúng cách"
   words_you_manually_correct_into_your_vocabul: "Thêm các từ bạn sửa theo cách thủ công vào từ vựng của mình để phiên âm trong tương lai."
@@ -520,6 +521,8 @@ input:
   device: "Thiết bị đầu vào"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Chèn ngắt đoạn"
 interface:
   _self: "Giao diện"
   language: "Ngôn ngữ giao diện"

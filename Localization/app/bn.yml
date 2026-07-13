@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "বিদ্যমান এ যোগ করুন"
   trailing_space: "পিছনের স্থান যোগ করুন"
+  blank_lines_between_sentence_groups_in_longe: "দীর্ঘ ডিকটেশনে বাক্যগোষ্ঠীর মাঝে ফাঁকা লাইন যোগ করে। সম্পূর্ণ স্থানীয়, AI ছাড়া।"
   word_replacements_to_automatically_correct_c: "স্বয়ংক্রিয়ভাবে সাধারণ ট্রান্সক্রিপশন ত্রুটি সংশোধন করতে শব্দ প্রতিস্থাপন যোগ করুন।"
   words_to_help_pindrop_recognize_them_properl: "Pindrop তাদের সঠিকভাবে চিনতে সাহায্য করার জন্য শব্দ যোগ করুন"
   words_you_manually_correct_into_your_vocabul: "ভবিষ্যত ট্রান্সক্রিপশনের জন্য আপনার শব্দভান্ডারে ম্যানুয়ালি ঠিক করা শব্দ যোগ করুন।"
@@ -520,6 +521,8 @@ input:
   device: "ইনপুট ডিভাইস"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "অনুচ্ছেদ বিভাজন ঢোকান"
 interface:
   _self: "ইন্টারফেস"
   language: "ইন্টারফেস ভাষা"

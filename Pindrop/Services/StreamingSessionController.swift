@@ -381,6 +381,14 @@ final class StreamingSessionController {
             }
         }
 
+        // Optional local paragraph formatting for long dictation. Runs once after any
+        // enhancement and before paste/persist so history and clipboard share the result.
+        textAfterReplacements = ProgrammaticTranscriptFormatter.formatIfEnabled(
+            textAfterReplacements,
+            enabled: settingsStore.programmaticFormattingEnabled
+        )
+        textAfterReplacements = normalizeText(textAfterReplacements)
+
         var outputSucceeded = false
         var outputResult: OutputManager.OutputResult?
         do {
