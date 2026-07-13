@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Luncurkan saat login"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Jalankan saat login"
+  without_showing_window: "Luncurkan tanpa menampilkan jendela"
 layout:
   _self: "Tata Letak"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Mulai merekam untuk melihat transkripsi Anda di sini"
   stop_recording: "Memulai/menghentikan perekaman"
   using_pindrop: "Mulai Menggunakan Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Mulai di bilah menu tanpa membuka jendela utama. Anda masih dapat membukanya dari ikon bilah menu."
 stats:
   _self: "Stats"
 status:

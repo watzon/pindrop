@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "เปิดตัวเมื่อเข้าสู่ระบบ"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "เปิดเมื่อเข้าสู่ระบบ"
+  without_showing_window: "เปิดใช้งานโดยไม่แสดงหน้าต่าง"
 layout:
   _self: "เค้าโครง"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "เริ่มบันทึกเพื่อดูการถอดเสียงของคุณที่นี่"
   stop_recording: "เริ่ม/หยุดการบันทึก"
   using_pindrop: "เริ่มใช้ Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "เริ่มในแถบเมนูโดยไม่เปิดหน้าต่างหลัก คุณยังสามารถเปิดได้จากไอคอนแถบเมนู"
 stats:
   _self: "Stats"
 status:

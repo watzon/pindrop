@@ -817,6 +817,8 @@ final class MainWindowController {
             )
             window.center()
             window.isReleasedWhenClosed = false
+            // Menu-bar app owns presentation; do not let AppKit restore this window.
+            window.isRestorable = false
             PindropThemeController.shared.apply(to: window)
             applyInterfaceLayoutDirection(to: window, locale: settingsStore.selectedAppLocale.locale)
 

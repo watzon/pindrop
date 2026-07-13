@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Start ved login"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Start ved login"
+  without_showing_window: "Start uden at vise vindue"
 layout:
   _self: "Layout"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Begynd at optage for at se dine transskriptioner her"
   stop_recording: "Start/stop optagelse"
   using_pindrop: "Begynd at bruge Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Start i menulinjen uden at åbne hovedvinduet. Du kan stadig åbne det fra menulinjeikonet."
 stats:
   _self: "Stats"
 status:

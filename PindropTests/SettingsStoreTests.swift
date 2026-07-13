@@ -184,6 +184,23 @@ struct SettingsStoreTests {
         #expect(store.floatingIndicatorType == FloatingIndicatorType.orb.rawValue)
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)
+        #expect(!store.launchWithoutShowingWindow)
+    }
+
+    @Test func testLaunchWithoutShowingWindowDefaultsOffAndPersists() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        #expect(!settingsStore.launchWithoutShowingWindow)
+
+        settingsStore.launchWithoutShowingWindow = true
+        #expect(settingsStore.launchWithoutShowingWindow)
+
+        let reloaded = SettingsStore()
+        #expect(reloaded.launchWithoutShowingWindow)
+
+        settingsStore.resetAllSettings()
+        #expect(!settingsStore.launchWithoutShowingWindow)
     }
 
     @Test func testThemeModeBridgesStoredValue() {

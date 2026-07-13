@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Käynnistä sisäänkirjautumisen yhteydessä"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Käynnistä kirjautuessa"
+  without_showing_window: "Käynnistä näyttämättä ikkunaa"
 layout:
   _self: "Layout"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Aloita nauhoitus nähdäksesi transkriptiosi tästä"
   stop_recording: "Aloita/lopeta tallennus"
   using_pindrop: "Aloita Pindropin käyttö"
+  in_the_menu_bar_without_opening_the_main_w: "Käynnistä valikkoriville avaamatta pääikkunaa. Voit silti avata sen valikkorivin kuvakkeesta."
 stats:
   _self: "Stats"
 status:

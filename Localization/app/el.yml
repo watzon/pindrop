@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Εκκίνηση κατά τη σύνδεση"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Εκκίνηση στη σύνδεση"
+  without_showing_window: "Εκκίνηση χωρίς εμφάνιση παραθύρου"
 layout:
   _self: "Σχέδιο"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Ξεκινήστε την εγγραφή για να δείτε τις μεταγραφές σας εδώ"
   stop_recording: "Έναρξη/διακοπή εγγραφής"
   using_pindrop: "Ξεκινήστε να χρησιμοποιείτε το Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Έναρξη στη γραμμή μενού χωρίς άνοιγμα του κύριου παραθύρου. Μπορείτε να το ανοίξετε αργότερα από το εικονίδιο της γραμμής μενού."
 stats:
   _self: "Stats"
 status:

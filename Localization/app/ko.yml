@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "로그인 시 실행"
   at_login_could_not_be_changed: "「로그인 시 실행」을 변경할 수 없습니다"
   at_login_fd1a3b7b: "로그인 시 실행"
+  without_showing_window: "창을 표시하지 않고 실행"
 layout:
   _self: "레이아웃"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "여기에서 스크립트를 보려면 녹음을 시작하세요."
   stop_recording: "녹음 시작/중지"
   using_pindrop: "Pindrop 사용 시작"
+  in_the_menu_bar_without_opening_the_main_w: "메인 창을 열지 않고 메뉴 막대에서 시작합니다. 메뉴 막대 아이콘으로 나중에 열 수 있습니다."
 stats:
   _self: "Stats"
 status:

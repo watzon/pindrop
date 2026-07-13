@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Giriş sırasında başlat"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Oturum açılışında başlat"
+  without_showing_window: "Pencere göstermeden başlat"
 layout:
   _self: "Düzen"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Çeviri yazılarınızı burada görmek için kaydetmeye başlayın"
   stop_recording: "Kaydı başlat/durdur"
   using_pindrop: "Pindrop'u Kullanmaya Başlayın"
+  in_the_menu_bar_without_opening_the_main_w: "Ana pencereyi açmadan menü çubuğunda başlat. Menü çubuğu simgesinden daha sonra da açabilirsiniz."
 stats:
   _self: "Stats"
 status:

@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Spusťte při přihlášení"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Spustit při přihlášení"
+  without_showing_window: "Spustit bez zobrazení okna"
 layout:
   _self: "Rozložení"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Chcete-li zde vidět své přepisy, spusťte nahrávání"
   stop_recording: "Spuštění/zastavení nahrávání"
   using_pindrop: "Začněte používat Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Spustit v řádku nabídek bez otevření hlavního okna. Okno stále můžete otevřít z ikony v řádku nabídek."
 stats:
   _self: "Stats"
 status:

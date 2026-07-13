@@ -32,6 +32,19 @@ struct GeneralSettingsView: View {
                 }
 
                 SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(
+                        title: localized("Launch without showing window", locale: locale),
+                        subtitle: localized("Start in the menu bar without opening the main window. You can still open it from the menu bar icon.", locale: locale)
+                    )
+                } control: {
+                    SettingsToggle(
+                        isOn: $settings.launchWithoutShowingWindow,
+                        label: localized("Launch without showing window", locale: locale)
+                    )
+                        .accessibilityIdentifier("settings.toggle.launchWithoutShowingWindow")
+                }
+
+                SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Show in Dock", locale: locale))
                 } control: {
                     SettingsToggle(

@@ -793,7 +793,7 @@ final class AppCoordinator {
     
     // MARK: - Lifecycle
     
-    func start() async {
+    func start(launchSemantics: StartupLaunchSemantics = .normal) async {
         Log.boot.info("AppCoordinator.start() entered hasCompletedOnboarding=\(settingsStore.hasCompletedOnboarding) selectedModel=\(settingsStore.selectedModel)")
         if !settingsStore.hasCompletedOnboarding {
             Log.boot.info("Taking onboarding path (skipping splash and normal operation until complete)")
@@ -804,17 +804,38 @@ final class AppCoordinator {
         Log.boot.info("Taking normal startup path: seed presets, splash, startNormalOperation")
         seedBuiltInPresetsIfNeeded()
 
-        splashController.show()
-        
+        let shouldOrderMainWindowFront = StartupWindowPresentationPolicy.shouldOrderMainWindowFront(
+            for: .init(
+                launchWithoutShowingWindow: settingsStore.launchWithoutShowingWindow,
+                launchSemantics: launchSemantics,
+                hasCompletedOnboarding: settingsStore.hasCompletedOnboarding
+            )
+        )
+        Log.boot.info(
+            "Startup window presentation orderFront=\(shouldOrderMainWindowFront) preference=\(settingsStore.launchWithoutShowingWindow) hideFlag=\(launchSemantics.launchServicesRequestedHide)"
+        )
+
+        // Skip splash / main window / auto What's New so silent launches never
+        // flash non-onboarding chrome. Manual menu-bar access still opens later.
+        if shouldOrderMainWindowFront {
+            splashController.show()
+        }
+
         await startNormalOperation()
-        
-        splashController.dismiss { [weak self] in
-            self?.mainWindowController.show()
-            self?.presentAnnouncementAfterStartup()
+
+        if shouldOrderMainWindowFront {
+            splashController.dismiss { [weak self] in
+                self?.mainWindowController.show()
+                self?.presentAnnouncementAfterStartup()
+            }
+        } else {
+            // Keep the main window out of AppKit restoration/frontmost state.
+            mainWindowController.hide()
+            Log.boot.info("Silent startup: suppressed main window and auto announcement presentation")
         }
         Log.boot.info("AppCoordinator.start() finished normal path")
     }
-    
+
     private func showOnboarding() {
         Log.boot.info("showOnboarding: presenting onboarding window")
         onboardingController.showOnboarding(

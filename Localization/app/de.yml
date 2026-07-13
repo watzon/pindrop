@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Beim Anmelden starten"
   at_login_could_not_be_changed: "„Beim Anmelden starten“ konnte nicht geändert werden"
   at_login_fd1a3b7b: "Beim Anmelden starten"
+  without_showing_window: "Ohne Fenster starten"
 layout:
   _self: "Layout"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Starten Sie die Aufnahme, um Ihre Transkriptionen hier zu sehen"
   stop_recording: "Aufnahme starten/stoppen"
   using_pindrop: "Pindrop verwenden"
+  in_the_menu_bar_without_opening_the_main_w: "In der Menüleiste starten, ohne das Hauptfenster zu öffnen. Sie können es weiterhin über das Menüleistensymbol öffnen."
 stats:
   _self: "Stats"
 status:

@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "Lansați la conectare"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Pornește la autentificare"
+  without_showing_window: "Lansează fără a afișa fereastra"
 layout:
   _self: "Aspect"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "Începeți înregistrarea pentru a vă vedea transcripțiile aici"
   stop_recording: "Porniți/opriți înregistrarea"
   using_pindrop: "Începeți să utilizați Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Pornește în bara de meniu fără a deschide fereastra principală. O poți deschide ulterior din pictograma barei de meniu."
 stats:
   _self: "Stats"
 status:

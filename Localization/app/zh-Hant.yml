@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "登入時啟動"
   at_login_could_not_be_changed: "無法變更「登入時啟動」"
   at_login_fd1a3b7b: "登入時啟動"
+  without_showing_window: "啟動時不顯示視窗"
 layout:
   _self: "佈局"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "開始錄製以在此處檢視您的轉錄"
   stop_recording: "開始/停止錄製"
   using_pindrop: "開始使用 Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "在選單列中啟動且不開啟主視窗。你仍可透過選單列圖示開啟它。"
 stats:
   _self: "Stats"
 status:

@@ -175,6 +175,8 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		IMGRESIZER1A2B3C4D5E6F70 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */; };
 		LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */; };
 		LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */; };
+		STARTUPWINPOLBUILD01A2B3C4D5E6 /* StartupWindowPresentationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = STARTUPWINPOLFILE01A2B3C4D5E6 /* StartupWindowPresentationPolicy.swift */; };
+		STARTUPWINPOLTESTBUILD01A2B3C4 /* StartupWindowPresentationPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STARTUPWINPOLTESTFILE01A2B3C4 /* StartupWindowPresentationPolicyTests.swift */; };
 		LOGGER001A2B3C4D5E6F70 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = LOGGER001A2B3C4D5E6F71 /* Logger.swift */; };
 		MAINWIN1A2B3C4D5E6F70 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */; };
 		MARKDOWN01A2B3C4D5E6F70 /* MarkdownEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */; };
@@ -456,6 +458,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
 		LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManagerTests.swift; sourceTree = "<group>"; };
+		STARTUPWINPOLFILE01A2B3C4D5E6 /* StartupWindowPresentationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupWindowPresentationPolicy.swift; sourceTree = "<group>"; };
+		STARTUPWINPOLTESTFILE01A2B3C4 /* StartupWindowPresentationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupWindowPresentationPolicyTests.swift; sourceTree = "<group>"; };
 		LOGGER001A2B3C4D5E6F71 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		MAINWIN1A2B3C4D5E6F71 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		MARKDOWN01A2B3C4D5E6F71 /* MarkdownEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditor.swift; sourceTree = "<group>"; };
@@ -708,6 +712,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
 				HKCONFLICTFILE01A2B3C4D5E6 /* HotkeyConflictChecker.swift */,
 				LAUNCHLOGINMGR01A2B3C4D5E6F7 /* LaunchAtLoginManager.swift */,
+				STARTUPWINPOLFILE01A2B3C4D5E6 /* StartupWindowPresentationPolicy.swift */,
 				UPDATESVC01A2B3C4D5E6F7 /* UpdateService.swift */,
 				MCPGRP01A2B3C4D5E6F /* MCP */,
 			);
@@ -829,6 +834,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */,
 				MODELMGRTESTFILE1A2B3C4D5E6F71 /* ModelManagerTests.swift */,
 				LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */,
+				STARTUPWINPOLTESTFILE01A2B3C4 /* StartupWindowPresentationPolicyTests.swift */,
 				DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */,
 				SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */,
 				A1B2C3D4E5F6012345678906 /* SchemaV9MigrationTests.swift */,
@@ -1243,6 +1249,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TREDITAPPLIERTESTBUILD01 /* TranscriptEditApplierTests.swift in Sources */,
 				MODELMGRTESTBUILD1A2B3C4D5E6F70 /* ModelManagerTests.swift in Sources */,
 				LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */,
+				STARTUPWINPOLTESTBUILD01A2B3C4 /* StartupWindowPresentationPolicyTests.swift in Sources */,
 				DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
 				SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */,
 				A1B2C3D4E5F6012345678903 /* MCPToolDispatcherTests.swift in Sources */,
@@ -1290,6 +1297,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				299088D708924A1D8ECC138D /* HotkeyManager.swift in Sources */,
 				HKCONFLICTBUILD01A2B3C4D5E6 /* HotkeyConflictChecker.swift in Sources */,
 				LAUNCHLOGINMGR01A2B3C4D5E6F /* LaunchAtLoginManager.swift in Sources */,
+				STARTUPWINPOLBUILD01A2B3C4D5E6 /* StartupWindowPresentationPolicy.swift in Sources */,
 				UPDATESVC01A2B3C4D5E6F /* UpdateService.swift in Sources */,
 				5c68c45920464b818cff4e69 /* TranscriptionService.swift in Sources */,
 				751e7a8692f447b98321b9c9 /* PermissionManager.swift in Sources */,

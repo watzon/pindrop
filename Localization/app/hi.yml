@@ -551,6 +551,7 @@ launch:
   at_login_0b36c78f: "लॉगिन पर लॉन्च करें"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "लॉगिन पर लॉन्च"
+  without_showing_window: "विंडो दिखाए बिना लॉन्च करें"
 layout:
   _self: "लेआउट"
 learn:
@@ -1085,6 +1086,7 @@ start:
   recording_to_see_your_transcriptions_here: "यहां अपने प्रतिलेखन देखने के लिए रिकॉर्डिंग प्रारंभ करें"
   stop_recording: "रिकॉर्डिंग प्रारंभ/बंद करें"
   using_pindrop: "पिनड्रॉप का उपयोग प्रारंभ करें"
+  in_the_menu_bar_without_opening_the_main_w: "मुख्य विंडो खोले बिना मेनू बार में शुरू करें। आप इसे मेनू बार आइकन से बाद में भी खोल सकते हैं।"
 stats:
   _self: "Stats"
 status:
