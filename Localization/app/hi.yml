@@ -1094,6 +1094,8 @@ streaming:
   transcription_instantly_ready: "स्ट्रीमिंग ट्रांसक्रिप्शन, तुरंत तैयार"
   transcription_is_disabled_while_ai_enh: "एआई एन्हांसमेंट सक्षम होने पर स्ट्रीमिंग ट्रांसक्रिप्शन अक्षम है।"
   transcription_model_nemotron_speech: "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (Nemotron Speech Streaming) NVIDIA Corporation द्वारा NVIDIA Open Model License के तहत लाइसेंस प्राप्त।"
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "उपशीर्षक (.srt)"
 success:

@@ -1094,6 +1094,8 @@ streaming:
   transcription_instantly_ready: "Transcriere în flux, gata instantaneu"
   transcription_is_disabled_while_ai_enh: "Transcrierea în flux este dezactivată în timp ce Îmbunătățirea AI este activată."
   transcription_model_nemotron_speech: "Modelul de transcriere în flux (Nemotron Speech Streaming) este licențiat de NVIDIA Corporation sub NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Subtitrări (.srt)"
 success:

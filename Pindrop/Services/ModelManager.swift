@@ -37,6 +37,7 @@ class ModelManager {
     enum ModelProvider: String, CaseIterable, Sendable {
         case whisperKit = "WhisperKit"
         case parakeet = "Parakeet"
+        case senseVoice = "SenseVoice"
         case appleSpeech = "Apple Speech"
         case openAI = "OpenAI"
         case elevenLabs = "ElevenLabs"
@@ -44,7 +45,7 @@ class ModelManager {
 
         var isLocal: Bool {
             switch self {
-            case .whisperKit, .parakeet, .appleSpeech: return true
+            case .whisperKit, .parakeet, .senseVoice, .appleSpeech: return true
             case .openAI, .elevenLabs, .groq: return false
             }
         }
@@ -53,6 +54,7 @@ class ModelManager {
             switch self {
             case .whisperKit: return "waveform"
             case .parakeet: return "bird"
+            case .senseVoice: return "globe.asia.australia"
             case .appleSpeech: return "apple.logo"
             case .openAI: return "sparkles"
             case .elevenLabs: return "waveform.circle"
@@ -522,6 +524,20 @@ class ModelManager {
             provider: .parakeet,
             availability: .comingSoon
         ),
+
+        // SenseVoice (FunASR via FluidAudio CoreML / ANE)
+        WhisperModel(
+            name: "sensevoice-small",
+            displayName: "SenseVoice Small",
+            sizeInMB: 230,
+            description: "FunASR SenseVoice-Small — ultra-fast non-autoregressive multilingual ASR with built-in punctuation (CoreML / Apple Neural Engine)",
+            speedRating: 9.8,
+            accuracyRating: 8.8,
+            language: .multilingual,
+            languageSupport: .fullMultilingual,
+            provider: .senseVoice,
+            availability: .available
+        ),
         
         // Coming Soon - Cloud Providers
         WhisperModel(
@@ -625,6 +641,14 @@ class ModelManager {
             .appendingPathComponent("Models", isDirectory: true)
     }
 
+    /// Shared FluidAudio cache folder for SenseVoice-Small CoreML artifacts.
+    private var senseVoiceModelsURL: URL {
+        fluidAudioModelsURL.appendingPathComponent(
+            Repo.senseVoiceSmall.folderName,
+            isDirectory: true
+        )
+    }
+
     private func localModelPath(for model: WhisperModel) -> URL? {
         switch model.provider {
         case .whisperKit:
@@ -632,6 +656,15 @@ class ModelManager {
         case .parakeet:
             let folderName = model.name.hasSuffix("-coreml") ? model.name : "\(model.name)-coreml"
             return parakeetModelsURL.appendingPathComponent(folderName, isDirectory: true)
+        case .senseVoice:
+            // Only advertise a local path when the catalog int8 set is complete.
+            guard SenseVoiceModels.modelsExist(
+                at: senseVoiceModelsURL,
+                precision: SenseVoiceEngine.catalogPrecision
+            ) else {
+                return nil
+            }
+            return senseVoiceModelsURL
         case .appleSpeech:
             // Apple Speech uses system models; no local path to manage.
             return nil
@@ -704,6 +737,15 @@ class ModelManager {
             } catch {
                 Log.model.error("Failed to list Parakeet models: \(error)")
             }
+        }
+
+        // SenseVoice catalog entry is int8-only: discovery and load share the
+        // same precision decision so a fp16/fp32-only cache is never shown as ready.
+        if SenseVoiceModels.modelsExist(
+            at: senseVoiceModelsURL,
+            precision: SenseVoiceEngine.catalogPrecision
+        ) {
+            downloaded.insert("sensevoice-small")
         }
         
         if downloaded != downloadedModelNames {
@@ -819,6 +861,8 @@ class ModelManager {
         
         if model.provider == .parakeet {
             try await downloadParakeetModel(named: modelName, onProgress: onProgress)
+        } else if model.provider == .senseVoice {
+            try await downloadSenseVoiceModel(named: modelName, onProgress: onProgress)
         } else {
             try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
         }
@@ -961,6 +1005,83 @@ class ModelManager {
             throw ModelError.downloadFailed(error.localizedDescription)
         }
     }
+
+    private func downloadSenseVoiceModel(
+        named modelName: String,
+        onProgress: ((DownloadSnapshot) -> Void)? = nil
+    ) async throws {
+        let pipelineStart = CFAbsoluteTimeGetCurrent()
+        let precision = SenseVoiceEngine.catalogPrecision
+        let requiredArtifacts = SenseVoiceEngine.requiredDownloadArtifacts(precision: precision)
+        Log.model.info(
+            "SenseVoice model download requested: \(modelName) precision=\(precision.rawValue) artifacts=\(requiredArtifacts.sorted())"
+        )
+        Log.boot.info("SenseVoice pipeline begin name=\(modelName) precision=\(precision.rawValue)")
+
+        // Guard the catalog contract: int8 must never pull fp16/fp32 encoders.
+        #if DEBUG
+        assert(
+            !requiredArtifacts.contains(ModelNames.SenseVoice.encoderFile)
+                && !requiredArtifacts.contains(ModelNames.SenseVoice.encoderFp32File),
+            "SenseVoice int8 download set must not include fp16/fp32 encoders"
+        )
+        #endif
+
+        do {
+            try fileManager.createDirectory(at: fluidAudioModelsURL, withIntermediateDirectories: true)
+        } catch {
+            throw ModelError.downloadFailed(
+                "Failed to create SenseVoice models directory: \(error.localizedDescription)"
+            )
+        }
+
+        do {
+            let fetchStart = CFAbsoluteTimeGetCurrent()
+            // FluidAudio 0.15.4+ is precision-aware: variant=int8 fetches only
+            // preprocessor + SenseVoiceSmall_int8 (+ vocab.json as root aux).
+            _ = try await SenseVoiceModels.download(
+                precision: precision,
+                progressHandler: { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        self.updateDownloadSnapshot(
+                            Self.parakeetDownloadSnapshot(modelName: modelName, progress: progress),
+                            onProgress: onProgress
+                        )
+                    }
+                }
+            )
+            Log.boot.info(
+                "SenseVoice download finished elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - fetchStart))"
+            )
+
+            guard SenseVoiceModels.modelsExist(at: senseVoiceModelsURL, precision: precision) else {
+                throw ModelError.downloadFailed(
+                    "SenseVoice int8 artifacts incomplete after download"
+                )
+            }
+
+            // Compile/load once so first dictation does not pay cold-start cost.
+            updateDownloadSnapshot(
+                Self.preparingDownloadSnapshot(modelName: modelName),
+                onProgress: onProgress
+            )
+            _ = try SenseVoiceModels.load(from: senseVoiceModelsURL, precision: precision)
+
+            updateDownloadSnapshot(Self.completedDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+            await refreshDownloadedModels()
+            Log.boot.info(
+                "SenseVoice pipeline success totalElapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - pipelineStart))"
+            )
+        } catch {
+            clearDownloadState(resetProgress: true)
+            Log.model.error("SenseVoice model download failed: \(error.localizedDescription)")
+            if let modelError = error as? ModelError {
+                throw modelError
+            }
+            throw ModelError.downloadFailed(error.localizedDescription)
+        }
+    }
     
     func deleteModel(named modelName: String) async throws {
         guard let model = availableModels.first(where: { $0.name == modelName }) else {
@@ -1001,9 +1122,15 @@ class ModelManager {
 
     /// Complete offline Community-1 diarization readiness.
     ///
-    /// Requires every CoreML asset in `ModelNames.OfflineDiarizer.requiredModels` under
-    /// `speaker-diarization-coreml`, plus `plda-parameters.json` in one of the three
-    /// locations FluidAudio accepts. Directory existence alone is not readiness.
+    /// Requires every CoreML asset in `ModelNames.OfflineDiarizer.requiredModels`
+    /// (excluding `plda-parameters.json`) under `speaker-diarization-coreml`, plus
+    /// `plda-parameters.json` in one of the three locations FluidAudio accepts.
+    /// Directory existence alone is not readiness.
+    ///
+    /// FluidAudio 0.15+ lists PLDA inside `requiredModels`; we still treat it as a
+    /// separate candidate check so root / coreml / offline-sibling placements all
+    /// remain valid — forcing PLDA only under coreml would make the other two
+    /// documented locations unreachable.
     func isOfflineDiarizationReady() -> Bool {
         isOfflineDiarizationModelsReady(at: fluidAudioModelsURL)
     }
@@ -1013,7 +1140,10 @@ class ModelManager {
         let coremlFolder = modelsRoot
             .appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
 
-        for modelName in ModelNames.OfflineDiarizer.requiredModels {
+        let coremlRequiredModels = ModelNames.OfflineDiarizer.requiredModels.subtracting([
+            ModelNames.OfflineDiarizer.pldaParameters
+        ])
+        for modelName in coremlRequiredModels {
             let modelURL = coremlFolder.appendingPathComponent(modelName)
             guard fileManager.fileExists(atPath: modelURL.path) else {
                 return false

@@ -1477,6 +1477,8 @@ class TranscriptionService {
             return WhisperKitEngine()
         case .parakeet:
             return ParakeetEngine()
+        case .senseVoice:
+            return SenseVoiceEngine()
         case .appleSpeech:
             return AppleSpeechEngine()
         default:

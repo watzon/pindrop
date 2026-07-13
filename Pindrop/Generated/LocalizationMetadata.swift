@@ -1956,6 +1956,7 @@ enum LocalizationMetadata {
         "Select the language Pindrop should expect when transcribing speech.": "select_the_language_pindrop_should_expect_when_t",
         "Select this floating indicator style.": "select_this_floating_indicator_style",
         "Selected": "selected",
+        "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required.": "sensevoice_small_funasr_model_license",
         "Sent to the AI model when processing dictation for direct text insertion.": "sent_to_the_ai_model_when_processing_dictation_f",
         "Separate from the interface language": "u8_settings_separate_from_interface_language",
         "Sessions": "sessions",

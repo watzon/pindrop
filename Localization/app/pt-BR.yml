@@ -1094,6 +1094,8 @@ streaming:
   transcription_instantly_ready: "Transcrição em streaming, pronta na hora"
   transcription_is_disabled_while_ai_enh: "A transcrição de streaming está desativada enquanto o AI Enhancement está ativado."
   transcription_model_nemotron_speech: "Modelo de transcrição em streaming (Nemotron Speech Streaming) licenciado pela NVIDIA Corporation sob a NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Legendas (.srt)"
 success:

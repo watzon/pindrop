@@ -1094,6 +1094,8 @@ streaming:
   transcription_instantly_ready: "流式转录，立即就绪"
   transcription_is_disabled_while_ai_enh: "启用 AI 增强时，流式转录被禁用。"
   transcription_model_nemotron_speech: "流式转写模型（Nemotron Speech Streaming）由 NVIDIA Corporation 依据 NVIDIA Open Model License 授权。"
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "字幕 (.srt)"
 success:

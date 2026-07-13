@@ -1111,6 +1111,8 @@ streaming:
   transcription_instantly_ready: "Streaming transcription, instantly ready"
   transcription_is_disabled_while_ai_enh: "Streaming transcription is disabled while AI Enhancement is enabled."
   transcription_model_nemotron_speech: "Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Subtitles (.srt)"
 success:

@@ -209,21 +209,48 @@ struct ModelManagerTests {
         #expect(FeatureModelType.streamingRepoFolderName(for: .standard) == "nemotron-streaming/1120ms")
         #expect(FeatureModelType.streamingRepoFolderName(for: .lowLatency) == "nemotron-streaming/560ms")
     }
-    @Test func offlineDiarizationReadinessRequiresAllArtifacts() {
+    @Test func offlineDiarizationReadinessRequiresAllArtifacts() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("pindrop-diarization-readiness-\(UUID().uuidString)", isDirectory: true)
         let coreml = root.appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
-        try? FileManager.default.createDirectory(at: coreml, withIntermediateDirectories: true)
+        let offlineSibling = root.appendingPathComponent("speaker-diarization-offline", isDirectory: true)
+        try FileManager.default.createDirectory(at: coreml, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
-        for path in ModelNames.OfflineDiarizer.requiredModels {
-            FileManager.default.createFile(atPath: coreml.appendingPathComponent(path).path, contents: Data())
+        // FluidAudio 0.15+ includes plda-parameters.json in requiredModels; coreml
+        // readiness must still exclude it so the three PLDA candidate locations work.
+        let coremlRequired = ModelNames.OfflineDiarizer.requiredModels.subtracting([
+            ModelNames.OfflineDiarizer.pldaParameters
+        ])
+        #expect(coremlRequired.isEmpty == false)
+        #expect(!coremlRequired.contains(ModelNames.OfflineDiarizer.pldaParameters))
+
+        for path in coremlRequired {
+            FileManager.default.createFile(
+                atPath: coreml.appendingPathComponent(path).path,
+                contents: Data()
+            )
         }
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
-        FileManager.default.createFile(
-            atPath: root.appendingPathComponent("plda-parameters.json").path,
-            contents: Data("{}".utf8)
-        )
+
+        // Root candidate
+        let rootPlda = root.appendingPathComponent("plda-parameters.json")
+        FileManager.default.createFile(atPath: rootPlda.path, contents: Data("{}".utf8))
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
+        try FileManager.default.removeItem(at: rootPlda)
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
+
+        // CoreML-folder candidate
+        let coremlPlda = coreml.appendingPathComponent("plda-parameters.json")
+        FileManager.default.createFile(atPath: coremlPlda.path, contents: Data("{}".utf8))
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
+        try FileManager.default.removeItem(at: coremlPlda)
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
+
+        // Offline sibling-folder candidate
+        try FileManager.default.createDirectory(at: offlineSibling, withIntermediateDirectories: true)
+        let siblingPlda = offlineSibling.appendingPathComponent("plda-parameters.json")
+        FileManager.default.createFile(atPath: siblingPlda.path, contents: Data("{}".utf8))
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
     }
 }

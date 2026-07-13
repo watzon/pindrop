@@ -70,10 +70,12 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         do {
             let version: AsrModelVersion = name.contains("v3") ? .v3 : .v2
             let models = try await AsrModels.downloadAndLoad(version: version)
-            
-            let manager = AsrManager(config: .default)
-            try await manager.initialize(models: models)
-            
+
+            // FluidAudio 0.15+: AsrManager takes models at init (or via loadModels),
+            // replacing the retired `initialize(models:)` entry point.
+            let manager = AsrManager(config: .default, models: models)
+            try await manager.loadModels(models)
+
             asrManager = manager
             state = .ready
         } catch {
@@ -106,9 +108,12 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
             let samples = audioData.withUnsafeBytes { bytes in
                 Array(bytes.bindMemory(to: Float.self))
             }
-            
-            let result = try await asrManager.transcribe(samples, source: .microphone)
-            
+
+            // FluidAudio 0.15+: batch transcribe requires an explicit TDT decoder state.
+            let decoderLayers = await asrManager.decoderLayerCount
+            var decoderState = try TdtDecoderState(decoderLayers: decoderLayers)
+            let result = try await asrManager.transcribe(samples, decoderState: &decoderState)
+
             state = .ready
             return result.text
         } catch {
