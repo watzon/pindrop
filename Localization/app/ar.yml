@@ -455,6 +455,8 @@ general:
   _self: "عام"
 german:
   _self: "الألمانية"
+hindi:
+  _self: "الهندية"
 get:
   started: "ابدأ"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "خادم MCP"
+malayalam:
+  _self: "المالايالامية"
 media:
   library: "مكتبة الوسائط"
   saved: "تم حفظ الوسائط"

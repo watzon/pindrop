@@ -455,6 +455,8 @@ general:
   _self: "Ogólny"
 german:
   _self: "niemiecki"
+hindi:
+  _self: "hindi"
 get:
   started: "Rozpocznij"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "Serwer MCP"
+malayalam:
+  _self: "malajalam"
 media:
   library: "Biblioteka multimediów"
   saved: "Multimedia zapisane"

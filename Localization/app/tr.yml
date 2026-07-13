@@ -455,6 +455,8 @@ general:
   _self: "Genel"
 german:
   _self: "Almanca"
+hindi:
+  _self: "Hintçe"
 get:
   started: "Başlayın"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "MCP sunucusu"
+malayalam:
+  _self: "Malayalamca"
 media:
   library: "Medya Kitaplığı"
   saved: "Medya kaydedildi"

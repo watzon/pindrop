@@ -455,6 +455,8 @@ general:
   _self: "一般的な"
 german:
   _self: "ドイツ語"
+hindi:
+  _self: "ヒンディー語"
 get:
   started: "始めましょう"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP 設定エラー"
   server: "MCP サーバー"
+malayalam:
+  _self: "マラヤーラム語"
 media:
   library: "メディアライブラリ"
   saved: "メディアを保存しました"

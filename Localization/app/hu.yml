@@ -455,6 +455,8 @@ general:
   _self: "Általános"
 german:
   _self: "német"
+hindi:
+  _self: "hindi"
 get:
   started: "Kezdje el"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "MCP-kiszolgáló"
+malayalam:
+  _self: "malajálam"
 media:
   library: "Médiatár"
   saved: "Média mentve"

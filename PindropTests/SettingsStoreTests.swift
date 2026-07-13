@@ -206,6 +206,37 @@ struct SettingsStoreTests {
         #expect(settingsStore.selectedAppLanguage == .german)
     }
 
+    @Test func testHindiAndMalayalamAreSelectableDictationLanguages() {
+        #expect(AppLanguage.hindi.rawValue == "hi")
+        #expect(AppLanguage.malayalam.rawValue == "ml")
+        #expect(AppLanguage.hindi.whisperLanguageCode == "hi")
+        #expect(AppLanguage.malayalam.whisperLanguageCode == "ml")
+        #expect(AppLanguage.hindi.isSelectable)
+        #expect(AppLanguage.malayalam.isSelectable)
+        #expect(AppLanguage.allCases.contains(.hindi))
+        #expect(AppLanguage.allCases.contains(.malayalam))
+
+        // Interface locale already ships Hindi; dictation language remains a separate enum.
+        #expect(AppLocale.allCases.contains(.hindi))
+        #expect(!AppLocale.allCases.map(\.rawValue).contains(AppLanguage.malayalam.rawValue))
+    }
+
+    @Test func testSelectedAppLanguagePersistsHindiAndMalayalam() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.selectedAppLanguage = .hindi
+        #expect(settingsStore.selectedLanguage == "hi")
+        #expect(settingsStore.selectedAppLanguage == .hindi)
+
+        settingsStore.selectedAppLanguage = .malayalam
+        #expect(settingsStore.selectedLanguage == "ml")
+        #expect(settingsStore.selectedAppLanguage == .malayalam)
+
+        let reloaded = SettingsStore()
+        #expect(reloaded.selectedAppLanguage == .malayalam)
+    }
+
     @Test func testSelectedAppLocaleBridgesStoredValue() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }

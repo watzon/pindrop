@@ -250,7 +250,9 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
         try await loadModel(path: modelPath)
     }
 
-    private static func appLanguage(forWhisperLanguageCode code: String) -> AppLanguage? {
+    /// Maps a Whisper language token (e.g. "hi", "ml") back to `AppLanguage`.
+    /// Internal for unit tests; production only calls this from `detectLanguage`.
+    static func appLanguage(forWhisperLanguageCode code: String) -> AppLanguage? {
         let normalizedCode = code.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !normalizedCode.isEmpty else { return nil }
 
