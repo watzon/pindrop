@@ -69,6 +69,7 @@ struct HistoryView: View {
     @State private var showPasteLinkSheet = false
     @State private var pasteLinkText = ""
     @State private var transcribeMenuAnchorView: NSView?
+    @State private var isSpeakerDiarizationEnabled = true
 
     @Query private var mediaFolders: [MediaFolder]
 
@@ -109,11 +110,23 @@ struct HistoryView: View {
     }
 
     private var defaultJobOptions: TranscriptionJobOptions {
-        TranscriptionJobOptions(
+        Self.makeJobOptions(
             modelName: settingsStore?.selectedModel ?? "",
             language: settingsStore?.selectedAppLanguage ?? .automatic,
+            diarizationEnabled: isSpeakerDiarizationEnabled
+        )
+    }
+
+    static func makeJobOptions(
+        modelName: String,
+        language: AppLanguage,
+        diarizationEnabled: Bool
+    ) -> TranscriptionJobOptions {
+        TranscriptionJobOptions(
+            modelName: modelName,
+            language: language,
             outputFormat: .plainText,
-            diarizationEnabled: true
+            diarizationEnabled: diarizationEnabled
         )
     }
 
@@ -817,6 +830,17 @@ struct HistoryView: View {
                 pasteLinkText = ""
                 showPasteLinkSheet = true
             })
+        }
+        if onImportMediaFiles != nil || onSubmitMediaLink != nil {
+            menu.addItem(.separator())
+            let diarizationItem = ClosureMenuItem(
+                title: localized("Speaker diarization", locale: locale),
+                systemImage: "person.2.wave.2"
+            ) {
+                isSpeakerDiarizationEnabled.toggle()
+            }
+            diarizationItem.state = isSpeakerDiarizationEnabled ? .on : .off
+            menu.addItem(diarizationItem)
         }
         if onStartMeetingCapture != nil {
             menu.addItem(.separator())

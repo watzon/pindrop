@@ -32,6 +32,19 @@ struct MediaTranscriptionFeatureStateTests {
         #expect(options.language == .english)
     }
 
+    @Test func mediaImportOptionsHonorDisabledDiarizationSelection() {
+        let options = HistoryView.makeJobOptions(
+            modelName: "openai_whisper-large-v3_turbo",
+            language: .automatic,
+            diarizationEnabled: false
+        )
+
+        #expect(options.modelName == "openai_whisper-large-v3_turbo")
+        #expect(options.language == .automatic)
+        #expect(options.outputFormat == .plainText)
+        #expect(options.diarizationEnabled == false)
+    }
+
     @Test func clipboardPrefillDoesNotOverwriteUserEditedDraft() {
         let sut = MediaTranscriptionFeatureState()
         sut.draftLink = "https://user-entered.example"
