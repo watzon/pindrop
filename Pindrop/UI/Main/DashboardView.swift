@@ -19,6 +19,7 @@ struct DashboardView: View {
     /// live in chart children so pointer movement cannot invalidate this work.
     @State private var statsCache = DashboardStatsCache()
     @State private var showMeetingCaptureOptions = false
+    @State private var chartRowWidth: CGFloat = 0
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
@@ -122,6 +123,7 @@ struct DashboardView: View {
                 heroBlock(now: now, stats: dashboardStats)
                 statsStrip(stats: dashboardStats)
                 recentSection
+                chartRowWidthProbe
                 thisWeekChart(now: now, stats: dashboardStats)
             }
             .padding(.horizontal, 40)
@@ -458,13 +460,32 @@ struct DashboardView: View {
 
     // MARK: - THIS WEEK chart
 
+    /// Measures the width proposed to the chart row. Must be a sibling of the row,
+    /// not attached to it: the heatmap's fixed-size cells give the row itself a
+    /// minimum width, so measuring the row would ratchet — once grown, it could
+    /// never report a narrower width to shrink back from.
+    private var chartRowWidthProbe: some View {
+        GeometryReader { proxy in
+            Color.clear.onChange(of: proxy.size.width, initial: true) { _, width in
+                chartRowWidth = width
+            }
+        }
+        .frame(height: 0)
+        .accessibilityHidden(true)
+    }
+
     private func thisWeekChart(now: Date, stats: DashboardStats) -> some View {
-        HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
+        let heatmapWidth = HomePresentation.activityAvailableWidth(chartRowWidth: chartRowWidth)
+        let cellMetrics = HomePresentation.activityCellMetrics(availableWidth: heatmapWidth)
+        let rowGrowth = HomePresentation.chartRowGrowth(cellMetrics: cellMetrics)
+
+        return HStack(alignment: .top, spacing: HomeLayoutMetrics.chartPanelGap) {
             DashboardWeeklyBarsChart(
                 buckets: stats.wordsPerWeekday,
                 now: now,
                 locale: locale,
-                calendar: calendar
+                calendar: calendar,
+                barAreaHeight: HomeLayoutMetrics.chartBarAreaHeight + rowGrowth
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(
@@ -475,7 +496,10 @@ struct DashboardView: View {
 
             Rectangle()
                 .fill(AppColors.border)
-                .frame(width: 1, height: HomeLayoutMetrics.chartPanelDividerHeight)
+                .frame(
+                    width: HomeLayoutMetrics.chartPanelDividerWidth,
+                    height: HomeLayoutMetrics.chartPanelDividerHeight + rowGrowth
+                )
                 .padding(.top, 6)
 
             DashboardActivityHeatmap(
@@ -484,9 +508,14 @@ struct DashboardView: View {
                 now: now,
                 locale: locale,
                 calendar: calendar,
+                cellMetrics: cellMetrics,
+                availableWidth: heatmapWidth,
                 onShowMoreStats: onShowMoreStats
             )
-            .frame(maxWidth: .infinity, alignment: .leading)
+            // minWidth 0 keeps the fixed-size grid from becoming the row's minimum
+            // width: without it the window could grow but never shrink back, since
+            // the probe would only ever see the already-grown width.
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
             .layoutPriority(1)
         }
         .padding(.top, HomeLayoutMetrics.chartTopPadding)
@@ -503,6 +532,7 @@ private struct DashboardWeeklyBarsChart: View {
     let now: Date
     let locale: Locale
     let calendar: Calendar
+    let barAreaHeight: CGFloat
 
     @State private var selectedWeekdayIndex: Int?
     @State private var hoveredWeekdayIndex: Int?
@@ -540,7 +570,11 @@ private struct DashboardWeeklyBarsChart: View {
                             if kind == .future {
                                 return 0
                             }
-                            return HomePresentation.barHeight(words: words, maxWords: maxWords)
+                            return HomePresentation.barHeight(
+                                words: words,
+                                maxWords: maxWords,
+                                chartHeight: barAreaHeight
+                            )
                         }()
                         let isActive = index == activeIndex
                         let barColor: Color = isActive ? AppColors.accent : AppColors.border
@@ -564,7 +598,7 @@ private struct DashboardWeeklyBarsChart: View {
                                     width: HomeLayoutMetrics.chartBarWidth,
                                     height: chartHasAppeared ? height : 0
                                 )
-                                .frame(maxHeight: HomeLayoutMetrics.chartBarAreaHeight, alignment: .bottom)
+                                .frame(maxHeight: barAreaHeight, alignment: .bottom)
                                 .animation(
                                     reduceMotion
                                         ? nil
@@ -634,6 +668,8 @@ private struct DashboardActivityHeatmap: View {
     let now: Date
     let locale: Locale
     let calendar: Calendar
+    let cellMetrics: HomePresentation.ActivityCellMetrics
+    let availableWidth: CGFloat
     var onShowMoreStats: (() -> Void)?
 
     @State private var hoveredActivityIndex: Int?
@@ -668,120 +704,123 @@ private struct DashboardActivityHeatmap: View {
             }
 
             if let startDate, let gridStartDate {
-                GeometryReader { geometry in
-                    let cellSize = activityCellSize(availableWidth: geometry.size.width)
+                let cellSize = cellMetrics.cellSize
+                let cellGap = cellMetrics.cellGap
 
-                    VStack(alignment: .leading, spacing: 7) {
-                        HStack(spacing: HomeLayoutMetrics.activityCellGap) {
-                            ForEach(0..<53, id: \.self) { weekIndex in
-                                Text(HomePresentation.activityMonthLabel(
-                                    weekIndex: weekIndex,
-                                    startDate: gridStartDate,
-                                    calendar: calendar,
-                                    locale: locale
-                                ))
-                                .font(FontLoader.font(family: .inter, size: 9, weight: .medium))
-                                .foregroundStyle(AppColors.textTertiary)
-                                .fixedSize(horizontal: true, vertical: false)
-                                .frame(width: cellSize, alignment: .leading)
-                            }
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack(spacing: cellGap) {
+                        ForEach(0..<53, id: \.self) { weekIndex in
+                            Text(HomePresentation.activityMonthLabel(
+                                weekIndex: weekIndex,
+                                startDate: gridStartDate,
+                                calendar: calendar,
+                                locale: locale
+                            ))
+                            .font(FontLoader.font(family: .inter, size: 9, weight: .medium))
+                            .foregroundStyle(AppColors.textTertiary)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .frame(width: cellSize, alignment: .leading)
                         }
+                    }
 
-                        HStack(spacing: HomeLayoutMetrics.activityCellGap) {
-                            ForEach(0..<53, id: \.self) { weekIndex in
-                                VStack(spacing: HomeLayoutMetrics.activityCellGap) {
-                                    ForEach(0..<7, id: \.self) { dayIndex in
-                                        let gridIndex = weekIndex * 7 + dayIndex
-                                        let bucketIndex = gridIndex - leadingBlankCount
+                    HStack(spacing: cellGap) {
+                        ForEach(0..<53, id: \.self) { weekIndex in
+                            VStack(spacing: cellGap) {
+                                ForEach(0..<7, id: \.self) { dayIndex in
+                                    let gridIndex = weekIndex * 7 + dayIndex
+                                    let bucketIndex = gridIndex - leadingBlankCount
 
-                                        if buckets.indices.contains(bucketIndex) {
-                                            let words = buckets[bucketIndex]
-                                            let date = calendar.date(
-                                                byAdding: .day,
-                                                value: bucketIndex,
-                                                to: startDate
-                                            ) ?? startDate
-                                            let isToday = calendar.isDate(date, inSameDayAs: now)
-                                            let isHovered = hoveredActivityIndex == bucketIndex
+                                    if buckets.indices.contains(bucketIndex) {
+                                        let words = buckets[bucketIndex]
+                                        let date = calendar.date(
+                                            byAdding: .day,
+                                            value: bucketIndex,
+                                            to: startDate
+                                        ) ?? startDate
+                                        let isToday = calendar.isDate(date, inSameDayAs: now)
+                                        let isHovered = hoveredActivityIndex == bucketIndex
 
-                                            RoundedRectangle(cornerRadius: min(2, cellSize / 4), style: .continuous)
-                                                .fill(activityColor(intensity: HomePresentation.activityIntensity(
-                                                    words: words,
-                                                    maxWords: maxWords
-                                                )))
-                                                .frame(width: cellSize, height: cellSize)
-                                                .overlay {
-                                                    if isToday || isHovered {
-                                                        RoundedRectangle(
-                                                            cornerRadius: min(2, cellSize / 4),
-                                                            style: .continuous
-                                                        )
-                                                        .strokeBorder(
-                                                            isHovered ? AppColors.textPrimary : AppColors.accent,
-                                                            lineWidth: isHovered ? 1.5 : 1
-                                                        )
-                                                    }
+                                        RoundedRectangle(cornerRadius: min(3, cellSize / 4), style: .continuous)
+                                            .fill(activityColor(intensity: HomePresentation.activityIntensity(
+                                                words: words,
+                                                maxWords: maxWords
+                                            )))
+                                            .frame(width: cellSize, height: cellSize)
+                                            .overlay {
+                                                if isToday || isHovered {
+                                                    RoundedRectangle(
+                                                        cornerRadius: min(3, cellSize / 4),
+                                                        style: .continuous
+                                                    )
+                                                    .strokeBorder(
+                                                        isHovered ? AppColors.textPrimary : AppColors.accent,
+                                                        lineWidth: isHovered ? 1.5 : 1
+                                                    )
                                                 }
-                                                .scaleEffect(isHovered ? 1.35 : 1)
-                                                .zIndex(isHovered ? 1 : 0)
-                                                .contentShape(Rectangle())
-                                                .onHover { hovering in
-                                                    if hovering {
-                                                        hoveredActivityIndex = bucketIndex
-                                                    } else if hoveredActivityIndex == bucketIndex {
-                                                        hoveredActivityIndex = nil
-                                                    }
+                                            }
+                                            .scaleEffect(isHovered ? 1.35 : 1)
+                                            .zIndex(isHovered ? 1 : 0)
+                                            .contentShape(Rectangle())
+                                            .onHover { hovering in
+                                                if hovering {
+                                                    hoveredActivityIndex = bucketIndex
+                                                } else if hoveredActivityIndex == bucketIndex {
+                                                    hoveredActivityIndex = nil
                                                 }
-                                                .appAnimation(.fast, value: isHovered)
-                                                .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
-                                                    date: date,
-                                                    words: words,
-                                                    calendar: calendar,
-                                                    locale: locale
-                                                ))
-                                        } else {
-                                            Color.clear
-                                                .frame(width: cellSize, height: cellSize)
-                                                .accessibilityHidden(true)
-                                        }
+                                            }
+                                            .appAnimation(.fast, value: isHovered)
+                                            .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
+                                                date: date,
+                                                words: words,
+                                                calendar: calendar,
+                                                locale: locale
+                                            ))
+                                    } else {
+                                        Color.clear
+                                            .frame(width: cellSize, height: cellSize)
+                                            .accessibilityHidden(true)
                                     }
                                 }
                             }
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .overlay(alignment: .topLeading) {
-                        if let hoveredActivityIndex,
-                           buckets.indices.contains(hoveredActivityIndex),
-                           let date = calendar.date(
-                               byAdding: .day,
-                               value: hoveredActivityIndex,
-                               to: startDate
-                           ) {
-                            let gridIndex = hoveredActivityIndex + leadingBlankCount
-                            let weekIndex = gridIndex / 7
-                            let dayIndex = gridIndex % 7
-                            let cellX = CGFloat(weekIndex) * (cellSize + HomeLayoutMetrics.activityCellGap)
-                            let cellY = 18 + CGFloat(dayIndex) * (cellSize + HomeLayoutMetrics.activityCellGap)
-                            let tooltipX = min(
-                                max(0, cellX - 76),
-                                max(0, geometry.size.width - 160)
-                            )
-                            let tooltipY = dayIndex < 4
-                                ? cellY + cellSize + 6
-                                : max(0, cellY - 48)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(
+                    height: HomeLayoutMetrics.activityGridHeight
+                        + HomePresentation.chartRowGrowth(cellMetrics: cellMetrics),
+                    alignment: .top
+                )
+                .overlay(alignment: .topLeading) {
+                    if let hoveredActivityIndex,
+                       buckets.indices.contains(hoveredActivityIndex),
+                       let date = calendar.date(
+                           byAdding: .day,
+                           value: hoveredActivityIndex,
+                           to: startDate
+                       ) {
+                        let gridIndex = hoveredActivityIndex + leadingBlankCount
+                        let weekIndex = gridIndex / 7
+                        let dayIndex = gridIndex % 7
+                        let cellX = CGFloat(weekIndex) * (cellSize + cellGap)
+                        let cellY = 18 + CGFloat(dayIndex) * (cellSize + cellGap)
+                        let tooltipX = min(
+                            max(0, cellX - 76),
+                            max(0, availableWidth - 160)
+                        )
+                        let tooltipY = dayIndex < 4
+                            ? cellY + cellSize + 6
+                            : max(0, cellY - 48)
 
-                            activityTooltip(
-                                date: date,
-                                words: buckets[hoveredActivityIndex]
-                            )
-                            .offset(x: tooltipX, y: tooltipY)
-                            .zIndex(10)
-                            .allowsHitTesting(false)
-                        }
+                        activityTooltip(
+                            date: date,
+                            words: buckets[hoveredActivityIndex]
+                        )
+                        .offset(x: tooltipX, y: tooltipY)
+                        .zIndex(10)
+                        .allowsHitTesting(false)
                     }
                 }
-                .frame(height: HomeLayoutMetrics.activityGridHeight)
 
                 HStack(spacing: 4) {
                     Text(localized("Streak", locale: locale).uppercased(with: locale))
@@ -800,15 +839,6 @@ private struct DashboardActivityHeatmap: View {
                 .foregroundStyle(AppColors.textTertiary)
             }
         }
-    }
-
-    private func activityCellSize(availableWidth: CGFloat) -> CGFloat {
-        let gapsWidth = HomeLayoutMetrics.activityCellGap * 52
-        let fittedSize = (availableWidth - gapsWidth) / 53
-        return min(
-            HomeLayoutMetrics.activityMaximumCellSize,
-            max(HomeLayoutMetrics.activityMinimumCellSize, fittedSize)
-        )
     }
 
     private func activityTooltip(date: Date, words: Int) -> some View {

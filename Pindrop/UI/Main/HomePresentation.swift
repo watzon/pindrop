@@ -48,10 +48,16 @@ enum HomeLayoutMetrics {
     static let chartPanelGap: CGFloat = 24
     static let chartMinimumWidth: CGFloat = 280
     static let chartMaximumWidth: CGFloat = 780
+    static let chartPanelDividerWidth: CGFloat = 1
     static let chartPanelDividerHeight: CGFloat = 156
     static let activityMinimumCellSize: CGFloat = 4
-    static let activityMaximumCellSize: CGFloat = 8
+    /// Spec baseline cell size; wider windows keep scaling up to the maximum.
+    static let activityBaseCellSize: CGFloat = 8
+    static let activityMaximumCellSize: CGFloat = 14
     static let activityCellGap: CGFloat = 2
+    /// Gap-to-cell ratio once cells grow past the baseline (8 pt cell → 2 pt gap
+    /// stays continuous at the crossover).
+    static let activityCellGapRatio: CGFloat = 0.25
     static let activityGridHeight: CGFloat = 92
 }
 
@@ -305,6 +311,64 @@ enum HomePresentation {
             value: -activityLeadingBlankCount(startDate: startDate, calendar: calendar),
             to: startDate
         )
+    }
+
+    // MARK: Activity grid sizing
+
+    /// 53 week columns with 52 gaps between them.
+    private static let activityWeekColumns: CGFloat = 53
+
+    struct ActivityCellMetrics: Equatable {
+        let cellSize: CGFloat
+        let cellGap: CGFloat
+    }
+
+    /// Cell and gap size for the 53-column activity grid at `availableWidth`.
+    /// Below the baseline the gap stays fixed and cells shrink toward the minimum;
+    /// past it the gap scales with the cells so larger grids keep the same texture.
+    static func activityCellMetrics(availableWidth: CGFloat) -> ActivityCellMetrics {
+        let columns = activityWeekColumns
+        let gaps = columns - 1
+        let baseGap = HomeLayoutMetrics.activityCellGap
+        guard availableWidth > 0 else {
+            // Width unknown on the first layout pass → baseline design metrics.
+            return ActivityCellMetrics(
+                cellSize: HomeLayoutMetrics.activityBaseCellSize,
+                cellGap: baseGap
+            )
+        }
+        let fixedGapSize = (availableWidth - gaps * baseGap) / columns
+        if fixedGapSize <= HomeLayoutMetrics.activityBaseCellSize {
+            return ActivityCellMetrics(
+                cellSize: max(HomeLayoutMetrics.activityMinimumCellSize, fixedGapSize),
+                cellGap: baseGap
+            )
+        }
+        let ratio = HomeLayoutMetrics.activityCellGapRatio
+        let cellSize = min(
+            HomeLayoutMetrics.activityMaximumCellSize,
+            availableWidth / (columns + gaps * ratio)
+        )
+        return ActivityCellMetrics(cellSize: cellSize, cellGap: cellSize * ratio)
+    }
+
+    /// Extra height the activity grid needs beyond its baseline (8 pt cell / 2 pt gap)
+    /// layout. The weekly bars and panel divider grow by the same amount so the
+    /// bottom chart row stays visually balanced at large window sizes.
+    static func chartRowGrowth(cellMetrics: ActivityCellMetrics) -> CGFloat {
+        let baseline = HomeLayoutMetrics.activityBaseCellSize * 7
+            + HomeLayoutMetrics.activityCellGap * 6
+        let grid = cellMetrics.cellSize * 7 + cellMetrics.cellGap * 6
+        return max(0, grid - baseline)
+    }
+
+    /// Width the activity heatmap receives inside the bottom chart row: the weekly
+    /// panel is pinned to its minimum width by the heatmap's layout priority.
+    static func activityAvailableWidth(chartRowWidth: CGFloat) -> CGFloat {
+        chartRowWidth
+            - HomeLayoutMetrics.chartMinimumWidth
+            - HomeLayoutMetrics.chartPanelGap * 2
+            - HomeLayoutMetrics.chartPanelDividerWidth
     }
 
     /// Four non-zero intensity levels, with zero reserved for an empty day.

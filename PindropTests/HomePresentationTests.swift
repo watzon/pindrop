@@ -242,4 +242,68 @@ struct HomePresentationTests {
         #expect(HomePresentation.formatWPM(96.6, locale: en) == "97")
         #expect(HomePresentation.formatWPM(0, locale: en) == "0")
     }
+
+    // MARK: - Activity grid sizing
+
+    @Test func activityCellMetricsMatchBaselineAtBaselineWidth() {
+        // 53 × 8 + 52 × 2 = 528 → exactly the baseline design.
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 528)
+        #expect(abs(metrics.cellSize - 8) < 0.001)
+        #expect(metrics.cellGap == 2)
+        #expect(HomePresentation.chartRowGrowth(cellMetrics: metrics) == 0)
+    }
+
+    @Test func activityCellMetricsShrinkWithFixedGapBelowBaseline() {
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 371)
+        #expect(metrics.cellGap == 2)
+        #expect(metrics.cellSize < 8)
+        #expect(metrics.cellSize >= HomeLayoutMetrics.activityMinimumCellSize)
+        #expect(HomePresentation.chartRowGrowth(cellMetrics: metrics) == 0)
+    }
+
+    @Test func activityCellMetricsClampToMinimum() {
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 150)
+        #expect(metrics.cellSize == HomeLayoutMetrics.activityMinimumCellSize)
+        #expect(metrics.cellGap == 2)
+    }
+
+    @Test func activityCellMetricsGrowPastBaseline() {
+        // gap = cell / 4 → width = 53c + 52(c/4) = 66c; 792 → cell 12, gap 3.
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 792)
+        #expect(abs(metrics.cellSize - 12) < 0.001)
+        #expect(abs(metrics.cellGap - 3) < 0.001)
+        // Grid grows from 68 (7 × 8 + 6 × 2) to 102 (7 × 12 + 6 × 3).
+        let growth = HomePresentation.chartRowGrowth(cellMetrics: metrics)
+        #expect(abs(growth - 34) < 0.001)
+    }
+
+    @Test func activityCellMetricsCapAtMaximum() {
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 5000)
+        #expect(metrics.cellSize == HomeLayoutMetrics.activityMaximumCellSize)
+        #expect(
+            abs(metrics.cellGap
+                - HomeLayoutMetrics.activityMaximumCellSize * HomeLayoutMetrics.activityCellGapRatio)
+                < 0.001
+        )
+    }
+
+    @Test func activityCellMetricsStayContinuousAtBaselineCrossover() {
+        let below = HomePresentation.activityCellMetrics(availableWidth: 527.9)
+        let above = HomePresentation.activityCellMetrics(availableWidth: 528.1)
+        #expect(abs(below.cellSize - above.cellSize) < 0.01)
+        #expect(abs(below.cellGap - above.cellGap) < 0.01)
+    }
+
+    @Test func activityCellMetricsFallBackToBaselineForUnknownWidth() {
+        let metrics = HomePresentation.activityCellMetrics(availableWidth: 0)
+        #expect(metrics.cellSize == HomeLayoutMetrics.activityBaseCellSize)
+        #expect(metrics.cellGap == HomeLayoutMetrics.activityCellGap)
+        #expect(HomePresentation.chartRowGrowth(cellMetrics: metrics) == 0)
+    }
+
+    @Test func activityAvailableWidthSubtractsPinnedPanelAndChrome() {
+        // Weekly panel (280) + two panel gaps (48) + divider (1) = 329.
+        let width = HomePresentation.activityAvailableWidth(chartRowWidth: 857)
+        #expect(abs(width - 528) < 0.001)
+    }
 }
