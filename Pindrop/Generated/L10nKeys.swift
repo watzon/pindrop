@@ -585,6 +585,7 @@ enum L10nKeys {
     static let pleaseDownloadAWhisperModelInSettingsBefo = "please_download_a_whisper_model_in_settings_befo"
     static let pleaseDownloadAWhisperModelInSettingsBefo34e8a33c = "please_download_a_whisper_model_in_settings_befo_34e8a33c"
     static let pleaseWait = "please_wait"
+    static let polish = "polish"
     static let port = "port"
     static let portChangesTakeEffectTheNextTimeTheServe = "port_changes_take_effect_the_next_time_the_serve"
     static let portugueseBrazil = "portuguese_brazil"

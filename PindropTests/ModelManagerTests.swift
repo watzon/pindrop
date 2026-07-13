@@ -104,7 +104,15 @@ struct ModelManagerTests {
         #expect(model.supports(language: .portugueseBrazil) == true)
         #expect(model.supports(language: .russian) == true)
         #expect(model.supports(language: .ukrainian) == true)
+        #expect(model.supports(language: .polish) == true)
         #expect(model.supports(language: .simplifiedChinese) == false)
+    }
+
+    @Test func polishDictationUsesMultilingualRecommendations() throws {
+        let recommendedModelNames = modelManager.recommendedModels(for: .polish).map(\.name)
+        #expect(recommendedModelNames == ModelManager.multilingualRecommendedModelNames)
+        let whisper = try #require(modelManager.availableModels.first { $0.name == "openai_whisper-base" })
+        #expect(whisper.supports(language: .polish))
     }
 
     @Test func deleteNonexistentModelThrowsModelNotFound() async {
