@@ -455,6 +455,8 @@ general:
   _self: "Γενικός"
 german:
   _self: "Γερμανός"
+hindi:
+  _self: "Χίντι"
 get:
   started: "Ξεκινήστε"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "Διακομιστής MCP"
+malayalam:
+  _self: "Μαλαγιαλάμ"
 media:
   library: "Βιβλιοθήκη πολυμέσων"
   saved: "Τα πολυμέσα αποθηκεύτηκαν"

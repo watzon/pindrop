@@ -94,7 +94,7 @@ class ModelManager {
                 switch language {
                 case .automatic, .english, .russian, .ukrainian, .spanish, .french, .german, .portugueseBrazil, .italian, .dutch, .turkish:
                     return true
-                case .simplifiedChinese, .japanese, .korean:
+                case .simplifiedChinese, .japanese, .korean, .hindi, .malayalam:
                     return false
                 }
             }
@@ -564,7 +564,7 @@ class ModelManager {
         switch language {
         case .english:
             recommendedModelNames = Self.englishRecommendedModelNames
-        case .automatic, .russian, .ukrainian, .simplifiedChinese, .spanish, .french, .german, .turkish, .japanese, .portugueseBrazil, .italian, .dutch, .korean:
+        case .automatic, .russian, .ukrainian, .simplifiedChinese, .spanish, .french, .german, .turkish, .japanese, .portugueseBrazil, .italian, .dutch, .korean, .hindi, .malayalam:
             recommendedModelNames = Self.multilingualRecommendedModelNames
         }
 

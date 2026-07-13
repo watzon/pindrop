@@ -455,6 +455,8 @@ general:
   _self: "Umum"
 german:
   _self: "Jerman"
+hindi:
+  _self: "Hindi"
 get:
   started: "Mulakan"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "Pelayan MCP"
+malayalam:
+  _self: "Malayalam"
 media:
   library: "Perpustakaan Media"
   saved: "Media disimpan"

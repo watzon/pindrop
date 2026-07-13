@@ -455,6 +455,8 @@ general:
   _self: "Tổng quan"
 german:
   _self: "tiếng Đức"
+hindi:
+  _self: "Tiếng Hindi"
 get:
   started: "Bắt đầu"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "Máy chủ MCP"
+malayalam:
+  _self: "Tiếng Malayalam"
 media:
   library: "Thư viện phương tiện"
   saved: "Đã lưu phương tiện"

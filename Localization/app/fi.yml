@@ -455,6 +455,8 @@ general:
   _self: "Kenraali"
 german:
   _self: "saksaksi"
+hindi:
+  _self: "hindi"
 get:
   started: "Aloita"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "MCP-palvelin"
+malayalam:
+  _self: "malajalam"
 media:
   library: "Mediakirjasto"
   saved: "Media tallennettu"

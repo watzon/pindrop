@@ -107,6 +107,48 @@ struct ModelManagerTests {
         #expect(model.supports(language: .simplifiedChinese) == false)
     }
 
+    @Test func hindiAndMalayalamRecommendMultilingualWhisperModels() {
+        // multilingualRecommendedModelNames includes Parakeet v3, but that model is
+        // European-only and is filtered out by supports(language:). Hindi/Malayalam
+        // must still steer to the Whisper multilingual set (and Apple Speech).
+        let expected = ModelManager.multilingualRecommendedModelNames.filter { name in
+            name != "parakeet-tdt-0.6b-v3"
+        }
+        #expect(modelManager.recommendedModels(for: .hindi).map(\.name) == expected)
+        #expect(modelManager.recommendedModels(for: .malayalam).map(\.name) == expected)
+
+        for language in [AppLanguage.hindi, .malayalam] {
+            let names = modelManager.recommendedModels(for: language).map(\.name)
+            #expect(names.contains("openai_whisper-base"))
+            #expect(names.contains("openai_whisper-small"))
+            #expect(names.contains("openai_whisper-medium"))
+            #expect(names.contains("openai_whisper-large-v3_turbo"))
+            #expect(!names.contains("openai_whisper-base.en"))
+            #expect(!names.contains("parakeet-tdt-0.6b-v3"))
+            #expect(!names.contains("parakeet-tdt-0.6b-v2"))
+        }
+    }
+
+    @Test func hindiAndMalayalamSupportedByMultilingualWhisperButNotEnglishOnlyOrParakeet() throws {
+        let multilingual = try #require(modelManager.availableModels.first { $0.name == "openai_whisper-base" })
+        let englishOnly = try #require(modelManager.availableModels.first { $0.name == "openai_whisper-base.en" })
+        let parakeet = try #require(modelManager.availableModels.first { $0.name == "parakeet-tdt-0.6b-v3" })
+
+        for language in [AppLanguage.hindi, .malayalam] {
+            #expect(multilingual.supports(language: language))
+            #expect(englishOnly.supports(language: language) == false)
+            #expect(parakeet.supports(language: language) == false)
+
+            let englishBadge = englishOnly.languageBadgePresentation(for: language)
+            #expect(englishBadge.tone == .caution)
+            #expect(englishBadge.text == "English-only")
+
+            let parakeetBadge = parakeet.languageBadgePresentation(for: language)
+            #expect(parakeetBadge.tone == .caution)
+            #expect(parakeetBadge.text == "European multilingual")
+        }
+    }
+
     @Test func deleteNonexistentModelThrowsModelNotFound() async {
         do {
             try await modelManager.deleteModel(named: "nonexistent-model")

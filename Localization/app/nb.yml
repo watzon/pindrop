@@ -455,6 +455,8 @@ general:
   _self: "General"
 german:
   _self: "tysk"
+hindi:
+  _self: "hindi"
 get:
   started: "Kom i gang"
 global:
@@ -624,6 +626,8 @@ may:
 mcp:
   configuration_error: "MCP Configuration Error"
   server: "MCP-server"
+malayalam:
+  _self: "malayalam"
 media:
   library: "Mediebibliotek"
   saved: "Medier lagret"

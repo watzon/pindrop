@@ -260,6 +260,15 @@ struct WhisperKitEngineTests {
         }
     }
 
+    // MARK: - Language detection mapping
+
+    @Test func mapsHindiAndMalayalamWhisperCodesToAppLanguage() {
+        #expect(WhisperKitEngine.appLanguage(forWhisperLanguageCode: "hi") == .hindi)
+        #expect(WhisperKitEngine.appLanguage(forWhisperLanguageCode: "ml") == .malayalam)
+        #expect(WhisperKitEngine.appLanguage(forWhisperLanguageCode: "HI") == .hindi)
+        #expect(WhisperKitEngine.appLanguage(forWhisperLanguageCode: " ml ") == .malayalam)
+    }
+
     // MARK: - EngineError descriptions
 
     @Test func errorDescriptionForModelNotLoaded() {
