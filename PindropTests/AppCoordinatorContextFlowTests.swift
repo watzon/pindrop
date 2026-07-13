@@ -310,13 +310,41 @@ struct AppCoordinatorContextFlowTests {
         )
     }
 
-    @Test func floatingIndicatorFocusTrackingModeUsesIdlePillWhenIdle() {
+    @Test func floatingIndicatorFocusTrackingModeUsesIdlePillWhenIdleAlwaysOnStyles() {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
                 isTemporarilyHidden: false,
+                selectedType: .orb,
                 isRecording: false,
                 isProcessing: false
             ) == .idlePill
+        )
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                isTemporarilyHidden: false,
+                selectedType: .pill,
+                isRecording: false,
+                isProcessing: false
+            ) == .idlePill
+        )
+    }
+
+    @Test func floatingIndicatorFocusTrackingModeStopsWhenIdleTransientStyles() {
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                isTemporarilyHidden: false,
+                selectedType: .notch,
+                isRecording: false,
+                isProcessing: false
+            ) == nil
+        )
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                isTemporarilyHidden: false,
+                selectedType: .bubble,
+                isRecording: false,
+                isProcessing: false
+            ) == nil
         )
     }
 
@@ -324,6 +352,7 @@ struct AppCoordinatorContextFlowTests {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
                 isTemporarilyHidden: false,
+                selectedType: .orb,
                 isRecording: true,
                 isProcessing: false
             ) == .activeSession
@@ -332,9 +361,20 @@ struct AppCoordinatorContextFlowTests {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
                 isTemporarilyHidden: false,
+                selectedType: .notch,
                 isRecording: false,
                 isProcessing: true
             ) == .activeSession
+        )
+
+        // Bubble owns caret-anchor refresh itself during active sessions.
+        #expect(
+            AppCoordinator.floatingIndicatorFocusTrackingMode(
+                isTemporarilyHidden: false,
+                selectedType: .bubble,
+                isRecording: true,
+                isProcessing: false
+            ) == nil
         )
     }
 
@@ -342,6 +382,7 @@ struct AppCoordinatorContextFlowTests {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
                 isTemporarilyHidden: true,
+                selectedType: .orb,
                 isRecording: true,
                 isProcessing: false
             ) == nil
@@ -350,6 +391,7 @@ struct AppCoordinatorContextFlowTests {
         #expect(
             AppCoordinator.floatingIndicatorFocusTrackingMode(
                 isTemporarilyHidden: true,
+                selectedType: .notch,
                 isRecording: false,
                 isProcessing: false
             ) == nil

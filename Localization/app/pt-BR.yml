@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Aparece como um orbe de vidro líquido no canto da tela"
   as_a_pill_at_the_bottom_of_the_screen: "Mostra como uma pílula na parte inferior da tela"
+  beside_the_focused_text_field_caret: "Mostra ao lado do campo de texto/acento circunflexo em foco"
+  in_the_menu_bar_notch_area: "Mostra na barra de menu/área de entalhe"
 sidebar:
   position: "Posição da barra lateral"
   position_916f66ea: "Posição da barra lateral"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoom"
+bubble:
+  _self: "Bolha"
+notch:
+  _self: "Entalhe"

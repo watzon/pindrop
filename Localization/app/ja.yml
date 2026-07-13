@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "画面の隅にリキッドガラスのオーブとして表示されます"
   as_a_pill_at_the_bottom_of_the_screen: "画面の下部に錠剤として表示されます"
+  beside_the_focused_text_field_caret: "フォーカスされたテキストフィールド/キャレットの横に表示されます"
+  in_the_menu_bar_notch_area: "メニューバー/ノッチエリアに表示されます"
 sidebar:
   position: "サイドバーの位置"
   position_916f66ea: "サイドバーの位置"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "拡大／縮小"
+bubble:
+  _self: "バブル"
+notch:
+  _self: "ノッチ"

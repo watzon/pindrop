@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Dipaparkan sebagai orb kaca cecair di penjuru skrin"
   as_a_pill_at_the_bottom_of_the_screen: "Ditunjukkan sebagai pil di bahagian bawah skrin"
+  beside_the_focused_text_field_caret: "Menunjukkan di sebelah medan teks fokus/karet"
+  in_the_menu_bar_notch_area: "Ditunjukkan dalam bar menu/kawasan takuk"
 sidebar:
   position: "Kedudukan bar sisi"
   position_916f66ea: "Kedudukan bar sisi"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zum"
+bubble:
+  _self: "gelembung"
+notch:
+  _self: "Takik"

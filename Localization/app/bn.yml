@@ -1034,6 +1034,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "স্ক্রিনের কোণে একটি তরল কাচের গোলক হিসেবে দেখায়"
   as_a_pill_at_the_bottom_of_the_screen: "পর্দার নীচে একটি বড়ি হিসাবে দেখায়"
+  beside_the_focused_text_field_caret: "ফোকাস করা টেক্সট ফিল্ড/ক্যারেটের পাশে দেখায়"
+  in_the_menu_bar_notch_area: "মেনু বার/খাঁজ এলাকায় দেখায়"
 sidebar:
   position: "সাইডবার অবস্থান"
   position_916f66ea: "সাইডবার অবস্থান"
@@ -1498,3 +1500,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "জুম"
+bubble:
+  _self: "বুদবুদ"
+notch:
+  _self: "খাঁজ"

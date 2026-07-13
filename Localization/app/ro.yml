@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Se afișează ca o sferă de sticlă lichidă în colțul ecranului"
   as_a_pill_at_the_bottom_of_the_screen: "Se afișează ca o pastilă în partea de jos a ecranului"
+  beside_the_focused_text_field_caret: "Se afișează lângă câmpul de text focalizat/marca de simbol"
+  in_the_menu_bar_notch_area: "Se afișează în bara de meniu/zona de crestătură"
 sidebar:
   position: "Poziția barei laterale"
   position_916f66ea: "Poziția barei laterale"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoom"
+bubble:
+  _self: "Bulă"
+notch:
+  _self: "Crestătură"

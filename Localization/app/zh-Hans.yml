@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "以液态玻璃光球的形式显示在屏幕角落"
   as_a_pill_at_the_bottom_of_the_screen: "在屏幕底部显示为胶囊"
+  beside_the_focused_text_field_caret: "显示在聚焦的文本字段/光标旁边"
+  in_the_menu_bar_notch_area: "显示在菜单栏/刘海区域"
 sidebar:
   position: "侧边栏位置"
   position_916f66ea: "侧边栏位置"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "缩放"
+bubble:
+  _self: "气泡"
+notch:
+  _self: "刘海"

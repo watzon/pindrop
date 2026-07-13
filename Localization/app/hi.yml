@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "स्क्रीन के कोने में तरल कांच के गोले के रूप में दिखता है"
   as_a_pill_at_the_bottom_of_the_screen: "स्क्रीन के नीचे एक गोली के रूप में दिखाई देता है"
+  beside_the_focused_text_field_caret: "फ़ोकस किए गए टेक्स्ट फ़ील्ड/कैरेट के बगल में दिखाता है"
+  in_the_menu_bar_notch_area: "मेनू बार/नॉच क्षेत्र में दिखता है"
 sidebar:
   position: "साइडबार स्थिति"
   position_916f66ea: "साइडबार स्थिति"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "ज़ूम"
+bubble:
+  _self: "बुलबुला"
+notch:
+  _self: "निशान"

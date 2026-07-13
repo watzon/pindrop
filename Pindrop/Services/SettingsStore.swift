@@ -566,7 +566,7 @@ final class SettingsStore: ObservableObject {
 
    var selectedFloatingIndicatorType: FloatingIndicatorType {
       // The retired "dot" indicator (and any unknown value) maps to the Orb,
-      // its successor in the corner slot.
+      // its successor in the corner slot. Notch/bubble remain first-class styles.
       get { FloatingIndicatorType(rawValue: floatingIndicatorType) ?? .orb }
       set {
          let previousValue = selectedFloatingIndicatorType

@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "يظهر ككرة زجاجية سائلة في زاوية الشاشة"
   as_a_pill_at_the_bottom_of_the_screen: "يظهر على شكل حبة في أسفل الشاشة"
+  beside_the_focused_text_field_caret: "يظهر بجانب حقل/علامة الإقحام التي تم التركيز عليها"
+  in_the_menu_bar_notch_area: "يظهر في شريط القائمة/منطقة الشق"
 sidebar:
   position: "موقف الشريط الجانبي"
   position_916f66ea: "موضع الشريط الجانبي"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "تكبير/تصغير"
+bubble:
+  _self: "فقاعة"
+notch:
+  _self: "الشق"

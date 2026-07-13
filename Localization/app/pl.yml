@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wyświetla się jako kula z płynnego szkła w rogu ekranu"
   as_a_pill_at_the_bottom_of_the_screen: "Pokazuje się jako pigułka na dole ekranu"
+  beside_the_focused_text_field_caret: "Wyświetla się obok aktywnego pola tekstowego/karetki"
+  in_the_menu_bar_notch_area: "Pokazuje się na pasku menu/obszarze wycięcia"
 sidebar:
   position: "Pozycja paska bocznego"
   position_916f66ea: "Pozycja paska bocznego"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoom"
+bubble:
+  _self: "Bańka"
+notch:
+  _self: "Karb"

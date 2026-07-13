@@ -237,6 +237,8 @@ final class AppCoordinator {
         case pillIndicatorStart = "pill-indicator-start"
         case orbIndicatorStart = "orb-indicator-start"
         case orbIndicatorStop = "orb-indicator-stop"
+        case bubbleIndicatorStart = "bubble-indicator-start"
+        case bubbleIndicatorStop = "bubble-indicator-stop"
         case noteAppend = "note-append"
     }
 
@@ -276,11 +278,24 @@ final class AppCoordinator {
 
     static func floatingIndicatorFocusTrackingMode(
         isTemporarilyHidden: Bool,
+        selectedType: FloatingIndicatorType,
         isRecording: Bool,
         isProcessing: Bool
     ) -> FloatingIndicatorTrackingMode? {
         guard !isTemporarilyHidden else { return nil }
-        return (isRecording || isProcessing) ? .activeSession : .idlePill
+
+        if isRecording || isProcessing {
+            // Bubble manages its own caret-anchor refresh; other active styles use focus tracking.
+            switch selectedType {
+            case .pill, .orb, .notch:
+                return .activeSession
+            case .bubble:
+                return nil
+            }
+        }
+
+        // Always-on styles need idle placement tracking; transient styles leave no idle footprint.
+        return selectedType.isAlwaysOn ? .idlePill : nil
     }
 
     private enum EventTapKind {
@@ -336,7 +351,9 @@ final class AppCoordinator {
     /// Owns the streaming session lifecycle: engine callbacks, audio forwarding,
     /// refinement coordinator + overlay sink, and the post-stop finalize pipeline.
     let streamingSession: StreamingSessionController
+    let floatingIndicatorController: FloatingIndicatorController
     let pillFloatingIndicatorController: PillFloatingIndicatorController
+    let caretBubbleFloatingIndicatorController: CaretBubbleFloatingIndicatorController
     let orbFloatingIndicatorController: OrbFloatingIndicatorController
     let floatingIndicatorPresenters: [FloatingIndicatorType: any FloatingIndicatorPresenting]
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
@@ -512,9 +529,17 @@ final class AppCoordinator {
             normalizeText: { AppCoordinator.normalizedTranscriptionText($0) },
             isEffectivelyEmptyText: { AppCoordinator.isTranscriptionEffectivelyEmpty($0) }
         )
+        self.floatingIndicatorController = FloatingIndicatorController(
+            state: floatingIndicatorState,
+            liveTranscript: liveTranscriptState
+        )
         self.pillFloatingIndicatorController = PillFloatingIndicatorController(
             state: floatingIndicatorState,
             settingsStore: settingsStore,
+            liveTranscript: liveTranscriptState
+        )
+        self.caretBubbleFloatingIndicatorController = CaretBubbleFloatingIndicatorController(
+            state: floatingIndicatorState,
             liveTranscript: liveTranscriptState
         )
         self.orbFloatingIndicatorController = OrbFloatingIndicatorController(
@@ -523,7 +548,9 @@ final class AppCoordinator {
             liveTranscript: liveTranscriptState
         )
         self.floatingIndicatorPresenters = [
+            .notch: floatingIndicatorController,
             .pill: pillFloatingIndicatorController,
+            .bubble: caretBubbleFloatingIndicatorController,
             .orb: orbFloatingIndicatorController
         ]
         self.onboardingController = OnboardingWindowController()
@@ -685,6 +712,9 @@ final class AppCoordinator {
             },
             selectedLanguageProvider: { [weak self] in
                 self?.settingsStore.selectedAppLanguage ?? .automatic
+            },
+            anchorProvider: { [weak self] in
+                self?.contextEngineService.captureFocusedElementAnchorRect()
             },
             preferredScreenProvider: { [weak self] in
                 self?.floatingIndicatorFocusTracker.preferredScreen()
@@ -1753,6 +1783,10 @@ final class AppCoordinator {
             .pillIndicatorStart
         case .orb:
             .orbIndicatorStart
+        case .notch:
+            .floatingIndicatorStart
+        case .bubble:
+            .bubbleIndicatorStart
         }
     }
 
@@ -1762,6 +1796,10 @@ final class AppCoordinator {
             .pillIndicatorStop
         case .orb:
             .orbIndicatorStop
+        case .notch:
+            .floatingIndicatorStop
+        case .bubble:
+            .bubbleIndicatorStop
         }
     }
 
@@ -1774,6 +1812,7 @@ final class AppCoordinator {
     private func syncFloatingIndicatorFocusTracking() {
         let trackingMode = Self.floatingIndicatorFocusTrackingMode(
             isTemporarilyHidden: isFloatingIndicatorTemporarilyHidden(),
+            selectedType: configuredFloatingIndicatorType(),
             isRecording: isRecording,
             isProcessing: isProcessing
         )

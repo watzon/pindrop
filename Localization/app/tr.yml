@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Ekranın köşesinde sıvı cam küre olarak görünür"
   as_a_pill_at_the_bottom_of_the_screen: "Ekranın alt kısmında hap olarak gösterilir"
+  beside_the_focused_text_field_caret: "Odaklanılan metin alanının/işaret işaretinin yanında gösterilir"
+  in_the_menu_bar_notch_area: "Menü çubuğu/çentik alanında gösterilir"
 sidebar:
   position: "Kenar çubuğu konumu"
   position_916f66ea: "Kenar çubuğu konumu"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Yakınlaştır"
+bubble:
+  _self: "Kabarcık"
+notch:
+  _self: "Çentik"

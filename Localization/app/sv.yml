@@ -1030,6 +1030,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Visas som en kula av flytande glas i hörnet av skärmen"
   as_a_pill_at_the_bottom_of_the_screen: "Visas som ett piller längst ner på skärmen"
+  beside_the_focused_text_field_caret: "Visas bredvid det fokuserade textfältet/careten"
+  in_the_menu_bar_notch_area: "Visas i menyraden/notchområdet"
 sidebar:
   position: "Sidofältsposition"
   position_916f66ea: "Sidofältets position"
@@ -1490,3 +1492,7 @@ your:
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zooma"
+bubble:
+  _self: "Bubbla"
+notch:
+  _self: "Hack"
