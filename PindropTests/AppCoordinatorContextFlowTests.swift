@@ -25,10 +25,47 @@ struct AppCoordinatorContextFlowTests {
     @Test func recordingStopAdmissionLetsOnlyFirstUserOrLimitEventClaimStop() {
         let admission = RecordingStopAdmission()
 
-        #expect(admission.claim(.dictation) == .dictation)
+        let first = admission.claim(.dictation)
+        #expect(first?.route == .dictation)
         #expect(admission.claim(.quickCapture) == nil)
-        admission.release()
-        #expect(admission.claim(.quickCapture) == .quickCapture)
+        if let first {
+            admission.release(first)
+        }
+        #expect(admission.claim(.quickCapture)?.route == .quickCapture)
+    }
+
+    @Test func recordingStopAdmissionCancellationReleasesImmediatelyForNewClaim() {
+        let admission = RecordingStopAdmission()
+        let first = admission.claim(.dictation)
+        #expect(first != nil)
+
+        // Cancel frees the gate even while the old stop task is still alive.
+        admission.invalidateCurrentClaim()
+        let second = admission.claim(.quickCapture)
+        #expect(second?.route == .quickCapture)
+
+        // Stale deferred release from the cancelled stop must not clear the new claim.
+        if let first {
+            admission.release(first)
+        }
+        #expect(admission.claim(.manualTranscription) == nil)
+        if let second {
+            admission.release(second)
+        }
+        #expect(admission.claim(.manualTranscription)?.route == .manualTranscription)
+    }
+
+    @Test func recordingStopAdmissionStaleReleaseDoesNotClearNewerClaim() throws {
+        let admission = RecordingStopAdmission()
+        let first = try #require(admission.claim(.dictation))
+        admission.release(first)
+
+        let second = try #require(admission.claim(.quickCapture))
+        // Releasing an already-finished claim is a no-op against the newer lease.
+        admission.release(first)
+        #expect(admission.claim(.noteAppend(UUID())) == nil)
+        admission.release(second)
+        #expect(admission.claim(.dictation)?.route == .dictation)
     }
 
     private func makeContextEngine() -> (
@@ -88,22 +125,6 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: true, isProcessing: false))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: true))
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false) == false)
-
-        let now = Date()
-        #expect(
-            AppCoordinator.isDoubleEscapePress(
-                now: now,
-                lastEscapeTime: now.addingTimeInterval(-0.2),
-                threshold: 0.4
-            )
-        )
-        #expect(
-            AppCoordinator.isDoubleEscapePress(
-                now: now,
-                lastEscapeTime: now.addingTimeInterval(-0.6),
-                threshold: 0.4
-            ) == false
-        )
     }
 
     @Test func contextTimeoutFallsBackWithoutBlockingTranscription() {
@@ -134,14 +155,229 @@ struct AppCoordinatorContextFlowTests {
         #expect(AppCoordinator.shouldSuppressEscapeEvent(isRecording: false, isProcessing: false) == false)
     }
 
-    @Test func doubleEscapeDetectionHonorsThreshold() {
-        let now = Date()
-        let withinThreshold = now.addingTimeInterval(-0.25)
-        let outsideThreshold = now.addingTimeInterval(-0.6)
+    @Test func singleEscapeCancelsActiveSessionsAndNoOpsWhenIdle() {
+        #expect(AppCoordinator.shouldCancelOperationOnEscape(isRecording: true, isProcessing: false))
+        #expect(AppCoordinator.shouldCancelOperationOnEscape(isRecording: false, isProcessing: true))
+        #expect(AppCoordinator.shouldCancelOperationOnEscape(isRecording: true, isProcessing: true))
+        #expect(AppCoordinator.shouldCancelOperationOnEscape(isRecording: false, isProcessing: false) == false)
 
-        #expect(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: withinThreshold, threshold: 0.4))
-        #expect(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: outsideThreshold, threshold: 0.4) == false)
-        #expect(AppCoordinator.isDoubleEscapePress(now: now, lastEscapeTime: nil, threshold: 0.4) == false)
+        // Suppression and cancellation share the active-session predicate so Escape is
+        // swallowed only when a cancel will run.
+        for recording in [false, true] {
+            for processing in [false, true] {
+                #expect(
+                    AppCoordinator.shouldSuppressEscapeEvent(isRecording: recording, isProcessing: processing)
+                        == AppCoordinator.shouldCancelOperationOnEscape(isRecording: recording, isProcessing: processing)
+                )
+            }
+        }
+    }
+
+    @Test func dictationOperationControllerInvalidatesCancelledGeneration() {
+        let controller = DictationOperationController()
+        let first = controller.begin()
+        #expect(controller.isCurrent(first))
+
+        let second = controller.begin()
+        #expect(controller.isCurrent(second))
+        #expect(controller.isCurrent(first) == false)
+
+        controller.cancel()
+        #expect(controller.isCurrent(second) == false)
+
+        let third = controller.begin()
+        #expect(controller.isCurrent(third))
+        #expect(controller.isCurrent(second) == false)
+    }
+
+    @Test func productionCleanupSkipsResetWhenOperationSupersededAfterCancel() {
+        // Production stop paths defer through shouldResetProcessingStateOnExit.
+        // After cancel invalidates the operation token, a stale cancelled stop must
+        // not run resetProcessingState and wipe a newly started recording.
+        #expect(
+            AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: false,
+                isOperationCurrent: true
+            )
+        )
+        #expect(
+            AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: false,
+                isOperationCurrent: false
+            ) == false
+        )
+        #expect(
+            AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: true,
+                isOperationCurrent: true
+            ) == false
+        )
+
+        let controller = DictationOperationController()
+        let stale = controller.begin()
+        controller.cancel() // cancelCurrentOperation advances generation
+        let next = controller.begin()
+        #expect(controller.isCurrent(stale) == false)
+        #expect(controller.isCurrent(next))
+        #expect(
+            AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: false,
+                isOperationCurrent: controller.isCurrent(stale)
+            ) == false
+        )
+        #expect(
+            AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: false,
+                isOperationCurrent: controller.isCurrent(next)
+            )
+        )
+    }
+
+    @Test func staleOrdinaryErrorDoesNotEmitFailureSideEffects() {
+        // Ordinary backend errors that complete after cancel must not toast/reset.
+        let controller = DictationOperationController()
+        let token = controller.begin()
+        controller.cancel()
+        #expect(controller.isCurrent(token) == false)
+
+        struct BackendError: Error {}
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: controller.isCurrent(token),
+                error: BackendError()
+            ) == false
+        )
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: true,
+                error: BackendError()
+            )
+        )
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: true,
+                error: CancellationError()
+            ) == false
+        )
+    }
+
+    @Test func staleManualCatchMustNotMutateReplacementRecordingState() {
+        // Manual path catch previously always clearCurrentJob/failCurrentJob.
+        // After cancel + new claim, stale completion must skip RecordingState mutation.
+        let controller = DictationOperationController()
+        let admission = RecordingStopAdmission()
+
+        let firstToken = controller.begin()
+        let firstClaim = admission.claim(.manualTranscription)
+        #expect(firstClaim != nil)
+
+        // Cancel operation and free admission so a newer manual job can start.
+        controller.cancel()
+        admission.invalidateCurrentClaim()
+        #expect(controller.isCurrent(firstToken) == false)
+
+        let secondToken = controller.begin()
+        let secondClaim = admission.claim(.manualTranscription)
+        #expect(secondClaim != nil)
+        #expect(controller.isCurrent(secondToken))
+
+        // Stale first catch side effects are forbidden.
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: controller.isCurrent(firstToken),
+                error: CancellationError()
+            ) == false
+        )
+        struct BackendError: Error {}
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: controller.isCurrent(firstToken),
+                error: BackendError()
+            ) == false
+        )
+        // Current job may still emit failure side effects.
+        #expect(
+            AppCoordinator.shouldEmitOperationFailureSideEffects(
+                isOperationCurrent: controller.isCurrent(secondToken),
+                error: BackendError()
+            )
+        )
+
+        // Stale deferred release cannot clear the newer claim.
+        if let firstClaim {
+            admission.release(firstClaim)
+        }
+        #expect(admission.claim(.dictation) == nil)
+        if let secondClaim {
+            admission.release(secondClaim)
+        }
+    }
+
+    @Test func cancelledGenerationDiscardsPostAwaitOutputAndPersistSideEffects() async {
+        // Production stop paths check operationController.isCurrent(token) after every
+        // await before output/history. Cancel advances generation so a late backend
+        // completion cannot paste/save.
+        let controller = DictationOperationController()
+        let token = controller.begin()
+
+        actor Gate {
+            private var isOpen = false
+            private var waiters: [CheckedContinuation<Void, Never>] = []
+            func open() {
+                isOpen = true
+                let pending = waiters
+                waiters.removeAll()
+                for waiter in pending { waiter.resume() }
+            }
+            func waitUntilOpen() async {
+                if isOpen { return }
+                await withCheckedContinuation { waiters.append($0) }
+            }
+        }
+        actor SideEffects {
+            private(set) var didOutput = false
+            private(set) var didPersist = false
+            private(set) var didReset = false
+            func markOutput() { didOutput = true }
+            func markPersist() { didPersist = true }
+            func markReset() { didReset = true }
+        }
+
+        let gate = Gate()
+        let effects = SideEffects()
+        let processing = Task {
+            await gate.waitUntilOpen()
+            // Post-await ownership check (production ensureOperationCurrent equivalent).
+            guard controller.isCurrent(token) else {
+                // Deferred cleanup also checks ownership before resetProcessingState.
+                if AppCoordinator.shouldResetProcessingStateOnExit(
+                    didResetProcessingState: false,
+                    isOperationCurrent: controller.isCurrent(token)
+                ) {
+                    await effects.markReset()
+                }
+                return
+            }
+            await effects.markOutput()
+            await effects.markPersist()
+            if AppCoordinator.shouldResetProcessingStateOnExit(
+                didResetProcessingState: false,
+                isOperationCurrent: controller.isCurrent(token)
+            ) {
+                await effects.markReset()
+            }
+        }
+
+        controller.cancel()
+        await gate.open()
+        await processing.value
+
+        #expect(await effects.didOutput == false)
+        #expect(await effects.didPersist == false)
+        #expect(await effects.didReset == false)
+        #expect(controller.isCurrent(token) == false)
+        #expect(AppCoordinator.isTaskCancellation(CancellationError()))
+        #expect(AppCoordinator.isTaskCancellation(URLError(.cancelled)))
     }
 
     @Test func eventTapRecoveryReenablesForFirstDisableInWindow() {

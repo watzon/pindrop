@@ -69,6 +69,16 @@ struct HotkeysSettingsView: View {
                     lastConflictStatusBySlot[.openLibrary] = nil
                 }
             ),
+            (
+                .cancelOperation,
+                localized("Cancel Operation", locale: locale),
+                localized("Cancel the active recording, transcription, or enhancement.", locale: locale),
+                settings.cancelOperationHotkey,
+                {
+                    settings.updateCancelOperationHotkey("", keyCode: 0, modifiers: 0)
+                    lastConflictStatusBySlot[.cancelOperation] = nil
+                }
+            ),
         ]
     }
 
@@ -320,6 +330,8 @@ struct HotkeysSettingsView: View {
             settings.updateQuickCaptureToggleHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         case .openLibrary:
             settings.updateOpenLibraryHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
+        case .cancelOperation:
+            settings.updateCancelOperationHotkey(hotkey, keyCode: keyCode, modifiers: modifiers)
         }
     }
 

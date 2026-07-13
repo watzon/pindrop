@@ -158,6 +158,7 @@ struct HotkeySettingsSnapshot: Equatable {
     let quickCapturePTT: HotkeyBindingSnapshot
     let quickCaptureToggle: HotkeyBindingSnapshot
     let openLibrary: HotkeyBindingSnapshot
+    let cancelOperation: HotkeyBindingSnapshot
 }
 
 struct SettingsObservationSnapshot: Equatable {
@@ -197,23 +198,76 @@ enum RecordingStopRoute: Equatable {
 
 /// A synchronous, coordinator-owned admission gate shared by every stop source.
 /// It lets only the first user/limit event own a recording's finalization route.
+/// Claims are lease/generation-owned: cancel can free the gate immediately, and a
+/// stale deferred release cannot clear a newer claim.
+struct RecordingStopClaim: Equatable, Sendable {
+    let id: UInt64
+    let route: RecordingStopRoute
+}
+
 final class RecordingStopAdmission {
     private let lock = NSLock()
     private var isClaimed = false
+    private var currentClaimID: UInt64 = 0
+    private var nextClaimID: UInt64 = 0
 
-    func claim(_ route: RecordingStopRoute) -> RecordingStopRoute? {
+    func claim(_ route: RecordingStopRoute) -> RecordingStopClaim? {
         lock.lock()
         defer { lock.unlock() }
         guard !isClaimed else { return nil }
+        nextClaimID &+= 1
+        currentClaimID = nextClaimID
         isClaimed = true
-        return route
+        return RecordingStopClaim(id: currentClaimID, route: route)
     }
 
-    func release() {
+    /// Releases only if `claim` is still the active lease.
+    func release(_ claim: RecordingStopClaim) {
         lock.lock()
+        defer { lock.unlock() }
+        guard isClaimed, currentClaimID == claim.id else { return }
         isClaimed = false
-        lock.unlock()
     }
+
+    /// Immediately frees the gate (e.g. cancel-operation). Any outstanding claim
+    /// token becomes stale and its deferred `release` is a no-op.
+    func invalidateCurrentClaim() {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isClaimed else { return }
+        isClaimed = false
+        currentClaimID &+= 1
+    }
+}
+
+/// Generation-token ownership for a single in-flight dictation/processing pipeline.
+/// Cancel advances the generation so post-await stages can discard stale results.
+final class DictationOperationController: @unchecked Sendable {
+    private let lock = NSLock()
+    private var generation: UInt64 = 0
+
+    func begin() -> DictationOperationToken {
+        lock.lock()
+        defer { lock.unlock() }
+        generation &+= 1
+        return DictationOperationToken(generation: generation)
+    }
+
+    func cancel() {
+        lock.lock()
+        defer { lock.unlock() }
+        generation &+= 1
+    }
+
+    func isCurrent(_ token: DictationOperationToken) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return token.generation == generation
+    }
+}
+
+struct DictationOperationToken: Equatable, Sendable {
+    let generation: UInt64
 }
 
 @MainActor
@@ -358,6 +412,9 @@ final class AppCoordinator {
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>?
+    /// Owned processing task for stop/transcribe/enhance pipelines. Cancelled by cancel-operation.
+    private var activeOperationTask: Task<Void, Error>?
+    private var operationController = DictationOperationController()
     private var queueOriginalModelName: String?
 
     // MARK: - State
@@ -417,9 +474,7 @@ final class AppCoordinator {
     private var modifierEventTapRecoveryTask: Task<Void, Never>?
     private var inputDeviceListMonitor: AudioDeviceListMonitor?
     private var inputMuteMonitor: InputMuteMonitor?
-    private var lastEscapeTime: Date?
     private var lastEscapeSignalTime: Date?
-    private let doubleEscapeThreshold: TimeInterval = 0.4
     private let duplicateEscapeSignalThreshold: TimeInterval = 0.08
     private let eventTapRecoveryDelay: Duration = .milliseconds(250)
     private let eventTapDisableLoopWindow: TimeInterval = 1.0
@@ -1502,6 +1557,40 @@ final class AppCoordinator {
                 }
             }
         }
+
+        if !settingsStore.cancelOperationHotkey.isEmpty,
+           let binding = validatedHotkeyBinding(
+               displayName: "Cancel Operation",
+               hotkeyString: settingsStore.cancelOperationHotkey,
+               keyCodeValue: settingsStore.cancelOperationHotkeyCode,
+               modifiersValue: settingsStore.cancelOperationHotkeyModifiers
+           ) {
+            Log.hotkey.info("Registering cancel-operation: keyCode=\(binding.keyCode), modifiers=0x\(String(binding.modifiers.rawValue, radix: 16)), string=\(self.settingsStore.cancelOperationHotkey)")
+            if canRegisterHotkey(
+                identifier: "cancel-operation",
+                displayName: "Cancel Operation",
+                hotkeyString: settingsStore.cancelOperationHotkey,
+                keyCode: binding.keyCode,
+                modifiers: binding.modifiers,
+                registrationState: &registrationState
+            ) {
+                let didRegister = hotkeyManager.registerHotkey(
+                    keyCode: binding.keyCode,
+                    modifiers: binding.modifiers,
+                    identifier: "cancel-operation",
+                    mode: .toggle,
+                    onKeyDown: { [weak self] in
+                        Task { @MainActor in
+                            await self?.handleCancelOperation()
+                        }
+                    },
+                    onKeyUp: nil
+                )
+                if !didRegister {
+                    handleHotkeyRegistrationFailure(displayName: "Cancel Operation", hotkeyString: settingsStore.cancelOperationHotkey)
+                }
+            }
+        }
     }
 
     private func validatedHotkeyBinding(
@@ -1570,6 +1659,8 @@ final class AppCoordinator {
             return "Note Capture (Toggle)"
         case "open-library":
             return "Open Library"
+        case "cancel-operation":
+            return "Cancel Operation"
         default:
             return identifier
         }
@@ -1620,6 +1711,11 @@ final class AppCoordinator {
                     hotkey: settingsStore.openLibraryHotkey,
                     keyCode: settingsStore.openLibraryHotkeyCode,
                     modifiers: settingsStore.openLibraryHotkeyModifiers
+                ),
+                cancelOperation: HotkeyBindingSnapshot(
+                    hotkey: settingsStore.cancelOperationHotkey,
+                    keyCode: settingsStore.cancelOperationHotkeyCode,
+                    modifiers: settingsStore.cancelOperationHotkeyModifiers
                 )
             ),
             mcpServerEnabled: settingsStore.mcpServerEnabled,
@@ -2278,22 +2374,56 @@ final class AppCoordinator {
             noteAppendEditorID: isNoteAppendMode ? noteAppendEditorID : nil,
             isManualTranscription: isRecordingFeatureCaptureActive
         )
-        guard let claimedRoute = recordingStopAdmission.claim(route) else {
+        guard let claim = recordingStopAdmission.claim(route) else {
             Log.app.debug("Ignoring duplicate recording stop request")
             return
         }
-        defer { recordingStopAdmission.release() }
 
-        switch claimedRoute {
+        let token = operationController.begin()
+        let operationTask = Task { @MainActor [weak self] in
+            guard let self else { throw CancellationError() }
+            try await self.performRecordingStop(route: claim.route, token: token)
+        }
+        activeOperationTask = operationTask
+
+        defer {
+            if activeOperationTask == operationTask {
+                activeOperationTask = nil
+            }
+            // Only frees the gate if this claim is still current. Cancel may have
+            // already invalidated it so a newer stop can proceed.
+            recordingStopAdmission.release(claim)
+        }
+
+        do {
+            try await operationTask.value
+        } catch {
+            if Self.isTaskCancellation(error) {
+                Log.app.info("Recording stop cancelled")
+                return
+            }
+            // A superseded generation was already cancelled; do not surface its failure.
+            guard operationController.isCurrent(token) else { return }
+            throw error
+        }
+    }
+
+    private func performRecordingStop(
+        route: RecordingStopRoute,
+        token: DictationOperationToken
+    ) async throws {
+        switch route {
         case .dictation:
-            try await stopRecordingAndTranscribe()
+            try await stopRecordingAndTranscribe(token: token)
         case .quickCapture:
-            if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture() {
+            if let enhancedNote = try await stopRecordingAndTranscribeForQuickCapture(token: token) {
+                try ensureOperationCurrent(token)
                 openNoteEditorWithEnhancedNote(enhancedNote)
             }
             isQuickCaptureMode = false
         case .noteAppend(let editorID):
-            if let text = try await stopRecordingAndTranscribeForNoteAppend() {
+            if let text = try await stopRecordingAndTranscribeForNoteAppend(token: token) {
+                try ensureOperationCurrent(token)
                 NotificationCenter.default.post(
                     name: .noteSpeakToAppendTranscript,
                     object: nil,
@@ -2302,7 +2432,7 @@ final class AppCoordinator {
             }
             clearNoteAppendMode()
         case .manualTranscription:
-            try await stopManualTranscriptionRecording()
+            try await stopManualTranscriptionRecording(token: token)
         }
     }
     
@@ -2463,7 +2593,7 @@ final class AppCoordinator {
         NoteAppendListeningCoordinator.shared.state.finishSession()
     }
 
-    private func stopRecordingAndTranscribeForNoteAppend() async throws -> String? {
+    private func stopRecordingAndTranscribeForNoteAppend(token: DictationOperationToken) async throws -> String? {
         guard recordingStartTime != nil else {
             Log.app.warning("stopRecordingAndTranscribeForNoteAppend called but recordingStartTime is nil")
             return nil
@@ -2480,7 +2610,10 @@ final class AppCoordinator {
         // No global indicator session was started for note-append.
 
         defer {
-            if !didResetProcessingState {
+            if Self.shouldResetProcessingStateOnExit(
+                didResetProcessingState: didResetProcessingState,
+                isOperationCurrent: operationController.isCurrent(token)
+            ) {
                 resetProcessingState()
             }
         }
@@ -2488,7 +2621,9 @@ final class AppCoordinator {
         let audioData: Data
         do {
             audioData = try await audioRecorder.stopRecording()
+            try ensureOperationCurrent(token)
         } catch {
+            if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Failed to stop note-append recording: \(error)")
             throw error
         }
@@ -2513,7 +2648,12 @@ final class AppCoordinator {
                 diarizationOptions: .init(),
                 diarizationFailurePolicy: .bestEffort
             )
+            try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
+            // Stale/cancelled operations must not toast or mutate UI after a newer session started.
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Note-append transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -2525,6 +2665,9 @@ final class AppCoordinator {
             toastService.show(ToastPayload(message: message, style: .error))
             throw error
         } catch {
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Note-append transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -2534,6 +2677,7 @@ final class AppCoordinator {
             throw error
         }
 
+        try ensureOperationCurrent(token)
         let transcribedText = transcriptionOutput.text
         var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
         textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
@@ -2553,7 +2697,7 @@ final class AppCoordinator {
         return textAfterReplacements
     }
 
-    private func stopRecordingAndTranscribeForQuickCapture() async throws -> AIEnhancementService.EnhancedNote? {
+    private func stopRecordingAndTranscribeForQuickCapture(token: DictationOperationToken) async throws -> AIEnhancementService.EnhancedNote? {
         guard recordingStartTime != nil else {
             Log.app.warning("stopRecordingAndTranscribeForQuickCapture called but recordingStartTime is nil")
             return nil
@@ -2570,7 +2714,10 @@ final class AppCoordinator {
         transitionRecordingIndicatorToProcessing()
 
         defer {
-            if !didResetProcessingState {
+            if Self.shouldResetProcessingStateOnExit(
+                didResetProcessingState: didResetProcessingState,
+                isOperationCurrent: operationController.isCurrent(token)
+            ) {
                 resetProcessingState()
             }
         }
@@ -2578,7 +2725,9 @@ final class AppCoordinator {
         let audioData: Data
         do {
             audioData = try await audioRecorder.stopRecording()
+            try ensureOperationCurrent(token)
         } catch {
+            if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Failed to stop recording: \(error)")
             throw error
         }
@@ -2604,7 +2753,11 @@ final class AppCoordinator {
                 diarizationOptions: .init(),
                 diarizationFailurePolicy: .bestEffort
             )
+            try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -2618,6 +2771,9 @@ final class AppCoordinator {
             )
             throw error
         } catch {
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -2683,6 +2839,7 @@ final class AppCoordinator {
                     context: enhancementContext,
                     provider: noteAssignment.kind
                 )
+                try ensureOperationCurrent(token)
                 Log.app.info("Note enhancement completed: title='\(enhancedNote.title)', tags=\(enhancedNote.tags.count)")
                 let normalizedEnhancedContent = normalizedTranscriptionText(enhancedNote.content)
                 guard !isTranscriptionEffectivelyEmpty(normalizedEnhancedContent) else {
@@ -2695,10 +2852,14 @@ final class AppCoordinator {
                     tags: enhancedNote.tags
                 )
             } catch {
+                if Self.isTaskCancellation(error) || !operationController.isCurrent(token) {
+                    throw CancellationError()
+                }
                 Log.app.error("Note enhancement failed: \(error)")
             }
         }
 
+        try ensureOperationCurrent(token)
         let fallbackTitle = aiEnhancementService.generateFallbackTitle(from: textAfterReplacements)
         return AIEnhancementService.EnhancedNote(
             content: textAfterReplacements,
@@ -3106,6 +3267,10 @@ final class AppCoordinator {
             let sanitized = AIEnhancementService.stripResponsePreamble(enhanced)
             return (sanitized, assignment.modelID)
         } catch {
+            if Self.isTaskCancellation(error) {
+                Log.aiEnhancement.info("Streaming post-stop enhance cancelled")
+                return nil
+            }
             Log.aiEnhancement.warning(
                 "Streaming post-stop enhance failed: \(error.localizedDescription)")
             toastService.show(
@@ -3118,7 +3283,7 @@ final class AppCoordinator {
         }
     }
 
-    private func stopRecordingAndFinalizeStreaming() async throws {
+    private func stopRecordingAndFinalizeStreaming(token: DictationOperationToken) async throws {
         guard let startTime = recordingStartTime else {
             Log.app.warning("stopRecordingAndFinalizeStreaming called but recordingStartTime is nil")
             return
@@ -3135,7 +3300,10 @@ final class AppCoordinator {
         transitionRecordingIndicatorToProcessing()
 
         defer {
-            if !didResetProcessingState {
+            if Self.shouldResetProcessingStateOnExit(
+                didResetProcessingState: didResetProcessingState,
+                isOperationCurrent: operationController.isCurrent(token)
+            ) {
                 resetProcessingState()
             }
         }
@@ -3145,7 +3313,9 @@ final class AppCoordinator {
         let recordedAudioData: Data
         do {
             recordedAudioData = try await audioRecorder.stopRecording()
+            try ensureOperationCurrent(token)
         } catch {
+            if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Failed to stop recording for streaming session: \(error)")
             await streamingSession.cancel()
             throw error
@@ -3155,6 +3325,7 @@ final class AppCoordinator {
             recordedAudioData: recordedAudioData,
             recordingDuration: Date().timeIntervalSince(startTime)
         )
+        try ensureOperationCurrent(token)
         lastAppliedReplacements = outcome.appliedReplacements
 
         guard !outcome.isEffectivelyEmpty else {
@@ -3165,12 +3336,14 @@ final class AppCoordinator {
         guard Self.shouldPersistHistory(outputSucceeded: outcome.outputSucceeded, text: outcome.finalText) else {
             return
         }
+        try ensureOperationCurrent(token)
 
         let duration = Date().timeIntervalSince(startTime)
         let speakerTrainingSegments = await speakerTrainingSegments(
             audioData: recordedAudioData,
             existingSegments: nil
         )
+        try ensureOperationCurrent(token)
         do {
             let record = try historyStore.save(
                 text: outcome.finalText,
@@ -3209,14 +3382,14 @@ final class AppCoordinator {
         }
     }
     
-    private func stopRecordingAndTranscribe() async throws {
+    private func stopRecordingAndTranscribe(token: DictationOperationToken) async throws {
         guard let startTime = recordingStartTime else {
             Log.app.warning("stopRecordingAndTranscribe called but recordingStartTime is nil")
             return
         }
 
         if streamingSession.isSessionActive {
-            try await stopRecordingAndFinalizeStreaming()
+            try await stopRecordingAndFinalizeStreaming(token: token)
             return
         }
 
@@ -3231,7 +3404,10 @@ final class AppCoordinator {
         transitionRecordingIndicatorToProcessing()
         
         defer {
-            if !didResetProcessingState {
+            if Self.shouldResetProcessingStateOnExit(
+                didResetProcessingState: didResetProcessingState,
+                isOperationCurrent: operationController.isCurrent(token)
+            ) {
                 resetProcessingState()
             }
         }
@@ -3239,7 +3415,9 @@ final class AppCoordinator {
         let audioData: Data
         do {
             audioData = try await audioRecorder.stopRecording()
+            try ensureOperationCurrent(token)
         } catch {
+            if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Failed to stop recording: \(error)")
             throw error
         }
@@ -3267,7 +3445,11 @@ final class AppCoordinator {
                 diarizationOptions: .init(),
                 diarizationFailurePolicy: .bestEffort
             )
+            try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -3281,6 +3463,9 @@ final class AppCoordinator {
             )
             throw error
         } catch {
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
+                throw CancellationError()
+            }
             Log.app.error("Transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -3488,6 +3673,7 @@ final class AppCoordinator {
                     context: contextMetadata,
                     provider: transcriptionAssignment.kind
                 )
+                try ensureOperationCurrent(token)
                 if let capabilities = mentionFormattingCapabilities,
                    capabilities.supportsFileMentions,
                    !derivedWorkspaceRoots.isEmpty {
@@ -3520,6 +3706,10 @@ final class AppCoordinator {
                 enhancedWithModel = transcriptionAssignment.modelID
                 Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
+                // Cancelled/stale generation must not toast; abort the operation entirely.
+                if Self.isTaskCancellation(error) || !operationController.isCurrent(token) {
+                    throw CancellationError()
+                }
                 Log.app.error("AI enhancement failed: \(error)")
                 toastService.show(
                     ToastPayload(
@@ -3533,6 +3723,7 @@ final class AppCoordinator {
             Log.app.debug("AI enhancement skipped: no transcriptionEnhancement assignment resolves")
         }
 
+        try ensureOperationCurrent(token)
         finalText = normalizedTranscriptionText(finalText)
         guard !isTranscriptionEffectivelyEmpty(finalText) else {
             handleNoSpeechDetected(context: "recording")
@@ -3562,15 +3753,18 @@ final class AppCoordinator {
                 Log.app.info("Automatic dictionary learning disabled in settings; skipping observation")
             }
         } catch {
+            if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Output failed: \(error)")
         }
 
+        try ensureOperationCurrent(token)
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
 
         let speakerTrainingSegments = await speakerTrainingSegments(
             audioData: audioData,
             existingSegments: transcriptionOutput.diarizedSegments
         )
+        try ensureOperationCurrent(token)
         do {
             let record = try historyStore.save(
                 text: finalText,
@@ -3916,13 +4110,54 @@ final class AppCoordinator {
         isRecording || isProcessing
     }
 
-    static func isDoubleEscapePress(
-        now: Date,
-        lastEscapeTime: Date?,
-        threshold: TimeInterval
+    /// Single Escape cancels while a recording/processing session is active.
+    /// Same predicate as suppression so the key is only swallowed when we act on it.
+    static func shouldCancelOperationOnEscape(isRecording: Bool, isProcessing: Bool) -> Bool {
+        shouldSuppressEscapeEvent(isRecording: isRecording, isProcessing: isProcessing)
+    }
+
+    static func isTaskCancellation(_ error: Error) -> Bool {
+        if error is CancellationError { return true }
+        if let urlError = error as? URLError, urlError.code == .cancelled { return true }
+        let nsError = error as NSError
+        return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
+    }
+
+    private func ensureOperationCurrent(_ token: DictationOperationToken) throws {
+        try Task.checkCancellation()
+        guard operationController.isCurrent(token) else {
+            throw CancellationError()
+        }
+    }
+
+    /// Deferred stop/transcribe cleanup must only run for the still-current operation.
+    /// After cancel frees admission and a new recording starts, a stale cancelled task
+    /// must not wipe the new session's processing/recording state.
+    static func shouldResetProcessingStateOnExit(
+        didResetProcessingState: Bool,
+        isOperationCurrent: Bool
     ) -> Bool {
-        guard let lastEscapeTime else { return false }
-        return now.timeIntervalSince(lastEscapeTime) <= threshold
+        !didResetProcessingState && isOperationCurrent
+    }
+
+    /// Whether a stop-path catch may toast or mutate shared UI/RecordingState.
+    /// Stale generations (cancelled then superseded) and cooperative cancellation
+    /// must produce no user-visible side effects.
+    static func shouldEmitOperationFailureSideEffects(
+        isOperationCurrent: Bool,
+        error: Error
+    ) -> Bool {
+        isOperationCurrent && !isTaskCancellation(error)
+    }
+
+    private func resetProcessingStateIfCurrent(_ token: DictationOperationToken) {
+        guard Self.shouldResetProcessingStateOnExit(
+            didResetProcessingState: false,
+            isOperationCurrent: operationController.isCurrent(token)
+        ) else {
+            return
+        }
+        resetProcessingState()
     }
 
     private nonisolated func handleKeyEvent(
@@ -4021,38 +4256,36 @@ final class AppCoordinator {
     }
     
     private func handleEscapeKeyPress() {
-        guard isRecording || isProcessing else { return }
-        
-        let now = Date()
-        
-        if Self.isDoubleEscapePress(
-            now: now,
-            lastEscapeTime: lastEscapeTime,
-            threshold: doubleEscapeThreshold
-        ) {
-            lastEscapeTime = nil
-            floatingIndicatorState.clearEscapePrimed()
-            cancelCurrentOperation()
-        } else {
-            lastEscapeTime = now
-            floatingIndicatorState.showEscapePrimed()
-        }
+        // Single Escape cancels while Pindrop owns an active recording/processing session.
+        // Idle Escape is intentionally a no-op so other apps keep the key.
+        guard isRecording || isProcessing || activeOperationTask != nil else { return }
+        cancelCurrentOperation(source: "escape")
     }
-    
-    private func cancelCurrentOperation() {
-        guard isRecording || isProcessing else {
-            Log.app.debug("Double-escape pressed but no operation in progress")
+
+    private func cancelCurrentOperation(source: String = "cancel") {
+        guard isRecording || isProcessing || activeOperationTask != nil else {
+            Log.app.debug("Cancel requested (\(source)) but no operation in progress")
             return
         }
 
         // Background media transcription jobs are long-running and were explicitly
         // queued by the user — don't cancel them via keyboard shortcut.
         guard mediaTranscriptionTask == nil else {
-            Log.app.debug("Double-escape pressed during background media transcription — ignoring")
+            Log.app.debug("Cancel requested (\(source)) during background media transcription — ignoring")
             return
         }
 
-        Log.app.info("Cancelling current operation via double-escape")
+        Log.app.info("Cancelling current operation via \(source)")
+
+        // Invalidate any in-flight stop/transcribe/enhance pipeline first so post-await
+        // stages discard results even if cooperative cancellation is delayed.
+        operationController.cancel()
+        activeOperationTask?.cancel()
+        activeOperationTask = nil
+        // Free stop admission immediately so a new recording can stop even while the
+        // cancelled finalize task is still unwinding its defer.
+        recordingStopAdmission.invalidateCurrentClaim()
+
         streamingSession.cancelDetached()
         recordingState.endRecording(message: "Recording canceled.")
         recordingState.clearCurrentJob()
@@ -4076,7 +4309,7 @@ final class AppCoordinator {
 
         statusBarController.setIdleState()
         statusBarController.updateMenuState()
-        
+
         finishIndicatorSession()
     }
 
@@ -4504,7 +4737,7 @@ final class AppCoordinator {
     }
 
 
-    private func stopManualTranscriptionRecording() async throws {
+    private func stopManualTranscriptionRecording(token: DictationOperationToken) async throws {
         guard isRecordingFeatureCaptureActive else {
             throw AudioRecorderError.notRecording
         }
@@ -4512,6 +4745,9 @@ final class AppCoordinator {
         let mode = recordingState.selectedCaptureMode
         let duration = recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
         let audioData = try await audioRecorder.stopRecording()
+        // Ownership check immediately after the first await — before any global
+        // mutation/store that would clobber a newer session started after cancel.
+        try ensureOperationCurrent(token)
 
         isRecording = false
         isRecordingFeatureCaptureActive = false
@@ -4542,7 +4778,10 @@ final class AppCoordinator {
 
         var didResetProcessingState = false
         defer {
-            if !didResetProcessingState {
+            if Self.shouldResetProcessingStateOnExit(
+                didResetProcessingState: didResetProcessingState,
+                isOperationCurrent: operationController.isCurrent(token)
+            ) {
                 resetProcessingState()
             }
         }
@@ -4554,6 +4793,7 @@ final class AppCoordinator {
                 displayName: mode.libraryDisplayName,
                 sourceKind: .manualCapture
             )
+            try ensureOperationCurrent(token)
 
             recordingState.updateJob(
                 stage: .transcribing,
@@ -4569,6 +4809,7 @@ final class AppCoordinator {
                 diarizationOptions: .init(expectedSpeakerCount: job.options.expectedSpeakerCount),
                 diarizationFailurePolicy: .required
             )
+            try ensureOperationCurrent(token)
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 
             recordingState.updateJob(
@@ -4587,6 +4828,7 @@ final class AppCoordinator {
                 from: finalText,
                 managedAsset: managedAsset
             )
+            try ensureOperationCurrent(token)
 
             let record = try historyStore.save(
                 text: finalText,
@@ -4608,8 +4850,10 @@ final class AppCoordinator {
             updateRecentTranscriptsMenu()
 
             pendingIndicatorCompletion = .meeting
-            resetProcessingState()
-            didResetProcessingState = true
+            if operationController.isCurrent(token) {
+                resetProcessingState()
+                didResetProcessingState = true
+            }
             recordingState.completeCurrentJob(with: record.id, message: "Meeting recording transcribed successfully.")
             let meetingRecordID = record.id
             mainWindowController.showHistory()
@@ -4623,11 +4867,15 @@ final class AppCoordinator {
                 )
             }
         } catch is CancellationError {
+            // Only the current operation may mutate shared RecordingState after cancel.
+            guard operationController.isCurrent(token) else { return }
             resetProcessingState()
             didResetProcessingState = true
             recordingState.clearCurrentJob()
             recordingState.message = "Recording canceled."
         } catch {
+            // Stale cancelled work completing after a newer session started: no state mutation.
+            guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else { return }
             Log.app.error("Manual media transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -4909,7 +5157,7 @@ final class AppCoordinator {
     // MARK: - Cancel Operation
 
     private func handleCancelOperation() async {
-        cancelCurrentOperation()
+        cancelCurrentOperation(source: "hotkey-or-menu")
     }
 
     // MARK: - Toggle Output Mode

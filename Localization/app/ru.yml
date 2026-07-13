@@ -142,6 +142,7 @@ by:
 cancel:
   _self: "Отмена"
   operation: "Отменить операцию"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "Сохраняйте записи непосредственно в редакторе заметок с помощью процесса удержания для записи."
 change:

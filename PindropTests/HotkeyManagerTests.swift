@@ -572,6 +572,47 @@ struct HotkeyManagerTests {
         #expect(state.registeredIdentifiersByCombination.count == 1)
     }
 
+    @Test func cancelOperationHotkeyRegistersAndConflictsOnDuplicateCombo() {
+        let fixture = makeFixture()
+        let callback: () -> Void = {}
+
+        let registered = fixture.hotkeyManager.registerHotkey(
+            keyCode: UInt32(kVK_ANSI_Period),
+            modifiers: [.command],
+            identifier: HotkeySlot.cancelOperation.registrationIdentifier,
+            mode: .toggle,
+            onKeyDown: callback,
+            onKeyUp: nil
+        )
+
+        #expect(registered)
+        #expect(
+            fixture.hotkeyManager.isHotkeyRegistered(
+                identifier: HotkeySlot.cancelOperation.registrationIdentifier
+            )
+        )
+        #expect(fixture.mockRegistration.registerCallCount == 1)
+        #expect(fixture.mockRegistration.registeredHotkeys[0].keyCode == UInt32(kVK_ANSI_Period))
+        #expect(fixture.mockRegistration.registeredHotkeys[0].modifiers == UInt32(cmdKey))
+
+        var state = HotkeyRegistrationState()
+        #expect(
+            state.register(
+                identifier: HotkeySlot.cancelOperation.registrationIdentifier,
+                keyCode: UInt32(kVK_ANSI_Period),
+                modifiers: UInt32(cmdKey)
+            ) == nil
+        )
+
+        let conflict = state.register(
+            identifier: HotkeySlot.toggleRecording.registrationIdentifier,
+            keyCode: UInt32(kVK_ANSI_Period),
+            modifiers: UInt32(cmdKey)
+        )
+        #expect(conflict?.existingIdentifier == HotkeySlot.cancelOperation.registrationIdentifier)
+        #expect(conflict?.incomingIdentifier == HotkeySlot.toggleRecording.registrationIdentifier)
+    }
+
     @Test func hotkeyConflictKeyIsStableAcrossIdentifierOrder() {
         let combination = HotkeyRegistrationState.Combination(
             keyCode: 54,

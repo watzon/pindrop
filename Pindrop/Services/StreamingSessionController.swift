@@ -98,6 +98,9 @@ final class StreamingSessionController {
     private var refinementCoordinator: StreamingRefinementCoordinator?
     /// Strongly retained here — `StreamingRefinementCoordinator` holds its sink weakly.
     private var overlaySink: OverlayStreamingSink?
+    /// Test-only override for the final paste step so races with cancellation can be exercised
+    /// without depending on Accessibility/KeySimulation hardware paths.
+    private var finalInsertionOverrideForTesting: ((String) async throws -> OutputManager.OutputResult)?
 
     init(
         transcriptionService: TranscriptionService,
@@ -232,6 +235,7 @@ final class StreamingSessionController {
     /// Throws when the engine fails to stop (after cancelling the session).
     func finalize(recordedAudioData: Data, recordingDuration: TimeInterval) async throws -> FinalizeOutcome {
         await flushPendingAudioWork()
+        try ensureNotCancelled()
         transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
 
         let finalStreamedText: String
@@ -239,11 +243,16 @@ final class StreamingSessionController {
             finalStreamedText = try await transcriptionService.stopStreaming()
             Log.transcription.info("Streaming transcription finalized")
         } catch {
+            if Self.isCancellationError(error) {
+                await cancel()
+                throw CancellationError()
+            }
             Log.transcription.error("Failed to stop streaming transcription: \(error)")
             await cancel()
             throw error
         }
 
+        try ensureNotCancelled()
         clearBindings(cancelPendingWork: false)
         isSessionActive = false
 
@@ -256,10 +265,12 @@ final class StreamingSessionController {
             // Coordinator text is what is currently displayed; use it as the stream
             // fallback when offline re-transcription is unavailable.
             candidateRawText = await coord.awaitFinalTextAndDrain()
+            try ensureNotCancelled()
         }
 
         // Preview apply without usage tracking so a later offline winner does not
         // double-count, and empty sessions do not pay for offline re-transcription.
+        try ensureNotCancelled()
         var (textAfterReplacements, appliedReplacements) =
             try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: false)
         textAfterReplacements = normalizeText(textAfterReplacements)
@@ -268,6 +279,7 @@ final class StreamingSessionController {
         }
 
         guard !isEffectivelyEmptyText(textAfterReplacements) else {
+            try ensureNotCancelled()
             // Empty finish collapses the overlay without pasting anything.
             try? await overlaySink?.finishStreamingInsertion(
                 finalText: "", appendTrailingSpace: false)
@@ -292,6 +304,7 @@ final class StreamingSessionController {
         // correctly. The streamed text remains the live overlay preview and the
         // fallback whenever the offline pass fails, stalls, or comes back empty.
         if !recordedAudioData.isEmpty {
+            try ensureNotCancelled()
             liveTranscriptState.beginEnhancing()
             do {
                 let language = settingsStore.selectedAppLanguage
@@ -309,6 +322,7 @@ final class StreamingSessionController {
                         )
                     ).text
                 }
+                try ensureNotCancelled()
                 let normalizedRefined = normalizeText(refinedText)
                 if !isEffectivelyEmptyText(normalizedRefined) {
                     candidateRawText = refinedText
@@ -329,6 +343,9 @@ final class StreamingSessionController {
                     "Streaming finalize: offline re-transcription timed out, keeping streamed text"
                 )
             } catch {
+                if Self.isCancellationError(error) {
+                    throw CancellationError()
+                }
                 Log.transcription.warning(
                     "Streaming finalize: offline re-transcription failed, keeping streamed text: \(error.localizedDescription)"
                 )
@@ -336,12 +353,14 @@ final class StreamingSessionController {
         }
 
         // Authoritative apply on the winning raw text: single usage-count batch.
+        try ensureNotCancelled()
         (textAfterReplacements, appliedReplacements) =
             try dictionaryStore.applyReplacements(to: candidateRawText, trackUsage: true)
         textAfterReplacements = normalizeText(textAfterReplacements)
         if !appliedReplacements.isEmpty {
             Log.app.info("Applied \(appliedReplacements.count) dictionary replacements")
         }
+        try ensureNotCancelled()
         try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
 
         // Post-stop holistic enhancement for streaming sessions. Gated by the
@@ -355,6 +374,7 @@ final class StreamingSessionController {
         let liveRefinementLanded = coord?.didLandAnyRefinement == true
         let enhanceEnabled = settingsStore.streamingPostStopEnhancementEnabled
         if enhanceEnabled, !liveRefinementLanded, let postStopEnhance {
+            try ensureNotCancelled()
             // Surface the enhancement wait in the overlay: the transcript stays visible
             // with an "Enhancing…" affordance until the rewritten text is pasted.
             liveTranscriptState.beginEnhancing()
@@ -366,7 +386,11 @@ final class StreamingSessionController {
                 ) {
                     await postStopEnhance(textForEnhance)
                 }
+                try ensureNotCancelled()
             } catch {
+                if Self.isCancellationError(error) {
+                    throw CancellationError()
+                }
                 Log.aiEnhancement.warning(
                     "Streaming post-stop enhancement timed out; keeping deterministic text")
                 enhanceOutcome = nil
@@ -381,24 +405,91 @@ final class StreamingSessionController {
             }
         }
 
-        var outputSucceeded = false
-        var outputResult: OutputManager.OutputResult?
+        try ensureNotCancelled()
+        let insertion = try await performFinalStreamingInsertion(finalText: textAfterReplacements)
+        if insertion.outputSucceeded {
+            Log.transcription.debug("Applied final streaming transcription output")
+        }
+
+        try ensureNotCancelled()
+        coord?.endSession()
+        refinementCoordinator = nil
+
+        return FinalizeOutcome(
+            finalText: textAfterReplacements,
+            originalStreamedText: originalStreamedText,
+            enhancedWithModel: enhancedWithModel,
+            appliedReplacements: appliedReplacements,
+            outputSucceeded: insertion.outputSucceeded,
+            destinationAppName: insertion.outputResult?.destinationAppName,
+            destinationAppBundleID: insertion.outputResult?.destinationAppBundleID,
+            didPaste: insertion.outputResult?.didPaste == true
+        )
+    }
+
+    /// Installs a test-only final paste implementation used by `performFinalStreamingInsertion`.
+    func setFinalInsertionOverrideForTesting(
+        _ override: ((String) async throws -> OutputManager.OutputResult)?
+    ) {
+        finalInsertionOverrideForTesting = override
+    }
+
+    /// Test seam for cancel-safe final insertion. Calls the same production path.
+    func finalizeInsertionForTesting(finalText: String) async throws -> FinalizeOutcome {
+        let insertion = try await performFinalStreamingInsertion(finalText: finalText)
+        return FinalizeOutcome(
+            finalText: finalText,
+            originalStreamedText: nil,
+            enhancedWithModel: nil,
+            appliedReplacements: [],
+            outputSucceeded: insertion.outputSucceeded,
+            destinationAppName: insertion.outputResult?.destinationAppName,
+            destinationAppBundleID: insertion.outputResult?.destinationAppBundleID,
+            didPaste: insertion.outputResult?.didPaste == true
+        )
+    }
+
+    private struct FinalStreamingInsertionResult {
+        let outputSucceeded: Bool
+        let outputResult: OutputManager.OutputResult?
+    }
+
+    /// Single production path for post-finalize paste/clipboard fallback.
+    /// Production `finalize` and the test seam both call this exact method.
+    private func performFinalStreamingInsertion(finalText: String) async throws -> FinalStreamingInsertionResult {
+        try ensureNotCancelled()
         do {
             // Single atomic insertion into the target app; the sink collapses the
             // overlay whether or not the paste succeeds.
-            let sink = ensureOverlaySink()
-            try await sink.finishStreamingInsertion(
-                finalText: textAfterReplacements,
-                appendTrailingSpace: settingsStore.addTrailingSpace
+            let outputResult: OutputManager.OutputResult
+            if let override = finalInsertionOverrideForTesting {
+                let text = settingsStore.addTrailingSpace ? finalText + " " : finalText
+                outputResult = try await override(text)
+            } else {
+                let sink = ensureOverlaySink()
+                try await sink.finishStreamingInsertion(
+                    finalText: finalText,
+                    appendTrailingSpace: settingsStore.addTrailingSpace
+                )
+                outputResult = sink.lastOutputResult ?? .pasted()
+            }
+            try ensureNotCancelled()
+            return FinalStreamingInsertionResult(
+                outputSucceeded: true,
+                outputResult: outputResult
             )
-            outputResult = sink.lastOutputResult
-            outputSucceeded = true
-            Log.transcription.debug("Applied final streaming transcription output")
         } catch {
+            // Prefer the task's current cancellation state over the thrown error so a
+            // custom output failure racing cancel cannot clipboard/toast.
+            try ensureNotCancelled()
+            if Self.isCancellationError(error) {
+                throw CancellationError()
+            }
             Log.output.error("Final streaming insertion failed: \(error)")
             // The paste never landed — put the transcript on the clipboard so the
             // session's text is recoverable, and tell the user what happened.
-            if (try? outputManager.copyToClipboard(textAfterReplacements)) != nil {
+            // Never clipboard/toast on cancellation.
+            if (try? outputManager.copyToClipboard(finalText)) != nil {
                 toastService.show(
                     ToastPayload(
                         message: localized(
@@ -409,21 +500,8 @@ final class StreamingSessionController {
                     )
                 )
             }
+            return FinalStreamingInsertionResult(outputSucceeded: false, outputResult: nil)
         }
-
-        coord?.endSession()
-        refinementCoordinator = nil
-
-        return FinalizeOutcome(
-            finalText: textAfterReplacements,
-            originalStreamedText: originalStreamedText,
-            enhancedWithModel: enhancedWithModel,
-            appliedReplacements: appliedReplacements,
-            outputSucceeded: outputSucceeded,
-            destinationAppName: outputResult?.destinationAppName,
-            destinationAppBundleID: outputResult?.destinationAppBundleID,
-            didPaste: outputResult?.didPaste == true
-        )
     }
 
     // MARK: - Private — engine plumbing
@@ -517,6 +595,19 @@ final class StreamingSessionController {
         )
         overlaySink = sink
         return sink
+    }
+
+
+    /// True when `error` is cooperative task cancellation (or URLSession cancel).
+    nonisolated static func isCancellationError(_ error: Error) -> Bool {
+        if error is CancellationError { return true }
+        if let urlError = error as? URLError, urlError.code == .cancelled { return true }
+        let nsError = error as NSError
+        return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
+    }
+
+    private func ensureNotCancelled() throws {
+        try Task.checkCancellation()
     }
 
     // MARK: - Private — timeout

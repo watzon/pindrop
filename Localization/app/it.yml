@@ -142,6 +142,7 @@ by:
 cancel:
   _self: "Cancellare"
   operation: "Annulla operazione"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "Cattura direttamente nell'editor delle note con un flusso hold-to-record."
 change:

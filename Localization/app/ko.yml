@@ -142,6 +142,7 @@ by:
 cancel:
   _self: "취소"
   operation: "작업 취소"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "기록 보관 흐름을 통해 노트 편집기에 직접 캡처하세요."
 change:

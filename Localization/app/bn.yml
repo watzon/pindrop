@@ -142,6 +142,7 @@ by:
 cancel:
   _self: "বাতিল করুন"
   operation: "অপারেশন বাতিল করুন"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "হোল্ড-টু-রেকর্ড ফ্লো সহ নোট এডিটরে সরাসরি ক্যাপচার করুন।"
 change:

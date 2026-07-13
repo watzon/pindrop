@@ -16,6 +16,7 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
     case quickCapturePTT
     case quickCaptureToggle
     case openLibrary
+    case cancelOperation
 
     /// English display name used by `localized(...)` keys.
     var displayName: String {
@@ -32,6 +33,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
             return "Note Capture — Toggle"
         case .openLibrary:
             return "Open Library"
+        case .cancelOperation:
+            return "Cancel Operation"
         }
     }
 
@@ -50,6 +53,8 @@ enum HotkeySlot: String, CaseIterable, Equatable, Sendable {
             return "quick-capture-toggle"
         case .openLibrary:
             return "open-library"
+        case .cancelOperation:
+            return "cancel-operation"
         }
     }
 }

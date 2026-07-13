@@ -151,6 +151,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		STREAMSESSBUILD01A2B3C4D5 /* StreamingSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */; };
 		LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */ = {isa = PBXBuildFile; fileRef = LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */; };
 		OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */; };
+		STREAMSESSCTRLTESTBUILD01A2 /* StreamingSessionControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STREAMSESSCTRLTESTFILE01A2B3 /* StreamingSessionControllerTests.swift */; };
 		STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */; };
 		DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */; };
 		SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */; };
@@ -414,6 +415,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingSessionController.swift; sourceTree = "<group>"; };
 		LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptState.swift; sourceTree = "<group>"; };
 		OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSinkTests.swift; sourceTree = "<group>"; };
+		STREAMSESSCTRLTESTFILE01A2B3 /* StreamingSessionControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingSessionControllerTests.swift; sourceTree = "<group>"; };
 		STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetrics.swift; sourceTree = "<group>"; };
 		DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicTranscriptCleaner.swift; sourceTree = "<group>"; };
 		SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIConfigV2.swift"; sourceTree = "<group>"; };
@@ -818,6 +820,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */,
 				STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */,
 				OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */,
+				STREAMSESSCTRLTESTFILE01A2B3 /* StreamingSessionControllerTests.swift */,
 				STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */,
 				DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */,
 				TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */,
@@ -1229,6 +1232,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				PRESETSEEDBUILD1A2B3C4D5E /* PromptPresetStoreSeedingTests.swift in Sources */,
 				STREAMREFTESTBUILD1A2B3C4 /* StreamingRefinementCoordinatorTests.swift in Sources */,
 				OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */,
+				STREAMSESSCTRLTESTBUILD01A2 /* StreamingSessionControllerTests.swift in Sources */,
 				STABMETRICSTESTBUILD1A2B3 /* StreamingStabilityMetricsTests.swift in Sources */,
 				DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */,
 				TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */,

@@ -142,6 +142,7 @@ by:
 cancel:
   _self: "يلغي"
   operation: "إلغاء العملية"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "التقط الصور مباشرة في محرر الملاحظات من خلال تدفق التثبيت للتسجيل."
 change:
