@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Muncul sebagai bola kaca cair di sudut layar"
   as_a_pill_at_the_bottom_of_the_screen: "Ditampilkan sebagai pil di bagian bawah layar"
+  beside_the_focused_text_field_caret: "Ditampilkan di samping bidang teks/tanda sisipan yang terfokus"
+  in_the_menu_bar_notch_area: "Ditampilkan di bilah menu/area takik"
 sidebar:
   position: "Posisi bilah sisi"
   position_916f66ea: "Posisi bilah sisi"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Zoom"
 polish:
   _self: "Polonia"
+bubble:
+  _self: "Gelembung"
+notch:
+  _self: "Takik"

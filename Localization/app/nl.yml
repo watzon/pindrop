@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wordt weergegeven als een orb van vloeibaar glas in de hoek van het scherm"
   as_a_pill_at_the_bottom_of_the_screen: "Wordt weergegeven als een pil onder aan het scherm"
+  beside_the_focused_text_field_caret: "Wordt weergegeven naast het gefocuste tekstveld/caret"
+  in_the_menu_bar_notch_area: "Wordt weergegeven in de menubalk/notch-gebied"
 sidebar:
   position: "Zijbalkpositie"
   position_916f66ea: "Positie zijbalk"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Zoom"
 polish:
   _self: "Pools"
+bubble:
+  _self: "Bel"
+notch:
+  _self: "Inkeping"

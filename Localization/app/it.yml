@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Appare come una sfera di vetro liquido nell'angolo dello schermo"
   as_a_pill_at_the_bottom_of_the_screen: "Viene visualizzato come una pillola nella parte inferiore dello schermo"
+  beside_the_focused_text_field_caret: "Viene visualizzato accanto al campo di testo/accento circonflesso evidenziato"
+  in_the_menu_bar_notch_area: "Viene visualizzato nella barra dei menu/area tacca"
 sidebar:
   position: "Posizione della barra laterale"
   position_916f66ea: "Posizione barra laterale"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Zoom"
 polish:
   _self: "polacco"
+bubble:
+  _self: "Bolla"
+notch:
+  _self: "Tacca"

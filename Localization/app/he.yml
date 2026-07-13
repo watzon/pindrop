@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "מוצג ככדור זכוכית נוזלית בפינת המסך"
   as_a_pill_at_the_bottom_of_the_screen: "מוצג כגלולה בתחתית המסך"
+  beside_the_focused_text_field_caret: "מוצג לצד שדה הטקסט/הקארט הממוקד"
+  in_the_menu_bar_notch_area: "מופיע בשורת התפריטים/אזור החריץ"
 sidebar:
   position: "מיקום סרגל הצד"
   position_916f66ea: "מיקום סרגל הצד"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "הגדל/הקטן"
 polish:
   _self: "פולנית"
+bubble:
+  _self: "בּוּעָה"
+notch:
+  _self: "לַחֲרוֹץ"

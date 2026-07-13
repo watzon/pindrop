@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Hiển thị dưới dạng quả cầu thủy tinh lỏng ở góc màn hình"
   as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
+  beside_the_focused_text_field_caret: "Hiển thị bên cạnh trường văn bản/dấu mũ tập trung"
+  in_the_menu_bar_notch_area: "Hiển thị trong thanh menu/khu vực khía cạnh"
 sidebar:
   position: "Vị trí thanh bên"
   position_916f66ea: "Vị trí thanh bên"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Phóng to"
 polish:
   _self: "Tiếng Ba Lan"
+bubble:
+  _self: "bong bóng"
+notch:
+  _self: "Notch"

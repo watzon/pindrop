@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "S'affiche sous forme d'orbe en verre liquide dans le coin de l'écran"
   as_a_pill_at_the_bottom_of_the_screen: "S'affiche comme une pilule en bas de l'écran"
+  beside_the_focused_text_field_caret: "S'affiche à côté du champ de texte/caret focus"
+  in_the_menu_bar_notch_area: "S'affiche dans la barre de menus/zone de l'encoche"
 sidebar:
   position: "Position de la barre latérale"
   position_916f66ea: "Position de la barre latérale"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Réduire/agrandir"
 polish:
   _self: "polonais"
+bubble:
+  _self: "Bulle"
+notch:
+  _self: "Encoche"

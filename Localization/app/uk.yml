@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Відображається як сфера з рідкого скла в куті екрана"
   as_a_pill_at_the_bottom_of_the_screen: "Відображається як таблетка внизу екрана"
+  beside_the_focused_text_field_caret: "Відображається поруч із виділеним текстовим полем/кареткою"
+  in_the_menu_bar_notch_area: "Відображається на панелі меню/області виїмки"
 sidebar:
   position: "Розташування бічної панелі"
   position_916f66ea: "Позиція бічної панелі"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Масштаб"
 polish:
   _self: "польська"
+bubble:
+  _self: "міхур"
+notch:
+  _self: "Виїмка"

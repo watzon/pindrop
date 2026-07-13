@@ -516,6 +516,17 @@ struct FloatingIndicatorWaveformStyle {
     let color: Color
     let animationInterval: TimeInterval
 
+    static let notch = FloatingIndicatorWaveformStyle(
+        layout: .dynamic(minimumCount: 14, edgeAttenuation: 0.45),
+        barWidth: 2,
+        barSpacing: 1.6,
+        minimumHeight: 2,
+        maximumHeight: 16,
+        idleHeight: 2,
+        color: AppColors.overlayWaveform,
+        animationInterval: 0.05
+    )
+
     static let pill = FloatingIndicatorWaveformStyle(
         layout: .fixed(count: 9, heightScale: [0.34, 0.58, 0.82, 1.0, 0.66, 0.92, 0.74, 0.5, 0.34]),
         barWidth: 2.5,
@@ -524,6 +535,17 @@ struct FloatingIndicatorWaveformStyle {
         maximumHeight: 12,
         idleHeight: 4,
         color: Color(nsColor: NSColor(pindropHex: "#4CA582") ?? .systemGreen),
+        animationInterval: 0.05
+    )
+
+    static let bubble = FloatingIndicatorWaveformStyle(
+        layout: .fixed(count: 5, heightScale: [0.55, 0.78, 1.0, 0.78, 0.55]),
+        barWidth: 3,
+        barSpacing: 2,
+        minimumHeight: 3,
+        maximumHeight: 14,
+        idleHeight: 3,
+        color: AppColors.overlayWaveform,
         animationInterval: 0.05
     )
 
@@ -685,7 +707,23 @@ struct FloatingIndicatorActions {
     var availableInputDevicesProvider: (() -> [(uid: String, displayName: String)])?
     var selectedInputDeviceUIDProvider: (() -> String)?
     var selectedLanguageProvider: (() -> AppLanguage)?
+    /// Focused-element rect in top-left screen coordinates for caret bubble placement.
+    var anchorProvider: (() -> CGRect?)?
     var preferredScreenProvider: (() -> NSScreen?)?
+}
+
+/// Pure lifecycle rules for floating-indicator panel presentation.
+/// Controllers bump a generation on show/hide so a hide animation started
+/// before a newer presentation cannot close or nil the active panel.
+enum FloatingIndicatorPresentationLifecycle {
+    /// `true` only when the hide that captured `hideGeneration` is still the
+    /// latest presentation transition (no intervening show/start/hide).
+    static func shouldApplyHideCompletion(
+        hideGeneration: UInt,
+        currentGeneration: UInt
+    ) -> Bool {
+        hideGeneration == currentGeneration
+    }
 }
 
 @MainActor

@@ -62,10 +62,15 @@ struct ThemeSettingsView: View {
 
             // Recording indicator
             SettingsGroupCard {
-                SettingsRow(showSeparator: false) {
-                    SettingsRowLabel(title: localized("Recording indicator", locale: locale))
-                } control: {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(localized("Recording indicator", locale: locale))
+                        .font(AppTypography.labelStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+                        .padding(.top, SettingsLayoutMetrics.rowVerticalPadding)
+
+                    // Full-width wrapping chips so long locale labels do not clip.
+                    FlowLayout(spacing: 6) {
                         ForEach(FloatingIndicatorType.allCases) { type in
                             FilterChip(
                                 title: type.displayName(locale: locale),
@@ -76,6 +81,16 @@ struct ThemeSettingsView: View {
                             .accessibilityIdentifier("settings.floatingIndicator.\(type.rawValue)")
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+
+                    Text(settings.selectedFloatingIndicatorType.description(locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+                        .padding(.bottom, SettingsLayoutMetrics.rowVerticalPadding)
+                        .accessibilityIdentifier("settings.floatingIndicator.description")
                 }
             }
 

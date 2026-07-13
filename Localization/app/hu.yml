@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Folyékony üveggömbként jelenik meg a képernyő sarkában"
   as_a_pill_at_the_bottom_of_the_screen: "Tablettaként jelenik meg a képernyő alján"
+  beside_the_focused_text_field_caret: "A fókuszált szövegmező/karet mellett jelenik meg"
+  in_the_menu_bar_notch_area: "Megjelenik a menüsorban/bevágási területen"
 sidebar:
   position: "Oldalsáv helyzete"
   position_916f66ea: "Oldalsáv helyzete"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Nagyítás"
 polish:
   _self: "lengyel"
+bubble:
+  _self: "Buborék"
+notch:
+  _self: "Bemetszés"

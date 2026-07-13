@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Zobrazuje se jako koule z tekutého skla v rohu obrazovky"
   as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
+  beside_the_focused_text_field_caret: "Zobrazuje se vedle vybraného textového pole/stříšky"
+  in_the_menu_bar_notch_area: "Zobrazuje se v pruhu nabídky/oblasti zářezu"
 sidebar:
   position: "Poloha bočního panelu"
   position_916f66ea: "Pozice postranního panelu"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Přiblížit"
 polish:
   _self: "polština"
+bubble:
+  _self: "Bublina"
+notch:
+  _self: "Zářez"

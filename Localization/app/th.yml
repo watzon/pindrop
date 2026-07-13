@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "แสดงเป็นออร์บแก้วเหลวที่มุมหน้าจอ"
   as_a_pill_at_the_bottom_of_the_screen: "แสดงเป็นเม็ดยาที่ด้านล่างของหน้าจอ"
+  beside_the_focused_text_field_caret: "แสดงข้างช่องข้อความ/คาเร็ตที่โฟกัส"
+  in_the_menu_bar_notch_area: "แสดงในแถบเมนู/พื้นที่รอยบาก"
 sidebar:
   position: "ตำแหน่งแถบด้านข้าง"
   position_916f66ea: "ตำแหน่งแถบด้านข้าง"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "ซูม"
 polish:
   _self: "ภาษาโปแลนด์"
+bubble:
+  _self: "ฟอง"
+notch:
+  _self: "รอยบาก"

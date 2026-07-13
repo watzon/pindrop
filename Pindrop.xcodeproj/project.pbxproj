@@ -113,11 +113,14 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		AUTOLEARNTSTBUILD01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */; };
 		FLOATFSTRKBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */; };
 		FLOATFSTRKTESTBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */; };
+		FLOATTYPETESTBUILD01A2B3C4D5 /* FloatingIndicatorTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FLOATTYPETESTFILE01A2B3C4D5 /* FloatingIndicatorTypeTests.swift */; };
 		B105C906BA4047A6B066CA79 /* HotkeyManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61D78A13A5C4AAD839A3F76 /* HotkeyManagerTests.swift */; };
 		HKCONFLICTTESTBUILD01A2B3C4D5 /* HotkeyConflictCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HKCONFLICTTESTFILE01A2B3C4D5 /* HotkeyConflictCheckerTests.swift */; };
 		B2C3D4E5F6789012345678AB /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D8C7B6A5F4E3D2C1B0A9F8 /* ModelManager.swift */; };
 		BC44C77F1DDD43BFAD8A88BD /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDC77E732664A859279FEC9 /* HistoryStore.swift */; };
 		ORBINDBUILD001A2B3C4D5E6F70 /* OrbFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */; };
+		NOTCHINDBUILD01A2B3C4D5E6 /* FloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTCHINDFILE01A2B3C4D5E6 /* FloatingIndicator.swift */; };
+		BUBBLEINDBUILD01A2B3C4D5 /* CaretBubbleFloatingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUBBLEINDFILE01A2B3C4D5E /* CaretBubbleFloatingIndicator.swift */; };
 		ORBSHDBUILD001A2B3C4D5E6F72 /* OrbGooShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */; };
 		BUILTINPRESETS1A2B3C4D5E6F /* BuiltInPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */; };
 		C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A6BA5D6DB40F25222D224E /* StatusBarController.swift */; };
@@ -388,6 +391,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		AUTOLEARNTSTFILE01A2B3C4D5E6F /* AutomaticDictionaryLearningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDictionaryLearningServiceTests.swift; sourceTree = "<group>"; };
 		FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorFocusTracker.swift; sourceTree = "<group>"; };
 		FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorFocusTrackerTests.swift; sourceTree = "<group>"; };
+		FLOATTYPETESTFILE01A2B3C4D5 /* FloatingIndicatorTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicatorTypeTests.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60718293A4B5C /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
 		B534B4EDCDB5E72BC73B626F /* ReadyStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReadyStepView.swift; sourceTree = "<group>"; };
 		B8642B83DE9F73D4803DE666 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
@@ -395,6 +399,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		HKCONFLICTFILE01A2B3C4D5E6 /* HotkeyConflictChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyConflictChecker.swift; sourceTree = "<group>"; };
 		BDDB99579A8D461A8E66F4C3 /* Pindrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pindrop.entitlements; sourceTree = "<group>"; };
 		ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbFloatingIndicator.swift; sourceTree = "<group>"; };
+		NOTCHINDFILE01A2B3C4D5E6 /* FloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingIndicator.swift; sourceTree = "<group>"; };
+		BUBBLEINDFILE01A2B3C4D5E /* CaretBubbleFloatingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaretBubbleFloatingIndicator.swift; sourceTree = "<group>"; };
 		ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = OrbGooShader.metal; sourceTree = "<group>"; };
 		BUILTINPRESETS1A2B3C4D5E6F7 /* BuiltInPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInPresets.swift; sourceTree = "<group>"; };
 		C017B84CBC554D8192D38FFA /* PindropTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PindropTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -633,6 +639,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				68A6BA5D6DB40F25222D224E /* StatusBarController.swift */,
 				ORBINDFILE001A2B3C4D5E6F71 /* OrbFloatingIndicator.swift */,
 				ORBSHDFILE001A2B3C4D5E6F73 /* OrbGooShader.metal */,
+				NOTCHINDFILE01A2B3C4D5E6 /* FloatingIndicator.swift */,
+				BUBBLEINDFILE01A2B3C4D5E /* CaretBubbleFloatingIndicator.swift */,
 				FLOATSHAREDFILE01A2B3C4D5E6F /* FloatingIndicatorShared.swift */,
 				LIVETRANSFILE01A2B3C4D5E6 /* LiveTranscriptState.swift */,
 				PILLIND001A2B3C4D5E6F71 /* PillFloatingIndicator.swift */,
@@ -870,6 +878,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				ROUTESIGTEST02A2B3C4D5E6F /* PromptRoutingSignalTests.swift */,
 				CTXENGNTEST02A2B3C4D5E6F /* ContextEngineServiceTests.swift */,
 				FLOATFSTRKTESTFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift */,
+				FLOATTYPETESTFILE01A2B3C4D5 /* FloatingIndicatorTypeTests.swift */,
 				TOASTTESTFILE01A2B3C4D5E6F /* ToastServiceTests.swift */,
 				ANNTESTFILE01A2B3C4D5E6F /* AnnouncementServiceTests.swift */,
 				AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */,
@@ -1265,6 +1274,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				ROUTESIGTEST01A2B3C4D5E6F /* PromptRoutingSignalTests.swift in Sources */,
 				CTXENGNTEST01A2B3C4D5E6F /* ContextEngineServiceTests.swift in Sources */,
 				FLOATFSTRKTESTBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTrackerTests.swift in Sources */,
+				FLOATTYPETESTBUILD01A2B3C4D5 /* FloatingIndicatorTypeTests.swift in Sources */,
 				TOASTTESTBUILD01A2B3C4D5E6F /* ToastServiceTests.swift in Sources */,
 				ANNTESTBUILD01A2B3C4D5E6F /* AnnouncementServiceTests.swift in Sources */,
 				AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */,
@@ -1350,6 +1360,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 				ORBINDBUILD001A2B3C4D5E6F70 /* OrbFloatingIndicator.swift in Sources */,
 				ORBSHDBUILD001A2B3C4D5E6F72 /* OrbGooShader.metal in Sources */,
+				NOTCHINDBUILD01A2B3C4D5E6 /* FloatingIndicator.swift in Sources */,
+				BUBBLEINDBUILD01A2B3C4D5 /* CaretBubbleFloatingIndicator.swift in Sources */,
 				FLOATSHAREDBUILD01A2B3C4D5E6F /* FloatingIndicatorShared.swift in Sources */,
 				PILLIND001A2B3C4D5E6F70 /* PillFloatingIndicator.swift in Sources */,
 				TOASTUIBUILD01A2B3C4D5E6F /* ToastWindowController.swift in Sources */,

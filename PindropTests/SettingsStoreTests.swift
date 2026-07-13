@@ -389,6 +389,21 @@ struct SettingsStoreTests {
         #expect(settingsStore.selectedFloatingIndicatorType == .orb)
     }
 
+    @Test func testSelectedFloatingIndicatorTypePreservesNotchAndBubble() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.selectedFloatingIndicatorType = .notch
+        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.notch.rawValue)
+        #expect(settingsStore.selectedFloatingIndicatorType == .notch)
+        #expect(!settingsStore.selectedFloatingIndicatorType.isAlwaysOn)
+
+        settingsStore.selectedFloatingIndicatorType = .bubble
+        #expect(settingsStore.floatingIndicatorType == FloatingIndicatorType.bubble.rawValue)
+        #expect(settingsStore.selectedFloatingIndicatorType == .bubble)
+        #expect(!settingsStore.selectedFloatingIndicatorType.isAlwaysOn)
+    }
+
     @Test func testPillFloatingIndicatorOffsetBridgesStoredValue() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }

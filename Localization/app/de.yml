@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wird als Orb aus flüssigem Glas in der Bildschirmecke angezeigt"
   as_a_pill_at_the_bottom_of_the_screen: "Zeigt sich als Pille am unteren Bildschirmrand"
+  beside_the_focused_text_field_caret: "Zeigt sich neben dem fokussierten Textfeld/Caret"
+  in_the_menu_bar_notch_area: "Zeigt sich in der Menüleiste/Notch-Bereich"
 sidebar:
   position: "Seitenleistenposition"
   position_916f66ea: "Seitenleistenposition"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Zoomen"
 polish:
   _self: "Polnisch"
+bubble:
+  _self: "Blase"
+notch:
+  _self: "Kerbe"

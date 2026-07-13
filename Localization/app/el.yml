@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Εμφανίζεται ως σφαίρα από υγρό γυαλί στη γωνία της οθόνης"
   as_a_pill_at_the_bottom_of_the_screen: "Εμφανίζεται ως χάπι στο κάτω μέρος της οθόνης"
+  beside_the_focused_text_field_caret: "Εμφανίζεται δίπλα στο εστιασμένο πεδίο κειμένου/φρεάτιο"
+  in_the_menu_bar_notch_area: "Εμφανίζεται στη γραμμή μενού/την περιοχή εγκοπής"
 sidebar:
   position: "Θέση πλευρικής γραμμής"
   position_916f66ea: "Θέση πλευρικής γραμμής"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Ζουμ"
 polish:
   _self: "Πολωνικά"
+bubble:
+  _self: "Φυσαλλίδα"
+notch:
+  _self: "Εγκοπή"

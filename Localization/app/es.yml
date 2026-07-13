@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "Se muestra como un orbe de cristal líquido en la esquina de la pantalla"
   as_a_pill_at_the_bottom_of_the_screen: "Shows as a pill at the bottom of the screen"
+  beside_the_focused_text_field_caret: "Shows beside the focused text field/caret"
+  in_the_menu_bar_notch_area: "Shows in the menu bar/notch area"
 sidebar:
   position: "Posición de la barra lateral"
   position_916f66ea: "Posición de la barra lateral"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "Zoom"
 polish:
   _self: "polaco"
+bubble:
+  _self: "Bubble"
+notch:
+  _self: "Notch"

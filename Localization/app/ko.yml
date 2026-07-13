@@ -1035,6 +1035,8 @@ show:
 shows:
   as_a_liquid_glass_orb_in_the_corner_of_the: "화면 모서리에 리퀴드 글래스 오브로 표시됩니다"
   as_a_pill_at_the_bottom_of_the_screen: "화면 하단에 알약으로 표시됩니다."
+  beside_the_focused_text_field_caret: "초점이 맞춰진 텍스트 필드/캐럿 옆에 표시됩니다."
+  in_the_menu_bar_notch_area: "메뉴바/노치 영역에 표시"
 sidebar:
   position: "사이드바 위치"
   position_916f66ea: "사이드바 위치"
@@ -1500,3 +1502,7 @@ zoom:
   _self: "확대/축소"
 polish:
   _self: "폴란드어"
+bubble:
+  _self: "거품"
+notch:
+  _self: "골짜기"
