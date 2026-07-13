@@ -337,6 +337,10 @@ final class SettingsStore: ObservableObject {
          static let cancelOperationHotkey = ""
          static let cancelOperationHotkeyCode = 0
          static let cancelOperationHotkeyModifiers = 0
+
+         /// Escape-to-cancel requires a double press by default (the original
+         /// behavior most users are trained on); OFF cancels on a single press.
+         static let cancelRequiresDoubleEscape = true
       }
    }
 
@@ -386,6 +390,8 @@ final class SettingsStore: ObservableObject {
    var cancelOperationHotkeyCode: Int = Defaults.Hotkeys.cancelOperationHotkeyCode
    @AppStorage("cancelOperationHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var cancelOperationHotkeyModifiers: Int = Defaults.Hotkeys.cancelOperationHotkeyModifiers
+   @AppStorage("cancelRequiresDoubleEscape", store: SettingsStoreRuntime.appStorageStore)
+   var cancelRequiresDoubleEscape: Bool = Defaults.Hotkeys.cancelRequiresDoubleEscape
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
         Defaults.outputMode
      @AppStorage("selectedAppLocale", store: SettingsStoreRuntime.appStorageStore)
@@ -1074,6 +1080,7 @@ final class SettingsStore: ObservableObject {
       cancelOperationHotkey = Defaults.Hotkeys.cancelOperationHotkey
       cancelOperationHotkeyCode = Defaults.Hotkeys.cancelOperationHotkeyCode
       cancelOperationHotkeyModifiers = Defaults.Hotkeys.cancelOperationHotkeyModifiers
+      cancelRequiresDoubleEscape = Defaults.Hotkeys.cancelRequiresDoubleEscape
       outputMode = Defaults.outputMode
       programmaticFormattingEnabled = Defaults.programmaticFormattingEnabled
       selectedAppLocaleRawValue = Defaults.selectedAppLocale

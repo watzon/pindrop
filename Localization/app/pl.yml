@@ -347,6 +347,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Zadokuj pasek boczny do lewej lub prawej krawędzi okna."
 done:
   _self: "Gotowe"
+double:
+  press_escape_to_cancel: "Anulowanie podwójnym naciśnięciem Escape"
 download:
   _self: "Pobierz"
   complete: "Pobieranie ukończone!"
@@ -913,6 +915,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Naciśnij i przytrzymaj, aby dyktować w dowolnej aplikacji. Pindrop dokona transkrypcji Twojej wypowiedzi i wstawi tekst w miejscu, w którym znajduje się kursor."
   esc_to_cancel: "Naciśnij Esc, aby anulować"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Naciśnij Escape dwa razy, aby anulować nagrywanie. Gdy wyłączone, wystarczy jedno naciśnięcie."
   keys: "Naciśnij klawisze..."
   keys_98b8167e: "Naciśnij klawisze…"
   once_to_start_again_to_stop: "Naciśnij raz, aby rozpocząć, ponownie, aby zatrzymać"
@@ -1272,17 +1275,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "Jeśli to możliwe, wpisz tekst bezpośrednio w aktywnej aplikacji"
 u10:
-  floating_announcement_summary: "Odtwarzanie, nowy wygląd i obsługa klawiaturą w całym Pindropie."
   floating_inserted_into: "Wstawiono do %@"
-  floating_keyboard_body: "Nawiguj, wyszukuj, twórz notatki, eksportuj i usuwaj w całym Pindropie bez odrywania rąk od klawiatury."
-  floating_keyboard_title: "Klawiatura wszędzie"
   floating_microphone_unavailable: "Mikrofon jest niedostępny"
-  floating_new_look_body: "Cieplejszy, spokojniejszy wygląd stawia Twoje słowa na pierwszym miejscu. Ustawienia motywów pozostają, a nowym domyślnym motywem jest Biblioteka."
-  floating_new_look_title: "Nowy wygląd"
-  floating_replay_body: "Pindrop może przechowywać dźwięk przez siedem dni, aby można go było odsłuchać z Biblioteki."
-  floating_replay_title: "Odtwarzaj każde dyktowanie"
   floating_transcribing: "Transkrypcja…"
-  floating_version_line: "Pindrop 0.10.0 · lipiec 2026"
   floating_whats_new: "Co nowego"
   floating_word_count: "Liczba słów: %d"
 u11:
@@ -1607,3 +1602,15 @@ bubble:
   _self: "Bańka"
 notch:
   _self: "Karb"
+whatsnew:
+  footer: "Poza tym: anuluj dyktowanie w trakcie za pomocą skrótu klawiszowego, uruchamiaj aplikację po cichu na pasku menu i wstawiaj tekst niezawodnie w maszynach wirtualnych."
+  formatting_body: "Długie dyktowania są teraz dzielone na czytelne akapity, w całości na urządzeniu."
+  formatting_title: "Czytelniejsze transkrypcje"
+  indicators_body: "Wybierz dyskretną pigułkę pod karbem lub bańkę, która podąża za Twoją karetką."
+  indicators_title: "Wskaźniki karbu i karetki"
+  languages_body: "Dyktuj po polsku, w hindi i malajalam. Polski pojawił się teraz również w interfejsie."
+  languages_title: "Trzy nowe języki"
+  sensevoice_body: "Nowy, w pełni lokalny silnik z szybkim i dokładnym rozpoznawaniem wielojęzycznym."
+  sensevoice_title: "Transkrypcja SenseVoice"
+  summary: "Nowy lokalny silnik, trzy nowe języki i większa kontrola nad każdym dyktowaniem."
+  version_line: "Pindrop 1.21.0 · lipiec 2026"

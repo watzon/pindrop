@@ -124,13 +124,17 @@ just release 1.9.0
 
 This runs:
 1. Ensure contextual release notes exist (`release-notes/vX.Y.Z.md`)
-2. Bump version/build in `project.pbxproj` (if needed)
-3. Commit version bump (if needed)
-4. `just test`
-5. `just dmg`
-6. `just appcast dist/Pindrop.dmg`
-7. Create and push tag (`vX.Y.Z`)
-8. Create GitHub release with notes + DMG + `appcast.xml` via `gh`
+2. For feature releases (X.Y.0): ensure the in-app What's New announcement
+   (`AnnouncementCatalog` in `Pindrop/Models/Announcement.swift`) references
+   `Pindrop X.Y.0` — update it plus the `whatsnew:` strings in
+   `Localization/app/*.yml` and run `just l10n-sync` before releasing
+3. Bump version/build in `project.pbxproj` (if needed)
+4. Commit version bump (if needed)
+5. `just test`
+6. `just dmg`
+7. `just appcast dist/Pindrop.dmg`
+8. Create and push tag (`vX.Y.Z`)
+9. Create GitHub release with notes + DMG + `appcast.xml` via `gh`
 
 Optional notarization/stapling for signed distribution:
 ```bash

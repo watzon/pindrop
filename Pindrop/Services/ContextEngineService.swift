@@ -373,15 +373,8 @@ final class ContextEngineService {
         guard let appElement = axProvider.copyFrontmostApplication() else { return nil }
         guard let focusedElement = axProvider.elementAttribute(kAXFocusedUIElementAttribute, of: appElement) else { return nil }
 
-        if let range = axProvider.rangeAttribute(kAXSelectedTextRangeAttribute, of: focusedElement),
-           let rangeRect = axProvider.rectForRangeAttribute(
-               kAXBoundsForRangeParameterizedAttribute,
-               range: range,
-               of: focusedElement
-           ),
-           !rangeRect.isNull,
-           !rangeRect.isEmpty {
-            return rangeRect.standardized
+        if let caretRect = caretAnchorRect(of: focusedElement) {
+            return caretRect
         }
 
         guard let position = axProvider.pointAttribute(kAXPositionAttribute, of: focusedElement),
@@ -390,7 +383,67 @@ final class ContextEngineService {
         }
 
         let rect = CGRect(origin: position, size: size).standardized
-        return rect.isEmpty ? nil : rect
+        return rect.isEmpty ? nil : Self.condensedElementAnchor(for: rect)
+    }
+
+    /// Resolve a caret-precise anchor from the focused element's selected text range.
+    ///
+    /// The common dictation case is a *collapsed* caret (zero-length selection), whose
+    /// bounds legitimately come back zero-width — that rect must be accepted, not
+    /// rejected as empty. Web editors (contenteditable composers in Chromium/WebKit)
+    /// often return a null or zero rect for zero-length ranges, so when the direct
+    /// query fails, probe the character after and then before the caret and anchor to
+    /// its leading/trailing edge.
+    private func caretAnchorRect(of focusedElement: AXUIElement) -> CGRect? {
+        guard let selectedRange = axProvider.rangeAttribute(kAXSelectedTextRangeAttribute, of: focusedElement),
+              selectedRange.location >= 0 else {
+            return nil
+        }
+
+        if let bounds = usableRangeBounds(selectedRange, of: focusedElement) {
+            // Non-empty selections anchor to the full selection rect; collapsed
+            // carets become a hairline rect at the caret's x.
+            return CGRect(x: bounds.minX, y: bounds.minY, width: max(1, bounds.width), height: bounds.height)
+        }
+        guard selectedRange.length == 0 else { return nil }
+
+        if let after = usableRangeBounds(
+            CFRange(location: selectedRange.location, length: 1),
+            of: focusedElement
+        ) {
+            return CGRect(x: after.minX, y: after.minY, width: 1, height: after.height)
+        }
+        if selectedRange.location > 0,
+           let before = usableRangeBounds(
+               CFRange(location: selectedRange.location - 1, length: 1),
+               of: focusedElement
+           ) {
+            return CGRect(x: before.maxX, y: before.minY, width: 1, height: before.height)
+        }
+        return nil
+    }
+
+    /// Bounds for a text range, filtered to plausible on-screen line geometry.
+    /// Zero WIDTH is fine (collapsed caret); a null rect or degenerate height is not.
+    private func usableRangeBounds(_ range: CFRange, of element: AXUIElement) -> CGRect? {
+        guard let rect = axProvider.rectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: range,
+            of: element
+        ) else { return nil }
+        let standardized = rect.standardized
+        guard !standardized.isNull, !standardized.isInfinite, standardized.height >= 2 else { return nil }
+        return standardized
+    }
+
+    /// A whole-element frame is a poor caret proxy for large editors (web composers,
+    /// document views): anchoring to it centers the bubble on the element, far from
+    /// the text. Condense tall elements to a caret-sized strip at their top-leading
+    /// corner, where (LTR) text entry begins; single-line inputs pass through.
+    static func condensedElementAnchor(for rect: CGRect) -> CGRect {
+        let maxSingleLineHeight: CGFloat = 60
+        guard rect.height > maxSingleLineHeight else { return rect }
+        return CGRect(x: rect.minX + 6, y: rect.minY + 6, width: 2, height: 22)
     }
 
     func captureFocusedWindowFrame() -> CGRect? {

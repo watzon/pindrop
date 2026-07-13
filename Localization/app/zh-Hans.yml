@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "将侧边栏固定到窗口的左侧或右侧边缘。"
 done:
   _self: "完成"
+double:
+  press_escape_to_cancel: "连按两次 Escape 取消"
 download:
   _self: "下载"
   complete: "下载完成！"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "按住以在任何应用中听写。Pindrop 将转录您的语音并在光标位置插入文本。"
   esc_to_cancel: "按 Esc 取消"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "按两次 Escape 取消录音。关闭后，按一次即可取消。"
   keys: "按按键..."
   keys_98b8167e: "请按下按键…"
   once_to_start_again_to_stop: "按一次开始，再按一次停止"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "尽可能直接在活动应用中输入文本"
 u10:
-  floating_announcement_summary: "回放、全新外观，以及贯穿 Pindrop 的键盘控制。"
   floating_inserted_into: "已插入到 %@"
-  floating_keyboard_body: "无需离开键盘，即可导航、搜索、创建笔记、导出和删除。"
-  floating_keyboard_title: "处处可用键盘"
   floating_microphone_unavailable: "麦克风不可用"
-  floating_new_look_body: "更温暖、更安静的设计让你的文字成为主角。主题预设会继续保留，并新增默认主题“资料库”。"
-  floating_new_look_title: "全新外观"
-  floating_replay_body: "Pindrop 可将音频保留七天，让你随时从资料库重新收听。"
-  floating_replay_title: "回放每次听写"
   floating_transcribing: "正在转写…"
-  floating_version_line: "Pindrop 0.10.0 · 2026 年 7 月"
   floating_whats_new: "新功能"
   floating_word_count: "%d 个字词"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "气泡"
 notch:
   _self: "刘海"
+whatsnew:
+  footer: "此外：可通过快捷键取消正在进行的听写、静默启动到菜单栏，并在虚拟机中可靠地输入文字。"
+  formatting_body: "长篇听写现在可以完全在设备上自动分成易读的段落。"
+  formatting_title: "更整洁的转录"
+  indicators_body: "选择刘海下方低调的胶囊，或跟随光标移动的气泡。"
+  indicators_title: "刘海与光标指示器"
+  languages_body: "支持波兰语、印地语和马拉雅拉姆语听写。界面现在也支持波兰语。"
+  languages_title: "三种新语言"
+  sensevoice_body: "全新的完全本地引擎，具有快速、准确的多语言识别能力。"
+  sensevoice_title: "SenseVoice 转录"
+  summary: "全新本地引擎、三种新语言，以及对每次听写更强的控制力。"
+  version_line: "Pindrop 1.21.0 · 2026 年 7 月"

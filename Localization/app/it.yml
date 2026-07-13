@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ancora la barra laterale al bordo sinistro o destro della finestra."
 done:
   _self: "Fine"
+double:
+  press_escape_to_cancel: "Premi Esc due volte per annullare"
 download:
   _self: "Scaricamento"
   complete: "Scarica completo!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Tieni premuto per dettare in qualsiasi app. Pindrop trascriverà il tuo discorso e inserirà il testo nel punto in cui si trova il cursore."
   esc_to_cancel: "Premi Esc per annullare"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Premi Esc due volte per annullare una registrazione. Se disattivato, basta una sola pressione."
   keys: "Premere i tasti..."
   keys_98b8167e: "Premi i tasti…"
   once_to_start_again_to_stop: "Premere una volta per avviare, un'altra per interrompere"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "Digita il testo direttamente nell'app attiva quando possibile"
 u10:
-  floating_announcement_summary: "Riascolto, un nuovo look e controllo da tastiera in tutto Pindrop."
   floating_inserted_into: "Inserito in %@"
-  floating_keyboard_body: "Naviga, cerca, crea note, esporta ed elimina senza lasciare la tastiera."
-  floating_keyboard_title: "Tastiera ovunque"
   floating_microphone_unavailable: "Microfono non disponibile"
-  floating_new_look_body: "Un design più caldo e tranquillo mette le tue parole al primo posto. I preset dei temi restano, con una nuova impostazione predefinita: Libreria."
-  floating_new_look_title: "Un nuovo look"
-  floating_replay_body: "Pindrop può conservare l’audio per sette giorni, così puoi riascoltarlo dalla Libreria quando serve."
-  floating_replay_title: "Riascolta ogni dettatura"
   floating_transcribing: "Trascrizione…"
-  floating_version_line: "Pindrop 0.10.0 · luglio 2026"
   floating_whats_new: "Novità"
   floating_word_count: "%d parole"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "Bolla"
 notch:
   _self: "Tacca"
+whatsnew:
+  footer: "Inoltre: annulla una dettatura in corso con un tasto di scelta rapida, avvia Pindrop silenziosamente nella barra dei menu e digita in modo affidabile nelle macchine virtuali."
+  formatting_body: "Le dettature lunghe ora possono suddividersi in paragrafi leggibili, interamente sul dispositivo."
+  formatting_title: "Trascrizioni più pulite"
+  indicators_body: "Scegli una pillola discreta sotto la tacca o una bolla che segue il cursore."
+  indicators_title: "Indicatori di tacca e cursore"
+  languages_body: "Detta in polacco, hindi e malayalam. Ora l'interfaccia parla anche polacco."
+  languages_title: "Tre nuove lingue"
+  sensevoice_body: "Un nuovo motore completamente locale con riconoscimento multilingue veloce e accurato."
+  sensevoice_title: "Trascrizione SenseVoice"
+  summary: "Un nuovo motore locale, tre nuove lingue e più controllo su ogni dettatura."
+  version_line: "Pindrop 1.21.0 · luglio 2026"

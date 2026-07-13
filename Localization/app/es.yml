@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ancla la barra lateral al borde izquierdo o derecho de la ventana."
 done:
   _self: "Listo"
+double:
+  press_escape_to_cancel: "Pulsar Escape dos veces para cancelar"
 download:
   _self: "Descargar"
   complete: "¡Descarga completada!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Mantén pulsado para dictar en cualquier app. Pindrop transcribirá tu voz e insertará el texto donde esté el cursor."
   esc_to_cancel: "Pulsa Esc para cancelar"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Pulsa Escape dos veces para cancelar una grabación. Si está desactivado, una sola pulsación cancela."
   keys: "Pulsa las teclas..."
   keys_98b8167e: "Pulsa teclas…"
   once_to_start_again_to_stop: "Press once to start, again to stop"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "Escribe texto directamente en la app activa cuando sea posible"
 u10:
-  floating_announcement_summary: "Reproducción, un nuevo aspecto y control con teclado en todo Pindrop."
   floating_inserted_into: "Insertado en %@"
-  floating_keyboard_body: "Navega, busca, crea notas, exporta y elimina sin dejar el teclado."
-  floating_keyboard_title: "Teclado en todas partes"
   floating_microphone_unavailable: "Micrófono no disponible"
-  floating_new_look_body: "Un diseño más cálido y tranquilo pone tus palabras primero. Tus ajustes de tema se conservan, con una nueva opción predeterminada: Biblioteca."
-  floating_new_look_title: "Un nuevo aspecto"
-  floating_replay_body: "Pindrop puede conservar el audio durante siete días para que puedas escucharlo desde la Biblioteca cuando lo necesites."
-  floating_replay_title: "Reproduce cada dictado"
   floating_transcribing: "Transcribiendo…"
-  floating_version_line: "Pindrop 0.10.0 · julio de 2026"
   floating_whats_new: "Novedades"
   floating_word_count: "%d palabras"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "Bubble"
 notch:
   _self: "Notch"
+whatsnew:
+  footer: "Además: cancela un dictado a mitad con un atajo, inicia en silencio en la barra de menús y escribe de forma fiable en máquinas virtuales."
+  formatting_body: "Los dictados largos ahora pueden dividirse en párrafos legibles, totalmente en el dispositivo."
+  formatting_title: "Transcripciones más claras"
+  indicators_body: "Elige una píldora discreta bajo el Notch o una Bubble que sigue tu cursor."
+  indicators_title: "Indicadores de Notch y cursor"
+  languages_body: "Dicta en polaco, hindi y malayalam. La interfaz ahora también habla polaco."
+  languages_title: "Tres idiomas nuevos"
+  sensevoice_body: "Un nuevo motor totalmente local con reconocimiento multilingüe rápido y preciso."
+  sensevoice_title: "Transcripción con SenseVoice"
+  summary: "Un nuevo motor local, tres idiomas nuevos y más control sobre cada dictado."
+  version_line: "Pindrop 1.21.0 · julio de 2026"

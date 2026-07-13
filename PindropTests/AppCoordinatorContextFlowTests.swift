@@ -516,32 +516,52 @@ struct AppCoordinatorContextFlowTests {
         )
     }
 
-    @Test func shouldUseSpeakerDiarizationTruthTable() {
+    @Test func dictationNeverUsesSpeakerDiarization() {
+        // Dictation output is a single-speaker paste; "Speaker N:" attribution is
+        // reserved for meeting and media transcription jobs.
+        #expect(AppCoordinator.dictationUsesSpeakerDiarization == false)
+    }
+
+    @Test func escapeCancelDecisionTruthTable() {
+        let now = Date()
+        let window = AppCoordinator.doubleEscapeCancelWindow
+
+        // Single-press mode always cancels, armed or not.
         #expect(
-            AppCoordinator.shouldUseSpeakerDiarization(
-                diarizationFeatureEnabled: true,
-                isStreamingSessionActive: false
+            AppCoordinator.escapeShouldCancel(
+                requiresDoublePress: false, armedAt: nil, now: now, window: window
+            )
+        )
+        #expect(
+            AppCoordinator.escapeShouldCancel(
+                requiresDoublePress: false, armedAt: now.addingTimeInterval(-10), now: now, window: window
             )
         )
 
+        // Double-press mode: first press only arms.
         #expect(
-            AppCoordinator.shouldUseSpeakerDiarization(
-                diarizationFeatureEnabled: false,
-                isStreamingSessionActive: false
+            AppCoordinator.escapeShouldCancel(
+                requiresDoublePress: true, armedAt: nil, now: now, window: window
             ) == false
         )
 
+        // Second press within the window cancels.
         #expect(
-            AppCoordinator.shouldUseSpeakerDiarization(
-                diarizationFeatureEnabled: true,
-                isStreamingSessionActive: true
-            ) == false
+            AppCoordinator.escapeShouldCancel(
+                requiresDoublePress: true,
+                armedAt: now.addingTimeInterval(-window + 0.1),
+                now: now,
+                window: window
+            )
         )
 
+        // A stale arm outside the window does not cancel.
         #expect(
-            AppCoordinator.shouldUseSpeakerDiarization(
-                diarizationFeatureEnabled: false,
-                isStreamingSessionActive: true
+            AppCoordinator.escapeShouldCancel(
+                requiresDoublePress: true,
+                armedAt: now.addingTimeInterval(-window - 0.1),
+                now: now,
+                window: window
             ) == false
         )
     }

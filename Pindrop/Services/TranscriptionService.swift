@@ -633,6 +633,12 @@ class TranscriptionService {
                 state = .ready
             }
         } catch {
+            // Keep the underlying failure visible: the remapped error below reads as
+            // "model not downloaded", which is misleading when the files exist but a
+            // CoreML load failed (corrupt file, incompatible export, …).
+            Log.transcription.error(
+                "Streaming engine load failed for \(modelPath): \(error.localizedDescription)"
+            )
             let streamingError: TranscriptionError
             switch effectiveBackend {
             case .parakeet:

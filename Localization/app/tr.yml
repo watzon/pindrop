@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kenar çubuğunu pencerenin sol veya sağ kenarına sabitleyin."
 done:
   _self: "Bitti"
+double:
+  press_escape_to_cancel: "İptal için Escape'e iki kez basın"
 download:
   _self: "İndirmek"
   complete: "İndirme Tamamlandı!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Herhangi bir uygulamada dikte etmek için basılı tutun. Pindrop konuşmanızı yazıya dökecek ve metni imlecinizin bulunduğu yere ekleyecektir."
   esc_to_cancel: "İptal etmek için Esc tuşuna basın"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Kaydı iptal etmek için Escape'e iki kez basın. Kapalıyken tek basış iptal eder."
   keys: "Tuşlara basın..."
   keys_98b8167e: "Tuşlara basın…"
   once_to_start_again_to_stop: "Başlamak için bir kez, durdurmak için bir kez daha basın"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "Mümkün olduğunda metni doğrudan etkin uygulamaya yazın"
 u10:
-  floating_announcement_summary: "Pindrop genelinde yeniden oynatma, yeni görünüm ve klavye denetimi."
   floating_inserted_into: "%@ içine eklendi"
-  floating_keyboard_body: "Klavyeden ayrılmadan gezinin, arayın, not oluşturun, dışa aktarın ve silin."
-  floating_keyboard_title: "Her yerde klavye"
   floating_microphone_unavailable: "Mikrofon kullanılamıyor"
-  floating_new_look_body: "Daha sıcak ve sakin tasarım sözlerinizi öne çıkarır. Tema ön ayarlarınız korunur ve yeni varsayılan Kitaplık eklenir."
-  floating_new_look_title: "Yeni bir görünüm"
-  floating_replay_body: "Pindrop sesi yedi gün saklayabilir; böylece gerektiğinde Kitaplık’tan yeniden dinleyebilirsiniz."
-  floating_replay_title: "Her dikteyi yeniden oynatın"
   floating_transcribing: "Yazıya dökülüyor…"
-  floating_version_line: "Pindrop 0.10.0 · Temmuz 2026"
   floating_whats_new: "Yenilikler"
   floating_word_count: "%d kelime"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "Kabarcık"
 notch:
   _self: "Çentik"
+whatsnew:
+  footer: "Ayrıca: bir kısayol tuşuyla devam eden bir dikteyi iptal edin, menü çubuğuna sessizce başlatın ve sanal makinelere güvenilir şekilde yazın."
+  formatting_body: "Uzun dikteler artık tamamen cihaz üzerinde okunabilir paragraflara ayrılabiliyor."
+  formatting_title: "Daha temiz transkripsiyonlar"
+  indicators_body: "Çentiğin altında sade bir hap veya imlecinizi takip eden bir kabarcık seçin."
+  indicators_title: "Çentik ve imleç göstergeleri"
+  languages_body: "Lehçe, Hintçe ve Malayalamca dikte edin. Arayüz artık Lehçe de konuşuyor."
+  languages_title: "Üç yeni dil"
+  sensevoice_body: "Hızlı, doğru ve çok dilli tanımaya sahip yepyeni, tamamen yerel bir motor."
+  sensevoice_title: "SenseVoice transkripsiyonu"
+  summary: "Yeni bir yerel motor, üç yeni dil ve her dikte üzerinde daha fazla kontrol."
+  version_line: "Pindrop 1.21.0 · Temmuz 2026"

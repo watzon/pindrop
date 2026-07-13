@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "साइडबार को विंडो के बाएँ या दाएँ किनारे पर डॉक करें।"
 done:
   _self: "हो गया"
+double:
+  press_escape_to_cancel: "रद्द करने के लिए Escape दो बार दबाएँ"
 download:
   _self: "डाउनलोड करना"
   complete: "डाउनलोड पूर्ण!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "किसी भी ऐप में निर्देश देने के लिए दबाकर रखें। पिनड्रॉप आपके भाषण को ट्रांसक्रिप्ट करेगा और टेक्स्ट को वहां डाल देगा जहां आपका कर्सर है।"
   esc_to_cancel: "रद्द करने के लिए Esc दबाएँ"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "रिकॉर्डिंग रद्द करने के लिए Escape दो बार दबाएँ। बंद होने पर, एक बार दबाने से रद्द हो जाता है।"
   keys: "कुँजियाँ दबाएँ..."
   keys_98b8167e: "कुंजियाँ दबाएँ…"
   once_to_start_again_to_stop: "शुरू करने के लिए एक बार दबाएँ, रोकने के लिए दोबारा दबाएँ"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "जब संभव हो तो सक्रिय ऐप में सीधे टेक्स्ट टाइप करें"
 u10:
-  floating_announcement_summary: "Pindrop में रीप्ले, नया रूप और कीबोर्ड नियंत्रण।"
   floating_inserted_into: "%@ में डाला गया"
-  floating_keyboard_body: "कीबोर्ड छोड़े बिना पेज बदलें, खोजें, नोट बनाएँ, एक्सपोर्ट करें और मिटाएँ।"
-  floating_keyboard_title: "हर जगह कीबोर्ड"
   floating_microphone_unavailable: "माइक्रोफ़ोन उपलब्ध नहीं है"
-  floating_new_look_body: "ज़्यादा गर्म और शांत डिज़ाइन आपके शब्दों को पहले रखता है। आपके थीम प्रीसेट बने रहेंगे—साथ में नई डिफ़ॉल्ट लाइब्रेरी।"
-  floating_new_look_title: "एक नया रूप"
-  floating_replay_body: "Pindrop ऑडियो को सात दिन तक रख सकता है, ताकि ज़रूरत पर आप लाइब्रेरी से उसे फिर सुन सकें।"
-  floating_replay_title: "हर डिक्टेशन फिर सुनें"
   floating_transcribing: "ट्रांसक्राइब हो रहा है…"
-  floating_version_line: "Pindrop 0.10.0 · जुलाई 2026"
   floating_whats_new: "नया क्या है"
   floating_word_count: "%d शब्द"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "बुलबुला"
 notch:
   _self: "निशान"
+whatsnew:
+  footer: "साथ ही: हॉटकी से बीच में डिक्टेशन रद्द करें, मेनू बार में चुपचाप लॉन्च करें, और वर्चुअल मशीनों में भरोसे के साथ टाइप करें।"
+  formatting_body: "लंबे डिक्टेशन अब पढ़ने योग्य पैराग्राफ़ में बंट सकते हैं, पूरी तरह डिवाइस पर।"
+  formatting_title: "साफ़-सुथरे ट्रांसक्रिप्ट"
+  indicators_body: "निशान के नीचे एक सूक्ष्म गोली चुनें या एक बुलबुला जो आपके कैरेट का अनुसरण करे।"
+  indicators_title: "निशान और कैरेट संकेतक"
+  languages_body: "पोलिश, हिन्दी और मलयालम में डिक्टेशन करें। अब इंटरफ़ेस भी पोलिश बोलता है।"
+  languages_title: "तीन नई भाषाएँ"
+  sensevoice_body: "तेज़, सटीक बहुभाषी पहचान वाला एक नया, पूरी तरह स्थानीय इंजन।"
+  sensevoice_title: "SenseVoice ट्रांसक्रिप्शन"
+  summary: "एक नया स्थानीय इंजन, तीन नई भाषाएँ, और हर डिक्टेशन पर अधिक नियंत्रण।"
+  version_line: "Pindrop 1.21.0 · जुलाई 2026"

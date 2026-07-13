@@ -99,7 +99,32 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
                 }
             }
 
-            try await streamingManager.loadModels(from: modelDirectory)
+            do {
+                try await streamingManager.loadModels(from: modelDirectory)
+            } catch {
+                // The fused decoder_joint.mlmodelc is OPTIONAL — FluidAudio only loads
+                // it when the file exists — but a stale/corrupt copy (early exports
+                // shipped one that fails with "Error in reading the MIL network", and
+                // the cached-download check never re-validates it) throws and bricks
+                // streaming entirely. Quarantine it and retry once without the fused
+                // path; restore it if the retry proves it wasn't the culprit.
+                let fusedURL = modelDirectory.appendingPathComponent("decoder_joint.mlmodelc")
+                guard FileManager.default.fileExists(atPath: fusedURL.path) else {
+                    throw error
+                }
+                let quarantineURL = modelDirectory.appendingPathComponent("decoder_joint.mlmodelc.broken")
+                try? FileManager.default.removeItem(at: quarantineURL)
+                try FileManager.default.moveItem(at: fusedURL, to: quarantineURL)
+                Log.transcription.warning(
+                    "Streaming model load failed (\(error.localizedDescription)); quarantined optional decoder_joint.mlmodelc and retrying without the fused path"
+                )
+                do {
+                    try await streamingManager.loadModels(from: modelDirectory)
+                } catch let retryError {
+                    try? FileManager.default.moveItem(at: quarantineURL, to: fusedURL)
+                    throw retryError
+                }
+            }
 
             // CoreML specializes kernels lazily on the first prediction, not at
             // load — without this, that one-time spike lands on the first real

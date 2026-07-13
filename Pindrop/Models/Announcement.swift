@@ -37,31 +37,38 @@ struct AnnouncementCredit {
 
 enum AnnouncementCatalog {
     static let current: Announcement? = Announcement(
-        id: "2026.07-v0.10",
+        id: "2026.07-v1.21",
         titleKey: "What's new",
-        headerKey: "Pindrop 0.10.0 · July 2026",
-        subtitleKey: "Replay, a new look, and keyboard control throughout Pindrop.",
-        footerKey: nil,
+        headerKey: "Pindrop 1.21.0 · July 2026",
+        subtitleKey: "A new local engine, three new languages, and more control over every dictation.",
+        footerKey: "Also: cancel a dictation mid-flight with a hotkey, launch silently to the menu bar, and type reliably into virtual machines.",
         items: [
             AnnouncementItem(
-                id: "replay",
-                visual: .symbol("play.fill"),
-                titleKey: "Replay every dictation",
-                bodyKey: "Pindrop can keep audio for seven days, so you can listen back from your Library whenever you need it.",
+                id: "sensevoice",
+                visual: .symbol("waveform"),
+                titleKey: "SenseVoice transcription",
+                bodyKey: "A new fully local engine with fast, accurate multilingual recognition.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "new-look",
-                visual: .symbol("paintbrush.fill"),
-                titleKey: "A new look",
-                bodyKey: "A warmer, quieter design puts your words first. Your theme presets carry over — plus a new default, Library.",
+                id: "indicators",
+                visual: .symbol("rectangle.topthird.inset.filled"),
+                titleKey: "Notch and caret indicators",
+                bodyKey: "Choose a discreet pill under the notch or a bubble that follows your caret.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "keyboard-everywhere",
-                visual: .symbol("keyboard"),
-                titleKey: "Keyboard everywhere",
-                bodyKey: "Navigate pages, search, create notes, export, and delete without leaving the keyboard.",
+                id: "languages",
+                visual: .symbol("globe"),
+                titleKey: "Three new languages",
+                bodyKey: "Dictate in Polish, Hindi, and Malayalam. The interface now speaks Polish too.",
+                credit: nil
+            ),
+            AnnouncementItem(
+                id: "formatting",
+                visual: .symbol("text.alignleft"),
+                titleKey: "Cleaner transcripts",
+                bodyKey: "Long dictations can now break into readable paragraphs, entirely on device.",
                 credit: nil
             ),
         ]

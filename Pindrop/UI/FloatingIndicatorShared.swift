@@ -421,7 +421,7 @@ struct LiveTranscriptView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollViewReader { proxy in
-                ScrollView(.vertical, showsIndicators: true) {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
                         if transcript.displayText.isEmpty {
                             Text(localized("Listening…", locale: locale))
@@ -515,17 +515,6 @@ struct FloatingIndicatorWaveformStyle {
     let idleHeight: CGFloat
     let color: Color
     let animationInterval: TimeInterval
-
-    static let notch = FloatingIndicatorWaveformStyle(
-        layout: .dynamic(minimumCount: 14, edgeAttenuation: 0.45),
-        barWidth: 2,
-        barSpacing: 1.6,
-        minimumHeight: 2,
-        maximumHeight: 16,
-        idleHeight: 2,
-        color: AppColors.overlayWaveform,
-        animationInterval: 0.05
-    )
 
     static let pill = FloatingIndicatorWaveformStyle(
         layout: .fixed(count: 9, heightScale: [0.34, 0.58, 0.82, 1.0, 0.66, 0.92, 0.74, 0.5, 0.34]),
@@ -683,6 +672,111 @@ struct FloatingIndicatorWaveformView: View {
         }
 
         return max(style.minimumHeight, min(style.maximumHeight, height))
+    }
+}
+
+/// Scrolling waveform that renders a short rolling history of *real* meter samples,
+/// Voice-Memos style: the newest sample lands at the trailing edge and older samples
+/// march left. Unlike `FloatingIndicatorWaveformView` (synthesized sine bars scaled
+/// by the level), every bar here is an actual `audioLevel` sample, so the drawing
+/// follows speech cadence — silence reads flat, plosives spike.
+///
+/// Sampling rides the visual timeline: one sample per `sampleInterval` tick, stored
+/// in a reference-type ring buffer so appends never invalidate the view tree.
+struct FloatingIndicatorScrollingWaveformView: View {
+    /// Polled once per timeline tick — same contract as `FloatingIndicatorWaveformView`.
+    let audioLevel: () -> Float
+    let isRecording: Bool
+    var color: Color = AppColors.overlayWaveform
+    var barWidth: CGFloat = 2
+    var barSpacing: CGFloat = 1.5
+    var minimumBarHeight: CGFloat = 2
+    /// One bar per sample: at 0.1s the visible window spans ~2.5s of audio and the
+    /// scroll reads calm, in line with the other indicators' pacing.
+    var sampleInterval: TimeInterval = 0.1
+    /// Levels arrive pre-normalized for visualization (`AudioLevelNormalizer`
+    /// upstream targets speech peaks ≈ 0.9). Its auto-gain also lifts room noise
+    /// toward mid-scale during pauses, so a fixed cut can't separate silence from
+    /// quiet speech — this is only the lower bound under the adaptive baseline
+    /// (see `barThreshold`).
+    var noiseFloor: Float = 0.1
+
+    /// Margin above the rolling-minimum sample under which bars stay flat, so
+    /// noise jitter around the baseline doesn't flicker.
+    private static let baselineDeadband: Float = 0.04
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Deliberately a plain reference box, not observed state: the timeline already
+    /// redraws at sample cadence, and appends must not trigger extra invalidation.
+    private final class SampleHistory {
+        var samples: [Float] = []
+        var lastSampleAt: TimeInterval = 0
+
+        func append(_ level: Float, at time: TimeInterval, capacity: Int) {
+            lastSampleAt = time
+            samples.append(level)
+            let overflow = samples.count - capacity
+            if overflow > 0 {
+                samples.removeFirst(overflow)
+            }
+        }
+    }
+
+    @State private var history = SampleHistory()
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: sampleInterval, paused: !isRecording || reduceMotion)) { timeline in
+            Canvas { context, size in
+                let slotWidth = barWidth + barSpacing
+                let capacity = max(1, Int((size.width + barSpacing) / slotWidth))
+
+                if isRecording, !reduceMotion {
+                    let now = timeline.date.timeIntervalSinceReferenceDate
+                    // Guard against extra invalidations (theme, state) double-sampling a tick.
+                    if now - history.lastSampleAt >= sampleInterval * 0.5 {
+                        history.append(audioLevel(), at: now, capacity: capacity)
+                    }
+                }
+
+                let samples = history.samples
+                let midY = size.height / 2
+
+                // The quietest visible sample is the session's current noise
+                // baseline (whatever the upstream auto-gain inflated it to);
+                // bars measure prominence above it, so silence stays flat while
+                // speech still fills the range. During speech the between-word
+                // dips pull the baseline back down, keeping peaks tall.
+                let baseline = (samples.min() ?? 0) + Self.baselineDeadband
+                let threshold = max(noiseFloor, baseline)
+                let visualRange = max(0.2, 1 - threshold)
+
+                for slot in 0..<capacity {
+                    // Rightmost slot holds the newest sample; leading slots without
+                    // history yet render as the quiet baseline.
+                    let sampleIndex = samples.count - (capacity - slot)
+                    let level = sampleIndex >= 0 ? samples[sampleIndex] : 0
+                    let gated = CGFloat(max(0, min(1, (level - threshold) / visualRange)))
+                    // Mild perceptual lift so quiet speech still moves the bars.
+                    let height = max(minimumBarHeight, pow(gated, 0.85) * size.height)
+                    let x = size.width - CGFloat(capacity - slot) * slotWidth + barSpacing
+                    let rect = CGRect(x: x, y: midY - height / 2, width: barWidth, height: height)
+                    // Older bars fade toward the leading edge.
+                    let fade = 0.3 + 0.7 * Double(slot + 1) / Double(capacity)
+                    context.fill(
+                        Path(roundedRect: rect, cornerRadius: barWidth / 2),
+                        with: .color(color.opacity(fade))
+                    )
+                }
+            }
+        }
+        .onChange(of: isRecording) { _, nowRecording in
+            // Panels are reused across sessions; a new recording starts from a clean baseline.
+            if nowRecording {
+                history.samples.removeAll()
+                history.lastSampleAt = 0
+            }
+        }
     }
 }
 

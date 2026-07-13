@@ -261,6 +261,20 @@ release version:
         exit 1
     fi
 
+    # Feature releases (X.Y.0) must ship an updated in-app What's New announcement
+    PATCH_COMPONENT="${VERSION##*.}"
+    if [ "${PATCH_COMPONENT}" = "0" ]; then
+        if ! grep -q "Pindrop ${VERSION}" Pindrop/Models/Announcement.swift; then
+            echo "❌ AnnouncementCatalog.current does not reference Pindrop ${VERSION}."
+            echo "   Feature releases must update the in-app What's New announcement:"
+            echo "   1. Update AnnouncementCatalog in Pindrop/Models/Announcement.swift"
+            echo "      (new id, 'Pindrop ${VERSION} · <Month Year>' header, feature items)."
+            echo "   2. Update the 'whatsnew:' strings in Localization/app/*.yml for all locales."
+            echo "   3. Run: just l10n-sync && just l10n-lint"
+            exit 1
+        fi
+    fi
+
     # Get current version
     CURRENT_VERSION=$(grep 'MARKETING_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')
     CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION = ' Pindrop.xcodeproj/project.pbxproj | head -1 | sed 's/.*= \(.*\);/\1/')

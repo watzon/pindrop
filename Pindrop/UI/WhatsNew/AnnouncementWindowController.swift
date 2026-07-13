@@ -56,7 +56,7 @@ final class AnnouncementWindowController: NSObject, AnnouncementPresenting, NSWi
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
 
-        let contentSize = NSSize(width: 460, height: 540)
+        let contentSize = NSSize(width: 460, height: 600)
         window.setContentSize(contentSize)
         window.minSize = contentSize
         window.maxSize = contentSize

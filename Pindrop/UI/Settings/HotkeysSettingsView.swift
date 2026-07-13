@@ -130,6 +130,21 @@ struct HotkeysSettingsView: View {
                 .accessibilityLabel(aggregateConflictLine)
 
             SettingsGroupCard {
+                SettingsRow(showSeparator: false) {
+                    SettingsRowLabel(
+                        title: localized("Double-press Escape to cancel", locale: locale),
+                        subtitle: localized("Press Escape twice to cancel a recording. When off, a single press cancels.", locale: locale)
+                    )
+                } control: {
+                    SettingsToggle(
+                        isOn: $settings.cancelRequiresDoubleEscape,
+                        label: localized("Double-press Escape to cancel", locale: locale)
+                    )
+                        .accessibilityIdentifier("settings.toggle.cancelRequiresDoubleEscape")
+                }
+            }
+
+            SettingsGroupCard {
                 ForEach(Array(noteSlots.enumerated()), id: \.element.0) { index, item in
                     hotkeyRow(
                         slot: item.0,

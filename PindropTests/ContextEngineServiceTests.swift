@@ -239,6 +239,74 @@ struct ContextEngineServiceTests {
         #expect(rect == CGRect(x: 200, y: 300, width: 420, height: 36))
     }
 
+    @Test func captureFocusedElementAnchorRectAcceptsZeroWidthCollapsedCaretBounds() {
+        let fixture = makeSUT()
+        let caret = CFRange(location: 12, length: 0)
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fixture.fakeFocusedElement, value: caret)
+        // Collapsed carets report zero-width bounds — the anchor must not be
+        // rejected as "empty" and fall back to the whole element frame.
+        fixture.mockAXProvider.setRectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: caret,
+            of: fixture.fakeFocusedElement,
+            value: CGRect(x: 320, y: 480, width: 0, height: 18)
+        )
+        fixture.mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedElement, value: CGPoint(x: 0, y: 0))
+        fixture.mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedElement, value: CGSize(width: 800, height: 600))
+
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        #expect(rect == CGRect(x: 320, y: 480, width: 1, height: 18))
+    }
+
+    @Test func captureFocusedElementAnchorRectProbesCharacterAfterCaret() {
+        let fixture = makeSUT()
+        let caret = CFRange(location: 5, length: 0)
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fixture.fakeFocusedElement, value: caret)
+        // No bounds for the zero-length range (web-editor behavior); the character
+        // after the caret anchors at its leading edge.
+        fixture.mockAXProvider.setRectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: CFRange(location: 5, length: 1),
+            of: fixture.fakeFocusedElement,
+            value: CGRect(x: 100, y: 200, width: 8, height: 16)
+        )
+
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        #expect(rect == CGRect(x: 100, y: 200, width: 1, height: 16))
+    }
+
+    @Test func captureFocusedElementAnchorRectProbesCharacterBeforeCaretAtTextEnd() {
+        let fixture = makeSUT()
+        let caret = CFRange(location: 5, length: 0)
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setRangeAttribute(kAXSelectedTextRangeAttribute, of: fixture.fakeFocusedElement, value: caret)
+        // Caret at end of text: no char after, so the char before anchors at its
+        // trailing edge.
+        fixture.mockAXProvider.setRectForRangeAttribute(
+            kAXBoundsForRangeParameterizedAttribute,
+            range: CFRange(location: 4, length: 1),
+            of: fixture.fakeFocusedElement,
+            value: CGRect(x: 90, y: 200, width: 8, height: 16)
+        )
+
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        #expect(rect == CGRect(x: 98, y: 200, width: 1, height: 16))
+    }
+
+    @Test func captureFocusedElementAnchorRectCondensesTallElementFallback() {
+        let fixture = makeSUT()
+        fixture.mockAXProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.mockAXProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedElement, value: CGPoint(x: 200, y: 300))
+        fixture.mockAXProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedElement, value: CGSize(width: 600, height: 400))
+
+        let rect = fixture.sut.captureFocusedElementAnchorRect()
+        // Tall editors (web composers) condense to a caret-sized strip at the
+        // top-leading corner instead of centering on the whole element.
+        #expect(rect == CGRect(x: 206, y: 306, width: 2, height: 22))
+    }
+
     @Test func captureFocusedWindowFrameReturnsFocusedWindowRect() {
         let fixture = makeSUT()
         fixture.mockAXProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)

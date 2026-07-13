@@ -126,11 +126,12 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
 - Local release helpers: `just build-release`, `just export-app`, `just dmg`, `just dmg-self-signed` (fallback only)
 - Manual release flow is `just release <X.Y.Z>` (local execution, not CI-driven)
   1. Create/edit contextual release notes (`release-notes/vX.Y.Z.md`)
-  2. Run tests
-  3. Build signed release DMG (`just dmg` exports a Developer ID-signed app first)
-  4. Generate `appcast.xml`
-  5. Create + push tag
-  6. Create GitHub release via `gh` with notes + DMG + `appcast.xml`
+  2. For feature releases (X.Y.0): update the in-app What's New announcement — `AnnouncementCatalog` in `Pindrop/Models/Announcement.swift` (new id + `Pindrop X.Y.0 · <Month Year>` header + feature items) plus the `whatsnew:` strings in `Localization/app/*.yml` for all locales, then `just l10n-sync` (`just release` enforces this)
+  3. Run tests
+  4. Build signed release DMG (`just dmg` exports a Developer ID-signed app first)
+  5. Generate `appcast.xml`
+  6. Create + push tag
+  7. Create GitHub release via `gh` with notes + DMG + `appcast.xml`
 - CI workflows under `.github/workflows/` are for build/test validation; release publishing is manual
 - Sparkle appcast generation is scripted via `just appcast <dmg-path>`
 - Keep `just build-self-signed` / `just dmg-self-signed` only as a fallback when Apple signing is unavailable

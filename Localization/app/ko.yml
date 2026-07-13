@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "사이드바를 창의 왼쪽 또는 오른쪽 가장자리에 고정합니다."
 done:
   _self: "완료"
+double:
+  press_escape_to_cancel: "Escape 두 번 눌러 취소"
 download:
   _self: "다운로드"
   complete: "다운로드 완료!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "어떤 앱에서든 길게 누르면 받아쓰게 됩니다. Pindrop은 귀하의 음성을 기록하고 커서가 있는 곳에 텍스트를 삽입합니다."
   esc_to_cancel: "취소하려면 Esc를 누르세요."
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Escape 키를 두 번 눌러 녹음을 취소합니다. 끄면 한 번만 눌러도 취소됩니다."
   keys: "키를 누르세요..."
   keys_98b8167e: "키를 누르세요…"
   once_to_start_again_to_stop: "한 번 누르면 시작되고 다시 누르면 중지됩니다."
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "가능하면 활성 앱에 직접 텍스트를 입력하세요."
 u10:
-  floating_announcement_summary: "다시 듣기, 새로운 디자인, Pindrop 전체의 키보드 제어."
   floating_inserted_into: "%@에 삽입됨"
-  floating_keyboard_body: "키보드에서 손을 떼지 않고 페이지 이동, 검색, 메모 작성, 내보내기 및 삭제를 할 수 있습니다."
-  floating_keyboard_title: "어디서나 키보드"
   floating_microphone_unavailable: "마이크를 사용할 수 없음"
-  floating_new_look_body: "더 따뜻하고 차분한 디자인이 사용자의 말을 중심에 둡니다. 테마 프리셋은 유지되며 새로운 기본값인 보관함이 추가됩니다."
-  floating_new_look_title: "새로운 디자인"
-  floating_replay_body: "Pindrop이 오디오를 7일 동안 보관하므로 필요할 때 보관함에서 다시 들을 수 있습니다."
-  floating_replay_title: "모든 받아쓰기 다시 듣기"
   floating_transcribing: "전사 중…"
-  floating_version_line: "Pindrop 0.10.0 · 2026년 7월"
   floating_whats_new: "새로운 기능"
   floating_word_count: "%d단어"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "거품"
 notch:
   _self: "골짜기"
+whatsnew:
+  footer: "또한: 단축키로 진행 중인 받아쓰기를 취소하고, 메뉴 막대에서 조용히 실행하며, 가상 머신에도 안정적으로 입력할 수 있습니다."
+  formatting_body: "이제 긴 받아쓰기도 기기에서 완전히 처리되어 읽기 쉬운 단락으로 나뉩니다."
+  formatting_title: "더 깔끔해진 스크립트"
+  indicators_body: "골짜기 아래 눈에 띄지 않는 알약이나 캐럿을 따라다니는 거품 중에서 선택하세요."
+  indicators_title: "골짜기와 캐럿 표시기"
+  languages_body: "폴란드어, 힌디어, 말라얄람어로 받아쓰세요. 이제 인터페이스도 폴란드어를 지원합니다."
+  languages_title: "새로운 언어 3개"
+  sensevoice_body: "빠르고 정확한 다국어 인식을 제공하는 새로운 완전 로컬 엔진입니다."
+  sensevoice_title: "SenseVoice 전사"
+  summary: "새로운 로컬 엔진, 새로운 언어 3개, 그리고 모든 받아쓰기에 대한 더 강력한 제어 기능."
+  version_line: "Pindrop 1.21.0 · 2026년 7월"

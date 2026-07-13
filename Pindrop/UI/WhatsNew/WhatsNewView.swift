@@ -43,6 +43,14 @@ struct WhatsNewView: View {
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
 
+                if let footerKey = announcement.footerKey {
+                    Text(localized(footerKey, locale: locale))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 14)
+                }
+
                 HStack {
                     Spacer()
 
@@ -59,7 +67,7 @@ struct WhatsNewView: View {
             .padding(.horizontal, 28)
             .padding(.bottom, 24)
         }
-        .frame(width: 460, height: 540)
+        .frame(width: 460, height: 600)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .themeRefresh()

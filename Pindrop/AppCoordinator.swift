@@ -493,6 +493,9 @@ final class AppCoordinator {
     private var inputMuteMonitor: InputMuteMonitor?
     private var lastEscapeSignalTime: Date?
     private let duplicateEscapeSignalThreshold: TimeInterval = 0.08
+    /// First press of a double-Escape cancel sequence; cleared on cancel/finish.
+    private var escapeCancelArmedAt: Date?
+    static let doubleEscapeCancelWindow: TimeInterval = 0.6
     private let eventTapRecoveryDelay: Duration = .milliseconds(250)
     private let eventTapDisableLoopWindow: TimeInterval = 1.0
     private let maxEventTapReenableAttemptsBeforeRecreate = 3
@@ -2694,10 +2697,7 @@ final class AppCoordinator {
             return nil
         }
 
-        let diarizationEnabled = Self.shouldUseSpeakerDiarization(
-            diarizationFeatureEnabled: settingsStore.diarizationFeatureEnabled,
-            isStreamingSessionActive: false
-        )
+        let diarizationEnabled = Self.dictationUsesSpeakerDiarization
 
         let transcriptionOutput: TranscriptionOutput
         do {
@@ -2798,11 +2798,7 @@ final class AppCoordinator {
             return nil
         }
 
-        let diarizationEnabled = Self.shouldUseSpeakerDiarization(
-            diarizationFeatureEnabled: settingsStore.diarizationFeatureEnabled,
-            isStreamingSessionActive: false
-        )
-        Log.app.info("Quick capture speaker diarization \(diarizationEnabled ? "enabled" : "disabled")")
+        let diarizationEnabled = Self.dictationUsesSpeakerDiarization
 
         let transcriptionOutput: TranscriptionOutput
         do {
@@ -3126,12 +3122,12 @@ final class AppCoordinator {
         outputSucceeded && !isTranscriptionEffectivelyEmpty(text)
     }
 
-    static func shouldUseSpeakerDiarization(
-        diarizationFeatureEnabled: Bool,
-        isStreamingSessionActive: Bool
-    ) -> Bool {
-        diarizationFeatureEnabled && !isStreamingSessionActive
-    }
+    /// Dictation transcriptions never diarize: the output is a single-speaker paste
+    /// into the target app, and speaker attribution both pollutes it with
+    /// "Speaker N:" prefixes and can drop tail words when segment stitching
+    /// disagrees with the final transcript. Speaker diarization belongs to meeting
+    /// and media transcription jobs, which gate it via `TranscriptionJobOptions`.
+    static let dictationUsesSpeakerDiarization = false
 
     /// The v3 (overlay) streaming gate. Streaming transcription runs whenever the user's
     /// streaming preference says so, independent of any AI-enhancement assignment. Live
@@ -3490,11 +3486,7 @@ final class AppCoordinator {
         
         let duration = Date().timeIntervalSince(startTime)
         
-        let diarizationEnabled = Self.shouldUseSpeakerDiarization(
-            diarizationFeatureEnabled: settingsStore.diarizationFeatureEnabled,
-            isStreamingSessionActive: false
-        )
-        Log.app.info("Speaker diarization \(diarizationEnabled ? "enabled" : "disabled") for batch transcription")
+        let diarizationEnabled = Self.dictationUsesSpeakerDiarization
 
         let transcriptionOutput: TranscriptionOutput
         do {
@@ -4320,10 +4312,37 @@ final class AppCoordinator {
     }
     
     private func handleEscapeKeyPress() {
-        // Single Escape cancels while Pindrop owns an active recording/processing session.
+        // Escape cancels while Pindrop owns an active recording/processing session.
         // Idle Escape is intentionally a no-op so other apps keep the key.
         guard isRecording || isProcessing || activeOperationTask != nil else { return }
-        cancelCurrentOperation(source: "escape")
+
+        let now = Date()
+        if Self.escapeShouldCancel(
+            requiresDoublePress: settingsStore.cancelRequiresDoubleEscape,
+            armedAt: escapeCancelArmedAt,
+            now: now,
+            window: Self.doubleEscapeCancelWindow
+        ) {
+            escapeCancelArmedAt = nil
+            cancelCurrentOperation(source: "escape")
+        } else {
+            escapeCancelArmedAt = now
+            Log.app.info("Escape armed for cancel — press again within \(Self.doubleEscapeCancelWindow)s")
+        }
+    }
+
+    /// Whether an Escape press should cancel the active session, or merely arm the
+    /// double-press sequence. Single-press mode always cancels; double-press mode
+    /// cancels only when a prior press armed the sequence within `window`.
+    static func escapeShouldCancel(
+        requiresDoublePress: Bool,
+        armedAt: Date?,
+        now: Date,
+        window: TimeInterval
+    ) -> Bool {
+        guard requiresDoublePress else { return true }
+        guard let armedAt else { return false }
+        return now.timeIntervalSince(armedAt) <= window
     }
 
     private func cancelCurrentOperation(source: String = "cancel") {
@@ -4341,6 +4360,7 @@ final class AppCoordinator {
 
         Log.app.info("Cancelling current operation via \(source)")
 
+        escapeCancelArmedAt = nil
         // Invalidate any in-flight stop/transcribe/enhance pipeline first so post-await
         // stages discard results even if cooperative cancellation is delayed.
         operationController.cancel()

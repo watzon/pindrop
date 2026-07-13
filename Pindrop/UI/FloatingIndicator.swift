@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 import Combine
 
-private enum NotchPanelMetrics {
+enum NotchPanelMetrics {
     static let fallbackNotchWidth: CGFloat = 186
     static let minimumNotchWidth: CGFloat = 150
     static let baseSideWidth: CGFloat = 102
@@ -18,12 +18,17 @@ private enum NotchPanelMetrics {
     static let panelHeightMinimum: CGFloat = 30
     static let horizontalInset: CGFloat = 12
     static let cornerRadius: CGFloat = 14
+    /// Softer bottom corners while the transcript drop is extended.
+    static let expandedCornerRadius: CGFloat = 19
+    /// Radius of the concave fillet where the panel's sides meet the screen's
+    /// top edge — the outward curve of the hardware-notch silhouette.
+    static let topFlareRadius: CGFloat = 7
     static let showHideDuration: TimeInterval = 0.2
     static let hideDuration: TimeInterval = 0.15
-    static let sectionDividerOpacity: CGFloat = 0.18
-    static let sidePadding: CGFloat = 10
+    static let sidePadding: CGFloat = 12
     /// Dynamic-Island-style downward extension while the live transcript is showing.
-    static let transcriptDropHeight: CGFloat = 64
+    /// Sized for three lines of 12 pt transcript plus padding (see `NotchIndicatorView`).
+    static let transcriptDropHeight: CGFloat = 70
 }
 
 extension NSScreen {
@@ -85,32 +90,112 @@ final class NotchPanel: NSPanel {
     }
 }
 
+/// The hardware-notch silhouette: sides flare outward through a concave fillet
+/// where they meet the screen's top edge (the black widens as it reaches the
+/// edge, like the physical notch joining the display border), then drop to
+/// rounded bottom corners.
 struct NotchShape: Shape {
-    let cornerRadius: CGFloat
-    
+    var cornerRadius: CGFloat
+    var topFlareRadius: CGFloat = NotchPanelMetrics.topFlareRadius
+
+    var animatableData: CGFloat {
+        get { cornerRadius }
+        set { cornerRadius = newValue }
+    }
+
     func path(in rect: CGRect) -> Path {
+        let flare = min(topFlareRadius, rect.height / 2)
+        let radius = cornerRadius
         var path = Path()
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: rect.width, y: 0))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height - cornerRadius))
+        // Top-right flare: concave fillet from the top edge into the body side.
         path.addArc(
-            center: CGPoint(x: rect.width - cornerRadius, y: rect.height - cornerRadius),
-            radius: cornerRadius,
+            center: CGPoint(x: rect.width, y: flare),
+            radius: flare,
+            startAngle: .degrees(270),
+            endAngle: .degrees(180),
+            clockwise: true
+        )
+        path.addLine(to: CGPoint(x: rect.width - flare, y: rect.height - radius))
+        path.addArc(
+            center: CGPoint(x: rect.width - flare - radius, y: rect.height - radius),
+            radius: radius,
             startAngle: .degrees(0),
             endAngle: .degrees(90),
             clockwise: false
         )
-        path.addLine(to: CGPoint(x: cornerRadius, y: rect.height))
+        path.addLine(to: CGPoint(x: flare + radius, y: rect.height))
         path.addArc(
-            center: CGPoint(x: cornerRadius, y: rect.height - cornerRadius),
-            radius: cornerRadius,
+            center: CGPoint(x: flare + radius, y: rect.height - radius),
+            radius: radius,
             startAngle: .degrees(90),
             endAngle: .degrees(180),
             clockwise: false
         )
-        path.addLine(to: CGPoint(x: 0, y: 0))
-        
+        path.addLine(to: CGPoint(x: flare, y: flare))
+        // Top-left flare, mirroring the right.
+        path.addArc(
+            center: CGPoint(x: 0, y: flare),
+            radius: flare,
+            startAngle: .degrees(0),
+            endAngle: .degrees(270),
+            clockwise: true
+        )
+        path.closeSubpath()
+
         return path
+    }
+}
+
+/// Pure geometry for the notch panel, extracted from the controller so layout
+/// rules (transcript drop, side-width budget, edge clamping) are unit-testable
+/// without an `NSScreen`.
+enum NotchPanelLayoutMath {
+    struct Layout: Equatable {
+        var frame: CGRect
+        var notchWidth: CGFloat
+        var sideWidth: CGFloat
+        var rowHeight: CGFloat
+    }
+
+    static func compute(
+        screenFrame: CGRect,
+        visibleFrame: CGRect,
+        notchWidth: CGFloat,
+        rowHeight: CGFloat,
+        transcriptDropActive: Bool
+    ) -> Layout {
+        let maxPanelWidth = max(0, visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
+        let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
+        let dynamicSideWidth = max(
+            NotchPanelMetrics.minimumSideWidth,
+            min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
+        )
+        let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
+        let panelHeight = rowHeight
+            + (transcriptDropActive ? NotchPanelMetrics.transcriptDropHeight : 0)
+        let expandedWidth = notchWidth + (sideWidth * 2)
+        let panelWidth = min(expandedWidth, maxPanelWidth)
+
+        let xPosition = visibleFrame.midX - (panelWidth / 2)
+        // Anchor the panel's TOP edge to the very top of the screen frame; the
+        // transcript drop extends downward.
+        let yPosition = screenFrame.maxY - panelHeight
+
+        let clampedXPosition = max(
+            visibleFrame.minX + NotchPanelMetrics.horizontalInset,
+            min(
+                xPosition,
+                visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
+            )
+        )
+        return Layout(
+            frame: CGRect(x: clampedXPosition, y: yPosition, width: panelWidth, height: panelHeight),
+            notchWidth: notchWidth,
+            sideWidth: sideWidth,
+            rowHeight: rowHeight
+        )
     }
 }
 
@@ -135,10 +220,12 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         self.liveTranscript = liveTranscript
 
         // The notch extends downward while the live transcript shows — resize on
-        // phase transitions only, never on text growth.
+        // phase transitions only, never on text growth. DispatchQueue (not RunLoop)
+        // delivery so the resize still lands during event-tracking run-loop modes
+        // (open menus, window drags) instead of waiting for them to finish.
         liveTranscript.$phase
             .removeDuplicates()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.applyPanelFrameForCurrentScreen(animated: true)
             }
@@ -146,37 +233,17 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     }
 
     /// Geometry for the panel on `screen`, including the transcript drop when active.
-    private func panelLayout(for screen: NSScreen) -> (frame: NSRect, notchWidth: CGFloat, sideWidth: CGFloat, rowHeight: CGFloat) {
-        let notchWidth = screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth)
-        let maxPanelWidth = max(0, screen.visibleFrame.width - (NotchPanelMetrics.horizontalInset * 2))
-        let sideWidthBudget = max(0, maxPanelWidth - notchWidth)
-        let dynamicSideWidth = max(
-            NotchPanelMetrics.minimumSideWidth,
-            min(NotchPanelMetrics.baseSideWidth, sideWidthBudget / 2)
-        )
-        let sideWidth = min(NotchPanelMetrics.maximumSideWidth, dynamicSideWidth)
+    private func panelLayout(for screen: NSScreen) -> NotchPanelLayoutMath.Layout {
         let rowHeight = screen.hasNotch
             ? screen.notchPanelHeight
             : max(NotchPanelMetrics.panelHeightMinimum, screen.notchPanelHeight)
-        let panelHeight = rowHeight
-            + (liveTranscript.isActive ? NotchPanelMetrics.transcriptDropHeight : 0)
-        let expandedWidth = notchWidth + (sideWidth * 2)
-        let panelWidth = min(expandedWidth, maxPanelWidth)
-
-        let xPosition = screen.visibleFrame.midX - (panelWidth / 2)
-        // Anchor the panel's TOP edge to the very top of screen.frame; the transcript
-        // drop extends downward.
-        let yPosition = screen.frame.maxY - panelHeight
-
-        let clampedXPosition = max(
-            screen.visibleFrame.minX + NotchPanelMetrics.horizontalInset,
-            min(
-                xPosition,
-                screen.visibleFrame.maxX - panelWidth - NotchPanelMetrics.horizontalInset
-            )
+        return NotchPanelLayoutMath.compute(
+            screenFrame: screen.frame,
+            visibleFrame: screen.visibleFrame,
+            notchWidth: screen.notchPanelWidth(fallback: NotchPanelMetrics.fallbackNotchWidth),
+            rowHeight: rowHeight,
+            transcriptDropActive: liveTranscript.isActive
         )
-        let frame = NSRect(x: clampedXPosition, y: yPosition, width: panelWidth, height: panelHeight)
-        return (frame, notchWidth, sideWidth, rowHeight)
     }
 
     private func applyPanelFrameForCurrentScreen(animated: Bool) {
@@ -207,6 +274,9 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
 
         if let existingPanel = panel {
             lastScreen = preferredScreen()
+            // A reused panel may carry a stale frame (different screen, or a
+            // transcript drop that toggled while hidden) — resync before showing.
+            applyPanelFrameForCurrentScreen(animated: false)
             existingPanel.orderFrontRegardless()
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = NotchPanelMetrics.showHideDuration
@@ -350,8 +420,7 @@ struct NotchIndicatorView: View {
     private var formattedDuration: String {
         let minutes = Int(state.recordingDuration) / 60
         let seconds = Int(state.recordingDuration) % 60
-        let tenths = Int((state.recordingDuration.truncatingRemainder(dividingBy: 1)) * 10)
-        return String(format: "%d:%02d.%d", minutes, seconds, tenths)
+        return String(format: "%d:%02d", minutes, seconds)
     }
 
     private var showsTranscript: Bool { transcript.isActive }
@@ -359,18 +428,22 @@ struct NotchIndicatorView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                leftSide
-                centerSection
+                leftWing
+                // The hardware notch occludes this region on notched displays, so it
+                // stays pure black and empty — content here would be invisible on the
+                // very machines this indicator imitates.
+                Color.clear
                     .frame(width: notchWidth)
-                rightSide
+                rightWing
             }
             .frame(height: height)
 
             if showsTranscript {
                 // Dynamic-Island-style drop: full-width transcript area below the
                 // notch row, same black surface so it reads as the notch extending.
-                LiveTranscriptView(transcript: transcript, fontSize: 11, lineLimit: 3)
-                    .padding(.horizontal, 14)
+                LiveTranscriptView(transcript: transcript, fontSize: 12, lineLimit: 3)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 2)
                     .padding(.bottom, 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .frame(height: NotchPanelMetrics.transcriptDropHeight)
@@ -379,19 +452,24 @@ struct NotchIndicatorView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.black)
-        .clipShape(NotchShape(cornerRadius: NotchPanelMetrics.cornerRadius))
+        .clipShape(NotchShape(
+            cornerRadius: showsTranscript
+                ? NotchPanelMetrics.expandedCornerRadius
+                : NotchPanelMetrics.cornerRadius
+        ))
         .ignoresSafeArea()
         .animation(.easeInOut(duration: 0.2), value: showsTranscript)
         .themeRefresh()
     }
-    
-    private var leftSide: some View {
+
+    private var leftWing: some View {
         ZStack {
             HStack(spacing: 8) {
                 if state.isRecording {
                     stopButton
                 } else {
-                    processingIndicator
+                    IndicatorProcessingView(dotCount: 3, dotDiameter: 3.5, spacing: 2.5)
+                        .frame(width: 18, height: 18)
                 }
 
                 timerDisplay
@@ -421,90 +499,57 @@ struct NotchIndicatorView: View {
         .frame(width: sideWidth, height: height)
         .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
     }
-    
-    private var centerSection: some View {
-        ZStack {
-            // Slightly lighter than the side panels to hint at the camera housing area,
-            // but still near-black to blend with the physical notch.
-            Color(white: 0.06)
 
-            if state.isProcessing {
-                IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
-            }
-        }
-        .frame(width: notchWidth, height: height)
-    }
-
-    private var rightSide: some View {
-        FloatingIndicatorWaveformView(
+    private var rightWing: some View {
+        FloatingIndicatorScrollingWaveformView(
             audioLevel: { state.audioLevel },
             isRecording: state.isRecording,
-            style: .notch
+            color: AppColors.overlayWaveform
         )
-        .frame(maxWidth: .infinity, maxHeight: 18, alignment: .leading)
-        .padding(.leading, 10)
+        .frame(height: 15)
+        .opacity(state.isRecording ? 1 : 0.4)
+        .animation(AppTheme.Animation.smooth, value: state.isRecording)
+        .padding(.leading, 8)
         .padding(.trailing, NotchPanelMetrics.sidePadding)
         .frame(width: sideWidth, height: height)
     }
-    
+
     private var stopButton: some View {
         Button {
             onStopRecording()
         } label: {
             ZStack {
                 Circle()
+                    .fill(AppColors.overlayRecording.opacity(0.16))
+                Circle()
+                    .strokeBorder(AppColors.overlayRecording.opacity(0.65), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 1.5)
                     .fill(AppColors.overlayRecording)
-                    .frame(width: 18, height: 18)
-                    .shadow(color: AppColors.overlayRecording.opacity(0.28), radius: 4)
-                
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(AppColors.overlayTextPrimary)
-                    .frame(width: 6, height: 6)
+                    .frame(width: 7, height: 7)
             }
+            .frame(width: 18, height: 18)
+            .shadow(color: AppColors.overlayRecording.opacity(0.35), radius: 4)
         }
         .buttonStyle(.plain)
-        .overlay(pulsingRing)
+        .accessibilityLabel(localized("Stop Recording", locale: .autoupdatingCurrent))
     }
-    
-    private var pulsingRing: some View {
-        Circle()
-            .stroke(AppColors.overlayRecording.opacity(0.5), lineWidth: 1.6)
-            .frame(width: 18, height: 18)
-            .scaleEffect(state.isRecording ? 1.4 : 1)
-            .opacity(state.isRecording ? 0 : 0.2)
-            .animation(
-                state.isRecording
-                    ? .easeOut(duration: 1.1).repeatForever(autoreverses: false)
-                    : .easeInOut(duration: 0.2),
-                value: state.isRecording
-            )
-    }
-    
-    private var processingIndicator: some View {
-        IndicatorProcessingView(dotCount: 3, dotDiameter: 4, spacing: 3)
-            .frame(width: 20, height: 20)
-    }
-    
+
     private var timerDisplay: some View {
-        HStack(spacing: 6) {
-            if state.isProcessing {
-                Text("...")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
-                    .foregroundStyle(AppColors.overlayTextPrimary)
-            } else {
-                Text(formattedDuration)
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
-                    .foregroundStyle(AppColors.overlayTextPrimary)
-                    .contentTransition(.numericText(countsDown: false))
-                    .animation(AppTheme.Animation.fast, value: state.recordingDuration)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        Text(formattedDuration)
+            .font(.system(size: 12.5, weight: .semibold, design: .monospaced))
+            .foregroundStyle(AppColors.overlayTextPrimary.opacity(state.isProcessing ? 0.55 : 0.92))
+            .contentTransition(.numericText(countsDown: false))
+            .animation(AppTheme.Animation.fast, value: state.recordingDuration)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview("Notch Indicator - Recording") {
     notchRecordingPreview
+}
+
+#Preview("Notch Indicator - Streaming Transcript") {
+    notchStreamingPreview
 }
 
 #Preview("Notch Indicator - Processing") {
@@ -520,6 +565,25 @@ private var notchRecordingPreview: some View {
 
     return NotchIndicatorView(state: state, transcript: LiveTranscriptState(), notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
         .frame(width: 385, height: 38)
+        .background(AppColors.windowBackground)
+}
+
+@MainActor
+private var notchStreamingPreview: some View {
+    let state = FloatingIndicatorState()
+    state.isRecording = true
+    state.recordingDuration = 8.2
+    state.updateAudioLevel(0.5)
+
+    let transcript = LiveTranscriptState()
+    transcript.begin()
+    transcript.update(
+        committed: "The quick brown fox jumps over the lazy dog while the",
+        tentative: "notch shows every word as it lands"
+    )
+
+    return NotchIndicatorView(state: state, transcript: transcript, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+        .frame(width: 385, height: 38 + NotchPanelMetrics.transcriptDropHeight)
         .background(AppColors.windowBackground)
 }
 

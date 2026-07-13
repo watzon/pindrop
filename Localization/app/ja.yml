@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "サイドバーをウィンドウの左端または右端にドッキングします。"
 done:
   _self: "完了"
+double:
+  press_escape_to_cancel: "Escapeを2回押してキャンセル"
 download:
   _self: "ダウンロード"
   complete: "ダウンロード完了！"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "どのアプリでも押し続けると口述入力できます。 Pindrop はあなたのスピーチを文字に起こし、カーソルがある場所にテキストを挿入します。"
   esc_to_cancel: "キャンセルするにはEscを押してください"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "Escapeを2回押すと録音をキャンセルします。オフの場合は1回押すだけでキャンセルされます。"
   keys: "キーを押してください..."
   keys_98b8167e: "キーを押してください…"
   once_to_start_again_to_stop: "一度押すと開始し、もう一度押すと停止します"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "可能な場合は、アクティブなアプリにテキストを直接入力します"
 u10:
-  floating_announcement_summary: "再生、新しい外観、そしてPindrop全体のキーボード操作。"
   floating_inserted_into: "%@ に挿入しました"
-  floating_keyboard_body: "キーボードから手を離さずに、移動、検索、ノート作成、書き出し、削除ができます。"
-  floating_keyboard_title: "どこでもキーボード"
   floating_microphone_unavailable: "マイクを使用できません"
-  floating_new_look_body: "より温かく静かなデザインで、言葉を主役にしました。テーマ設定は引き継がれ、新しいデフォルトの「ライブラリ」が加わります。"
-  floating_new_look_title: "新しい外観"
-  floating_replay_body: "Pindropは音声を7日間保存できるため、必要なときにライブラリから聞き直せます。"
-  floating_replay_title: "すべての音声入力を再生"
   floating_transcribing: "文字起こし中…"
-  floating_version_line: "Pindrop 0.10.0 · 2026年7月"
   floating_whats_new: "新機能"
   floating_word_count: "%d語"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "バブル"
 notch:
   _self: "ノッチ"
+whatsnew:
+  footer: "その他: ホットキーでディクテーションを途中でキャンセル、メニューバーへ静かに起動、仮想マシンへの確実な入力にも対応。"
+  formatting_body: "長いディクテーションは、デバイス上だけで読みやすい段落に分割できるようになりました。"
+  formatting_title: "よりきれいな文字起こし"
+  indicators_body: "ノッチの下の控えめな錠剤、またはキャレットに追従するバブルを選べます。"
+  indicators_title: "ノッチとキャレットのインジケーター"
+  languages_body: "ポーランド語、ヒンディー語、マラヤーラム語でディクテーションできます。インターフェースもポーランド語に対応しました。"
+  languages_title: "3つの新しい言語"
+  sensevoice_body: "高速で正確な多言語認識を実現する、新しい完全ローカルエンジン。"
+  sensevoice_title: "SenseVoice文字起こし"
+  summary: "新しいローカルエンジン、3つの新しい言語、そして各ディクテーションへのさらなる制御。"
+  version_line: "Pindrop 1.21.0 · 2026年7月"

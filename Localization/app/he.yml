@@ -341,6 +341,8 @@ dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "עגן את סרגל הצד לקצה השמאלי או הימני של החלון."
 done:
   _self: "סיום"
+double:
+  press_escape_to_cancel: "לחיצה כפולה על Escape לביטול"
 download:
   _self: "הורד"
   complete: "ההורדה הושלמה!"
@@ -866,6 +868,7 @@ preset:
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "לחץ והחזק כדי להכתיב בכל אפליקציה. Pindrop תעתיק את הנאום שלך ותוסיף את הטקסט במקום שבו הסמן שלך נמצא."
   esc_to_cancel: "הקש Esc כדי לבטל"
+  escape_twice_to_cancel_a_recording_when_off_a_si: "לחץ פעמיים על Escape כדי לבטל הקלטה. כשהאפשרות כבויה, לחיצה אחת מבטלת."
   keys: "לחץ על מקשים..."
   keys_98b8167e: "לחץ על מקשים…"
   once_to_start_again_to_stop: "לחץ פעם אחת כדי להתחיל, שוב כדי לעצור"
@@ -1213,17 +1216,9 @@ two:
 type:
   text_directly_into_the_active_app_when_poss: "הקלד טקסט ישירות באפליקציה הפעילה במידת האפשר"
 u10:
-  floating_announcement_summary: "השמעה חוזרת, מראה חדש ושליטה במקלדת בכל Pindrop."
   floating_inserted_into: "נוסף אל %@"
-  floating_keyboard_body: "נווטו, חפשו, צרו הערות, ייצאו ומחקו בלי לעזוב את המקלדת."
-  floating_keyboard_title: "מקלדת בכל מקום"
   floating_microphone_unavailable: "המיקרופון אינו זמין"
-  floating_new_look_body: "עיצוב חם ושקט יותר שם את המילים שלכם במרכז. ערכות הנושא נשמרות, ונוספה ברירת מחדל חדשה: ספרייה."
-  floating_new_look_title: "מראה חדש"
-  floating_replay_body: "Pindrop יכול לשמור שמע למשך שבעה ימים, כדי שתוכלו להאזין לו מהספרייה בכל עת."
-  floating_replay_title: "השמעת כל הכתבה מחדש"
   floating_transcribing: "מתמלל…"
-  floating_version_line: "Pindrop 0.10.0 · יולי 2026"
   floating_whats_new: "מה חדש"
   floating_word_count: "%d מילים"
 u11:
@@ -1510,3 +1505,15 @@ bubble:
   _self: "בּוּעָה"
 notch:
   _self: "לַחֲרוֹץ"
+whatsnew:
+  footer: "בנוסף: בטלו הכתבה באמצע התהליך עם מקש קיצור, הפעילו את Pindrop בשקט אל שורת התפריטים, והקלידו בביטחון לתוך מכונות וירטואליות."
+  formatting_body: "הכתבות ארוכות יכולות כעת להתחלק לפסקאות קריאות, לגמרי במכשיר."
+  formatting_title: "תמלולים נקיים יותר"
+  indicators_body: "בחרו גלולה דיסקרטית מתחת לחריץ או בועה שעוקבת אחרי הקארט שלכם."
+  indicators_title: "מחווני חריץ וקארט"
+  languages_body: "הכתיבו בפולנית, הינדי ומליאלאם. הממשק מדבר עכשיו גם פולנית."
+  languages_title: "שלוש שפות חדשות"
+  sensevoice_body: "מנוע חדש ומקומי לגמרי עם זיהוי רב-לשוני מהיר ומדויק."
+  sensevoice_title: "תמלול SenseVoice"
+  summary: "מנוע מקומי חדש, שלוש שפות חדשות, ושליטה רבה יותר בכל הכתבה."
+  version_line: "Pindrop 1.21.0 · יולי 2026"

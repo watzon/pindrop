@@ -23,8 +23,10 @@ struct AboutSettingsView: View {
                             width: SettingsLayoutMetrics.aboutIconSize,
                             height: SettingsLayoutMetrics.aboutIconSize
                         )
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 28, weight: .semibold))
+                    Image("PindropIcon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 34, height: 34)
                         .foregroundStyle(AppColors.contentBackground)
                 }
 
@@ -77,6 +79,23 @@ struct AboutSettingsView: View {
             )
 
             SettingsGroupCard {
+                if AnnouncementCatalog.current != nil {
+                    SettingsRow(showSeparator: true) {
+                        SettingsRowLabel(title: localized("What's New in Pindrop", locale: locale))
+                    } control: {
+                        Button {
+                            NotificationCenter.default.post(name: .showWhatsNew, object: nil)
+                        } label: {
+                            SettingsMenuButton(
+                                title: localized("What's New…", locale: locale),
+                                showsChevron: false
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("settings.button.whatsNew")
+                    }
+                }
+
                 SettingsRow(showSeparator: true) {
                     SettingsRowLabel(title: localized("Copy System Info", locale: locale))
                 } control: {

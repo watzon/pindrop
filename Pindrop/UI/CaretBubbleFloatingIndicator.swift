@@ -27,8 +27,12 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         static let streamingBubbleSize = CGSize(width: 264, height: 104)
         static let actionBubbleSize = CGSize(width: 22, height: 22)
         static let actionSpacing: CGFloat = 6
-        static let horizontalGap: CGFloat = 12
-        static let verticalGap: CGFloat = 10
+        /// Gaps between the anchor (caret) and the panel. The bare bubble hugs the
+        /// caret; the streaming transcript card keeps a little more distance.
+        static let horizontalGap: CGFloat = 8
+        static let verticalGap: CGFloat = 8
+        static let streamingHorizontalGap: CGFloat = 14
+        static let streamingVerticalGap: CGFloat = 14
         static let screenInset: CGFloat = 8
         static let fallbackBottomInset: CGFloat = 60
         static let refreshInterval: TimeInterval = 0.25
@@ -50,9 +54,18 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     }
 
     /// Placement preference: while the transcript card shows, prefer below/above so the
-    /// card doesn't cover the line being written at the caret.
+    /// card doesn't cover the line being written at the caret. The bare bubble hugs the
+    /// caret's trailing side first, like an IME candidate window.
     private var placementOrder: [BubblePlacement] {
-        liveTranscript.isActive ? [.below, .above, .left, .right] : BubblePlacement.allCases
+        liveTranscript.isActive ? [.below, .above, .left, .right] : [.right, .above, .below, .left]
+    }
+
+    /// Anchor-to-panel gaps — tight for the bare bubble, roomier for the transcript card.
+    private var placementGapX: CGFloat {
+        liveTranscript.isActive ? LayoutMetrics.streamingHorizontalGap : LayoutMetrics.horizontalGap
+    }
+    private var placementGapY: CGFloat {
+        liveTranscript.isActive ? LayoutMetrics.streamingVerticalGap : LayoutMetrics.verticalGap
     }
 
     private var panel: NSPanel?
@@ -327,7 +340,7 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         return applyManualOffset(
             to: clampedFrame(
                 x: anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth,
-                y: anchorRect.maxY + LayoutMetrics.verticalGap - verticalBubbleInset,
+                y: anchorRect.maxY + placementGapY - verticalBubbleInset,
                 within: visibleFrame
             ),
             within: visibleFrame
@@ -337,25 +350,25 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     private func frame(for placement: BubblePlacement, anchorRect: CGRect, visibleFrame: CGRect) -> NSRect? {
         switch placement {
         case .above:
-            let y = anchorRect.maxY + LayoutMetrics.verticalGap - verticalBubbleInset
+            let y = anchorRect.maxY + placementGapY - verticalBubbleInset
             guard y + panelSize.height <= visibleFrame.maxY - LayoutMetrics.screenInset else { return nil }
             let x = anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .left:
-            let x = anchorRect.minX - LayoutMetrics.horizontalGap - centerBubbleSize.width - actionRevealWidth
+            let x = anchorRect.minX - placementGapX - centerBubbleSize.width - actionRevealWidth
             guard x >= visibleFrame.minX + LayoutMetrics.screenInset else { return nil }
             let y = anchorRect.midY - (centerBubbleSize.height / 2) - verticalBubbleInset
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .right:
-            let x = anchorRect.maxX + LayoutMetrics.horizontalGap - actionRevealWidth
+            let x = anchorRect.maxX + placementGapX - actionRevealWidth
             guard x + panelSize.width <= visibleFrame.maxX - LayoutMetrics.screenInset else { return nil }
             let y = anchorRect.midY - (centerBubbleSize.height / 2) - verticalBubbleInset
             return clampedFrame(x: x, y: y, within: visibleFrame)
 
         case .below:
-            let y = anchorRect.minY - LayoutMetrics.verticalGap - centerBubbleSize.height - verticalBubbleInset
+            let y = anchorRect.minY - placementGapY - centerBubbleSize.height - verticalBubbleInset
             guard y >= visibleFrame.minY + LayoutMetrics.screenInset else { return nil }
             let x = anchorRect.midX - (centerBubbleSize.width / 2) - actionRevealWidth
             return clampedFrame(x: x, y: y, within: visibleFrame)
