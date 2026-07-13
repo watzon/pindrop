@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "Strømmende transkripsjon, klar umiddelbart"
   transcription_is_disabled_while_ai_enh: "Streaming-transkripsjon er deaktivert mens AI Enhancement er aktivert."
   transcription_model_nemotron_speech: "Strømmetranskripsjonsmodell (Nemotron Speech Streaming) lisensiert av NVIDIA Corporation under NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Undertekster (.srt)"
 success:

@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "การถอดเสียงแบบสตรีม พร้อมใช้งานทันที"
   transcription_is_disabled_while_ai_enh: "การถอดเสียงแบบสตรีมมิ่งถูกปิดใช้งานในขณะที่เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
   transcription_model_nemotron_speech: "โมเดลถอดความแบบสตรีมมิง (Nemotron Speech Streaming) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "คำบรรยาย (.srt)"
 success:

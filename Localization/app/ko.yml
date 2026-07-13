@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "스트리밍 전사, 즉시 준비 완료"
   transcription_is_disabled_while_ai_enh: "AI Enhancement가 활성화된 동안 스트리밍 전사는 비활성화됩니다."
   transcription_model_nemotron_speech: "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "자막 (.srt)"
 success:

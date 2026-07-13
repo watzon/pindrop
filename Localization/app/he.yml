@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "תמלול זורם, מוכן מיד"
   transcription_is_disabled_while_ai_enh: "תמלול סטרימינג מושבת בזמן ששיפור בינה מלאכותית מופעל."
   transcription_model_nemotron_speech: "מודל תמלול בזרימה (Nemotron Speech Streaming) ברישיון NVIDIA Corporation תחת NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "כתוביות (.srt)"
 success:

@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "Потокова транскрипція, готова миттєво"
   transcription_is_disabled_while_ai_enh: "Потокова транскрипція вимкнена, коли ввімкнено AI Enhancement."
   transcription_model_nemotron_speech: "Модель потокової транскрипції (Nemotron Speech Streaming) ліцензована NVIDIA Corporation за ліцензією NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Субтитри (.srt)"
 success:

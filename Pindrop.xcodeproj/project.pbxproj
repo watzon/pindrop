@@ -211,7 +211,9 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		NOTESVIEW1A2B3C4D5E6F70 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */; };
 		NOTESW001A2B3C4D5E6 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = NOTESW001A2B3C4D5E6F7 /* Note.swift */; };
 		PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */; };
+		SENSEVENG02A2B3C4D5E6F /* SenseVoiceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = SENSEVENG01A2B3C4D5E6F /* SenseVoiceEngine.swift */; };
 		PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */; };
+		SENSEVTEST02A2B3C4D5E6F /* SenseVoiceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SENSEVTEST01A2B3C4D5E6F /* SenseVoiceEngineTests.swift */; };
 		PARAKEETSTRM02A2B3C4D5E6F /* NemotronStreamingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */; };
 		APPLESPEECHTRANS02A2B3C4 /* AppleSpeechTranscriberEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */; };
 		PATHRES02A2B3C4D5E6F /* PathMentionResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */; };
@@ -487,7 +489,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		NOTESVIEW1A2B3C4D5E6F71 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		NOTESW001A2B3C4D5E6F7 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngine.swift; sourceTree = "<group>"; };
+		SENSEVENG01A2B3C4D5E6F /* SenseVoiceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseVoiceEngine.swift; sourceTree = "<group>"; };
 		PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParakeetEngineTests.swift; sourceTree = "<group>"; };
+		SENSEVTEST01A2B3C4D5E6F /* SenseVoiceEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseVoiceEngineTests.swift; sourceTree = "<group>"; };
 		PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NemotronStreamingEngine.swift; sourceTree = "<group>"; };
 		APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechTranscriberEngine.swift; sourceTree = "<group>"; };
 		PATHRES01A2B3C4D5E6F /* PathMentionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMentionResolver.swift; sourceTree = "<group>"; };
@@ -854,6 +858,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRANSENG03A2B3C4D5E6F /* TranscriptionEngineTests.swift */,
 				WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */,
 				PARAKEETENGTEST01A2B3C4D5E6F /* ParakeetEngineTests.swift */,
+				SENSEVTEST01A2B3C4D5E6F /* SenseVoiceEngineTests.swift */,
 				UPDATESVC01A2B3C4D5E6F71 /* UpdateServiceTests.swift */,
 				CTXADAPTTEST02A2B3C4D5E6F /* AppContextAdapterRegistryTests.swift */,
 				ROUTESIGTEST02A2B3C4D5E6F /* PromptRoutingSignalTests.swift */,
@@ -1023,6 +1028,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TTSENGINE01A2B3C4D5E6F /* TextToSpeechEngine.swift */,
 				WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */,
 				PARAKEETENG01A2B3C4D5E6F /* ParakeetEngine.swift */,
+				SENSEVENG01A2B3C4D5E6F /* SenseVoiceEngine.swift */,
 				PARAKEETSTRM01A2B3C4D5E6F /* NemotronStreamingEngine.swift */,
 				APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */,
 				APPLESPEECHTRANS01A2B3C4 /* AppleSpeechTranscriberEngine.swift */,
@@ -1222,6 +1228,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRANSENG04A2B3C4D5E6F /* TranscriptionEngineTests.swift in Sources */,
 				WHISPERENG04A2B3C4D5E6F /* WhisperKitEngineTests.swift in Sources */,
 				PARAKEETENGTEST02A2B3C4D5E6F /* ParakeetEngineTests.swift in Sources */,
+				SENSEVTEST02A2B3C4D5E6F /* SenseVoiceEngineTests.swift in Sources */,
 				UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 				PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */,
 				SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */,
@@ -1410,6 +1417,7 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				TRANSENG02A2B3C4D5E6F /* TranscriptionEngine.swift in Sources */,
 				WHISPERENG02A2B3C4D5E6F /* WhisperKitEngine.swift in Sources */,
 				PARAKEETENG02A2B3C4D5E6F /* ParakeetEngine.swift in Sources */,
+				SENSEVENG02A2B3C4D5E6F /* SenseVoiceEngine.swift in Sources */,
 				APPLESPEECHENG02A2B3C4D5 /* AppleSpeechEngine.swift in Sources */,
 				AUDIOCAPS02A2B3C4D5E6F /* AudioEngineCapabilities.swift in Sources */,
 				VADDETECT02A2B3C4D5E6F /* VoiceActivityDetector.swift in Sources */,
@@ -1793,8 +1801,8 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/FluidInference/FluidAudio.git";
 			requirement = {
-				kind = revision;
-				revision = 12ad53803592aa39bbcbdf655774cfe0ce361386;
+				kind = exactVersion;
+				version = 0.15.4;
 			};
 		};
 		SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */ = {

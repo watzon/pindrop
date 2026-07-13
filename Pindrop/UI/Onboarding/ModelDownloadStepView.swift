@@ -251,21 +251,24 @@ struct ModelDownloadStepView: View {
         // Check if model is already downloaded
         if modelManager.isModelDownloaded(modelName) || modelManager.existingLocalModelPath(for: modelName) != nil {
             Log.model.info("Model \(modelName) already downloaded, skipping download step")
-            Log.boot.info("Onboarding model download step: model already on disk name=\(modelName) scheduling TranscriptionService.loadModel")
-            loadSelectedModelInBackground()
-            try? await Task.sleep(for: .milliseconds(300))
-            onComplete()
+            Log.boot.info("Onboarding model download step: model already on disk name=\(modelName) loading via provider-aware path")
+            do {
+                try await loadSelectedModel()
+                onComplete()
+            } catch {
+                Log.boot.error("Onboarding already-downloaded load failed name=\(modelName) error=\(error.localizedDescription)")
+                downloadError = error.localizedDescription
+                hasStarted = false
+            }
             return
         }
 
         do {
             Log.boot.info("Onboarding model download step: calling ModelManager.downloadModel name=\(modelName)")
             try await modelManager.downloadModel(named: modelName)
-            Log.boot.info("Onboarding model download step: ModelManager.downloadModel returned scheduling TranscriptionService.loadModel name=\(modelName)")
+            Log.boot.info("Onboarding model download step: download finished; loading via provider-aware path name=\(modelName)")
 
-            loadSelectedModelInBackground()
-
-            try? await Task.sleep(for: .milliseconds(300))
+            try await loadSelectedModel()
             Log.boot.info("Onboarding model download step: invoking onComplete")
             onComplete()
         } catch {
@@ -275,23 +278,27 @@ struct ModelDownloadStepView: View {
         }
     }
 
-    private func loadSelectedModelInBackground() {
-        let localModelPath = modelManager.existingLocalModelPath(for: modelName)
+    /// Load the selected catalog model with the correct engine. WhisperKit may
+    /// use a local path; SenseVoice / Parakeet / Apple Speech always use the
+    /// named + provider entry point so they never route through WhisperKitEngine.
+    private func loadSelectedModel() async throws {
+        let provider = modelManager.availableModels.first(where: { $0.name == modelName })?.provider
+            ?? .whisperKit
 
-        Task { @MainActor in
-            do {
-                if let localModelPath {
-                    Log.boot.info("Onboarding background loadModel(path) starting name=\(self.modelName)")
-                    try await self.transcriptionService.loadModel(modelPath: localModelPath.path)
-                } else {
-                    Log.boot.info("Onboarding background loadModel(name) starting name=\(self.modelName)")
-                    try await self.transcriptionService.loadModel(modelName: self.modelName)
-                }
-                Log.boot.info("Onboarding background loadModel finished OK name=\(self.modelName)")
-            } catch {
-                Log.boot.error("Onboarding background loadModel failed name=\(self.modelName) error=\(error.localizedDescription)")
+        switch provider {
+        case .whisperKit:
+            if let localModelPath = modelManager.existingLocalModelPath(for: modelName) {
+                Log.boot.info("Onboarding loadModel(path) starting name=\(modelName) provider=WhisperKit")
+                try await transcriptionService.loadModel(modelPath: localModelPath.path)
+            } else {
+                Log.boot.info("Onboarding loadModel(name) starting name=\(modelName) provider=WhisperKit")
+                try await transcriptionService.loadModel(modelName: modelName, provider: .whisperKit)
             }
+        default:
+            Log.boot.info("Onboarding loadModel(name) starting name=\(modelName) provider=\(provider.rawValue)")
+            try await transcriptionService.loadModel(modelName: modelName, provider: provider)
         }
+        Log.boot.info("Onboarding loadModel finished OK name=\(modelName) provider=\(provider.rawValue)")
     }
 }
 

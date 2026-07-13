@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "Ζωντανή μεταγραφή, άμεσα έτοιμη"
   transcription_is_disabled_while_ai_enh: "Η μεταγραφή ροής είναι απενεργοποιημένη ενώ η Βελτίωση AI είναι ενεργοποιημένη."
   transcription_model_nemotron_speech: "Μοντέλο μεταγραφής ροής (Nemotron Speech Streaming) με άδεια από την NVIDIA Corporation βάσει της NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Υπότιτλοι (.srt)"
 success:

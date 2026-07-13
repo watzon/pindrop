@@ -1098,6 +1098,8 @@ streaming:
   transcription_instantly_ready: "Streamovaný přepis, připravený okamžitě"
   transcription_is_disabled_while_ai_enh: "Když je povoleno AI Enhancement, přepis streamování je zakázán."
   transcription_model_nemotron_speech: "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
+sensevoice:
+  small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
 subtitles:
   srt: "Titulky (.srt)"
 success:

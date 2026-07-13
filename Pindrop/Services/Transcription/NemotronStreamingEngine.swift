@@ -4,7 +4,7 @@
 //
 //  Created on 2026-06-05.
 //
-//  Streaming engine backed by FluidAudio's NemotronStreamingAsrManager (NVIDIA Nemotron
+//  Streaming engine backed by FluidAudio's StreamingNemotronAsrManager (NVIDIA Nemotron
 //  Speech Streaming 0.6B, cache-aware FastConformer-TDT). Unlike the retired Parakeet
 //  EOU 120M engine, Nemotron emits natively punctuated and capitalized text (~2-3.5%
 //  WER on LibriSpeech test-clean vs ~8-9% for the EOU model).
@@ -47,7 +47,7 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
 
     public private(set) var state: StreamingTranscriptionState = .unloaded
 
-    private var manager: NemotronStreamingAsrManager?
+    private var manager: StreamingNemotronAsrManager?
     private var transcriptionCallback: StreamingTranscriptionCallback?
     /// Stored for protocol conformance; never invoked — Nemotron has no EOU token.
     private var endOfUtteranceCallback: EndOfUtteranceCallback?
@@ -89,7 +89,7 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
             // FluidAudio's own batch Parakeet path makes the same choice.
             let mlConfiguration = MLModelConfiguration()
             mlConfiguration.computeUnits = .cpuAndNeuralEngine
-            let streamingManager = NemotronStreamingAsrManager(
+            let streamingManager = StreamingNemotronAsrManager(
                 configuration: mlConfiguration,
                 requestedChunkSize: chunkProfile.nemotronChunkSize
             )
@@ -99,7 +99,7 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
                 }
             }
 
-            try await streamingManager.loadModels(modelDir: modelDirectory)
+            try await streamingManager.loadModels(from: modelDirectory)
 
             // CoreML specializes kernels lazily on the first prediction, not at
             // load — without this, that one-time spike lands on the first real
