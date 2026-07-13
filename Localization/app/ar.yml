@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "إطلاق عند تسجيل الدخول"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "التشغيل عند تسجيل الدخول"
+  without_showing_window: "التشغيل دون إظهار النافذة"
 layout:
   _self: "تَخطِيط"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "ابدأ التسجيل لترى نسختك الصوتية هنا"
   stop_recording: "بدء/إيقاف التسجيل"
   using_pindrop: "البدء في استخدام Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "ابدأ في شريط القوائم دون فتح النافذة الرئيسية. ما زال بإمكانك فتحها من أيقونة شريط القوائم."
 stats:
   _self: "Stats"
 status:

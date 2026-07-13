@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Start bij inloggen"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Starten bij inloggen"
+  without_showing_window: "Starten zonder venster te tonen"
 layout:
   _self: "Indeling"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Begin met opnemen om hier uw transcripties te bekijken"
   stop_recording: "Opname starten/stoppen"
   using_pindrop: "Begin met het gebruik van Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Start in de menubalk zonder het hoofdvenster te openen. Je kunt het later nog openen via het menubalkpictogram."
 stats:
   _self: "Stats"
 status:

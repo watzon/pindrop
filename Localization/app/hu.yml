@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Indítsa el bejelentkezéskor"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Indítás bejelentkezéskor"
+  without_showing_window: "Indítás ablak megjelenítése nélkül"
 layout:
   _self: "Elrendezés"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Kezdje el a rögzítést, hogy itt lássa az átiratokat"
   stop_recording: "Felvétel indítása/leállítása"
   using_pindrop: "Kezdje el használni a Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Indítás a menüsorban a főablak megnyitása nélkül. Az ablakot továbbra is megnyithatja a menüsor ikonjáról."
 stats:
   _self: "Stats"
 status:

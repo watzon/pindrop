@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Launch at login"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Launch at Login"
+  without_showing_window: "Launch without showing window"
 layout:
   _self: "Layout"
 learn:
@@ -1098,6 +1099,7 @@ start:
   recording_to_see_your_transcriptions_here: "Start recording to see your transcriptions here"
   stop_recording: "Start/stop recording"
   using_pindrop: "Start Using Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Start in the menu bar without opening the main window. You can still open it from the menu bar icon."
 stats:
   _self: "Stats"
 status:

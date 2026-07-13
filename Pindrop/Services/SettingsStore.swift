@@ -437,6 +437,8 @@ final class SettingsStore: ObservableObject {
    var dictationAudioRetentionRawValue: String = Defaults.dictationAudioRetention
    @AppStorage("launchAtLogin", store: SettingsStoreRuntime.appStorageStore) var launchAtLogin:
       Bool = false
+   @AppStorage("launchWithoutShowingWindow", store: SettingsStoreRuntime.appStorageStore)
+   var launchWithoutShowingWindow: Bool = false
    @AppStorage("selectedPresetId", store: SettingsStoreRuntime.appStorageStore)
    var selectedPresetId: String?
    @AppStorage("mentionTemplateOverridesJSON", store: SettingsStoreRuntime.appStorageStore)
@@ -1074,6 +1076,7 @@ final class SettingsStore: ObservableObject {
       muteAudioDuringRecording = false
       dictationAudioRetentionRawValue = Defaults.dictationAudioRetention
       launchAtLogin = false
+      launchWithoutShowingWindow = false
       mentionTemplateOverridesJSON = Defaults.mentionTemplateOverridesJSON
       enableUIContext = false
       contextCaptureTimeoutSeconds = 2.0

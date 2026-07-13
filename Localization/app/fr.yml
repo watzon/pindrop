@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Lancer à la connexion"
   at_login_could_not_be_changed: "Impossible de modifier « Lancer à la connexion »"
   at_login_fd1a3b7b: "Lancer à la connexion"
+  without_showing_window: "Lancer sans afficher la fenêtre"
 layout:
   _self: "Disposition"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Commencez à enregistrer pour voir vos transcriptions ici"
   stop_recording: "Démarrer/arrêter l'enregistrement"
   using_pindrop: "Commencer à utiliser Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Démarrer dans la barre de menus sans ouvrir la fenêtre principale. Vous pouvez toujours l’ouvrir depuis l’icône de la barre de menus."
 stats:
   _self: "Stats"
 status:

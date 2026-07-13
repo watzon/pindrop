@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Запуск під час входу"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Запускати під час входу"
+  without_showing_window: "Запускати без показу вікна"
 layout:
   _self: "Макет"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Почніть запис, щоб переглянути свої транскрипції тут"
   stop_recording: "Почати/зупинити запис"
   using_pindrop: "Почніть використовувати Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Запускати в рядку меню, не відкриваючи головне вікно. Його й надалі можна відкрити з піктограми в рядку меню."
 stats:
   _self: "Stats"
 status:

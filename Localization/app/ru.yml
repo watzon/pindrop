@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Запуск при входе в систему"
   at_login_could_not_be_changed: "Не удалось изменить «Запускать при входе»"
   at_login_fd1a3b7b: "Запускать при входе"
+  without_showing_window: "Запускать без показа окна"
 layout:
   _self: "Макет"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Начните запись, чтобы увидеть ваши транскрипции здесь"
   stop_recording: "Начать/остановить запись"
   using_pindrop: "Начните использовать Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Запускать в строке меню, не открывая главное окно. Его по-прежнему можно открыть через значок в строке меню."
 stats:
   _self: "Stats"
 status:

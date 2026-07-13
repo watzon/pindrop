@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Uruchom przy logowaniu"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Uruchom przy logowaniu"
+  without_showing_window: "Uruchom bez pokazywania okna"
 layout:
   _self: "Układ"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Rozpocznij nagrywanie, aby zobaczyć tutaj swoje transkrypcje"
   stop_recording: "Rozpocznij/zatrzymaj nagrywanie"
   using_pindrop: "Zacznij korzystać z Pindropa"
+  in_the_menu_bar_without_opening_the_main_w: "Uruchom na pasku menu bez otwierania głównego okna. Nadal możesz je otworzyć z ikony na pasku menu."
 stats:
   _self: "Stats"
 status:

@@ -73,6 +73,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// blocks the main thread. Owned only by AppDelegate; removed before the real
     /// `StatusBarController` item is ensured so ownership never overlaps.
     private var earlyLaunchStatusItem: NSStatusItem?
+    /// Captured synchronously at the start of `applicationDidFinishLaunching`
+    /// while the open-application AppleEvent is still available.
+    private var launchSemantics: StartupLaunchSemantics = .normal
 
     private var currentLocale: Locale {
         settingsStore?.selectedAppLocale.locale ?? .autoupdatingCurrent
@@ -80,10 +83,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard !Self.isPreview else { return }
+        // Capture before any async hop; `currentAppleEvent` is only reliable here.
+        launchSemantics = StartupWindowPresentationPolicy.captureLaunchSemantics()
         let bootStarted = CFAbsoluteTimeGetCurrent()
         Log.bootstrap()
         FontLoader.bootstrap()
-        Log.boot.info("applicationDidFinishLaunching begin logFile=\(Log.currentLogFileName)")
+        Log.boot.info(
+            "applicationDidFinishLaunching begin logFile=\(Log.currentLogFileName) hideFlag=\(launchSemantics.launchServicesRequestedHide)"
+        )
         guard !Self.isRunningUITests else {
             AppUITestFixture.configureApplication()
             Log.app.debug("Detected UI test environment, launching fixture surface")
@@ -163,10 +170,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         
         Log.boot.info("Scheduling coordinator.start()")
+        let capturedLaunchSemantics = launchSemantics
         Task { @MainActor in
             Log.boot.info("coordinator.start() begin")
             coordinator?.statusBarController.ensureStatusItem()
-            await coordinator?.start()
+            await coordinator?.start(launchSemantics: capturedLaunchSemantics)
             Log.boot.info("coordinator.start() returned elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - bootStarted))")
         }
     }

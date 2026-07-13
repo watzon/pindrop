@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "הפעלה בעת הכניסה"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "הפעלה בכניסה"
+  without_showing_window: "הפעלה בלי להציג חלון"
 layout:
   _self: "מַעֲרָך"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "התחל להקליט כדי לראות את התמלילים שלך כאן"
   stop_recording: "התחל/הפסק הקלטה"
   using_pindrop: "התחל להשתמש ב-Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "התחל בשורת התפריטים בלי לפתוח את החלון הראשי. עדיין אפשר לפתוח אותו מסמל שורת התפריטים."
 stats:
   _self: "Stats"
 status:

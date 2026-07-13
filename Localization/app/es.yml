@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Iniciar al entrar"
   at_login_could_not_be_changed: "No se pudo cambiar «Abrir al iniciar sesión»"
   at_login_fd1a3b7b: "Abrir al iniciar sesión"
+  without_showing_window: "Iniciar sin mostrar la ventana"
 layout:
   _self: "Diseño"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Empieza a grabar para ver aquí tus transcripciones"
   stop_recording: "Start/stop recording"
   using_pindrop: "Empezar a usar Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Inicia en la barra de menús sin abrir la ventana principal. Aún puedes abrirla desde el icono de la barra de menús."
 stats:
   _self: "Stats"
 status:

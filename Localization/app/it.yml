@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Avvia all'accesso"
   at_login_could_not_be_changed: "Impossibile modificare «Avvia all’accesso»"
   at_login_fd1a3b7b: "Avvia all’accesso"
+  without_showing_window: "Avvia senza mostrare la finestra"
 layout:
   _self: "Layout"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Inizia a registrare per vedere le tue trascrizioni qui"
   stop_recording: "Avvia/interrompe la registrazione"
   using_pindrop: "Inizia a utilizzare Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Avvia nella barra dei menu senza aprire la finestra principale. Puoi comunque aprirla dall’icona della barra dei menu."
 stats:
   _self: "Stats"
 status:

@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "লগইন এ লঞ্চ করুন"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "লগইনে চালু"
+  without_showing_window: "উইন্ডো না দেখিয়ে লঞ্চ করুন"
 layout:
   _self: "লেআউট"
 learn:
@@ -1086,6 +1087,7 @@ start:
   recording_to_see_your_transcriptions_here: "এখানে আপনার ট্রান্সক্রিপশন দেখতে রেকর্ডিং শুরু করুন"
   stop_recording: "রেকর্ডিং শুরু/স্টপ করুন"
   using_pindrop: "Pindrop ব্যবহার করা শুরু করুন"
+  in_the_menu_bar_without_opening_the_main_w: "মূল উইন্ডো না খুলে মেনু বারে শুরু করুন। মেনু বার আইকন থেকে পরেও খুলতে পারবেন।"
 stats:
   _self: "Stats"
 status:

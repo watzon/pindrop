@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Starta vid inloggning"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Starta vid inloggning"
+  without_showing_window: "Starta utan att visa fönster"
 layout:
   _self: "Layout"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Börja spela in för att se dina transkriptioner här"
   stop_recording: "Starta/stoppa inspelning"
   using_pindrop: "Börja använda Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Starta i menyraden utan att öppna huvudfönstret. Du kan fortfarande öppna det från menyradsikonen."
 stats:
   _self: "Stats"
 status:

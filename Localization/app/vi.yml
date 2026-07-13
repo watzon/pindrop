@@ -549,6 +549,7 @@ launch:
   at_login_0b36c78f: "Khởi chạy khi đăng nhập"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
   at_login_fd1a3b7b: "Mở khi đăng nhập"
+  without_showing_window: "Khởi chạy mà không hiện cửa sổ"
 layout:
   _self: "Cách trình bày"
 learn:
@@ -1081,6 +1082,7 @@ start:
   recording_to_see_your_transcriptions_here: "Bắt đầu ghi để xem bản chép lời của bạn tại đây"
   stop_recording: "Bắt đầu/dừng ghi âm"
   using_pindrop: "Bắt đầu sử dụng Pindrop"
+  in_the_menu_bar_without_opening_the_main_w: "Bắt đầu trên thanh menu mà không mở cửa sổ chính. Bạn vẫn có thể mở nó từ biểu tượng thanh menu."
 stats:
   _self: "Stats"
 status:
