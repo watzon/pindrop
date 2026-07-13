@@ -498,16 +498,8 @@ struct NotchIndicatorView: View {
                     .contentTransition(.numericText(countsDown: false))
                     .animation(AppTheme.Animation.fast, value: state.recordingDuration)
             }
-
-            if state.escapePrimed {
-                Circle()
-                    .fill(AppColors.overlayWarning)
-                    .frame(width: 6, height: 6)
-                    .transition(.scale.combined(with: .opacity))
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .animation(.easeInOut(duration: 0.15), value: state.escapePrimed)
     }
 }
 

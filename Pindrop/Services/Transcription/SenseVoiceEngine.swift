@@ -290,7 +290,7 @@ public final class SenseVoiceEngine: TranscriptionEngine, CapabilityReporting {
         case .korean:
             return 12
         case .russian, .ukrainian, .spanish, .french, .german, .turkish,
-             .portugueseBrazil, .italian, .dutch:
+             .portugueseBrazil, .italian, .dutch, .hindi, .malayalam, .polish:
             return SenseVoiceConfig.defaultLanguage
         }
     }

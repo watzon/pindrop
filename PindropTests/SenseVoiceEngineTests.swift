@@ -92,6 +92,9 @@ struct SenseVoiceEngineTests {
         #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .japanese) == 11)
         #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .korean) == 12)
         #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .spanish) == 0)
+        #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .hindi) == 0)
+        #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .malayalam) == 0)
+        #expect(SenseVoiceEngine.senseVoiceLanguageIndex(for: .polish) == 0)
     }
 
     @Test func partitionSamplesSingleWindowWhenUnderCap() {
