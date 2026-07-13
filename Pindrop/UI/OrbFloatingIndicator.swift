@@ -169,6 +169,16 @@ enum OrbFloatingIndicatorSize: String, CaseIterable, Identifiable {
 
 private final class OrbHostingView: NSHostingView<AnyView> {
     var onRightMouseDown: ((NSEvent) -> Void)?
+    /// The panel reserves transparent space for the streaming pill; only the
+    /// visible orb/pill surfaces should claim mouse events from the app below.
+    var allowsHitTestingAtPoint: ((NSPoint) -> Bool)?
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard allowsHitTestingAtPoint?(point) ?? true else {
+            return nil
+        }
+        return super.hitTest(point)
+    }
 
     override func rightMouseDown(with event: NSEvent) {
         onRightMouseDown?(event)
@@ -203,6 +213,8 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     private var hostingView: OrbHostingView?
     private var pointerMonitor: FloatingIndicatorPointerMonitor?
     private var hoverCollapseTimer: Timer?
+    private var stateCancellable: AnyCancellable?
+
     private var actions = FloatingIndicatorActions()
     private var isVisible = false
     private var lastHoverContactAt: Date = .distantPast
@@ -232,6 +244,17 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         self.orbIndicatorSize = OrbFloatingIndicatorSize(rawValue: settingsStore.orbFloatingIndicatorSize) ?? .medium
         super.init()
         contextMenu = makeContextMenu()
+        stateCancellable = Publishers.CombineLatest4(
+            state.$isRecording,
+            state.$isProcessing,
+            state.$isInputMuted,
+            liveTranscript.$phase
+        )
+        .receive(on: RunLoop.main)
+        .sink { [weak self] _, _, _, _ in
+            self?.updatePanelMousePassthrough()
+        }
+
     }
 
     func configure(actions: FloatingIndicatorActions) {
@@ -247,29 +270,40 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     func showIdleIndicator() {
         pointerMonitor?.setPointerActivityEnabled(true)
-        guard !isVisible else { panel?.orderFrontRegardless(); return }
+        guard !isVisible else {
+            panel?.orderFrontRegardless()
+            updatePanelMousePassthrough()
+            return
+        }
         show()
     }
 
     func showForCurrentState() {
-        if !isVisible { show() } else { panel?.orderFrontRegardless() }
+        if !isVisible {
+            show()
+        } else {
+            panel?.orderFrontRegardless()
+            updatePanelMousePassthrough()
+        }
     }
 
     func startRecording() {
         isHovered = false
         cancelHoverCollapseTimer()
-        pointerMonitor?.setPointerActivityEnabled(false)
+        pointerMonitor?.setPointerActivityEnabled(true)
         lastHoverContactAt = .distantPast
         state.startRecording()
         if !isVisible { show() }
+        updatePanelMousePassthrough()
     }
 
     func transitionToProcessing() {
         state.transitionToProcessing()
         cancelHoverCollapseTimer()
-        pointerMonitor?.setPointerActivityEnabled(false)
+        pointerMonitor?.setPointerActivityEnabled(true)
         isHovered = false
         lastHoverContactAt = .distantPast
+        updatePanelMousePassthrough()
     }
 
     func finishProcessing() {
@@ -351,6 +385,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         dragStartMouseLocation = mouse
 
         panel?.setFrame(panelFrame(for: screen), display: true)
+        panel?.ignoresMouseEvents = false
     }
 
     func updateDrag(translation: CGSize) {
@@ -375,6 +410,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         if let panel {
             panel.setFrame(panelFrame(for: preferredScreen()), display: true)
         }
+        updatePanelMousePassthrough()
     }
 
     // MARK: Context menu
@@ -499,6 +535,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard isVisible, !state.isRecording, !state.isProcessing else { return }
         guard let hostingView, let contextMenu else { return }
         isContextMenuOpen = true; isHovered = true; lastHoverContactAt = Date()
+        panel?.ignoresMouseEvents = false
         refreshContextMenuState()
         contextMenu.update()
         contextMenu.appearance = NSApp.appearance
@@ -536,6 +573,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard menu === contextMenu else { return }
         isContextMenuOpen = false; lastHoverContactAt = Date()
         evaluateHover()
+        updatePanelMousePassthrough()
     }
 
     @objc private func handleHideForOneHourMenuItem()      { actions.onHideForOneHour?() }
@@ -569,11 +607,15 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         hostingView.autoresizingMask = [.width, .height]
         hostingView.userInterfaceLayoutDirection = .leftToRight
         hostingView.onRightMouseDown = { [weak self] event in self?.handleRightMouseDown(event) }
+        hostingView.allowsHitTestingAtPoint = { [weak self] point in
+            self?.allowsHitTesting(at: point) ?? false
+        }
         panel.contentView = hostingView
         panel.alphaValue = 0
-        panel.orderFrontRegardless()
         self.panel = panel; self.hostingView = hostingView
         self.isVisible = true; self.lastScreen = screen
+        updatePanelMousePassthrough()
+        panel.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { context in
             context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : OrbMetrics.showDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
@@ -590,7 +632,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         panel.isFloatingPanel = true; panel.isOpaque = false
         panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
         panel.backgroundColor = .clear; panel.isMovable = false; panel.hasShadow = false
-        panel.ignoresMouseEvents = false
+        panel.ignoresMouseEvents = true
         panel.level = .mainMenu + 1
         panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
         panel.isReleasedWhenClosed = false
@@ -633,7 +675,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
                 }
             )
         }
-        pointerMonitor?.setPointerActivityEnabled(!(state.isRecording || state.isProcessing))
+        pointerMonitor?.setPointerActivityEnabled(true)
         pointerMonitor?.start()
         // Catch current pointer position immediately (no wait for first move).
         monitorTick()
@@ -652,6 +694,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard isVisible else { return }
         checkScreenPosition()
         evaluateHover()
+        updatePanelMousePassthrough()
     }
 
     private func evaluateHover() {
@@ -731,6 +774,118 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         return NSRect(x: x, y: y, width: d, height: d)
     }
 
+    private func allowsHitTesting(at point: NSPoint) -> Bool {
+        guard let hostingView,
+              let window = hostingView.window else {
+            return false
+        }
+
+        let windowPoint = hostingView.convert(point, to: nil)
+        return allowsHitTesting(
+            atScreenPoint: window.convertPoint(toScreen: windowPoint)
+        )
+    }
+
+    private func allowsHitTesting(atScreenPoint screenPoint: NSPoint) -> Bool {
+        guard isVisible, let panel else { return false }
+        let isActive = state.isRecording || state.isProcessing
+        let showsTranscript = liveTranscript.phase != .inactive && isActive
+
+        let orbDiameter: CGFloat
+        if state.isInputMuted {
+            orbDiameter = orbIndicatorSize.orbIdleDiameter
+        } else if state.isRecording || showsTranscript {
+            orbDiameter = orbIndicatorSize.orbActiveDiameter
+        } else if state.isProcessing {
+            orbDiameter = orbIndicatorSize.orbHoverDiameter
+        } else {
+            orbDiameter = isHovered
+                ? orbIndicatorSize.orbHoverDiameter
+                : orbIndicatorSize.orbIdleDiameter
+        }
+
+        let orbFrame = orbScreenRect(for: panel.frame)
+        let orbHitFrame = NSRect(
+            x: orbFrame.midX - orbDiameter / 2,
+            y: orbFrame.midY - orbDiameter / 2,
+            width: orbDiameter,
+            height: orbDiameter
+        )
+        if NSBezierPath(ovalIn: orbHitFrame).contains(screenPoint) {
+            return true
+        }
+
+        guard isActive else { return false }
+
+        let pillSize: CGSize
+        if showsTranscript {
+            pillSize = CGSize(
+                width: orbIndicatorSize.pillStreamingWidth,
+                height: orbIndicatorSize.pillStreamingHeight
+            )
+        } else if state.isRecording {
+            pillSize = CGSize(
+                width: orbIndicatorSize.pillRecordingWidth,
+                height: orbIndicatorSize.pillHeight
+            )
+        } else {
+            pillSize = CGSize(
+                width: orbIndicatorSize.pillProcessingWidth,
+                height: orbIndicatorSize.pillHeight
+            )
+        }
+
+        let pillNearInset = orbIndicatorSize.orbActiveDiameter + OrbMetrics.pillSeparationGap
+        let lift = showsTranscript ? 0 : orbIndicatorSize.pillLift
+        let edgeInset = OrbMetrics.edgeInset
+        let pillCenter: CGPoint
+        switch pillExitEdge {
+        case .left:
+            pillCenter = CGPoint(
+                x: panel.frame.maxX - edgeInset - pillNearInset - pillSize.width / 2,
+                y: panel.frame.minY + edgeInset + lift + pillSize.height / 2
+            )
+        case .right:
+            pillCenter = CGPoint(
+                x: panel.frame.minX + edgeInset + pillNearInset + pillSize.width / 2,
+                y: panel.frame.minY + edgeInset + lift + pillSize.height / 2
+            )
+        case .up:
+            pillCenter = CGPoint(
+                x: panel.frame.midX,
+                y: panel.frame.minY + edgeInset + pillNearInset + pillSize.height / 2
+            )
+        case .down:
+            pillCenter = CGPoint(
+                x: panel.frame.midX,
+                y: panel.frame.maxY - edgeInset - pillNearInset - pillSize.height / 2
+            )
+        }
+
+        let pillFrame = NSRect(
+            x: pillCenter.x - pillSize.width / 2,
+            y: pillCenter.y - pillSize.height / 2,
+            width: pillSize.width,
+            height: pillSize.height
+        )
+        return NSBezierPath(
+            roundedRect: pillFrame,
+            xRadius: min(showsTranscript ? 16 : orbIndicatorSize.pillHeight / 2, pillSize.width / 2),
+            yRadius: min(showsTranscript ? 16 : orbIndicatorSize.pillHeight / 2, pillSize.height / 2)
+        ).contains(screenPoint)
+    }
+
+    private func updatePanelMousePassthrough() {
+        guard isVisible, let panel else { return }
+        let receivesMouseEvents = isDragging
+            || isContextMenuOpen
+            || allowsHitTesting(atScreenPoint: NSEvent.mouseLocation)
+        let shouldIgnoreMouseEvents = !receivesMouseEvents
+        if panel.ignoresMouseEvents != shouldIgnoreMouseEvents {
+            panel.ignoresMouseEvents = shouldIgnoreMouseEvents
+        }
+    }
+
     private func checkScreenPosition(force: Bool = false) {
         guard isVisible, let panel else { return }
         let currentScreen = preferredScreen()
@@ -741,6 +896,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
                 context.duration = 0; context.allowsImplicitAnimation = false
                 panel.setFrame(newFrame, display: false, animate: false)
             }
+            updatePanelMousePassthrough()
             return
         }
         if !isDragging {
@@ -759,6 +915,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard isHovered != hovering else { return }
         isHovered = hovering
         if hovering { lastHoverContactAt = Date() }
+        updatePanelMousePassthrough()
     }
 
     // MARK: Private — layout maths
@@ -836,6 +993,50 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     private func preferredScreen() -> NSScreen {
         actions.preferredScreenProvider?() ?? NSScreen.screenUnderMouse()
+    }
+}
+
+/// Limits the hosting panel's interaction region to the visible orb and pill.
+/// The panel remains larger than the rendered surface to provide room for the
+/// pill animation, but empty panel space must not intercept clicks from apps
+/// underneath it.
+private struct OrbIndicatorHitRegion: Shape {
+    let orbCenter: CGPoint
+    let orbRadius: CGFloat
+    let pillCenter: CGPoint
+    let pillSize: CGSize
+    let pillCornerRadius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.addEllipse(
+            in: CGRect(
+                x: orbCenter.x - orbRadius,
+                y: orbCenter.y - orbRadius,
+                width: orbRadius * 2,
+                height: orbRadius * 2
+            )
+        )
+
+        guard pillSize.width > 0, pillSize.height > 0 else {
+            return path
+        }
+
+        let pillRect = CGRect(
+            x: pillCenter.x - pillSize.width / 2,
+            y: pillCenter.y - pillSize.height / 2,
+            width: pillSize.width,
+            height: pillSize.height
+        )
+        path.addRoundedRect(
+            in: pillRect,
+            cornerSize: CGSize(
+                width: min(pillCornerRadius, pillSize.width / 2),
+                height: min(pillCornerRadius, pillSize.height / 2)
+            ),
+            style: .continuous
+        )
+        return path
     }
 }
 
@@ -939,6 +1140,15 @@ struct OrbIndicatorView: View {
                     pillCenter: pillCenterInPanel,
                     pillHalfWidth: pillSize.width / 2,
                     pillHalfHeight: pillSize.height / 2,
+                    pillCornerRadius: pillCornerRadius
+                )
+            )
+            .contentShape(
+                OrbIndicatorHitRegion(
+                    orbCenter: orbCenterInPanel,
+                    orbRadius: orbDiameter / 2,
+                    pillCenter: pillCenterInPanel,
+                    pillSize: pillSize,
                     pillCornerRadius: pillCornerRadius
                 )
             )
